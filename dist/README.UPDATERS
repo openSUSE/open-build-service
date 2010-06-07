@@ -1,5 +1,36 @@
-For Updaters to OBS 1.7
-=======================
+For Updaters to OBS 2.0 from OBS 1.7
+====================================
+
+NOTE: Do not update from the special MeeGo 1.8 release yet. You will miss
+      features and run into database migration errors.
+      You need to wait for OBS 2.1.
+
+After running the package update to obs-* 2.0 packages you need to do the 
+following steps manually:
+
+1) Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R obsrun.obsrun log
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R obsrun.obsrun log
+
+2) Default distribution configuration
+   The default targets are now defined in one place on the api.
+   Create the default config via
+ 
+    # cd /srv/www/obs/api/files/
+    # cp distributions.xml.template distributions.xml
+
+3) restart all services.
+   easiest is maybe to restart your entire system.
+
+
+For Updaters from OBS 1.6
+=========================
 
 1) Rename of frontend and webclient
    - The former called "frontend" has been renamed to "api"
