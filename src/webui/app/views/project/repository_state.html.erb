@@ -16,7 +16,7 @@ project_bread_crumb( 'Repository States' )
 
       <h2>Repository state for <%= repository.name %></h2>
       
-      <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository ) %> Go to download <%= link_to 'repository', repo_url( @project, repository ) %>
+      <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository.name ) %> Go to download <%= link_to 'repository', repo_url( @project, repository.name ) %>
       </p>
 
       <div style="margin-top: 1em">
