@@ -1133,6 +1133,16 @@ class SourceController < ApplicationController
     pass_to_backend path
   end
 
+  # POST /source/<project>/<package>?cmd=runservice
+  def index_package_runservice
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :comment])
+    pass_to_backend path
+  end
+
   # POST /source/<project>/<package>?cmd=deleteuploadrev
   def index_package_deleteuploadrev
     valid_http_methods :post

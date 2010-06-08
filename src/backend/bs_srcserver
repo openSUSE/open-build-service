@@ -105,12 +105,17 @@ sub notify_repservers {
   }
 }
 
-sub sourceupdate {
-  my ($projid, $packid, $lockfile) = @_;
+sub runservice {
+  my ($cgi, $projid, $packid) = @_;
 
   return unless $BSConfig::serviceserver;
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
+
+  my $lockfile = "$eventdir/service/${projid}::$packid";
+  mkdir_p("$eventdir/service");
+  BSUtil::touch($lockfile);
+
   # collect current sources to POST them
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);
@@ -142,7 +147,6 @@ sub sourceupdate {
         delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
       }
       # add new service files
-#      for my $pfile (map {$_->{'name'} => 1} @$receive) {    # }
       for my $pfile (ls($odir)) {
         die("ERROR: bs_service returned a non-_service file\n") unless $pfile =~ /^_service[_:]/;
         $files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
@@ -157,6 +161,7 @@ sub sourceupdate {
       die("ERROR: empty source result from service, not even a _service_error\n");
     }
   }
+  return $BSStdServer::return_ok;
 }
 
 
@@ -2851,7 +2856,7 @@ sub putfile {
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
 # update happens only on commit atm, or we would modify on file upload time ...
-# sourceupdate($projid, $packid) if $files->{'_service'} && not ($rev eq 'upload');
+# runservice($projid, $packid) if $files->{'_service'} && not ($rev eq 'upload');
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -3280,10 +3285,7 @@ sub sourcecommit {
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'});
   if ($files->{'_service'} && !$cgi->{'noservice'}) {
-    my $sslockfile = "$eventdir/service/${projid}::$packid";
-    mkdir_p("$eventdir/service");
-    BSUtil::touch($sslockfile);
-    sourceupdate($projid, $packid, $sslockfile);
+    runservice($cgi, $projid, $packid);
   }
   delete $rev->{'project'};
   delete $rev->{'package'};
@@ -4919,6 +4921,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
+  'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&runservice,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete

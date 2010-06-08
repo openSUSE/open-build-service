@@ -54,6 +54,9 @@ my $buildroot;
 my $port = 5152;
 my $silent;
 
+my $servicedir = $BSConfig::servicedir;
+$servicedir="/usr/lib/obs/service" unless $servicedir;
+
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
 
 sub usage {
@@ -152,7 +155,7 @@ sub run_source_update {
         push @run, $BSConfig::service_wrapper->{'*'};
       }
     }
-    push @run, $BSConfig::servicedir."/".$service->{'name'};
+    push @run, $servicedir."/".$service->{'name'};
     push @run, "--outdir";
     push @run, $myworkdir."/.tmp";
     for my $param (@{$service->{'param'}}) {
