@@ -61,6 +61,23 @@ class FrontendCompat
       :method => "PUT", :data => data, :timeout => 500
   end
 
+  def do_post( data, opt={} )
+    path = "#{@url_prefix}/source"
+    path += "/#{opt[:project]}" if opt[:project]
+    path += "/#{opt[:package]}" if opt[:project] && opt[:package]
+    path += URI.escape("/#{opt[:filename]}") if opt[:filename]
+    path += "?"
+    path += URI.escape("cmd=#{opt[:cmd]}") if !opt[:cmd].blank?
+    path += URI.escape("&comment=#{opt[:comment]}") if !opt[:comment].blank?
+    if data
+      transport.set_additional_header( "Content-Length", data.length().to_s() )
+    else
+      transport.set_additional_header( "Content-Length", "0" )
+    end
+    transport.direct_http URI("https://#{path}"),
+      :method => "POST", :data => data, :timeout => 500
+  end
+
   def delete_package( opt={} )
     logger.debug "deleting: #{opt.inspect}"
     transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}"), 

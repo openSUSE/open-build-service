@@ -61,19 +61,22 @@ class Service < ActiveXML::Base
   end
 
   def save
-    put_opt = Hash.new
-    put_opt[:project] = self.init_options[:project]
-    put_opt[:package] = self.init_options[:package]
-    put_opt[:filename] = "_service"
-    put_opt[:comment] = "Modified via webui"
+    opt = Hash.new
+    opt[:project] = self.init_options[:project]
+    opt[:package] = self.init_options[:package]
+    opt[:filename] = "_service"
+    opt[:comment] = "Modified via webui"
 
     fc = FrontendCompat.new
     if data.find("/services/service").count > 0
       logger.debug "storing _service file"
-      fc.put_file self.data.to_s, put_opt
+      fc.put_file self.data.to_s, opt
+      opt.delete :filename
+      opt[:cmd] = "runservice"
+      fc.do_post nil, opt
     else
       logger.debug "remove _service file"
-      fc.delete_file put_opt
+      fc.delete_file opt
     end
     true
   end
