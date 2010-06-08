@@ -339,10 +339,14 @@ EOF
 			# append user presets
 			echo "" >> /etc/buildhost.config
 			echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
-			cat /etc/buildhost.config.presets >> /etc/buildhost.config
+			if [ -e /etc/buildhost.config.presets ]; then
+				cat /etc/buildhost.config.presets >> /etc/buildhost.config
+			fi
 		else
 			echo "WARNING: No OBS workers are configured on this system, no package will built."
-			mv /etc/buildhost.config.presets /etc/buildhost.config
+			if [ -e /etc/buildhost.config.presets ]; then
+				mv /etc/buildhost.config.presets /etc/buildhost.config
+			fi
 		fi
 
 		# offer hook to make random special things in your setup
