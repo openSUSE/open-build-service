@@ -164,6 +164,14 @@ class SourceController < ApplicationController
 
     prj = DbProject.find_by_name(project_name)
     unless prj
+      if request.get?
+        # Check if this is a package on a remote OBS instance
+        answer = Suse::Backend.get(request.path)
+        if answer
+          pass_to_backend
+          return
+        end
+      end
       render_error :status => 404, :errorcode => "unknown_project",
         :message => "unknown project '#{project_name}'"
       return
