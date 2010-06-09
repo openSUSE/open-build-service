@@ -303,7 +303,7 @@ EOF
 		                # FIXME: find a better way to do this without getting remove by kiwi again.
 		                if ! grep -q "^INITRD_MODULES=.*virtio_pci virtio_blk" /etc/sysconfig/kernel; then
 		                   sed -i 's,^INITRD_MODULES="\(.*\)",INITRD_MODULES="\1 binfmt_misc virtio_pci virtio_blk",' /etc/sysconfig/kernel
-		                   mkinitrd
+		                   mkinitrd || unset RUN_VIRT
 		                fi
 			else
 				echo "*** NO virtualization found, BUILDING IN UNSECURE ENVIROMENT ***"
