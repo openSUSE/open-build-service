@@ -3,15 +3,21 @@
 #
 
 Please read the README.SETUP file for initial installation
-instructions.
+instructions or use the OBS Appliance from
+
+  http://en.opensuse.org/Build_Service/OBS-Appliance
 
 README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace 
+their appliance image without data loss. The migration will 
+happen automatically.
 
 
 Known Regressions:
 ==================
 
-* read access feature enhancements of MeeGo branch (1.8 in git)
+* read access feature enhancements of MeeGo branch (named 1.8 in git)
   are not included with this release. 
 
   Do *NOT* update from 1.8 to this release.
@@ -25,6 +31,10 @@ Known Regressions:
   /project        (use /source instead)
   /package        (use /source instead)
 
+* The OBS Appliance comes with package signing enabled by default now.
+  As consequence some operations like project creation may take a 
+  long time if your hardware has no hardware random number generator.
+  (gpg key creation needs a safe random generator source).
 
 
 Features:
@@ -51,10 +61,10 @@ Features:
 * Project link mechanism
   http://en.opensuse.org/Build_Service/Concepts/ProjectLinking
 
-* Build job strategies got configurable
+* Build job scheduling strategies got configurable
   http://en.opensuse.org/Build_Service/Concepts/BuildSchedulingStrategies
 
-* New fair build job dispatcher is distribution the jobs based on importance
+* New fair build job dispatcher is distributing the jobs based on importance
   and former used build times now.
 
 * Build cycle dependencies are accessable via api and webui now.
@@ -63,10 +73,11 @@ Features:
 
 * Project/Package undelete feature
 
-* Lots of smaller improvements and bugfixes
-
-* Source service are stabelized
+* Source service are stabelized and enabled by default.
   - default services for downloading files and to verify them are available.
+  - basic support in webui for source services
+
+* Lots of smaller improvements and bugfixes
 
 
 
@@ -85,4 +96,13 @@ Changes:
   - CBinstall: add to install section if emulator_arch
   - as with VMinstall, there's no dependency resolution. 
     Add all needed dependencies manually.
+
+
+Requirements:
+=============
+
+* The OBS server should not run on a system with less than 2GB memory. 
+  4GB is recommended, esp. when the same system is also building packages.
+
+* Use osc 0.127 or later to get access to the new features.
 
