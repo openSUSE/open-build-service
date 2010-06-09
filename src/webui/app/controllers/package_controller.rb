@@ -638,11 +638,11 @@ class PackageController < ApplicationController
 
       if @finished
         page.call 'build_finished'
-        page.hide 'link_abort_build'
-        page.show 'link_trigger_rebuild'
+        page.call '$(".link_abort_build").hide()'
+        page.call '$(".link_trigger_rebuild").show()'
       else
-        page.show 'link_abort_build'
-        page.hide 'link_trigger_rebuild'
+        page.call '$(".link_abort_build").show()'
+        page.call '$(".link_trigger_rebuild").hide()'
         page.insert_html :bottom, 'log_space', log_chunk
         if log_chunk.length < maxsize || @initial == 0
           page.call 'autoscroll'
