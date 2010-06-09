@@ -1,7 +1,7 @@
 module FlagHelper
 
    def update_all_flags(obj)
-      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy protectall).each do |flagtype|
         update_flags( obj, flagtype )
       end
    end
@@ -12,7 +12,7 @@ module FlagHelper
     flag = nil
 
     #translate the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? flagtype.to_s
+    if %w(build publish debuginfo useforbuild binarydownload readaccess privacy protectall).include? flagtype.to_s
       flags = flagtype.to_s + "_flags"
     else
       raise  SaveError.new( "Error: unknown flag type '#{flagtype}' not found." )
@@ -60,7 +60,7 @@ module FlagHelper
   def remove_flag(flag, repository, arch)
     flagtype = nil
     #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? flag.to_s
+    if %w(build publish debuginfo useforbuild binarydownload readaccess privacy protectall).include? flag.to_s
       flagtype = flag.to_s + "_flags"
     else
       raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
@@ -83,7 +83,7 @@ module FlagHelper
   def add_flag(flag, status, repository, arch)
     flagtype = nil
     #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? flag.to_s
+    if %w(build publish debuginfo useforbuild binarydownload readaccess privacy protectall).include? flag.to_s
       flagtype = flag.to_s + "_flags"
     else
       raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )

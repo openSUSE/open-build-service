@@ -96,14 +96,13 @@ class BuildController < ApplicationController
   def file
     valid_http_methods :get
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-    if pkg and pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch])
-      ignore_download = (params[:view] == 'fileinfo' or params[:view] == 'fileinfo_ext')
-      # check downloader role
-      unless ignore_download or @http_user.can_download_binaries?(pkg)
-        render_error :status => 403, :errorcode => "download_binary_no_permission",
-          :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-        return
-      end
+    if pkg and
+        (pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) or
+         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_access_downloadbinany?(pkg)
+      render_error :status => 403, :errorcode => "download_binary_no_permission",
+      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+      return
     end
 
     path = request.path+"?"+request.query_string
@@ -152,4 +151,43 @@ class BuildController < ApplicationController
       pass_to_backend path
     end
   end
+
+  def logfile
+    valid_http_methods :get
+    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+    #logfile controled by binarydownload_flags and download_binary permission
+    if pkg and
+        (pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) or
+         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_access_downloadbinany?(pkg)
+      render_error :status => 403, :errorcode => "download_binary_no_permission",
+      :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
+      return
+    end
+    pass_to_backend
+  end
+
+  def result
+    valid_http_methods :get
+    prj = DbProject.find_by_name params[:project]
+    pkg = prj.find_package params[:package]
+    if prj and
+        (prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
+         prj.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_access_viewany?(prj)
+#     render_error :status => 403, :errorcode => "private_view_no_permission",
+#     :message => "No permission to view project #{params[:project]}"
+      render_ok
+      return
+    end
+    if pkg and
+        (pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
+         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_access_viewany?(pkg)
+      render_ok
+      return
+    end
+    pass_to_backend
+  end
+
 end

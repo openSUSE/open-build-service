@@ -293,6 +293,58 @@ class User < ActiveRecord::Base
     return false
   end
 
+  def can_source_access?(package)
+    return true if has_global_permission? "source_access"
+
+    unless package.kind_of? DbPackage
+      raise ArgumentError, "illegal argument to can_read_access, DbPackage expected, got #{package.class.name}"
+    end
+
+    return true if has_local_permission?("source_access", package)
+    return false
+  end
+
+  def can_private_view?(parm)
+    return true if has_global_permission? "private_view"
+
+    return true if has_local_permission?("private_view", parm)
+
+    return false
+  end
+
+  def can_access?(parm)
+    return true if has_global_permission? "access"
+
+    return true if has_local_permission?("access", parm)
+
+    return false
+  end
+
+  def can_access_viewany?(parm)
+    return true if can_private_view?(parm)
+    return true if can_access?(parm)
+    
+    return false
+  end
+
+  def can_access_downloadbinany?(parm)
+    if parm.kind_of? DbPackage
+      return true if can_download_binaries?(parm)
+    end
+    return true if can_access?(parm)
+    
+    return false
+  end
+
+  def can_access_downloadsrcany?(parm)
+    if parm.kind_of? DbPackage
+      return true if can_source_access?(parm)
+    end
+    return true if can_access?(parm)
+    
+    return false
+  end
+
   # add deprecation warning to has_permission method
   alias_method :has_global_permission?, :has_permission?
   def has_permission?(*args)

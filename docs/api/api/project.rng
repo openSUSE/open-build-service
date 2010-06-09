@@ -117,6 +117,21 @@
             <ref name="flag-element"/>
           </element>
         </optional>
+        <optional>
+          <element ns="" name="sourceaccess">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="privacy">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="access">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
 
         <zeroOrMore>
           <ref name="repository-element"/>

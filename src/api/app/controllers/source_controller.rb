@@ -19,6 +19,12 @@ class SourceController < ApplicationController
         pass_to_backend
       else
         @dir = Project.find :all
+        @dir.each do |p|
+          prj = DbProject.find_by_name p.name
+          if prj and prj.access_flags.disabled_for?(:nil, :nil) and not @http_user.can_access?(prj)
+            @dir.delete_element(p)
+          end
+        end
         render :text => @dir.dump_xml, :content_type => "text/xml"
       end
     end
@@ -43,8 +49,13 @@ class SourceController < ApplicationController
       if params[:deleted]
         pass_to_backend
       else
-        @dir = Package.find :all, :project => project_name
-        render :text => @dir.dump_xml, :content_type => "text/xml"
+        if (pro.privacy_flags.enabled_for?(params[:repository], params[:arch]) and pro.access_flags.enabled_for?(params[:repository], params[:arch])) or
+            @http_user.can_access_viewany?(pro)
+          @dir = Package.find :all, :project => project_name
+          render :text => @dir.dump_xml, :content_type => "text/xml"
+          return
+        end
+        render_ok
       end
       return
     elsif request.delete?
@@ -176,9 +187,19 @@ class SourceController < ApplicationController
         :message => "unknown project '#{project_name}'"
       return
     end
+    pkg = prj.find_package(package_name)
+    if pkg and
+        (pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
+         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_access_viewany?(pkg)
+#        render_error :status => 403, :errorcode => "private_view_no_permission",
+#      :message => "No permission to view package #{params[:package]}, project #{params[:project]}"
+      render_ok
+      return
+    end
+
     # look also via linked projects, package source may come from another project
     begin
-      pkg = prj.find_package(package_name)
     rescue DbProject::CycleError => e
       render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
       return
@@ -722,19 +743,14 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-
     path = "/source/#{project_name}/#{package_name}/#{file}"
-
-    if request.get?
-      path += build_query_from_hash(params, [:rev, :meta])
-      pass_to_backend path
-      return
-    end
 
     #authenticate
     return unless extract_user
+    params[:user] = @http_user.login
 
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
+
     if package_name == "_project"
       allowed = permissions.project_change? project_name
     else
@@ -746,7 +762,19 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
     end
 
-    params[:user] = @http_user.login
+    if (pack.sourceaccess_flags.disabled_for?(:nil, :nil) or pack.access_flags.disabled_for?(:nil, :nil)) and not
+        @http_user.can_access_downloadsrcany?(pack)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
+      return
+    end
+
+    if request.get?
+      path += build_query_from_hash(params, [:rev])
+      pass_to_backend path
+      return
+    end
+
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
       
