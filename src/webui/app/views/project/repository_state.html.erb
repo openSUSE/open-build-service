@@ -18,10 +18,10 @@ project_bread_crumb( 'Repository States' )
 
     <div style="margin-top: 1em">
       <h4>Build Dependendency Cycles</h4>
-      <% cycles = 0 %>
-      <% archs = @repocycles[repository].keys.sort %>
-      <% archs.each do |arch| %>
-        <% cycles = 1 %>
+      <% cycles = 0 
+         archs = @repocycles[repository].keys.sort
+         archs.each do |arch| 
+         cycles = 1 %>
         <h5>Cycles for <%= arch %> (#<%= @repocycles[repository][arch].length %>)</h5>
         <ul>
           <% @repocycles[repository][arch].each do |cycle| %>
