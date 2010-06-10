@@ -8,47 +8,40 @@ project_bread_crumb( 'Repository States' )
 
 <!-- this page will also get other repository informations like jobhistory -->
 
-<% if @project.has_element? :repository %>
+<% @repositories.each do |repository| %>
+  <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository) %>" >
 
-  <% @project.each_repository do |repository| %>
-    <% next if not params[:repository].blank? and params[:repository] != repository.name %>
-    <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>" >
+    <h2>Repository state for <%= repository %></h2>
 
-      <h2>Repository state for <%= repository.name %></h2>
-      
-      <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository.name ) %> Go to download <%= link_to 'repository', repo_url( @project, repository.name ) %>
-      </p>
+    <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository ) %> Go to download <%= link_to 'repository', repo_url( @project, repository ) %>
+    </p>
 
-      <div style="margin-top: 1em">
-         <h4>Build Dependendency Cycles</h4>
-         <% cycles = 0 %>
-         <% repository.each_arch do |arch| %>
-            <% if @repocycles[repository.name] and @repocycles[repository.name][arch.text] and @repocycles[repository.name][arch.text].length > 0 %>
-                   <% cycles = 1 %>
-                   <h5>Cycles for <%= arch.text %> (#<%= @repocycles[repository.name][arch.text].length %>)</h5>
-                   <ul>
-                   <% @repocycles[repository.name][arch.text].each do |cycle| %>
-                      <li> <% cycle.each do |package| %>
-                          <%= link_to package, :project => @project, :package => package, :controller => :package, :action => :show %>
-                          <% if package == cycle.last %> 
-                               <!-- carriage return -->
-                               &#8629;
-                          <% else %>
-                               <!-- right arrow -->
-                               &#8658;
-                          <% end %>
-                      <% end %>
-                      </li>
-                   <% end %>
-                   </ul>
-            <% end %>
+    <div style="margin-top: 1em">
+      <h4>Build Dependendency Cycles</h4>
+      <% cycles = 0 %>
+      <% archs = @repocycles[repository].keys.sort %>
+      <% archs.each do |arch| %>
+        <% cycles = 1 %>
+        <h5>Cycles for <%= arch %> (#<%= @repocycles[repository][arch].length %>)</h5>
+        <ul>
+          <% @repocycles[repository][arch].each do |cycle| %>
+            <li> <% cycle.each do |package| %>
+                <%= link_to package, :project => @project, :package => package, :controller => :package, :action => :show %>
+                <% if package == cycle.last %>
+                  <!-- carriage return -->
+                  &#8629;
+                <% else %>
+                  <!-- right arrow -->
+                  &#8658;
+                <% end %>
+              <% end %>
+            </li>
           <% end %>
-          <% unless cycles > 0 %>
-             <p><i>There are no cycles in this repository.</i></p>
-          <% end %>
-      </div>
-
-    </div>
-  <% end %>
+        </ul>
+      <% end %>
+    <% unless cycles > 0 %>
+      <p><i>There are no cycles in this repository.</i></p>
+    <% end %>
+  </div>
+</div>
 <% end %>
-
