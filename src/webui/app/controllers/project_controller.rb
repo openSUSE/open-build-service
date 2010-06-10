@@ -16,7 +16,7 @@ class ProjectController < ApplicationController
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :load_buildresult, :load_packages, :new, 
     :package_buildresult, :save_new, :save_prjconf, :update_target,
-    :delete, :buildresult]
+    :delete, :buildresult, :rebuild_time_png]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -315,9 +315,11 @@ class ProjectController < ApplicationController
     load_packages_mainpage 
     @repository = params[:repository]
     @arch = params[:arch]
+    @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
+    @scheduler = params[:scheduler] || 'fifo'
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
-            :limit => @packages.each.size * 4, :code => ['succeeded', 'unchanged'])
+            :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
     indir = Dir.mktmpdir 
     f = File.open(indir + "/_builddepinfo.xml", 'w')
     f.write(bdep.dump_xml) 
@@ -326,24 +328,37 @@ class ProjectController < ApplicationController
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
-    cmd="perl ./mkdiststats '--srcdir=#{indir}' '--destdir=#{outdir}' --outfmt=xml #{@project.name}/#{@repository}/#{@arch}"
+    cmd="perl ./mkdiststats '--srcdir=#{indir}' '--destdir=#{outdir}' --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910 --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     logger.debug "cd #{RAILS_ROOT}/vendor/diststats && #{cmd}"
     system("cd #{RAILS_ROOT}/vendor/diststats && #{cmd}")
     f=File.open(outdir + "/rebuild.png")
     png=f.read
     f.close 
-    Rails.cache.write("rebuild-%s-%s-%s.png" % [@project.name, @repository, @arch], png)
+    @pngkey = MD5::md5( params.to_s )
+    Rails.cache.write("rebuild-%s.png" % @pngkey, png)
     f=File.open(outdir + "/longest.xml")
-    @longest = ActiveXML::LibXMLNode.new(f.read)
+    longest = ActiveXML::LibXMLNode.new(f.read)
+    @timings = Hash.new
+    longest.timings.each_package do |p|
+      @timings[p.value :name] = [p.value(:buildtime), p.value(:finished)]
+    end
+    @rebuildtime = Integer(longest.value :rebuildtime)
     f.close
+    @longestpaths = Array.new
+    longest.longestpath.each_path do |path|
+      currentpath = Array.new
+      path.each_package do |p|
+        currentpath << p.text
+      end
+      @longestpaths << currentpath
+    end
     FileUtils.rm_rf indir
     FileUtils.rm_rf outdir
   end
 
   def rebuild_time_png
-    repository = params[:repository]
-    arch = params[:arch]
-    data = Rails.cache.read("rebuild-%s-%s-%s.png" % [@project.name, repository, arch])
+    key = params[:key]
+    data = Rails.cache.read("rebuild-%s.png" % key)
     headers['Content-Type'] = 'image/png'
     send_data(data, :type => 'image/png', :disposition => 'inline')
   end

@@ -81,4 +81,20 @@ module ProjectHelper
     ] + args
   end
 
+  def format_seconds( secs ) 
+    secs = Integer(secs)
+    if secs < 3600
+      "0:%02d" % (secs / 60)
+    else
+      hours = secs / 3600
+      secs -= hours * 3600
+      "%d:%02d" % [ hours, secs / 60]
+    end
+  end
+
+  def rebuild_time_col( package )
+     return '' if package.blank?
+     btime, etime = @timings[package]
+     link_to( h(package), :controller => :package, :action => :show, :project => @project, :package => package) + " " + format_seconds(btime)
+  end
 end

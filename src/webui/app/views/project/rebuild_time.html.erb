@@ -1,11 +1,39 @@
 <% @pagetitle = "Rebuild time for Project #{@project}" %>
-<% project_bread_crumb( 'Rebuild Time' ) -%>
+<% project_bread_crumb( "Rebuild Time of #{@repository}/#{@arch}" ) -%>
 
 <%= render :partial => "tabs" %>
 
-<img class="rebuildgraph" src="<%= url_for(:action => :rebuild_time_png, :arch => @arch, :repository => @repository, :project => @project.name) %>" alt="Rebuild graph" />
+<h3>Rebuildtime: <%= distance_of_time_in_words(Time.now, Time.now - @rebuildtime) %> (<%= format_seconds(@rebuildtime) %>)</h3>
+<p><img class="rebuildgraph" src="<%= url_for(:action => :rebuild_time_png, :key => @pngkey) %>" alt="Rebuild graph" /></p>
 
-<pre>
-  <%= h @longest.dump_xml %>
-</pre>
+<p>Note that the above graph is based on real dependencies and real build times, but it is only a simulation of what
+may happen when there is no other trouble and with a fixed set of build jobs associated to the project (usually not the
+cast). To see what happens with less or more build hosts, play with these numbers:</p>
 
+<% form_tag(:action => :rebuild_time, :project => @project.name, :arch => @arch, :repository => @repository) do -%>
+   <p>Jobs: <%= select_tag("hosts", options_for_select((2..100).to_a, @hosts)) %>
+   Strategy: <%= select_tag("scheduler", options_for_select(%w{fifo lifo random needed neededb longest btime}, @scheduler)) %>
+   <%= submit_tag "Check" %>
+   </p>
+
+<% end %>
+
+<h3>Longest Paths</h3>
+
+<table>
+<% p1 = @longestpaths[0].reverse
+   p2 = @longestpaths[1].reverse
+   p3 = @longestpaths[2].reverse 
+   p4 = @longestpaths[3].reverse
+%>
+ 
+<% while p1.size + p2.size + p3.size + p4.size > 0 do %>
+<tr>
+<td><%= rebuild_time_col(p1.shift) %></td>
+<td><%= rebuild_time_col(p2.shift) %></td>
+<td><%= rebuild_time_col(p3.shift) %></td>
+<td><%= rebuild_time_col(p4.shift) %></td>
+</tr>
+<% end %>
+
+</table>

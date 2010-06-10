@@ -19,6 +19,7 @@ sub render {
   my $height = $params{'height'} || 600;
   my $nbuild = $params{'nbuild'} || {};
   my $nwait = $params{'nwait'} || {};
+#  my $nleafs = $params{'nleafs'} || {};
   my $nscheduled = $params{'nscheduled'} || {};
   my $inttimes = $params{'inttimes'} || {};
   my $starttime = $params{'starttime'} || 0;
@@ -30,6 +31,7 @@ sub render {
     next if ($_ < $starttime);
     last if ($endtime && $_ > $endtime);
     my $nb = $nbuild->{$_} + $nscheduled->{$_};
+    #$nb = $nbuild->{$_};
     $maxnbuild = $nb if ($maxnbuild < $nb);
     $maxtime = $_ if ($maxtime < $_);
   }
@@ -61,6 +63,7 @@ sub render {
   my $grayd = $black;
   my $back    = $image->colorAllocate (0xee, 0xee, 0xee);
   my $red     = $image->colorAllocate (255,   0,   0);
+  my $green   = $image->colorAllocate (0,   255,   0);
   $image->filledRectangle (0, 0, $width - 1, $height - 1, $back);
   my $ixoff = 60;
   my $iyoff = 30;
@@ -72,7 +75,7 @@ sub render {
 
   $image->filledRectangle ($ixoff, $iyoff, $ixoff + $iw - 1, $iyoff +$ih - 1, $white);
 
-  my ($ox, $oy1, $oy2, $oy3) = 0;
+  my ($ox, $oy1, $oy2, $oy3, $oy4) = 0;
   for my $t (sort {$a <=> $b} keys %$nbuild) {
     next if ($t < $starttime);
     last if ($endtime && $t > $endtime);
@@ -80,18 +83,21 @@ sub render {
     my $y1 = $iyoff + $ih - 1 - int($ih / $yaxisend * ($nbuild->{$t} + $nscheduled->{$t} + $nwait->{$t}));
     my $y2 = $iyoff + $ih - 1 - int($ih / $yaxisend * ($nbuild->{$t}));
     my $y3 = $iyoff + $ih - 1 - int($ih / $yaxisend * ($nbuild->{$t} + $nscheduled->{$t}));
+#    my $y4 = $iyoff + $ih - 1 - int($ih / $yaxisend * ($nbuild->{$t} + $nleafs->{$t}));
     $y1 = $iyoff if $y1 < $iyoff;
     $y2 = $iyoff if $y2 < $iyoff;
     $y3 = $iyoff if $y3 < $iyoff;
     if ($ox) {
       $image->filledRectangle($ox, $oy1, $x, $oy2, $blue);
       $image->filledRectangle($ox, $oy3, $x, $iyoff + $ih - 1, $lblue2);
+#      $image->filledRectangle($ox, $oy4, $x, $iyoff + $ih - 1, $lblue2);
       $image->filledRectangle($ox, $oy2, $x, $iyoff + $ih - 1, $lblue);
     }
     $ox = $x;
     $oy1 = $y1;
     $oy2 = $y2;
     $oy3 = $y3;
+#    $oy4 = $y4;
   }
 
   $image->rectangle($ixoff, $iyoff, $ixoff + $iw - 1, $iyoff +$ih - 1, $gray);

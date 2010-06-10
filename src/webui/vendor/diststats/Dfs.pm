@@ -112,23 +112,12 @@ sub startdfs
 sub rdfsvisit
 {
     my ($self, $k) = @_;
-    my @adl = ();
     $self->{'begintime'}->{$k}=$self->{'time'};
     $self->{'time'}++;
     $self->{'visited'}->{$k}=1;
     # add normal deps if not alread added by prereq
-    if(exists $self->{'nodes'}->{$k})
-    {
-	for my $d (@{$self->{'nodes'}->{$k}})
-	{
-	    if (!grep {($d eq $_)} @adl)
-	    {
-		push @adl, $d;
-	    }
-	}
-    }
     $self->{'reverseorder'}->{$k}=0 if !exists $self->{'reverseorder'}->{$k};
-    for my $p (@adl)
+    for my $p (@{$self->{'nodes'}->{$k}})
     {
 	if($p eq $k)
 	{
