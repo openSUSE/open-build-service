@@ -279,6 +279,8 @@ class ProjectController < ApplicationController
 
     if @project.has_element? :repository
        @project.each_repository do |repository|
+          next if not params[:repository].blank? and params[:repository] != repository.name
+
           @repocycles[repository.name] = Hash.new
          
           repository.each_arch do |arch|
