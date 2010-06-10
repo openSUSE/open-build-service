@@ -269,47 +269,45 @@ class ProjectController < ApplicationController
   end
 
   def repository_state
-    # overwrite @project with different view
-    # TODO to get this cached we need to make sure it gets purged on repo updates
-    @project = Project.find( params[:project], :view => :flagdetails )
-
     # Get cycles of the repository build dependency information
     # 
     @repocycles = Hash.new
-
-    if @project.has_element? :repository
-       @project.each_repository do |repository|
-          next if not params[:repository].blank? and params[:repository] != repository.name
-
-          @repocycles[repository.name] = Hash.new
-         
-          repository.each_arch do |arch|
-
-             cycles = Array.new
-             begin
-               p=params
-               # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-               p[:package]="-"
-               p[:repository]=repository.name
-               p[:arch]=arch
-               deps = ActiveXML::XMLNode.new( frontend.get_builddepinfo(p) )
-               if deps.has_element? :cycle
-                 cycles = Array.new
-                 deps.each_cycle do |cycle|
-                   cycles.push( cycle.each_package.collect{ |p| p.text } )
-                 end
-               end
-             rescue ActiveXML::Transport::NotFoundError
-               # builddepinfo not yet calculated by scheduler
-               cycles.push( [ 'unknown' ] )
-             end
-             if cycles.length > 0
-               @repocycles[repository.name][arch.text] = cycles
-             end
-          end
-       end
+    @repositories = Array.new
+    if params[:repository]
+      @repositories << params[:repository]
+    elsif @project.has_element? :repository
+      @project.each_repository { |repository| @repositories << repository.name }
     end
+   
+    @project.each_repository do |repository| 
+      next unless @repositories.include? repository.name
+      @repocycles[repository.name] = Hash.new
+         
+      repository.each_arch do |arch|
 
+        cycles = Array.new
+        begin
+          p=params
+          # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+          p[:package]="-"
+          p[:repository]=repository.name
+          p[:arch]=arch
+          deps = ActiveXML::XMLNode.new( frontend.get_builddepinfo(p) )
+          if deps.has_element? :cycle
+            cycles = Array.new
+            deps.each_cycle do |cycle|
+              cycles.push( cycle.each_package.collect{ |p| p.text } )
+            end
+          end
+        rescue ActiveXML::Transport::NotFoundError
+          # builddepinfo not yet calculated by scheduler
+          cycles.push( [ 'unknown' ] )
+        end
+        if cycles.length > 0
+          @repocycles[repository.name][arch] = cycles
+        end
+      end
+    end
   end
 
   def load_packages
