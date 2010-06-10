@@ -264,6 +264,9 @@ EOF
 			gpg2 --homedir /obs/gnupg --export -a > /obs/obs-default-gpg.asc
                         # empty file just for accepting the key
                         touch "/obs/gnupg/phrases/defaultkey@localobs"
+                fi
+                # to update sign.conf also after an appliance update
+		if [ -e /obs/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
                         # extend signd config
                         echo "user: defaultkey@localobs"   >> /etc/sign.conf
                         echo "server: 127.0.0.1"           >> /etc/sign.conf
