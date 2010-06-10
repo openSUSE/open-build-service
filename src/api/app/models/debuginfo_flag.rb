@@ -3,5 +3,7 @@ class DebuginfoFlag < Flag
   belongs_to :db_package
   belongs_to :architecture
 
-  default_state :disabled
+  def self.default_state
+    return :disabled
+  end
 end

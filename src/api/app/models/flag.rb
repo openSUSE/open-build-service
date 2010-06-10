@@ -62,15 +62,9 @@ class Flag < ActiveRecord::Base
     (status+"d").to_sym
   end
 
-  class << self
-    def default_state(state=nil)
-      if state
-        @@default_state = state
-      end
-      @@default_state
-    end
+  def self.default_state
+    return :enabled
   end
-
 
   protected
   def validate
