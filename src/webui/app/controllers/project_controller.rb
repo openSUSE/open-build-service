@@ -287,12 +287,8 @@ class ProjectController < ApplicationController
 
         cycles = Array.new
         begin
-          p=params
           # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-          p[:package]="-"
-          p[:repository]=repository.name
-          p[:arch]=arch
-          deps = ActiveXML::XMLNode.new( frontend.get_builddepinfo(p) )
+          deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
           if deps.has_element? :cycle
             cycles = Array.new
             deps.each_cycle do |cycle|

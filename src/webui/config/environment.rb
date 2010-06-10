@@ -190,6 +190,8 @@ ActiveXML::Base.config do |conf|
 
     map.connect :projectstatus, 'rest:///status/project/:project'
 
+    map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package'
+
   end
   ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/#{CONFIG['version']}" )
 
