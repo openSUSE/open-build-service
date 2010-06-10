@@ -69,11 +69,6 @@ class FrontendCompat
     path += "?"
     path += URI.escape("cmd=#{opt[:cmd]}") if !opt[:cmd].blank?
     path += URI.escape("&comment=#{opt[:comment]}") if !opt[:comment].blank?
-    if data
-      transport.set_additional_header( "Content-Length", data.length().to_s() )
-    else
-      transport.set_additional_header( "Content-Length", "0" )
-    end
     transport.direct_http URI("https://#{path}"),
       :method => "POST", :data => data, :timeout => 500
   end
