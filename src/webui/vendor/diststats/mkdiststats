@@ -1,0 +1,889 @@
+#!/usr/bin/perl -w
+
+use POSIX;
+use strict;
+
+use Time::Local 'timelocal_nocheck';
+
+use Data::Dumper;
+
+use Getopt::Long;
+Getopt::Long::Configure("no_ignore_case");
+
+use Dfs;
+
+require XML::Parser;
+
+# graph dimensions
+my $opt_width = 1000;
+my $opt_height = 450;
+
+# assume this build time if none available
+my $default_build_time = 3333;
+
+my $opt_justgraph;
+my $opt_interesting;
+my $opt_allinteresting;
+my $debug;
+my $verbose = 0;
+my $maxiter = 0;
+my $ddir;
+my $srcdir;
+my $opt_timing;
+my $outfmt = 'html';
+my $opt_nopackalias;
+my $opt_graph_start;
+my @packs_to_setup;
+my $nbuildhosts;
+my $dfs;
+my $depsprecomputed;
+my $opt_scheduler = 'fifo';
+
+my %options;
+
+GetOptions(
+  \%options,
+  'justgraph' => \$opt_justgraph,
+  'interesting=s' => \$opt_interesting,
+  'allinteresting' => \$opt_allinteresting,
+  'verbose+' => \$verbose,
+  'maxiter' => \$maxiter,
+  'debug' => \$debug,
+  'destdir=s' => \$ddir,
+  'srcdir=s' => \$srcdir,
+  'timing' => \$opt_timing,
+  'width=i' => \$opt_width,
+  'height=i' => \$opt_height,
+  'outfmt=s' => \$outfmt,
+  'nopackalias' => \$opt_nopackalias,
+  'graph-start=s' => \$opt_graph_start,
+  'numlongest=s',
+  'basepack:s',
+  'package:s' => \@packs_to_setup,
+  'buildhosts=i' => \$nbuildhosts,
+  'fromscratch',
+  'scheduler=s' => \$opt_scheduler,
+) or exit(1);
+
+$options{'basepack'} = 'autoconf' unless exists $options{'basepack'};
+
+if ($opt_graph_start) {
+  if($opt_graph_start =~ /(\d{1,2}):(\d{2})/) {
+    $opt_graph_start = ($1*60+$2)*60;
+  } elsif ($opt_graph_start !~ /^\d+$/) {
+    die "--graph-start must be numeric\n";
+  }
+}
+
+sub write_html;
+sub write_plain;
+sub write_xml;
+
+my %outputfunction = (
+  plain => \&write_plain,
+  html => \&write_html,
+  xml => \&write_xml,
+);
+
+die "invalid output format\n" unless exists $outputfunction{$outfmt};
+
+if (!$nbuildhosts && $opt_scheduler ne "fifo") {
+  print STDERR "forcing fifo scheduler\n";
+  $opt_scheduler = "fifo";
+}
+my @scheduler = (qw/fifo lifo random btime needed longest/);
+my %scheduler = map { $_ => \&{'scheduler_'.$_} } @scheduler;
+die "invalid scheduler $opt_scheduler\n" unless exists $scheduler{$opt_scheduler};
+my $scheduler = $scheduler{$opt_scheduler};
+
+my %subpacks;
+my %deps;
+my %subpack2pack;
+my %failed;
+my %buildtime;
+my %pdeps;
+my @todo;
+my @basesubpacks;
+my @done;
+my $maxtime = 0;
+
+my $packalias = {};
+
+sub unify {
+    my %h = map {$_ => 1} @_;
+    return grep(delete($h{$_}), @_);
+}
+
+sub hhmm {
+  my $t = shift;
+  $t /= 60;
+  return sprintf("%02d:%02d", int($t / 60), $t % 60);
+}
+
+my $starttime;
+sub taskstart {
+  return unless $opt_timing;
+  print $_[0], " ...\n";
+  $starttime = time;
+}
+
+sub taskdone {
+  return unless $opt_timing;
+  my $t = time-$starttime;
+  print "done in $t secs\n";
+}
+
+sub readdeps() {
+  open(IN, '<', "$ddir/deps") || die "$!";
+  while (<IN>) {
+    chomp;
+    my @a = split(/ /);
+    if ($a[0] eq 'a') {
+      $packalias->{$a[1]} = $a[2];
+    } elsif ($a[0] eq 'b') {
+      $buildtime{$a[1]} = $a[2];
+      $pdeps{$a[1]} = [@a[3 .. $#a]];
+    }
+  }
+  close IN;
+}
+
+my $dist = shift @ARGV;
+die("No dist specified!\n") unless $dist ne '';
+
+my $templdir = ".";
+if (!$ddir) {
+  $ddir = $dist;
+  $ddir =~ s,/,_,g;
+  mkdir "output", 0755;
+  $ddir = "output/$ddir";
+  mkdir $ddir, 0755 unless -d $ddir;
+}
+
+die "$ddir must be a directory\n" unless -d $ddir;
+
+if ($opt_justgraph) {
+  sub output;
+  output;
+  exit 0;
+}
+
+my $pack = undef;
+my $text = '';
+
+sub handle_builddep($)
+{
+  my $self = shift;
+  my $name = shift;
+  my %attrs = @_;
+  if ($name eq 'package' && exists $attrs{"name"}) {
+    $pack = $attrs{"name"};
+    my @array;
+    $deps{$pack} = [ @array ];	
+    $subpacks{$pack} = [ @array ];
+  } elsif ($name eq 'pkgdep' || $name eq 'subpkg') {
+    $text = '';
+  }
+  return;
+}
+
+sub handle_end_builddep($)
+{
+  my ($e, $name) = @_;
+  if ($name eq 'pkgdep') {
+    push(@{$deps{$pack}}, $text);
+  } elsif ($name eq 'subpkg') {
+    push(@{$subpacks{$pack}}, $text);
+    $subpack2pack{$text} = $pack;
+  }
+  $text = '';
+}
+
+sub handle_ch_builddep($) {
+   my $sef = shift;
+   $text .= shift;
+}
+
+my $pdep = new XML::Parser(
+  Handlers => {
+    Start => \&handle_builddep,
+    End => \&handle_end_builddep,
+    Char => \&handle_ch_builddep
+  });
+
+my $file = ($srcdir?$srcdir:$ddir)."/_builddepinfo.xml";
+
+if(!$options{'fromscratch'} && -f "$ddir/deps" && -f $file &&  -M "$ddir/deps" < -M $file) {
+  $depsprecomputed = 1;
+  taskstart "reading deps";
+  readdeps;
+  taskdone;
+  goto start;
+}
+
+if (! -e $file) {
+  die "_builddepinfo.xml not found" if $srcdir;
+  print "retreiving builddepinfo\n";
+  system("osc api '/build/$dist/_builddepinfo' > $file");
+}
+taskstart "parsing build deps";
+$pdep->parsefile($file, ProtocolEncoding => 'UTF-8');
+taskdone;
+
+
+#goto nixda;
+
+sub handle_start($)
+{  
+  my $self = shift;
+  my $tag = shift;
+  return unless ($tag eq 'jobhist');
+  my %attrs = @_;
+  #print Dumper(\%attrs) . "\n";
+  my $package = $attrs{"package"};
+  my $client = $attrs{"workerid"};
+  my $readytime = $attrs{"readytime"};
+  my $starttime = $attrs{"starttime"};
+  my $endtime = $attrs{"endtime"};
+
+  return unless $package;
+  return unless exists $deps{$package};
+
+  my $t = $endtime - $starttime;
+  my $ti = $starttime - $readytime;
+  my $tb = $endtime - $readytime;
+
+  if ($attrs{"code"} eq "failed") {
+    #print "FAILED: $package $t $ti $tb\n";
+    if (!exists $failed{$package} || $failed{$package} < $t) {
+      $failed{$package} = $t;
+    }
+    return;
+  }
+  return unless !$buildtime{$package} || $buildtime{$package} > $t;
+  $buildtime{$package} = $t;
+}
+
+$file = ($srcdir?$srcdir:$ddir)."/_jobhistory.xml";
+if (! -e $file) {
+  die "_jobhistory.xml not found" if $srcdir;
+  print "retreiving jobhistory\n";
+  system("osc api '/build/$dist/_jobhistory?code=lastfailures' > $file");
+}
+my $p1 = new XML::Parser(
+  Handlers => {
+    Start => \&handle_start
+  });
+taskstart "parsing jobhistory";
+$p1->parsefile($file, ProtocolEncoding => 'UTF-8');
+taskdone;
+
+for $pack (keys %deps) {
+  if (!$buildtime{$pack}) {
+    if ($failed{$pack}) {
+	$buildtime{$pack} = $failed{$pack};
+	if ($buildtime{$pack} < $default_build_time) {
+	    print "$pack failed quickly, using default time\n";
+	    $buildtime{$pack} = $default_build_time;
+	} else {
+	    print "$pack failed, using default time\n";
+	}
+    } else {
+	print "$pack never built, using default time\n";
+	$buildtime{$pack} = $default_build_time;
+    }
+  }
+}
+
+taskstart "calculating dependencies";
+# map dependencies to real packages, ignore - deps, filter out self
+for $pack (keys %deps) {
+  #$pdeps{$pack} = [ unify(grep {$_ ne $pack} map {$subpack2pack{$_} || ()} grep {!/^-/} @{$deps{$pack} || []}) ];
+  my @dl;
+  for my $dep (@{$deps{$pack}}) {
+    next if substr($dep,0,1) eq '-';
+    if (!exists $subpack2pack{$dep}) {
+      # could be versioned dep. throw away the version
+      $dep =~ s/ .*//;
+      if (!exists $subpack2pack{$dep}) {
+	print "$pack: broken dep $dep\n" if $verbose;
+	next;
+      }
+    }
+    $dep = $subpack2pack{$dep};
+    if ($pack eq $dep) {
+      print "$pack: self req\n" if $verbose;
+      next;
+    }
+    push @dl, $dep;
+  }
+  $pdeps{$pack} = [ unify @dl ];
+}
+taskdone;
+
+if ($debug) {
+  open(FOO, '>', "$ddir/dep1");
+  print FOO Data::Dumper->Dump(
+    [\%pdeps],
+    [qw/*pdeps/]);
+  close FOO;
+
+  open(FOO, '>', "$ddir/dep2");
+  print FOO Data::Dumper->Dump(
+    [\%deps],
+    [qw/*deps/]);
+  close FOO;
+
+  open(FOO, '>', "$ddir/dep3");
+  print FOO Data::Dumper->Dump(
+    [\%subpack2pack],
+    [qw/*subpack2pack/]);
+  close FOO;
+}
+
+taskstart "computing dependency graph";
+
+$dfs = new Dfs(\%pdeps);
+$dfs->startrdfs(@packs_to_setup);
+
+@todo = keys %{$dfs->{'begintime'}};
+
+taskdone;
+
+### cycle elimination
+#
+taskstart "finding cycles";
+my %cycles = $dfs->findcycles();
+# put all packages involved in a cycle in the hash,
+# calculate cycle build time
+for my $c (keys %cycles) {
+  my $cn = join(',', sort(@{$cycles{$c}}));
+#  $cycles{$cn} = $cycles{$c};
+  my $eti = 0;
+  for my $p (@{$cycles{$c}}) {
+    $cycles{$p} = $cn;
+    # find longest time
+    # FIXME: add all times
+    $eti = $buildtime{$p} if $eti < $buildtime{$p};
+  }
+  # twice the time of the longest package
+  $eti *= 2;
+  $buildtime{$cn} = $eti;
+}
+
+my %cycledeps; # collects deps of the packages of a cycle 
+for my $p (keys %pdeps) {
+  # replace dep to packages involved in a cycle to cycle dep
+  my %h = map {
+    # preserve deps of own cycle
+    if (!exists $cycles{$_}
+    || (exists $cycles{$p} && $cycles{$_} eq $cycles{$p})) {
+      $_ => 1;
+    } else {
+      $cycles{$_} => 1;
+    }
+  } @{$pdeps{$p}};
+
+  if (exists $cycles{$p}) {
+    push @{$cycledeps{$cycles{$p}}}, keys %h;
+  } else {
+    @{$pdeps{$p}} = keys %h;
+  }
+}
+# inject the cycles as package
+for my $p (keys %cycledeps) {
+  @{$pdeps{$p}} = grep {!exists $cycles{$_}} unify(@{$cycledeps{$p}});
+}
+
+# remove packages involved in cycle and add cycle instead
+sub replacecycles
+{
+  my %cycledone;
+  return grep {
+    if (exists $cycles{$_}) {
+      if (exists $cycledone{$cycles{$_}}) {
+	0;
+      } else {
+	$cycledone{$cycles{$_}} = 1;
+	$_ = $cycles{$_};
+      }
+    } else {
+      1;
+    }
+  } @_;
+}
+@todo = replacecycles @todo;
+@packs_to_setup = replacecycles @packs_to_setup;
+
+
+taskdone;
+
+if ($debug) {
+  open(FOO, '>', "$ddir/dep4");
+  print FOO Data::Dumper->Dump(
+    [\%pdeps],
+    [qw/*pdeps/]);
+  close FOO;
+}
+
+if ($options{'basepack'} && exists $cycles{$options{'basepack'}}) {
+  my $basecycle = $cycles{$options{'basepack'}};
+  $packalias->{$basecycle} = 'basepacks';
+  if ($verbose) {
+    print "Basepacks timings:\n";
+    for $pack (split(',', $cycles{$options{'basepack'}})) {
+      print "$pack: $buildtime{$pack}\n";
+    }
+    print "Total: ", hhmm($buildtime{$cycles{'autoconf'}}),"\n";
+    print "Base cycle: $basecycle\n";
+  }
+}
+
+start:
+if ($depsprecomputed) {
+  if (@packs_to_setup) {
+    # check if the package passed is part of a cycle
+    for my $p (keys %pdeps) {
+      if ($p =~ /,/) {
+	my %cycles = map { $_ => $p } split(/,/, $p);
+	@packs_to_setup = grep { $_ = $cycles{$_} if exists $cycles{$_}; 1 } @packs_to_setup;
+      }
+    }
+    @packs_to_setup = unify @packs_to_setup;
+    @todo = @packs_to_setup;
+  } else {
+    my %cycles = map { $_ => 1} split(/,/, join(',', grep { /,/ } keys %pdeps));
+    @todo = grep { !exists $cycles{$_} } keys %pdeps;
+  }
+}
+
+# walk the now cycle free graph again
+$dfs = new Dfs(\%pdeps);
+$dfs->startrdfs(@todo);
+#print Dumper(\@todo);
+#print Dumper($dfs->{'reversedgraph'});
+#print Dumper($dfs->{'reverseorder'});
+
+if ($depsprecomputed) {
+  @todo = keys %{$dfs->{'begintime'}};
+}
+
+my %needed = map {$_ => 0} @todo;
+for my $p (@done) {
+  for (@{$pdeps{$p}}) {
+    $needed{$_}++;
+  }
+}
+
+my $numpacks = @todo;
+
+my $ti = 0;
+my $nbuild = 0;
+
+open(FOO, '>', "$ddir/deps");
+print FOO <<EOF
+# a X Y: alias Y for X
+# b PKG TIME DEPS...: build time TIME for PKG, dependencies DEPS
+EOF
+;
+while (my ($k, $v) = each %$packalias) {
+  printf FOO "a %s %s\n", $k, $v;
+}
+while (my ($p, $d) = each %pdeps) {
+  print FOO "b $p ", $buildtime{$p}, ' ', join(' ', @$d), "\n";
+}
+close FOO;
+
+#%deppath = ();
+
+my %nbuild = ();
+my %nwait = ();
+my %nscheduled = ();
+
+my $cnt = 0;
+
+my $nwait = @todo;
+for my $p (splice @todo) {
+    if($dfs->{'reverseorder'}->{$p}==0) {
+	push @todo, $p;
+    }
+}
+
+taskstart "Starting simulation with $nwait packages";
+
+my %building;
+my %finished;
+while ($nwait || $nbuild)
+{
+  ++$cnt;
+  last if $maxiter && $cnt > $maxiter;
+
+  if ($ti) {
+    die "BUG: nothing finishes at $ti!\n" unless exists $building{$ti};
+    my $nfinish = @{$building{$ti}};
+    $nbuild -= $nfinish;
+    for my $p (@{$building{$ti}}) {
+      print "$ti: finished $p\n" if $verbose > 1;
+      push @done, $p;
+      $finished{$p} = $ti;
+      for my $dep (@{$dfs->{'reversedgraph'}->{$p}}) {
+	$dfs->{'reverseorder'}->{$dep}--;
+	push @todo, $dep if $dfs->{'reverseorder'}->{$dep} == 0;
+      }
+      delete $dfs->{'reverseorder'}->{$p};
+    }
+    delete $building{$ti};
+  }
+
+  die "BUG: nwait < 0\n" if $nwait < 0;
+  my $nstarted = 0;
+  while (my $p = &$scheduler()) {
+    my $eti = 0;
+    $eti = $buildtime{$p};
+    $eti += $ti;
+    print "$ti: starting $p, will finish at $eti\n" if $verbose > 1;
+    $building{$eti} = [] unless exists $building{$eti};
+    push @{$building{$eti}}, $p;
+    ++$nbuild;
+    ++$nstarted;
+    --$nwait;
+  }
+
+  my $nscheduled = @todo;
+  $nscheduled{$ti} = $nscheduled;
+  $nbuild{$ti} = $nbuild;
+  $nwait{$ti}  = $nwait;
+  print "$ti: building $nbuild, blocked $nwait, started $nstarted, scheduled $nscheduled\n" if $verbose > 1;
+
+  if ($nbuild == 0 && $nwait > 0 && !@todo) {
+    die "BUG: deadlocked\n";
+  }
+
+  my $nextti = 0;
+  for my $t (keys %building) {
+    if (!$nextti) {
+      $nextti = $t;
+      next;
+    }
+    $nextti = $t if $t < $nextti;
+  }
+  last unless $nextti;
+  $ti = $nextti;
+}
+$nbuild{$ti} = 0;
+$nwait{$ti}  = 0;
+$nscheduled{$ti}  = 0;
+$maxtime = $ti;
+
+taskdone;
+
+open(OUT, '>', "$ddir/simul");
+print OUT "n $numpacks\n";
+while (my ($ti, $nb) = each %nbuild) {
+  printf OUT "t %d %d %d %d\n", $ti, $nb, $nwait{$ti}, $nscheduled{$ti};
+}
+while (my ($p, $ti) = each %finished) {
+  printf OUT "f %s %d\n", $p, $ti;
+}
+close OUT;
+
+sub output
+{
+  if ($opt_justgraph) {
+    taskstart "reading deps";
+    readdeps();
+    open(IN, '<', "$ddir/simul") || die "$!";
+    while (<IN>) {
+      chomp;
+      my @a = split(/ /);
+      if ($a[0] eq 'n') {
+	$numpacks = $a[1];
+      } elsif ($a[0] eq 't') {
+	$nbuild{$a[1]} = $a[2];
+	$nwait{$a[1]} = $a[3];
+	$nscheduled{$a[1]} = $a[4] || 0;
+      } elsif ($a[0] eq 'f') {
+	$finished{$a[1]} = $a[2];
+      }
+    }
+    close IN;
+    for (keys %nbuild) {
+      $maxtime = $_ if ($maxtime < $_);
+    }
+    @done = sort { $finished{$a} <=> $finished{$b} } keys %finished;
+    taskdone;
+  }
+
+  if (!$opt_nopackalias) {
+    for my $p (@done) {
+      next unless $p =~ /^OpenOffice_org/;
+      my $q = $p;
+      $q =~ s/OpenOffice_org/OOo/;
+      $packalias->{$p} = $q;
+    }
+  }
+
+  my @last;
+  if ($opt_interesting) {
+    @last = ($opt_interesting);
+  } elsif (@packs_to_setup) {
+    @last = @packs_to_setup;
+  } else {
+    @last = reverse @done;
+  }
+
+  my @longestpaths;
+  my %longestpaths;
+  my $i = 0;
+  my $numlongest = $options{'numlongest'} || 10;
+  for my $p (@last) {
+    next if exists $longestpaths{$p};
+    my $path = [];
+    while(1) {
+      push @$path, $p;
+      $longestpaths{$p} = 1;
+      last unless @{$pdeps{$p}};
+      my $l;
+      for my $dep (@{$pdeps{$p}}) {
+	if (!$l) {
+	  $l = $dep;
+	  next;
+	}
+	$l = $dep if $finished{$l} < $finished{$dep};
+      }
+      $p = $l;
+    }
+    push @longestpaths, $path;
+    ++$i;
+    last unless $opt_interesting || $i < $numlongest;
+  }
+
+# interesting points in time
+  my %inttimes = ();
+
+  {
+    #print Dumper($finished{'dosbox'});
+
+    for my $p (@{$longestpaths[0]}) {
+      # skip package with short build time that doesn't trigger many
+      # other packages
+      next if !$opt_allinteresting && $buildtime{$p} < 900 && $needed{$p} < 20;
+      $inttimes{$finished{$p}} = (exists $packalias->{$p})?$packalias->{$p}:$p;
+    }
+    $inttimes{$finished{$opt_interesting}} = $opt_interesting if $opt_interesting;
+    if ($verbose) {
+      print "Interesting:\n";
+      for my $t (sort {$a <=> $b} keys %inttimes) {
+	print hhmm($t),": $inttimes{$t}\n";
+      }
+    }
+  }
+
+  taskstart "creating output";
+
+  require RebuildGraph;
+  open(IMG, ">$ddir/rebuild.png") || die("$ddir/rebuild.png: $!\n");
+  print IMG RebuildGraph::render(
+    dist => $dist,
+    width => $opt_width,
+    height => $opt_height,
+    nbuild => \%nbuild,
+    nwait => \%nwait,
+    nscheduled => \%nscheduled,
+    inttimes => \%inttimes,
+    starttime => ($opt_graph_start?$opt_graph_start:0),
+    endtime => ($opt_interesting?$finished{$opt_interesting}:0),
+  );
+  close IMG;
+
+  my @longestbuildtime = sort {$buildtime{$b} <=> $buildtime{$a}} grep { ! /,/; } keys %buildtime;
+  @longestbuildtime = splice(@longestbuildtime, 0, 20);
+
+  &{ $outputfunction{$outfmt} }($packalias, \@longestpaths, \@longestbuildtime);
+}
+
+sub write_plain
+{
+  my ($packalias, $longestpaths, $longestbuildtime) = @_;
+  open(OUT, '>', "$ddir/longest");
+  print OUT "T $maxtime\n";
+  my %seen = map { $_ => 1 } @$longestbuildtime;
+  for my $lf (@$longestpaths) {
+    grep { $seen{$_} = 1; $_ = $packalias->{$_} if exists $packalias->{$_}; } @$lf;
+    print OUT "l ", join(' ', @$lf), "\n";
+  }
+  for my $p (keys %seen) {
+    printf OUT "t %s %d %d\n", ($packalias->{$p}||$p), $buildtime{$p}, $finished{$p};
+  }
+  close OUT;
+}
+
+sub write_xml
+{
+  my ($packalias, $longestpaths, $longestbuildtime) = @_;
+  open(OUT, '>', "$ddir/longest.xml");
+  print OUT "<diststats>\n";
+  print OUT "<rebuildtime>$maxtime</rebuildtime>\n";
+  my %seen = map { $_ => 1 } @$longestbuildtime;
+  print OUT "<longestpath>\n";
+  for my $lf (@$longestpaths) {
+    grep { $seen{$_} = 1; $_ = $packalias->{$_} if exists $packalias->{$_}; } @$lf;
+    print OUT "<path>\n";
+    for (@$lf) {
+      print OUT "<package>$_</package>\n";
+    }
+    print OUT "</path>\n";
+  }
+  print OUT "</longestpath>\n";
+  print OUT "<timings>\n";
+  for my $p (keys %seen) {
+    printf OUT "<package name=\"%s\" buildtime=\"%d\" finished=\"%d\"/>\n", ($packalias->{$p}||$p), $buildtime{$p}, $finished{$p};
+  }
+  print OUT "</timings>\n";
+  print OUT "</diststats>\n";
+  close OUT;
+}
+
+sub write_html
+{
+  my ($packalias, $longestpaths, $longestbuildtime) = @_;
+
+  open(IN, "<$templdir/disttemplate.html") || die("$templdir/disttemplate.html: $!\n");
+  my $in = '';
+  while (sysread(IN, $in, 4096, length($in)) > 0) {}
+  close IN;
+
+  $in =~ s/\<DIST\>/$dist/sg;
+  my $h=hhmm($maxtime);
+  $in =~ s/\<REBUILDTIME\>/$h/sg;
+  $in =~ s/\<NUMPACKS\>/$numpacks/sg;
+  if ($nbuildhosts) {
+    $in =~ s/\<NUMHOSTS\>/$nbuildhosts/sg;
+  } else {
+    $in =~ s/\<NUMHOSTS\>/infinite/sg;
+  }
+  $in =~ s/\<SCHEDULER\>/$opt_scheduler/sg;
+
+
+  my $lastfincols = 0;
+  for my $lf (@$longestpaths) {
+    $lastfincols = @$lf if $lastfincols < @$lf;
+  }
+  my $colspan = $lastfincols * 3 + 1;
+  my $ltab = "<table cellpadding=0 cellspacing=0 border=0>\n<tr>\n<td colspan=$colspan width=1 bgcolor=\"#336699\"><img src=void.gif width=1 height=1 border=0></td>\n</tr>\n";
+  for my $lf (@$longestpaths) {
+    $ltab .= "<tr>\n";
+    unshift @$lf, '' while @$lf < $lastfincols;
+    for my $q (@$lf) {
+      $ltab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=18 border=0></td>\n";
+      if ($q ne '') {
+	my $qn = (exists $packalias->{$q})?$packalias->{$q}:$q;
+	$ltab .= "<td>&nbsp;$qn:</td>\n";
+	$h=hhmm($buildtime{$q});
+	my $hf=hhmm($finished{$q});
+	$ltab .= "<td align=right>&nbsp;$h&nbsp;<br>&nbsp;$hf&nbsp;</td>\n";
+      } else {
+	$ltab .= "<td>&nbsp;</td><td>&nbsp;</td>\n";
+      }
+    }
+    $ltab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=1 border=0></td>\n";
+    $ltab .= "</tr>\n";
+  }
+  $ltab .= "<tr>\n<td colspan=$colspan width=1 bgcolor=\"#336699\"><img src=void.gif width=1 height=1 border=0></td>\n</tr>\n</table>\n";
+  $in =~ s/\<TABLE_LONGEST\>/$ltab/s;
+
+  my $rtab = "<table cellpadding=0 cellspacing=0 border=0>\n<tr>\n<td colspan=7 width=1 bgcolor=\"#336699\"><img src=void.gif width=1 height=1 border=0></td>\n</tr>\n";
+  $rtab .= "<tr>\n";
+  $rtab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=18 border=0></td>\n";
+  $rtab .= "<td align=center bgcolor=\"#336699\">&nbsp;&nbsp;&nbsp;<font color=\"#ffffff\"><i>Package</i></font>&nbsp;&nbsp;&nbsp;</td>\n";
+  $rtab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=1 border=0></td>\n";
+  $rtab .= "<td align=center
+  bgcolor=\"#336699\">&nbsp;&nbsp;&nbsp;<font color=\"#ffffff\"><i>build time</i></font>&nbsp;&nbsp;&nbsp;</td>\n";
+  $rtab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=1 border=0></td>\n";
+  $rtab .= "</tr>\n";
+  $rtab .= "<tr>\n<td colspan=7 width=1 bgcolor=\"#336699\"><img src=void.gif width=1 height=1 border=0></td>\n</tr>\n";
+  for $pack (@$longestbuildtime) {
+    $rtab .= "<tr>\n";
+    $rtab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=18 border=0></td>\n";
+    $rtab .= "<td bgcolor=\"#eeeeee\">&nbsp;$pack&nbsp;</td>\n";
+    $rtab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=1 border=0></td>\n";
+    $h = hhmm($buildtime{$pack});
+    $rtab .= "<td align=right>&nbsp;&nbsp;&nbsp;$h&nbsp;&nbsp;&nbsp;</td>\n";
+    $rtab .= "<td width=1 bgcolor=\"#336699\"><img src=\"void.gif\" width=1 height=1 border=0></td>\n";
+    $rtab .= "</tr>\n";
+  }
+  $rtab .= "<tr>\n<td colspan=7 width=1 bgcolor=\"#336699\"><img src=void.gif width=1 height=1 border=0></td>\n</tr>\n</table>\n";
+  $in =~ s/\<TABLE_LONGPACKS\>/$rtab/s;
+
+  my $footer = "<p>Generated at ". ctime(time). "\n";
+  $in =~ s/\<FOOTER\>/$footer/s;
+
+  open(IN, ">$ddir/index.html") || die("$ddir/index.html: $!\n");
+  print IN $in;
+  close IN;
+
+  taskdone;
+}
+
+output;
+
+sub scheduler_fifo
+{
+  return undef if $nbuildhosts && $nbuild >= $nbuildhosts;
+  pop @todo;
+}
+
+sub scheduler_lifo
+{
+  return undef if $nbuildhosts && $nbuild >= $nbuildhosts;
+  shift @todo;
+}
+
+sub scheduler_random
+{
+  return undef if $nbuildhosts && $nbuild >= $nbuildhosts;
+  splice(@todo, int(rand(@todo)),1);
+}
+
+sub scheduler_btime
+{
+  return undef if $nbuildhosts && $nbuild >= $nbuildhosts;
+  @todo = sort {$buildtime{$b} <=> $buildtime{$a}} @todo;
+  shift @todo;
+}
+
+sub scheduler_needed
+{
+  return undef if $nbuildhosts && $nbuild >= $nbuildhosts;
+  @todo = sort {$needed{$b} <=> $needed{$a}} @todo;
+  shift @todo;
+}
+
+my %scheduler_longest_data;
+my $scheduler_longest_triedread;
+sub scheduler_longest
+{
+  return undef if $nbuildhosts && $nbuild >= $nbuildhosts;
+  local *parse = sub {
+    open(IN, '<', "$ddir/simul") || return undef;
+    while (<IN>) {
+      chomp;
+      my @a = split(/ /);
+      if ($a[0] eq 'f') {
+	$scheduler_longest_data{$a[1]} = $a[2];
+      }
+    }
+    close IN;
+    1;
+  };
+  if (!$scheduler_longest_triedread) {
+    $scheduler_longest_triedread = 1;
+    if (!parse()) {
+      print STDERR "no previous simulation data, using fifo scheduler\n";
+    }
+  }
+  if (%scheduler_longest_data) {
+    @todo = sort {$scheduler_longest_data{$a} <=> $scheduler_longest_data{$b}} @todo;
+  }
+  pop @todo;
+}

@@ -1,0 +1,11 @@
+<% @pagetitle = "Rebuild time for Project #{@project}" %>
+<% project_bread_crumb( 'Rebuild Time' ) -%>
+
+<%= render :partial => "tabs" %>
+
+<img class="rebuildgraph" src="<%= url_for(:action => :rebuild_time_png, :arch => @arch, :repository => @repository, :project => @project.name) %>" alt="Rebuild graph" />
+
+<pre>
+  <%= h @longest.dump_xml %>
+</pre>
+

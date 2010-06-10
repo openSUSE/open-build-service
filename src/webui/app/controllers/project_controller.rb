@@ -12,13 +12,11 @@ class ProjectController < ApplicationController
 
   class NoChangesError < Exception; end
 
-  before_filter :require_project, :only => [:delete, :buildresult, :view,
-    :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
-    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
-    :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
-    :packages, :users, :subprojects, :repositories, :attributes, :edit_repository,
-    :new_package, :new_package_link, :patchinfo, :repository_state,
-    :meta, :edit_meta, :save_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
+  before_filter :require_project, :except => [:arch_list, 
+    :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
+    :list, :list_all, :list_public, :load_buildresult, :load_packages, :new, 
+    :package_buildresult, :save_new, :save_prjconf, :update_target,
+    :delete, :buildresult]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -134,13 +132,19 @@ class ProjectController < ApplicationController
     end
   end
 
-  def show
-    @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s if @project.bugowner
+  def load_packages_mainpage
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
     end
+  end
+  private :load_packages_mainpage
 
-    @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project, :expires_in => 30.minutes) do
+  def show
+    @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s if @project.bugowner
+    load_packages_mainpage
+
+    Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
+    @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       if buildresult
         results = buildresult.data.find( 'result/status' )
@@ -157,6 +161,7 @@ class ProjectController < ApplicationController
 
   # TODO we need the architectures in api/distributions
   def add_target_simple
+    Rails.cache.delete("distributions") if discard_cache?
     dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
       frontend = ActiveXML::Config::transport_for( :package )
       frontend.direct_http URI("/distributions"), :method => "GET"
@@ -304,6 +309,43 @@ class ProjectController < ApplicationController
         end
       end
     end
+  end
+
+  def rebuild_time
+    load_packages_mainpage 
+    @repository = params[:repository]
+    @arch = params[:arch]
+    bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
+    jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
+            :limit => @packages.each.size * 4, :code => ['succeeded', 'unchanged'])
+    indir = Dir.mktmpdir 
+    f = File.open(indir + "/_builddepinfo.xml", 'w')
+    f.write(bdep.dump_xml) 
+    f.close
+    f = File.open(indir + "/_jobhistory.xml", 'w')
+    f.write(jobs.dump_xml)
+    f.close
+    outdir = Dir.mktmpdir
+    cmd="perl ./mkdiststats '--srcdir=#{indir}' '--destdir=#{outdir}' --outfmt=xml #{@project.name}/#{@repository}/#{@arch}"
+    logger.debug "cd #{RAILS_ROOT}/vendor/diststats && #{cmd}"
+    system("cd #{RAILS_ROOT}/vendor/diststats && #{cmd}")
+    f=File.open(outdir + "/rebuild.png")
+    png=f.read
+    f.close 
+    Rails.cache.write("rebuild-%s-%s-%s.png" % [@project.name, @repository, @arch], png)
+    f=File.open(outdir + "/longest.xml")
+    @longest = ActiveXML::LibXMLNode.new(f.read)
+    f.close
+    FileUtils.rm_rf indir
+    FileUtils.rm_rf outdir
+  end
+
+  def rebuild_time_png
+    repository = params[:repository]
+    arch = params[:arch]
+    data = Rails.cache.read("rebuild-%s-%s-%s.png" % [@project.name, repository, arch])
+    headers['Content-Type'] = 'image/png'
+    send_data(data, :type => 'image/png', :disposition => 'inline')
   end
 
   def load_packages
@@ -750,6 +792,9 @@ class ProjectController < ApplicationController
       flash[:note] = "Cleared comment for package #{params[:package]}"
     end
     redirect_to :action => :status, :project => params[:project]
+  end
+
+  def edit
   end
 
   def edit_comment_form

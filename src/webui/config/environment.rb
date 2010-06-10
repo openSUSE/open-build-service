@@ -137,7 +137,7 @@ ActiveXML::Base.config do |conf|
     map.connect :directory, "rest:///source/:project/:package?:expand"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service"
-    map.connect :jobhislist, "rest:///build/:project/:name/:arch/_jobhistory?:limit"
+    map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository"
     map.connect :fileinfo, "rest:///build/:project/:repository/:arch/:package/:filename?:view"
@@ -190,7 +190,7 @@ ActiveXML::Base.config do |conf|
 
     map.connect :projectstatus, 'rest:///status/project/:project'
 
-    map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package'
+    map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
 
   end
   ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/#{CONFIG['version']}" )
