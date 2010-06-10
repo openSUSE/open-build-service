@@ -304,7 +304,7 @@ class ProjectController < ApplicationController
           cycles.push( [ 'unknown' ] )
         end
         if cycles.length > 0
-          @repocycles[repository.name][arch] = cycles
+          @repocycles[repository.name][arch.text] = cycles
         end
       end
     end
