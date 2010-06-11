@@ -10,66 +10,78 @@
   </h3>
 
     <!-- code generators -->
+    <% if @services || @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || @user.is_admin?%>
     <table class="grid"> <tbody>
-<!-- no functionality for creating service entries yet
-      <tr><td><div>Available</div></td><td><div>Used</div></td><td><div>Trash</div></td></tr>
--->
-      <tr><td><div>Used</div></td></tr>
+      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <tr><td><div>Available Services</div></td><td><div>Used Services</div></td><td><div>Actions</div></td></tr>
+      <% else %>
+      <tr><td><div>Used Services</div></td></tr>
+      <% end %>
       <tr>
-<!-- no functionality for creating service entries yet
-         <td> <ol>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || @user.is_admin? %>
+         <td> <ul>
            <% Service.available.each do |service| %>
              <% object_id = "new_service_#{service["name"]}" %>
-             <li class="new_service" id="<%= object_id %>" >
+             <li>
+             <div class="service" id="<%= object_id %>" >
                <%= service["summary"] %>
                <div style="color: #999; font-size: 8pt">
                   <%= service["name"] %>
                </div>
+             </div>
              <%= draggable_element(object_id, :revert=>true) %>
              </li>
            <% end %>
-        <% end %>
-      </ol> </td>
--->
-
-      <td>
-      <% if @services
-        number = 0 %>
-        <ol>
-        <% @services.each do |service| 
-           number += 1 %>
-           <% object_id = "service_#{number}" %>
-           <li class="service" id="<%= object_id %>" >
-             <%= h service.name %>
-             <%= link_to image_tag( 'delete.png' ),
-                         {:action => :remove_service, :serviceid => number, :project => @project, :package => @package },
-                         {:confirm => "Really remove service '#{number}'?", :method => :post }%>
-
-             <div style="color: #999; font-size: 8pt">
-                 <%= h service.name %>
-             </div>
-           <%= draggable_element(object_id, :revert=>true) %>
-           </li>
-        <% end %>
-        </ol>
+         </ul> </td>
       <% end %>
-      </td>
-<!-- until drag and drop works
+
       <td>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-          <div class="modify_service" id="trash">
-            <%= image_tag('trash_empty.png', :alt => "Add", :title => "Add Service") %>
-            <%= drop_receiving_element( "trash",
-              :url => { :controller => :package, :action => :remove_service }
-            )%>
-          </div>
-        <% end %>
+        <% number = 0 %>
+        <ol>
+           <% @services.each do |service| 
+              number += 1 %>
+              <% object_id = "service_#{number}" %>
+              <li>
+                 <div class="service" id="<%= object_id %>" >
+                   <%= h service.name %>
+                   <div style="color: #999; font-size: 8pt">
+                       <%= h service.name %>
+                   </div>
+                 </div>
+                 <%= draggable_element(object_id) %>
+                 <%= drop_receiving_element( object_id,
+                   :url => { :controller => :package, :action => :add_or_move_service, :position => number, :project => @project, :package => @package }
+                 )%>
+              </li>
+           <% end %>
+        </ol>
+        <div class="modify_service" id="append">
+          <%= image_tag('add.png', :alt => "Append", :title => "Append Service") %>
+        </div>
+        <%= drop_receiving_element( "append",
+          :url => { :controller => :package, :action => :add_or_move_service, :position => -1, :project => @project, :package => @package }
+        )%>
       </td>
--->
+
+      <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
+        <td>
+          <div class="modify_service" id="trash">
+            <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Remove Service") %>
+          </div>
+          <%= drop_receiving_element( "trash",
+            :url => { :controller => :package, :action => :remove_service, :project => @project, :package => @package }
+          )%>
+          <div class="run_service" id="run">
+            <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Trigger to execute the services again"),
+                  {:action => :execute_services, :project => @project, :package => @package },
+                  {:confirm => "Execute all services again now?", :method => :post } %>
+          </div>
+        </td>
+      <% end %>
       </tr>
 
   </tbody></table>
+  <% end %>
 
 </div>
 

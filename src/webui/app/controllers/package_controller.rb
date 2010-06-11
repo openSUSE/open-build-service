@@ -413,8 +413,40 @@ class PackageController < ApplicationController
     redirect_to :action => :files, :project => @project, :package => @package
   end
 
+  def add_or_move_service
+    id = params[:id]
+    @services = find_cached(Service,  :project => @project, :package => @package )
+    unless @services
+      flash[:warn] = "Service add failed because no _service file found "
+      redirect_to :action => :files, :project => @project, :package => @package and return
+    end
+
+    if id =~ /^new_service_/
+       id.gsub!( %r{^new_service_}, '' )
+       @services.addService( id, params[:position].to_i )
+       flash[:note] = "Service \##{id} added"
+    elsif id =~ /^service_/
+       id.gsub!( %r{^service_}, '' )
+       @services.moveService( id.to_i, params[:position].to_i )
+       flash[:note] = "Service \##{id} moved"
+    else
+       flash[:error] = "unkown object dropped"
+    end
+
+    @services.save
+    Service.free_cache :project => @project, :package => @package
+    redirect_to :action => :files, :project => @project, :package => @package and return
+  end
+
+  def execute_services
+    @services = find_cached(Service,  :project => @project, :package => @package )
+    @services.execute()
+    flash[:note] = "Service execution got triggered"
+    redirect_to :action => :files, :project => @project, :package => @package and return
+  end
+
   def remove_service
-    id = params[:serviceid]
+    id = params[:id]
     id.gsub!( %r{^service_}, '' )
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services

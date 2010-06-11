@@ -50,14 +50,41 @@ class Service < ActiveXML::Base
      return true
   end
 
-  def addService( name, opts={} )
-     add_element 'service', 'name' => name
+  def addService( name, position=-1, opts={} )
+     if position < 0 # append it
+        add_element 'service', 'name' => name
+        element = data.find("/services/service").last
+     else
+        service_elements = data.find("/services/service")
+        return false if service_elements.count < position or service_elements.count <= 0
+        service_elements[position-1].prev = XML::Node.new 'service'
+        element = service_elements[position-1].prev
+        element['name'] = name.to_s
+     end
      opts.each_pair{ |key, value|
-       param = XML::Node.new('param')
+       param = XML::Node.new 'param'
        param['name'] = key.to_s
        param << value.to_s
-       data.find("/services/service").last << param
+       element << param
      }
+     return true
+  end
+
+  def moveService( from, to )
+     service_elements = data.find("/services/service")
+     return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
+     service_elements[to-1].prev = service_elements[from-1]
+#     service_elements[from-1].remove!
+  end
+
+  def execute()
+    opt = Hash.new
+    opt[:project] = self.init_options[:project]
+    opt[:package] = self.init_options[:package]
+    opt[:cmd] = "runservice"
+    logger.debug "execute services"
+    fc = FrontendCompat.new
+    fc.do_post nil, opt
   end
 
   def save
