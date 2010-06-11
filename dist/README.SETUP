@@ -133,6 +133,8 @@ password = foobar
   in the "production:" section of the api config: 
 
     /srv/www/obs/api/config/database.yml
+    
+  A template for this file can be found in same directory as "database.yml.example".
 
 * populate the database
 
