@@ -278,26 +278,26 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /public
     
-  map.connect '/public/build/:prj/:repo/:arch/:pkg',
-    :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/
-  map.connect '/public/source/:prj/_meta',
-    :controller => 'public', :action => 'project_meta', :prj => /[^\/]*/
-  map.connect '/public/source/:prj/_config',
-    :controller => 'public', :action => 'project_config', :prj => /[^\/]*/
-  map.connect '/public/source/:prj/:pkg',
-    :controller => 'public', :action => 'package_index', :prj => /[^\/]*/, :pkg => /[^\/]*/
-  map.connect '/public/source/:prj/:pkg/_meta',
-    :controller => 'public', :action => 'package_meta', :prj => /[^\/]*/, :pkg => /[^\/]*/
-  map.connect '/public/source/:prj/:pkg/:file',
-    :controller => 'public', :action => 'source_file', :prj => /[^\/]*/, :pkg => /[^\/]*/, :file => /[^\/]*/
-  map.connect '/public/lastevents',
-    :controller => 'public', :action => 'lastevents'
-  map.connect '/public/person/:login/_watchlist', 
-    :controller => 'public', :action => 'watchlist', :login => /[^\/]*/
-  map.connect '/public/distributions',
-    :controller => 'public', :action => 'distributions'
-  map.connect '/public/binary_packages/:project/:package',
-    :controller => 'public', :action => 'binary_packages', :project => /[^\/]*/, :package => /[^\/]*/
+#  map.connect '/public/build/:prj/:repo/:arch/:pkg',
+#    :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/
+#  map.connect '/public/source/:prj/_meta',
+#    :controller => 'public', :action => 'project_meta', :prj => /[^\/]*/
+#  map.connect '/public/source/:prj/_config',
+#    :controller => 'public', :action => 'project_config', :prj => /[^\/]*/
+#  map.connect '/public/source/:prj/:pkg',
+#    :controller => 'public', :action => 'package_index', :prj => /[^\/]*/, :pkg => /[^\/]*/
+#  map.connect '/public/source/:prj/:pkg/_meta',
+#    :controller => 'public', :action => 'package_meta', :prj => /[^\/]*/, :pkg => /[^\/]*/
+#  map.connect '/public/source/:prj/:pkg/:file',
+#    :controller => 'public', :action => 'source_file', :prj => /[^\/]*/, :pkg => /[^\/]*/, :file => /[^\/]*/
+#  map.connect '/public/lastevents',
+#    :controller => 'public', :action => 'lastevents'
+#  map.connect '/public/person/:login/_watchlist', 
+#    :controller => 'public', :action => 'watchlist', :login => /[^\/]*/
+#  map.connect '/public/distributions',
+#    :controller => 'public', :action => 'distributions'
+#  map.connect '/public/binary_packages/:project/:package',
+#    :controller => 'public', :action => 'binary_packages', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'public/status/:action',
     :controller => 'status'
 
