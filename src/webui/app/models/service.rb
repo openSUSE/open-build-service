@@ -35,10 +35,10 @@ class Service < ActiveXML::Base
 
      if uri.path =~ /.src.rpm$/ or uri.path =~ /.spm$/
         # download and extract source package
-        addService( "download_src_package", param )
+        addService( "download_src_package", -1, param )
      else
         # just download
-        addService( "download_url", param )
+        addService( "download_url", -1, param )
      end
   end
 
