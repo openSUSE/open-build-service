@@ -202,7 +202,7 @@ enabled by uncommenting the corresponding lines in
 3.2.1 Change /srv/www/obs/webui/config/environments/production.rb
 ===========================================================================
 
-If you changed the hostnames/ips of the api away from 10.0.42.x, you 
+If you changed the hostnames/ips of the api away from 127.0.42.x, you 
 need to configure also 
 /srv/www/obs/webui/config/environments/production.rb (2 entries).
 
