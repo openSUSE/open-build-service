@@ -1231,7 +1231,7 @@ class SourceController < ApplicationController
     end
 
     # validate and resolve devel package or devel project definitions
-    if not params[:ignoredevel]
+    if not params[:ignoredevel] and ( pkg.develproject or pkg.develpackage )
       pkg = pkg.resolve_devel_package
       pkg_name = pkg.name
       prj = pkg.db_project
