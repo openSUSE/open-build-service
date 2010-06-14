@@ -53,6 +53,7 @@ class PackageController < ApplicationController
   end
 
   def binary
+    required_parameters :arch, :repository, :filename
     @arch = params[:arch]
     @repository = params[:repository]
     @filename = params[:filename]
@@ -72,6 +73,7 @@ class PackageController < ApplicationController
   end
 
   def binaries
+    required_parameters :repository
     @repository = params[:repository]
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
@@ -557,7 +559,7 @@ class PackageController < ApplicationController
         "This probably happened because you were logged out in between. Please try again."
       redirect_to :action => :show, :project => project, :package => package and return
     end
-    required_parameters(params, [:project, :package, :filename, :file])
+    required_parameters :project, :package, :filename, :file
     filename = params[:filename]
     file = params[:file]
     comment = params[:comment]
