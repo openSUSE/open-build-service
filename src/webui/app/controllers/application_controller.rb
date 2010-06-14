@@ -200,7 +200,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def required_parameters(params, parameters)
+  def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
         raise MissingParameterError, "Required Parameter #{parameter} missing"
@@ -249,6 +249,7 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+ 
   private
 
   @@schema = nil
