@@ -56,6 +56,15 @@ package_bread_crumb 'Build Log'
   <%=    "$.ajax(options);" %>
   }
   }
+  function show_abort() {
+    $(".link_abort_build").show();
+    $(".link_trigger_rebuild").hide();
+  }
+     
+  function hide_abort() {
+    $(".link_abort_build").hide();
+    $(".link_trigger_rebuild").show();
+  }
 <% end -%>
 
 <% content_for :ready_function do %>
