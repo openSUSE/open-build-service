@@ -88,6 +88,7 @@ case "$1" in
 	;;
 	status)
 		echo -n "Checking for obsservice: "
+                "$obsdir"/bs_serverstatus "$OBS_RUN_DIR"/bs_service.status
 		checkproc "$obsdir"/bs_service
 		rc_status -v
 	;;
