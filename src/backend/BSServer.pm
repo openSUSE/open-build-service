@@ -691,7 +691,7 @@ sub reply_receiver {
   reply(undef, @args); 
   $replying = 2 if $chunked;
   while(1) {
-    my $data = BSHTTP::read_data($hdr);
+    my $data = BSHTTP::read_data($hdr, 8192);
     last unless $data;
     $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
     swrite($data);
