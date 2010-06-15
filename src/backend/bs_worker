@@ -1781,7 +1781,7 @@ if (! -s "$buildroot/.build.log") {
       writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
     }
   };
-  $ex = 1;
+  $ex = 3;
 }
 
 if ($hostcheck) {
