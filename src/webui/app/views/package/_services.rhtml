@@ -50,7 +50,8 @@
                  </div>
                  <%= draggable_element(object_id) %>
                  <%= drop_receiving_element( object_id,
-                   :url => { :controller => :package, :action => :add_or_move_service, :position => number, :project => @project, :package => @package }
+                             :hoverclass => "hover",
+                             :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drag.id + '&position=#{number}&package=#{@package}&project=#{@project}' }"
                  )%>
               </li>
            <% end %>
@@ -59,20 +60,20 @@
           <%= image_tag('add.png', :alt => "Append", :title => "Append Service") %>
         </div>
         <%= drop_receiving_element( "append",
-          :url => { :controller => :package, :action => :add_or_move_service, :position => -1, :project => @project, :package => @package }
+            :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + 'new_service_generator_qmake' + '&position=-1&package=#{@package}&project=#{@project}' }"
         )%>
       </td>
 
       <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
         <td>
           <div class="modify_service" id="trash">
-            <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Remove Service") %>
+            <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Drop a service to remove it") %>
           </div>
           <%= drop_receiving_element( "trash",
-            :url => { :controller => :package, :action => :remove_service, :project => @project, :package => @package }
+              :onDrop => "function(draggable_element, droppable_element, event) { window.location='/package/remove_service?id=#{object_id}&package=#{@package}&project=#{@project}' }"
           )%>
           <div class="run_service" id="run">
-            <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Trigger to execute the services again"),
+            <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
                   {:action => :execute_services, :project => @project, :package => @package },
                   {:confirm => "Execute all services again now?", :method => :post } %>
           </div>
