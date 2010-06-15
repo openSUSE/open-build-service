@@ -111,7 +111,7 @@ class ProjectController < ApplicationController
   end
 
   def attributes
-    @attributes = Attribute.find(:project, :project => params[:project])
+    @attributes = find_cached(Attribute, {:project => @project.name}, :expires_in => 2.minutes)
   end
 
   def new
