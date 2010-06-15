@@ -1,12 +1,7 @@
 <% @pagetitle = "Show attributes" %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "attribute.css" %>
-<% end %>
-
 
 <%
-
 @crumb_list = [link_to('Projects', :controller => :project, :action => :list_public), 
                link_to( @project.name, :controller => 'project', :action => :show, :project => @project.name)]
 @crumb_list << link_to( @package, :controller => 'package', :action => :show, :project => @project.name, :package => @package) if @package
@@ -14,11 +9,10 @@
 -%>
 
 <%= if @package
-#TODO kill attribute controller  render :partial => "package/tabs"
+#TODO kill attribute controller
+  render :partial => "package/tabs"
 else
-# render :partial => "project/tabs"
+  render :partial => "project/tabs"
 end -%>
 
 <%= render :partial => "attributes" %>  
-
-

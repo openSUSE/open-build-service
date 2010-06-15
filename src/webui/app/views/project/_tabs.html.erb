@@ -10,14 +10,14 @@
 <div class="box-header header-tabs">
 
 <ul>
-  <%= project_tab 'Overview', :action => :show %>
-  <%= project_tab( 'Packages', :action => :packages ) unless @project.is_remote? %>
-  <%= project_tab( "Repositories", :action => :repositories ) unless @project.is_remote? %>
+  <%= project_tab 'Overview', :controller => :project, :action => :show %>
+  <%= project_tab( 'Packages', :controller => :project, :action => :packages ) unless @project.is_remote? %>
+  <%= project_tab( "Repositories", :controller => :project, :action => :repositories ) unless @project.is_remote? %>
   <% if @project.has_element?(:repository) -%>
-    <%= project_tab "Monitor", :action => :monitor %>
+    <%= project_tab "Monitor", :controller => :project, :action => :monitor %>
   <% end -%>
   <% if @project_has_requests %>
-    <%= project_tab "Requests", :action => 'list_requests'%>
+    <%= project_tab "Requests", :controller => :project, :action => 'list_requests'%>
   <% end -%>
   <li>
     <a href="#" id="advanced_tabs_trigger">Advanced</a>
@@ -26,12 +26,12 @@
 
 <div id="advanced_tabs">
 <ul>
-  <%= project_tab 'Project Config', :action => :prjconf %>
-  <%= project_tab 'Users', :action => :users %>
-  <%= project_tab 'Subprojects', :action => :subprojects %>
-  <%= project_tab 'Attributes', :action => :attributes %>
-  <%= project_tab "Raw Config", :action => :meta %>
-  <%= project_tab( 'Status', :action => :status ) unless @project.is_remote? %>
+  <%= project_tab 'Project Config', :controller => :project, :action => :prjconf %>
+  <%= project_tab 'Users', :controller => :project, :action => :users %>
+  <%= project_tab 'Subprojects', :controller => :project, :action => :subprojects %>
+  <%= project_tab 'Attributes', :controller => :project, :action => :attributes %>
+  <%= project_tab "Raw Config", :controller => :project, :action => :meta %>
+  <%= project_tab( 'Status', :controller => :project, :action => :status ) unless @project.is_remote? %>
 </ul>
 </div>
 

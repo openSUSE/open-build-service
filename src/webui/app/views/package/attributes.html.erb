@@ -10,7 +10,7 @@
 
 <%= render :partial => 'url' %>
 
-<h3>Attributes for Project <%= @project %>: </h3>
+<h3>Attributes for Package <%= "#{@project} / #{@package}" %></h3>
 
 <!-- Attributes -->
 <%= render :partial => "attribute/attributes.rhtml" %>

@@ -13,10 +13,11 @@ end
 -%>
 
 <%= if @package
-#TODO: remove attribute controller render :partial => "package/tabs"
+#TODO kill attribute controller
+  render :partial => "package/tabs"
 else
-#^^render :partial => "project/tabs"
-end %>
+  render :partial => "project/tabs"
+end -%>
 
 <%= @selected_attribute_name ? "<h2>Edit attribute '#{@selected_attribute_name}'</h2>" : "<h2>Add new attribute</h2>" %>
 

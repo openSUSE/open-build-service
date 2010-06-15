@@ -32,8 +32,10 @@
           <%   end %>
         </td>
         <td>
-          <%=  link_to image_tag('edit.png', :alt => "Edit values", :title => "Edit values"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
-          <%=  link_to image_tag('list-remove.png', :alt => "Delete attribute", :title => "Delete attribute"), :controller => "attribute", :action => "delete", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
+          <%=  link_to image_tag('icons/note_edit.png', :alt => "Edit values", :title => "Edit values"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
+          <%=  link_to( image_tag('icons/note_delete.png', :alt => "Delete attribute", :title => "Delete attribute"), 
+            {:controller => "attribute", :action => "delete", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name },
+            {:confirm => "Really remove attribute '#{a.namespace}:#{a.name}'?", :method => :post } ) %>
         </td>
       </tr>
       <% i+=1 %>
