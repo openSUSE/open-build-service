@@ -53,6 +53,7 @@ class ProjectController < ApplicationController
   end
 
   def autocomplete_projects
+    required_parameters :q
     get_filtered_projectlist params[:q], ''
     render :text => @projects.join("\n")
   end
