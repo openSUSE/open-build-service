@@ -2,15 +2,20 @@
 <!-- Links -->
 <div id="package_link">
   <% if @package.linkinfo %>
-    <%- linked_project = @package.linkinfo.project -%>
-    <%- linked_package = @package.linkinfo.package -%>
     <h3>Link</h3>
     <p>
-      This package links to the sources of the package
-      <%= link_to_package linked_project, linked_package %>
-      of project <%= link_to_project linked_project %>.
-      Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project,
-        :opackage => linked_package, :project => @project.name, :package => @package.name %>
+      <% if @package.linkinfo.value :error %>
+        The link contains errors: <i><%= @package.linkinfo.error %></i>
+      <% else -%>
+        <%- linked_project = @package.linkinfo.project -%>
+        <%- linked_package = @package.linkinfo.package -%>
+
+        This package links to the sources of the package
+        <%= link_to_package linked_project, linked_package %>
+        of project <%= link_to_project linked_project %>.
+        Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project,
+          :opackage => linked_package, :project => @project.name, :package => @package.name %>
+      <% end %>
     </p>
   <% end %>
 </div>
