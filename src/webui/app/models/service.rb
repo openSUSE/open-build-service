@@ -15,8 +15,8 @@ class Service < ActiveXML::Base
              { "icon" => "download",  "name" => "download_url",    "summary" => "Download File" },
              { "icon" => "download",  "name" => "download_src_package",    "summary" => "Download src rpm and extract" },
              { "icon" => "verify",    "name" => "verify_file",     "summary" => "Verify a file" },
-             { "icon" => "generator", "name" => "generator_qmake", "summary" => "Generator for qmake" },
-             { "icon" => "generator", "name" => "generator_kde",   "summary" => "Generator for KDE" },
+#             { "icon" => "generator", "name" => "generator_qmake", "summary" => "Generator for qmake" },
+#             { "icon" => "generator", "name" => "generator_kde",   "summary" => "Generator for KDE" },
       ]
     end
   end
