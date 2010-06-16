@@ -112,15 +112,31 @@ sub runservice {
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
 
+  # collect current sources to POST them
+  my $rev = getrev($projid, $packid);
+  my $files = lsrev($rev);
+  unless ($files->{'_service'}){
+    # drop all existing service files
+    my $dirty=0;
+    for my $pfile (keys %$files) {
+      if ($pfile =~ /^_service[_:]/) {
+        delete $files->{$pfile};
+        $dirty=1;
+      }
+    }
+    if ($dirty){
+      addrev($projid, $packid, $files, "_service", "generated via source service", undef);
+      notify_repservers('package', $projid, $packid);
+    }
+    return;
+  }
+
   my $lockfile = "$eventdir/service/${projid}::$packid";
   mkdir_p("$eventdir/service");
   BSUtil::touch($lockfile);
 
-  # collect current sources to POST them
-  my $rev = getrev($projid, $packid);
-  my $files = lsrev($rev);
-  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
   # Run the source update in own process (do not wait for it)
+  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
   my $pid;
   if (!($pid = xfork())) {
     my $odir = "$srcrep/:service/$$";
@@ -3514,10 +3530,7 @@ sub delfile {
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
   delete $rev->{'project'};
   delete $rev->{'package'};
-  if ($files->{'_service'}) {
-    # if a service file is there (or was) run the services
-    runservice($cgi, $projid, $packid);
-  }
+  runservice($cgi, $projid, $packid);
   return ($rev, $BSXML::revision);
 }
 
