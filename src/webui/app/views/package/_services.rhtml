@@ -3,10 +3,6 @@
 <div id="package_service">
   <h3>
     Services
-<!--
-    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add Service"),
-    :action => :add_service, :project => @project, :package => @package %>
--->
   </h3>
 
     <!-- code generators -->
@@ -18,7 +14,7 @@
       <tr><td><div>Used Services</div></td></tr>
       <% end %>
       <tr>
-      <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || @user.is_admin? %>
+      <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || (@user && @user.is_admin?) %>
          <td> <ul>
            <% Service.available.each do |service| %>
              <% object_id = "new_service_#{service["name"]}" %>
@@ -51,7 +47,7 @@
                  <%= draggable_element(object_id) %>
                  <%= drop_receiving_element( object_id,
                              :hoverclass => "hover",
-                             :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drag.id + '&position=#{number}&package=#{@package}&project=#{@project}' }"
+                             :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=#{number}&package=#{@package}&project=#{@project}' }"
                  )%>
               </li>
            <% end %>
@@ -59,8 +55,9 @@
         <div class="modify_service" id="append">
           <%= image_tag('add.png', :alt => "Append", :title => "Append Service") %>
         </div>
-        <%= drop_receiving_element( "append",
-            :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + 'new_service_generator_qmake' + '&position=-1&package=#{@package}&project=#{@project}' }"
+
+        <%= drop_receiving_element( :append, :hoverclass => "hover",
+            :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=-1&package=#{@package}&project=#{@project}' }"
         )%>
       </td>
 
@@ -70,7 +67,7 @@
             <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Drop a service to remove it") %>
           </div>
           <%= drop_receiving_element( "trash",
-              :onDrop => "function(draggable_element, droppable_element, event) { window.location='/package/remove_service?id=#{object_id}&package=#{@package}&project=#{@project}' }"
+              :onDrop => "function(drag, drop) { window.location='/package/remove_service?id=' + drop.draggable.first()[0].id + '&package=#{@package}&project=#{@project}' }"
           )%>
           <div class="run_service" id="run">
             <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
