@@ -37,8 +37,10 @@
               "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
                 package_link(action_elem.source.project, action_elem.source.package, :length => 70)
             elsif reqtype(req) == "delete"
-              "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
-                package_link(action_elem.target.project, action_elem.target.package, :length => 70)
+              if action_elem.target.has_element? :package
+                 "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
+                   package_link(action_elem.target.project, action_elem.target.package, :length => 70)
+              end
             end -%>
           </td>
           <td>

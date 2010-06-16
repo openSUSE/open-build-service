@@ -61,12 +61,13 @@ setup_buildresult_trigger
           </td>
           <td>
             <%= if action.has_element? :source
-              package_link(action.source.project, action.source.package)
+              package_link(action.source.project, action.source.value(:package))
             end -%>
           </td>
           <td>
             <%= if action.has_element? :target
-              package_link(action.target.project, action.target.package)
+              package = action.target.value(:package)
+              package_link(action.target.project, package) if package
             end -%>
           </td>
         </tr>

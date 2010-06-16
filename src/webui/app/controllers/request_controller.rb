@@ -21,8 +21,8 @@ class RequestController < ApplicationController
         @src_pkg = action.source.package
       end
       @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
-      @target_pkg_name = action.target.package
-      @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project)
+      @target_pkg_name = action.target.value :package
+      @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project) if @target_pkg_name
       @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
         (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
 

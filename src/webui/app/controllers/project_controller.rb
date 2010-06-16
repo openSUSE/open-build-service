@@ -386,6 +386,9 @@ class ProjectController < ApplicationController
   end
 
   def list_requests
+    @current_requests.each do |c|
+      logger.debug c.dump_xml
+    end
   end
 
   def save_new
