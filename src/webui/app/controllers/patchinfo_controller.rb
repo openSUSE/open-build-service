@@ -88,7 +88,7 @@ class PatchinfoController < ApplicationController
         "This probably happened because you were logged out in between. Please try again."
       redirect_to :controller => "patchinfo", :action => "create", :project => @project, :package => @package
     end
-    required_parameters(params, [:project, :package])
+    required_parameters :project, :package
     file = @file.data
     if !valid_swampid? params[:swampid]
       valid_params = false
