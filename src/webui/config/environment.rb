@@ -109,6 +109,12 @@ else
    DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
 end
 
+SOURCEREVISION = 'master'
+begin
+  SOURCEREVISION = File.open("#{RAILS_ROOT}/REVISION").read
+rescue Errno::ENOENT
+end
+
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
