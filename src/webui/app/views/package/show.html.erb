@@ -8,7 +8,7 @@
   <div class="box show_left">
     <h2 style="display: inline"><%=h @package %></h2>
 
-    <span style="float: right" >
+    <span style="float: right; margin-right: 0.5em" >
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
         <span>
           <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>

@@ -55,7 +55,7 @@ module PackageHelper
   include ProjectHelper
 
   def package_bread_crumb( *args )
-    args.insert(0, link_to( @package, :action => :show, :project => @project, :package => @package ))
+    args.insert(0, link_to( @package, :controller => :package, :action => :show, :project => @project, :package => @package ))
     project_bread_crumb( *args )
   end
 

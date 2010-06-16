@@ -15,7 +15,7 @@
   <div class="show_left box">
     <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
 
-    <span style="float: right">
+    <span style="float: right; margin-right: 0.5em">
       <% if session[:login] -%>
         <span id="watchlink">
           <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
