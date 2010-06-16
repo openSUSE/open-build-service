@@ -864,6 +864,12 @@ class PackageController < ApplicationController
   end
 
   def require_package
+    unless valid_package_name? params[:package]
+      logger.error "Package #{@project}/#{params[:package]} not valid"
+      flash[:error] = "\"#{params[:package]}\" is not a valid package name"
+      redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
+      return
+    end
     @project ||= params[:project]
     unless params[:package].blank?
       @package = find_cached(Package, params[:package], :project => @project )
