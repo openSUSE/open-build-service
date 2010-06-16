@@ -314,6 +314,7 @@ class ProjectController < ApplicationController
   end
 
   def rebuild_time
+    required_parameters :repository, :arch
     load_packages_mainpage 
     @repository = params[:repository]
     @arch = params[:arch]
@@ -322,6 +323,11 @@ class ProjectController < ApplicationController
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
             :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
+    unless bdep and jobs
+      flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
+      redirect_to :action => :show, :project => @project
+      return
+    end
     indir = Dir.mktmpdir 
     f = File.open(indir + "/_builddepinfo.xml", 'w')
     f.write(bdep.dump_xml) 
