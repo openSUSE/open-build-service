@@ -113,7 +113,11 @@ class PackageController < ApplicationController
       if file[:name] == "_link"
         @link = find_cached(Link, :project => @project, :package => @package )
       elsif file[:name] == "_service"
-        @services = find_cached(Service,  :project => @project, :package => @package )
+        begin
+          @services = find_cached(Service,  :project => @project, :package => @package )
+        rescue
+          @services = nil
+        end
       end
     end
   end
