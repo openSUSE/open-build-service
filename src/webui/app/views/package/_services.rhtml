@@ -41,7 +41,7 @@
                  <div class="service" id="<%= object_id %>" >
                    <%= h service.name %>
                    <div style="color: #999; font-size: 8pt">
-                       <%= h service.name %>
+                       <%= link_to_remote("Edit Parameters", :url => { :action => :service_parameter, :project => @project, :package => @package } ) %>
                    </div>
                  </div>
                  <%= draggable_element(object_id) %>
@@ -52,8 +52,8 @@
               </li>
            <% end %>
         </ol>
-        <div class="modify_service" id="append">
-          <%= image_tag('add.png', :alt => "Append", :title => "Append Service") %>
+        <div class="aligncenter buttons" id="append">
+          <%= image_tag('add.png', :alt => "Append", :title => "Drop a service here to append") %>
         </div>
 
         <%= drop_receiving_element( :append, :hoverclass => "hover",
@@ -63,13 +63,13 @@
 
       <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
         <td>
-          <div class="modify_service" id="trash">
+          <div class="aligncenter buttons" id="trash">
             <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Drop a service to remove it") %>
           </div>
           <%= drop_receiving_element( "trash",
               :onDrop => "function(drag, drop) { window.location='/package/remove_service?id=' + drop.draggable.first()[0].id + '&package=#{@package}&project=#{@project}' }"
           )%>
-          <div class="run_service" id="run">
+          <div class="aligncenter buttons" id="run">
             <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
                   {:action => :execute_services, :project => @project, :package => @package },
                   {:confirm => "Execute all services again now?", :method => :post } %>
