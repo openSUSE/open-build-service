@@ -3514,6 +3514,10 @@ sub delfile {
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
   delete $rev->{'project'};
   delete $rev->{'package'};
+  if ($files->{'_service'}) {
+    # if a service file is there (or was) run the services
+    runservice($cgi, $projid, $packid);
+  }
   return ($rev, $BSXML::revision);
 }
 
