@@ -14,9 +14,8 @@ class ProjectController < ApplicationController
 
   before_filter :require_project, :except => [:arch_list, 
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
-    :list, :list_all, :list_public, :load_buildresult, :load_packages, :new, 
-    :package_buildresult, :save_new, :save_prjconf, :update_target,
-    :delete, :buildresult, :rebuild_time_png]
+    :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
+    :rebuild_time_png]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -138,7 +137,7 @@ class ProjectController < ApplicationController
       find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
     end
   end
-  private :load_packages_mainpage
+  protected :load_packages_mainpage
 
   def show
     @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s if @project.bugowner
@@ -207,6 +206,7 @@ class ProjectController < ApplicationController
       @buildresult = Array.new
     end
   end
+  protected :load_buildresult
 
   def buildresult
     unless request.xhr?
@@ -367,6 +367,7 @@ class ProjectController < ApplicationController
   def load_packages
     @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
   end
+  protected :load_packages
 
   def packages
     load_packages
