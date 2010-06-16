@@ -21,8 +21,8 @@ when 401 -%>
 
 <h3>Error Details:</h3>
 <p>
-  <%= "<strong>Errorcode: </strong>#{code}<br/>" if local_assigns[:code] %>
-  <%= "<strong>Message: </strong>#{message}<br/>" if local_assigns[:message] %>
+  <%= "<strong>Errorcode: </strong>#{h code}<br/>" if local_assigns[:code] %>
+  <%= "<strong>Message: </strong>#{h message}<br/>" if local_assigns[:message] %>
 </p>
 
 
