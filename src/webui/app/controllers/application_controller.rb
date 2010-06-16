@@ -148,8 +148,12 @@ class ApplicationController < ActionController::Base
       if code == "unregistered_ichain_user"
         render :template => "user/request_ichain" and return
       else
-        ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-        render_error :status => 401, :message => message
+        #ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+        if @user
+          render_error :status => 403, :message => message
+        else
+          render_error :status => 401, :message => message
+        end
       end
     when ActiveXML::Transport::UnauthorizedError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
