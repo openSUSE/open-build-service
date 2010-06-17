@@ -27,9 +27,10 @@
   });
 
   $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
-  matchCase: true, max: 50,
+  matchCase: true, max: 50, minChars: 0,
+  data: {project: $("#target_package_repo").val()},
   extraParams: {
-  projects: function() { return $("#inst_repos > div > p > :input").attr('value'); }
+  project: function(){ return $("#target_package_repo").val(); }
   }
   });
 
@@ -38,26 +39,42 @@
   $("#add_repo_toggle").hide();
   });
 
-  remove_repo = function(key) {
+  remove_element = function(key) {
   $("#" + key).remove();
   }
 
   create_repo_line = function() {
-  var project = $("#target_project").attr('value')
-  var repo = $("#target_repo").attr('value')
-  var key = (project + '_' + repo).replace(/[:\.]/g,'_')
+  var project = $("#target_project").attr('value');
+  var repo = $("#target_repo").attr('value');
+  var key = (project + '_' + repo).replace(/[:\.]/g,'_');
   var html = '<div id="' + key +'"><p><%= image_tag("project.png", :title => "Project") %> ' + project + ' / ' + repo;
-  var html = html + '<input type="hidden" name="projects[]" value="' + project + '/' + repo + '" />';
-  var html = html + ' <a href="#" onclick="remove_repo(\'' + key + '\')"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>';
+      var html = html + '<input type="hidden" name="projects[]" value="' + project + '/' + repo + '" />';
+      var html = html + ' <a href="#repos" onclick="remove_element(\'' + key + '\')"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>';
   return html;
   }
 
   $("#add_repo").click(function () {
   $("#no_inst_repos").hide();
-  $("#inst_repos").append( create_repo_line() )
+  $("#inst_repos").append( create_repo_line() );
+  $('#target_package_repo').append( new Option( $("#target_project").attr('value') ) );
   $("#add_repository").hide();
   $("#add_repo_toggle").show();
   });
+
+  create_package_line = function() {
+  var package = $("#target_package").val();
+  var key = ('pack_' + package).replace(/[:\.]/g,'_');
+  var html = '<div id="' + key +'"><p><%= image_tag("package.png", :title => "Package") %> ' + package;
+      var html = html + '<input type="hidden" name="packages[]" value="' + package + '" />';
+      var html = html + ' <a href="#packages" onclick="remove_element(\'' + key + '\')"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>';
+  return html;
+  }
+
+  $("#add_package").click(function () {
+  $("#no_inst_packs").hide();
+  $("#inst_packs").append( create_package_line() );
+  });
+
 
 <% end -%>
 
@@ -71,14 +88,29 @@
 <% form_tag :controller => "driver_update", :action => "save" do %>
 
 
-  <h2>Installation repositories:</h2>
+  <h2>General Configuration:</h2>
+
+  <p>
+    <strong>Name: </strong>
+    <%= text_field_tag 'name', '', :size => 50 %>
+  </p>
+
+  <p>
+    <strong>Architectures: </strong>
+    <% VISIBLE_ARCHITECTURES.each do |arch| %>
+      <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
+    <% end %>
+  </p>
+
+
+  <h2><a name="repos"></a>Installation repositories:</h2>
 
   <div id="inst_repos">
     <% @repositories.each do |repo| %>
       <% key = "#{repo[:project]}_#{repo[:repo]}".gsub(/[:\.]/, '_')  %>
       <div id="<%= key %>"><p><%= image_tag("project.png", :title => "Project") %> <%= repo[:project] %> / <%= repo[:repo] %>
           <input type="hidden" name="projects[]" value="<%= "#{repo[:project]}/#{repo[:repo]}" %>" />
-          <a href="#" onclick="remove_repo('<%= key %>');"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>
+          <a href="#repos" onclick="remove_element('<%= key %>'); "><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>
     <% end %>
     <% if @repositories.blank? %>
       <div id="no_inst_repos"><p><i>No installation repositories configured yet.</i></p></div>
@@ -94,39 +126,46 @@
   <div id="add_repository" class="show_left box show_right" style="display: none">
     <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %> <i>(gets auto-completed)</i> </p>
     <p><strong>Repository: </strong>
-      <%= select_tag "target_repo", "<option value=''></option>", :id => 'target_repo', :disabled => true %>
-    </p> <p>
-      <strong>Architectures: </strong>
-      <% VISIBLE_ARCHITECTURES.each do |arch| %>
-        <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
-      <% end %>
+      <%= select_tag "target_repo", "<option value=''>Select Repository</option>", :id => 'target_repo', :disabled => true %>
     </p>
     <div id="add_repo"><p>
         <%= image_tag("icons/drive_add.png", :title => "Add Repository") %>
-        <%= link_to 'Add this repository', '#' %>
+        <%= link_to 'Add this repository', '#repos' %>
       </p>
     </div>
   </div>
 
 
-  <h2>Choose packages: </h2>
+  <h2><a name="packages"></a>Packages: </h2>
 
 
   <div id="inst_packs">
     <% @packages.each do |pack| %>
-    <div id="pack"><p>- <%= pack %></p></div>
+      <div id="pack_<%= pack[:name] %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack[:name] %>
+          <input type="hidden" name="packages[]" value="<%= "#{pack[:name]}" %>" />
+          <a href="#packages" onclick="remove_element('pack_<%= pack[:name] %>');"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>
     <% end %>
     <% if @packages.blank? %>
-    <div id="no_inst_packs"><p><i>No packages selected for installation yet.</i></p></div>
+      <div id="no_inst_packs"><p><i>No packages selected for installation yet.</i></p></div>
     <% end %>
   </div>
 
-  <p><strong>Add package: </strong><%= text_field_tag 'target_package', '', :size => 60, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
+  <p><strong>Add package: </strong><br/>
+    <% default_projects = @repositories.map{|repo| "<option value='#{repo[:project]}'>#{repo[:project]}</option>"}.uniq %>
+    <%= select_tag "target_package_repo", "<option value=''>Select Project</option>" + default_projects.join(''), :id => 'target_package_repo' %>
+    Name:
+    <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
+  <div id="add_package"><p>
+      <%= image_tag("icons/package_add.png", :title => "Add Package") %>
+      <%= link_to 'Add this package', '#packages' %>
+    </p>
+  </div>
 
 
   <p>
     <%= submit_tag "Generate kiwi file" %>
     <%= hidden_field_tag 'project', @project.name %>
+    <%= hidden_field_tag 'package', @package.name %>
   </p>
 <% end %>
 
