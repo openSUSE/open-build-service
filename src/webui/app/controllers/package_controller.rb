@@ -336,7 +336,7 @@ class PackageController < ApplicationController
       Rails.cache.delete("%s_packages_mainpage" % @project)
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
-      Package.free_cache( @package.name, :project => @project )
+      Package.free_cache( @target_package, :project => @project )
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
     end
   end

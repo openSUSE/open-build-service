@@ -13,7 +13,7 @@
     { minChars: 2, matchCase: true, max: 50 } );
 
   $("#linked_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
-    matchCase: true, max: 50,
+    minChars: 0, matchCase: true, max: 50,
     extraParams: {
        project: function() { return $("#linked_project").val(); }
     }
