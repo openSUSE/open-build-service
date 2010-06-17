@@ -958,7 +958,6 @@ class ProjectController < ApplicationController
 
       p.each_failure do |f|
         next if f.repo =~ /ppc/
-        next if f.repo =~ /staging/
         next if f.repo =~ /snapshot/
         next if newest > (Integer(f.time) rescue 0)
         next if f.srcmd5 != p.srcmd5
@@ -986,7 +985,8 @@ class ProjectController < ApplicationController
         end
       end
 
-      currentpack['md5'] = p.srcmd5
+      currentpack['md5'] = p.value 'verifymd5'
+      currentpack['md5'] ||= p.srcmd5
 
       if p.has_element? :develpack
         @develprojects << p.develpack.proj
@@ -999,7 +999,8 @@ class ProjectController < ApplicationController
         if submits.has_key? key
           currentpack['requests_to'].concat(submits[key])
         end
-        currentpack['develmd5'] = p.develpack.package.srcmd5
+        currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
+        currentpack['develmd5'] ||= p.develpack.package.srcmd5
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
           currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
@@ -1019,6 +1020,14 @@ class ProjectController < ApplicationController
         end
       elsif @current_develproject != no_project
         next if @current_develproject != all_packages
+      end
+
+      if p.has_element? :link
+        if currentpack['md5'] != p.link.targetmd5
+          currentpack['problems'] << 'diff_against_link'
+          currentpack['lproject'] = p.link.project
+          currentpack['lpackage'] = p.link.package
+        end
       end
 
       next if !currentpack['requests_from'].empty? and @ignore_pending

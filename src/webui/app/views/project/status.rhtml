@@ -82,6 +82,11 @@
                 :action => :rdiff, :oproject => @project, :opackage => p['name'])
               sortkey = "6-changes" + p['name']
               icon = "changes"
+            elsif c == 'diff_against_link'
+              outs << link_to("Linked package is different", :controller => :package, :oproject => p['lproject'], :opackage => p['lpackage'],
+                :action => :rdiff, :project => @project, :package => p['name'])
+              sortkey = "7-changes" + p['name']
+              icon = "changes"
             elsif c.match(/^error-/)
               outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                 :action => :show)
@@ -118,12 +123,12 @@
           outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
               :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project, :package => p['name']) +
               " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days:" +
-              " <span id='comment_" + p['name'].gsub(':', '-') + "'>" +
+              " <span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
               show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>')
           icon = "error"
           sortkey = '1-fails-%010d-%s' % [ Time.now.to_i - p['firstfail'], p['name'] ]
         else
-          outs << "<span id='comment_" + p['name'].gsub(':', '-') + "'>" +
+          outs << "<span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
             show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'
         end
         if sortkey.nil?
