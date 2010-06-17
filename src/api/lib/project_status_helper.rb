@@ -105,7 +105,7 @@ class ProjectStatusHelper
   end
 
   def self.check_md5(proj, backend, packages, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisabled=1' % CGI.escape(proj)
+    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % CGI.escape(proj)
     packages.each do |package|
       uri += "&package=" + CGI.escape(package.name)
     end
@@ -119,7 +119,7 @@ class ProjectStatusHelper
   end
 
   def self.update_projpack(proj, backend, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisabled=1' % CGI.escape(proj)
+    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % CGI.escape(proj)
     mypackages.each do |key, package|
       if package.project == proj
 	uri += "&package=" + CGI.escape(package.name)
@@ -138,6 +138,7 @@ class ProjectStatusHelper
       p.find('linked').each do |l|
 	mypackages[key].link.project = l.attributes['project']
 	mypackages[key].link.package = l.attributes['package']
+        break # the first link will do
       end
       p.find('error').each do |e|
 	mypackages[key].error = e.content
@@ -279,7 +280,7 @@ class ProjectStatusHelper
 	tocheck << pack
 	mypackages[pack.key] = pack
       end
-      check_md5(proj, backend, tocheck, mypackages)
+      check_md5(proj, backend, tocheck, mypackages) unless tocheck.empty?
     end
     
     mypackages.values.each do |package|
