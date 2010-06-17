@@ -1,6 +1,8 @@
 <% @pagetitle = "Add File" %>
 <% package_bread_crumb( 'Add File' ) -%>
 
+<%= render :partial => "tabs" %>
+
 <h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
 <% form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
