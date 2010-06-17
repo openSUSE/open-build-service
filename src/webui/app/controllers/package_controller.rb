@@ -397,7 +397,7 @@ class PackageController < ApplicationController
       @package.save_file :file => file, :filename => URI.escape(filename, "+")
     elsif not file_url.blank?
       # we have a remote file uri
-      @services = find_cached(Service,  :project => @project, :package => @package )
+      @services = find_cached(Service, :project => @project, :package => @package )
       unless @services
         @services = Service.new( :project => @project, :package => @package )
       end
