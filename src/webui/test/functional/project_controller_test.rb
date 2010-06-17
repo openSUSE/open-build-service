@@ -8,7 +8,6 @@ class ProjectControllerTest < ActionController::IntegrationTest
   def test_list
     get "/project"
     assert_redirected_to "/project/list_public"
-
     get "/project/list_public"
     assert_response :success
     assert assigns(:important_projects).each.blank?
@@ -24,7 +23,7 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_packages
-    get "/project/packages?project=Mono"
+    get "/project/packages?project=Mono:Factory"
     assert_response :success
     assert( assigns(:packages).each.size == 4 )
     assert( assigns(:project) )

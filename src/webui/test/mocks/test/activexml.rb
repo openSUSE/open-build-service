@@ -5,14 +5,14 @@ module ActiveXML
 
   class Base
 
-    def self.load_fixture(fixture, args)
+    def self.load_fixture(fixture, *args)
       logger.debug "mock load fix called with args #{args.inspect}."
       yaml = YAML::load(ERB.new( IO.read( "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml") ).result) 
       name = ''                                  
       if args.first.kind_of? String              
         name = args.first                        
       else                                       
-        name = args.first[:name]                 
+        name = args.first[0]
       end                                        
       yaml = {name => yaml[name]}
       if yaml[name].nil?                         
@@ -22,7 +22,7 @@ module ActiveXML
       return self.yaml_to_axml(yaml, opt)
     end
  
-    def self.find_priv(cache_time, args )
+    def self.find_priv(cache_time, *args )
       logger.debug "mock-find called with args #{args.inspect} on #{self.name}"
       fixture = self.name.downcase.pluralize
       if args.first == :all

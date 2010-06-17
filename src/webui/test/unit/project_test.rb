@@ -12,7 +12,7 @@ end
 class ProjectTest < Test::Unit::TestCase
 
   def setup
-    @project = Project.find(:name => "home:tscholz")
+    @project = Project.find("home:tscholz")
   end
 
   

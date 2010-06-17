@@ -3,7 +3,7 @@ require 'models/collection'
 
 class Collection < ActiveXML::Base
 
-  def self.find_priv(cache_time, args)
+  def self.find_priv(cache_time, *args)
     ret = Collection.new '<collection/>'
     # special collections are returned
     if args[0] == :id

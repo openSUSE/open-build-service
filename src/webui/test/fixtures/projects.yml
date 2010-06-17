@@ -1,5 +1,5 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-home:tscholz:
+"home:tscholz":
   "<project name='home:tscholz'>
     <title>tscholz's Home Project</title>
     <description/>
@@ -21,7 +21,7 @@ home:tscholz:
   </project>"
 
 
-Mono:
+"Mono":
  '<project name="Mono">                                                       
   <title>Mono Project</title>                                               
   <description>.NET for Linux, Unix, and Windows</description>                         
@@ -46,7 +46,7 @@ Mono:
   </repository>
  </project>'
 
-Mono:Factory:
+"Mono:Factory":
  '<project name="Mono:Factory">
   <title>Mono Project</title>
   <description>.NET for Linux, Unix, and Windows</description>
