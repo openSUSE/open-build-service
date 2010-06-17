@@ -2,12 +2,17 @@ require 'xml'
 require 'ostruct'
 require 'digest/md5'
 
+class LinkInfo
+  attr_accessor :project
+  attr_accessor :package
+  attr_accessor :targetmd5
+end
+
 class PackInfo
   attr_reader :version, :release
   attr_accessor :devel_project, :devel_package
-  attr_accessor :srcmd5, :error
-  attr_reader :name, :project
-  attr_reader :key
+  attr_accessor :srcmd5, :verifymd5, :error, :link
+  attr_reader :name, :project, :key
   attr_accessor :develpack
 
   def initialize(projname, name)
@@ -23,7 +28,7 @@ class PackInfo
     # we avoid going back in versions by avoiding going back in time
     # the last built version wins (repos may have different versions)
     @versiontime = nil
-    @links = Array.new
+    @link = LinkInfo.new
   end
 
   def set_version(version, release, time)
@@ -60,17 +65,19 @@ class PackInfo
     return ret
   end
 
-  def linked(proj, pack)
-    @links << [proj, pack]
-  end
-
   def to_xml(options = {}) 
+    # return packages not having sources
+    return if srcmd5.blank?
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-    xml.package(:project => project,
-                :name => name,
-                :version => version,
-                :srcmd5 => srcmd5,
-                :release => release) do
+    opts = { :project => project,
+             :name => name,
+             :version => version,
+             :srcmd5 => srcmd5,
+             :release => release }
+    unless verifymd5.blank? or verifymd5 == srcmd5
+      opts[:verifymd5] = verifymd5
+    end
+    xml.package(opts) do
       self.fails.each do |repo,tuple|
         xml.failure(:repo => repo, :time => tuple.time, :srcmd5 => tuple.md5 )
       end
@@ -80,8 +87,8 @@ class PackInfo
         end
       end
       if @error then xml.error(error) end
-      @links.each do |proj,pack|
-        xml.link(:project => proj, :package => pack)
+      if @link.project
+        xml.link(:project => @link.project, :package => @link.package, :targetmd5 => @link.targetmd5)
       end
     end
   end
@@ -89,35 +96,53 @@ end
 
 class ProjectStatusHelper
 
+  def self.get_xml(backend, uri)
+    key = Digest::MD5.hexdigest(uri)
+    d = Rails.cache.fetch(key, :expires_in => 2.hours) do
+      backend.direct_http( URI(uri), :timeout => 1000 )
+    end
+    XML::Parser.string(d).parse
+  end
+
+  def self.check_md5(proj, backend, packages, mypackages)
+    uri = '/getprojpack?project=%s&withsrcmd5=1' % CGI.escape(proj)
+    packages.each do |package|
+      uri += "&package=" + CGI.escape(package.name)
+    end
+    data = get_xml(backend, uri)
+    data.find('/projpack/project/package').each do |p|
+      packname = p.attributes['name']
+      key = proj + "/" + packname
+      next unless mypackages.has_key?(key)
+      mypackages[key].srcmd5 = p.attributes['srcmd5']
+    end if data
+  end
+
   def self.update_projpack(proj, backend, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % CGI.escape(proj)
+    uri = '/getprojpack?project=%s&withsrcmd5=1' % CGI.escape(proj)
     mypackages.each do |key, package|
       if package.project == proj
 	uri += "&package=" + CGI.escape(package.name)
       end
     end
-    key = Digest::MD5.hexdigest(uri)
-    d = Rails.cache.fetch(key, :expires_in => 2.hours) do
-      backend.direct_http( URI(uri), :timeout => 1000 )
-    end
-    data = XML::Parser.string(d).parse
-    if data then data.find('/projpack/project/package').each do |p|
-        packname = p.attributes['name']
-        key = proj + "/" + packname
-        next unless mypackages.has_key?(key)
-        if p.attributes['verifymd5']
-          mypackages[key].srcmd5 = p.attributes['verifymd5']
-        else
-          mypackages[key].srcmd5 = p.attributes['srcmd5']
-        end
-        p.find('linked').each do |l|
-          mypackages[key].linked(l.attributes['project'], l.attributes['package'])
-        end
-        p.find('error').each do |e|
-          mypackages[key].error = e.content
-        end
+
+    data = get_xml(backend, uri)
+    data.find('/projpack/project/package').each do |p|
+      packname = p.attributes['name']
+      key = proj + "/" + packname
+      next unless mypackages.has_key?(key)
+      if p.attributes['verifymd5']
+	mypackages[key].verifymd5 = p.attributes['verifymd5']
       end
-    end
+      mypackages[key].srcmd5 = p.attributes['srcmd5']
+      p.find('linked').each do |l|
+	mypackages[key].link.project = l.attributes['project']
+	mypackages[key].link.package = l.attributes['package']
+      end
+      p.find('error').each do |e|
+	mypackages[key].error = e.content
+      end
+    end if data
   end
 
   def self.fetch_jobhistory(backend, proj, repo, arch, mypackages)
@@ -160,7 +185,7 @@ class ProjectStatusHelper
             key = dbproj.name + "/" + packname
             next unless mypackages.has_key?(key)
             code = p.attributes['code']
-            readytime = Integer(p['readytime'])
+            readytime = begin Integer(p['readytime']) rescue 0 end
             if code == "unchanged" || code == "succeeded"
               mypackages[key].success(reponame, readytime, p['srcmd5'])
             else
@@ -238,11 +263,35 @@ class ProjectStatusHelper
       move_devel_package(mypackages, key)
     end
 
+    links = Hash.new
+    # find links
+    mypackages.values.each do |package|
+      if package.project == dbproj.name and package.link.project
+	links[package.link.project] ||= Array.new
+	links[package.link.project] << package.link.package
+      end
+    end
+    links.each do |proj, packages|
+      tocheck = Array.new
+      packages.each do |name|
+	pack = PackInfo.new(proj, name)
+	next if mypackages.has_key? pack.key
+	tocheck << pack
+	mypackages[pack.key] = pack
+      end
+      check_md5(proj, backend, tocheck, mypackages)
+    end
+    
+    mypackages.values.each do |package|
+      if package.project == dbproj.name and package.link.project
+	newkey = package.link.project + "/" + package.link.package
+	package.link.targetmd5 = mypackages[newkey].srcmd5
+      end
+    end
+
     # cleanup
     mypackages.keys.each do |key|
-      if mypackages[key].project != dbproj.name
-	mypackages.delete key
-      end
+      mypackages.delete(key) if mypackages[key].project != dbproj.name
     end
     
     return mypackages
