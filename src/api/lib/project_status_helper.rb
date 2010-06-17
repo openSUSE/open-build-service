@@ -105,7 +105,7 @@ class ProjectStatusHelper
   end
 
   def self.check_md5(proj, backend, packages, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1' % CGI.escape(proj)
+    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisabled=1' % CGI.escape(proj)
     packages.each do |package|
       uri += "&package=" + CGI.escape(package.name)
     end
@@ -119,7 +119,7 @@ class ProjectStatusHelper
   end
 
   def self.update_projpack(proj, backend, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1' % CGI.escape(proj)
+    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisabled=1' % CGI.escape(proj)
     mypackages.each do |key, package|
       if package.project == proj
 	uri += "&package=" + CGI.escape(package.name)
