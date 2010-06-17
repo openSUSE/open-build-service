@@ -37,10 +37,12 @@
   $("#add_repo_toggle").click(function () {
   $("#add_repository").show();
   $("#add_repo_toggle").hide();
+  return false;
   });
 
   remove_element = function(key) {
   $("#" + key).remove();
+  return false;
   }
 
   create_repo_line = function() {
@@ -49,7 +51,7 @@
   var key = (project + '_' + repo).replace(/[:\.]/g,'_');
   var html = '<div id="' + key +'"><p><%= image_tag("project.png", :title => "Project") %> ' + project + ' / ' + repo;
       var html = html + '<input type="hidden" name="projects[]" value="' + project + '/' + repo + '" />';
-      var html = html + ' <a href="#repos" onclick="remove_element(\'' + key + '\')"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>';
+      var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>';
   return html;
   }
 
@@ -59,6 +61,7 @@
   $('#target_package_repo').append( new Option( $("#target_project").attr('value') ) );
   $("#add_repository").hide();
   $("#add_repo_toggle").show();
+  return false;
   });
 
   create_package_line = function() {
@@ -66,13 +69,14 @@
   var key = ('pack_' + package).replace(/[:\.]/g,'_');
   var html = '<div id="' + key +'"><p><%= image_tag("package.png", :title => "Package") %> ' + package;
       var html = html + '<input type="hidden" name="packages[]" value="' + package + '" />';
-      var html = html + ' <a href="#packages" onclick="remove_element(\'' + key + '\')"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>';
+      var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>';
   return html;
   }
 
   $("#add_package").click(function () {
   $("#no_inst_packs").hide();
   $("#inst_packs").append( create_package_line() );
+  return false;
   });
 
 
@@ -103,14 +107,14 @@
   </p>
 
 
-  <h2><a name="repos"></a>Installation repositories:</h2>
+  <h2>Installation repositories:</h2>
 
   <div id="inst_repos">
     <% @repositories.each do |repo| %>
       <% key = "#{repo[:project]}_#{repo[:repo]}".gsub(/[:\.]/, '_')  %>
       <div id="<%= key %>"><p><%= image_tag("project.png", :title => "Project") %> <%= repo[:project] %> / <%= repo[:repo] %>
           <input type="hidden" name="projects[]" value="<%= "#{repo[:project]}/#{repo[:repo]}" %>" />
-          <a href="#repos" onclick="remove_element('<%= key %>'); "><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>
+          <a href="#" onclick="remove_element('<%= key %>'); return false;"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>
     <% end %>
     <% if @repositories.blank? %>
       <div id="no_inst_repos"><p><i>No installation repositories configured yet.</i></p></div>
@@ -130,20 +134,20 @@
     </p>
     <div id="add_repo"><p>
         <%= image_tag("icons/drive_add.png", :title => "Add Repository") %>
-        <%= link_to 'Add this repository', '#repos' %>
+        <%= link_to 'Add this repository', '#' %>
       </p>
     </div>
   </div>
 
 
-  <h2><a name="packages"></a>Packages: </h2>
+  <h2>Packages: </h2>
 
 
   <div id="inst_packs">
     <% @packages.each do |pack| %>
-      <div id="pack_<%= pack[:name] %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack[:name] %>
+      <div id="pack_<%= pack[:name] %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack[:name] %> <i>(<%= pack[:type] %>)</i>
           <input type="hidden" name="packages[]" value="<%= "#{pack[:name]}" %>" />
-          <a href="#packages" onclick="remove_element('pack_<%= pack[:name] %>');"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>
+          <a href="#" onclick="remove_element('pack_<%= pack[:name] %>'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>
     <% end %>
     <% if @packages.blank? %>
       <div id="no_inst_packs"><p><i>No packages selected for installation yet.</i></p></div>
@@ -157,7 +161,7 @@
     <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
   <div id="add_package"><p>
       <%= image_tag("icons/package_add.png", :title => "Add Package") %>
-      <%= link_to 'Add this package', '#packages' %>
+      <%= link_to 'Add this package', '#' %>
     </p>
   </div>
 
