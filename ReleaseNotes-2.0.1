@@ -5,9 +5,14 @@
 Updaters from 2.0.0 can just update the packages and restart all
 services. Updaters from former releases need to check the 2.0.0 Release Notes file.
 
-Bugfixes since 2.0.0:
-=====================
+Changes since 2.0.0:
+====================
 
+Changes:
+* workers which don't produce any log at all see themselfs as bad build hosts
+* rcobssrcserver, rcobsrepserver and rcobsservice status command show running tasks
+
+Bugfixes:
 * A significant number of runtime error and layout fixes for the webui
 * source server streams binary packages again
 * service files get correct cleaned up now
