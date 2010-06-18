@@ -9,7 +9,6 @@
 <% @projects.each do |p| %>
 <url>
   <loc><%= url_for :controller => :project, :action => action, :project => p, :only_path => false, :protocol => 'https' %></loc>
-  <changefreq><%= changefreq %></changefreq>
   <priority><%= priority %></priority>
 </url>
 <% end %>
