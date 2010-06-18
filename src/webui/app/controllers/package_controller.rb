@@ -859,13 +859,19 @@ class PackageController < ApplicationController
 
   def file_available? url, max_redirects=5
     uri = URI.parse( url )
-    Net::HTTP.start(uri.host, uri.port) do |http|
-      logger.debug "Checking url: #{url}"
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 15
+    http.read_timeout = 15
+    logger.debug "Checking url: #{url}"
+    begin
       response =  http.head uri.path
       if response.code.to_i == 302 and response['location'] and max_redirects > 0
         return file_available? response['location'], (max_redirects - 1)
       end
-      response.code.to_i == 200 ? true : false
+      return response.code.to_i == 200 ? true : false
+    rescue Object => e
+      logger.error "Error in checking for file #{url}: #{e.message}"
+      return false
     end
   end
 
