@@ -24,21 +24,21 @@ class Service < ActiveXML::Base
   def addDownloadURL( url )
      uri = URI.parse( url )
 
-     param = {}
-     param[:host] = uri.host
-     param[:protocol] = uri.scheme
-     param[:path] = uri.path
+     p = []
+     p << { :name => "host", :value => uri.host }
+     p << { :name => "protocol", :value => uri.scheme }
+     p << { :name => "path", :value => uri.path }
      unless ( uri.scheme == "http" and uri.port == 80 ) or ( uri.scheme == "https" and uri.port == 443 ) or ( uri.scheme == "ftp" and uri.port == 21 )
-        # be nice and skip it for simpler file
-        param[:port] = uri.port
+        # be nice and skip it for simpler _service file
+        p << { :name => "port", :value => uri.port }
      end
 
      if uri.path =~ /.src.rpm$/ or uri.path =~ /.spm$/
         # download and extract source package
-        addService( "download_src_package", -1, param )
+        addService( "download_src_package", -1, p )
      else
         # just download
-        addService( "download_url", -1, param )
+        addService( "download_url", -1, p )
      end
   end
 
@@ -50,7 +50,7 @@ class Service < ActiveXML::Base
      return true
   end
 
-  def addService( name, position=-1, opts={} )
+  def addService( name, position=-1, parameters=[] )
      if position < 0 # append it
         add_element 'service', 'name' => name
         element = data.find("/services/service").last
@@ -61,10 +61,10 @@ class Service < ActiveXML::Base
         element = service_elements[position-1].prev
         element['name'] = name.to_s
      end
-     opts.each_pair{ |key, value|
+     parameters.each{ |p|
        param = XML::Node.new 'param'
-       param['name'] = key.to_s
-       param << value.to_s
+       param['name'] = p['name'].to_s
+       param << p['value'].to_s
        element << param
      }
      return true

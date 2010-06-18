@@ -40,7 +40,7 @@ class DriverUpdateController < PackageController
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
 
-    dud_params = {} 
+    dud_params = []
     services.addService( 'create_dud_kiwi', -1, dud_params )
 
     services.save
