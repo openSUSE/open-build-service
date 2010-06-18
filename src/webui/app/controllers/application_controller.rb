@@ -107,7 +107,11 @@ class ApplicationController < ActionController::Base
     name =~ /^\w[-_+\w\.:]+$/
   end
 
-  def valid_package_name? name
+  def valid_package_name_read? name
+    name =~ /^\w[-_+\w\.:]*$/
+  end
+
+  def valid_package_name_write? name
     name =~ /^\w[-_+\w\.]*$/
   end
 

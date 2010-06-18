@@ -179,7 +179,7 @@ class PackageController < ApplicationController
 
   def wizard_new
     if params[:name]
-      if !valid_package_name? params[:name]
+      if !valid_package_name_write? params[:name]
         flash[:error] = "Invalid package name: '#{params[:name]}'"
         redirect_to :action => 'wizard_new', :project => params[:project]
       else
@@ -229,7 +229,7 @@ class PackageController < ApplicationController
     @package_title = params[:title]
     @package_description = params[:description]
 
-    if !valid_package_name? params[:name]
+    if !valid_package_name_write? params[:name]
       flash[:error] = "Invalid package name: '#{params[:name]}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
@@ -281,7 +281,7 @@ class PackageController < ApplicationController
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
 
-    if !valid_package_name? @linked_package
+    if !valid_package_name_read? @linked_package
       flash[:error] = "Invalid package name: '#{@linked_package}'"
       redirect_to :controller => :project, :action => 'new_package_link', :project => params[:project] and return
     end
@@ -299,7 +299,7 @@ class PackageController < ApplicationController
     end
 
     @target_package = @linked_package if @target_package.blank?
-    if !valid_package_name? @target_package
+    if !valid_package_name_write? @target_package
       flash[:error] = "Invalid target package name: '#{@target_package}'"
       redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
     end
@@ -887,7 +887,7 @@ class PackageController < ApplicationController
   end
 
   def require_package
-    unless valid_package_name? params[:package]
+    unless valid_package_name_read? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"
       flash[:error] = "\"#{params[:package]}\" is not a valid package name"
       redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
