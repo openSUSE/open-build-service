@@ -12,7 +12,7 @@
 
 <div id="build_result_popup"><div id="build_result_html"></div></div>
 
-<% unless requests.size %>
+<% if requests.blank? %>
   <p><em>No pending requests.</em></p>
 <% else %> 
 
