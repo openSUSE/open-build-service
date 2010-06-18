@@ -96,7 +96,17 @@
 
   <p>
     <strong>Name: </strong>
-    <%= text_field_tag 'name', '', :size => 50 %>
+    <%= text_field_tag 'name', @name, :size => 50 %>
+  </p>
+
+  <p>
+    <strong>Distname: </strong>
+    <%= text_field_tag 'distname', @distname, :size => 50 %>
+  </p>
+
+  <p>
+    <strong>Flavour: </strong>
+    <%= text_field_tag 'flavour', @flavour, :size => 50 %>
   </p>
 
   <p>

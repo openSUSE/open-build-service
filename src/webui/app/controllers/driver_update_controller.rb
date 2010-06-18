@@ -24,28 +24,35 @@ class DriverUpdateController < PackageController
     end
 
     @repositories = service.find( 'param[@name="instrepo"]' ).map{|repo| {:project => repo.content.split('/')[0], :repo => repo.content.split('/')[1] } }
-
     @packages = []
     @packages |= service.find( 'param[@name="repopackage"]' ).map{|package| {:name => package.content, :type => 'repopackage'} }
     @packages |=  service.find( 'param[@name="instsys"]' ).map{|package| {:name => package.content, :type => 'instsys'} }
     @packages |=  service.find( 'param[@name="module"]' ).map{|package| {:name => package.content, :type => 'module'} }
+    @name = service.find( 'param[@name="name"]' ).first.content if service.find( 'param[@name="name"]' ).first
+    @distname = service.find( 'param[@name="distname"]' ).first.content if service.find( 'param[@name="distname"]' ).first
+    @flavour = service.find( 'param[@name="flavour"]' ).first.content if service.find( 'param[@name="flavour"]' ).first
 
     render :create
   end
 
 
   def save
-
+    valid_http_methods :post
     # find the 'create_dud_kiwi' service
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
 
     dud_params = []
-    services.addService( 'create_dud_kiwi', -1, dud_params )
+    dud_params << {:name => 'name', :value => params[:name]}
+    dud_params << {:name => 'distname', :value => params[:distname]}
+    dud_params << {:name => 'flavour', :value => params[:flavour]}
+    dud_params |= params[:projects].map{|project| {:name => 'instrepo', :value => project}}
+    dud_params |= params[:packages].map{|package| {:name => 'repopackage', :value => package}}
 
+    services.removeService( 'create_dud_kiwi' )
+    services.addService( 'create_dud_kiwi', -1, dud_params )
     services.save
 
-    #flash[:warn] = "Saving of DUD kiwi configs is not yet implemented"
     flash[:success] = "Saved Driver update disk service."
     redirect_to :controller => :package, :action => :show, :project => @project, :package => @package
   end
