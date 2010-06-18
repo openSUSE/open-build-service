@@ -115,6 +115,9 @@ class ProjectStatusHelper
       key = proj + "/" + packname
       next unless mypackages.has_key?(key)
       mypackages[key].srcmd5 = p.attributes['srcmd5']
+      if p.attributes['verifymd5']
+        mypackages[key].verifymd5 = p.attributes['verifymd5']
+      end
     end if data
   end
 
@@ -286,7 +289,8 @@ class ProjectStatusHelper
     mypackages.values.each do |package|
       if package.project == dbproj.name and package.link.project
 	newkey = package.link.project + "/" + package.link.package
-	package.link.targetmd5 = mypackages[newkey].srcmd5
+        package.link.targetmd5 = mypackages[newkey].verifymd5
+	package.link.targetmd5 ||= mypackages[newkey].srcmd5
       end
     end
 
