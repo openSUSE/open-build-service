@@ -107,8 +107,10 @@ function br_trigger_mouseout() {
 				 shown = false;
 				 lastTrigger = null;
 				 info.css('display', 'none');
-				 if (newTrigger)
-				   $(newTrigger).trigger("mouseover");
+				 if (newTrigger) {
+ 				   $(newTrigger).trigger("mouseover");
+				   newTrigger = null;
+				 }
 			       });
 			      }, hideDelay);
 
