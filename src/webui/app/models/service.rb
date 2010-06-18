@@ -63,8 +63,8 @@ class Service < ActiveXML::Base
      end
      parameters.each{ |p|
        param = XML::Node.new 'param'
-       param['name'] = p['name'].to_s
-       param << p['value'].to_s
+       param['name'] = p[:name]
+       param << p[:value]
        element << param
      }
      return true
