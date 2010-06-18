@@ -88,7 +88,7 @@ case "$1" in
 		rc_status
 	;;
 	status)
-		echo -n "Checking for obsrepserver: "
+		echo "Checking for obsrepserver and running processes: "
                 "$obsdir"/bs_serverstatus "$OBS_RUN_DIR"/bs_repserver.status
 		checkproc "$obsdir"/bs_repserver
 		rc_status -v
