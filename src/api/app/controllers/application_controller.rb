@@ -221,10 +221,10 @@ class ApplicationController < ActionController::Base
 
   def forward_from_backend(path)
 
-    if CONFIG['use_lighttpd_x_rewrite']
+    if CONFIG['x_rewrite_host']
       logger.debug "[backend] VOLLEY(light): #{path}"
       headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = SOURCE_HOST
+      headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
       head(200)
       return
     end

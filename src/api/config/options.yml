@@ -9,5 +9,5 @@ webui_url: http://localhost:3000
 
 # make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite
 # note that you need to enable the proxy-core option to allow this
-#use_lighttpd_x_rewrite: true
+#x_rewrite_host: localhost
 
