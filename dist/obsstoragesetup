@@ -330,7 +330,7 @@ EOF
 			fi
 			OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
 		done
-                if [ "$OBS_WORKER_INSTANCES" -lt 0 ]; then
+                if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
 			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
 			# How many parallel jobs make sense ?
 			NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
