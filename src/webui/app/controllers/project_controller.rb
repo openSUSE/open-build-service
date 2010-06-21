@@ -373,7 +373,6 @@ class ProjectController < ApplicationController
 
   def load_packages
     @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
-    @packages = Array.new unless @packages
   end
   protected :load_packages
 
