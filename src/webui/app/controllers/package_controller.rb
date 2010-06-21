@@ -111,7 +111,11 @@ class PackageController < ApplicationController
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
-        @link = find_cached(Link, :project => @project, :package => @package )
+        begin
+          @link = find_cached(Link, :project => @project, :package => @package )
+        rescue RuntimeError
+          # possibly thrown on bad link files
+        end
       elsif file[:name] == "_service"
         begin
           @services = find_cached(Service,  :project => @project, :package => @package )
