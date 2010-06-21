@@ -727,7 +727,7 @@ sub getlogfile {
 sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $path) = @_;
   my @s = stat($path);
-  die("$path: $!\n") unless @s;
+  die("404 $path: $!\n") unless @s;
   my $res = Build::query($path, 'evra' => 1, 'description' => 1);
   delete $res->{'source'};
   delete $res->{'hdrmd5'};
@@ -739,11 +739,11 @@ sub getbinary_info {
     my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
     my $bconf = Build::read_config($arch, [split("\n", $config)]);
     my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", "nopackages");
-    die("no such project/repository\n") unless $projpack->{'project'};
+    die("404 no such project/repository\n") unless $projpack->{'project'};
     my $proj = $projpack->{'project'}->[0];
-    die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
+    die("404 no such project\n") unless $proj && $proj->{'name'} eq $projid;
     my $repo = $proj->{'repository'}->[0];
-    die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
+    die("404 no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
     my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
     my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
     my $pool = BSSolv::pool->new();
