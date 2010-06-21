@@ -134,11 +134,9 @@ sub run_source_update {
   die("no _service file !") unless -e "_service";
 
   # remove all files from former service run
-  my @oldfiles;
   for my $file (grep {/^_service[:_]/} ls(".")) {
     print "remove ".$file."\n";
-    unlink( $file );
-    push @oldfiles, $file;
+    unlink($file);
   }
 
   # run all services
@@ -155,36 +153,35 @@ sub run_source_update {
         push @run, $BSConfig::service_wrapper->{'*'};
       }
     }
-    push @run, $servicedir."/".$service->{'name'};
+    push @run, "$servicedir/$service->{'name'}";
     for my $param (@{$service->{'param'}}) {
       next if $param->{'name'} eq 'outdir';
-      push @run, "--".$param->{'name'};
+      push @run, "--$param->{'name'}";
       push @run, $param->{'_content'};
     }
     push @run, "--outdir";
-    push @run, $myworkdir."/.tmp";
-    BSUtil::cleandir($myworkdir."/.tmp");
+    push @run, "$myworkdir/.tmp";
+    BSUtil::cleandir("$myworkdir/.tmp");
     if (qsystem(@run)) {
       BSUtil::cleandir(".");
      
       # Create error file
       local *F;
       if (open(F, '>>', "_service_error")) {
-         print F "service ".$service->{'name'}." ".join(' ',@run)." failed\n";
+         print F "service $service->{'name'} ".join(' ', @run)." failed\n";
          close F;
       }
       last;
     } else { 
       # copy files inside and add prefix
-      for my $file (grep {!/^[:\.]/} ls($myworkdir."/.tmp")) {
+      for my $file (grep {!/^[:\.]/} ls("$myworkdir/.tmp")) {
         my $tfile = "_service:".$service->{'name'}.":".$file;
-        rename( $myworkdir."/.tmp/".$file, $tfile );
-        @oldfiles = grep(!/$tfile$/, @oldfiles);
+        rename("$myworkdir/.tmp/".$file, $tfile);
       }
     }
   }
-  BSUtil::cleandir($myworkdir."/.tmp");
-  rmdir($myworkdir."/.tmp");
+  BSUtil::cleandir("$myworkdir/.tmp");
+  rmdir("$myworkdir/.tmp");
 
   # return modified sources
   my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service[_:]/} ls(".");
