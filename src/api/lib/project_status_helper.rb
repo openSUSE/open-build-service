@@ -41,7 +41,7 @@ class PackInfo
   def success(reponame, time, md5)
     # try to remember last success
     if @last_success.has_key? reponame
-      return if @last_success[reponame][0] > time
+      return if @last_success[reponame].time > time
     end
     @last_success[reponame] = OpenStruct.new :time => time, :md5 => md5
   end
