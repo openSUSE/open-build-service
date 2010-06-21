@@ -156,13 +156,13 @@ sub run_source_update {
       }
     }
     push @run, $servicedir."/".$service->{'name'};
-    push @run, $myworkdir."/.tmp";
     for my $param (@{$service->{'param'}}) {
       next if $param->{'name'} eq 'outdir';
       push @run, "--".$param->{'name'};
       push @run, $param->{'_content'};
     }
     push @run, "--outdir";
+    push @run, $myworkdir."/.tmp";
     BSUtil::cleandir($myworkdir."/.tmp");
     if (qsystem(@run)) {
       BSUtil::cleandir(".");
