@@ -2,7 +2,7 @@
 <% patchinfo_bread_crumb 'Patchinfo' -%>
 
 <div class="section">
-<div class="box show_left">
+<div class="box show_left show_right">
 <h2 style="display: inline"><%=h @package%></h2>
 <span>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>

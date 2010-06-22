@@ -15,89 +15,92 @@
 <% end %>
 
 <% form_tag :action => "save"  do %>
-<div class="section">
-<div class="box show_left">
-<h2 style="display: inline">Patchinfo-Editor for <%=h @package %></h2>
-</div>
-  <table class="patchinfo">
-    <tr>
-      <th>Packager: </th>
-      <td>
-        <%=@packager%>
-      </td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>Binaries: </th>
-      <td>
-        <% options = Array.new 
-        @binarylist.each {|d| options << "#{d.to_s}"}
-        opt = {:options => options}%>
-        <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true %>
-      </td>
-      <td>Please select the binaries (ctrl+left) which your patch includes</td>
-    </tr>
-    <tr>
-      <th>Bugzilla: </th>
-      <td>
-        <% i=0 %>
-        <% @buglist.each do |a| %>
-          <% a.each do |bug| %>
-            <%= bug.to_s%>
-          <%end%>
-          <%=  link_to image_tag('list-remove.png', :alt => "Remove Bug", :title => "Remove Bug"), {:controller => "patchinfo", :action => "delete_bugzilla", :project => @project.name, :package => @package, :delete_bug => a}, {:confirm => "Really remove bug #{a}?\n All unsafed changes get lost!"}%>,
-          <% i=i+1 %>
-          <% if i.modulo(3) == 0 %>
-            <br/>
-          <%end%>
-        <%end%>  
-    </td>
-      <td>List of bugs which the Patch fixes</td>
-    </tr>
-    <tr>
-      <th></th>  
-      <td>
-        <%= text_field_tag 'bugid', @bugid%>
-        <%= submit_tag "Add Bug", :onclick => "return #{confirm_javascript_function("Attention! All unsaved changes get lost!")}"%>
-      </td>
-      <td>Add an additional bug here (must have 6 numbers)</td>
-    </tr>
-    <tr>
-      <th>Swamp-ID: </th>
-      <td>
-        <%=text_field_tag('swampid', @swampid) %>
-      </td>
-      <td><div id= "infobox"> Enter a valid swampid</div></td>
-    </tr>
-    <tr>
-      <th>Category: </th>
-      <td>
-        <%= select_tag "category", options_for_select(["","normal", "security", "optional", "feature"], @category)%>
-      </td>
-      <td>Choose the category of your patch</td>
-    </tr>
-    <tr>
-      <th>Summary: </th>
-      <td>
-        <%=  text_area_tag 'summary', @summary, :rows => 5, :cols => 30 %>
-      </td>
-      <td>Enter a summary. It should have the following format:<br />
+  <div class="section">
+    <div class="box show_left show_right">
+      <h2 style="display: inline">Patchinfo-Editor for <%=h @package %></h2>
+    </div>
+    <table class="patchinfo">
+      <tr>
+        <th>Packager: </th>
+        <td>
+          <%=@packager%>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>Binaries: </th>
+        <td>
+          <% options = Array.new
+          @binarylist.each {|d| options << "#{d.to_s}"}
+          opt = {:options => options}%>
+          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true %>
+        </td>
+        <td>Please select the binaries (ctrl+left) which your patch includes</td>
+      </tr>
+      <tr>
+        <th>Bugzilla: </th>
+        <td>
+
+          <div id="buglist">
+            <% i=0 %>
+            <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
+            <div id="bug_<%= bug %>">
+              <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
+              <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
+              <% i=i+1 %>
+              <%= "<br/>" if i.modulo(3) == 0 %>
+            </div>
+            <%end%>
+          </div>
+        </td>
+        <td>List of bugs which the Patch fixes</td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>
+          <%= text_field_tag 'bugid', @bugid %>
+
+          <%= link_to 'Add Bug', '#', :onclick => '$("#buglist").append("<input type=\"hidden\" name=\"bug[]\" value=\"" + $("#bugid").val() + "\"/>" + $("#bugid").val() + ", "); $("#bugid").val(""); return false;' %>
+
+        </td>
+        <td>Add an additional bug here (must have 6 numbers)</td>
+      </tr>
+      <tr>
+        <th>Swamp-ID: </th>
+        <td>
+          <%=text_field_tag('swampid', @swampid) %>
+        </td>
+        <td><div id= "infobox"> Enter a valid swampid</div></td>
+      </tr>
+      <tr>
+        <th>Category: </th>
+        <td>
+          <%= select_tag "category", options_for_select(["","normal", "security", "optional", "feature"], @category)%>
+        </td>
+        <td>Choose the category of your patch</td>
+      </tr>
+      <tr>
+        <th>Summary: </th>
+        <td>
+          <%=  text_area_tag 'summary', @summary, :rows => 5, :cols => 30 %>
+        </td>
+        <td>Enter a summary. It should have the following format:<br />
           Mainpackage: ca. 50 signs long short-explanation what the patch fixes
-      </td>
-    </tr>
-    <tr>
-      <th>Description: </th>
-      <td>
-        <%=  text_area_tag 'description', @description, :rows => 10, :cols => 30 %>
-      </td>
-      <td>Enter a full description what your patch fixes</td>
-    </tr>
-    <tr><td></td><td></td><td align="right">
-      <%= submit_tag "Save Patchinfo" %>
-    </td></tr>
-  </table>
-<%= hidden_field_tag("project", @project.name)%>
-<%= hidden_field_tag("package", @package)%>
-</div>
+        </td>
+      </tr>
+      <tr>
+        <th>Description: </th>
+        <td>
+          <%=  text_area_tag 'description', @description, :rows => 10, :cols => 30 %>
+        </td>
+        <td>Enter a full description what your patch fixes</td>
+      </tr>
+      <tr><td></td><td></td><td align="right">
+          <%= submit_tag "Save Patchinfo" %>
+        </td></tr>
+    </table>
+    <%= hidden_field_tag("project", @project.name)%>
+    <%= hidden_field_tag("package", @package)%>
+  </div>
 <% end %>
 
