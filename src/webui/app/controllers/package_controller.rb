@@ -105,6 +105,37 @@ class PackageController < ApplicationController
     set_file_details
   end
 
+  def service_parameter
+    begin
+      @serviceid = params[:serviceid]
+      @services = find_cached(Service,  :project => @project, :package => @package )
+      @parameters = @services.getParameters(@serviceid)
+    rescue
+      @parameters = []
+    end
+  end
+
+  def update_parameters
+    required_parameters :project, :package, :serviceid
+    @project = params[:project]
+    @package = params[:package]
+    @serviceid = params[:serviceid]
+    @services = find_cached(Service,  :project => @project, :package => @package )
+
+    parameters=[]
+    params.keys.each do |key|
+      next unless key =~ /^parameter_/
+      name = key.gsub(/^parameter_([^_]*)_/, '')
+      parameters << { :name => name, :value => params[key] }
+    end
+
+    @services.setParameters( @serviceid, parameters )
+    @services.save
+    Service.free_cache :project => @project, :package => @package
+
+    redirect_to :action => 'files', :project => @project, :package => @package
+  end
+
   def set_file_details
     @files = @package.files
     @spec_count = 0

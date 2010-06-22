@@ -1,0 +1,76 @@
+<div id="dialog_wrapper">
+
+    <script type="text/javascript">
+    <%= yield :head_javascript %>
+    $(function() {
+      <%= yield :post_parameter_data %>
+       var data;
+       data = form.serialize();
+
+       $.ajax({  
+         type: "POST",  
+         url: "/package/update_parameters?project=<%=@project%>&package=<%=@package%>&serviceid=<%=@serviceid%>",
+         data: data,
+         success: remove_dialog()
+       });  
+    });
+    </script>
+
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="service_paramaters">
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">
+      Service Parameters
+    </div>
+
+    <p><div class="aligncenter buttons">
+      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+        <%= form_tag({:controller => "package", :action => "update_parameters"}, :method => "post") %>
+        <%= hidden_field_tag(:project, @project) %>
+        <%= hidden_field_tag(:package, @package) %>
+        <%= hidden_field_tag(:serviceid, @serviceid) %>
+        <!-- FIXME: send source revision, so in-between changes can be detected -->
+      <% end %>
+       <table>
+       <tr><td valign="top">Parameter</td><td>Value</td>
+       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+          <td>Remove</td>
+       <% end %>
+       </tr>
+         <% number = 0 %>
+         <% @parameters.each do |p|%>
+            <% number = number + 1 %>
+            <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+               <tr><td><%=p[:name]%></td>  <td><input type="text" name="parameter_<%=number%>_<%=p[:name]%>" value="<%=p[:value]%>"></td><td>X</td></tr>
+            <% else %>
+               <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
+            <% end %>
+         <% end %>
+<!-- Implement me: add new parameters
+         <tr><td><select name="add_parameter_name">
+                    <!-- FIXME: read these options via model from installed config files -->
+                    <option value="protocol" selected>Protocol</option>
+                    <option value="host" selected>Host</option>
+                    <option value="port" selected>Port</option>
+                    <option value="path" selected>Path</option>
+             </select></td>
+             <td><input type="submit" value="+"></td>
+         </tr>
+-->
+       </table>
+
+     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+       <input type="submit" />
+     </form>
+     <% end %>
+    </div></p>
+
+    <p><div class="aligncenter buttons">
+        <%= link_to_function 'Close', 'remove_dialog()'%>
+    </div></p>
+
+
+  </div>
+
+</div></div>

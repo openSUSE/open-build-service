@@ -50,6 +50,7 @@ class Service < ActiveXML::Base
      return true
   end
 
+  # parameters need to be given as an array with hash pairs :name and :value
   def addService( name, position=-1, parameters=[] )
      if position < 0 # append it
         add_element 'service', 'name' => name
@@ -70,11 +71,41 @@ class Service < ActiveXML::Base
      return true
   end
 
+  def getParameters(serviceid)
+     parameters = data.find("/services/service[#{serviceid}]/param")
+     return nil if not parameters or parameters.count <= 0
+
+     ret = []
+     parameters.each do |p|
+       ret << { :name => p['name'].to_s, :value => p.first.to_s }
+     end
+
+     return ret
+  end
+
+  def setParameters( serviceid, parameters=[] )
+     service = data.find("/services/service[#{serviceid}]")
+     return false if not service or service.count <= 0
+
+     # remove all existing parameters
+     data.find("/services/service[#{serviceid}]/param").each do |p|
+       p.remove!
+     end
+
+     # remove all existing parameters
+     parameters.each{ |p|
+       param = XML::Node.new 'param'
+       param['name'] = p[:name]
+       param << p[:value]
+       service.first << param
+     }
+     return true
+  end
+
   def moveService( from, to )
      service_elements = data.find("/services/service")
      return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
      service_elements[to-1].prev = service_elements[from-1]
-#     service_elements[from-1].remove!
   end
 
   def execute()
