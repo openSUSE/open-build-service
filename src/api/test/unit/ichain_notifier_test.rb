@@ -2,7 +2,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'ichain_notifier'
 
 class IchainNotifierTest < ActiveSupport::TestCase
-  FIXTURES_PATH = File.dirname(__FILE__) + '/../fixtures'
   CHARSET = "utf-8"
 
   fixtures :users
@@ -43,7 +42,7 @@ class IchainNotifierTest < ActiveSupport::TestCase
 
   private
     def read_fixture(action)
-      IO.readlines("#{FIXTURES_PATH}/ichain_notifier/#{action}")
+      IO.readlines("#{ActionController::TestCase.fixture_path}/ichain_notifier/#{action}")
     end
 
     def encode(subject)

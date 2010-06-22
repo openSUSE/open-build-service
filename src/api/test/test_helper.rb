@@ -2,7 +2,6 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 require 'action_controller/integration'
-require 'opensuse/backend'
 
 module ActionController
   module Integration #:nodoc:
@@ -33,205 +32,95 @@ module ActionController
 
   class IntegrationTest
 
-  @@auth = nil
-
-  def self.reset_auth
     @@auth = nil
-  end
 
-  def self.basic_auth
-    return @@auth
-  end
+    def self.reset_auth
+      @@auth = nil
+    end
 
-  def prepare_request_with_user( request, user, passwd )
-    re = 'Basic ' + Base64.encode64( user + ':' + passwd )
-    @@auth = re
-  end 
+    def self.basic_auth
+      return @@auth
+    end
+
+    def prepare_request_with_user( request, user, passwd )
+      re = 'Basic ' + Base64.encode64( user + ':' + passwd )
+      @@auth = re
+    end
   
-  # will provide a user without special permissions
-  def prepare_request_valid_user ( request )
-    prepare_request_with_user request, 'tom', 'thunder'
-  end
+    # will provide a user without special permissions
+    def prepare_request_valid_user ( request )
+      prepare_request_with_user request, 'tom', 'thunder'
+    end
   
-  def prepare_request_invalid_user( request )
-    prepare_request_with_user request, 'tom123', 'thunder123'
-  end
+    def prepare_request_invalid_user( request )
+      prepare_request_with_user request, 'tom123', 'thunder123'
+    end
 
-  def setup_mock_backend_data
-    `cp -r #{MOCK_BACKEND_DATA_DIR} #{MOCK_BACKEND_DATA_TMPDIR}`
-  end
-
-  def teardown_mock_backend_data
-    `rm -rf #{MOCK_BACKEND_DATA_TMPDIR}`
-  end
-
-
-  def backup_source_test_data ( )
-    @test_source_datadir = File.expand_path(File.dirname(__FILE__) + "/../../backend-dummy/data_test/source")
-    @test_source_databackupdir = File.expand_path(File.dirname(__FILE__) + "/../../backend-dummy/data_source_test_backup")  
-    `rm -rf #{@test_source_databackupdir}`
-    `cp -r #{@test_source_datadir} #{@test_source_databackupdir}`
-  end
-
-  def restore_source_test_data ()
-    `rm -rf #{@test_source_datadir}`
-    `cp -r #{@test_source_databackupdir} #{@test_source_datadir}`
-  end
-
-  def backup_platform_test_data ( )
-    @test_platform_datadir = File.expand_path(File.dirname(__FILE__) + "/../../backend-dummy/data_test/platform")
-    @test_platform_databackupdir = File.expand_path(File.dirname(__FILE__) + "/../../backend-dummy/data_platform_test_backup")  
-    `rm -rf #{@test_platform_databackupdir}`
-    `cp -r #{@test_platform_datadir} #{@test_platform_databackupdir}`
-  end
-
-  def restore_platform_test_data ()
-    `rm -rf #{@test_platform_datadir}`
-    `cp -r #{@test_platform_databackupdir} #{@test_platform_datadir}`
-  end
+    def load_backend_file(path)
+      File.open(ActionController::TestCase.fixture_path + "/backend/#{path}").read()
+    end
 
   end 
 end
 
-module Suse
-  class MockResponse 
-    @@mock_path_prefix = MOCK_BACKEND_DATA_TMPDIR 
-    
-    def initialize(opt={})
-      defaults = {:data => "<status code='ok'/>", :content_type => "text/xml"}
-      opt = defaults.merge opt
+module Test
+  module Unit
+    class AutoRunner
+      alias :old_run :run
 
-      @data = opt[:data]
-      @content_type = opt[:content_type]
-    end
+      def run
+        srcsrv_out = nil
+	logger = RAILS_DEFAULT_LOGGER
+	FileUtils.mkdir_p "#{RAILS_ROOT}/tmp/backend_config"
+	file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
+	File.open("../backend/BSConfig.pm.template") do |template|
+	  template.readlines.each do |line|
+	    line.gsub!(/(our \$bsuser)/, '#\1')
+	    line.gsub!(/(our \$bsgroup)/, '#\1')
+	    line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
+	    line.gsub!(/:5352/, ":#{SOURCE_PORT}")
+	    line.gsub!(/:5252/, ":3201") # not yet used
+	    file.print line
+	  end
+	end
+	file.close
 
-    def load(path)
-      fullpath = @@mock_path_prefix+path.split(/\?/)[0]
-
-      @error = false
-
-      begin
-        if File.ftype(fullpath) == "directory"
-          fullpath += "/.directory"
+        srcsrv = Thread.new do
+          Dir.chdir("../backend")
+          srcsrv_out = IO.popen("perl -I#{RAILS_ROOT}/tmp/backend_config ./bs_srcserver 2>&1")
+          Process.setpgid srcsrv_out.pid, 0
+          puts "popened #{Process.pid} -> #{srcsrv_out.pid}"
+          while srcsrv_out
+            begin
+              line = srcsrv_out.gets
+              logger.debug line.strip unless line.blank?
+            rescue IOError
+              break
+            end
+          end
+        end
+        while true
+          begin
+            Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
+          rescue Errno::ECONNREFUSED
+	    #puts "waiting"
+            sleep 1
+            next
+          end
+          break
         end
 
-        File.open(fullpath, "r") do |file|
-          @data = file.readlines.join("\n")
-        end
-
-        @content_type = `file -bi #{path}`
-      rescue Errno::ENOENT => e
-        logger.debug "### error: #{e.class}"
-        @data = "<status code='404'><message>Not found</message></status>"
-        @content_type = "text/plain"
-        @error = true
+        ret = old_run
+        puts "kill #{srcsrv_out.pid}"
+        Process.kill "INT", srcsrv_out.pid
+        srcsrv_out.close
+        srcsrv_out = nil
+        srcsrv.join
+        FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
+        FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
+        return ret
       end
     end
-
-    def to_s
-      return @data
-    end
-
-    def bytesize
-      return @data.size
-    end
-
-    def fetch(field)
-      if field.downcase == "content-type"
-        return @content_type
-      end
-    end
-
-    def body
-      @data
-    end
-
-    def error?
-      @error
-    end
-
-    def logger
-      RAILS_DEFAULT_LOGGER
-    end
-  end
-
-  class MockWriter
-    @@mock_path_prefix = MOCK_BACKEND_DATA_TMPDIR 
-    def self.write(path, data)
-      path = path.split(/\?/)[0]
-      fullpath = @@mock_path_prefix+path
-      FileUtils.mkdir_p(File.dirname(fullpath))
-      File.open(fullpath,"w+") do |file|
-        file.write data
-      end
-    end
-
-    def self.delete(path)
-      # do not really delete things - if things go wrong,
-      # I do not want my ~ gone
-      path = @@mock_path_prefix+path
-      File.rename(path, path + ".away")
-    end
-
-    def self.logger
-      RAILS_DEFAULT_LOGGER
-    end
-  end
-
-  class Backend
-      def self.get( path, in_headers={})
-        logger.debug "### mock get: #{path}"
-        response = MockResponse.new
-        response.load(path)
-        if response.error?
-          raise HTTPError, response
-        end
-        return response
-      end
-
-      def self.put( path, data, in_headers={})
-        logger.debug "### mock put: "+[path, data].join(", ")
-        if data.respond_to? 'read'
-          data = data.read
-        end
-        MockWriter.write path, data
-        return MockResponse.new 
-      end
-
-      def self.post( path, data, in_headers={})
-        logger.debug "### mock post: "+[path, data].join(", ")
-        if path =~ /\/request\?cmd=create/
-          return self.get("/request/42", in_headers)
-        end
-        if data.respond_to? 'read'
-          data = data.read
-        end
-        MockWriter.write path, data
-        return MockResponse.new
-      end
-
-      def self.delete(path, in_headers={}) 
-        logger.debug "### mock delete: "
-        MockWriter.delete path
-        return MockResponse.new
-      end
-
-      class << self
-        alias_method :get_source, :get
-        alias_method :put_source, :put
-      end
-
   end
 end
 
-require 'controllers/application_controller'
-
-class ApplicationController
-  def backend_post( path, data )
-    Suse::Backend.post(path, data)
-  end
-
-  def forward_from_backend(path)
-    send_data(Suse::Backend.get(path))
-  end
-end

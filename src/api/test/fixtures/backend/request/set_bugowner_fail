@@ -1,0 +1,8 @@
+  <request>
+  <action type='set_bugowner'>
+    <target project='kde4' package='not_there' />
+    <person name='tscholz' />
+  </action>
+  <description/>
+  <state name='new'/>
+  </request>

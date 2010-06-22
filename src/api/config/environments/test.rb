@@ -22,7 +22,7 @@ config.action_mailer.delivery_method = :test
 config.cache_store = :memory_store
 
 SOURCE_HOST = "localhost"
-SOURCE_PORT = 3003
+SOURCE_PORT = 3200
 
 ICHAIN_MODE=:off
 
@@ -43,3 +43,4 @@ SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/api")+"/"
 
 MOCK_BACKEND_DATA_DIR = File.expand_path( RAILS_ROOT+"/test/fixtures/backend" )
 MOCK_BACKEND_DATA_TMPDIR= File.expand_path( RAILS_ROOT+"/test/fixtures/backend_tmp" )
+

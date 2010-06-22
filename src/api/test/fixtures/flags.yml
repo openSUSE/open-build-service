@@ -1,7 +1,7 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 first_build_flag_for_project_home_tscholz:
   id: 1
-  status: "disabled"
+  status: "disable"
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
@@ -10,7 +10,7 @@ first_build_flag_for_project_home_tscholz:
   
 second_build_flag_for_project_home_tscholz:
   id: 2
-  status: "disabled"
+  status: "disable"
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
@@ -19,7 +19,7 @@ second_build_flag_for_project_home_tscholz:
   
 first_build_flag_for_package_TestPack:
   id: 3
-  status: "enabled"
+  status: "enable"
   repo: "10.2"
   architecture_id: 1
   db_package_id: 10095
@@ -28,7 +28,7 @@ first_build_flag_for_package_TestPack:
 
 first_publish_flag_for_project_home_tscholz:
   id: 4
-  status: "disabled"
+  status: "disable"
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
@@ -37,7 +37,7 @@ first_publish_flag_for_project_home_tscholz:
   
 second_publish_flag_for_project_home_tscholz:
   id: 5
-  status: "enabled"
+  status: "enable"
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
@@ -46,7 +46,7 @@ second_publish_flag_for_project_home_tscholz:
 		
 first_publish_flag_for_package_TestPack:
   id: 6
-  status: "enabled"
+  status: "enable"
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095
@@ -55,7 +55,7 @@ first_publish_flag_for_package_TestPack:
   
 first_debug_flag_for_project_home_tscholz:
   id: 7
-  status: "disabled"
+  status: "disable"
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
@@ -64,7 +64,7 @@ first_debug_flag_for_project_home_tscholz:
   
 second_debug_flag_for_project_home_tscholz:
   id: 8
-  status: "enabled"
+  status: "enable"
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
@@ -73,7 +73,7 @@ second_debug_flag_for_project_home_tscholz:
 		
 first_debug_flag_for_package_TestPack:
   id: 9
-  status: "enabled"
+  status: "enable"
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095

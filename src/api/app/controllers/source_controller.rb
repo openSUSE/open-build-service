@@ -520,7 +520,7 @@ class SourceController < ApplicationController
       if @project
         #project exists, change it
         unless @http_user.can_modify_project? @project
-          logger.debug "user #{user.login} has no permission to modify project #{@project}"
+          logger.debug "user #{user.login} has no permission to modify project #{@project.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
           return

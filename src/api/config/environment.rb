@@ -80,11 +80,6 @@ ActionController::Base.perform_caching = true
 ActiveRbac.controller_layout = "rbac"
 
 ActiveXML::Base.config do |conf|
-  if RAILS_ENV == "test"
-    # changed metadata is not written to the backend server
-    conf.global_write_through = false
-  end
-
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|

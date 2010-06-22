@@ -355,7 +355,7 @@ class User < ActiveRecord::Base
   def has_local_role?( role, object )
     case object
       when DbPackage
-        logger.debug "running local role package check: user #{self.login}, project #{object.name}, role '#{role.title}'"
+        logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
         rels = package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
         groups.each do |g|
@@ -383,7 +383,7 @@ class User < ActiveRecord::Base
   def has_local_permission?( perm_string, object )
     case object
     when DbPackage
-      logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
+      logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
       #check permission for given package
       rels = package_user_role_relationships.find :all, :conditions => ["db_package_id = ?", object], :include => :role
       rels += PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 

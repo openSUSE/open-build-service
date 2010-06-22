@@ -246,6 +246,8 @@ class ApplicationController < ActionController::Base
       end
     end
     opts[:length] = file.length
+    # streaming makes it very hard for test cases to verify output
+    opts[:stream] = false if Rails.env.test?
     send_file(file.path, opts)
     file.close
   end

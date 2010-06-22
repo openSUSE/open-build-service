@@ -125,6 +125,9 @@ class DbPackageTest < ActiveSupport::TestCase
       </package>"
       )
       
+    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
+    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
+
     @package.store_axml(axml)
     
     assert_equal 0, @package.build_flags.size

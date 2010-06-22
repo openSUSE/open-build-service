@@ -25,9 +25,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     @controller = SourceController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    # make a backup of the XML test files
-    # backup_source_test_data
-    setup_mock_backend_data
+
+    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
+    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
+    Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
+    Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
+    Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
+    Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
+    Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
   end
 
   def test_get_projectlist
@@ -80,7 +85,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
-      :children => { :count => 3, :only => { :tag => "entry" } }
+      :children => { :only => { :tag => "entry" } }
   end
   
   def test_get_package_meta
@@ -453,14 +458,14 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def add_file_to_package
-    teststring = "&;" 
+    teststring = '&;'
     put "/source/kde4/kdelibs/testfile", teststring
     assert_response :success
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_select "revision > srcmd5", '325ed8671e5201c3a91639edf59547de'
   
     get "/source/kde4/kdelibs/testfile"
     assert_response :success
-    assert_equal( @response.body.to_s, teststring )
+    assert_equal teststring, @response.body
   end
   private :add_file_to_package
   
@@ -547,10 +552,4 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal ret.repository.path.project, "home:tscholz"
   end
 
-  def teardown  
-    # restore the XML test files
-    # restore_source_test_data
-    teardown_mock_backend_data
-  end
-  
 end

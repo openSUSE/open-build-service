@@ -1,0 +1,8 @@
+  <request>
+  <action type='submit'>
+    <source project='home:guest' package='mypackage' rev='1' />
+    <target project='openSUSE:Factory' package='mypackage' />
+  </action>
+  <description/>
+  </request>
+

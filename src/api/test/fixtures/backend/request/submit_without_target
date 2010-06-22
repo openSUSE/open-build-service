@@ -1,0 +1,7 @@
+  <request>
+  <action type='submit'>
+    <source project='home:tscholz' package='TestPack' />
+  </action>
+  <description/>
+  </request>
+

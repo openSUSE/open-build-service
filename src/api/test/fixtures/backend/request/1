@@ -1,7 +1,8 @@
-<request id='42'>
+<request>
   <action type='submit'>
     <source project='home:tscholz' package='wpa_supplicant' rev='2'/>
     <target project='kde4' package='wpa_supplicant'/>
   </action>
   <description/>
+  <state name="new" who="coolo"/>
 </request>

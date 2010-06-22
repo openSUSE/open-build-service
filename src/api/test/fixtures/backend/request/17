@@ -1,8 +1,0 @@
-<request id='17' type='submit'>
-  <submit>
-    <source project='home:tscholz' package='wpa_supplicant' rev='2' />
-    <target project='kde4' package='wpa_supplicant' />
-  </submit>
-  <description></description>
-</request>
-
