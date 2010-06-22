@@ -40,6 +40,7 @@ class SearchController < ApplicationController
     @results = []
     @search_what.each do |s_what|
 
+      @search_text.gsub!("'", "")
       # build xpath predicate
       if params[:advanced]
         p = []
