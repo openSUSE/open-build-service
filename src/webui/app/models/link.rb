@@ -43,7 +43,7 @@ class Link < ActiveXML::Base
   def has_add_patch? filename
     if self.has_element? "patches"
       self.patches.each_add do |patch|
-        if patch.name == filename
+        if patch.has_attribute? 'name' and (patch.name == filename)
           return true
         end
       end
