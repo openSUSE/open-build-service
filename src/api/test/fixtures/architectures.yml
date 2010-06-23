@@ -1,7 +1,7 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-i386:
+i586:
   id: 1
-  name: i386
+  name: i586
   selectable: 1
 x86_64:
   id: 2

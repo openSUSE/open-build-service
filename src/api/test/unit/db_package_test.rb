@@ -42,13 +42,13 @@ class DbPackageTest < ActiveSupport::TestCase
         <title>My Test package</title>
         <description></description>
         <build>
-          <enable repository='10.2' arch='i386'/>
+          <enable repository='10.2' arch='i586'/>
         </build>
         <publish>
           <enable repository='10.1' arch='x86_64'/>
         </publish>
         <debuginfo>
-          <disable repository='10.0' arch='i386'/>
+          <disable repository='10.0' arch='i586'/>
         </debuginfo>        
         <url></url>
       </package>"
@@ -64,7 +64,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 1, @package.build_flags.size
     assert_equal 'enable', @package.build_flags[0].status
     assert_equal '10.2', @package.build_flags[0].repo
-    assert_equal 'i386', @package.build_flags[0].architecture.name
+    assert_equal 'i586', @package.build_flags[0].architecture.name
     assert_equal 0, @package.build_flags[0].position
     assert_nil @package.build_flags[0].db_project    
     assert_equal 'TestPack', @package.build_flags[0].db_package.name
@@ -80,7 +80,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 1, @package.debuginfo_flags.size
     assert_equal 'disable', @package.debuginfo_flags[0].status
     assert_equal '10.0', @package.debuginfo_flags[0].repo
-    assert_equal 'i386', @package.debuginfo_flags[0].architecture.name
+    assert_equal 'i586', @package.debuginfo_flags[0].architecture.name
     assert_equal 0, @package.debuginfo_flags[0].position
     assert_nil @package.debuginfo_flags[0].db_project  
     assert_equal 'TestPack', @package.debuginfo_flags[0].db_package.name        
@@ -119,7 +119,7 @@ class DbPackageTest < ActiveSupport::TestCase
         <title>My Test package</title>
         <description></description>
         <debuginfo>
-          <disable repository='10.0' arch='i386'/>
+          <disable repository='10.0' arch='i586'/>
         </debuginfo>    
         <url></url>
       </package>"

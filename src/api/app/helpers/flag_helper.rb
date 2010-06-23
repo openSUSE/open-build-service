@@ -1,5 +1,7 @@
 module FlagHelper
 
+   class SaveError < Exception; end
+
    def update_all_flags(obj)
       %w(build publish debuginfo useforbuild binarydownload sourceaccess privacy access).each do |flagtype|
         update_flags( obj, flagtype )
@@ -32,7 +34,7 @@ module FlagHelper
           arch = nil
           if xmlflag.has_attribute? :arch
             arch = Architecture.find_by_name(xmlflag.arch)
-            raise SaveError.new( "Error: Architecture type '#{xmlarch}' not found." ) if arch.nil?
+            raise SaveError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
           end
 
           repo = xmlflag.repository if xmlflag.has_attribute? :repository

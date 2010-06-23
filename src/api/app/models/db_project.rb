@@ -3,7 +3,6 @@ require 'opensuse/backend'
 class DbProject < ActiveRecord::Base
   include FlagHelper
 
-  class SaveError < Exception; end
   class CycleError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy

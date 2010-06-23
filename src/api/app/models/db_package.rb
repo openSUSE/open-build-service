@@ -1,7 +1,6 @@
 class DbPackage < ActiveRecord::Base
   include FlagHelper
 
-  class SaveError < Exception; end
   class CycleError < Exception; end
   belongs_to :db_project
 

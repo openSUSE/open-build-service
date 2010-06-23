@@ -39,13 +39,13 @@ class DbProjectTest < ActiveSupport::TestCase
         <title>tscholz's Home Project</title>
         <description></description> 
         <build> 
-          <disabled repository='10.2' arch='i386'/>
+          <disabled repository='10.2' arch='i586'/>
         </build>
         <publish>
           <enabled repository='10.2' arch='x86_64'/>
         </publish>
         <debuginfo>
-          <disabled repository='10.0' arch='i386'/>
+          <disabled repository='10.0' arch='i586'/>
         </debuginfo>
       </project>"
       )
@@ -60,7 +60,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 1, @project.build_flags.size
     assert_equal 'disabled', @project.build_flags[0].status
     assert_equal '10.2', @project.build_flags[0].repo
-    assert_equal 'i386', @project.build_flags[0].architecture.name
+    assert_equal 'i586', @project.build_flags[0].architecture.name
     assert_equal 0, @project.build_flags[0].position
     assert_nil @project.build_flags[0].db_package    
     assert_equal 'home:tscholz', @project.build_flags[0].db_project.name
@@ -76,7 +76,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 1, @project.debuginfo_flags.size
     assert_equal 'disabled', @project.debuginfo_flags[0].status
     assert_equal '10.0', @project.debuginfo_flags[0].repo
-    assert_equal 'i386', @project.debuginfo_flags[0].architecture.name
+    assert_equal 'i586', @project.debuginfo_flags[0].architecture.name
     assert_equal 0, @project.debuginfo_flags[0].position
     assert_nil @project.debuginfo_flags[0].db_package    
     assert_equal 'home:tscholz', @project.debuginfo_flags[0].db_project.name      
@@ -117,10 +117,10 @@ class DbProjectTest < ActiveSupport::TestCase
         <title>tscholz's Home Project</title>
         <description></description>
         <build>
-          <enable repository='10.2' arch='i386'/>
+          <enable repository='10.2' arch='i586'/>
         </build>      
         <url></url>
-        <disable repository='10.0' arch='i386'/>
+        <disable repository='10.0' arch='i586'/>
       </project>"
       )    
   
@@ -135,7 +135,7 @@ class DbProjectTest < ActiveSupport::TestCase
         <title>tscholz's Home Project</title>
         <description></description>
         <debuginfo>
-          <disable repository='10.0' arch='i386'/>
+          <disable repository='10.0' arch='i586'/>
         </debuginfo>    
         <url></url>
         <disable/>

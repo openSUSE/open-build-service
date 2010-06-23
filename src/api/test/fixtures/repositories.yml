@@ -19,6 +19,7 @@ deleted:
   name: gone
   db_project_id: 1000
   id: 84
-home_tscholz_standard:
-  name: standard
+home_tscholz_102:
+  name: 10.2
   db_project_id: 502
+  id: 85

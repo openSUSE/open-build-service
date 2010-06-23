@@ -547,8 +547,8 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:tom:branches:home:tscholz/_meta"
     ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.repository.name, "standard"
-    assert_equal ret.repository.path.repository, "standard"
+    assert_equal ret.repository.name, "10.2"
+    assert_equal ret.repository.path.repository, "10.2"
     assert_equal ret.repository.path.project, "home:tscholz"
   end
 
