@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100429144748) do
+ActiveRecord::Schema.define(:version => 20100609200000) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -343,9 +343,9 @@ ActiveRecord::Schema.define(:version => 20100429144748) do
   add_index "static_permissions", ["title"], :name => "static_permissions_title_index", :unique => true
 
   create_table "status_histories", :force => true do |t|
-    t.integer  "time"
-    t.string   "key"
-    t.integer  "value"
+    t.integer "time"
+    t.string  "key"
+    t.integer "value"
   end
 
   add_index "status_histories", ["time", "key"], :name => "index_status_histories_on_time_and_key"
