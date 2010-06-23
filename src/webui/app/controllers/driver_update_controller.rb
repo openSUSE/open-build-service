@@ -16,7 +16,7 @@ class DriverUpdateController < PackageController
     # find the 'create_dud_kiwi' service
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
-    service = services.data.find( "service[@name='create_dud_kiwi']" ).first
+    service = services.data.find( "service[@name='generator_driver_update_disk']" ).first
 
     if service.blank?
       flash[:warn] = "No Driver update disk section found in _services, creating new"
@@ -38,7 +38,7 @@ class DriverUpdateController < PackageController
 
   def save
     valid_http_methods :post
-    # find the 'create_dud_kiwi' service
+    # find the 'generator_driver_update_disk' service
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
 
@@ -49,8 +49,8 @@ class DriverUpdateController < PackageController
     dud_params |= params[:projects].map{|project| {:name => 'instrepo', :value => project}}
     dud_params |= params[:packages].map{|package| {:name => 'repopackage', :value => package}}
 
-    services.removeService( 'create_dud_kiwi' )
-    services.addService( 'create_dud_kiwi', -1, dud_params )
+    services.removeService( 'generator_driver_update_disk' )
+    services.addService( 'generator_driver_update_disk', -1, dud_params )
     services.save
 
     flash[:success] = "Saved Driver update disk service."
