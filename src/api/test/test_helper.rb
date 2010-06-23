@@ -69,9 +69,14 @@ module Test
       alias :old_run :run
 
       def run
+	Thread.abort_on_exception = true
+
         srcsrv_out = nil
 	logger = RAILS_DEFAULT_LOGGER
-	FileUtils.mkdir_p "#{RAILS_ROOT}/tmp/backend_config"
+	FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
+        FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
+	
+	FileUtils.mkdir "#{RAILS_ROOT}/tmp/backend_config"
 	file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
 	File.open("../backend/BSConfig.pm.template") do |template|
 	  template.readlines.each do |line|
@@ -86,10 +91,11 @@ module Test
 	file.close
 
         srcsrv = Thread.new do
-          Dir.chdir("../backend")
-          srcsrv_out = IO.popen("perl -I#{RAILS_ROOT}/tmp/backend_config ./bs_srcserver 2>&1")
+	  FileUtils.symlink("#{RAILS_ROOT}/../backend/bs_srcserver", "#{RAILS_ROOT}/tmp/backend_config/bs_srcserver")
+          Dir.chdir("#{RAILS_ROOT}/tmp/backend_config")
+          srcsrv_out = IO.popen("exec perl -I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build ./bs_srcserver 2>&1")
+	  puts "popened #{Process.pid} -> #{srcsrv_out.pid}"
           Process.setpgid srcsrv_out.pid, 0
-          puts "popened #{Process.pid} -> #{srcsrv_out.pid}"
           while srcsrv_out
             begin
               line = srcsrv_out.gets
@@ -99,6 +105,7 @@ module Test
             end
           end
         end
+
         while true
           begin
             Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
@@ -112,7 +119,7 @@ module Test
 
         ret = old_run
         puts "kill #{srcsrv_out.pid}"
-        Process.kill "INT", srcsrv_out.pid
+        Process.kill "INT", -srcsrv_out.pid
         srcsrv_out.close
         srcsrv_out = nil
         srcsrv.join
