@@ -12,3 +12,7 @@ maintainer:
 reviewer:
   id: 3
   title: reviewer
+
+bugowner:
+  id: 4
+  title: bugowner
