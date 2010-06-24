@@ -1,21 +1,8 @@
 <div id="dialog_wrapper">
 
-    <script type="text/javascript">
-    <%= yield :head_javascript %>
-    $(function() {
-      <%= yield :post_parameter_data %>
-       var data;
-       data = form.serialize();
-
-       $.ajax({  
-         type: "POST",  
-         url: "/package/update_parameters?project=<%=@project%>&package=<%=@package%>&serviceid=<%=@serviceid%>",
-         data: data,
-         success: remove_dialog()
-       });  
-    });
-    </script>
-
+<script type="text/javascript">
+  $('#add_new_row').click(insertRow);
+</script>
 
 <div class="dialog" id="disable_mask"></div>
 <div class="dialog darkgrey_box" id="service_paramaters">
@@ -23,6 +10,7 @@
     <div class="box-header aligncenter">
       Service Parameters
     </div>
+
 
     <p><div class="aligncenter buttons">
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
@@ -32,7 +20,7 @@
         <%= hidden_field_tag(:serviceid, @serviceid) %>
         <!-- FIXME: send source revision, so in-between changes can be detected -->
       <% end %>
-       <table>
+       <table id="pTable">
        <tr><td valign="top">Parameter</td><td>Value</td>
        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
           <td>Remove</td>
@@ -42,22 +30,30 @@
          <% @parameters.each do |p|%>
             <% number = number + 1 %>
             <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-               <tr><td><%=p[:name]%></td>  <td><input type="text" name="parameter_<%=number%>_<%=p[:name]%>" value="<%=p[:value]%>"></td><td>X</td></tr>
+               <tr class="row_<%=number%>">
+                  <td><%=p[:name]%></td> 
+                  <td><input type="text" name="parameter_<%=number%>_<%=p[:name]%>" value="<%=p[:value]%>"></td>
+                  <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+               </tr>
             <% else %>
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
             <% end %>
          <% end %>
-<!-- Implement me: add new parameters
-         <tr><td><select name="add_parameter_name">
-                    <!-- FIXME: read these options via model from installed config files -->
-                    <option value="protocol" selected>Protocol</option>
-                    <option value="host" selected>Host</option>
-                    <option value="port" selected>Port</option>
-                    <option value="path" selected>Path</option>
-             </select></td>
-             <td><input type="submit" value="+"></td>
-         </tr>
--->
+         <%= hidden_field_tag(:parameter_count, number) %>
+
+         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+           <tr class="addrow"><td><select name="add_parameter_name" id="add_new_parameter">
+                      <!-- FIXME: read these options via model from installed config files -->
+                      <option value="protocol" selected>Protocol</option>
+                      <option value="host" selected>Host</option>
+                      <option value="port" selected>Port</option>
+                      <option value="path" selected>Path</option>
+               </select></td>
+               <td><input type="text" id="add_new_value" name="add_parameter_value"></td>
+               <td><a href="#" id="add_new_row">+</a></td>
+           </tr>
+         <% end %>
+
        </table>
 
      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
