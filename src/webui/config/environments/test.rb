@@ -20,8 +20,10 @@ config.action_mailer.delivery_method = :test
 
 config.cache_store = :memory_store
 
+config.action_controller.allow_forgery_protection = false
+
 FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 3001
+FRONTEND_PORT = 3203
 FRONTEND_PROTOCOL = 'http'
 
 ICHAIN_MODE = "off"

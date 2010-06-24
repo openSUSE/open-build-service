@@ -23,8 +23,8 @@ class ProjectTest < Test::Unit::TestCase
 
 
   def test_repositories
-    assert_equal "openSUSE_10.2", @project.repositories[0]
-    assert_equal "openSUSE_Factory", @project.repositories[1]
+    assert_equal "10.2", @project.repositories[0]
+    assert_equal 1, @project.repositories.size
   end
   
   def test_marshall
