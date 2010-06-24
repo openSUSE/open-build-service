@@ -44,12 +44,12 @@
           <div id="buglist">
             <% i=0 %>
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
-            <div id="bug_<%= bug %>">
-              <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
-              <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
-              <% i=i+1 %>
-              <%= "<br/>" if i.modulo(3) == 0 %>
-            </div>
+              <div id="bug_<%= bug %>">
+                <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
+                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
+                <% i=i+1 %>
+                <%= "<br/>" if i.modulo(3) == 0 %>
+              </div>
             <%end%>
           </div>
         </td>
@@ -60,14 +60,14 @@
         <td>
           <%= text_field_tag 'bugid', @bugid %>
 
-         <% content_for :head_javascript do %> 
-          function append_bug(bugid) {
-          $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + $("#bugid").val() + "'/>" + $("#bugid").val() + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + ", " + "</div>");
-          return false;
-          }
+          <% content_for :head_javascript do %>
+            function append_bug(bugid) {
+            $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + $("#bugid").val() + "'/>" + $("#bugid").val() + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + ", " + "</div>");
+            return false;
+            }
           <% end %>
 
-          <%= link_to 'Add Bug', '#', :onclick => 'append_bug($("#bugid").val()); return false;' %>
+          <%= link_to image_tag('icons/bug_add.png', :alt => "Add Bug", :title => "Add Bug"), '#', :onclick => 'append_bug($("#bugid").val()); return false;' %>
 
         </td>
         <td>Add an additional bug here (must have 6 numbers)</td>
@@ -103,22 +103,22 @@
         <td>Enter a full description what your patch fixes</td>
       </tr>
       <tr>
-      <th>Relogin needed?</th>
-      <td>
-        <%= check_box_tag("relogin", true, @relogin) %>
-      </td>
-      <td>Set when a relog for the patch is needed.</td>
-    </tr>
-    <tr>
-      <th>Reboot needed?</th>
-      <td>
-        <%= check_box_tag("reboot", true, @reboot) %>
-      </td>
-      <td>Set when a reboot for the patch is needed.</td>
-    </tr>
+        <th>Relogin needed?</th>
+        <td>
+          <%= check_box_tag("relogin", true, @relogin) %>
+        </td>
+        <td>Set when a relog for the patch is needed.</td>
+      </tr>
+      <tr>
+        <th>Reboot needed?</th>
+        <td>
+          <%= check_box_tag("reboot", true, @reboot) %>
+        </td>
+        <td>Set when a reboot for the patch is needed.</td>
+      </tr>
       <tr><td></td><td></td><td align="right">
           <%= submit_tag "Save Patchinfo" %>
-        </td></tr>
+      </td></tr>
     </table>
     <%= hidden_field_tag("project", @project.name)%>
     <%= hidden_field_tag("package", @package)%>
