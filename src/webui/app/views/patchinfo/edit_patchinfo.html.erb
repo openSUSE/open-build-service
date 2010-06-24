@@ -60,7 +60,14 @@
         <td>
           <%= text_field_tag 'bugid', @bugid %>
 
-          <%= link_to 'Add Bug', '#', :onclick => '$("#buglist").append("<input type=\"hidden\" name=\"bug[]\" value=\"" + $("#bugid").val() + "\"/>" + $("#bugid").val() + ", "); $("#bugid").val(""); return false;' %>
+         <% content_for :head_javascript do %> 
+          function append_bug(bugid) {
+          $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + $("#bugid").val() + "'/>" + $("#bugid").val() + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + ", " + "</div>");
+          return false;
+          }
+          <% end %>
+
+          <%= link_to 'Add Bug', '#', :onclick => 'append_bug($("#bugid").val()); return false;' %>
 
         </td>
         <td>Add an additional bug here (must have 6 numbers)</td>
@@ -95,6 +102,20 @@
         </td>
         <td>Enter a full description what your patch fixes</td>
       </tr>
+      <tr>
+      <th>Relogin needed?</th>
+      <td>
+        <%= check_box_tag("relogin", true, @relogin) %>
+      </td>
+      <td>Set when a relog for the patch is needed.</td>
+    </tr>
+    <tr>
+      <th>Reboot needed?</th>
+      <td>
+        <%= check_box_tag("reboot", true, @reboot) %>
+      </td>
+      <td>Set when a reboot for the patch is needed.</td>
+    </tr>
       <tr><td></td><td></td><td align="right">
           <%= submit_tag "Save Patchinfo" %>
         </td></tr>
