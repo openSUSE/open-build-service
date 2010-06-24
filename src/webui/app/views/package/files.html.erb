@@ -4,9 +4,25 @@
 
 <%= render :partial => "tabs" %>
 
+<%= javascript_include_tag 'jquery.tablesorter.js' %>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% content_for :head_javascript do %>
+
+
+  function insertRow() {
+    var name = document.getElementById('add_new_parameter').value;
+    var value = document.getElementById('add_new_value').value;
+    var number = document.getElementById('parameter_count').value;
+
+    number = number + 1;
+    $('#pTable tr:last').before('<tr class=\"row_'+number+'\">'+
+      '<td>'+name+'</td>'+
+      '<td><input type=\"text\" name=\"parameter_'+number+'_'+name+'\" value=\"'+value+'\"></td>'+
+      '<td><a href=\"#\" onclick=\"\$(\'tr.row_'+number+'\').remove(); return false;\">X</a></td>'+
+      '</tr>');
+    
+    document.getElementById('parameter_count').value = number;
+  }
 <% end %>
 
 

@@ -11,10 +11,10 @@
         <%- linked_package = @package.linkinfo.package -%>
 
         This package links to the sources of the package
-        <%= link_to_package linked_project, linked_package %>
+        <%= link_to @package.name, :action => :files, :project => linked_project, :package => linked_package %>
         of project <%= link_to_project linked_project %>.
         Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project,
-          :opackage => linked_package, :project => @project.name, :package => @package.name %>
+          :opackage => linked_package, :project => @project, :package => @package %>
       <% end %>
     </p>
   <% end %>

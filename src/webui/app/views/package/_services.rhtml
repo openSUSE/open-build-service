@@ -52,13 +52,16 @@
               </li>
            <% end %>
         </ol>
-        <div class="aligncenter buttons" id="append">
-          <%= image_tag('add.png', :alt => "Append", :title => "Drop a service here to append") %>
-        </div>
 
-        <%= drop_receiving_element( :append, :hoverclass => "hover",
-            :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=-1&package=#{@package}&project=#{@project}' }"
-        )%>
+        <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
+          <div class="aligncenter buttons" id="append">
+            <%= image_tag('add.png', :alt => "Append", :title => "Drop a service here to append") %>
+          </div>
+
+          <%= drop_receiving_element( :append, :hoverclass => "hover",
+              :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=-1&package=#{@package}&project=#{@project}' }"
+          )%>
+        <% end %>
       </td>
 
       <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
