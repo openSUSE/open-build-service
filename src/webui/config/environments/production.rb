@@ -36,10 +36,6 @@ FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
 
-BUGZILLA_HOST = nil
-DOWNLOAD_URL = nil
-
-
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "off"
 

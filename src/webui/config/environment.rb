@@ -115,6 +115,9 @@ begin
 rescue Errno::ENOENT
 end
 
+DOWNLOAD_URL = nil
+BUGZILLA_HOST = nil
+
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"

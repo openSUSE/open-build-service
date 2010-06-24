@@ -24,9 +24,6 @@ FRONTEND_PROTOCOL = 'https'
 # use this when the users see the api at another url (for rpm-, file-downloads)
 #EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 
-BUGZILLA_HOST = nil
-DOWNLOAD_URL = nil
-
 # If ICHAIN_HOST is set to "simulate", iChain is simulated in the
 # way that the ichain header entry is set to the value specified
 # in the ICHAIN_TEST_USER variable here below.
