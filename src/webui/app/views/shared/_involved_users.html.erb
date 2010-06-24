@@ -13,9 +13,9 @@
     </p>
   <% end %>
 
-
   <ul>
-    <% @roles.each do |r| -%>
+    <% had_roles = false
+       @roles.each do |r| -%>
 
       <% if @package
         package_groups = @package.all_groups(r).sort {|x,y| x.downcase <=> y.downcase }
@@ -28,7 +28,8 @@
       project_users  = @project.all_persons(r).sort {|x,y| x.downcase <=> y.downcase }
       -%>
 
-      <% if !project_users.empty? or !project_groups.empty? or !package_users.empty? or !package_groups.empty? -%>
+      <% if !project_users.empty? or !project_groups.empty? or !package_users.empty? or !package_groups.empty? 
+           had_roles = true -%>
 
         <li>
           <h5><%= h r.capitalize %>s</h5>
@@ -89,5 +90,8 @@
         <% end -%>
     <% end # roles_each -%>
 
+    <% unless had_roles -%>
+      <li><i>No users involved</i></li>
+    <% end -%>
   </ul>
 </div>
