@@ -1254,7 +1254,9 @@ class SourceController < ApplicationController
       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
         pkg = pa
         pkg_name = pkg.name
-    	  logger.debug "branch call found package in update project"
+        prj = pkg.db_project
+        prj_name = prj.name
+    	logger.debug "branch call found package in update project #{prj_name}"
       end
     end
 
