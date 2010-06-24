@@ -10,8 +10,8 @@
     <strong>Title:</strong><br/>
     <%= text_field_tag 'title', @project.title, :size => 80 %><br/>
     <strong>Description:</strong><br/>
-    <%= text_area_tag "description", @project.description, :rows => 20 %><br/>
-  <p><%= submit_tag %></p>
+    <%= text_area_tag "description", @project.description, :rows => 20, :cols => 80 %><br/>
+  <%= submit_tag %>
   <%= hidden_field_tag "project", @project.name %>
   </p>
 <% end %>
