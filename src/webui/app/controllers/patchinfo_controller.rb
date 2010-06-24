@@ -23,7 +23,6 @@ class PatchinfoController < ApplicationController
 
   def read_patchinfo
     logger.debug( "PATCHINFO: #{@patchinfo}" )
-
     @binaries = Array.new
     @file.each_binary do |binaries|
       @binaries << binaries.text
@@ -40,32 +39,32 @@ class PatchinfoController < ApplicationController
       params[:bug] << params[:bugid]
       @buglist = params[:bug]
     end
-
     @swampid = @file.swampid.to_s
     @category = @file.category.to_s
     @summary = @file.summary.to_s
     @description = @file.description.to_s
+    if @file.has_element?("relogin_needed")
+      @relogin = @file.relogin_needed.to_s
+      if @relogin == ""
+        @relogin = false
+      elsif @relogin == "true"
+        @relogin = true
+      end
+    else
+      @relogin = false
+    end
+    if @file.has_element?("reboot_needed")
+      @reboot = @file.reboot_needed.to_s
+      if @reboot == ""
+        @reboot = false
+      elsif @reboot == "true"
+        @reboot = true
+      end
+    else
+      @reboot = false
+    end
   end
 
-  def delete_bugzilla
-    @patchinfo.delete_bugzilla(params[:delete_bug])
-    deleted_bug = params[:delete_bug]
-    @patchinfo = @patchinfo.data.to_s
-    @patchinfo.gsub!( /\n \n/, "\n" )
-    filename = '_patchinfo'
-    begin
-      frontend.put_file( @patchinfo, :project => @project, :package => @package,
-        :filename => filename, :binaries => [:binaries], :packager => [:packager], 
-        :bug => [:bug], :swampid => [:swampid], :summary => [:summary],
-        :description => [:description])
-      flash[:note] = "Bug #{deleted_bug} removed from list"
-    rescue Timeout::Error => e
-      flash[:error] = "Timeout when removing bug. Please try again."
-    end
-    opt = {:action => "edit_patchinfo", :project => @project.name, :package => @package}
-    redirect_to opt
-  end
-  
   def save
     filename = "_patchinfo"
     valid_params = true 
@@ -140,21 +139,21 @@ class PatchinfoController < ApplicationController
     end
   end
  
-#  def remove
-#    valid_http_methods(:post)
-#    begin
-#      FrontendCompat.new.delete_package :project => @project, :package => @package
-#     flash[:note] = "'#{@package}' was removed successfully from project '#{@project}'"
-#      Rails.cache.delete("%s_packages_mainpage" % @project)
-#      Rails.cache.delete("%s_problem_packages" % @project)
-#      Package.free_cache( :all, :project => @project.name )
-#     Package.free_cache( @package, :project => @project )
-#    rescue ActiveXML::Transport::Error => e
-#      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-#      flash[:error] = message
-#    end
-#    redirect_to :controller => 'project', :action => 'show', :project => @project
-#  end
+  def remove
+    valid_http_methods(:post)
+    begin
+      FrontendCompat.new.delete_package :project => @project, :package => @package
+     flash[:note] = "'#{@package}' was removed successfully from project '#{@project}'"
+      Rails.cache.delete("%s_packages_mainpage" % @project)
+      Rails.cache.delete("%s_problem_packages" % @project)
+      Package.free_cache( :all, :project => @project.name )
+     Package.free_cache( @package, :project => @project )
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+    end
+    redirect_to :controller => 'project', :action => 'show', :project => @project
+  end
  
   def valid_bugzilla_number? name
     name.each do |bug|

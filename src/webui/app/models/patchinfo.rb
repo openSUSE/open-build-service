@@ -50,9 +50,20 @@ class Patchinfo < ActiveXML::Base
       bug = self.add_element('bugzilla')
       bug.text = x
     end
+  end  
 
+  def set_relogin(relogin)
+    self.delete_element('relogin_needed')
+    relog = self.add_element('relogin_needed')
+    relog.text = relogin
   end
-  
+ 
+  def set_reboot(reboot)
+    self.delete_element('reboot_needed')
+    reboot_needed = self.add_element('reboot_needed')
+    reboot_needed.text = reboot
+  end
+ 
   def set_binaries(binaries, name)
     if self.each_binary == nil
       self.add_element('binaries')
