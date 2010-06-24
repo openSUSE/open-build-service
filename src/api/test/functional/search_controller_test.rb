@@ -22,7 +22,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     get "/search/attribute?namespace=NSTEST&name=FailedCommend"
     assert_response 401
 
-    prepare_request_with_user @request, "tscholz", "asdfasdf" 
+    prepare_request_with_user "tscholz", "asdfasdf" 
     get "/search/attribute?namespace=NSTEST&name=FailedCommend"
     assert_response 404
     assert_select "status[code] > summary", /no such attribute/
@@ -33,7 +33,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     get "/search/attribute?namespace=NSTEST&name=Maintained"
     assert_response 401
 
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/attribute?namespace=NSTEST&name=Maintained"
     assert_response :success
     assert_tag :tag => 'attribute', :attributes => { :name => "Maintained", :namespace => "NSTEST" }, :children => { :count => 1 }
@@ -42,7 +42,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
 
   def test_xpath_1
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[@name="apache2"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 1 }
@@ -50,7 +50,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
 
   def test_xpath_2
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="NSTEST:Maintained"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 1 }
@@ -58,7 +58,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
 
   def test_xpath_3
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="NSTEST:Maintained" and @name="apache2"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 1 }
@@ -66,21 +66,21 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
 
   def test_xpath_4
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="NSTEST:Maintained" and @name="Testpack"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 0 }
   end
   
   def test_xpath_5
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[devel/@project="kde4"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 0 }
   end
 
   def test_xpath_6
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="Maintained"]'
     assert_response 400
     assert_select "status[code] > summary", /illegal xpath attribute/

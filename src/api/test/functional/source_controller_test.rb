@@ -36,7 +36,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def test_get_projectlist
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
@@ -46,7 +46,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
 
   def test_get_packagelist
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
@@ -57,7 +57,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   # non-existing project should return 404
   def test_get_illegal_project
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde2000/_meta"
     assert_response 404
   end
@@ -65,14 +65,14 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   # non-existing project-package should return 404
   def test_get_illegal_projectfile
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs2000/_meta"
     assert_response 404
   end
 
 
   def test_get_project_meta
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4/_meta"
     assert_response :success
     assert_tag :tag => "project", :attributes => { :name => "kde4" }
@@ -80,7 +80,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
 
   def test_get_package_filelist
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
@@ -89,7 +89,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   def test_get_package_meta
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "kdelibs" }
@@ -97,13 +97,13 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   # project_meta does not require auth
   def test_invalid_user
-    prepare_request_with_user @request, "king123", "sunflower"
+    prepare_request_with_user "king123", "sunflower"
     get "/source/kde4/_meta"
     assert_response 200
   end
   
   def test_valid_user
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4/_meta"
     assert_response :success
   end
@@ -111,7 +111,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   def test_put_project_meta_with_invalid_permissions
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     # The user is valid, but has weak permissions
     
     # Get meta file
@@ -134,13 +134,13 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   def test_put_project_meta
     # admin
-    prepare_request_with_user @request, "king", "sunflower"
+    prepare_request_with_user "king", "sunflower"
     do_change_project_meta_test
     # maintainer 
-    prepare_request_with_user @request, "fred", "geröllheimer"
+    prepare_request_with_user "fred", "geröllheimer"
     do_change_project_meta_test
     # maintainer via group
-    prepare_request_with_user @request, "adrian", "so_alone"
+    prepare_request_with_user "adrian", "so_alone"
     do_change_project_meta_test
   end
   
@@ -179,7 +179,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   def do_create_project_meta_test (name, pw)
-    prepare_request_with_user(@request, name, pw)
+    prepare_request_with_user( name, pw)
     # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
     assert_response :success
@@ -206,7 +206,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   def test_put_invalid_project_meta
-    prepare_request_with_user @request, "fred", "geröllheimer"
+    prepare_request_with_user "fred", "geröllheimer"
 
    # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
@@ -219,7 +219,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s + "</xml>"
     assert_response 400
 
-    prepare_request_with_user @request, "king", "sunflower"
+    prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
     put url_for(:controller => :source, :action => :project_meta, :project => "../source/bang"), doc.to_s
     assert_response( 404, "--> Was able to create project at illegal path")
@@ -245,7 +245,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   def test_put_package_meta_with_invalid_permissions
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     # The user is valid, but has weak permissions
     
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
@@ -304,15 +304,15 @@ class SourceControllerTest < ActionController::IntegrationTest
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
       # admin
-      prepare_request_with_user @request, "king", "sunflower"
+      prepare_request_with_user "king", "sunflower"
       do_change_package_meta_test
       # maintainer via user
-      prepare_request_with_user @request, "fred", "geröllheimer"
+      prepare_request_with_user "fred", "geröllheimer"
       do_change_package_meta_test
-      prepare_request_with_user @request, "fredlibs", "geröllheimer"
+      prepare_request_with_user "fredlibs", "geröllheimer"
       do_change_package_meta_test
       # maintainer via group
-      prepare_request_with_user @request, "adrian", "so_alone"
+      prepare_request_with_user "adrian", "so_alone"
       do_change_package_meta_test
   end
 
@@ -320,7 +320,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_create_package_meta
     # user without any special roles
-    prepare_request_with_user @request, "fred", "geröllheimer"
+    prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     #change name to kdelibs2
@@ -344,7 +344,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_change_package_meta
     # user without any special roles
-    prepare_request_with_user @request, "fred", "geröllheimer"
+    prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     xml = @response.body
@@ -362,7 +362,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def test_put_invalid_package_meta
-    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    prepare_request_with_user "fredlibs", "geröllheimer"
    # Get meta file  
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
@@ -374,7 +374,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s + "</xml>"
     assert_response 400
 
-    prepare_request_with_user @request, "king", "sunflower"
+    prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "../bang"), doc.to_s
     assert_response( 404, "--> Was able to create package at illegal path")
@@ -396,7 +396,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
 
   def test_read_file
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs/my_patch.diff"
     assert_response :success
     assert_equal( @response.body.to_s, "argl\n" )
@@ -415,7 +415,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   def test_create_attributes_project
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     post "/source/home:tom/_attribute", data
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/ 
@@ -437,7 +437,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_create_attributes_package
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
-    prepare_request_with_user @request, "fred", "geröllheimer"
+    prepare_request_with_user "fred", "geröllheimer"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
@@ -472,15 +472,15 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   def test_add_file_to_package
-    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    prepare_request_with_user "fredlibs", "geröllheimer"
     add_file_to_package
-    prepare_request_with_user @request, "fred", "geröllheimer"
+    prepare_request_with_user "fred", "geröllheimer"
     add_file_to_package
-    prepare_request_with_user @request, "king", "sunflower"
+    prepare_request_with_user "king", "sunflower"
     add_file_to_package
   
     # write without permission: 
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
     assert_response :success
     origstring = @response.body.to_s
@@ -501,13 +501,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     delete "/source/kde4"
     assert_response 401
 
-    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    prepare_request_with_user "fredlibs", "geröllheimer"
     delete "/source/kde4" 
     assert_response :success
   end
 
   def test_remove_project2
-    prepare_request_with_user @request, "tom", "thunder" 
+    prepare_request_with_user "tom", "thunder" 
     delete "/source/home:coolo"
     assert_response 403
     assert_select "status[code] > summary", /Unable to delete project home:coolo; following repositories depend on this project:/
@@ -528,11 +528,11 @@ class SourceControllerTest < ActionController::IntegrationTest
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 401
 
-    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    prepare_request_with_user "fredlibs", "geröllheimer"
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 403
  
-    prepare_request_with_user @request, "tom", "thunder"
+    prepare_request_with_user "tom", "thunder"
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response :success
     get "/source/home:coolo:test/TestPack/_meta"

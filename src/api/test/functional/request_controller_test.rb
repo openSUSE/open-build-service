@@ -22,7 +22,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_get_1
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     # make sure there is at least one
     Suse::Backend.post( '/request/?cmd=create', load_backend_file('request/1'))
     get "/request/1"
@@ -31,13 +31,13 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_get_invalid_1
-    prepare_request_with_user @request, "tscholz", "xxx"
+    prepare_request_with_user "tscholz", "xxx"
     get "/request/1"
     assert_response 401
   end
 
   def test_submit_request
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/no_such_project')
     assert_response 404
     assert_select "status[code] > summary", /Unknown source project home:guest/
@@ -48,22 +48,22 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_set_bugowner_request
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner')
     assert_response :success
 
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner_fail')
     assert_response 404
     assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
   end
 
   def test_add_role_request
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response :success
 
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
     assert_response 404
     assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
@@ -71,18 +71,18 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_create_permissions
     req = load_backend_file('request/works')
-    prepare_request_with_user @request, 'tom', 'thunder'
+    prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", req
     assert_response 403
     assert_select "status[code] > summary", /No permission to create request for package 'TestPack' in project 'home:tscholz'/
 
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", req
     assert_response :success
     assert_tag( :tag => "request" )
 
     req = load_backend_file('request/submit_without_target')
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", req
     assert_response 400
     assert_select "status[code] > summary", /target project does not exist/

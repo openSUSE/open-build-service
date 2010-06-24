@@ -18,7 +18,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
   def test_latest_added
-    prepare_request_with_user @request, 'tom', 'thunder'
+    prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
     assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
@@ -30,7 +30,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
  def test_latest_updated
-   prepare_request_with_user @request, 'tom', 'thunder'
+   prepare_request_with_user 'tom', 'thunder'
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
    assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
@@ -42,7 +42,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
   def test_download_counter
-    prepare_request_with_user @request, 'tom', 'thunder'
+    prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :download_counter)
     assert_response :success
     assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
@@ -58,7 +58,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
   def test_download_counter_group_by
-    prepare_request_with_user @request, 'tom', 'thunder'
+    prepare_request_with_user 'tom', 'thunder'
     # without project- & package-filter
     get url_for(:controller => :statistics, :action => :download_counter, 'group_by' => 'project' )
     assert_response :success
@@ -81,7 +81,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
   def test_most_active
-    prepare_request_with_user @request, 'tom', 'thunder'
+    prepare_request_with_user 'tom', 'thunder'
     # get most active packages
     get url_for(:controller => :statistics, :action => :most_active, :type => 'packages')
     assert_response :success
@@ -103,7 +103,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
   def test_highest_rated
-    prepare_request_with_user @request, 'tom', 'thunder'
+    prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :highest_rated)
     assert_response :success
     #assert_tag :tag => 'collection', :child => { :tag => 'xxxxx' }

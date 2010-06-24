@@ -24,7 +24,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/attribute/"
     assert_response 401
 
-    prepare_request_with_user @request, "tscholz", "asdfasdf" 
+    prepare_request_with_user "tscholz", "asdfasdf" 
     get "/attribute/"
     assert_response :success
 
@@ -36,7 +36,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_namespace_index
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
 
     get "/attribute/Redhat"
     assert_response 400
@@ -50,7 +50,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_namespace_meta
-    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    prepare_request_with_user "tscholz", "asdfasdf"
     get "/attribute/NSTEST/_meta"
     assert_response :success
     assert_tag :tag => 'namespace', :attributes => { :name => "NSTEST" }

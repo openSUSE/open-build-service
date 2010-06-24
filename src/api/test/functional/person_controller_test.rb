@@ -9,7 +9,7 @@ class PersonControllerTest < ActionController::IntegrationTest
     @controller = PersonController.new
     @controller.request  = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    prepare_request_valid_user( @request )
+    prepare_request_valid_user
   end
  
   def test_ichain
@@ -40,7 +40,7 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_userinfo_with_broken_auth_header
-    prepare_request_invalid_user( @request )
+    prepare_request_invalid_user
     get "/person/tom"
     assert_select "status[code] > summary", /^Unknown user '[^\']+' or invalid password$/
 
@@ -48,7 +48,7 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_watchlist_privacy
-    prepare_request_valid_user( @request )
+    prepare_request_valid_user
     
     get "/person/tom"
     # should see his watchlist
@@ -61,7 +61,7 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_update_user_info
-    prepare_request_valid_user( @request )
+    prepare_request_valid_user
     
     # get original data
     get "/person/tom"
@@ -78,12 +78,12 @@ class PersonControllerTest < ActionController::IntegrationTest
     
     
     # Write changed data back
-    prepare_request_valid_user( @request )
+    prepare_request_valid_user
     put "/person/tom", doc.to_s
     assert_response :success
 
     # refetch the user info if the name has really change
-    prepare_request_valid_user( @request )
+    prepare_request_valid_user
     get "/person/tom"
     assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
   end

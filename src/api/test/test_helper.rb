@@ -42,18 +42,18 @@ module ActionController
       return @@auth
     end
 
-    def prepare_request_with_user( request, user, passwd )
+    def prepare_request_with_user( user, passwd )
       re = 'Basic ' + Base64.encode64( user + ':' + passwd )
       @@auth = re
     end
   
     # will provide a user without special permissions
-    def prepare_request_valid_user ( request )
-      prepare_request_with_user request, 'tom', 'thunder'
+    def prepare_request_valid_user 
+      prepare_request_with_user 'tom', 'thunder'
     end
   
-    def prepare_request_invalid_user( request )
-      prepare_request_with_user request, 'tom123', 'thunder123'
+    def prepare_request_invalid_user
+      prepare_request_with_user 'tom123', 'thunder123'
     end
 
     def load_backend_file(path)
@@ -94,7 +94,6 @@ module Test
 	  FileUtils.symlink("#{RAILS_ROOT}/../backend/bs_srcserver", "#{RAILS_ROOT}/tmp/backend_config/bs_srcserver")
           Dir.chdir("#{RAILS_ROOT}/tmp/backend_config")
           srcsrv_out = IO.popen("exec perl -I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build ./bs_srcserver 2>&1")
-	  puts "popened #{Process.pid} -> #{srcsrv_out.pid}"
           Process.setpgid srcsrv_out.pid, 0
           while srcsrv_out
             begin
@@ -118,7 +117,6 @@ module Test
         end
 
         ret = old_run
-        puts "kill #{srcsrv_out.pid}"
         Process.kill "INT", -srcsrv_out.pid
         srcsrv_out.close
         srcsrv_out = nil
