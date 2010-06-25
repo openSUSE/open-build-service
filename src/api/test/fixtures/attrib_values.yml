@@ -1,0 +1,10 @@
+updateproject:
+  id: 1
+  attrib_id: 102
+  value: "BaseDistro:Update"
+  position: 0
+anotherupdateproject:
+  id: 2
+  attrib_id: 103
+  value: "BaseDistro2:LinkedUpdateProject"
+  position: 0

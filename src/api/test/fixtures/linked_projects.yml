@@ -1,0 +1,6 @@
+updateprojectlink:
+  id: 42
+  db_project_id: 2046
+  linked_db_project_id: 2045
+  position: 1
+  linked_remote_project_name: nil

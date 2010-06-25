@@ -1,3 +1,12 @@
 apache_maintained:
+  id: 101
   attrib_type_id: 58
   db_package_id: 1355
+updateproject:
+  id: 102
+  attrib_type_id: 57
+  db_project_id: 2042
+obs_maintained:
+  id: 103
+  attrib_type_id: 57
+  db_project_id: 2045
