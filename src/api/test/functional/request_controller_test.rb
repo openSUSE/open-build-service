@@ -1,9 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'request_controller'
 
-# Re-raise errors caught by the controller.
-class RequestController; def rescue_action(e) raise e end; end
-
 class RequestControllerTest < ActionController::IntegrationTest 
   
   fixtures :db_projects, :db_packages, :users, :project_user_role_relationships, :roles, :static_permissions, :roles_static_permissions, :project_group_role_relationships
@@ -16,6 +13,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     @tom = User.find_by_login("tom")
     @tscholz = User.find_by_login("tscholz")
 
+    @controller.start_test_backend
     Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
     Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
     Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)

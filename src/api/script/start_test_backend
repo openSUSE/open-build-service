@@ -5,6 +5,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'envi
 
 Thread.abort_on_exception = true
 srcsrv_out = nil
+reposrv_out = nil
 logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
@@ -42,12 +43,42 @@ srcsrv = Thread.new do
   end
 end
 
+reposrv = Thread.new do
+  FileUtils.symlink("#{RAILS_ROOT}/../backend/bs_repserver", "#{RAILS_ROOT}/tmp/backend_config/bs_repserver")
+  reposrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl -I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build ./bs_repserver 2>&1")
+  puts "opened #{RAILS_ROOT} #{reposrv_out.pid}"
+  begin
+    Process.setpgid reposrv_out.pid, 0
+  rescue Errno::EACCES
+    # what to do?
+  end
+  while reposrv_out
+    begin
+      line = reposrv_out.gets
+      logger.debug line.strip unless line.blank?
+    rescue IOError
+      break
+    end
+  end
+end
+
 while true
   begin
     Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
   rescue Errno::ECONNREFUSED
-    puts "waiting"
-    sleep 1
+    puts "waiting src"
+    sleep 0.5
+    next
+  end
+  break
+end
+
+while true
+  begin
+    Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
+  rescue Errno::ECONNREFUSED
+    puts "waiting repo"
+    sleep 0.5
     next
   end
   break
@@ -65,9 +96,15 @@ end
 
 puts "kill #{srcsrv_out.pid}"
 Process.kill "INT", -srcsrv_out.pid
+puts "kill #{reposrv_out.pid}"
+Process.kill "INT", -reposrv_out.pid
+
 
 srcsrv_out.close
 srcsrv_out = nil
 srcsrv.join
+reposrv_out.close
+reposrv_out = nil
+reposrv.join
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")

@@ -34,28 +34,28 @@ class ApplicationController < ActionController::Base
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
 
-  def restrict_admin_pages
-    if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
-      return require_admin
-    end
-  end
-
   @@backend = nil
   def start_test_backend
     return if @@backend
     @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
-    puts "started #{@@backend.pid}"
+    logger.debug "started #{@@backend.pid}"
     while true do
       line = @@backend.gets
       break if line =~ /DONE NOW/
     end
-    puts "done #{@@backend.pid}"
     ActiveXML::Config.global_write_through = true
     at_exit do
-      puts "kill #{@@backend.pid}"
+      logger.debug "kill #{@@backend.pid}"
       Process.kill "INT", @@backend.pid
       @@backend = nil
     end
+  end
+
+  protected
+  def restrict_admin_pages
+     if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
+        return require_admin
+     end
   end
 
   def require_admin
@@ -310,6 +310,7 @@ class ApplicationController < ActionController::Base
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
+  public :pass_to_backend
 
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
@@ -481,6 +482,7 @@ class ApplicationController < ActionController::Base
 
     __send__ cmd_handler
   end
+  public :dispatch_command
 
   def build_query_from_hash(hash, key_list=nil)
     key_list ||= hash.keys
