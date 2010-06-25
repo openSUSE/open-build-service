@@ -32,6 +32,7 @@ BEGIN {
 
   chdir "$wd";
   unshift @INC,  "build";
+  unshift @INC,  ".";
 }
 
 use POSIX;
