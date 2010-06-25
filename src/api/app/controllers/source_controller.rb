@@ -1222,13 +1222,25 @@ class SourceController < ApplicationController
     if name_parts.length != 2
       raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
+
     if a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
+        # We have a package in the update project already, take that
         pkg = pa
         pkg_name = pkg.name
         prj = pkg.db_project
         prj_name = prj.name
     	logger.debug "branch call found package in update project #{prj_name}"
+      else
+        update_prj = DbProject.find_by_name( a.values[0].value )
+        update_pkg = update_prj.find_package( pkg_name )
+        if update_pkg
+          # We have no package in the update project yet, but sources a reachable via project link
+          pkg = update_pkg
+          pkg_name = pkg.name
+          prj = update_prj
+          prj_name = prj.name
+        end
       end
     end
 
