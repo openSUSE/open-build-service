@@ -98,20 +98,20 @@ class PublishFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 2, @project.publish_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size
+    count = Flag.find(:all).size
     
     #destroy flags
     @project.publish_flags[1].destroy    
     #reload required!
     @project.reload
     assert_equal 1, @project.publish_flags.size
-    assert_equal 8, Flag.find(:all).size
+    assert_equal 1, count -Flag.find(:all).size
     
     @project.publish_flags[0].destroy
     #reload required
     @project.reload    
     assert_equal 0, @project.publish_flags.size    
-    assert_equal 7, Flag.find(:all).size
+    assert_equal 2, count - Flag.find(:all).size
   end
   
   
@@ -120,14 +120,14 @@ class PublishFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 1, @package.publish_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size    
+    count = Flag.find(:all).size    
     
     #destroy flags
     @package.publish_flags[0].destroy    
     #reload required!
     @package.reload
     assert_equal 0, @package.publish_flags.size
-    assert_equal 8, Flag.find(:all).size
+    assert_equal 1, count - Flag.find(:all).size
         
   end
   
@@ -137,14 +137,14 @@ class PublishFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 2, @project.publish_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size
+    count = Flag.find(:all).size
     
     #destroy flags
     @project.publish_flags.destroy_all    
     #reload required!
     @project.reload
     assert_equal 0, @project.publish_flags.size
-    assert_equal 7, Flag.find(:all).size
+    assert_equal 2, count - Flag.find(:all).size
         
   end
 
@@ -154,14 +154,14 @@ class PublishFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 1, @package.publish_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size    
+    count = Flag.find(:all).size    
     
     #destroy flags
     @package.publish_flags.destroy_all    
     #reload required!
     @package.reload
     assert_equal 0, @package.publish_flags.size
-    assert_equal 8, Flag.find(:all).size
+    assert_equal 1, count - Flag.find(:all).size
         
   end
   
@@ -179,7 +179,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 2, @project.publish_flags.size
     assert_equal 1, @arch.publish_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size    
+    count = Flag.find(:all).size    
     
     #create new flag and save it.
     f = PublishFlag.new(:repo => "10.3", :status => "enabled", :position => 3)    
@@ -188,7 +188,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     
     @project.reload
     assert_equal 3, @project.publish_flags.size
-    assert_equal 10, Flag.find(:all).size    
+    assert_equal 1, Flag.find(:all).size - count
     @arch.reload
     assert_equal 2, @arch.publish_flags.size
     
@@ -211,7 +211,7 @@ class PublishFlagTest < ActiveSupport::TestCase
 
     @project.reload
     assert_equal 4, @project.publish_flags.size
-    assert_equal 11, Flag.find(:all).size    
+    assert_equal 2, Flag.find(:all).size - count
     @arch.reload
     assert_equal 3, @arch.publish_flags.size    
     

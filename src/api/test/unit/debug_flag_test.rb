@@ -98,20 +98,20 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 2, @project.debuginfo_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size
+    count = Flag.find(:all).size
     
     #destroy flags
     @project.debuginfo_flags[1].destroy    
     #reload required!
     @project.reload
     assert_equal 1, @project.debuginfo_flags.size
-    assert_equal 8, Flag.find(:all).size
+    assert_equal 1, count - Flag.find(:all).size
     
     @project.debuginfo_flags[0].destroy
     #reload required
     @project.reload    
     assert_equal 0, @project.debuginfo_flags.size    
-    assert_equal 7, Flag.find(:all).size
+    assert_equal 2, count - Flag.find(:all).size
   end
   
   
@@ -120,14 +120,14 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 1, @package.debuginfo_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size    
+    count = Flag.find(:all).size    
     
     #destroy flags
     @package.debuginfo_flags[0].destroy    
     #reload required!
     @package.reload
     assert_equal 0, @package.debuginfo_flags.size
-    assert_equal 8, Flag.find(:all).size
+    assert_equal 1, count - Flag.find(:all).size
         
   end
   
@@ -137,14 +137,14 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 2, @project.debuginfo_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size
+    count = Flag.find(:all).size
     
     #destroy flags
     @project.debuginfo_flags.destroy_all    
     #reload required!
     @project.reload
     assert_equal 0, @project.debuginfo_flags.size
-    assert_equal 7, Flag.find(:all).size
+    assert_equal 2, count - Flag.find(:all).size
         
   end
 
@@ -154,14 +154,14 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 1, @package.debuginfo_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size    
+    count = Flag.find(:all).size    
     
     #destroy flags
     @package.debuginfo_flags.destroy_all    
     #reload required!
     @package.reload
     assert_equal 0, @package.debuginfo_flags.size
-    assert_equal 8, Flag.find(:all).size
+    assert_equal 1, count - Flag.find(:all).size
         
   end
   
@@ -179,7 +179,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal 2, @project.debuginfo_flags.size
     assert_equal 1, @arch.debuginfo_flags.size
     #checking total number of flags stored in the database
-    assert_equal 9, Flag.find(:all).size    
+    count = Flag.find(:all).size    
     
     #create new flag and save it.
     f = DebuginfoFlag.new(:repo => "10.3", :status => "enabled", :position => 3)    
@@ -188,7 +188,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     @project.reload
     assert_equal 3, @project.debuginfo_flags.size
-    assert_equal 10, Flag.find(:all).size    
+    assert_equal 1, Flag.find(:all).size - count
     @arch.reload
     assert_equal 2, @arch.debuginfo_flags.size
     
@@ -211,7 +211,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     @project.reload
     assert_equal 4, @project.debuginfo_flags.size
-    assert_equal 11, Flag.find(:all).size    
+    assert_equal 2, Flag.find(:all).size - count
     @arch.reload
     assert_equal 3, @arch.debuginfo_flags.size    
     
