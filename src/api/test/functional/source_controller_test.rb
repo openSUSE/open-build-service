@@ -550,6 +550,16 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal ret.repository.name, "10.2"
     assert_equal ret.repository.path.repository, "10.2"
     assert_equal ret.repository.path.project, "home:tscholz"
+
+    # check source link
+    get "/source/home:tom:branches:home:tscholz/TestPack/_link"
+    assert_response :success
+    ret = ActiveXML::XMLNode.new @response.body
+    assert_equal ret.project, "home:tscholz"
+    assert_equal ret.package, "TestPack"
+    assert_not_nil ret.baserev
+    assert_not_nil ret.patches
+    assert_not_nil ret.patches.branch
   end
 
 end
