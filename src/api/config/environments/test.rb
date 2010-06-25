@@ -20,6 +20,9 @@ config.action_controller.perform_caching             = false
 config.action_mailer.delivery_method = :test
 
 config.cache_store = :memory_store
+# the default is not to write through, only once the backend started
+# we set this to true
+ActiveXML::Config.global_write_through = false
 
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 3200
@@ -41,6 +44,4 @@ MAX_LDAP_ATTEMPTS = 10
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/api")+"/"
 
-MOCK_BACKEND_DATA_DIR = File.expand_path( RAILS_ROOT+"/test/fixtures/backend" )
-MOCK_BACKEND_DATA_TMPDIR= File.expand_path( RAILS_ROOT+"/test/fixtures/backend_tmp" )
 

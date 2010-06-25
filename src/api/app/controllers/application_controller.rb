@@ -22,6 +22,10 @@ class ApplicationController < ActionController::Base
 
   before_filter :validate_incoming_xml, :add_api_version
 
+  if Rails.env.test?
+    before_filter :start_test_backend
+  end
+
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
@@ -33,6 +37,24 @@ class ApplicationController < ActionController::Base
   def restrict_admin_pages
     if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
       return require_admin
+    end
+  end
+
+  @@backend = nil
+  def start_test_backend
+    return if @@backend
+    @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
+    puts "started #{@@backend.pid}"
+    while true do
+      line = @@backend.gets
+      break if line =~ /DONE NOW/
+    end
+    puts "done #{@@backend.pid}"
+    ActiveXML::Config.global_write_through = true
+    at_exit do
+      puts "kill #{@@backend.pid}"
+      Process.kill "INT", @@backend.pid
+      @@backend = nil
     end
   end
 
