@@ -420,14 +420,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/ 
 
-    data = "<attributes><attribute namespace='NSTEST' name='Maintained' >
+    data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response 403
-    assert_select "status[code] > summary", /Attribute: 'NSTEST:Maintained' has 1 values, but only 0 are allowed/
+    assert_select "status[code] > summary", /Attribute: 'OBS:Maintained' has 1 values, but only 0 are allowed/
   
-    data = "<attributes><attribute namespace='NSTEST' name='Maintained'></attribute></attributes>"
+    data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response :success
 
@@ -442,14 +442,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
 
-    data = "<attributes><attribute namespace='NSTEST' name='Maintained' >
+    data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 403
-    assert_select "status[code] > summary", /Attribute: 'NSTEST:Maintained' has 1 values, but only 0 are allowed/
+    assert_select "status[code] > summary", /Attribute: 'OBS:Maintained' has 1 values, but only 0 are allowed/
 
-    data = "<attributes><attribute namespace='NSTEST' name='Maintained'></attribute></attributes>"
+    data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response :success
 

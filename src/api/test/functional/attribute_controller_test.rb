@@ -29,7 +29,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # only one entry ATM - will have to be adopted, lists namespaces
-    count = 1
+    count = 2
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "NSTEST" } }
@@ -41,9 +41,9 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/attribute/Redhat"
     assert_response 400
 
-    get "/attribute/NSTEST"
+    get "/attribute/OBS"
     assert_response :success
-    count = 2
+    count = 3
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -51,11 +51,13 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
   def test_namespace_meta
     prepare_request_with_user "tscholz", "asdfasdf"
-    get "/attribute/NSTEST/_meta"
+    get "/attribute/OBS/_meta"
     assert_response :success
-    assert_tag :tag => 'namespace', :attributes => { :name => "NSTEST" }
-    assert_tag :children => { :count => 1 }
+    assert_tag :tag => 'namespace', :attributes => { :name => "OBS" }
     assert_tag :child => { :tag => 'modifiable_by', :attributes => { :user => "king" } }
+  end
+
+  def test_create_attribute
   end
 
 end

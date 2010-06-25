@@ -19,24 +19,24 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_search_unknown
     ActionController::IntegrationTest::reset_auth
-    get "/search/attribute?namespace=NSTEST&name=FailedCommend"
+    get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 401
 
     prepare_request_with_user "tscholz", "asdfasdf" 
-    get "/search/attribute?namespace=NSTEST&name=FailedCommend"
+    get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 404
     assert_select "status[code] > summary", /no such attribute/
   end
 
   def test_search_one_maintained_package
     ActionController::IntegrationTest::reset_auth
-    get "/search/attribute?namespace=NSTEST&name=Maintained"
+    get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response 401
 
     prepare_request_with_user "tscholz", "asdfasdf"
-    get "/search/attribute?namespace=NSTEST&name=Maintained"
+    get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
-    assert_tag :tag => 'attribute', :attributes => { :name => "Maintained", :namespace => "NSTEST" }, :children => { :count => 1 }
+    assert_tag :tag => 'attribute', :attributes => { :name => "Maintained", :namespace => "OBS" }, :children => { :count => 1 }
     assert_tag :child => { :tag => 'project', :attributes => { :name => "Apache"}, :children => { :count => 1 } }
     assert_tag :child => { :child => { :tag => 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
   end
@@ -51,7 +51,7 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_xpath_2
     prepare_request_with_user "tscholz", "asdfasdf"
-    get "/search/package", :match => '[attribute/@name="NSTEST:Maintained"]'
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 1 }
     assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
@@ -59,7 +59,7 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_xpath_3
     prepare_request_with_user "tscholz", "asdfasdf"
-    get "/search/package", :match => '[attribute/@name="NSTEST:Maintained" and @name="apache2"]'
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 1 }
     assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
@@ -67,7 +67,7 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_xpath_4
     prepare_request_with_user "tscholz", "asdfasdf"
-    get "/search/package", :match => '[attribute/@name="NSTEST:Maintained" and @name="Testpack"]'
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="Testpack"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 0 }
   end
