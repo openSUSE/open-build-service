@@ -32,8 +32,22 @@ tom_maintainer_coolo_2:
   bs_user_id: 3
   role_id: 2
 
-tom_maintaienr_tom:
+tom_maintainer_tom:
   db_project_id: 1001
   bs_user_id: 3
   role_id: 2
+
+# for read access permissions
+adrian_maintainer:
+  db_project_id: 3000
+  bs_user_id: 42
+  role_id: 2
+adrian2_reader:
+  db_project_id: 3000
+  bs_user_id: 43
+  role_id: 5
+adrian3_downloader:
+  db_project_id: 3000
+  bs_user_id: 44
+  role_id: 6
 

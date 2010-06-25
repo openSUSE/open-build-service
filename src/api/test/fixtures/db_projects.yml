@@ -47,6 +47,8 @@ deleted:
 home:tom:
   name: home:tom
   id: 1001
+
+# Used for maintenance tests:
 BaseDistro:
   name: BaseDistro
   updated_at: 2005-01-01 00:00:01
@@ -82,3 +84,13 @@ BaseDistro2:LinkedUpdateProject:
   id: 2046
   description: "contains official released updates, but this one has a project link to the original one"
   created_at: 2005-01-01 00:00:01
+
+# For read permissions checks
+HiddenProject:
+  name: HiddenProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project is not visible except for adrian
+  id: 3000
+  description: "for testing read permissions"
+  created_at: 2005-01-01 00:00:01
+

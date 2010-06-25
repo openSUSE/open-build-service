@@ -58,3 +58,29 @@ adrian:
   password_salt: ""
   password_hash_type: md5
 
+# users for read permission tests
+adrian_reader:
+  id: 43
+  login: adrian_reader
+  email: adrian@suse.de
+  realname: user has access to sources (and binaries ?)
+  password: <%= Digest::MD5.hexdigest("so_alone") %>
+  password_salt: ""
+  password_hash_type: md5
+adrian_downloader:
+  id: 44
+  login: adrian_downloader
+  email: adrian@suse.de
+  realname: user has access to binary files only
+  password: <%= Digest::MD5.hexdigest("so_alone") %>
+  password_salt: ""
+  password_hash_type: md5
+adrian_nobody:
+  id: 45
+  login: adrian_nobody
+  email: adrian@suse.de
+  realname: user exists, but has no permissions
+  password: <%= Digest::MD5.hexdigest("so_alone") %>
+  password_salt: ""
+  password_hash_type: md5
+

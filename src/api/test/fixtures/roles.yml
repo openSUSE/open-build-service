@@ -16,3 +16,11 @@ reviewer:
 bugowner:
   id: 4
   title: bugowner
+
+reader:
+  id: 5
+  title: reader
+
+downloader:
+  id: 6
+  title: downloader
