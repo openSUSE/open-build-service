@@ -34,6 +34,12 @@ class ReadPermissionTests < ActionController::IntegrationTest
 
 
   def test_basic_read_tests
+    ActionController::IntegrationTest::reset_auth 
+    prepare_request_with_user "tom", "thunder"
+    get "/source"
+    assert_response :success
+    # Do we want a check if the project is visible here ?
+
     # Access as a maintainer to a hidden project
 # FIXME: a maintainer should always able to have read access, a write-only access makes no sense, does it ?
 #    do_read_access_all_pathes( "adrian", :success )
@@ -46,12 +52,12 @@ class ReadPermissionTests < ActionController::IntegrationTest
 
   def do_read_access_all_pathes(user, response)
     ActionController::IntegrationTest::reset_auth 
-    prepare_request_with_user user, "so_alone"
+    prepare_request_with_user user, "so_alone" #adrian users have all the same password
 
     get "/source/HiddenProject/_meta"
     # comment out for debugging:
 #    print @response.body
-#    assert_response response
+    assert_response response
     get "/source/HiddenProject"
     assert_response response
     get "/source/HiddenProject/pack"
@@ -70,6 +76,9 @@ class ReadPermissionTests < ActionController::IntegrationTest
   # * test package link creation
   # * test project link creation
   # * test creation and "accept" of requests
+  # * test search for hidden objects
+  # * test public controller
+  # * test tag controller
   # For binary access
   # * test aggregate creation
   # * test kiwi live image file creation
