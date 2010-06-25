@@ -36,7 +36,7 @@ while true
   break
 end
 
-system("cd #{RAILS_ROOT}/../api ; rake db:fixtures:load")
+system("cd #{RAILS_ROOT}/../api ; RAILS_ENV=test rake db:fixtures:load")
 puts "DONE NOW"
 $stdout.flush
 

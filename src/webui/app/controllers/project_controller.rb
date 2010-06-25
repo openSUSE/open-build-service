@@ -908,7 +908,7 @@ class ProjectController < ApplicationController
       p.each_element do |v|
         comments[p.parent['name']] = v.content
       end
-    end
+    end if attributes
 
     upstream_versions = Hash.new
     upstream_urls = Hash.new
@@ -921,7 +921,7 @@ class ProjectController < ApplicationController
         p.each_element do |v|
           upstream_versions[p.parent['name']] = v.content
         end
-      end
+      end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
@@ -930,7 +930,7 @@ class ProjectController < ApplicationController
         p.each_element do |v|
           upstream_urls[p.parent['name']] = v.content
         end
-      end
+      end if attributes
     end
 
     raw_requests = Rails.cache.fetch("requests_new", :expires_in => 5.minutes) do
