@@ -1240,7 +1240,7 @@ class SourceController < ApplicationController
     end
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{pkg.name} in project #{prj.name}"
+        :message => "Unknown package #{pkg_name} in project #{prj.name}"
       return
     end
 
