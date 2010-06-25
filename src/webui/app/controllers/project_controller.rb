@@ -388,7 +388,11 @@ class ProjectController < ApplicationController
 
   def autocomplete_packages
     packages
-    render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    if valid_package_name_read?( params[:q] ) or params[:q] == ""
+      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    else
+      render :text => ""
+    end
   end
 
   def list_requests
