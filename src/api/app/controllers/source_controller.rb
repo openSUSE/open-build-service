@@ -1240,7 +1240,7 @@ class SourceController < ApplicationController
     end
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{pkg_name} in project #{prj_name}"
+        :message => "Unknown package #{pkg.name} in project #{prj.name}"
       return
     end
 
@@ -1255,19 +1255,15 @@ class SourceController < ApplicationController
       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
         # We have a package in the update project already, take that
         pkg = pa
-        pkg_name = pkg.name
         prj = pkg.db_project
-        prj_name = prj.name
-    	logger.debug "branch call found package in update project #{prj_name}"
+    	logger.debug "branch call found package in update project #{prj.name}"
       else
         update_prj = DbProject.find_by_name( a.values[0].value )
-        update_pkg = update_prj.find_package( pkg_name )
+        update_pkg = update_prj.find_package( pkg.name )
         if update_pkg
-          # We have no package in the update project yet, but sources a reachable via project link
+          # We have no package in the update project yet, but sources are reachable via project link
           pkg = update_pkg
-          pkg_name = pkg.name
           prj = update_prj
-          prj_name = prj.name
         end
       end
     end
@@ -1275,10 +1271,8 @@ class SourceController < ApplicationController
     # validate and resolve devel package or devel project definitions
     if not params[:ignoredevel] and ( pkg.develproject or pkg.develpackage )
       pkg = pkg.resolve_devel_package
-      pkg_name = pkg.name
       prj = pkg.db_project
-      prj_name = prj.name
-      logger.debug "devel project is #{prj_name} #{pkg_name}"
+      logger.debug "devel project is #{prj.name} #{pkg.name}"
     end
 
     # link against srcmd5 instead of plain revision
@@ -1297,8 +1291,8 @@ class SourceController < ApplicationController
       end
     end
  
-    oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
-    opkg_name = pkg_name
+    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}"
+    opkg_name = pkg.name
     oprj_name = target_project unless target_project.nil?
     opkg_name = target_package unless target_package.nil?
 
@@ -1357,9 +1351,9 @@ class SourceController < ApplicationController
       rev = "&rev=#{pkg_rev}"
     end
     comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
-    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
 
-    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
+    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
   end
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
