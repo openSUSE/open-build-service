@@ -79,3 +79,11 @@ first_debug_flag_for_package_TestPack:
   db_package_id: 10095
   type: "DebuginfoFlag"
   position: 1
+
+hide_project:
+  id: 10
+  status: "disable"
+  db_project_id: 3000
+  type: "SourceaccessFlag"
+  position: 1
+
