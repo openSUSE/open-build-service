@@ -84,6 +84,14 @@ Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
 based on $OS
 
 EOF
+		if [ ! -f /dev/hw_random ]; then
+			cat >> /etc/issue <<EOF
+
+  WARNING: **** No hardware number generator found, package signing got disabled! ****
+
+EOF
+		fi
+
 		if [ -n "$FQHOSTNAME" ]; then
 			cat >> /etc/issue <<EOF
 
