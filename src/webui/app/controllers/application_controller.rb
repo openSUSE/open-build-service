@@ -14,6 +14,10 @@ class ApplicationController < ActionController::Base
   after_filter :validate_xhtml
   protect_from_forgery
 
+  if Rails.env.test?
+     before_filter :start_test_api
+  end
+
   # Scrub sensitive parameters from your log
   filter_parameter_logging :password
 
@@ -305,4 +309,20 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  @@frontend = nil
+  def start_test_api
+     return if @@frontend
+     @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
+     puts "started #{@@frontend.pid}"
+     while true do
+         line = @@frontend.gets
+         break if line =~ /DONE NOW/
+    end
+    puts "done #{@@frontend.pid}"
+    at_exit do
+       puts "kill #{@@frontend.pid}"
+       Process.kill "INT", @@frontend.pid
+       @@frontend = nil
+    end
+  end
 end

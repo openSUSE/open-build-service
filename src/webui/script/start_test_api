@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+ENV['RAILS_ENV'] = 'test'
+require File.dirname(__FILE__) + '/../config/boot'
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+
+Thread.abort_on_exception = true
+srcsrv_out = nil
+logger = RAILS_DEFAULT_LOGGER
+
+srcsrv = Thread.new do
+  srcsrv_out = IO.popen("cd #{RAILS_ROOT}/../api; exec ./script/server -e test -p #{FRONTEND_PORT} 2>&1")
+  puts "opened #{RAILS_ROOT} #{srcsrv_out.pid}"
+  begin
+    Process.setpgid srcsrv_out.pid, 0
+  rescue Errno::EACCES
+    # what to do?
+  end
+  while srcsrv_out
+    begin
+      line = srcsrv_out.gets
+      logger.debug line.strip unless line.blank?
+    rescue IOError
+      break
+    end
+  end
+end
+
+while true
+  begin
+    Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) {|http| http.get('/') }
+  rescue Errno::ECONNREFUSED
+    puts "waiting"
+    sleep 1
+    next
+  end
+  break
+end
+
+system("cd #{RAILS_ROOT}/../api ; rake db:fixtures:load")
+puts "DONE NOW"
+$stdout.flush
+
+dienow = false
+trap("INT") { dienow = true }
+
+while !dienow do
+  sleep 1
+end
+
+puts "kill #{srcsrv_out.pid}"
+Process.kill "INT", -srcsrv_out.pid
+
+srcsrv_out.close
+srcsrv_out = nil
+srcsrv.join
