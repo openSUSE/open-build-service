@@ -1,6 +1,6 @@
 class UserController < ApplicationController
 
-  skip_before_filter :require_login, :only => [:login, :do_login]
+  before_filter :require_login, :only => [:edit, :save, :register]
   before_filter :check_user, :only => [:edit, :save]
 
   def logout
@@ -16,6 +16,9 @@ class UserController < ApplicationController
     @return_to_path = params['return_to_path'] || "/"
   end
   
+  def edit
+  end
+
   def do_login
     @return_to_path = params['return_to_path'] || "/"
     if params[:username] and params[:password]

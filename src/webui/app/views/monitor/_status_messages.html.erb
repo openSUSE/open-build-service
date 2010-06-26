@@ -15,6 +15,9 @@
 
   <span id="add_message_form_area"></span>
 
+  <% if @status_messages.each_message.size == 0 %>
+	<p><i>No status messages</i></p>
+  <% else %>
   <table>
     <thead>
       <tr>
@@ -80,4 +83,5 @@
         :url => { :action => 'show_more_messages' } -%>
     <% end %>
   </p>
+  <% end %>
 </div>

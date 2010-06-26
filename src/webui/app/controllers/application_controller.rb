@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
 
   if Rails.env.test?
-     before_filter :start_test_api
+     prepend_before_filter :start_test_api
   end
 
   # Scrub sensitive parameters from your log

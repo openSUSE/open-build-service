@@ -392,8 +392,10 @@ module SpiderIntegrator
   #   only the ajax action will be followed in that case.  This behavior probably should be changed
   #
   def queue_link( tag, source )
-    dest = (tag.attributes['onclick'] =~ /^new Ajax.Updater\(['"].*?['"], ['"](.*?)['"]/i) ? $1 : tag.attributes['href']
+    onclick = tag.attributes['onclick']
+    dest = (onclick =~ /^new Ajax.Updater\(['"].*?['"], ['"](.*?)['"]/i) ? $1 : tag.attributes['href']
     return if dest.nil?
+    return if onclick =~ /confirm/
     dest.gsub!(/([?]\d+)$/, '') # fix asset caching
     unless dest =~ %r{^(http://|mailto:|#|&#)} 
       dest = dest.split('#')[0] if dest.index("#") # don't want page anchors
@@ -407,7 +409,7 @@ module SpiderIntegrator
     form.action ||= source
     form.mutate_inputs!(false)
     
-    @forms_to_visit << SpiderIntegrator::Form.new( form.method, form.action, form.query_hash, source )
+    #@forms_to_visit << SpiderIntegrator::Form.new( form.method, form.action, form.query_hash, source )
     # @forms_to_visit << SpiderIntegrator::Form.new( form_method, form_action, mutate_inputs(form, true), source )
   end
 
@@ -424,7 +426,7 @@ class SpiderTest < ActionController::IntegrationTest
   def test_spider
      login_tom
      follow_redirect!
-     setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => true )
+     setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => false )
      do_spider(@response.body, '')
      @errors.each do |e|
         puts e
