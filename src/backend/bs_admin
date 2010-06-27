@@ -82,17 +82,17 @@ Job Controlling
  --check-package <project> <package> <architecture>
    Check status of a package in all repositories
 
- --publish-repository <project> <repositroy>
+ --publish-repository <project> <repository>
    Creates an event for the publisher. The scheduler is NOT scanning for new packages.
    The publisher may skip the event, if nothing has changed. So you might need to remove
    the directory in your /repos/ directory first.
 
- --clone-repository <source project> <source repositroy> <destination repositroy>
- --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
+ --clone-repository <source project> <source repository> <destination repository>
+ --clone-repository <source project> <source repository> <destination project> <destination repository>
    Clone an existing repo into another existing repository.
    Usefull for creating snapshots.
 
- --rescan-repository <project> <repositroy> <architecture>
+ --rescan-repository <project> <repository> <architecture>
    Asks the scheduler to scan a repository for new packages and add
    them to the cache file.
 
