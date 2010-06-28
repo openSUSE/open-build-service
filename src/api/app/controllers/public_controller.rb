@@ -6,16 +6,11 @@ class PublicController < ApplicationController
     redirect_to :controller => 'main'
   end
 
-  # GET /public/:prj/:repo/:arch/:pkg
+  # GET /public/build/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
+    required_parameters :prj, :pkg, :repo, :arch
     
-    unless (params[:prj] and params[:pkg] and params[:repo] and params[:arch])
-      render_error :status => 404, :errorcode => "unknown_resource",
-        :message => "unknown resource '#{request.path}'"
-      return
-    end
-
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
 
