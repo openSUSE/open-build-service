@@ -2720,7 +2720,14 @@ sub getfilelist_ajax {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
       'proxy' => $proxy,
     };
-    $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$rev");
+    eval {
+      $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$rev");
+    };
+    if ($@) {
+      my $err = $@;
+      notify_repservers('package', $projid, $packid);
+      die($err);
+    }
     return undef unless $jev->{'filelist'};
     $jev = detach($BSStdServer::return_ok);
     $jev->{'idstring'} = "$projid/$packid/$rev";
@@ -2741,7 +2748,17 @@ sub getfilelist_ajax {
       'receiver' => \&BSHTTP::file_receiver,
       'proxy' => $proxy,
     };
-    my $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}");
+    my $res;
+    eval {
+      $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}");
+    };
+    if ($@) {
+      # notify scheduler that the download failed
+      my $err = $@;
+      BSWatcher::serialize_end($serial) if $serial;
+      notify_repservers('package', $projid, $packid);
+      die($err);
+    }
     return undef unless $res;
     die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
     die unless -e "$uploaddir/$$-$jev->{'id'}";
