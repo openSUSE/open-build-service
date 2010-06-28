@@ -31,20 +31,21 @@ class StatusController < ApplicationController
           new_messages.each_message do |msg|
             message = StatusMessage.new
             message.message = msg.to_s
-            message.severity = msg.severity
+            message.severity = msg.value :severity
             message.user = @http_user
             message.save
           end
         else
+          raise RuntimeError.new 'no message' if new_messages.element_name != 'message'
           # just one message, NOT wrapped in outer xml tag 'status_messages'
           message = StatusMessage.new
           message.message = new_messages.to_s
-          message.severity = new_messages.severity
+          message.severity = new_messages.value :severity
           message.user = @http_user
           message.save
         end
         render_ok
-      rescue
+      rescue RuntimeError
         render_error :status => 400, :errorcode => "error creating message(s)",
           :message => "message(s) cannot be created"
         return

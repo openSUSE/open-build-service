@@ -470,8 +470,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     origstring = @response.body.to_s
     teststring = "&;"
-    @request.env['RAW_POST_DATA'] = teststring
-    put url_for(:action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
+    put url_for(:action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"), teststring
     assert_response( 403, message="Was able to write a package file without permission" )
     assert_tag( :tag => "status" )
     
