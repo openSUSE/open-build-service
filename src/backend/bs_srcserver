@@ -2732,6 +2732,7 @@ sub getfilelist_ajax {
   for my $entry (@{$dir->{'entry'} || []}) {
     next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
     $serial ||= BSWatcher::serialize("$jev->{'remoteurl'}/source");
+    return undef unless $serial;
     mkdir_p($uploaddir);
     my $param = {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
