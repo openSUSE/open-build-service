@@ -16,7 +16,7 @@ require "common/libxmlactivexml"
 require 'custom_logger'
 
 # define our current api version
-api_version = '1.9'
+api_version = '2.0.90'
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
