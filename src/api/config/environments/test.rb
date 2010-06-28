@@ -41,7 +41,4 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 MAX_LDAP_ATTEMPTS = 10
 
-APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/api")+"/"
-
 

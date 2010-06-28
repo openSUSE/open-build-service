@@ -43,9 +43,6 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 MAX_LDAP_ATTEMPTS = 10
 
-APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/api")+"/"
-
 EXTENDED_BACKEND_LOG = true
 DOWNLOAD_URL='http://download.opensuse.org/repositories'
 YMP_URL='http://software.opensuse.org/ymp'

@@ -9,6 +9,9 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
 
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
+
 require "common/libxmlactivexml"
 require 'custom_logger'
 
