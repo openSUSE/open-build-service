@@ -240,7 +240,7 @@ case "$1" in
 			ln -sf $backenddir /obs
                 fi
 
-                if [ -f /dev/hw_random ]; then
+                if [ -e /dev/hw_random -o -e /dev/hwrng ]; then
 			# create default gpg key if not existing
 			if [ ! -e /obs/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
 				echo -n Generating OBS default GPG key ....
