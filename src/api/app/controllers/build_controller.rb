@@ -77,6 +77,7 @@ class BuildController < ApplicationController
 
   def buildinfo
     valid_http_methods :get, :post
+    required_parameters :project, :repository, :arch, :package
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
       path += '?' + request.query_string
@@ -89,12 +90,14 @@ class BuildController < ApplicationController
   # GET on ?view=cpio and ?view=cache unauthenticated and streamed
   def package_index
     valid_http_methods :get
+    required_parameters :project, :repository, :arch, :package
     pass_to_backend
   end
 
   # /build/:project/:repository/:arch/:package/:filename
   def file
     valid_http_methods :get
+    required_parameters :project, :repository, :arch, :package, :filename
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
     if pkg and
         (pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) or

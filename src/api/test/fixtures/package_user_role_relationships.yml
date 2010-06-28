@@ -3,10 +3,10 @@
 kdelibs_fredlibs_maintainer:
   db_package_id: 1
   bs_user_id: 4
-  role_id: 1
+  role_id: 2
 
 testpack_maintainer:
   id: 2
   db_package_id: 10095
   bs_user_id: 267
-  role_id: 1
+  role_id: 2

@@ -19,11 +19,16 @@ class ApidocsController < ApplicationController
   def method_missing symbol, *args
     file = symbol.to_s
     if ( file =~ /\.(xml|xsd|rng)$/ )
-      send_file( @@apidocsbase + file, :type => "text/xml",
-        :disposition => "inline" )
+      if File.exist?( @@apidocsbase + file )
+        send_file( @@apidocsbase + file, :type => "text/xml",
+          :disposition => "inline" )
+      else
+        render_error :status => 404, :errorcode => 'file_not_found', :message => 'file was not found'
+      end
     else
-      super symbol, *args
+      render_error :status => 404, :errorcode => 'unknown_file_type', :message => 'file should end with xml,xsd or rng'
     end
+    return
   end
 
 end

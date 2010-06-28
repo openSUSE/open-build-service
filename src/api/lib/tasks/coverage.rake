@@ -6,7 +6,7 @@ namespace :test do
     rm_f "coverage.data"
     rcov = "rcov -Itest --rails --aggregate coverage.data -T -x \" rubygems/*,/Library/Ruby/Site/*,gems/*,rcov*,active_rbac*\""
     system("#{rcov} --html test/unit/*_test.rb test/functional/*_test.rb")
-    system("xdg-open coverage/index.html")
+    puts "xdg-open coverage/index.html"
   end
 
 end

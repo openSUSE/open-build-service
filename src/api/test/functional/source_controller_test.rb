@@ -1,25 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'source_controller'
 
-FIXTURES = [
-  :static_permissions,
-  :roles,
-  :roles_static_permissions,
-  :roles_users,
-  :users,
-  :groups,
-  :groups_users,
-  :db_projects,
-  :db_packages,
-  :bs_roles,
-  :repositories,
-  :path_elements,
-  :project_user_role_relationships,
-  :project_group_role_relationships
-]
-
 class SourceControllerTest < ActionController::IntegrationTest 
-  fixtures(*FIXTURES)
+  fixtures :all
   
   def setup
     @controller = SourceController.new

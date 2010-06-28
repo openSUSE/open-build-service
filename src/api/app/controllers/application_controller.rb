@@ -8,6 +8,7 @@ require 'xpath_engine'
 require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
+class MissingParameterError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -363,6 +364,14 @@ class ApplicationController < ActionController::Base
 
   def user
     return @http_user
+  end
+
+  def required_parameters(*parameters)
+    parameters.each do |parameter|
+      unless params.include? parameter.to_s
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
+      end
+    end
   end
 
   def valid_http_methods(*methods)
