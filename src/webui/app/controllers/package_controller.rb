@@ -67,7 +67,7 @@ class PackageController < ApplicationController
     end
 
     if @fileinfo.value :arch 
-      @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
+      @durl = "#{repo_url( @project, @repository )}/#{@fileinfo.arch}/#{@filename}"
       if @durl and not file_available?( @durl )
         # ignore files not available
         @durl = nil
