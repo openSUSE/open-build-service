@@ -21,20 +21,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
 
-  ### /result
-
-  map.connect 'result/:project/result', :controller => 'result',
-    :action => 'projectresult', :project => /[^\/]*/
-  map.connect 'result/:project/packstatus', :controller => 'result',
-    :action => 'packstatus', :project => /[^\/]*/
-  map.connect 'result/:project/:platform/result', :controller => 'result',
-    :action => 'projectresult', :project => /[^\/]*/, :platform => /[^\/]*/
-  map.connect 'result/:project/:platform/:package/result', :controller => 'result',
-    :action => 'packageresult', :project => /[^\/]*/, :platform => /[^\/]*/, :package => /[^\/]*/
-  map.connect 'result/:project/:platform/:package/:arch/log',
-    :controller => 'result',
-    :action => 'log', :project => /[^\/]*/, :platform => /[^\/]*/, :package => /[^\/]*/
-
   ### /repository
 
   map.connect 'repository', :controller => 'repository', :action => 'index'

@@ -34,6 +34,9 @@ class ApplicationController < ActionController::Base
 
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
+  
+  hide_action :auth_method
+  hide_action 'auth_method='
 
   @@backend = nil
   def start_test_backend
@@ -51,6 +54,7 @@ class ApplicationController < ActionController::Base
       @@backend = nil
     end
   end
+  hide_action :start_test_backend
 
   protected
   def restrict_admin_pages
@@ -231,17 +235,19 @@ class ApplicationController < ActionController::Base
     end
   end
 
-
+  hide_action :setup_backend  
   def setup_backend
     # initialize backend on every request
     Suse::Backend.source_host = SOURCE_HOST
     Suse::Backend.source_port = SOURCE_PORT
   end
 
+  hide_action :add_api_version
   def add_api_version
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
+  hide_action :forward_from_backend
   def forward_from_backend(path)
 
     if CONFIG['x_rewrite_host']
@@ -275,6 +281,7 @@ class ApplicationController < ActionController::Base
     file.close
   end
 
+  hide_action :download_request
   def download_request
     file = Tempfile.new 'volley'
     b = request.body
@@ -492,6 +499,7 @@ class ApplicationController < ActionController::Base
     __send__ cmd_handler
   end
   public :dispatch_command
+  hide_action :dispatch_command
 
   def build_query_from_hash(hash, key_list=nil)
     key_list ||= hash.keys
