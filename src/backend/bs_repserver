@@ -154,18 +154,22 @@ sub addrepo_remote {
   };
   my $cpio = BSRPC::rpc($param, undef, "view=cache");
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
-  my $cachedata = $cpio{'repositorycache'};
-  return undef unless $cachedata;
-  my $cache;
-  eval { $cache = Storable::thaw(substr($cachedata, 4)); };
-  undef $cachedata;
-  warn($@) if $@;
-  return undef unless $cache;
-  for (values %$cache) {
-    delete $_->{'path'};
-    delete $_->{'id'};
+  if (exists $cpio{'repositorycache'}) {
+    my $cache;
+    eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    delete $cpio{'repositorycache'};	# free mem
+    warn($@) if $@;
+    return undef unless $cache;
+    # free some unused entries to save mem
+    for (values %$cache) {
+      delete $_->{'path'};
+      delete $_->{'id'};
+    }
+    return $pool->repofromdata($prp, $cache);
+  } else {
+    # return empty repo
+    return $pool->repofrombins($prp, '');
   }
-  return $pool->repofromdata($prp, $cache);
 }
 
 sub fetchdodbinary {
