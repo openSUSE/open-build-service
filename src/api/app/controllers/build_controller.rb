@@ -3,13 +3,13 @@ class BuildController < ApplicationController
   def project_index
     valid_http_methods :get, :post, :put
 
-    @path = request.path
+    path = request.path
     unless request.query_string.empty?
-      @path += '?' + request.query_string
+      path += '?' + request.query_string
     end
 
     if request.get?
-      pass_to_backend @path
+      pass_to_backend path
     elsif request.post?
       allowed = false
       allowed = true if permissions.global_project_change
@@ -63,10 +63,10 @@ class BuildController < ApplicationController
         return
       end
 
-      pass_to_backend @path
+      pass_to_backend path
       return
     elsif request.put? and @http_user.is_admin?
-      pass_to_backend @path
+      pass_to_backend path
       return
     else
       render_error :status => 400, :errorcode => 'illegal_request',

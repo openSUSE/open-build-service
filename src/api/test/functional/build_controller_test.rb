@@ -46,7 +46,38 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/home:tscholz/10.2/i586/notthere/_log"
     assert_response 404
     assert_match /package 'notthere' does not exist/, @response.body
-
+  end
+  
+  def test_result
+    get "/build/home:tscholz/_result"
+    assert_response :success
+    assert_tag :tag => "resultlist", :children =>  { :count => 2 }
   end
 
+  def test_file
+    get "/build/home:tscholz/10.2/i586/TestPack/myfile"
+    assert_response 400 # TODO: this should really be 404 too
+    assert_match /myfile: No such file or directory/, @response.body
+  end
+
+  def test_project_index
+    get "/build/home:tscholz"
+    assert_response :success
+    assert_tag :tag => "directory", :children =>  { :count => 1 }
+
+    put "/build/home:tscholz", :cmd => 'say_hallo'
+    assert_response 400
+    assert_match /Illegal request/, @response.body
+
+    post "/build/home:tscholz", :cmd => 'say_hallo'
+    assert_response 403
+    assert_match /No permission to execute command on project/, @response.body
+
+    prepare_request_with_user "tscholz", "asdfasdf" 
+    post "/build/home:tscholz?cmd=say_hallo"
+    assert_response :success # WOW!
+  
+    post "/build/home:tscholz?cmd=wipebinaries"
+    assert_response :success
+  end
 end
