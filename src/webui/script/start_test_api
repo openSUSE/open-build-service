@@ -8,12 +8,14 @@ srcsrv_out = nil
 logger = RAILS_DEFAULT_LOGGER
 
 srcsrv = Thread.new do
+  puts "Starting test API at port #{FRONTEND_PORT} ..."
   srcsrv_out = IO.popen("cd #{RAILS_ROOT}/../api; exec ./script/server -e test -p #{FRONTEND_PORT} 2>&1")
-  puts "opened #{RAILS_ROOT} #{srcsrv_out.pid}"
+  puts "API started with PID: #{srcsrv_out.pid}"
   begin
     Process.setpgid srcsrv_out.pid, 0
   rescue Errno::EACCES
     # what to do?
+    puts "Could not set API group to root"
   end
   while srcsrv_out
     begin
@@ -26,18 +28,23 @@ srcsrv = Thread.new do
 end
 
 while true
+  puts "Waiting for API to serve requests..."
   begin
-    Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
-    puts "waiting"
+    Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
+      http.open_timeout = 15
+      http.read_timeout = 15
+      http.get('/')
+    end
+  rescue Errno::ECONNREFUSED, Timeout::Error
     sleep 1
     next
   end
   break
 end
 
+puts "Loading API fixtures... "
 system("cd #{RAILS_ROOT}/../api ; RAILS_ENV=test rake db:fixtures:load")
-puts "DONE NOW"
+puts "Test API ready."
 $stdout.flush
 
 dienow = false
