@@ -115,8 +115,8 @@ begin
 rescue Errno::ENOENT
 end
 
-DOWNLOAD_URL = nil
-BUGZILLA_HOST = nil
+#DOWNLOAD_URL = "http://download.opensuse.org/repositories"
+#BUGZILLA_HOST = nil
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
