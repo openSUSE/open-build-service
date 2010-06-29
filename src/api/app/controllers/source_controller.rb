@@ -754,6 +754,14 @@ class SourceController < ApplicationController
     if package_name == "_project"
       allowed = permissions.project_change? project_name
     else
+      if pack.nil? and request.get?
+        # Check if this is a package on a remote OBS instance
+        answer = Suse::Backend.get(request.path)
+        if answer
+          pass_to_backend
+          return
+        end
+      end
       if pack.nil? and package_name != "_project"
         render_error :status => 403, :errorcode => 'not_found',
           :message => "The given package #{package_name} does not exist in project #{project_name}"
