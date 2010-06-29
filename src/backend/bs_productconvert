@@ -1093,7 +1093,7 @@ $product->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}'
 my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple products.
 
 my $kiwiImage = {};
-my $name = sprintf( "%s %s %s",
+my $name = sprintf( "OBS__%s___%s___%s",
 		    $product->{vendor},
 		    $product->{name},
 		    $product->{version} );
