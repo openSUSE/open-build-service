@@ -869,7 +869,7 @@ class SourceController < ApplicationController
           branch_target_package = pac.name
         else
           # package exists not yet in update project, to be created
-          branch_target_project = a.name
+          branch_target_project = a.values[0].value
         end
       end
       proj_name = pac.db_project.name.gsub(':', '_')
