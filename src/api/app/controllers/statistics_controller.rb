@@ -156,7 +156,7 @@ class StatisticsController < ApplicationController
       object = DbProject.find_by_name @project
       object = DbPackage.find :first, :conditions =>
         [ 'name=? AND db_project_id=?', @package, object.id ] if @package
-      throw if object.nil?
+      raise RuntimeError.new('nil object') if object.nil?
     rescue
       @package = @project = @rating = object = nil
       return

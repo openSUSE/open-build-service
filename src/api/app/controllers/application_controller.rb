@@ -346,7 +346,7 @@ class ApplicationController < ActionController::Base
       render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
-    when ActionController::RoutingError
+    when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActionController::UnknownAction
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
