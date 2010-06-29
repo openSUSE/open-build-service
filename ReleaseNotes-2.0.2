@@ -1,0 +1,24 @@
+#
+# Release Notes for OBS 2.0.2
+#
+
+Updaters from 2.0.X can just update the packages and restart all services.
+Updaters from former releases need to check the 2.0.0 Release Notes file.
+
+Changes since 2.0.1:
+====================
+
+Changes:
+* Fix for kiwi 4.43 schema validation
+* OBS appliance is using signing only when hardware number generator is available
+  => solves time out errors during startup and product creation
+
+Bugfixes:
+* various text message typo fixes
+* backend: fixes for building against remote instance
+* backend: source services get called with parameters in safe order
+* api: reports version 2.0 now
+* api: fix branching of packages in case of update project defintion exists
+* webui: fix for javascript popups on request page (they hide again now)
+* webui: missing icons fixed
+
