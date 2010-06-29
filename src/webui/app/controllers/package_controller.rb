@@ -62,17 +62,15 @@ class PackageController < ApplicationController
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
       redirect_to :controller => "package", :action => :binaries, :project => @project, 
-                  :package => @package, :repository => @repository, :nextstatus => 404
+        :package => @package, :repository => @repository, :nextstatus => 404
       return
     end
-
-    if @fileinfo.value :arch 
-      @durl = "#{repo_url( @project, @repository )}/#{@fileinfo.arch}/#{@filename}"
-      if @durl and not file_available?( @durl )
-        # ignore files not available
-        @durl = nil
-      end
-    end
+    @durl = "#{repo_url( @project, @repository )}/#{@fileinfo.arch}/#{@filename}" if @fileinfo.value :arch
+    @durl = "#{repo_url( @project, @repository )}/iso/#{@filename}" if (@fileinfo.value :filename) =~ /\.iso$/
+    if @durl and not file_available?( @durl )
+      # ignore files not available
+      @durl = nil
+    end 
     if @user and !@durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
