@@ -107,25 +107,6 @@ class PublicController < ApplicationController
     render_stream(Net::HTTP::Get.new(path))
   end
 
-  # GET /public/person/:login/_watchlist
-  def watchlist
-    valid_http_methods :get
-    if params[:login]
-      login = URI.unescape( params[:login] )
-      logger.debug "Generating for user from parameter #{login}"
-      @render_user = User.find_by_login( login )
-      if ! @render_user 
-        logger.debug "User is not valid!"
-        render_error :status => 404, :errorcode => 'unknown_user',
-          :message => "Unknown user: #{login}"
-      else
-        render :template => 'person/watchlist'
-        # see the corresponding view person/watchlist.rxml that generates a xml
-        # response for the caller.
-      end
-    end
-  end
-
   # GET /public/distributions
   def distributions
     valid_http_methods :get

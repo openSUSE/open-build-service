@@ -1,31 +1,13 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'source_controller'
 
-FIXTURES = [
-  :static_permissions,
-  :roles,
-  :flags,
-  :roles_static_permissions,
-  :roles_users,
-  :users,
-  :groups,
-  :groups_users,
-  :db_projects,
-  :db_packages,
-  :bs_roles,
-  :repositories,
-  :path_elements,
-  :project_user_role_relationships,
-  :project_group_role_relationships,
-]
-
 class ReadPermissionTests < ActionController::IntegrationTest 
-  fixtures(*FIXTURES)
+
+  fixtures :all
   
   def setup
     @controller = SourceController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
+    @controller.start_test_backend
 
     Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
     Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)

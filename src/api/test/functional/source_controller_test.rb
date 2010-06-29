@@ -6,9 +6,6 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   def setup
     @controller = SourceController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-
     @controller.start_test_backend
 
     Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)

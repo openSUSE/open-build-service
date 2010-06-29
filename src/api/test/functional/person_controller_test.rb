@@ -1,14 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'person_controller'
 
 class PersonControllerTest < ActionController::IntegrationTest 
 
-  fixtures :users, :watched_projects
+  fixtures :all
 
   def setup
-    @controller = PersonController.new
-    @controller.request  = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
     prepare_request_valid_user
   end
  

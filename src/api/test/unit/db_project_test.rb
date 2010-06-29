@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class DbProjectTest < ActiveSupport::TestCase
-  fixtures :db_projects, :db_packages, :repositories, :flags, :users
+  fixtures :all
 
   def setup
     @project = DbProject.find( 502 )

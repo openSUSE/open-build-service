@@ -1,22 +1,9 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'statistics_controller'
 require 'time'
-
-# Re-raise errors caught by the controller.
-class StatisticsController; def rescue_action(e) raise e end; end
 
 class StatisticsControllerTest < ActionController::IntegrationTest
 
-
- fixtures :db_projects, :db_packages, :download_stats, :repositories, :architectures, :users
-
-
-  def setup
-    @controller = StatisticsController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-  end
-
+  fixtures :all
 
   def test_latest_added
     prepare_request_with_user 'tom', 'thunder'

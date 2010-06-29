@@ -1,18 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'search_controller'
-
-# Re-raise errors caught by the controller.
-class SearchController; def rescue_action(e) raise e end; end
 
 class SearchControllerTest < ActionController::IntegrationTest 
   
-  fixtures :db_projects, :db_packages, :users, :project_user_role_relationships, :roles, :static_permissions, :roles_static_permissions, :attrib_types, :attrib_namespaces, :attribs
+  fixtures :all
 
   def setup
-    @controller = SearchController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
- 
     @tom = User.find_by_login("tom")
     @tscholz = User.find_by_login("tscholz")
   end

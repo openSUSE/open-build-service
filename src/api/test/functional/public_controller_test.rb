@@ -24,13 +24,28 @@ class PublicControllerTest < ActionController::IntegrationTest
   end
 
   def test_lastevents
-	# old route
-	get "/lastevents"
-	assert_response :success
-	# new route
-	get "/public/lastevents"
-	assert_response :success
+    # old route
+    get "/lastevents"
+    assert_response :success
+    # new route
+    get "/public/lastevents"
+    assert_response :success
   end
 
-  
+  def test_distributions
+    get "/public/distributions"
+    assert_response :success
+  end
+
+  def test_binaries
+    get "/public/binary_packages/home:tscholz/TestPack"
+    assert_response :success
+  end
+
+  def test_binaries
+    get "/public/source/home:tscholz/TestPack/myfile"
+    assert_response 404
+    assert_match /myfile: no such file/, @response.body
+  end
+
 end

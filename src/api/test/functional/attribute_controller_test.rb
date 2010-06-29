@@ -1,20 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'attribute_controller'
-
-# Re-raise errors caught by the controller.
-class AttributeController; def rescue_action(e) raise e end; end
 
 class AttributeControllerTest < ActionController::IntegrationTest 
   
-  fixtures :db_projects, :db_packages, :users, :project_user_role_relationships, :roles
-  fixtures :static_permissions, :roles_static_permissions, :attrib_types
-  fixtures :attrib_namespaces, :attribs, :attrib_namespace_modifiable_bies
+  fixtures :all
 
   def setup
-    @controller = AttributeController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
- 
     @tom = User.find_by_login("tom")
     @tscholz = User.find_by_login("tscholz")
   end

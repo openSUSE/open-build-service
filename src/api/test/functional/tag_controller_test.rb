@@ -1,17 +1,12 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'tag_controller'
 
-# Re-raise errors caught by the controller.
-class TagController; def rescue_action(e) raise e end; end
-
 class TagControllerTest < ActionController::IntegrationTest 
   
-  fixtures :users, :db_projects, :db_packages, :tags, :taggings, :blacklist_tags
+  fixtures :all
   
   def setup
     @controller = TagController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
     
     #wrapper for testing private functions
     def @controller.private_s_to_tag(tag)

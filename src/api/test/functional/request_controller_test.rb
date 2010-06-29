@@ -3,12 +3,10 @@ require 'request_controller'
 
 class RequestControllerTest < ActionController::IntegrationTest 
   
-  fixtures :db_projects, :db_packages, :users, :project_user_role_relationships, :roles, :static_permissions, :roles_static_permissions, :project_group_role_relationships
+  fixtures :all
 
   def setup
     @controller = RequestController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
  
     @tom = User.find_by_login("tom")
     @tscholz = User.find_by_login("tscholz")
