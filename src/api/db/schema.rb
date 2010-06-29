@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100609200000) do
+ActiveRecord::Schema.define(:version => 20100629095208) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -91,12 +91,6 @@ ActiveRecord::Schema.define(:version => 20100609200000) do
     t.string   "name"
     t.datetime "created_at"
   end
-
-  create_table "bs_roles", :force => true do |t|
-    t.string "title"
-  end
-
-  add_index "bs_roles", ["title"], :name => "bs_roles_title_unique_index", :unique => true
 
   create_table "db_packages", :force => true do |t|
     t.integer  "db_project_id",                                     :null => false
