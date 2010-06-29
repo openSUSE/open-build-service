@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'source_controller'
 
-class ReadPermissionTests < ActionController::IntegrationTest 
+class ReadPermissionTest < ActionController::IntegrationTest 
 
   fixtures :all
   
