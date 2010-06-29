@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class PublishFlagTest < ActiveSupport::TestCase
-  fixtures :flags, :architectures, :db_projects, :db_packages
+  fixtures :all
   
   def setup
     @project = DbProject.find(502)

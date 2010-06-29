@@ -129,6 +129,8 @@ class DbProjectTest < ActiveSupport::TestCase
   
   
   def test_store_axml
+    original = @project.to_axml
+
     #project is given as axml
     axml = ActiveXML::Base.new(
       "<project name='home:tscholz'>
@@ -146,6 +148,8 @@ class DbProjectTest < ActiveSupport::TestCase
     
     assert_equal 0, @project.build_flags.size
     assert_equal 1, @project.debuginfo_flags.size        
+
+    @project.store_axml(ActiveXML::Base.new(original))
   end  
   
   

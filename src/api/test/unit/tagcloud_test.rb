@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class TagcloudTest < ActiveSupport::TestCase
-  fixtures :users, :db_projects, :db_packages, :tags, :taggings
+  fixtures :all
   
   def test_max_min
     opt = Hash.new
