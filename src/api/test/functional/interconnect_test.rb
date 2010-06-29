@@ -15,6 +15,8 @@ class InterConnectTests < ActionController::IntegrationTest
     Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
     Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack1").to_axml)
     Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
+    Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack2").to_axml)
+    Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
     Suse::Backend.put( '/source/LocalProject/_meta', DbProject.find_by_name('LocalProject').to_axml)
     Suse::Backend.put( '/source/LocalProject/remotepackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "remotepackage").to_axml)
     Suse::Backend.put( '/source/LocalProject/remotepackage/_link', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
@@ -73,19 +75,41 @@ class InterConnectTests < ActionController::IntegrationTest
 
     # access via a local package linking to a remote package
     get "/source/LocalProject/remotepackage"
-    ret = ActiveXML::XMLNode.new @response.body
     assert_response :success
+    ret = ActiveXML::XMLNode.new @response.body
+    xsrcmd5 = ret.linkinfo.xsrcmd5
+    assert_not_nil xsrcmd5
     get "/source/LocalProject/remotepackage/_meta"
     assert_response :success
+    get "/source/LocalProject/remotepackage/my_file"
+    assert_response 404
     get "/source/LocalProject/remotepackage/_link"
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "RemoteInstance:BaseDistro"
-    assert_equal ret.package, "remotepackage"
-    get "/source/LocalProject/remotepackage/my_file?expand=1"
+    assert_equal ret.package, "pack1"
+    get "/source/LocalProject/remotepackage/my_file?rev=#{xsrcmd5}"
     assert_response :success
+    get "/source/LocalProject/remotepackage/_link?rev=#{xsrcmd5}"
+    assert_response 404
     get "/source/LocalProject/remotepackage/not_existing"
     assert_response 404
+  end
+
+  def test_diff_package
+    ActionController::IntegrationTest::reset_auth 
+    prepare_request_with_user "tom", "thunder"
+
+# FIXME: not supported in api atm
+#    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
+#    assert_response :success
+#    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :copy, :target_project => "LocalProject", :target_package => "copypackage"
+#    assert_response :success
+
+    Suse::Backend.put( '/source/LocalProject/newpackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "newpackage").to_axml)
+    Suse::Backend.put( '/source/LocalProject/newpackage/new_file', "adding stuff")
+    post "/source/LocalProject/newpackage", :cmd => :diff, :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
+    assert_response :success
   end
 
 end
