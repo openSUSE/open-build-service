@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.9.62
+Version:        2.0.2
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -22,7 +22,7 @@ BuildRoot:      /var/tmp/%name-root
 # git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
 Source:         obs-server-%version.tar.bz2
 # git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
-Source1:        opensuse-themes-0.9.tar.bz2
+Source1:        opensuse-themes-2.0.tar.bz2
 Autoreqprov:    on
 BuildRequires:  python-devel
 BuildRequires:  obs-common
@@ -110,6 +110,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
+Requires:       rubygem-rack = 1.0.1
 Requires:       rubygem-rails-2_3 = 2.3.5
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
@@ -122,7 +123,7 @@ Requires:       ghostscript-fonts-std
 Requires:       rubygem-gruff
 Requires:       rubygem-sqlite3
 Requires:       rubygem-rmagick
-Requires:       rubygem-exception_notification
+Requires:       rubygem-exception_notification < 2.0
 Recommends:     memcached
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
@@ -134,6 +135,9 @@ OBS.
 %package -n obs-source_service
 Summary:        The openSUSE Build Service -- source service daemon
 Group:          Productivity/Networking/Web/Utilities
+# Our default services, used in osc and webui
+Recommends:     obs-service-download_url
+Recommends:     obs-service-verify_file
 
 %description -n obs-source_service
 The OBS source service is a component to modify submitted sources
@@ -159,11 +163,8 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       osc build ruby 
 
 %description -n obs-utils
-obs_mirror_project     is a tool to copy the binary data of a project from one obs to another
-obs_project_update     is a tool to copy a packages of a project from one obs to another
-obs_import_srcdebtree  is a tool to import a debian source tree into a project
-obs_import_srcrpmtree  is a tool to import a rpm source tree into a project
-obs_rebuild_db         is a tool to recreate the OBS MySQL DB from the backend project data
+obs_mirror_project is a tool to copy the binary data of a project from one obs to another
+obs_project_update is a tool to copy a packages of a project from one obs to another
 
 Authors:       Susanne Oberhauser, Martin Mohring
 
@@ -194,7 +195,7 @@ install -m 0644 rails.include $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/rails.inc
 install -m 0644 cleanurl-v5.lua $RPM_BUILD_ROOT/etc/lighttpd/
 # install obs mirror script and obs copy script
 install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
-install -m 0755 obs_rebuild_db obs_import_srcrpmtree obs_import_srcdebtree obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
@@ -236,6 +237,11 @@ cat > $RPM_BUILD_ROOT/usr/sbin/obs_admin <<EOF
 exec /usr/lib/obs/server/bs_admin "\$@"
 EOF
 chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_admin
+cat > $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus <<EOF
+#!/bin/bash
+exec /usr/lib/obs/server/bs_serverstatus "\$@"
+EOF
+chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus
 
 
 #
@@ -422,6 +428,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obssigner
 /etc/init.d/obsstoragesetup
 /usr/sbin/obs_admin
+/usr/sbin/obs_serverstatus
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -469,6 +476,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_publish
 /usr/lib/obs/server/bs_repserver
 /usr/lib/obs/server/bs_sched
+/usr/lib/obs/server/bs_serverstatus
 /usr/lib/obs/server/bs_srcserver
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer
@@ -524,7 +532,6 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/app
 /srv/www/obs/api/db
 /srv/www/obs/api/doc
-/srv/www/obs/api/files/distributions
 /srv/www/obs/api/files/wizardtemplate.spec
 /srv/www/obs/api/lib
 /srv/www/obs/api/public
@@ -616,9 +623,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_project_update
-/usr/sbin/obs_rebuild_db 
-/usr/sbin/obs_import_srcrpmtree
-/usr/sbin/obs_import_srcdebtree
 
 %files -n obs-productconverter
 %defattr(-,root,root)
