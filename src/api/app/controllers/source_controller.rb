@@ -829,15 +829,15 @@ class SourceController < ApplicationController
   def index_branch
     # set defaults
     mparams=params
-    if not params[:target_project]
-      mparams[:target_project] = "home:#{@http_user.login}:branches:#{params[:attribute].gsub(':', '_')}"
-      mparams[:target_project] += ":#{params[:package]}" if params[:package]
+    if not params[:attribute]
+      params[:attribute] = "OBS:Maintained"
     end
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
-    if not params[:attribute]
-      params[:attribute] = "OBS:Maintained"
+    if not params[:target_project]
+      mparams[:target_project] = "home:#{@http_user.login}:branches:#{params[:attribute].gsub(':', '_')}"
+      mparams[:target_project] += ":#{params[:package]}" if params[:package]
     end
 
     # permission check
