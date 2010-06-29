@@ -131,3 +131,16 @@ pack:
   update_counter: 1
   created_at: 2007-05-16 14:19:18
 
+# for OBS interconnect
+remotepackage:
+  name: remotepackage
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package with a remote link
+  db_project_id: 5002
+  url: ""
+  id: 11001
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
