@@ -316,7 +316,7 @@ class ApplicationController < ActionController::Base
      puts "started #{@@frontend.pid}"
      while true do
          line = @@frontend.gets
-         break if line =~ /DONE NOW/
+         break if line =~ /Test API ready/
     end
     puts "done #{@@frontend.pid}"
     at_exit do
