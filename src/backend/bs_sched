@@ -52,6 +52,7 @@ use BSSolv;
 use strict;
 
 my $testprojid;
+my $testmode;
 
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
@@ -80,6 +81,11 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $infodir = "$BSConfig::bsdir/info";
+
+if ($ARGV[0] eq '--testmode') {
+  $testmode = 1;
+  shift;
+};
 
 my $myarch = $ARGV[0] || 'i586';
 
@@ -3335,6 +3341,10 @@ while(1) {
   }
 
   if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
+    if ($testmode) {
+      print "Test mode, all sources and events processed, exiting...\n";
+      exit(0);
+    }
     my @ltim = localtime(time);
     my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
     print "$msgtm waiting for an event...\n";
