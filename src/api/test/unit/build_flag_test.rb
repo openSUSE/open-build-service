@@ -20,7 +20,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = BuildFlag.new(:repo => "10.#{i}", :status => "enable", :position => i+2)
+      f = BuildFlag.new(:repo => "10.#{i}", :status => "enable", :position => i + 2 )
       @arch.build_flags << f
       @project.build_flags << f
     end
@@ -60,7 +60,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = BuildFlag.new(:repo => "10.#{i}", :status => "disable", :position => i)
+      f = BuildFlag.new(:repo => "10.#{i}", :status => "disable", :position => i + 2)
       @arch.build_flags << f
       @package.build_flags << f
     end
@@ -78,7 +78,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 'disable', f.status
     assert_equal @package.id, f.db_package_id
     assert_nil f.db_project_id
-    assert_equal 1, f.position
+    assert_equal 3, f.position
     
     f = @package.build_flags[2]
     assert_kind_of BuildFlag, f
@@ -88,7 +88,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 'disable', f.status
     assert_equal @package.id, f.db_package_id
     assert_nil f.db_project_id
-    assert_equal 2, f.position
+    assert_equal 4, f.position
     
   end
   
