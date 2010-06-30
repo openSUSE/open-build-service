@@ -73,10 +73,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/BaseDistro3/pack2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
+
+    # search for maintained packages like osc is doing
+    get "/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29"
+    assert_response :success
+    ret = ActiveXML::XMLNode.new @response.body
+    assert_equal ret.package.each.count, 3
    
+    # do the real mbranch for default maintained packages
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
-    # do the real mbranch for default maintained packages
     post "/source", :cmd => "branch", :package => "pack2"
     assert_response :success
 
@@ -104,11 +110,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal ret.package, "pack2"
 
     # FIXME: create and validate repos
+
+    # create patchinfo
+    post "/source/BaseDistro?cmd=createpatchinfo"
+    assert_response 403
+    post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo"
+    assert_response 400
+    assert_match /No binary packages were found in project repositories/, @response.body
+    # FIXME: test with binaries
+    post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo&force=1"
+    assert_response :success
   end
 
   # FIXME: to be implemented:
-  # def test_patchinfo
-  # def test_search_maintained
   # def test_submitrequest_for_mbranch_project
 
 end
