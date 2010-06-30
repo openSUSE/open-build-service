@@ -485,6 +485,33 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fredlibs", "geröllheimer"
     delete "/source/kde4" 
     assert_response :success
+
+    get "/source/kde4" 
+    assert_response 404
+    get "/source/kde4/_meta" 
+    assert_response 404
+
+    # undelete project
+    post "/source/kde4", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/kde4", :cmd => :undelete
+    assert_response :success
+
+    # content got restored ?
+    get "/source/kde4"
+    assert_response :success
+    get "/source/kde4/_project"
+    assert_response :success
+    get "/source/kde4/_meta"
+    assert_response :success
+    get "/source/kde4/kdelibs"
+    assert_response :success
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    get "/source/kde4/kdelibs/testfile"
+    assert_response :success
   end
 
   def test_remove_project2
@@ -504,7 +531,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal node.repository.path.repository, "gone"
   end
 
-  def test_branch_package
+  def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 401
@@ -541,6 +568,32 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
+
+    # delete package
+    ActionController::IntegrationTest::reset_auth 
+    delete "/source/home:tom:branches:home:tscholz/TestPack"
+    assert_response 401
+
+    prepare_request_with_user "tom", "thunder"
+    delete "/source/home:tom:branches:home:tscholz/TestPack"
+    assert_response :success
+
+    get "/source/home:tom:branches:home:tscholz/TestPack"
+    assert_response 404
+    get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
+    assert_response 404
+
+    # undelete project
+    post "/source/home:tom:branches:home:tscholz/TestPack", :cmd => :undelete
+    assert_response :success
+
+    # content got restored ?
+    get "/source/home:tom:branches:home:tscholz/TestPack"
+    assert_response :success
+    get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
+    assert_response :success
+    get "/source/home:tom:branches:home:tscholz/TestPack/_link"
+    assert_response :success
   end
 
 end
