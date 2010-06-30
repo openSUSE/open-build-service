@@ -835,7 +835,7 @@ sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $bin) = @_;
   return getbinary_repository($cgi, $projid, $repoid, $arch, $bin) if $packid eq '_repository';
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
-  die("$bin: $!\n") unless -f $path;
+  die("404 $bin: $!\n") unless -f $path;
   my $view = $cgi->{'view'} || '';
   return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   die("unknown view '$view'\n") if $view;

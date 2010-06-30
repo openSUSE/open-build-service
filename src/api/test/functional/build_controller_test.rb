@@ -56,7 +56,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_file
     get "/build/home:tscholz/10.2/i586/TestPack/myfile"
-    assert_response 400 # TODO: this should really be 404 too
+    assert_response 404
     assert_match /myfile: No such file or directory/, @response.body
   end
 
