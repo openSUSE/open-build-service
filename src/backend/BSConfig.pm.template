@@ -39,6 +39,9 @@ our $repodownload = "http://$hostname/repositories";
 # optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
+#
+# Notification Plugin
+#our $notification_plugin = "notify-hermes";
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.

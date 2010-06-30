@@ -61,7 +61,7 @@ use BSXPath;
 use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
-use BSHermes;
+use BSNotify;
 
 use BSSolv;
 
@@ -1207,9 +1207,9 @@ sub putjob {
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
-    BSHermes::notify('BUILD_UNCHANGED', $info);
+    BSNotify::notify('BUILD_UNCHANGED', $info);
   } else {
-    BSHermes::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
+    BSNotify::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
   }
 
   # calculate binary info to speed up scheduler

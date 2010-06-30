@@ -42,6 +42,7 @@ use BSDBIndex;
 use Build;
 use BSDB;
 use BSXML;
+use BSNotify;
 
 use strict;
 
@@ -1199,6 +1200,8 @@ publishprog_done:
     qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook failed: $?");
   }
 
+  
+  BSNotify::notify("REPO_PUBLISHED", { project => $projid , 'repo' => $repoid });
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
@@ -1262,6 +1265,7 @@ while(1) {
       }
     }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+    BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
       publish($ev->{'project'}, $ev->{'repository'});
     };
@@ -1270,6 +1274,7 @@ while(1) {
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
     } else {
+      BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
       unlink("$myeventdir/${event}::inprogress");
     }
     db_sync();
