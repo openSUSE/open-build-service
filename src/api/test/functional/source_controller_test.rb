@@ -531,6 +531,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal node.repository.path.repository, "gone"
   end
 
+  def test_diff_package
+    prepare_request_with_user "tom", "thunder" 
+    post "/source/home:tscholz/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+  end
+
   def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
