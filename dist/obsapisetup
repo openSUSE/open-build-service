@@ -74,7 +74,7 @@ case "$1" in
 		    /srv/www/obs/api/config/options.yml
                 echo "# the following lines are always written by obsapisetup!" >> /srv/www/obs/api/config/options.yml
                 echo "allow_anonymous: true" >> /srv/www/obs/api/config/options.yml
-                echo "webui_host: $FQHOSTNAME" >> /srv/www/obs/api/config/options.yml
+                echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
                 echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
 		echo
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
