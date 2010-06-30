@@ -602,4 +602,87 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_package_set_flag
+    prepare_request_with_user "tscholz", "asdfasdf"
+
+    get "/source/home:tscholz/TestPack/_meta"
+    assert_response :success
+    original = @response.body
+
+    post "/source/home:tschols/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    assert_response 404
+    assert_match /Unknown project 'home:tschols'/, @response.body
+
+    post "/source/home:tscholz/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    assert_response 400
+    assert_match /Required Parameter status missing/, @response.body
+
+    post "/source/home:tscholz/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=enable"
+    assert_response 404
+    assert_match /Unknown package 'Nothere'/, @response.body
+
+    post "/source/home:tscholz/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
+    assert_response 400
+    assert_match /Error: unknown status for flag 'anything'/, @response.body
+
+    post "/source/home:tscholz/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
+    assert_response 400
+    assert_match /Error: unknown flag type 'shine' not found./, @response.body
+
+    get "/source/home:tscholz/TestPack/_meta"
+    assert_response :success
+    # so far noting should have changed
+    assert_equal original, @response.body
+
+    post "/source/kde4/kdelibs4?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    assert_response 403
+    assert_match /no permission to execute command/, @response.body
+
+    post "/source/home:tscholz/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    assert_response :success # actually I consider forbidding repositories not existant
+
+    get "/source/home:tscholz/TestPack/_meta"
+    assert_not_equal original, @response.body
+  end
+
+
+  def test_project_set_flag
+    prepare_request_with_user "tscholz", "asdfasdf"
+
+    get "/source/home:tscholz/_meta"
+    assert_response :success
+    original = @response.body
+
+    post "/source/home:tschols?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    assert_response 404
+    assert_match /Unknown project 'home:tschols'/, @response.body
+
+    post "/source/home:tscholz?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    assert_response 400
+    assert_match /Required Parameter status missing/, @response.body
+
+    post "/source/home:tscholz?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
+    assert_response 400
+    assert_match /Error: unknown status for flag 'anything'/, @response.body
+
+    post "/source/home:tscholz?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
+    assert_response 400
+    assert_match /Error: unknown flag type 'shine' not found./, @response.body
+
+    get "/source/home:tscholz/_meta"
+    assert_response :success
+    # so far noting should have changed
+    assert_equal original, @response.body
+
+    post "/source/kde4?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    assert_response 403
+    assert_match /no permission to execute command/, @response.body
+
+    post "/source/home:tscholz?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    assert_response :success # actually I consider forbidding repositories not existant
+
+    get "/source/home:tscholz/_meta"
+    assert_not_equal original, @response.body
+  end
+
 end

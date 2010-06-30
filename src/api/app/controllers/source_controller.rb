@@ -36,7 +36,7 @@ class SourceController < ApplicationController
     if pro.nil?
       unless params[:cmd] == "undelete"
         render_error :status => 404, :errorcode => 'unknown_project',
-          :message => "Unknown project #{project_name}"
+          :message => "Unknown project '#{project_name}'"
         return
       end
     elsif params[:cmd] == "undelete"
@@ -168,6 +168,8 @@ class SourceController < ApplicationController
 
   def index_package
     valid_http_methods :get, :delete, :post
+    required_parameters :project, :package
+
     project_name = params[:project]
     package_name = params[:package]
     cmd = params[:cmd]
@@ -184,7 +186,7 @@ class SourceController < ApplicationController
         end
       end
       render_error :status => 404, :errorcode => "unknown_project",
-        :message => "unknown project '#{project_name}'"
+        :message => "Unknown project '#{project_name}'"
       return
     end
     pkg = prj.find_package(package_name)
@@ -200,6 +202,7 @@ class SourceController < ApplicationController
 
     # look also via linked projects, package source may come from another project
     begin
+      # TODO(adrian) what is supposed to be in here?
     rescue DbProject::CycleError => e
       render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
       return
@@ -474,13 +477,9 @@ class SourceController < ApplicationController
 
   def project_meta
     valid_http_methods :get, :put
+    required_parameters :project
 
     project_name = params[:project]
-    if project_name.nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'project' is missing"
-      return
-    end
 
     if request.get?
       @project = DbProject.find_by_name( project_name )
@@ -682,21 +681,10 @@ class SourceController < ApplicationController
 
   def package_meta
     valid_http_methods :put, :get
+    required_parameters :project, :package
    
     project_name = params[:project]
     package_name = params[:package]
-
-    if project_name.nil?
-      render_error :status => 400, :errorcode => "parameter_missing",
-        :message => "parameter 'project' missing"
-      return
-    end
-
-    if package_name.nil?
-      render_error :status => 400, :errorcode => "parameter_missing",
-        :message => "parameter 'package' missing"
-      return
-    end
 
     unless pro = DbProject.find_by_name(project_name)
       pro, pro_name = DbProject.find_remote_project(project_name)
@@ -714,12 +702,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      begin
-        pack = pro.find_package( package_name )
-      rescue DbProject::CycleError => e
-        render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
-        return
-      end
+      pack = pro.find_package( package_name )
       unless pack
         # check if this comes from a remote project, also true for _project package
         answer = Suse::Backend.get(request.path)
@@ -1078,12 +1061,7 @@ class SourceController < ApplicationController
       return
     end
 
-    begin
-      pkg = find_package( p, package_name )
-    rescue DbProject::CycleError => e
-      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
-      return
-    end
+    pkg = find_package( p, package_name )
     unless pkg
       render_error :status => 400, :errorcode => 'unknown_package',
         :message => "Unknown package '#{package_name}'"
@@ -1240,12 +1218,7 @@ class SourceController < ApplicationController
         :message => "Unknown project #{prj_name}"
       return
     end
-    begin
-      pkg = prj.find_package( pkg_name )
-    rescue DbProject::CycleError => e
-      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
-      return
-    end
+    pkg = prj.find_package( pkg_name )
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj.name}"
@@ -1368,24 +1341,27 @@ class SourceController < ApplicationController
   def index_package_set_flag
     valid_http_methods :post
 
+    required_parameters :project, :package, :flag, :repository, :arch, :status
+
     prj_name = params[:project]
     pkg_name = params[:package]
 
+    # we can savely assume it exists - this function is called through dispatch_command
     prj = DbProject.find_by_name prj_name
-    if prj.nil?
-      render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{prj_name}"
-      return
-    end
-    begin
-      pkg = prj.find_package( pkg_name )
-    rescue DbProject::CycleError => e
-      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+    pkg = prj.find_package( pkg_name )
+    if pkg.nil?
+      render_error :status => 404, :errorcode => "unknown_package",
+        :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
     end
     # first remove former flags of the same class
-    pkg.remove_flag(params[:flag], params[:repository], params[:arch])
-    pkg.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+    begin
+      pkg.remove_flag(params[:flag], params[:repository], params[:arch])
+      pkg.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+    rescue ArgumentError => e
+      render_error :status => 400, :errorcode => 'invalid_flag', :message => e.message
+      return
+    end
     pkg.store
     render_ok
   end
@@ -1394,17 +1370,21 @@ class SourceController < ApplicationController
   def index_project_set_flag
     valid_http_methods :post
 
+    required_parameters :project, :flag, :repository, :arch, :status
+
     prj_name = params[:project]
 
     prj = DbProject.find_by_name prj_name
-    if prj.nil?
-      render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{prj_name}"
+
+    begin
+      # first remove former flags of the same class
+      prj.remove_flag(params[:flag], params[:repository], params[:arch])
+      prj.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+    rescue ArgumentError => e
+      render_error :status => 400, :errorcode => 'invalid_flag', :message => e.message
       return
     end
-    # first remove former flags of the same class
-    prj.remove_flag(params[:flag], params[:repository], params[:arch])
-    prj.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+      
     prj.store
     render_ok
   end
@@ -1416,21 +1396,12 @@ class SourceController < ApplicationController
     prj_name = params[:project]
     pkg_name = params[:package]
 
+    # we can savely assume it exists - this function is called through dispatch_command
     prj = DbProject.find_by_name prj_name
-    if prj.nil?
-      render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{prj_name}"
-      return
-    end
-    begin
-      pkg = prj.find_package( pkg_name )
-    rescue DbProject::CycleError => e
-      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
-      return
-    end
+    pkg = prj.find_package( pkg_name )
     if pkg.nil?
       render_error :status => 404, :errorcode => "unknown_package",
-        :message => "unknown package '#{pkg_name}' in project '#{prj_name}'"
+        :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
     end
     pkg.remove_flag(params[:flag], params[:repository], params[:arch])
@@ -1447,7 +1418,7 @@ class SourceController < ApplicationController
     prj = DbProject.find_by_name prj_name
     if prj.nil?
       render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{prj_name}"
+        :message => "Unknown project '#{prj_name}'"
       return
     end
     prj.remove_flag(params[:flag], params[:repository], params[:arch])
