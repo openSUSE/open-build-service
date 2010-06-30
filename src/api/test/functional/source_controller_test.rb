@@ -541,6 +541,35 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_prjconf
+    ActionController::IntegrationTest::reset_auth 
+    get url_for(:controller => :source, :action => :project_config, :project => "DoesNotExist")
+    assert_response 404
+    get url_for(:controller => :source, :action => :project_config, :project => "kde4")
+    assert_response :success
+    put url_for(:controller => :source, :action => :project_config, :project => "kde4"), "Substitute: nix da"
+    assert_response 401
+
+    prepare_request_with_user "tom", "thunder"
+    put url_for(:controller => :source, :action => :project_config, :project => "home:coolo:test"), "Substitute: nix da"
+    assert_response :success
+  end
+
+  def test_pubkey
+    ActionController::IntegrationTest::reset_auth 
+    prepare_request_with_user "tom", "thunder"
+    get url_for(:controller => :source, :action => :project_pubkey, :project => "DoesNotExist")
+    assert_response 404
+    get url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
+    assert_response 404
+    assert_match /kde4: no pubkey available/, @response.body
+
+    delete url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
+    assert_response 403
+
+    # FIXME: make a successful deletion of a key
+  end
+
   def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
