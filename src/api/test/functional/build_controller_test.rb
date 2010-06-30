@@ -74,10 +74,28 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match /illegal POST request to/, @response.body
 
     prepare_request_with_user "tscholz", "asdfasdf" 
+    post "/build/home:tscholz"
+    assert_response 400
     post "/build/home:tscholz?cmd=say_hallo"
     assert_response 400
+    post "/build/home:NotExisting?cmd=wipe"
+    assert_response 404
+    assert_match /Project does not exist/, @response.body
+    post "/build/home:tscholz?cmd=wipe&package=DoesNotExist"
+    assert_response 404
+    assert_match /Package does not exist/, @response.body
   
     post "/build/home:tscholz?cmd=wipe"
     assert_response :success
+    post "/build/home:tscholz?cmd=wipe&package=TestPack"
+    assert_response :success
+
+    prepare_request_with_user "adrian", "so_alone" 
+    post "/build/home:tscholz?cmd=wipe"
+    assert_response 403
+    assert_match /No permission to execute command on project/, @response.body
+    post "/build/home:tscholz?cmd=wipe&package=TestPack"
+    assert_response 403
+    assert_match /No permission to execute command on package/, @response.body
   end
 end
