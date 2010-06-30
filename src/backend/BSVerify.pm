@@ -79,10 +79,6 @@ sub verify_patchinfo {
   my $p = $_[0];
   die("No patch name defined in _patchinfo") unless defined($p->{'name'}) and $p->{'name'} ne "";
   verify_filename($p->{'name'});
-  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
-  for my $binary (@{$p->{'binary'}}) {
-    verify_filename($binary);
-  }
   die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
                                                     || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature'
                                                     || $p->{'category'} eq ''; # empty is allowed here
@@ -102,6 +98,10 @@ sub verify_patchinfo_complete {
   die("No category defined in _patchinfo") unless $p->{'category'};
   die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
                                                     || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature';
+  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
+  for my $binary (@{$p->{'binary'}}) {
+    verify_filename($binary);
+  }
 
   # checks of optional content to be added here
 }
