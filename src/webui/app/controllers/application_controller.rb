@@ -313,14 +313,14 @@ class ApplicationController < ActionController::Base
   def start_test_api
      return if @@frontend
      @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
-     puts "started #{@@frontend.pid}"
+     puts "Starting test API with pid: #{@@frontend.pid}"
      while true do
          line = @@frontend.gets
          break if line =~ /Test API ready/
     end
-    puts "done #{@@frontend.pid}"
+    puts "Test API up and running with pid: #{@@frontend.pid}"
     at_exit do
-       puts "kill #{@@frontend.pid}"
+       puts "Killing test API with pid: #{@@frontend.pid}"
        Process.kill "INT", @@frontend.pid
        @@frontend = nil
     end

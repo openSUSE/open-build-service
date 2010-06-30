@@ -41,8 +41,9 @@ class ApplicationController < ActionController::Base
   @@backend = nil
   def start_test_backend
     return if @@backend
+    logger.debug "Starting test backend..."
     @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
-    logger.debug "started #{@@backend.pid}"
+    logger.debug "Test backend started with pid: #{@@backend.pid}"
     while true do
       line = @@backend.gets
       break if line =~ /DONE NOW/
