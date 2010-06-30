@@ -73,9 +73,9 @@ class ProjectController < ApplicationController
 
   def get_filtered_projectlist(filterstring, excludefilter='')
     # remove illegal xpath characters
-    filterstring.sub!(/[\[\]\n]/, '')
-    filterstring.sub!(/[']/, '&apos;')
-    filterstring.sub!(/["]/, '&quot;')
+    filterstring.gsub!(/[\[\]\n]/, '')
+    filterstring.gsub!(/[']/, '&apos;')
+    filterstring.gsub!(/["]/, '&quot;')
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
