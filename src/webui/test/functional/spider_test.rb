@@ -199,6 +199,8 @@ module SpiderIntegrator
     end
   end
   
+  @@last_perc = 0
+
   protected
   # You probably don't want to be calling these from within your test.
 
@@ -221,6 +223,16 @@ module SpiderIntegrator
       form = SpiderableForm.new form
       queue_form( form, url )
     end
+    @@last_perc.times { $stdout.write "\b" }
+    $stdout.write "."
+    perc = Integer(100 - @links_to_visit.size * 100 / (@links_to_visit.size + @visited_urls.size))
+    $stdout.write "#{perc}%"
+    if perc < 10
+      @@last_perc = 1
+    else
+      @@last_perc = 2
+    end
+    @@last_perc += 1
   end
   
   def console(str)
@@ -399,6 +411,8 @@ module SpiderIntegrator
     dest.gsub!(/([?]\d+)$/, '') # fix asset caching
     unless dest =~ %r{^(http://|mailto:|#|&#)} 
       dest = dest.split('#')[0] if dest.index("#") # don't want page anchors
+      next unless dest.any?
+      return if spider_should_ignore_url?( dest )
       @links_to_visit << SpiderIntegrator::Link.new( dest, source ) if dest.any? # could be empty, make sure there's no empty links queueing
     end
   end
@@ -423,14 +437,23 @@ class SpiderTest < ActionController::IntegrationTest
 
   include SpiderIntegrator
 
-  def test_spider
+  @@errorurls = []
+
+  def test_1spider
      login_tom
      follow_redirect!
      setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => false )
      do_spider(@response.body, '')
-     @errors.each do |e|
-        puts e
+     @@errorurls = @errors.keys
+     assert_equal Hash.new, @errors
+  end
+
+  def test_2respider
+     login_tom
+     
+     unless @@errorurls.empty?
+       get @@errorurls[0]
+       assert_response :success
      end
-     assert @errors.empty?
   end
 end

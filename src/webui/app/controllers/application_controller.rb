@@ -298,7 +298,9 @@ class ApplicationController < ActionController::Base
   end
 
   def validate_xhtml
-    return unless (Rails.env.development? || Rails.env.test?)
+    # find out how to cache the w3 data before using it for test env
+    #return unless (Rails.env.development? || Rails.env.test?)
+    return unless Rails.env.development?
     return if request.xhr?
   
     return if !(response.status =~ /200/ &&

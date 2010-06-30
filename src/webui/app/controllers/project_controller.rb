@@ -296,7 +296,7 @@ class ProjectController < ApplicationController
         begin
           # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
           deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
-          if deps.has_element? :cycle
+          if deps and deps.has_element? :cycle
             cycles = Array.new
             deps.each_cycle do |cycle|
               cycles.push( cycle.each_package.collect{ |p| p.text } )
@@ -886,13 +886,6 @@ class ProjectController < ApplicationController
   def status
     status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
       ProjectStatus.find(:project => @project)
-    end
-    unless status
-      # a project without package and repos will not do
-      # should be handled more graceful in API, but this is WIP and google
-      # crawls a lot of these links (TODO)
-      render_error :message => "No status for this project", :status => 400
-      return
     end
 
     all_packages = "All Packages"

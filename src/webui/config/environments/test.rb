@@ -28,3 +28,5 @@ FRONTEND_PROTOCOL = 'http'
 
 ICHAIN_MODE = "off"
 
+DOWNLOAD_URL = 'http://thedownloadhost/'
+
