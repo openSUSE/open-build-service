@@ -381,8 +381,10 @@ class ProjectController < ApplicationController
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
     @patchinfo = []
-    @packages.each do |p|
-      @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+    unless @packages.blank?
+      @packages.each do |p|
+        @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+      end
     end
   end
 
