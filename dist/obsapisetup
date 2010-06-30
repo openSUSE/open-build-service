@@ -49,13 +49,13 @@ case "$1" in
 			mysqladmin -u root password "opensuse"
 		fi
 		echo
-		echo -n "Migrate OBS webui database"
+		echo -n "Setup OBS webui database"
         	cd $webuidir
-		RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+		RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
 		echo
-		echo -n "Migrate OBS api database"
+		echo -n "Setup OBS api database"
         	cd $apidir
-		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+		RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
 		echo
 
                 cd $webuidir

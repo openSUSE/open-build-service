@@ -139,11 +139,11 @@ password = foobar
 * populate the database
 
       # cd /srv/www/obs/api/
-      # sudo RAILS_ENV="production" rake db:migrate
+      # sudo RAILS_ENV="production" rake db:setup
       # sudo chown lighttpd.lighttpd log/*
 
       # cd /srv/www/obs/webui/
-      # sudo RAILS_ENV="production" rake db:migrate
+      # sudo RAILS_ENV="production" rake db:setup
       # sudo chown lighttpd.lighttpd log/*
 
 3.2 Setup and configure lighttpd for the api and webui
