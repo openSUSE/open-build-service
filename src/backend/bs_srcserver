@@ -3984,7 +3984,7 @@ sub search_pack {
     my $startswith = $2;
     $projid =~ s/''/'/g;
     $startswith =~ s/''/'/g;
-    my @packages = findpackages($projid);
+    my @packages = findpackages($projid, {});
     my $data = [];
     for my $packid (grep {/^\Q$startswith\E/} @packages) {
       my ($pack, undef) = getpackage($cgi, $projid, $packid);
@@ -3995,8 +3995,14 @@ sub search_pack {
     return ($res, $BSXML::collection);
   }
   my $data = [];
-  for my $projid (findprojects()) {
-    my @packages = findpackages($projid);
+  my @projids;
+  if ($match =~ /^\@project='(.+)'$/) {
+    @projids = ($1);
+  } else {
+    @projids = findprojects();
+  }
+  for my $projid (@projids) {
+    my @packages = findpackages($projid, {});
     for my $packid (@packages) {
       my ($pack, undef) = getpackage($cgi, $projid, $packid);
       $pack->{'project'} = $projid;
@@ -4235,7 +4241,7 @@ sub search {
     }
   } elsif ($in eq 'packages') {
     for my $projid (findprojects()) {
-      my @packages = findpackages($projid);
+      my @packages = findpackages($projid, {});
       for my $packid (@packages) {
         my ($pack, undef) = getpackage($cgi, $projid, $packid);
 	$pack->{'project'} = $projid;
