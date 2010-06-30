@@ -1,0 +1,9 @@
+dmueller_can_update_maintenance:
+  bs_user_id: 172
+  attrib_type_id: 58
+dmueller_can_update_update_project:
+  bs_user_id: 172
+  attrib_type_id: 57
+maintainer_role_can_update_maintenance:
+  bs_role_id: 2
+  attrib_type_id: 58
