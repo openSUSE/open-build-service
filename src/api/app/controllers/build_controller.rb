@@ -30,7 +30,7 @@ class BuildController < ApplicationController
       if not allowed
         prj = DbProject.find_by_name( params[:project] ) 
         if prj.nil?
-          render_error :status => 403, :errorcode => "not_found",
+          render_error :status => 404, :errorcode => "not_found",
             :message => "Project does not exist #{params[:project]}"
           return
         end
@@ -39,14 +39,13 @@ class BuildController < ApplicationController
         allowed = true if permissions.project_change? prj
       end
 
-      if not allowed and not params[:package].nil?
+      if not params[:package].nil?
         package_names = nil
         if params[:package].kind_of? Array
           package_names = params[:package]
         else
           package_names = [params[:package]]
         end
-
         package_names.each do |pack_name|
           pkg = DbPackage.find_by_project_and_name( prj.name, pack_name ) 
           if pkg.nil?
