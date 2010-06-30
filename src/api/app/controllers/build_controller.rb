@@ -14,6 +14,19 @@ class BuildController < ApplicationController
       allowed = false
       allowed = true if permissions.global_project_change
 
+      #check for cmd parameter
+      if params[:cmd].nil?
+        render_error :status => 400, :errorcode => "missing_parameter",
+          :message => "Missing parameter 'cmd'"
+        return
+      end
+
+      unless ["wipe", "restartbuild", "killbuild", "rebuild"].include? params[:cmd]
+        render_error :status => 400, :errorcode => "illegal_request",
+          :message => "illegal POST request to #{request.request_uri}"
+        return
+      end
+
       if not allowed
         prj = DbProject.find_by_name( params[:project] ) 
         if prj.nil?
@@ -56,17 +69,15 @@ class BuildController < ApplicationController
         return
       end
 
-      #check for cmd parameter
-      if params[:cmd].nil?
-        render_error :status => 403, :errorcode => "missing_parameter",
-          :message => "Missing parameter 'cmd'"
-        return
-      end
-
       pass_to_backend path
       return
-    elsif request.put? and @http_user.is_admin?
-      pass_to_backend path
+    elsif request.put? 
+      if  @http_user.is_admin?
+        pass_to_backend path
+      else
+        render_error :status => 403, :errorcode => "execute_cmd_no_permission",
+          :message => "No permission to execute command on project #{params[:project]}"
+      end
       return
     else
       render_error :status => 400, :errorcode => 'illegal_request',

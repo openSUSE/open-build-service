@@ -66,18 +66,18 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "directory", :children =>  { :count => 1 }
 
     put "/build/home:tscholz", :cmd => 'say_hallo'
-    assert_response 400
-    assert_match /Illegal request/, @response.body
-
-    post "/build/home:tscholz", :cmd => 'say_hallo'
     assert_response 403
     assert_match /No permission to execute command on project/, @response.body
 
+    post "/build/home:tscholz", :cmd => 'say_hallo'
+    assert_response 400
+    assert_match /illegal POST request to/, @response.body
+
     prepare_request_with_user "tscholz", "asdfasdf" 
     post "/build/home:tscholz?cmd=say_hallo"
-    assert_response :success # WOW!
+    assert_response 400
   
-    post "/build/home:tscholz?cmd=wipebinaries"
+    post "/build/home:tscholz?cmd=wipe"
     assert_response :success
   end
 end
