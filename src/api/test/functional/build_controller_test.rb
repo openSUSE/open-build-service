@@ -54,6 +54,14 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "resultlist", :children =>  { :count => 2 }
   end
 
+  def test_binary_view
+    get "/build/home:tscholz/10.2/i586/TestPack/file?view=fileinfo"
+    assert_response 404
+    assert_match /file: No such file or directory/, @response.body
+
+    # FIXME: implement a test for an existing file
+  end
+
   def test_file
     get "/build/home:tscholz/10.2/i586/TestPack/myfile"
     assert_response 404
