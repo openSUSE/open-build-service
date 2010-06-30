@@ -84,6 +84,13 @@ BaseDistro2:LinkedUpdateProject:
   id: 2046
   description: "contains official released updates, but this one has a project link to the original one"
   created_at: 2005-01-01 00:00:01
+BaseDistro3:
+  name: BaseDistro3
+  updated_at: 2005-01-01 00:00:01
+  title: This is another base distro, without update project
+  id: 2047
+  description: "Base distro without update project"
+  created_at: 2005-01-01 00:00:01
 
 # For read permissions checks
 HiddenProject:

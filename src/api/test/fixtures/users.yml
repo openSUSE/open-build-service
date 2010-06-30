@@ -48,6 +48,16 @@ tscholz:
   password_hash_type: md5
   
   
+# maintenance coordinator
+maintenance_coord:
+  id: 172
+  login: maintenance_coord
+  email: dirkmueller@suse.de
+  realname: our hero
+  password: <%= Digest::MD5.hexdigest("power") %>
+  password_salt: ""
+  password_hash_type: md5
+
 # standard User: (part of "gruppe" group)
 adrian:
   id: 42
