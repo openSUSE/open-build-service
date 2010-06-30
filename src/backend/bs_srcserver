@@ -3987,7 +3987,7 @@ sub search_pack {
     my @packages = findpackages($projid);
     my $data = [];
     for my $packid (grep {/^\Q$startswith\E/} @packages) {
-      my $pack = readpack($projid, $packid);
+      my ($pack, undef) = getpackage($cgi, $projid, $packid);
       $pack->{'project'} = $projid;
       push @$data, $pack;
     }
@@ -3998,7 +3998,7 @@ sub search_pack {
   for my $projid (findprojects()) {
     my @packages = findpackages($projid);
     for my $packid (@packages) {
-      my $pack = readpack($projid, $packid);
+      my ($pack, undef) = getpackage($cgi, $projid, $packid);
       $pack->{'project'} = $projid;
       push @$data, $pack;
     }
@@ -4237,7 +4237,7 @@ sub search {
     for my $projid (findprojects()) {
       my @packages = findpackages($projid);
       for my $packid (@packages) {
-        my $pack = readpack($projid, $packid);
+        my ($pack, undef) = getpackage($cgi, $projid, $packid);
 	$pack->{'project'} = $projid;
         push @$data, $pack;
       }
