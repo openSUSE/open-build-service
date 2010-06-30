@@ -512,6 +512,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/testfile"
     assert_response :success
+
+    # undelete project again
+    post "/source/kde4", :cmd => :undelete
+    assert_response 403
   end
 
   def test_remove_project2
@@ -589,7 +593,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
     assert_response 404
 
-    # undelete project
+    # undelete package
     post "/source/home:tom:branches:home:tscholz/TestPack", :cmd => :undelete
     assert_response :success
 
@@ -600,6 +604,11 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:home:tscholz/TestPack/_link"
     assert_response :success
+
+    # undelete package again
+    post "/source/home:tom:branches:home:tscholz/TestPack", :cmd => :undelete
+    assert_response 403
+
   end
 
   def test_package_set_flag

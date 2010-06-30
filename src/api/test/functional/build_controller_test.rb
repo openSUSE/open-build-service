@@ -41,6 +41,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_logfile
     get "/build/home:tscholz/10.2/i586/TestPack/_log"
     # no workers, no logfile
+    assert_response 400
     assert_match /no logfile/, @response.body
 
     get "/build/home:tscholz/10.2/i586/notthere/_log"
