@@ -10,6 +10,7 @@ logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
 
+puts "Creating backend config at #{RAILS_ROOT}/tmp/backend_config/BSConfig.pm"
 FileUtils.mkdir "#{RAILS_ROOT}/tmp/backend_config"
 file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
 File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
@@ -24,13 +25,15 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
 end
 file.close
 
+puts "Starting backend srcserver..."
 srcsrv = Thread.new do
   FileUtils.symlink("#{RAILS_ROOT}/../backend/bs_srcserver", "#{RAILS_ROOT}/tmp/backend_config/bs_srcserver")
   srcsrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl -I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build ./bs_srcserver 2>&1")
-  puts "opened #{RAILS_ROOT} #{srcsrv_out.pid}"
+  puts "Started backend srcserver with pid: #{srcsrv_out.pid}"
   begin
     Process.setpgid srcsrv_out.pid, 0
   rescue Errno::EACCES
+    puts "Could not set backend srcserver group to root"
     # what to do?
   end
   while srcsrv_out
@@ -43,14 +46,16 @@ srcsrv = Thread.new do
   end
 end
 
+puts "Starting backend repserver..."
 reposrv = Thread.new do
   FileUtils.symlink("#{RAILS_ROOT}/../backend/bs_repserver", "#{RAILS_ROOT}/tmp/backend_config/bs_repserver")
   reposrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl -I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build ./bs_repserver 2>&1")
-  puts "opened #{RAILS_ROOT} #{reposrv_out.pid}"
+  puts "Started backend repserver with pid #{reposrv_out.pid}"
   begin
     Process.setpgid reposrv_out.pid, 0
   rescue Errno::EACCES
     # what to do?
+    puts "Could not set backend repserver group to root"
   end
   while reposrv_out
     begin
@@ -63,10 +68,10 @@ reposrv = Thread.new do
 end
 
 while true
+  puts "Connecting to srcserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
   rescue Errno::ECONNREFUSED
-    puts "waiting src"
     sleep 0.5
     next
   end
@@ -74,10 +79,10 @@ while true
 end
 
 while true
+  puts "Connecting to repserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
   rescue Errno::ECONNREFUSED
-    puts "waiting repo"
     sleep 0.5
     next
   end
