@@ -42,13 +42,13 @@ class BuildController < ApplicationController
       if not allowed and not params[:package].nil?
         package_names = nil
         if params[:package].kind_of? Array
-          package_names = params[:packge]
+          package_names = params[:package]
         else
           package_names = [params[:package]]
         end
 
         package_names.each do |pack_name|
-          pkg = DbPackage.find_by_project_and_name( prj, pack_name ) 
+          pkg = DbPackage.find_by_project_and_name( prj.name, pack_name ) 
           if pkg.nil?
             render_error :status => 404, :errorcode => "not_found",
               :message => "Package does not exist #{pack_name}"
