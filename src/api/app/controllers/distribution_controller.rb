@@ -39,7 +39,7 @@ class DistributionController < ApplicationController
         return
       end
 
-      logger.debug "funz"
+      logger.debug "write distribution file"
       self.class.write_distfile(request.raw_post)
       render_ok
     end
