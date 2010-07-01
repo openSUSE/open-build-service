@@ -118,13 +118,12 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
 
-# FIXME: works, but base libs doing some cruel print on stdout
-#    data = "<attributes><attribute namespace='OBS' name='Maintained' >
-#              <BROKENXML>
-#            </attribute></attributes>"
-#    post "/source/kde4/kdelibs/_attribute", data
-#    assert_response 400
-#    assert_select "status[code] > summary", /Invalid XML/
+    data = "<attributes><attribute namespace='OBS' name='Maintained' >
+              <BROKENXML>
+            </attribute></attributes>"
+    post "/source/kde4/kdelibs/_attribute", data
+    assert_response 400
+    assert_select "status[code] > summary", /Invalid XML/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>

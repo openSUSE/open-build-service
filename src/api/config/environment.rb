@@ -114,3 +114,6 @@ if defined? API_DATE
 else
   CONFIG['version'] = api_version
 end
+
+LibXML::XML::Error.set_handler(&LibXML::XML::Error::QUIET_HANDLER)
+
