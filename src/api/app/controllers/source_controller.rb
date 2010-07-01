@@ -308,6 +308,7 @@ class SourceController < ApplicationController
   end
 
   # /source/:project/_attribute/:attribute
+  # /source/:project/:package/_attribute/:attribute
   # /source/:project/:package/:binary/_attribute/:attribute
   def attribute_meta
     valid_http_methods :get, :post, :delete
