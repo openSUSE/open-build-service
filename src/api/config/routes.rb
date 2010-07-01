@@ -18,6 +18,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /person
 
+  # FIXME: this is no clean namespace, a person "register" could exist ...
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
 

@@ -83,4 +83,29 @@ class PersonControllerTest < ActionController::IntegrationTest
     get "/person/tom"
     assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
   end
+
+  def test_register
+    ActionController::IntegrationTest::reset_auth
+    data = '<unregisteredperson>
+              <login>adrianSuSE</login>
+              <email>adrian@suse.de</email>
+              <realname>Adrian Schröter</realname>
+              <state>locked</state>
+              <password>so_alone</password>
+              <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
+            </unregisteredperson>"
+           '
+    post "/person/register", data
+    assert_response :success
+
+    u = User.find_by_login "adrianSuSE"
+    assert_not_nil u
+    assert_equal u.login, "adrianSuSE"
+    assert_equal u.email, "adrian@suse.de"
+    assert_equal u.realname, "Adrian Schröter"
+    assert_equal u.adminnote, ""
+    u.destroy
+
+  end
+
 end

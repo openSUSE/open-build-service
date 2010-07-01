@@ -87,6 +87,10 @@ class PersonController < ApplicationController
     password = xml.elements["/unregisteredperson/password"].text
     note = xml.elements["/unregisteredperson/note"].text
 
+    unless @http_user and @http_user.is_admin?
+      note = ""
+    end
+
     if auth_method == :ichain
       email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
       realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
