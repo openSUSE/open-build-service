@@ -506,7 +506,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
-    get "/source/kde4/kdelibs/testfile"
+    get "/source/kde4/kdelibs/my_patch.diff"
     assert_response :success
 
     # undelete project again
@@ -616,15 +616,28 @@ class SourceControllerTest < ActionController::IntegrationTest
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 401
-
     prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "NotExisting"
+    assert_response 403
+    assert_match /no permission to create project/, @response.body
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 403
+    assert_match /no permission to create package/, @response.body
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
+    assert_response 403
+    assert_match /no permission to create package/, @response.body
  
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response :success
     get "/source/home:coolo:test/TestPack/_meta"
+    assert_response :success
+
+    # branch again
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
+    assert_response 400
+    assert_match /branch target package already exists/, @response.body
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response :success
 
     # now with a new project
