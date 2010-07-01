@@ -3,6 +3,15 @@ kdelibs:
   id: 1
   db_project_id: 2
   name: kdelibs
+  develpackage_id: 1234
+  created_at: 2001-01-01 01:01:01
+  updated_at: 2002-02-02 02:02:02
+  title: blub
+  description: blub
+kdelibs_DEVEL_package:
+  id: 1234
+  db_project_id: 601
+  name: kdelibs_DEVEL_package
   created_at: 2001-01-01 01:01:01
   updated_at: 2002-02-02 02:02:02
   title: blub

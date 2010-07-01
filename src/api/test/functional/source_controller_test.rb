@@ -15,6 +15,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
     Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
     Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
+    Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
   end
 
   def test_get_projectlist
@@ -639,6 +640,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /branch target package already exists/, @response.body
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response :success
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "1"
+    assert_response 400
+    assert_match /no such revision/, @response.body
+    # FIXME: do a real commit and branch afterwards
 
     # now with a new project
     post "/source/home:tscholz/TestPack", :cmd => :branch
@@ -662,6 +667,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
+
+    # Branch a package with a defined devel package
+    post "/source/kde4/kdelibs", :cmd => :branch
+    assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "home:tom:branches:home:coolo:test" )
+    assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "kdelibs_DEVEL_package" )
+    assert_tag( :tag => "data", :attributes => { :name => "sourceproject"}, :content => "home:coolo:test" )
+    assert_tag( :tag => "data", :attributes => { :name => "sourcepackage"}, :content => "kdelibs_DEVEL_package" )
 
     # delete package
     ActionController::IntegrationTest::reset_auth 
