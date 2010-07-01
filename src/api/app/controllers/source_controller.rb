@@ -1338,7 +1338,7 @@ class SourceController < ApplicationController
   def index_package_set_flag
     valid_http_methods :post
 
-    required_parameters :project, :package, :flag, :repository, :arch, :status
+    required_parameters :project, :package, :flag, :status
 
     prj_name = params[:project]
     pkg_name = params[:package]
@@ -1367,7 +1367,7 @@ class SourceController < ApplicationController
   def index_project_set_flag
     valid_http_methods :post
 
-    required_parameters :project, :flag, :repository, :arch, :status
+    required_parameters :project, :flag, :status
 
     prj_name = params[:project]
 
@@ -1389,6 +1389,8 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
   def index_package_remove_flag
     valid_http_methods :post
+
+    required_parameters :project, :package, :flag
     
     prj_name = params[:project]
     pkg_name = params[:package]
@@ -1410,14 +1412,11 @@ class SourceController < ApplicationController
   def index_project_remove_flag
     valid_http_methods :post
 
+    required_parameters :project, :flag
+
     prj_name = params[:project]
 
     prj = DbProject.find_by_name prj_name
-    if prj.nil?
-      render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project '#{prj_name}'"
-      return
-    end
     prj.remove_flag(params[:flag], params[:repository], params[:arch])
     prj.store
     render_ok
