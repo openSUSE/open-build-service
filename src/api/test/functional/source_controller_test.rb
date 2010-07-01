@@ -426,6 +426,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/testfile"
     assert_response :success
     assert_equal teststring, @response.body
+
+    delete "/source/kde4/kdelibs/testfile"
+    assert_response :success
+  
+    get "/source/kde4/kdelibs/testfile"
+    assert_response 404
   end
   private :add_file_to_package
   
@@ -453,6 +459,18 @@ class SourceControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
     assert_response :success
     assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
+
+    # invalid permission
+    ActionController::IntegrationTest::reset_auth 
+    delete "/source/kde4/kdelibs/my_patch.diff"
+    assert_response 401
+
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    delete "/source/kde4/kdelibs/my_patch.diff"
+    assert_response 403
+  
+    get "/source/kde4/kdelibs/my_patch.diff"
+    assert_response :success
   end
   
   def test_remove_project1
