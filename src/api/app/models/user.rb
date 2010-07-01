@@ -227,7 +227,7 @@ class User < ActiveRecord::Base
     end
 
     return true  if is_admin?
-    return false if object.attrib_type_modifiable_bies.length <= 0
+    return false if object.attrib_namespace_modifiable_bies.length <= 0
 
     object.attrib_namespace_modifiable_bies.each do |mod_rule|
       next if mod_rule.user and mod_rule.user != self
