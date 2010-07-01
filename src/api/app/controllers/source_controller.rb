@@ -332,6 +332,16 @@ class SourceController < ApplicationController
       end
     end
 
+    # is the attribute type defined at all ?
+    if params[:attribute]
+      at = AttribType.find_by_name(params[:attribute])
+      unless at
+        render_error :status => 403, :errorcode => "not_existing_attribute", 
+          :message => "Attribute is not defined in system"
+        return
+      end
+    end
+
     if request.get?
       params[:binary]=binary if binary
       render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
@@ -356,23 +366,10 @@ class SourceController < ApplicationController
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
       end
-      if a=@attribute_container.find_attribute(name_parts[0],name_parts[1],binary)
-        unless @http_user.can_modify_attribute? a
-          render_error :status => 403, :errorcode => "change_attribute_no_permission", 
-            :message => "user #{user.login} has no permission to modify attribute"
-          return
-        end
-      else
-        unless request.post?
-          render_error :status => 403, :errorcode => "not_existing_attribute", 
-            :message => "Attempt to modify not existing attribute"
-          return
-        end
-        unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
-          render_error :status => 403, :errorcode => "change_attribute_no_permission", 
-            :message => "user #{user.login} has no permission to change attribute"
-          return
-        end
+      unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
+        render_error :status => 403, :errorcode => "change_attribute_no_permission", 
+          :message => "user #{user.login} has no permission to change attribute"
+        return
       end
     else
       if request.post?

@@ -55,8 +55,10 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_attributes_project
-    data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
+    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "tom", "thunder"
+
+    data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/ 
@@ -85,21 +87,44 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 403
     get "/source/home:tom/_attribute/NotExisting:NotExisting"
     assert_response 403
+
+    # not allowed
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "tscholz", "asdfasdf"
+    post "/source/home:tom/_attribute", data
+    assert_response 403
+    delete "/source/home:tom/_attribute/OBS:Maintained"
+    assert_response 403
+    get "/source/home:tom/_attribute/OBS:Maintained"
+    assert_response :success
+
+    # delete
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:tom/_attribute", data
+    assert_response :success
+    delete "/source/home:tom/_attribute/OBS:Maintained"
+    assert_response :success
+    get "/source/home:tom/_attribute/OBS:Maintained"
+    assert_response :success
   end
 
   def test_create_attributes_package
-    data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
+    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "fred", "geröllheimer"
+
+    data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 404
     assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
 
-    data = "<attributes><attribute namespace='OBS' name='Maintained' >
-              <BROKEN>
-            </attribute></attributes>"
-    post "/source/kde4/kdelibs/_attribute", data
-    assert_response 400
-    assert_select "status[code] > summary", /Invalid XML/
+# FIXME: works, but base libs doing some cruel print on stdout
+#    data = "<attributes><attribute namespace='OBS' name='Maintained' >
+#              <BROKENXML>
+#            </attribute></attributes>"
+#    post "/source/kde4/kdelibs/_attribute", data
+#    assert_response 400
+#    assert_select "status[code] > summary", /Invalid XML/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
@@ -120,13 +145,56 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.attribute.has_attribute?(:binary), false
+    assert_equal node.attribute.namespace, "OBS"
+    assert_equal node.attribute.name, "Maintained"
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response :success
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.attribute.has_attribute?(:binary), true
+    assert_equal node.attribute.binary, "kdelibs-devel"
+    assert_equal node.attribute.namespace, "OBS"
+    assert_equal node.attribute.name, "Maintained"
 
     get "/source/kde4/NOT_EXISTING/_attribute"
     assert_response 404
+
+    # no permission check
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "tscholz", "asdfasdf"
+    post "/source/kde4/kdelibs/_attribute", data
+    assert_response 403
+    post "/source/kde4/kdelibs/_attribute/OBS:Maintained", data
+    assert_response 403
+    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", data
+    assert_response 403
+    delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
+    assert_response 403
+    get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
+    assert_response :success
+    delete "/source/kde4/kdelibs/_attribute/OBS:Maintained"
+    assert_response 403
+    get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
+    assert_response :success
+
+    # delete
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/source/kde4/kdelibs/_attribute", data
+    assert_response :success
+    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", data
+    assert_response :success
+    delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
+    assert_response :success
+    get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
+    assert_response :success
+    delete "/source/kde4/kdelibs/_attribute/OBS:Maintained"
+    assert_response :success
+    get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
+    assert_response :success
   end
 
 end
