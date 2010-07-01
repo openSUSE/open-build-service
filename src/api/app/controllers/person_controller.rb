@@ -37,7 +37,6 @@ class PersonController < ApplicationController
             login = URI.unescape( params[:login] )
             user = User.find_by_login( login )
             if user and user.login != @http_user.login 
-              # TODO: check permission to update someone elses info
               if @http_user.is_admin?
                 # ok, may update user info
               else

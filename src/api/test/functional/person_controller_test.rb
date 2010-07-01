@@ -85,6 +85,13 @@ class PersonControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     put "/person/tom", doc.to_s
     assert_response :success
+    # create new user
+    put "/person/new_user", doc.to_s
+    assert_response :success
+    get "/person/new_user"
+    assert_response :success
+    put "/person/new_user", doc.to_s
+    assert_response :success
 
     # refetch the user info if the name has really change
     prepare_request_valid_user
