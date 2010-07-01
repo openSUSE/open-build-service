@@ -80,6 +80,11 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_element?(:attribute), true
+    assert_equal node.attribute.has_attribute?(:binary), false
+    assert_equal node.attribute.namespace, "OBS"
+    assert_equal node.attribute.name, "Maintained"
 
     get "/source/NOT_EXISTING/_attribute"
     assert_response 404
@@ -107,6 +112,8 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_element?(:attribute), false
   end
 
   def test_create_attributes_package
@@ -145,6 +152,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_element?(:attribute), true
     assert_equal node.attribute.has_attribute?(:binary), false
     assert_equal node.attribute.namespace, "OBS"
     assert_equal node.attribute.name, "Maintained"
@@ -194,7 +202,13 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_element?(:attribute), false
   end
+
+# FIXME:
+# * attribute search operations missing, but already partly tested via source mbranch
+# * value based test are missing
 
 end
 
