@@ -6,15 +6,6 @@ class Architecture < ActiveRecord::Base
   has_many :downloads
 
   has_many :flags
-  has_many :build_flags
-  has_many :publish_flags
-  has_many :debuginfo_flags
-  has_many :useforbuild_flags
-  has_many :binarydownload_flags
-  has_many :sourceaccess_flags
-  has_many :privacy_flags
-  has_many :access_flags
-
 
   def self.archcache
     return @cache if @cache

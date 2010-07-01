@@ -10,9 +10,9 @@ class DbPackageTest < ActiveSupport::TestCase
     
   def test_flags_to_axml
     #check precondition
-    assert_equal 1, @package.build_flags.size
-    assert_equal 1, @package.publish_flags.size
-    assert_equal 1, @package.debuginfo_flags.size
+    assert_equal 1, @package.type_flags('build').size
+    assert_equal 1, @package.type_flags('publish').size
+    assert_equal 1, @package.type_flags('debuginfo').size
     
     xml_string = @package.to_axml
 
@@ -61,37 +61,37 @@ class DbPackageTest < ActiveSupport::TestCase
     @package.reload
     
     #check results
-    assert_equal 1, @package.build_flags.size
-    assert_equal 'enable', @package.build_flags[0].status
-    assert_equal '10.2', @package.build_flags[0].repo
-    assert_equal 'i586', @package.build_flags[0].architecture.name
-    assert_equal 0, @package.build_flags[0].position
-    assert_nil @package.build_flags[0].db_project    
-    assert_equal 'TestPack', @package.build_flags[0].db_package.name
+    assert_equal 1, @package.type_flags('build').size
+    assert_equal 'enable', @package.type_flags('build')[0].status
+    assert_equal '10.2', @package.type_flags('build')[0].repo
+    assert_equal 'i586', @package.type_flags('build')[0].architecture.name
+    assert_equal 1, @package.type_flags('build')[0].position
+    assert_nil @package.type_flags('build')[0].db_project    
+    assert_equal 'TestPack', @package.type_flags('build')[0].db_package.name
     
-    assert_equal 1, @package.publish_flags.size
-    assert_equal 'enable', @package.publish_flags[0].status
-    assert_equal '10.1', @package.publish_flags[0].repo
-    assert_equal 'x86_64', @package.publish_flags[0].architecture.name
-    assert_equal 0, @package.publish_flags[0].position
-    assert_nil @package.publish_flags[0].db_project    
-    assert_equal 'TestPack', @package.publish_flags[0].db_package.name    
+    assert_equal 1, @package.type_flags('publish').size
+    assert_equal 'enable', @package.type_flags('publish')[0].status
+    assert_equal '10.1', @package.type_flags('publish')[0].repo
+    assert_equal 'x86_64', @package.type_flags('publish')[0].architecture.name
+    assert_equal 2, @package.type_flags('publish')[0].position
+    assert_nil @package.type_flags('publish')[0].db_project    
+    assert_equal 'TestPack', @package.type_flags('publish')[0].db_package.name    
     
-    assert_equal 1, @package.debuginfo_flags.size
-    assert_equal 'disable', @package.debuginfo_flags[0].status
-    assert_equal '10.0', @package.debuginfo_flags[0].repo
-    assert_equal 'i586', @package.debuginfo_flags[0].architecture.name
-    assert_equal 0, @package.debuginfo_flags[0].position
-    assert_nil @package.debuginfo_flags[0].db_project  
-    assert_equal 'TestPack', @package.debuginfo_flags[0].db_package.name        
+    assert_equal 1, @package.type_flags('debuginfo').size
+    assert_equal 'disable', @package.type_flags('debuginfo')[0].status
+    assert_equal '10.0', @package.type_flags('debuginfo')[0].repo
+    assert_equal 'i586', @package.type_flags('debuginfo')[0].architecture.name
+    assert_equal 3, @package.type_flags('debuginfo')[0].position
+    assert_nil @package.type_flags('debuginfo')[0].db_project  
+    assert_equal 'TestPack', @package.type_flags('debuginfo')[0].db_package.name        
     
   end
   
   
   def test_delete_flags_through_xml
     #check precondition
-    assert_equal 1, @package.build_flags.size
-    assert_equal 1, @package.publish_flags.size
+    assert_equal 1, @package.type_flags('build').size
+    assert_equal 1, @package.type_flags('publish').size
     
     #package is given as axml
     axml = ActiveXML::Base.new(
@@ -103,11 +103,12 @@ class DbPackageTest < ActiveSupport::TestCase
     
     #first update build-flags, should only delete build-flags
     @package.update_flags(axml, 'build')
-    assert_equal 0, @package.build_flags.size
-        
+    assert_equal 0, @package.type_flags('build').size
+    assert_equal 1, @package.type_flags('publish').size        
+
     #second update publish-flags, should delete publish-flags    
     @package.update_flags(axml, 'publish')
-    assert_equal 0, @package.publish_flags.size
+    assert_equal 0, @package.type_flags('publish').size
     
   end
   

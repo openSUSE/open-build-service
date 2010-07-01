@@ -110,8 +110,8 @@ class BuildController < ApplicationController
     required_parameters :project, :repository, :arch, :package, :filename
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
     if pkg and
-        (pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) or
-         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        (pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) or
+         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
         @http_user.can_access_downloadbinany?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
@@ -170,8 +170,8 @@ class BuildController < ApplicationController
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
     #logfile controled by binarydownload_flags and download_binary permission
     if pkg and
-        (pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) or
-         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        (pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) or
+         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
         @http_user.can_access_downloadbinany?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
@@ -185,8 +185,8 @@ class BuildController < ApplicationController
     prj = DbProject.find_by_name params[:project]
     pkg = prj.find_package params[:package]
     if prj and
-        (prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
-         prj.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        (prj.disabled_for?('binarydownload', params[:repository], params[:arch]) or
+         prj.disabled_for?('access', params[:repository], params[:arch])) and not
         @http_user.can_access_viewany?(prj)
 #     render_error :status => 403, :errorcode => "private_view_no_permission",
 #     :message => "No permission to view project #{params[:project]}"

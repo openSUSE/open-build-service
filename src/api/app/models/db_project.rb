@@ -22,15 +22,7 @@ class DbProject < ActiveRecord::Base
   has_many :downloads, :dependent => :destroy
   has_many :ratings, :as => :object, :dependent => :destroy
 
-  has_many :flags
-  has_many :publish_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :build_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :sourceaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :access_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :flags, :dependent => :destroy
 
   def download_name
     self.name.gsub(/:/, ':/')
@@ -693,11 +685,11 @@ class DbProject < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload sourceaccess privacy access).each do |flag_name|
+      FlagHelper.flag_types.each do |flag_name|
         if view == 'flagdetails'
           expand_flags(builder, flag_name)
         else
-          flaglist = __send__(flag_name+"_flags")
+          flaglist = type_flags(flag_name)
           project.tag! flag_name do
             flaglist.each do |flag|
               flag.to_xml(builder)

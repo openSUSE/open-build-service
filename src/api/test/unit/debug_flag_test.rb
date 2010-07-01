@@ -16,22 +16,22 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   def test_add_debug_flag_to_project
     
     #checking precondition
-    assert_equal 2, @project.debuginfo_flags.size
+    assert_equal 2, @project.type_flags('debuginfo').size
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = DebuginfoFlag.new(:repo => "10.#{i}", :status => "enabled", :position => i + 2)    
-      @arch.debuginfo_flags << f
-      @project.debuginfo_flags << f
+      f = Flag.new(:repo => "10.#{i}", :status => "enabled", :position => i + 2, :flag => 'debuginfo')    
+      f.architecture = @arch
+      @project.flags << f
     end
     
     @project.reload
       
     #check the result
-    assert_equal 4, @project.debuginfo_flags.size 
+    assert_equal 4, @project.type_flags('debuginfo').size 
     
-    f = @project.debuginfo_flags[2]
-    assert_kind_of DebuginfoFlag, f
+    f = @project.type_flags('debuginfo')[2]
+    assert_kind_of Flag, f
     
     assert_equal '10.1', f.repo
     assert_equal @arch.id, f.architecture_id
@@ -40,8 +40,8 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_nil f.db_package_id
     assert_equal 3, f.position
     
-    f = @project.debuginfo_flags[3]
-    assert_kind_of DebuginfoFlag, f
+    f = @project.type_flags('debuginfo')[3]
+    assert_kind_of Flag, f
     
     assert_equal '10.2', f.repo
     assert_equal @arch.id, f.architecture_id
@@ -56,22 +56,22 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   def test_add_debug_flag_to_package
     
     #checking precondition
-    assert_equal 1, @package.debuginfo_flags.size
+    assert_equal 1, @package.type_flags('debuginfo').size
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = DebuginfoFlag.new(:repo => "10.#{i}", :status => "disabled", :position => i+1)    
-      @arch.debuginfo_flags << f
-      @package.debuginfo_flags << f
+      f = Flag.new(:repo => "10.#{i}", :status => "disabled", :position => i+1, :flag => 'debuginfo')    
+      f.architecture = @arch
+      @package.flags << f
     end
     
     @package.reload
       
     #check the result
-    assert_equal 3, @package.debuginfo_flags.size 
+    assert_equal 3, @package.type_flags('debuginfo').size 
     
-    f = @package.debuginfo_flags[1]
-    assert_kind_of DebuginfoFlag, f
+    f = @package.type_flags('debuginfo')[1]
+    assert_kind_of Flag, f
     
     assert_equal '10.1', f.repo
     assert_equal @arch.id, f.architecture_id
@@ -80,8 +80,8 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_nil f.db_project_id
     assert_equal 2, f.position
     
-    f = @package.debuginfo_flags[2]
-    assert_kind_of DebuginfoFlag, f
+    f = @package.type_flags('debuginfo')[2]
+    assert_kind_of Flag, f
     
     assert_equal '10.2', f.repo
     assert_equal @arch.id, f.architecture_id
@@ -96,21 +96,21 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   def test_delete_debuginfo_flags_from_project
     
     #checking precondition
-    assert_equal 2, @project.debuginfo_flags.size
+    assert_equal 2, @project.type_flags('debuginfo').size
     #checking total number of flags stored in the database
     count = Flag.find(:all).size
     
     #destroy flags
-    @project.debuginfo_flags[1].destroy    
+    @project.type_flags('debuginfo')[1].destroy    
     #reload required!
     @project.reload
-    assert_equal 1, @project.debuginfo_flags.size
+    assert_equal 1, @project.type_flags('debuginfo').size
     assert_equal 1, count - Flag.find(:all).size
     
-    @project.debuginfo_flags[0].destroy
+    @project.type_flags('debuginfo')[0].destroy
     #reload required
     @project.reload    
-    assert_equal 0, @project.debuginfo_flags.size    
+    assert_equal 0, @project.type_flags('debuginfo').size    
     assert_equal 2, count - Flag.find(:all).size
   end
   
@@ -118,53 +118,18 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   def test_delete_debuginfo_flags_from_package
     
     #checking precondition
-    assert_equal 1, @package.debuginfo_flags.size
+    assert_equal 1, @package.type_flags('debuginfo').size
     #checking total number of flags stored in the database
     count = Flag.find(:all).size    
     
     #destroy flags
-    @package.debuginfo_flags[0].destroy    
+    @package.type_flags('debuginfo')[0].destroy    
     #reload required!
     @package.reload
-    assert_equal 0, @package.debuginfo_flags.size
+    assert_equal 0, @package.type_flags('debuginfo').size
     assert_equal 1, count - Flag.find(:all).size
         
   end
-  
-  
-  def test_delete_all_debuginfo_flags_at_once_from_project
-    
-    #checking precondition
-    assert_equal 2, @project.debuginfo_flags.size
-    #checking total number of flags stored in the database
-    count = Flag.find(:all).size
-    
-    #destroy flags
-    @project.debuginfo_flags.destroy_all    
-    #reload required!
-    @project.reload
-    assert_equal 0, @project.debuginfo_flags.size
-    assert_equal 2, count - Flag.find(:all).size
-        
-  end
-
-    
-  def test_delete_all_debuginfo_flags_at_once_from_package
-    
-    #checking precondition
-    assert_equal 1, @package.debuginfo_flags.size
-    #checking total number of flags stored in the database
-    count = Flag.find(:all).size    
-    
-    #destroy flags
-    @package.debuginfo_flags.destroy_all    
-    #reload required!
-    @package.reload
-    assert_equal 0, @package.debuginfo_flags.size
-    assert_equal 1, count - Flag.find(:all).size
-        
-  end
-  
   
   def test_position
     # Because of each flag belongs_to architecture AND db_project|db_package for the 
@@ -176,21 +141,18 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     # The models should take this circumstances into consideration.
     
     #checking precondition
-    assert_equal 2, @project.debuginfo_flags.size
-    assert_equal 1, @arch.debuginfo_flags.size
+    assert_equal 2, @project.type_flags('debuginfo').size
     #checking total number of flags stored in the database
     count = Flag.find(:all).size    
     
     #create new flag and save it.
-    f = DebuginfoFlag.new(:repo => "10.3", :status => "enabled", :position => 3)    
-    @arch.debuginfo_flags << f
-    @project.debuginfo_flags << f
+    f = Flag.new(:repo => "10.3", :status => "enabled", :position => 3, :flag => 'debuginfo')    
+    f.architecture = @arch
+    @project.flags << f
     
     @project.reload
-    assert_equal 3, @project.debuginfo_flags.size
+    assert_equal 3, @project.type_flags('debuginfo').size
     assert_equal 1, Flag.find(:all).size - count
-    @arch.reload
-    assert_equal 2, @arch.debuginfo_flags.size
     
     f.reload
     assert_equal 3, f.position
@@ -205,15 +167,13 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create new flag and save it, but set the references in different order as above.
     #The result should be the same.
-    f = DebuginfoFlag.new(:repo => "10.2", :status => "enabled", :position => 4)    
-    @project.debuginfo_flags << f
-    @arch.debuginfo_flags << f
-
+    f = Flag.new(:repo => "10.2", :status => "enabled", :position => 4, :flag => 'debuginfo')    
+    f.architecture = @arch
+    @project.flags << f
+    
     @project.reload
-    assert_equal 4, @project.debuginfo_flags.size
+    assert_equal 4, @project.type_flags('debuginfo').size
     assert_equal 2, Flag.find(:all).size - count
-    @arch.reload
-    assert_equal 3, @arch.debuginfo_flags.size    
     
     f.reload
     assert_equal 4, f.position

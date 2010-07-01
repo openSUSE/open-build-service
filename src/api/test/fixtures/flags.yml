@@ -5,7 +5,7 @@ first_build_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: BuildFlag
+  flag: build
   position: 1
   
 second_build_flag_for_project_home_tscholz:
@@ -14,7 +14,7 @@ second_build_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: BuildFlag	
+  flag: build
   position: 2
   
 first_build_flag_for_package_TestPack:
@@ -23,7 +23,7 @@ first_build_flag_for_package_TestPack:
   repo: "10.2"
   architecture_id: 1
   db_package_id: 10095
-  type: BuildFlag	
+  flag: build
   position: 1
 
 first_publish_flag_for_project_home_tscholz:
@@ -32,7 +32,7 @@ first_publish_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: "PublishFlag"
+  flag: publish
   position: 1	
   
 second_publish_flag_for_project_home_tscholz:
@@ -41,7 +41,7 @@ second_publish_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: "PublishFlag"
+  flag: publish
   position: 2	
 		
 first_publish_flag_for_package_TestPack:
@@ -50,7 +50,7 @@ first_publish_flag_for_package_TestPack:
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095
-  type: "PublishFlag"
+  flag: publish
   position: 1
   
 first_debug_flag_for_project_home_tscholz:
@@ -59,7 +59,7 @@ first_debug_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: "DebuginfoFlag"
+  flag: debuginfo
   position: 1	
   
 second_debug_flag_for_project_home_tscholz:
@@ -68,7 +68,7 @@ second_debug_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: "DebuginfoFlag"
+  flag: debuginfo
   position: 2	
 		
 first_debug_flag_for_package_TestPack:
@@ -77,13 +77,13 @@ first_debug_flag_for_package_TestPack:
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095
-  type: "DebuginfoFlag"
+  flag: debuginfo
   position: 1
 
 hide_project:
   id: 10
   status: "disable"
   db_project_id: 3000
-  type: "SourceaccessFlag"
+  flag: sourceaccess
   position: 1
 

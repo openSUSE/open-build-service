@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100629095208) do
+ActiveRecord::Schema.define(:version => 20100702082339) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -173,16 +173,16 @@ ActiveRecord::Schema.define(:version => 20100629095208) do
 
   create_table "flags", :force => true do |t|
     t.string  "status"
-    t.string  "type"
     t.string  "repo"
     t.integer "db_project_id"
     t.integer "db_package_id"
     t.integer "architecture_id"
-    t.integer "position",        :null => false
+    t.integer "position",                     :null => false
+    t.string  "flag",                         :null => false
   end
 
-  add_index "flags", ["db_package_id", "type"], :name => "index_flags_on_db_package_id_and_type"
-  add_index "flags", ["db_project_id", "type"], :name => "index_flags_on_db_project_id_and_type"
+  add_index "flags", ["db_package_id"], :name => "index_flags_on_db_package_id"
+  add_index "flags", ["db_project_id"], :name => "index_flags_on_db_project_id"
 
   create_table "groups", :force => true do |t|
     t.datetime "created_at"

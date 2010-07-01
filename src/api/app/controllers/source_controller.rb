@@ -16,12 +16,16 @@ class SourceController < ApplicationController
       dispatch_command
     elsif request.get?
       if params[:deleted]
+	# FIXME: this parameter passes all ACL checks!
         pass_to_backend
       else
         @dir = Project.find :all
         @dir.each do |p|
+	  # FIXME: this only works for small databases and will kill any real life database
+	  # Flags.find should allow to check only those projects where the check makes sense
+	  # or use DbProject.find_by_sql
           prj = DbProject.find_by_name p.name
-          if prj and prj.access_flags.disabled_for?(:nil, :nil) and not @http_user.can_access?(prj)
+          if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
             @dir.delete_element(p)
           end
         end
@@ -49,13 +53,15 @@ class SourceController < ApplicationController
       if params[:deleted]
         pass_to_backend
       else
-        if (pro.privacy_flags.enabled_for?(params[:repository], params[:arch]) and pro.access_flags.enabled_for?(params[:repository], params[:arch])) or
-            @http_user.can_access_viewany?(pro)
-          @dir = Package.find :all, :project => project_name
-          render :text => @dir.dump_xml, :content_type => "text/xml"
-          return
-        end
-        render_ok
+	# FIXME: this code is very strange. checking repository and arch in the source controller
+	# and 
+        #if (pro.enabled_for?('privacy', params[:repository], params[:arch]) and pro.enabled_for?('access', params[:repository], params[:arch])) or
+        #    @http_user.can_access_viewany?(pro)
+	@dir = Package.find :all, :project => project_name
+	render :text => @dir.dump_xml, :content_type => "text/xml" and return
+        #end
+	# render_ok is defintely wrong here
+	#render_ok
       end
       return
     elsif request.delete?
@@ -190,15 +196,17 @@ class SourceController < ApplicationController
       return
     end
     pkg = prj.find_package(package_name)
-    if pkg and
-        (pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
-         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
-        @http_user.can_access_viewany?(pkg)
+    # TODO this code again checks for repository and arch in the source controller
+    # and renders ok for errors
+#    if pkg and
+#        (pkg.disabled_for?('privacy', params[:repository], params[:arch]) or
+#         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
+#        @http_user.can_access_viewany?(pkg)
 #        render_error :status => 403, :errorcode => "private_view_no_permission",
 #      :message => "No permission to view package #{params[:package]}, project #{params[:project]}"
-      render_ok
-      return
-    end
+#      render_ok
+#      return
+#    end
 
     # look also via linked projects, package source may come from another project
     begin
@@ -751,7 +759,7 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
     end
 
-    if (pack.sourceaccess_flags.disabled_for?(:nil, :nil) or pack.access_flags.disabled_for?(:nil, :nil)) and not
+    if (pack.disabled_for?('sourceaccess', nil, nil) or pack.disabled_for?('access', nil, nil)) and not
         @http_user.can_access_downloadsrcany?(pack)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
@@ -852,8 +860,8 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => mparams[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
         oprj.add_user @http_user, "maintainer"
-        oprj.build_flags.create( :position => 1, :status => "disable" )
-        oprj.publish_flags.create( :position => 1, :status => "disable" )
+        oprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
+        oprj.flags.create( :position => 2, :flag => 'build', :status => "disable" )
         oprj.store
       end
     else
@@ -1287,7 +1295,7 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj.title}", :description => prj.description
         oprj.add_user @http_user, "maintainer"
-        oprj.publish_flags << PublishFlag.new( :status => "disable", :position => 1 )
+        oprj.flags.create( :status => "disable", :flag => 'publish')
         prj.repositories.each do |repo|
           orepo = oprj.repositories.create :name => repo.name
           orepo.architectures = repo.architectures

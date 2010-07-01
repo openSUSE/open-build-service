@@ -4,6 +4,8 @@ class Flag < ActiveRecord::Base
   belongs_to :db_project
   belongs_to :db_package
 
+  belongs_to :architecture
+
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
     options = Hash.new
@@ -16,7 +18,6 @@ class Flag < ActiveRecord::Base
     return false unless is_relevant_for?(in_repo, in_arch)
 
     arch = architecture ? architecture.name : nil
-
 
     return false if arch.nil? and !in_arch.nil?
     return false if !arch.nil? and in_arch.nil?
@@ -75,6 +76,16 @@ class Flag < ActiveRecord::Base
   protected
   def validate
     errors.add("name", "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
+    errors.add("name", "Please set either project_id or package_id.") if self.db_project_id.nil? and self.db_package_id.nil?
+    errors.add("flag", "There needs to be a flag.") if self.flag.nil?
+    if self.position.nil?
+      if self.db_project
+	self.position = (self.db_project.flags.maximum(:position) || 0 ) + 1
+      else
+	self.position = (self.db_package.flags.maximum(:position) || 0 ) + 1
+      end
+      errors.add("position", "position is not set") if self.position.nil?
+    end
   end
 
 end
