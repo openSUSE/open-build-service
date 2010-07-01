@@ -110,7 +110,30 @@ class SourceControllerTest < ActionController::IntegrationTest
     # Write changed data back
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s
     assert_response 403
-    
+
+    # admin only tag    
+    d = doc.elements["/project"]
+    d = d.add_element "remoteurl"
+    d.text = "http://localhost:5352"
+    prepare_request_with_user "fred", "geröllheimer"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s
+    assert_response 403
+    assert_match /admin rights are required to change remoteurl/, @response.body
+
+    # invalid xml
+    put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<asd/>"
+    assert_response 400
+    assert_match /validation failed/, @response.body
+
+    # new project
+    put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
+    assert_response 403
+    assert_match /not allowed to create new project/, @response.body
+
+# FIXME: this is succeeding atm
+#    put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
+#    assert_response 403
+#    assert_match /nn allowed to create new project/, @response.body
   end
   
   
@@ -544,6 +567,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     put url_for(:controller => :source, :action => :project_config, :project => "kde4"), "Substitute: nix da"
     assert_response 401
+
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    put url_for(:controller => :source, :action => :project_config, :project => "kde4"), "Substitute: nix da"
+    assert_response 403
 
     prepare_request_with_user "tom", "thunder"
     put url_for(:controller => :source, :action => :project_config, :project => "home:coolo:test"), "Substitute: nix da"
