@@ -496,6 +496,46 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_pattern
+    ActionController::IntegrationTest::reset_auth 
+    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
+    assert_response 401
+
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    get url_for(:controller => :source, :action => :index_pattern, :project => "DoesNotExist")
+    assert_response 404
+    get url_for(:controller => :source, :action => :index_pattern, :project => "kde4")
+    assert_response :success
+    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "DoesNotExist", :project => "DoesNotExist")
+    assert_response 404
+    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "DoesNotExist", :project => "kde4")
+    assert_response 404
+    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
+    assert_response 403
+    assert_match /no permission to store pattern/, @response.body
+
+    prepare_request_with_user "tom", "thunder"
+    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), "broken"
+    assert_response 400
+    assert_match /validation failed/, @response.body
+    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test"), load_backend_file("pattern/digiKam.xml")
+    assert_response :success
+    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    assert_response :success
+
+    # delete failure
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    delete url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    assert_response 403
+
+    # successfull delete
+    prepare_request_with_user "tom", "thunder"
+    delete url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    assert_response :success
+    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    assert_response 404
+  end
+
   def test_prjconf
     ActionController::IntegrationTest::reset_auth 
     get url_for(:controller => :source, :action => :project_config, :project => "DoesNotExist")
@@ -507,6 +547,8 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     prepare_request_with_user "tom", "thunder"
     put url_for(:controller => :source, :action => :project_config, :project => "home:coolo:test"), "Substitute: nix da"
+    assert_response :success
+    get url_for(:controller => :source, :action => :project_config, :project => "home:coolo:test")
     assert_response :success
   end
 
