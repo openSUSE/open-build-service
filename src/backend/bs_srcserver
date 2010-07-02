@@ -4475,14 +4475,16 @@ sub postrequest {
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
         $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
         $found = 1;
-        $go_new_state = $r->{'state'} if $go_new_state eq "review";
+        $go_new_state = 'new' if $go_new_state eq "review" and $r->{'state'} eq 'accepted';
+        $go_new_state = $r->{'state'} if $go_new_state eq "review"; # take decline
       } elsif (defined($r->{'by_group'}) and defined($cgi->{'by_group'}) and $r->{'by_group'} eq $cgi->{'by_group'}) {
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
         $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
         $found = 1;
-        $go_new_state = $r->{'state'} if $go_new_state eq "review";
+        $go_new_state = 'new' if $go_new_state eq "review" and $r->{'state'} eq 'accepted';
+        $go_new_state = $r->{'state'} if $go_new_state eq "review"; # take decline
       } else {
         # don't touch the request state if a review is still open, except the
         # review got declined or superseded.
