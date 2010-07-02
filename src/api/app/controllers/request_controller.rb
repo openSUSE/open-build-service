@@ -26,6 +26,7 @@ class RequestController < ApplicationController
     unless @http_user.is_admin?
       render_error :status => 403, :errorcode => 'put_request_no_permission',
         :message => "PUT on requests currently requires admin privileges"
+      return
     end
 
     path = request.path
