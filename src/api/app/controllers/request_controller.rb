@@ -361,7 +361,7 @@ class RequestController < ApplicationController
     end
     # Do not accept to skip the review, except force argument is given
     if params[:newstate] == "accepted"
-       if req.state.name == "review" and not params[:force]
+       if params[:cmd] == "changestate" and req.state.name == "review" and not params[:force]
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "Request is in review state."
           return
@@ -479,7 +479,7 @@ class RequestController < ApplicationController
       return
     end
 
-    unless params[:newstate] == "accepted"
+    unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
       pass_to_backend path
       return
     end
