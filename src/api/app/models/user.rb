@@ -138,7 +138,13 @@ class User < ActiveRecord::Base
   end
 
   def is_in_group?(group)
-    unless attribute.kind_of? Group
+    if group.nil?
+      return false
+    end
+    if group.kind_of? String
+      group = Group.find_by_name(group)
+    end
+    unless group.kind_of? Group
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
     end
     return true if groups.find(:all, :conditions => [ "id = ?", group ]) > 0
