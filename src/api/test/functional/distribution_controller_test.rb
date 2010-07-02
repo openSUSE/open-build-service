@@ -6,8 +6,15 @@ class DistributionControllerTest < ActionController::IntegrationTest
  
   def setup
   end
+  def teardown
+# do not mess with production data, the controller must be fixed
+#    FileUtils.unlink("#{RAILS_ROOT}/files/distributions.xml")
+  end
 
   def test_put_and_get_list
+    # FIXME: this is messing with production data, the controller must be fixed!
+    return
+
     data = '<distributions>
                <distribution vendor="openSUSE" version="Factory" id="opensuse-Factory">
                  <name>openSUSE Factory</name>
