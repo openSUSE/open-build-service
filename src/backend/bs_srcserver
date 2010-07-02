@@ -4475,7 +4475,7 @@ sub postrequest {
   } elsif ($cmd eq 'changereviewstate') {
     die("request is not in review state\n") unless $req->{'state'} and $req->{'state'}->{'name'} eq "review";
     die("request review item is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'};
-    die("review state must be accepted, declined or superseded\n") unless
+    die("review state must be accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
         $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
 
     my $go_new_state = $req->{'state'}->{'name'};
