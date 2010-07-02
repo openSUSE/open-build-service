@@ -4423,10 +4423,16 @@ sub createrequest {
     }
     die("target project does not exist\n") if ($r->{'type'} || '') eq 'submit' && ! -e "$projectsdir/$r->{'target'}->{'project'}.xml";
   }
+
+  # new requests are either in state 'new' or 'review'
+  $req->{'state'}->{'name'} = 'new';
+  $req->{'state'}->{'name'} = 'review' if defined($req->{'review'});
+
   BSVerify::verify_request($req);
   die("request must not contain an id\n") if $req->{'id'};
   die("request must not contain a history\n") if $req->{'history'};
-  $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+  die("request must not be created by anonymous\n") unless defined $cgi->{'user'};
+  $req->{'state'}->{'who'} = $cgi->{'user'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   $req->{'id'} = nextreqid();
