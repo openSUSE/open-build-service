@@ -17,13 +17,14 @@ class RequestControllerTest < ActionController::IntegrationTest
     Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
   end
 
-  def test_get_1
-    prepare_request_with_user "tscholz", "asdfasdf"
+  def test_set_and_get_1
+    prepare_request_with_user "king", "sunflower"
     # make sure there is at least one
-    Suse::Backend.post( '/request/?cmd=create', load_backend_file('request/1'))
+    Suse::Backend.put( '/request/1', load_backend_file('request/1'))
     get "/request/1"
     assert_response :success
     assert_tag( :tag => "request", :attributes => { :id => "1"} )
+    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   def test_get_invalid_1
@@ -41,17 +42,57 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/no_such_package')
     assert_response 404
     assert_select "status[code] > summary", /Unknown source package mypackage in project home:tscholz/
+
+    post "/request?cmd=create", load_backend_file('request/no_such_user')
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown person/
+
+    post "/request?cmd=create", load_backend_file('request/no_such_group')
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown group/
+
+    post "/request?cmd=create", load_backend_file('request/no_such_role')
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown role/
+
+    post "/request?cmd=create", load_backend_file('request/no_such_target_project')
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown target project/
+
+    post "/request?cmd=create", load_backend_file('request/no_such_target_package')
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown target package/
+
+    post "/request?cmd=create", load_backend_file('request/missing_role')
+    assert_response 404
+    assert_select "status[code] > summary", /No role specified/
+
+    post "/request?cmd=create", load_backend_file('request/failing_cleanup_due_devel_package')
+    assert_response 400
+    assert_select "status[code] > summary", /following packages use this package as devel package:/
   end
 
   def test_set_bugowner_request
     prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner')
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
 
     prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner_fail')
     assert_response 404
     assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
+
+    # test direct put
+    prepare_request_with_user "tscholz", "asdfasdf"
+    put "/request/#{id}", load_backend_file('request/set_bugowner')
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    put "/request/#{id}", load_backend_file('request/set_bugowner')
+    assert_response :success
   end
 
   def test_add_role_request
@@ -82,6 +123,53 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response 400
     assert_select "status[code] > summary", /target project does not exist/
+  end
+
+  def test_submit_with_review
+    req = load_backend_file('request/submit_with_review')
+
+    prepare_request_with_user "tscholz", "asdfasdf"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    assert_tag( :tag => "request", :child => { :tag => 'state' } )
+    assert_tag( :tag => "state", :attributes => { :name => 'review' } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # try to break permissions
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_match /Request is in review state./, @response.body
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
+    assert_response 403
+    assert_match /No permission to change state of request/, @response.body
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response 403
+    assert_match /No permission to change state of request/, @response.body
+    post "/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response 404
+    assert_match /No such request/, @response.body
+
+    # approve reviews
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "request" )
+    assert_tag( :tag => "request", :child => { :tag => 'state' } )
+    assert_tag( :tag => "state", :attributes => { :name => 'review' } ) #remains in review state
+    get "/request/#{id}"
+
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "request" )
+    assert_tag( :tag => "request", :child => { :tag => 'state' } )
+    assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
   end
 
   def teardown

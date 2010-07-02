@@ -1,10 +1,7 @@
   <request>
   <action type='submit'>
     <source project='home:tscholz' package='TestPack' rev='1' />
-    <target project='kde4' package='mypackage' />
-    <options>
-      <sourceupdate>cleanup</sourceupdate>
-    </options>
+    <target project='DoesNotExist' package='mypackage' />
   </action>
   <description/>
   <state who="tscholz" name="new"/>
