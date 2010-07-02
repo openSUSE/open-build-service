@@ -813,8 +813,8 @@ class DbProject < ActiveRecord::Base
   # give out the XML for all repos/arch combos
   def expand_flags(builder, flag_name, pkg_flags = nil)
     builder.tag! flag_name do
-      flaglist = __send__(flag_name+"_flags")
-      flag_default = __send__(flag_name + "_flags").default_state
+      flaglist = self.type_flags(flag_name)
+      flag_default = FlagHelper.default_for(flag_name)
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       archs = Array.new
       repos.each do |repo|

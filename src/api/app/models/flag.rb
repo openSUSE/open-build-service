@@ -59,20 +59,6 @@ class Flag < ActiveRecord::Base
     ret
   end
 
-  def state
-    (status+"d").to_sym
-  end
-
-  class << self
-    def default_state(state=nil)
-      if state
-        @@default_state = state
-      end
-      @@default_state
-    end
-  end
-
-
   protected
   def validate
     errors.add("name", "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?

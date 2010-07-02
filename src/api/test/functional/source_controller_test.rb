@@ -749,6 +749,9 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:tscholz/TestPack/_meta"
     assert_not_equal original, @response.body
+
+    get "/source/home:tscholz/TestPack/_meta?view=flagdetails"
+    assert_response :success
   end
 
 
@@ -797,6 +800,10 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:tscholz/_meta"
     assert_not_equal original, @response.body
+
+    get "/source/home:tscholz/_meta?view=flagdetails"
+    assert_response :success
+
   end
 
   def test_package_remove_flag
@@ -845,6 +852,9 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:tscholz/TestPack/_meta"
     assert_equal original, @response.body
+
+    get "/source/home:tscholz/TestPack/_meta?view=flagdetails"
+    assert_response :success
   end
 
   def test_project_remove_flag
@@ -889,6 +899,9 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:tscholz/_meta"
     assert_equal original, @response.body
+
+    get "/source/home:tscholz/_meta?view=flagdetails"
+    assert_response :success
   end
 
 end
