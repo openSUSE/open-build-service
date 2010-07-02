@@ -142,12 +142,12 @@ class User < ActiveRecord::Base
       return false
     end
     if group.kind_of? String
-      group = Group.find_by_name(group)
+      group = Group.find_by_title(group)
     end
     unless group.kind_of? Group
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
     end
-    return true if groups.find(:all, :conditions => [ "id = ?", group ]) > 0
+    return true if groups.find(:all, :conditions => [ "id = ?", group ]).length > 0
     return false
   end
 
