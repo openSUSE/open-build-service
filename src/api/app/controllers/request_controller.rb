@@ -383,8 +383,8 @@ class RequestController < ApplicationController
     elsif (params[:cmd] == "addreview" and req.creator == @http_user.login)
       # allow request creator to add further reviewers
       permission_granted = true
-#    elsif (params[:cmd] == "changereviewstate" and params[:by_group] == # FIXME: support groups
-#      permission_granted = true
+    elsif (params[:cmd] == "changereviewstate" and @http_user.is_in_group?(params[:by_group]))
+      permission_granted = true
     elsif (params[:cmd] == "changereviewstate" and params[:by_user] == @http_user.login)
       permission_granted = true
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
