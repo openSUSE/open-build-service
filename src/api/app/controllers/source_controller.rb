@@ -16,8 +16,12 @@ class SourceController < ApplicationController
       dispatch_command
     elsif request.get?
       if params[:deleted]
-	# FIXME: this parameter passes all ACL checks!
-        pass_to_backend
+        if @http_user.is_admin?
+          pass_to_backend 
+        else
+          render_error :status => 403, :errorcode => 'no_permission_for_deleted', 
+                       :message => "only admins can see deleted projects"
+        end
       else
         @dir = Project.find :all
         @dir.each do |p|
