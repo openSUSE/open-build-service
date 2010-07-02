@@ -14,7 +14,8 @@ class DistributionControllerTest < ActionController::IntegrationTest
                <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
                <link>http://www.opensuse.org/</link>
              </distribution>
-            ' 
+           </distributions>
+           ' 
  
   def setup
   end
