@@ -172,6 +172,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/source/home:tscholz:OldProject"
     assert_response 404
+    get "/source/kde4/Testing/myfile"
+    assert_response :success
     get "/source/kde4/_meta"
     assert_response :success
     assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
