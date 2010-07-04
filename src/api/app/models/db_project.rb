@@ -529,36 +529,40 @@ class DbProject < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
-  def add_user( user, role_title )
-    logger.debug "adding user: #{user}, #{role_title}"
-    role = Role.rolecache[role_title]
+  def add_user( user, role )
+    unless role.kind_of? Role
+      role = Role.find_by_title(role)
+    end
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in project '#{self.name}'"
     end
 
     unless user.kind_of? User
-      user = User.find_by_login(user.to_s)
+      user = User.find_by_login(user)
     end
 
+    logger.debug "adding user: #{user.login}, #{role.title}"
     ProjectUserRoleRelationship.create(
       :db_project => self,
       :user => user,
       :role => role )
   end
 
-  def add_group( group, role_title )
-    logger.debug "adding group: #{group}, #{role_title}"
-    role = Role.rolecache[role_title]
+  def add_group( group, role )
+    unless role.kind_of? Role
+      role = Role.find_by_title(role)
+    end
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in project '#{self.name}'"
     end
 
     unless group.kind_of? Group
-      group = Group.find_by_title(group.to_s)
+      group = Group.find_by_title(group)
     end
 
+    logger.debug "adding group: #{group.title}, #{role.title}"
     ProjectGroupRoleRelationship.create(
       :db_project => self,
       :group => group,
