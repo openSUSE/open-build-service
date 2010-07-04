@@ -400,8 +400,9 @@ class DbPackage < ActiveRecord::Base
 
   def add_user( user, role )
     unless role.kind_of? Role
-       role = Role.rolecache[role]
+      role = Role.find_by_title(role)
     end
+
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in package '#{self.name}'"
@@ -417,15 +418,18 @@ class DbPackage < ActiveRecord::Base
       :role => role )
   end
 
-  def add_group( group, role_title )
-    role = Role.rolecache[role_title]
+  def add_group( group, role )
+    unless role.kind_of? Role
+      role = Role.find_by_title(role)
+    end
+
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in package '#{self.name}'"
     end
 
     unless group.kind_of? Group
-      user = Group.find_by_title(user.to_s)
+      group = Group.find_by_title(group.to_s)
     end
 
     PackageGroupRoleRelationship.create(

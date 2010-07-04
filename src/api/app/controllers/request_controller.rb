@@ -1,6 +1,8 @@
 class RequestController < ApplicationController
   #TODO: request schema validation
 
+  # the simple writing action.type instead of action.data.attributes['type'] can not be used, since it is a rails function
+
   # GET /request
   alias_method :index, :pass_to_backend
 
@@ -110,12 +112,12 @@ class RequestController < ApplicationController
       tprj=nil
       tpkg=nil
       if action.has_element? 'person'
-        unless User.find_by_login(action.person.data.attributes["name"])
+        unless User.find_by_login(action.person.name)
           render_error :status => 404, :errorcode => 'unknown_person',
             :message => "Unknown person  #{action.person.data.attributes["name"]}"
           return
         end
-        role = action.person.data.attributes["role"] if action.person.has_attribute? 'role'
+        role = action.person.role if action.person.has_attribute? 'role'
       end
       if action.has_element? 'group'
         unless Group.find_by_title(action.group.data.attributes["name"])
@@ -123,7 +125,7 @@ class RequestController < ApplicationController
             :message => "Unknown group  #{action.group.data.attributes["name"]}"
           return
         end
-        role = action.group.data.attributes["role"] if action.group.has_attribute? 'role'
+        role = action.group.role if action.group.has_attribute? 'role'
       end
       if role
         unless Role.find_by_title(role)
@@ -490,7 +492,7 @@ class RequestController < ApplicationController
       if action.data.attributes["type"] == "set_bugowner"
           object = DbProject.find_by_name(action.target.project)
           bugowner = Role.find_by_title("bugowner")
-          if action.target.package
+          if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
  	     PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
 		r.destroy
@@ -500,22 +502,22 @@ class RequestController < ApplicationController
 		r.destroy
              end
           end
-	  object.add_user( action.person.data.attributes["name"], bugowner )
+	  object.add_user( action.person.name, bugowner )
           object.store
-          render_ok
       elsif action.data.attributes["type"] == "add_role"
           object = DbProject.find_by_name(action.target.project)
-          if action.target.package
+          if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
           end
           if action.has_element? 'person'
-	     object.add_user( action.person.data.attributes["name"], action.person.data.attributes["role"] )
+             role = Role.find_by_title(action.person.role)
+	     object.add_user( action.person.name, role )
           end
           if action.has_element? 'group'
-	     object.add_group( action.group.data.attributes["name"], action.group.data.attributes["role"] )
+             role = Role.find_by_title(action.group.role)
+	     object.add_group( action.group.name, role )
           end
           object.store
-          render_ok
       elsif action.data.attributes["type"] == "change_devel"
           target_project = DbProject.find_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
@@ -524,10 +526,10 @@ class RequestController < ApplicationController
             target_package.resolve_devel_package
             target_package.store
           rescue DbPackage::CycleError => e
+            # FIXME: this needs to be checked before, or we have a half submitted request
             render_error :status => 403, :errorcode => "devel_cycle", :message => e.message
             return
           end
-          render_ok
       elsif action.data.attributes["type"] == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
@@ -577,6 +579,7 @@ class RequestController < ApplicationController
             source_package = source_project.db_packages.find_by_name(action.source.package)
             # check for devel package defines
             unless source_package.develpackages.empty?
+              # FIXME: this needs to be checked before, or we have a half submitted request
               msg = "Unable to delete package #{source_package.name}; following packages use this package as devel package: "
               msg += source_package.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
               render_error :status => 400, :errorcode => 'develpackage_dependency',
@@ -616,10 +619,10 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
             end
           end
-          render_ok
       elsif action.data.attributes["type"] == "delete"
           project = DbProject.find_by_name(action.target.project)
           unless project
+            # FIXME: this needs to be checked before, or we have a half submitted request
             msg = "Unable to delete project #{action.target.project}; it does not exist."
             render_error :status => 400, :errorcode => 'not_existing_target',
               :message => msg
@@ -632,6 +635,7 @@ class RequestController < ApplicationController
             DbPackage.transaction do
               package = project.db_packages.find_by_name(action.target.package)
               unless package
+                # FIXME: this needs to be checked before, or we have a half submitted request
                 msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
                 render_error :status => 400, :errorcode => 'not_existing_target',
                   :message => msg
@@ -641,8 +645,8 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-          render_ok
       else
+        # FIXME: this needs to be checked before, or we have a half submitted request
         render_error :status => 403, :errorcode => "post_request_no_permission",
           :message => "Failed to execute request state change of request #{req.id} (type #{action.data.attributes['type']})"
         return
