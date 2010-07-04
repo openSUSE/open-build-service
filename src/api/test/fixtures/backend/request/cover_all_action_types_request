@@ -1,0 +1,46 @@
+<request>
+  <action type='submit'>
+    <source project='home:tscholz:branches:kde4' package='BranchPack' rev='1' />
+    <target project='kde4' package="Testing" />
+    <options><sourceupdate>cleanup</sourceupdate></options>
+  </action>
+  <action type="delete">
+    <target project="home:tscholz" package="ToBeDeletedTestPack" />
+  </action>
+  <action type="delete">
+    <target project="home:tscholz:OldProject"/>
+  </action>
+  <action type="add_role">
+    <target project="kde4" />
+    <person name="tscholz" role="maintainer" />
+  </action>
+  <action type="add_role">
+    <target project="kde4" />
+    <group name="test_group" role="reviewer" />
+  </action>
+  <action type="add_role">
+    <target project="kde4" package="kdelibs" />
+    <person name="tscholz" role="maintainer" />
+  </action>
+  <action type="add_role">
+    <target project="kde4" package="kdelibs" />
+    <group name="test_group" role="reviewer" />
+  </action>
+  <action type="set_bugowner">
+    <target project="kde4" />
+    <person name="tscholz"  />
+  </action>
+  <action type="set_bugowner">
+    <target project="kde4" package="kdelibs" />
+    <person name="tscholz"  />
+  </action>
+  <action type="change_devel">
+    <source project="home:tscholz" package="TestPack" />
+    <target project="kde4" package="kdelibs" />
+  </action>
+
+  <review state="new" by_user="adrian" />
+  <description/>
+  <state who="tscholz" name="new"/>
+</request>
+

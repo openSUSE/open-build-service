@@ -14,7 +14,20 @@ class RequestControllerTest < ActionController::IntegrationTest
     @controller.start_test_backend
     Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
     Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
+    Suse::Backend.put( '/source/home:tscholz/TestPack/myfile', "DummyContent")
+    Suse::Backend.put( '/source/home:tscholz/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
+    Suse::Backend.put( '/source/home:tscholz:OldProject/_meta', DbProject.find_by_name('home:tscholz:OldProject').to_axml)
     Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
+
+    Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
+    Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
+    Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/myfile', "DummyContent")
+    Suse::Backend.post( '/source/home:tscholz:branches:kde4/BranchPack?cmd=commit', "")
+  end
+
+  def teardown
+    Suse::Backend.delete( '/source/home:tscholz' )
+    Suse::Backend.delete( '/source/kde4' )
   end
 
   def test_set_and_get_1
@@ -100,10 +113,11 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response :success
 
-    prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
     assert_response 404
     assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
+
+    post "/request?cmd=create", load_backend_file('request/add_role_fail')
   end
 
   def test_create_permissions
@@ -114,15 +128,61 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_select "status[code] > summary", /No permission to create request for package 'TestPack' in project 'home:tscholz'/
 
     prepare_request_with_user "tscholz", "asdfasdf"
-    post "/request?cmd=create", req
-    assert_response :success
-    assert_tag( :tag => "request" )
-
     req = load_backend_file('request/submit_without_target')
     prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", req
     assert_response 400
     assert_select "status[code] > summary", /target project does not exist/
+
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+  end
+
+  def test_all_action_types
+    req = load_backend_file('request/cover_all_action_types_request')
+    prepare_request_with_user "tscholz", "asdfasdf"
+    post "/request?cmd=create", req
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # do not accept request in review state
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_match /Request is in review state/, @response.body
+
+    # approve reviews
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
+    assert_response :success
+
+    # Successful accept request
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    # Validate the executed actions
+    get "/source/home:tscholz:branches:kde4"
+    assert_response 404
+    get "/source/home:tscholz/ToBeDeletedTestPack"
+    assert_response 404
+    get "/source/home:tscholz:OldProject"
+    assert_response 404
+    get "/source/kde4/_meta"
+    assert_response :success
+    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "maintainer" } )
+    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reviewer" } )
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    assert_tag( :tag => "devel", :attributes => { :project => "home:tscholz", :package => "TestPack" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "maintainer" } )
+    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reviewer" } )
   end
 
   def test_submit_with_review
@@ -170,11 +230,6 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "request" )
     assert_tag( :tag => "request", :child => { :tag => 'state' } )
     assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
-  end
-
-  def teardown
-    Suse::Backend.delete( '/source/home:tscholz' )
-    Suse::Backend.delete( '/source/kde4' )
   end
 
 end

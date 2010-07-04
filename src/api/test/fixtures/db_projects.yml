@@ -34,6 +34,20 @@ home:tscholz:
   id: 502
   description: ""
   created_at: 2005-01-01 00:00:01
+home:tscholz:OldProject:
+  name: home:tscholz:OldProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project gets deleted by request test
+  id: 503
+  description: ""
+  created_at: 2005-01-01 00:00:01
+home:tscholz:branches:kde4:
+  name: home:tscholz:branches:kde4
+  updated_at: 2005-01-01 00:00:01
+  title: tscholz Home Project
+  id: 504
+  description: ""
+  created_at: 2005-01-01 00:00:01
 home:coolo:
   name: home:coolo
   id: 600

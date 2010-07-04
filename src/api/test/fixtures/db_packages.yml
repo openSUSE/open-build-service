@@ -80,6 +80,28 @@ TestPack:
   description: ""
   update_counter: 1
   created_at: 2007-05-16 14:19:18
+BranchPack:
+  name: BranchPack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: My Test package
+  db_project_id: 504
+  url: ""
+  id: 10089
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+ToBeDeletedTestPack:
+  name: ToBeDeletedTestPack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: This package gets deleted by request test
+  db_project_id: 502
+  url: ""
+  id: 10195
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
 
 # for maintenance checks
 pack1:
