@@ -64,6 +64,7 @@ class Flag < ActiveRecord::Base
     errors.add("name", "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
     errors.add("name", "Please set either project_id or package_id.") if self.db_project_id.nil? and self.db_package_id.nil?
     errors.add("flag", "There needs to be a flag.") if self.flag.nil?
+    errors.add("status", "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
     if self.position.nil?
       if self.db_project
 	self.position = (self.db_project.flags.maximum(:position) || 0 ) + 1

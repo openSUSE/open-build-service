@@ -1,11 +1,11 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 SUSE_Linux_101:
   name: SUSE_Linux_10.1
-  db_project_id: 63
+  db_project_id: 226
   id: 75
 SUSE_Linux_Factory:
   name: SUSE_Linux_Factory
-  db_project_id: 64
+  db_project_id: 226
   id: 81
 coolo_standard:
   name: standard

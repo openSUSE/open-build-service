@@ -39,13 +39,13 @@ class DbProjectTest < ActiveSupport::TestCase
         <title>tscholz's Home Project</title>
         <description></description> 
         <build> 
-          <disabled repository='10.2' arch='i586'/>
+          <disable repository='10.2' arch='i586'/>
         </build>
         <publish>
-          <enabled repository='10.2' arch='x86_64'/>
+          <enable repository='10.2' arch='x86_64'/>
         </publish>
         <debuginfo>
-          <disabled repository='10.0' arch='i586'/>
+          <disable repository='10.0' arch='i586'/>
         </debuginfo>
       </project>"
       )
@@ -58,7 +58,7 @@ class DbProjectTest < ActiveSupport::TestCase
     
     #check results
     assert_equal 1, @project.type_flags('build').size
-    assert_equal 'disabled', @project.type_flags('build')[0].status
+    assert_equal 'disable', @project.type_flags('build')[0].status
     assert_equal '10.2', @project.type_flags('build')[0].repo
     assert_equal 'i586', @project.type_flags('build')[0].architecture.name
     assert_equal 1, @project.type_flags('build')[0].position
@@ -66,7 +66,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'home:tscholz', @project.type_flags('build')[0].db_project.name
     
     assert_equal 1, @project.type_flags('publish').size
-    assert_equal 'enabled', @project.type_flags('publish')[0].status
+    assert_equal 'enable', @project.type_flags('publish')[0].status
     assert_equal '10.2', @project.type_flags('publish')[0].repo
     assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
     assert_equal 2, @project.type_flags('publish')[0].position
@@ -74,7 +74,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'home:tscholz', @project.type_flags('publish')[0].db_project.name  
     
     assert_equal 1, @project.type_flags('debuginfo').size
-    assert_equal 'disabled', @project.type_flags('debuginfo')[0].status
+    assert_equal 'disable', @project.type_flags('debuginfo')[0].status
     assert_equal '10.0', @project.type_flags('debuginfo')[0].repo
     assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @project.type_flags('debuginfo')[0].position

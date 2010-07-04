@@ -62,9 +62,7 @@ Rails::Initializer.run do |config|
   # Make Active Record use UTC-base instead of local time
   # config.active_record.default_timezone = :utc
   
-  # Use Active Record's schema dumper instead of SQL when creating the test database
-  # (enables use of different database adapters for development and test environments)
-  # config.active_record.schema_format = :ruby
+  config.active_record.schema_format = :sql
 
   config.logger = NiceLogger.new(config.log_path)
   # See Rails::Configuration for more options

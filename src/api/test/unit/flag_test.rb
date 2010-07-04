@@ -22,14 +22,16 @@ class FlagTest < ActiveSupport::TestCase
     # no flag
     assert_equal false, f.save
     f.flag = 'build'
+    assert_equal false, f.save
+    f.status = 'enabled'
+    assert_equal false, f.save 
+    f.status = 'enable'
     assert_equal true, f.save
 
     f = Flag.find_by_repo("999.999")
     assert_kind_of Flag, f
     
-    assert_raise RuntimeError do
-      f.to_xml(Builder::XmlMarkup.new)
-    end
+    assert_equal '<enable repository="999.999" arch="i586"/>', f.to_xml(Builder::XmlMarkup.new)
     
   end
   

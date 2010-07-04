@@ -20,7 +20,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(:repo => "10.#{i}", :status => "enabled", :position => i + 2, :flag => 'debuginfo')    
+      f = Flag.new(:repo => "10.#{i}", :status => "enable", :position => i + 2, :flag => 'debuginfo')    
       f.architecture = @arch
       @project.flags << f
     end
@@ -35,7 +35,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     assert_equal '10.1', f.repo
     assert_equal @arch.id, f.architecture_id
-    assert_equal 'enabled', f.status
+    assert_equal 'enable', f.status
     assert_equal @project.id, f.db_project_id
     assert_nil f.db_package_id
     assert_equal 3, f.position
@@ -45,7 +45,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     assert_equal '10.2', f.repo
     assert_equal @arch.id, f.architecture_id
-    assert_equal 'enabled', f.status
+    assert_equal 'enable', f.status
     assert_equal @project.id, f.db_project_id
     assert_nil f.db_package_id
     assert_equal 4, f.position
@@ -60,7 +60,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(:repo => "10.#{i}", :status => "disabled", :position => i+1, :flag => 'debuginfo')    
+      f = Flag.new(:repo => "10.#{i}", :status => "disable", :position => i+1, :flag => 'debuginfo')    
       f.architecture = @arch
       @package.flags << f
     end
@@ -75,7 +75,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     assert_equal '10.1', f.repo
     assert_equal @arch.id, f.architecture_id
-    assert_equal 'disabled', f.status
+    assert_equal 'disable', f.status
     assert_equal @package.id, f.db_package_id
     assert_nil f.db_project_id
     assert_equal 2, f.position
@@ -85,7 +85,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     assert_equal '10.2', f.repo
     assert_equal @arch.id, f.architecture_id
-    assert_equal 'disabled', f.status
+    assert_equal 'disable', f.status
     assert_equal @package.id, f.db_package_id
     assert_nil f.db_project_id
     assert_equal 3, f.position
@@ -146,7 +146,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     count = Flag.find(:all).size    
     
     #create new flag and save it.
-    f = Flag.new(:repo => "10.3", :status => "enabled", :position => 3, :flag => 'debuginfo')    
+    f = Flag.new(:repo => "10.3", :status => "enable", :position => 3, :flag => 'debuginfo')    
     f.architecture = @arch
     @project.flags << f
     
@@ -167,7 +167,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create new flag and save it, but set the references in different order as above.
     #The result should be the same.
-    f = Flag.new(:repo => "10.2", :status => "enabled", :position => 4, :flag => 'debuginfo')    
+    f = Flag.new(:repo => "10.2", :status => "enable", :position => 4, :flag => 'debuginfo')    
     f.architecture = @arch
     @project.flags << f
     
