@@ -32,6 +32,12 @@ module FlagHelper
      TYPES.keys
    end
 
+   def validate_type( flag ) 
+     unless TYPES.has_key? flag.to_s
+        raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
+     end
+   end
+
    def update_all_flags(obj)
       FlagHelper.flag_types.each do |flagtype|
         update_flags( obj, flagtype )
@@ -41,10 +47,7 @@ module FlagHelper
    def update_flags( obj, flagtype )
 
      #translate the flag types as used in the xml to model name + s
-     unless FlagHelper.flag_types.include? flagtype.to_s
-       raise  SaveError.new( "Error: unknown flag type '#{flagtype}' not found." )
-     end
-
+     validate_type flagtype
      Flag.transaction do
 
        #remove old flags       
@@ -84,9 +87,7 @@ module FlagHelper
    end
 
   def remove_flag(flag, repository, arch)
-    unless FlagHelper.flag_types.include? flag.to_s
-      raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
-    end
+    validate_type flag
     flaglist = self.type_flags(flag)
     arch = Architecture.find_by_name(arch) if arch
 
@@ -102,10 +103,7 @@ module FlagHelper
   end
 
   def add_flag(flag, status, repository, arch)
-    #translates the flag types as used in the xml to model name + s
-    unless FlagHelper.flag_types.include? flag.to_s
-      raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
-    end
+    validate_type flag 
     unless status == 'enable' or status == 'disable'
       raise ArgumentError.new("Error: unknown status for flag '#{status}'")
     end
