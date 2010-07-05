@@ -10,6 +10,7 @@ class SearchController < ApplicationController
   def search
 
     @search_text = params[:search_text]
+    @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "")
     @attribute = params[:attribute]
     if (!@search_text or @search_text.length < 2) && @attribute.blank?
       flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
@@ -40,7 +41,6 @@ class SearchController < ApplicationController
     @results = []
     @search_what.each do |s_what|
 
-      @search_text.gsub!("'", "")
       # build xpath predicate
       if params[:advanced]
         p = []
