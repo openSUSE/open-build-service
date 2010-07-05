@@ -77,14 +77,13 @@ class RequestController < ApplicationController
     # obj can be a project or package object
     review_groups = Array.new(0)
     prj = nil
-
     # check for reviewers in a package first
     if obj.class == DbProject
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
         obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
-          review_groups << User.find_by_id(r.bs_user_id)
+          review_groups << Group.find_by_id(r.bs_group_id)
         end
       end
       prj = obj.db_project
@@ -94,7 +93,7 @@ class RequestController < ApplicationController
     # add reviewers of project in any case
     if defined? prj.project_group_role_relationships
       prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
-        review_groups << User.find_by_id(r.bs_user_id)
+        review_groups << Group.find_by_id(r.bs_group_id)
       end
     end
     return review_groups
@@ -308,7 +307,7 @@ class RequestController < ApplicationController
       review_groups.each do |r|
         p = {}
         p[:cmd]     = "addreview"
-        p[:by_user] = r.login
+        p[:by_group] = r.title
         path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_group])
         r = backend_post( path, "" )
       end
