@@ -112,11 +112,16 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_package_name_read? name
-    name =~ /^\w[-_+\w\.:]*$/
+    return true if name =~ /^_project$/
+    return true if name =~ /^_product$/
+    return true if name =~ /^_product:[-_+\w\.:]*$/
+    name =~ /^[[:alnum:]][-_+\w\.:]*$/
   end
 
   def valid_package_name_write? name
-    name =~ /^\w[-_+\w\.]*$/
+    return true if name =~ /^_project$/
+    return true if name =~ /^_product$/
+    name =~ /^[[:alnum:]][-_+\w\.]*$/
   end
 
   def valid_file_name? name
