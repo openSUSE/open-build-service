@@ -18,6 +18,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     Suse::Backend.put( '/source/home:tscholz/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
     Suse::Backend.put( '/source/home:tscholz:OldProject/_meta', DbProject.find_by_name('home:tscholz:OldProject').to_axml)
     Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
+    Suse::Backend.put( '/source/kde4/kdebase/_meta', DbPackage.find_by_name('kdebase').to_axml)
+    Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
+    Suse::Backend.post( '/source/kde4/kdebase?cmd=commit', "")
 
     Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
     Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
@@ -168,7 +171,11 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
+
     prepare_request_with_user "tscholz", "asdfasdf"
+    # create kdelibs package
+    post "/source/kde4/kdebase", :cmd => :branch
+    assert_response :success
     post "/request?cmd=create", req
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
@@ -176,6 +183,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     id = node.data['id']
 
     # do not accept request in review state
+    get "/request/#{id}"
     prepare_request_with_user "fred", "geröllheimer"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
@@ -184,6 +192,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     # approve reviews
     prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
+    assert_response :success
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
 
     # Successful accept request
@@ -204,13 +215,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
     assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "maintainer" } )
-    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reviewer" } )
+    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_tag( :tag => "devel", :attributes => { :project => "home:tscholz", :package => "TestPack" } )
     assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
     assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "maintainer" } )
-    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reviewer" } )
+    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
   end
 
   def test_submit_with_review

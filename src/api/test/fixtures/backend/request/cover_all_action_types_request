@@ -1,5 +1,9 @@
 <request>
   <action type='submit'>
+    <source project='home:tscholz:branches:kde4' package='kdebase' rev='1' />
+    <target project='kde4' package="kdebase" />
+  </action>
+  <action type='submit'>
     <source project='home:tscholz:branches:kde4' package='BranchPack' rev='1' />
     <target project='kde4' package="Testing" />
     <options><sourceupdate>cleanup</sourceupdate></options>
@@ -16,7 +20,7 @@
   </action>
   <action type="add_role">
     <target project="kde4" />
-    <group name="test_group" role="reviewer" />
+    <group name="test_group" role="reader" />
   </action>
   <action type="add_role">
     <target project="kde4" package="kdelibs" />
@@ -24,7 +28,7 @@
   </action>
   <action type="add_role">
     <target project="kde4" package="kdelibs" />
-    <group name="test_group" role="reviewer" />
+    <group name="test_group" role="reader" />
   </action>
   <action type="set_bugowner">
     <target project="kde4" />
@@ -39,7 +43,6 @@
     <target project="kde4" package="kdelibs" />
   </action>
 
-  <review state="new" by_user="adrian" />
   <description/>
   <state who="tscholz" name="new"/>
 </request>
