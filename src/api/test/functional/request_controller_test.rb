@@ -46,7 +46,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 401
   end
 
-  def test_submit_request
+  def test_submit_broken_request
     prepare_request_with_user "tscholz", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/no_such_project')
     assert_response 404
@@ -120,8 +120,14 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
   end
 
-  def test_create_permissions
+  def test_create_and_revoke_submit_request_permissions
+    ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
+
+    post "/request?cmd=create", req
+    assert_response 401
+    assert_select "status[code] > summary", /Authentication required/
+
     prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", req
     assert_response 403
@@ -138,6 +144,26 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # and revoke it
+    ActionController::IntegrationTest::reset_auth
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response 401
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response 403
+
+    prepare_request_with_user "tscholz", "asdfasdf"
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
   end
 
   def test_all_action_types
