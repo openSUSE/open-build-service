@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008 Klaas Freitag, Novell Inc.
+# Copyright (c) 2010 Anas Nashif, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -17,13 +17,15 @@
 #
 ################################################################
 #
-# Module to talk to Hermes
+# Module to talk to RabbitMQ
 #
 
-package hermes;
+package notify_rabbitmq;
 
-use BSRPC;
+use Net::RabbitMQ;
 use BSConfig;
+use JSON::XS;
+#use Data::UUID;
 
 use strict;
 
@@ -36,36 +38,26 @@ sub new {
 sub notify() {
   my ($self, $type, $paramRef ) = @_;
 
-  return unless $BSConfig::hermesserver;
-
-  my @args = ( "rm=notify" );
-
   $type = "UNKNOWN" unless $type;
-  # prepend something BS specific
-  my $prefix = $BSConfig::hermesnamespace || "OBS";
+  my $prefix = $BSConfig::notification_namespace || "OBS";
   $type =  "${prefix}_$type";
 
-  push @args, "_type=$type";
 
+  #my $uu = Data::UUID->new;
   if ($paramRef) {
-    for my $key (sort keys %$paramRef) {
-      next if ref $paramRef->{$key};
-      push @args, "$key=$paramRef->{$key}" if defined $paramRef->{$key};
-    }
+    $paramRef->{'type'} = $type;
+    $paramRef->{'time'} = time();
+    my $mq = Net::RabbitMQ->new();
+    $mq->connect("192.168.50.99", { user => "mailer", password => "mailerpwd", vhost => "mailer_vhost" });
+    warn("RabbitMQ Plugin: $@") if $@;
+    $mq->channel_open(1);
+    #$mq->queue_declare(1, "mailer_queue");
+    $mq->queue_bind(1, "mailer_queue", "mailer_exchange", "mailer");
+    $mq->publish(1, "mailer", encode_json($paramRef), { exchange => 'mailer_exchange' });
+    $mq->disconnect();
   }
 
-  my $hermesuri = "$BSConfig::hermesserver/index.cgi";
 
-  # print STDERR "Notifying hermes at $hermesuri: <" . join( ', ', @args ) . ">\n";
-
-  my $param = {
-    'uri' => $hermesuri,
-    'timeout' => 60,
-  };
-  eval {
-    BSRPC::rpc( $param, undef, @args );
-  };
-  warn("Hermes: $@") if $@;
 }
 
 1;
