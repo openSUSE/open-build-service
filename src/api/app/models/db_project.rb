@@ -285,10 +285,12 @@ class DbProject < ActiveRecord::Base
       end
 
       project.each_repository do |repo|
+        was_updated = false
+
         if not repocache.has_key? repo.name
           logger.debug "adding repository '#{repo.name}'"
           current_repo = self.repositories.create( :name => repo.name )
-          self.updated_at = Time.now
+          was_updated = true
         else
           logger.debug "modifying repository '#{repo.name}'"
           current_repo = repocache[repo.name]
@@ -298,40 +300,34 @@ class DbProject < ActiveRecord::Base
         # check for rebuild configuration
         if not repo.has_attribute? :rebuild and current_repo.rebuild
           current_repo.rebuild = nil
-          current_repo.save!
-          self.updated_at = Time.now
+          was_updated = true
         end
         if repo.has_attribute? :rebuild
           if repo.rebuild != current_repo.rebuild
             current_repo.rebuild = repo.rebuild
-            current_repo.save!
-            self.updated_at = Time.now
+            was_updated = true
           end
         end
         # check for block configuration
         if not repo.has_attribute? :block and current_repo.block
           current_repo.block = nil
-          current_repo.save!
-          self.updated_at = Time.now
+          was_updated = true
         end
         if repo.has_attribute? :block
           if repo.block != current_repo.block
             current_repo.block = repo.block
-            current_repo.save!
-            self.updated_at = Time.now
+            was_updated = true
           end
         end
         # check for linkedbuild configuration
         if not repo.has_attribute? :linkedbuild and current_repo.linkedbuild
           current_repo.linkedbuild = nil
-          current_repo.save!
-          self.updated_at = Time.now
+          was_updated = true
         end
         if repo.has_attribute? :linkedbuild
           if repo.linkedbuild != current_repo.linkedbuild
             current_repo.linkedbuild = repo.linkedbuild
-            current_repo.save!
-            self.updated_at = Time.now
+            was_updated = true
           end
         end
         #--- end of repository flags ---#
@@ -348,6 +344,14 @@ class DbProject < ActiveRecord::Base
           end
           current_repo.path_elements.create :link => link_repo, :position => position
           position += 1
+          was_updated = true
+        end
+
+        was_updated = true if current_repo.architectures.size > 0 or repo.each_arch.size > 0
+
+        if was_updated
+          current_repo.save!
+          self.updated_at = Time.now
         end
 
         #destroy architecture references
@@ -358,6 +362,7 @@ class DbProject < ActiveRecord::Base
             raise SaveError, "unknown architecture: '#{arch}'"
           end
           current_repo.architectures << Architecture.archcache[arch.to_s]
+          was_updated = true
         end
 
         repocache.delete repo.name
@@ -386,9 +391,11 @@ class DbProject < ActiveRecord::Base
           end
         end
         logger.debug "deleting repository '#{name}'"
+        self.repositories.delete object
         object.destroy
         self.updated_at = Time.now
       end
+      repocache = nil
       #--- end update repositories ---#
       
       store
