@@ -194,8 +194,8 @@ class BuildController < ApplicationController
       return
     end
     if pkg and
-        (pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
-         pkg.access_flags.disabled_for?(params[:repository], params[:arch])) and not
+        (pkg.disabled_for?('privacy', params[:repository], params[:arch]) or
+         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
         @http_user.can_access_viewany?(pkg)
       render_ok
       return
