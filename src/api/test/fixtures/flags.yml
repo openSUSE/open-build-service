@@ -84,6 +84,27 @@ hide_project:
   id: 10
   status: "disable"
   db_project_id: 3000
+  flag: access
+  position: 1
+
+source_protected_project:
+  id: 11
+  status: "disable"
+  db_project_id: 3001
   flag: sourceaccess
+  position: 1
+
+binary_protected_project:
+  id: 11
+  status: "disable"
+  db_project_id: 3002
+  flag: binarydownload
+  position: 1
+
+privacy_protected_project:
+  id: 13
+  status: "enable"
+  db_project_id: 3003
+  flag: privacy
   position: 1
 

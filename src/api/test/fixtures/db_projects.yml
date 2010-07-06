@@ -106,13 +106,37 @@ BaseDistro3:
   description: "Base distro without update project"
   created_at: 2005-01-01 00:00:01
 
-# For read permissions checks
+# For read/view permission checks
 HiddenProject:
   name: HiddenProject
   updated_at: 2005-01-01 00:00:01
-  title: This project is not visible except for adrian
+  title: This project is not visible and not accessable except for adrian
   id: 3000
-  description: "for testing read permissions"
+  description: "for testing read/view permissions"
+  created_at: 2005-01-01 00:00:01
+
+SourceprotectedProject:
+  name: SourceprotectedProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project has unaccessable source except for adrian
+  id: 3001
+  description: "for testing read/view permissions"
+  created_at: 2005-01-01 00:00:01
+
+BinaryprotectedProject:
+  name: SourceprotectedProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project has unaccessable binaries except for adrian
+  id: 3002
+  description: "for testing read/view permissions"
+  created_at: 2005-01-01 00:00:01
+
+ViewprotectedProject:
+  name: ViewprotectedProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project has behaves like a binary only project except for adrian
+  id: 3003
+  description: "for testing read/view permissions"
   created_at: 2005-01-01 00:00:01
 
 # For testing remote project handling (we are our own remote instance)
