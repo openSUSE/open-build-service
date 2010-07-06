@@ -143,6 +143,33 @@ our $kiwidesc = [
                 'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
              ]],
           ]],
+          [ 'driverupdate' => 
+            [[ 'target' =>
+               'arch',
+               '_content'
+            ]],
+            [[ 'install' =>
+               [[ 'repopackage' =>
+                  'name',
+                  'addarch', 'arch', 'baselibs_arch', 
+                  'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
+                ]],
+             ]],
+            [[ 'modules' =>
+               [[ 'repopackage' =>
+                  'name',
+                  'addarch', 'arch', 'baselibs_arch', 
+                  'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
+                ]],
+             ]],
+            [[ 'instsys' =>
+               [[ 'repopackage' =>
+                  'name',
+                  'addarch', 'arch', 'baselibs_arch', 
+                  'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
+                ]],
+             ]]
+          ]
         ],
         [[ 'users' =>
              'group',
