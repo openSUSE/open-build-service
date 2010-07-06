@@ -73,6 +73,7 @@ my $diffcache = "$BSConfig::bsdir/diffcache";
 
 my $reqindexdb = "$BSConfig::bsdir/db/request";
 my $extrepodb = "$BSConfig::bsdir/db/published";
+my $sourcedb = "$BSConfig::bsdir/db/source";
 
 my $remotecache = "$BSConfig::bsdir/remotecache";
 
@@ -627,16 +628,30 @@ sub addrev {
   }
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $rev->{'version'});
 
+  # add missing data to complete the revision object
+  $rev->{'project'} = $projid;
+  $rev->{'package'} = $packid;
+
+  # update linked package database
+  mkdir_p($sourcedb) unless -d $sourcedb;
+  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
+  my $linkinfo;
+  if ($files->{'_link'}) {
+    my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    if ($l) {
+      $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
+      $linkinfo->{'package'} = defined $l->{'package'} ? $l->{'package'} : $packid;
+      $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
+    }
+  }
+  $linkdb->store("$projid/$packid", $linkinfo);
+
   # send out hermes notification
   BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
                                              oldversion => $rev_old->{'version'}, newversion => $rev->{'version'}, user => $user, comment => $comment})
     if $rev->{'version'} ne $rev_old->{'version'};
-
-  # add missing data to complete the revision object
-  $rev->{'project'} = $projid;
-  $rev->{'package'} = $packid;
 
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
