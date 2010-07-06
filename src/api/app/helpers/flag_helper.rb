@@ -129,7 +129,7 @@ module FlagHelper
     state = :default
 
     self.type_flags(flag_type).each do |flag|
-      state = flag.state if flag.is_relevant_for?(repo, arch)
+      state = flag.status if flag.is_relevant_for?(repo, arch)
     end
 
     if state == :default
