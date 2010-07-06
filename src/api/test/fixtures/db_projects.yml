@@ -124,7 +124,7 @@ SourceprotectedProject:
   created_at: 2005-01-01 00:00:01
 
 BinaryprotectedProject:
-  name: SourceprotectedProject
+  name: BinaryprotectedProject
   updated_at: 2005-01-01 00:00:01
   title: This project has unaccessable binaries except for adrian
   id: 3002
