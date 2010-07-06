@@ -131,10 +131,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match /not allowed to create new project/, @response.body
 
-# FIXME: this is succeeding atm
-#    put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
-#    assert_response 403
-#    assert_match /nn allowed to create new project/, @response.body
+    prepare_request_with_user "king", "sunflower"
+    put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
+    assert_response 400
+    assert_match /projid '_NewProject' is illegal/, @response.body
   end
   
   
