@@ -12,7 +12,7 @@
         <tr class="target">
           <% if index == 0 %>
             <td class="repo" valign="top" rowspan="<%= archarray.length %>">
-              <strong><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo -%></strong>
+              <strong title="<%= h repo %>"><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo -%></strong>
             </td>
             <% index += 1 %>
           <% end %>
