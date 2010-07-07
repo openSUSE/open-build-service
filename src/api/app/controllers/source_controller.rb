@@ -868,8 +868,10 @@ class SourceController < ApplicationController
           branch_target_project = pac.db_project.name
           branch_target_package = pac.name
         else
-          # package exists not yet in update project, to be created
-          branch_target_project = a.values[0].value
+          # package exists not yet in update project, but it may have a project link ?
+    	  if find_package( DbProject.find_by_name(a.values[0].value), pac.name )
+            branch_target_project = a.values[0].value
+          end
         end
       end
       proj_name = pac.db_project.name.gsub(':', '_')
