@@ -1435,7 +1435,6 @@ sub dobuild {
       return 2;
     }
   }elsif ($ret == 768) {
-    print "I am a bad build host, fix me!\n";
     return 3;
   }
   if ($ret) {
@@ -1823,7 +1822,7 @@ if (!$ex) {
   print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
 } elsif ($ex == 3) {
-  print "build failed due to a bad host...\n";
+  print "build failed, marked as bad build host...\n";
   $code = 'badhost';
 } else {
   print "build failed, send back logfile...\n";
