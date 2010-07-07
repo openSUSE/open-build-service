@@ -893,7 +893,8 @@ class SourceController < ApplicationController
           branch_target_package = pac.name
         else
           # package exists not yet in update project, but it may have a project link ?
-    	  if find_package( DbProject.find_by_name(a.values[0].value), pac.name )
+    	  p = DbProject.find_by_name(a.values[0].value)
+    	  if p and p.find_package( pac.name )
             branch_target_project = a.values[0].value
           end
         end
@@ -1068,7 +1069,7 @@ class SourceController < ApplicationController
       return
     end
 
-    pkg = find_package( p, package_name )
+    pkg = p.find_package( package_name )
     unless pkg
       render_error :status => 400, :errorcode => 'unknown_package',
         :message => "Unknown package '#{package_name}'"
