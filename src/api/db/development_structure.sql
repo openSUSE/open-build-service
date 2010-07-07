@@ -187,7 +187,8 @@ CREATE TABLE `flags` (
   `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','privacy') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_flags_on_db_package_id` (`db_package_id`),
-  KEY `index_flags_on_db_project_id` (`db_project_id`)
+  KEY `index_flags_on_db_project_id` (`db_project_id`),
+  KEY `index_flags_on_flag` (`flag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `groups` (
@@ -561,6 +562,8 @@ INSERT INTO schema_migrations (version) VALUES ('20100705124948');
 INSERT INTO schema_migrations (version) VALUES ('20100705133839');
 
 INSERT INTO schema_migrations (version) VALUES ('20100705141045');
+
+INSERT INTO schema_migrations (version) VALUES ('20100707061034');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

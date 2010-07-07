@@ -15,7 +15,7 @@ class SourceController < ApplicationController
       # a bit danguerous, never implment a command without proper permission check
       dispatch_command
     elsif request.get?
-      if params[:deleted]
+      if params.has_key? :deleted
         if @http_user.is_admin?
           pass_to_backend 
         else
@@ -23,17 +23,12 @@ class SourceController < ApplicationController
                        :message => "only admins can see deleted projects"
         end
       else
-        @dir = Project.find :all
-        @dir.each do |p|
-	  # FIXME: this only works for small databases and will kill any real life database
-	  # Flags.find should allow to check only those projects where the check makes sense
-	  # or use DbProject.find_by_sql
-          prj = DbProject.find_by_name p.name
-          if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-            @dir.delete_element(p)
-          end
+        dir = Project.find :all
+        accessprjs = DbProject.find_by_sql("select p.name from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
+        accessprjs.each do |prj|
+          dir.delete_element(p) if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
         end
-        render :text => @dir.dump_xml, :content_type => "text/xml"
+        render :text => dir.dump_xml, :content_type => "text/xml"
       end
     end
   end
@@ -54,7 +49,7 @@ class SourceController < ApplicationController
     end
     
     if request.get?
-      if params[:deleted]
+      if params.has_key? :deleted
         pass_to_backend
       else
 	# FIXME: this code is very strange. checking repository and arch in the source controller
@@ -183,7 +178,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     cmd = params[:cmd]
-    deleted = params[:deleted]
+    deleted = params.has_key? :deleted
 
     prj = DbProject.find_by_name(project_name)
     unless prj

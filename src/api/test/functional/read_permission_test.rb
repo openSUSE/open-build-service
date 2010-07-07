@@ -69,4 +69,16 @@ class ReadPermissionTest < ActionController::IntegrationTest
   # Everything needs to be tested as user with various roles and as a group member with various roles
 
   # the very same must be tested also for public project, but protected package
+  def test_deleted_projectlist
+    prepare_request_valid_user
+    get "/source?deleted"
+    assert_response 403
+    assert_match /only admins can see deleted projects/, @response.body 
+
+    prepare_request_with_user "king", "sunflower"
+    get "/source?deleted"
+    assert_response :success
+    # can't do any check on the list without also deleting projects, which is too much for this test
+    assert_tag( :tag => "directory" )
+  end 
 end
