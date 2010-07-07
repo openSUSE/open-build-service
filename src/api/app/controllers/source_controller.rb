@@ -52,15 +52,18 @@ class SourceController < ApplicationController
       if params.has_key? :deleted
         pass_to_backend
       else
-	# FIXME: this code is very strange. checking repository and arch in the source controller
-	# and 
-        #if (pro.enabled_for?('privacy', params[:repository], params[:arch]) and pro.enabled_for?('access', params[:repository], params[:arch])) or
-        #    @http_user.can_access_viewany?(pro)
-	@dir = Package.find :all, :project => project_name
-	render :text => @dir.dump_xml, :content_type => "text/xml" and return
-        #end
-	# render_ok is defintely wrong here
-	#render_ok
+        # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+        if pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+          render_error :status => 404, :errorcode => 'unknown_project',
+          :message => "Unknown project '#{project_name}'"
+          return
+        # ACL: in case of privacy, this behaves like a binary project when accessor has no permission
+        elsif pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
+          @dir = Package.find :all, :project => project_name
+          render :text => @dir.dump_xml, :content_type => "text/xml"
+          return
+        end
+        render_ok
       end
       return
     elsif request.delete?
@@ -195,17 +198,17 @@ class SourceController < ApplicationController
       return
     end
     pkg = prj.find_package(package_name)
-    # TODO this code again checks for repository and arch in the source controller
-    # and renders ok for errors
-#    if pkg and
-#        (pkg.disabled_for?('privacy', params[:repository], params[:arch]) or
-#         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
-#        @http_user.can_access_viewany?(pkg)
-#        render_error :status => 403, :errorcode => "private_view_no_permission",
-#      :message => "No permission to view package #{params[:package]}, project #{params[:project]}"
-#      render_ok
-#      return
-#    end
+    # ACL: in case of access, package is really hidden and shown as non existant to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => "unknown_project",
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
+    # ACL: if private view is on behave like pkg without any src files
+    if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
+      render_ok
+      return
+    end
 
     # look also via linked projects, package source may come from another project
     begin
@@ -486,10 +489,18 @@ class SourceController < ApplicationController
 
     project_name = params[:project]
 
+    return unless extract_user
+    params[:user] = @http_user.login
+
     if request.get?
       @project = DbProject.find_by_name( project_name )
 
-      if @project
+      # ACL: if access is set, this behaves like project non existing
+      if @project and (@project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project))
+        render_error :message => "Unknown project '#{project_name}'",
+          :status => 404, :errorcode => "unknown_project"
+        return
+      elsif @project
         render :text => @project.to_axml(params[:view]), :content_type => 'text/xml'
       elsif DbProject.find_remote_project(project_name)
         # project from remote buildservice, get metadata from backend
@@ -501,10 +512,7 @@ class SourceController < ApplicationController
       return
     end
 
-    return unless extract_user
-
     #assemble path for backend
-    params[:user] = @http_user.login
     path = request.path
     path += build_query_from_hash(params, [:user, :comment, :rev])
 
@@ -573,6 +581,18 @@ class SourceController < ApplicationController
       return
     end
 
+    return unless extract_user
+
+    #assemble path for backend
+    params[:user] = @http_user.login
+
+    # ACL: in case of access, project is really hidden, accessing says project is not existing
+    if @project and (@project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project))
+      render_error :status => 404, :errorcode => 'project_not_found',
+        :message => "Unknown project #{params[:project]}"
+      return
+    end
+
     if request.get?
       path = request.path
       path += build_query_from_hash(params, [:rev])
@@ -580,10 +600,7 @@ class SourceController < ApplicationController
       return
     end
 
-    return unless extract_user
-
     #assemble path for backend
-    params[:user] = @http_user.login
     path = request.path
     path += build_query_from_hash(params, [:user, :comment])
 
@@ -706,8 +723,17 @@ class SourceController < ApplicationController
       return
     end
 
+
     if request.get?
       pack = pro.find_package( package_name )
+
+      # ACL: in case of access, project is really hidden, accessing says project is not existing
+      if pack and (pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack))
+        render_error :status => 400, :errorcode => "invalid_package_name",
+          :message => "invalid package name '#{package_name}'"
+        return
+      end
+
       unless pack
         # check if this comes from a remote project, also true for _project package
         answer = Suse::Backend.get(request.path)
@@ -758,8 +784,15 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
     end
 
-    if (pack.disabled_for?('sourceaccess', nil, nil) or pack.disabled_for?('access', nil, nil)) and not
-        @http_user.can_access_downloadsrcany?(pack)
+    # ACL: acces behaves like project not existing
+    if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+      render_error :status => 403, :errorcode => 'not_found',
+      :message => "The given package #{package_name} does not exist in project #{project_name}"
+      return
+    end
+
+    # ACL: source access gives permisson denied
+    if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_access_downloadsrcany?(pack)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
       return

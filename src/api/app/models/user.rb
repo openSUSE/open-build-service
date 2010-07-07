@@ -291,20 +291,12 @@ class User < ActiveRecord::Base
   def can_download_binaries?(package)
     return true if has_global_permission? "download_binaries"
 
-    unless package.kind_of? DbPackage
-      raise ArgumentError, "illegal argument to can_download_binaries, DbPackage expected, got #{package.class.name}"
-    end
-
     return true if has_local_permission?("download_binaries", package)
     return false
   end
 
   def can_source_access?(package)
     return true if has_global_permission? "source_access"
-
-    unless package.kind_of? DbPackage
-      raise ArgumentError, "illegal argument to can_read_access, DbPackage expected, got #{package.class.name}"
-    end
 
     return true if has_local_permission?("source_access", package)
     return false

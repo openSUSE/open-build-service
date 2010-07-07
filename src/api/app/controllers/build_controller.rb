@@ -109,10 +109,16 @@ class BuildController < ApplicationController
     valid_http_methods :get
     required_parameters :project, :repository, :arch, :package, :filename
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-    if pkg and
-        (pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) or
-         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
-        @http_user.can_access_downloadbinany?(pkg)
+
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
+
+    # ACL: acces should be handled different
+    if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
@@ -168,11 +174,17 @@ class BuildController < ApplicationController
   def logfile
     valid_http_methods :get
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-    #logfile controled by binarydownload_flags and download_binary permission
-    if pkg and
-        (pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) or
-         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
-        @http_user.can_access_downloadbinany?(pkg)
+
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pkg and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
+
+    # ACL: acces should be handled different
+    # logfile controled by binarydownload_flags and download_binary permission
+    if pkg and pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
       return
@@ -184,19 +196,29 @@ class BuildController < ApplicationController
     valid_http_methods :get
     prj = DbProject.find_by_name params[:project]
     pkg = prj.find_package params[:package]
-    if prj and
-        (prj.disabled_for?('binarydownload', params[:repository], params[:arch]) or
-         prj.disabled_for?('access', params[:repository], params[:arch])) and not
-        @http_user.can_access_viewany?(prj)
-#     render_error :status => 403, :errorcode => "private_view_no_permission",
-#     :message => "No permission to view project #{params[:project]}"
+
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{params[:project]}'"
+      return
+    end
+
+    # ACL: binarydownload on for prj means behave like a binary only project
+    if prj and prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
       render_ok
       return
     end
-    if pkg and
-        (pkg.disabled_for?('privacy', params[:repository], params[:arch]) or
-         pkg.disabled_for?('access', params[:repository], params[:arch])) and not
-        @http_user.can_access_viewany?(pkg)
+
+    # ACL: in case of access, package is really hidden, e.g. does not get listed, accessing says package is not existing
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package '#{package_name}'"
+      return
+    end
+
+    # ACL: privacy on means again not listing files
+    if pkg and pkg.enabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
       render_ok
       return
     end
