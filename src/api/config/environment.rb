@@ -48,7 +48,7 @@ Rails::Initializer.run do |config|
   config.gem 'exception_notification'
 
   config.action_controller.session = {
-    :session_key => "_frontend_session",
+    :key => "_frontend_session",
     :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
   }
 

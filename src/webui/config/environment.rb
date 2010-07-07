@@ -29,7 +29,7 @@ init = Rails::Initializer.run do |config|
   config.action_controller.session_store = :active_record_store
   config.action_controller.session = {
     :prefix => "ruby_webclient_session",
-    :session_key => "opensuse_webclient_session",
+    :key => "opensuse_webclient_session",
     :secret => "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
   }
 
