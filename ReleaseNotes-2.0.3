@@ -1,0 +1,22 @@
+#
+# Release Notes for OBS 2.0.3
+#
+
+Updaters from 2.0.X can just update the packages and restart all services.
+Updaters from former releases need to check the 2.0.0 Release Notes file.
+
+Changes since 2.0.2:
+====================
+
+Changes:
+* webui: Updated list of default distributions, matching api.opensuse.org
+* api: OBS Appliance runs with enabled anonymous mode now by default
+* backend: sparc64 and sparv9 are sharing one build number pool by default now.
+
+Fixes:
+* api: correct permission handling when storing a request
+* api: fixed review handling of requests via groups
+* api: fixed aggregate schema validation, support unlimited repositories
+* api: fixed mbranch execution when having an Update project defined
+* backend: fix server side build of driver disks via kiwi
+* backend: handle request states correctly during review
