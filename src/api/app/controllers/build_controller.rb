@@ -2,6 +2,14 @@ class BuildController < ApplicationController
 
   def project_index
     valid_http_methods :get, :post, :put
+    prj = DbProject.find_by_name params[:project]
+
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{params[:project]}'"
+      return
+    end
 
     path = request.path
     unless request.query_string.empty?
@@ -88,6 +96,15 @@ class BuildController < ApplicationController
   def buildinfo
     valid_http_methods :get, :post
     required_parameters :project, :repository, :arch, :package
+    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
+      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+      :status => 404, :errorcode => "unknown_package"
+      return
+    end
+
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
       path += '?' + request.query_string
@@ -101,6 +118,14 @@ class BuildController < ApplicationController
   def package_index
     valid_http_methods :get
     required_parameters :project, :repository, :arch, :package
+    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
+      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+      :status => 404, :errorcode => "unknown_package"
+      return
+    end
     pass_to_backend
   end
 
@@ -111,9 +136,9 @@ class BuildController < ApplicationController
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
     # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_project',
-      :message => "Unknown project '#{project_name}'"
+    if pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
+      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+      :status => 404, :errorcode => "unknown_package"
       return
     end
 
@@ -177,8 +202,8 @@ class BuildController < ApplicationController
 
     # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
     if pkg and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_project',
-      :message => "Unknown project '#{project_name}'"
+      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+      :status => 404, :errorcode => "unknown_package"
       return
     end
 
@@ -212,8 +237,8 @@ class BuildController < ApplicationController
 
     # ACL: in case of access, package is really hidden, e.g. does not get listed, accessing says package is not existing
     if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package '#{package_name}'"
+      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+      :status => 404, :errorcode => "unknown_package"
       return
     end
 
