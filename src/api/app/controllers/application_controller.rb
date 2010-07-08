@@ -46,7 +46,9 @@ class ApplicationController < ActionController::Base
     logger.debug "Test backend started with pid: #{@@backend.pid}"
     while true do
       line = @@backend.gets
+      raise RuntimeError.new('Backend died') unless line
       break if line =~ /DONE NOW/
+      logger.debug line.strip
     end
     ActiveXML::Config.global_write_through = true
     at_exit do

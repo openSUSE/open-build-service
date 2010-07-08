@@ -4,22 +4,22 @@ require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 Thread.abort_on_exception = true
-srcsrv_out = nil
+frontend_out = nil
 logger = RAILS_DEFAULT_LOGGER
 
-srcsrv = Thread.new do
+frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
-  srcsrv_out = IO.popen("cd #{RAILS_ROOT}/../api; exec ./script/server -e test -p #{FRONTEND_PORT} 2>&1")
-  puts "API started with PID: #{srcsrv_out.pid}"
+  frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; exec ./script/server -e test -p #{FRONTEND_PORT} 2>&1")
+  puts "API started with PID: #{frontend_out.pid}"
   begin
-    Process.setpgid srcsrv_out.pid, 0
+    Process.setpgid frontend_out.pid, 0
   rescue Errno::EACCES
     # what to do?
     puts "Could not set API group to root"
   end
-  while srcsrv_out
+  while frontend_out
     begin
-      line = srcsrv_out.gets
+      line = frontend_out.gets
       logger.debug line.strip unless line.blank?
     rescue IOError
       break
@@ -33,7 +33,18 @@ while true
     Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
-      http.get('/')
+      res = http.get('/')
+      case res
+        when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
+          # OK
+        else
+          puts "API did not response nicely"
+          Process.kill "INT", -frontend_out.pid
+          frontend_out.close
+          frontend_out = nil
+          frontend.join
+          exit 1
+      end
     end
   rescue Errno::ECONNREFUSED, Timeout::Error
     sleep 1
@@ -54,9 +65,9 @@ while !dienow do
   sleep 1
 end
 
-puts "kill #{srcsrv_out.pid}"
-Process.kill "INT", -srcsrv_out.pid
+puts "kill #{frontend_out.pid}"
+Process.kill "INT", -frontend_out.pid
 
-srcsrv_out.close
-srcsrv_out = nil
-srcsrv.join
+frontend_out.close
+frontend_out = nil
+frontend.join

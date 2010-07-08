@@ -323,7 +323,9 @@ class ApplicationController < ActionController::Base
      puts "Starting test API with pid: #{@@frontend.pid}"
      while true do
          line = @@frontend.gets
+         raise RuntimeError.new('Frontend died') unless line
          break if line =~ /Test API ready/
+         logger.debug line.strip
     end
     puts "Test API up and running with pid: #{@@frontend.pid}"
     at_exit do
