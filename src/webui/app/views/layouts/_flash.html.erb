@@ -1,26 +1,41 @@
 
-<% unless flash.empty? %>
-  <div id="flash-messages" class="container_16" >
-    <% if flash[:success] or flash[:note] %>
-      <div class="ui-widget grid_16 alpha omega">
-        <div class="ui-state-highlight ui-corner-all ui-widget-shadow">
-          <p>
-            <span class="ui-icon ui-icon-info"/>
-            <%=h flash[:success] %><%=h flash[:note] %>
-          </p>
-        </div>
-      </div>
-    <% end %>
+<% unless flash.blank? %>
 
-    <% if flash[:warn] or flash[:error] %>
-      <div class="ui-widget grid_16 alpha omega">
-        <div class="ui-state-error ui-corner-all ui-widget-shadow">
-          <p>
-            <span class="ui-icon ui-icon-alert" />
-            <%=h flash[:warn] %><%=h flash[:error] %>
-          </p>
-        </div>
-      </div>
-    <% end %>
+  <div id="flash-messages" class="container_16" >
+    <div class="ui-widget grid_16 alpha omega">
+
+      <% [:success, :error, :warn, :note].each do |flash_type|
+        if (flash[flash_type] && !flash[flash_type].empty?)
+          case flash_type
+          when :error
+            flash_icon = "ui-icon-alert"
+            flash_header = 'ui-state-error'
+          when :warn
+            flash_icon = "ui-icon-alert"
+            flash_header = 'ui-state-error'
+          when :success
+            flash_icon = "ui-icon-info"
+            flash_header = 'ui-state-highlight'
+          when :note
+            flash_icon = "ui-icon-info"
+            flash_header = 'ui-state-highlight'
+          end %>
+
+          <%
+          body = flash[flash_type].gsub(/\n/, '<br/>')
+          body = sanitize body, :tags => %w(a b p ul li br u), :attributes => %w(href title)
+          %>
+
+          <div class="<%= flash_header %> ui-corner-all ui-widget-shadow">
+            <p>
+              <span class="ui-icon <%= flash_icon %>"/>
+              <%= body %>
+            </p>
+          </div>
+
+        <% end %>
+      <% end %>
+
+    </div>
   </div>
 <% end %>
