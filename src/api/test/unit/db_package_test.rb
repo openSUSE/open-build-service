@@ -112,4 +112,8 @@ class DbPackageTest < ActiveSupport::TestCase
     
   end
   
+  def test_rating
+     # pretty silly
+     assert_equal 0, @package.rating[:count]
+  end
 end

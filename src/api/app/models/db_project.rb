@@ -45,22 +45,6 @@ class DbProject < ActiveRecord::Base
       return dbp
     end
 
-    def get_repo_list
-      sql =<<-END_SQL
-      SELECT p.name AS project_name, r.name AS repo_name
-      FROM repositories r
-      LEFT JOIN db_projects p ON r.db_project_id = p.id
-      ORDER BY project_name
-      END_SQL
-
-      repolist = Repository.find_by_sql sql
-      result = []
-      repolist.each do |repo|
-        result << "#{repo.project_name}/#{repo.repo_name}"
-      end
-      result
-    end
-
     def find_remote_project(name)
       fragments = name.split(/:/)
       local_project = String.new
@@ -567,65 +551,6 @@ class DbProject < ActiveRecord::Base
       :db_project => self,
       :group => group,
       :role => role )
-  end
-
-
-  # returns true if the specified user is associated with that project. possible
-  # options are :login and :role
-  # example:
-
-  # proj.has_user? :login => "abauer", :role => "maintainer"
-  def has_user?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["purr"]
-
-    if opt.has_key? :login
-      cond_fragments << "bs_user_id = u.id"
-      cond_fragments << "u.login = ?"
-      cond_params << opt[:login]
-      join_fragments << "users u"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if ProjectUserRoleRelationship.find :first,
-      :select => "purr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
-  end
-
-  # proj.has_group? :title => "suse_review_team", :role => "maintainer"
-  def has_group?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["pgrr"]
-
-    if opt.has_key? :name
-      cond_fragments << "bs_group_id = g.id"
-      cond_fragments << "g.login = ?"
-      cond_params << opt[:name]
-      join_fragments << "group g"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if ProjectGroupRoleRelationship.find :first,
-      :select => "pgrr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
   end
 
   def each_user( opt={}, &block )

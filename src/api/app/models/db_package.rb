@@ -438,64 +438,6 @@ class DbPackage < ActiveRecord::Base
       :role => role )
   end
 
-  # returns true if the specified user is associated with that package. possible
-  # options are :login and :role
-  # example:
-  #
-  # proj.has_user? :login => "abauer", :role => "maintainer"
-  def has_user?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["purr"]
-
-    if opt.has_key? :login
-      cond_fragments << "bs_user_id = u.id"
-      cond_fragments << "u.login = ?"
-      cond_params << opt[:login]
-      join_fragments << "users u"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if PackageUserRoleRelationship.find :first,
-      :select => "purr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
-  end
-
-  def has_group?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["pgrr"]
-
-    if opt.has_key? :name
-      cond_fragments << "bs_group_id = g.id"
-      cond_fragments << "g.title = ?"
-      cond_params << opt[:name]
-      join_fragments << "group g"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if PackageGroupRoleRelationship.find :first,
-      :select => "pgrr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
-  end
-
-
   def each_user( opt={}, &block )
     users = User.find :all,
       :select => "bu.*, r.title AS role_name",

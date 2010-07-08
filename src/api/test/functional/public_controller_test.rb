@@ -65,4 +65,10 @@ class PublicControllerTest < ActionController::IntegrationTest
     # FIXME: do a working getbinary call
   end
 
+  def test_binaries
+    get "/public/binary_packages/home:tscholz/TestPack"
+    assert_response :success
+    # without binaries, there is little to test here
+    assert_tag :tag => 'package'
+  end
 end
