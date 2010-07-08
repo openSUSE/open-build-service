@@ -68,6 +68,8 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 1, @package.type_flags('build')[0].position
     assert_nil @package.type_flags('build')[0].db_project    
     assert_equal 'TestPack', @package.type_flags('build')[0].db_package.name
+    assert_equal true, @package.enabled_for?('build', '10.2', 'i586')
+    assert_equal false, @package.disabled_for?('build', '10.2', 'i586')
     
     assert_equal 1, @package.type_flags('publish').size
     assert_equal 'enable', @package.type_flags('publish')[0].status
