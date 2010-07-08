@@ -1,5 +1,6 @@
 <% @pagetitle = @package %>
 <% patchinfo_bread_crumb 'Patchinfo' -%>
+<%= render :partial => "package/tabs" %>
 
 <div class="section">
 <div class="box show_left show_right">
@@ -43,7 +44,11 @@
     <% i=0 %>
     <% @buglist.each do |a| %>
       <% a.each do |bug| %>
-        <%= bug.to_s%>
+        <% if defined? BUGZILLA_HOST %>
+          <%= link_to bug.to_s, "#{BUGZILLA_HOST}/show_bug.cgi?id=#{bug}" %>
+        <% else %>
+          <%= bug.to_s %>
+        <% end %>
       <%end%>
       |
       <% i=i+1 %>
@@ -56,25 +61,25 @@
 <tr>
   <th>Swamp-ID: </th>
   <td>
-    <%=@swampid%>
+    <%= @swampid %>
   </td> 
 </tr>
 <tr>
   <th>Category: </th>
   <td>
-    <%=@category%>
+    <%= @category %>
   </td>
 </tr>
 <tr>
   <th>Summary: </th>
   <td>
-    <%=@summary%>
+    <%= @summary %>
   </td>
 </tr>
 <tr>
   <th>Description: </th>
   <td>
-    <%=@description%>
+    <%= @description %>
   </td>
 </tr>
 <tr>

@@ -68,25 +68,28 @@
         </p>
       <%- end -%>
 
-      <div>
-        <% unless @current_requests.blank? %>
-          <div>
-            <p>
-              <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
-              <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project, :package => @package %>
-            </p>
-          </div>
-        <% end %>
 
-        <% if @failures and @failures > 0 %>
-          <div>
-            <p>
-              <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
-              <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
-            </p>
-          </div>
-        <% end %>
-      </div>
+      <% unless @current_requests.blank? %>
+        <p>
+          <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
+          <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project, :package => @package %>
+        </p>
+      <% end %>
+
+      <% if @failures and @failures > 0 %>
+        <p>
+          <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
+          <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+        </p>
+      <% end %>
+
+      <% if @package.name =~ %r{^_patchinfo} %>
+        <p>
+          <%= image_tag 'icons/information.png' %> This package creates a patchinfo used for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>.
+          Please use the <%= link_to 'wizard', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %> to edit it.
+        </p>
+      <% end %>
+
 
     </div>
   </div>

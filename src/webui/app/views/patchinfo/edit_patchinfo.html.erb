@@ -1,5 +1,6 @@
 <% @pagetitle = "Patchinfo-Editor" %>
 <% patchinfo_bread_crumb 'Patchinfo' -%>
+<%= render :partial => "package/tabs" %>
 
 
 <% content_for :content_for_head do %>
@@ -23,6 +24,7 @@
         <th>Packager: </th>
         <td>
           <%=@packager%>
+          <%= hidden_field_tag "packager", @packager %>
         </td>
         <td></td>
       </tr>
@@ -44,8 +46,8 @@
             <% i=0 %>
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
               <div id="bug_<%= bug %>">
-                <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
-                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
+                <%= hidden_field_tag "bug[]", bug, :id => "bugvalue_#{bug}" %><%= bug.to_s %>
+                <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
                 <% i=i+1 %>
                 <%= "<br/>" if i.modulo(3) == 0 %>
               </div>

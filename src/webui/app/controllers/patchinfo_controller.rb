@@ -1,5 +1,6 @@
 class PatchinfoController < ApplicationController
   before_filter :requires
+  helper :package
 
   def edit_patchinfo
     read_patchinfo
@@ -22,11 +23,11 @@ class PatchinfoController < ApplicationController
   end  
 
   def read_patchinfo
-    logger.debug( "PATCHINFO: #{@patchinfo}" )
+    logger.debug( "PATCHINFO: #{@file.data}" )
     @binaries = Array.new
     @file.each_binary do |binaries|
       @binaries << binaries.text
-    end     
+    end
     @binary = []
     @rating = []
     @packager = @file.packager.to_s
@@ -68,32 +69,32 @@ class PatchinfoController < ApplicationController
   def save
     filename = "_patchinfo"
     valid_params = true 
-    if params[:commit] == "Save Patchinfo"
       if request.method != :post
         flash[:warn] = "Saving Patchinfo failed because this was no POST request. " +
           "This probably happened because you were logged out in between. Please try again."
         redirect_to :controller => "patchinfo", :action => "create", :project => @project, :package => @package
       end
       required_parameters :project, :package
-      file = @file.data
+      flash[:error] = ""
       if !valid_bugzilla_number? params[:bug]
         valid_params = false
-        flash[:error] = "|| Invalid bugzilla number: '#{params[:bugid]}'"
+        flash[:error] = "Contains invalid bugzilla number.\n"
       end
       if !valid_swampid? params[:swampid]
         valid_params = false
-        flash[:error] = "#{flash[:error]}" + " || Invalid swampid: '#{params[:swampid]}'"
+        flash[:error] = "#{flash[:error]}Invalid swampid: '#{params[:swampid]}'\n"
       end
       if !valid_summary? params[:summary]
         valid_params = false
-        flash[:error] = "#{flash[:error]}" + " || Summary is too short (should have more than 10 signs)"
+        flash[:error] = "#{flash[:error]}Summary is too short (should have more than 10 characters)\n"
       end
       if !valid_description? params[:description]
         valid_params = false
-        flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 100 signs and longer than summary)"
+        flash[:error] = "#{flash[:error]}Description is too short (should have more than 100 characters and longer than summary)"
       end
       if valid_params == true
         name = "binary"
+        packager = params[:packager]
         binaries = params[:binaries]
         relogin = params[:relogin]
         reboot = params[:reboot]
@@ -110,22 +111,15 @@ class PatchinfoController < ApplicationController
         @patchinfo = @patchinfo.data.to_s
         @patchinfo.gsub!( /\r\n/, "\n" )
         begin
-          frontend.put_file( @patchinfo, :project => @project,
-            :package => @package,:filename => filename,
-            :category => [:category], :bug => [:bug],
-            :binarylist => [:binarylist],
-            :binaries => [:binaries], :swampid => [:swampid],
-            :summary => [:summary], :description => [:description],
-            :relogin => [:relogin], :reboot => [:reboot])
-          flash[:note] = "Successfully saved file #{filename}"
+          frontend.put_file( @patchinfo, :project => @project, :package => @package, :filename => filename)
+          flash[:note] = "Successfully saved patchinfo."
         rescue Timeout::Error => e
           flash[:error] = "Timeout when saving file. Please try again."
         end
-        opt = {:controller => "project", :action => "show", :project => @project.name }
-        redirect_to opt
+        redirect_to :controller => "package", :action => "show", :project => @project, :package => @package and return
       end
       if valid_params == false
-        debugger
+        @packager = params[:packager]
         @binaries = params[:binaries]
         @buglist = params[:bug]
         @category = params[:category]
@@ -136,7 +130,6 @@ class PatchinfoController < ApplicationController
         @reboot = params[:reboot]
         render :action => "edit_patchinfo", :project => @project, :package => @package
       end
-    end
   end
  
   def remove
@@ -155,9 +148,9 @@ class PatchinfoController < ApplicationController
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end
  
-  def valid_bugzilla_number? name
-    name.each do |bug|
-      bug =~ /^\d{6,8}$/
+  def valid_bugzilla_number? bugids
+    bugids.each do |bug|
+      return false unless bug =~ /^\d{6,8}$/
     end
   end
 
