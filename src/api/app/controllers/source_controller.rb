@@ -343,6 +343,19 @@ class SourceController < ApplicationController
       end
     end
 
+    # ACL: in case of access, project or package is really hidden
+    if @attribute_container and (@attribute_container.disabled_for?('access', nil, nil) and not @http_user.can_access?(@attribute_container))
+      if params[:package]
+        render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+        :status => 404, :errorcode => "unknown_package"
+        return
+      else
+        render_error :message => "Unknown project '#{params[:project]}'",
+        :status => 404, :errorcode => "unknown_project"
+        return
+      end
+    end
+
     # is the attribute type defined at all ?
     if params[:attribute]
       at = AttribType.find_by_name(params[:attribute])
@@ -447,6 +460,13 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL: in case of access, project or package is really hidden
+    if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "unknown_project"
+      return
+    end
+
     if request.get?
       pass_to_backend
     else
@@ -474,12 +494,20 @@ class SourceController < ApplicationController
   def index_pattern
     valid_http_methods :get
 
-    unless DbProject.find_by_name(params[:project])
+    @project = DbProject.find_by_name(params[:project])
+    unless @project
       render_error :message => "Unknown project '#{params[:project]}'",
         :status => 404, :errorcode => "unknown_project"
       return
     end
     
+    # ACL: in case of access, project or package is really hidden
+    if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "unknown_project"
+      return
+    end
+
     pass_to_backend
   end
 
@@ -574,14 +602,14 @@ class SourceController < ApplicationController
   def project_config
     valid_http_methods :get, :put
 
-    return unless extract_user
-
     #check if project exists
     unless (@project = DbProject.find_by_name(params[:project]))
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
       return
     end
+
+    return unless extract_user
 
     #assemble path for backend
     params[:user] = @http_user.login
@@ -633,6 +661,13 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL: in case of access, project or package is really hidden
+    if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "unknown_project"
+      return
+    end
+
     if request.get?
       pass_to_backend path
     elsif request.delete?
@@ -652,6 +687,13 @@ class SourceController < ApplicationController
     allowed = false
     # Try to fetch the package to see if it already exists
     @package = Package.find( package_name, :project => project_name )
+
+    # ACL: in case of access, project or package is really hidden
+    if @package and @package.disabled_for?('access', nil, nil) and not @http_user.can_access?(@package)
+      render_error :message => "Unknown package '#{project_name}/#{package_name}'",
+      :status => 404, :errorcode => "unknown_package"
+      return
+    end
 
     if @package
       # Being here means that the package already exists
@@ -786,7 +828,7 @@ class SourceController < ApplicationController
 
     # ACL: acces behaves like project not existing
     if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
-      render_error :status => 403, :errorcode => 'not_found',
+      render_error :status => 404, :errorcode => 'not_found',
       :message => "The given package #{package_name} does not exist in project #{project_name}"
       return
     end
@@ -1182,6 +1224,13 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL: acces behaves like package / project not existing
+    if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
@@ -1225,6 +1274,20 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL: acces behaves like package / project not existing
+    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{pkg_name} in project #{prj_name}"
+      return
+    end
+
+    # ACL: source access gives permisson denied
+    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_access_downloadsrcany?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
+      return
+    end
+
     #convert link to branch
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
@@ -1263,6 +1326,20 @@ class SourceController < ApplicationController
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj.name}"
+      return
+    end
+
+    # ACL: acces behaves like project not existing
+    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{pkg_name} in project #{prj.name}"
+      return
+    end
+
+    # ACL: source access gives permisson denied
+    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_access_downloadsrcany?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
       return
     end
 
@@ -1395,6 +1472,14 @@ class SourceController < ApplicationController
         :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
     end
+
+    # ACL: acces behaves like project not existing
+    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => "unknown_package",
+      :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
+      return
+    end
+
     # first remove former flags of the same class
     begin
       pkg.remove_flag(params[:flag], params[:repository], params[:arch])
@@ -1443,6 +1528,12 @@ class SourceController < ApplicationController
     prj = DbProject.find_by_name prj_name
     pkg = prj.find_package( pkg_name )
     if pkg.nil?
+      render_error :status => 404, :errorcode => "unknown_package",
+        :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
+      return
+    end
+    # ACL: acces behaves like project not existing
+    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
