@@ -7,7 +7,7 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '>=2.3.5' unless defined? RAILS_GEM_VERSION
 
 require "common/libxmlactivexml"
 require 'custom_logger'
@@ -46,7 +46,7 @@ Rails::Initializer.run do |config|
   config.gem 'exception_notification'
 
   config.action_controller.session = {
-    :session_key => "_frontend_session",
+    :key => "_frontend_session",
     :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
   }
 
