@@ -140,7 +140,7 @@
           if shortname.length > 19
             shortname = shortname[0..17] + "..."
           end -%>
-          <td class="nowrap">
+          <td class="nowrap sortable">
             <% if icon == "error"  -%>
               <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
             <% elsif icon == "ok" -%>
@@ -148,12 +148,13 @@
             <% else -%>
               <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
             <% end -%>
-            <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
+            <%= link_to h(shortname), :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
+            <span class="sortkey"><%= h p['name'] %></span>
           </td>
           <%if show_devel_project  %>
-            <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
+            <td class="sortable"><span class="sortkey"><%= h p['develproject'] %></span><%= if p['develproject'] then link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
           <% end %>
-          <td class="summary"><%= outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
+          <td class="sortable"><%= outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
         </tr>
       <% end %>
     </tbody>

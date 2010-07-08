@@ -197,7 +197,7 @@ function projectStatusReady() {
         widgets: ['zebra'],
         textExtraction: function(node) {
             // extract data from markup and return it
-            if ($(node).is(".summary")) {
+            if ($(node).is(".sortable")) {
                 return $(node).children(".sortkey:first").html();
             } else {
                 return node.innerHTML;
