@@ -749,7 +749,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4/kdelibs4?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post "/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
@@ -843,7 +843,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4/kdelibs4?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
@@ -890,7 +890,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4/kdelibs4?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
