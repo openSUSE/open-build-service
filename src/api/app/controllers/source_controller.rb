@@ -56,14 +56,14 @@ class SourceController < ApplicationController
         if pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
           render_error :status => 404, :errorcode => 'unknown_project',
           :message => "Unknown project '#{project_name}'"
-          return
         # ACL: in case of privacy, this behaves like a binary project when accessor has no permission
         elsif pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
           @dir = Package.find :all, :project => project_name
           render :text => @dir.dump_xml, :content_type => "text/xml"
-          return
+        else
+          # ACL: private projects appear as empty (FIXME)
+          render :text => '<directory count="0"></directory>', :content_type => "text/xml"
         end
-        render_ok
       end
       return
     elsif request.delete?
