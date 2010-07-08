@@ -68,7 +68,15 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
-      :children => { :only => { :tag => "entry" } }
+      :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
+ 
+    # now testing if also others can see it
+    prepare_request_with_user "tscholz", "asdfasdf"
+    assert_response :success
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
+
   end
   
   def test_get_package_meta
@@ -82,7 +90,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def test_invalid_user
     prepare_request_with_user "king123", "sunflower"
     get "/source/kde4/_meta"
-    assert_response 200
+    assert_response :success
   end
   
   def test_valid_user
@@ -901,6 +909,25 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal original, @response.body
 
     get "/source/home:tscholz/_meta?view=flagdetails"
+    assert_response :success
+  end
+
+  def test_wild_chars
+    prepare_request_with_user "tscholz", "asdfasdf"
+    get "/source/home:tscholz/TestPack"
+    assert_response :success
+   
+    Suse::Backend.put( '/source/home:tscholz/TestPack/bnc#620675.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
+    assert_response :success
+
+    get "/source/home:tscholz/TestPack"
+    assert_response :success
+
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "bnc#620675.diff" } } }
+
+    get "/source/home:tscholz/TestPack/bnc#620675.diff"
     assert_response :success
   end
 
