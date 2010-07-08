@@ -6,8 +6,11 @@ class GroupsUser < ActiveRecord::Base
     unless self.user
       errors.add "Can not assign groups to nonexistent user"
     end
-
-    if GroupsUser.find(:first, :conditions => ["user_id = ? AND group_id = ?", self.group, self.user])
+    unless self.group
+      errors.add "Need a group to assign users"
+    end
+    return unless errors.empty?
+    if GroupsUser.find(:first, :conditions => ["user_id = ? AND group_id = ?", self.user, self.group])
       errors.add "User already has this group"
     end
   end
