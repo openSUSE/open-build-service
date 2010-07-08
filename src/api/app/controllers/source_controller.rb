@@ -723,7 +723,7 @@ class SourceController < ApplicationController
     package_name = params[:package]
     file = params[:file]
 
-    path = "/source/#{project_name}/#{package_name}/#{file}"
+    path = "/source/#{project_name}/#{package_name}/#{CGI.escape(file)}"
 
     if request.get?
       path += build_query_from_hash(params, [:rev, :meta])
