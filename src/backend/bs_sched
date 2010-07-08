@@ -1392,7 +1392,13 @@ sub update_project_meta {
   return 0 unless identical($proj->{'build'}, $oldproj->{'build'});
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
-  # XXX: should really also compare build type and macros section of build config
+
+  # check macro definitions
+  my $cold = Build::read_config($myarch, split("\n", $oldproj->{'config'} || ''));
+  my $cnew = Build::read_config($myarch, split("\n", $proj->{'config'} || ''));
+  return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
+
+  # XXX: should really also compare build type
   $projpacks->{$projid} = $proj;
   return 1;
 }
