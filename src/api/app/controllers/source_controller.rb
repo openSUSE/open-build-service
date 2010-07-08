@@ -574,14 +574,14 @@ class SourceController < ApplicationController
   def project_config
     valid_http_methods :get, :put
 
+    return unless extract_user
+
     #check if project exists
     unless (@project = DbProject.find_by_name(params[:project]))
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
       return
     end
-
-    return unless extract_user
 
     #assemble path for backend
     params[:user] = @http_user.login

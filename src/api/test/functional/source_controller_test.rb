@@ -90,7 +90,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def test_invalid_user
     prepare_request_with_user "king123", "sunflower"
     get "/source/kde4/_meta"
-    assert_response :success
+    assert_response 401
   end
   
   def test_valid_user
@@ -589,11 +589,12 @@ class SourceControllerTest < ActionController::IntegrationTest
   def test_prjconf
     ActionController::IntegrationTest::reset_auth 
     get url_for(:controller => :source, :action => :project_config, :project => "DoesNotExist")
+    assert_response 401
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    get url_for(:controller => :source, :action => :project_config, :project => "DoesNotExist")
     assert_response 404
     get url_for(:controller => :source, :action => :project_config, :project => "kde4")
     assert_response :success
-    put url_for(:controller => :source, :action => :project_config, :project => "kde4"), "Substitute: nix da"
-    assert_response 401
 
     prepare_request_with_user "adrian_nobody", "so_alone"
     put url_for(:controller => :source, :action => :project_config, :project => "kde4"), "Substitute: nix da"
