@@ -1,0 +1,7 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+kdelibs_nobody_maintainer:
+  db_package_id: 1
+  bs_group_id: 99
+  role_id: 2
+
