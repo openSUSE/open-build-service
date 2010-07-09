@@ -93,7 +93,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   # <<< Testing HiddenProject - flag "access" set to "disabled"
 
   # >>> Testing package inside HiddenProject - flag "access" set to "disabled" in Project
-  def test_search_hidden_project_with_valid_user
+  def test_search_package_in_hidden_project_with_valid_user
     # user is maintainer, thus access to hidden package is allowed
     prepare_request_with_user "adrian", "so_alone"
     get "/search/package", :match => '[@name="pack" and @project="HiddenProject"]'
@@ -101,7 +101,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'collection', :children => { :count => 1 }
     assert_tag :child => { :tag => 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
   end
-  def test_search_hidden_project_with_invalid_user
+  def test_search_package_in_hidden_project_with_invalid_user
     # user is not maintainer - package has to be invisible
     prepare_request_with_user "tscholz", "asdfasdf"
     get "/search/package", :match => '[@name="pack" and @project="HiddenProject"]'
