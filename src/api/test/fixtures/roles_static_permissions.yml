@@ -59,3 +59,19 @@ maintainer_9:
 maintainer_10:
   role_id:              2
   static_permission_id: 10
+
+maintainer_11:
+  role_id:              2
+  static_permission_id: 11
+
+maintainer_12:
+  role_id:              2
+  static_permission_id: 12
+
+maintainer_13:
+  role_id:              2
+  static_permission_id: 13
+
+maintainer_16:
+  role_id:              2
+  static_permission_id: 16
