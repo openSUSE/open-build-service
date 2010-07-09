@@ -75,6 +75,12 @@ class PackageController < ApplicationController
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
     end
+    logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
+    # little trick to give users eager to download binaries a single click
+    if request.format != Mime::HTML and @durl
+      redirect_to @durl
+      return
+    end
   end
 
   def binaries
