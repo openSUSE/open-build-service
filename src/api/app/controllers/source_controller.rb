@@ -4,7 +4,7 @@ class SourceController < ApplicationController
   validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
   validate_action :project_meta => :project, :package_meta => :package, :pattern_meta => :pattern
  
-  skip_before_filter :extract_user, :only => [:file, :project_meta, :project_config] 
+  skip_before_filter :extract_user, :only => [:file, :project_meta] 
 
   def index
     projectlist
@@ -609,8 +609,6 @@ class SourceController < ApplicationController
       return
     end
 
-    return unless extract_user
-
     #assemble path for backend
     params[:user] = @http_user.login
 
@@ -688,13 +686,6 @@ class SourceController < ApplicationController
     # Try to fetch the package to see if it already exists
     @package = Package.find( package_name, :project => project_name )
 
-    # ACL: in case of access, project or package is really hidden
-    if @package and @package.disabled_for?('access', nil, nil) and not @http_user.can_access?(@package)
-      render_error :message => "Unknown package '#{project_name}/#{package_name}'",
-      :status => 404, :errorcode => "unknown_package"
-      return
-    end
-
     if @package
       # Being here means that the package already exists
       allowed = permissions.package_change? @package
@@ -765,17 +756,16 @@ class SourceController < ApplicationController
       return
     end
 
+    pack = pro.find_package( package_name )
+
+    # ACL: in case of access, project is really hidden, accessing says project is not existing
+    if pack and (pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack))
+      render_error :message => "Unknown package '#{project_name}/#{package_name}'",
+      :status => 404, :errorcode => "unknown_package"
+      return
+    end
 
     if request.get?
-      pack = pro.find_package( package_name )
-
-      # ACL: in case of access, project is really hidden, accessing says project is not existing
-      if pack and (pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack))
-        render_error :status => 400, :errorcode => "invalid_package_name",
-          :message => "invalid package name '#{package_name}'"
-        return
-      end
-
       unless pack
         # check if this comes from a remote project, also true for _project package
         answer = Suse::Backend.get(request.path)
