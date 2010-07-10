@@ -38,6 +38,7 @@ tom_maintainer_tom:
   role_id: 3
 
 # for read access permissions
+# HiddenProject
 adrian_maintainer:
   db_project_id: 3000
   bs_user_id: 42
@@ -51,3 +52,8 @@ adrian3_downloader:
   bs_user_id: 44
   role_id: 5
 
+# ViewProtectedProject/privacy
+adrian_maintainer_viewprotect:
+  db_project_id: 3003
+  bs_user_id: 42
+  role_id: 3

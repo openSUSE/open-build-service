@@ -69,7 +69,8 @@ class SourceController < ApplicationController
       if params.has_key? :deleted
         pass_to_backend
       else
-        # ACL(index_project): in case of privacy, this behaves like a binary project when accessor has no permission
+        # ACL#1(index_project): in case of privacy, this behaves like a binary project when accessor has no permission
+        # tested in read_permission_test.rb, search_controller_test.rb
         if pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
           @dir = Package.find :all, :project => project_name
           render :text => @dir.dump_xml, :content_type => "text/xml"

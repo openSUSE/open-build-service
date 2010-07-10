@@ -4,6 +4,26 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
+  def setup
+    @controller = SourceController.new
+    @controller.start_test_backend
+
+    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
+    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
+    Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
+    Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
+    Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
+    Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
+    Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
+    Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
+
+    # ACL#2:
+    Suse::Backend.put( '/source/ViewprotectedProject/_meta', DbProject.find_by_name('ViewprotectedProject').to_axml)
+    Suse::Backend.put( '/source/ViewprotectedProject/pack/_meta', DbPackage.find_by_project_and_name("ViewprotectedProject", "pack").to_axml)
+    Suse::Backend.put( '/source/ViewprotectedProject/pack/my_file', "Protected Content")
+
+  end
+
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -921,5 +941,52 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/home:tscholz/TestPack/bnc#620675.diff"
     assert_response :success
   end
+  # >>> ACL
+  def do_read_access_project(user, pass, targetproject, response)
+    ActionController::IntegrationTest::reset_auth 
+    prepare_request_with_user user, pass
+    get "/source/#{targetproject}/_meta"
+    assert_response response
+    get "/source/#{targetproject}"
+  end
+  def do_read_access_package(user, pass, targetproject, package, response)
+    assert_response response
+    get "/source/#{targetproject}/pack"
+#    print "\n #{@response.body}\n"
+    assert_response response
+    get "/source/#{targetproject}/pack/_meta"
+#    print "\n #{@response.body}\n"
+    assert_response response
+    get "/source/#{targetproject}/pack/my_file"
+#    print "\n #{@response.body}\n"
+    assert_response response
+  end
+  protected :do_read_access_project
+  protected :do_read_access_package
+
+  # >>> ACL#2: privacy flag. behaves like binary-only project
+  def test_privacy_project_maintainer
+    # maintainer has full access
+    do_read_access_project("adrian", "so_alone", "ViewprotectedProject", :success)
+    # we reuse the listing here, valid-user -> pack visible
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory", :children => { :count => 1 }
+    assert_tag :child => { :tag => "entry", :attributes => { :name => "pack" } }
+    do_read_access_package("adrian", "so_alone", "ViewprotectedProject", "pack", :success)
+  end
+  def test_privacy_project_invalid_user
+    do_read_access_project("tscholz", "asdfasdf", "ViewprotectedProject", :success)
+    # we reuse the listing here, invalid-user -> no packages visible
+    assert_tag :tag => "directory", :children => { :count => 0 }
+    # this should fail !
+    puts "\n This test should fail! We need to verify the logic! \n"
+    do_read_access_package("tscholz", "asdfasdf", "ViewprotectedProject", "pack", 404)
+  end
+  # TODO
+  # * fetch binaries
+  # ** maitainer +
+  # ** other user +
+  # * search 
+  # <<< ACL#2: privacy flag. behaves like binary-only project
 
 end
