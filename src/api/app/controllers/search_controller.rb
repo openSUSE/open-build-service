@@ -68,7 +68,7 @@ class SearchController < ApplicationController
        p = item
       end
 
-      # ACL(search): 'acces' hides a project/package
+      # ACL(search): 'access' hides a project/package
       if p.enabled_for?('access', nil, nil) or @http_user.can_access?(item)
         str = (render_all ? item.to_axml : item.to_axml_id)
         output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"

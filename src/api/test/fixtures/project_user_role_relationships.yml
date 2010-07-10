@@ -3,51 +3,51 @@ kde4_fred_maintainer:
   id: 1
   db_project_id: 2
   bs_user_id: 1
-  role_id: 2
+  role_id: 3
 
 kde4_fredlibs_maintainer:
   id: 2
   db_project_id: 2
   bs_user_id: 4
-  role_id: 2
+  role_id: 3
 
 kde4_king_maintainer:
   id: 3
   db_project_id: 2
   bs_user_id: 2
-  role_id: 2
+  role_id: 3
 
 home_maintainer:
   db_project_id: 502
   bs_user_id: 267
-  role_id: 2
+  role_id: 3
 
 tom_maintainer_coolo:
   db_project_id: 600
   bs_user_id: 3
-  role_id: 2 
+  role_id: 3 
 
 tom_maintainer_coolo_2:
   db_project_id: 601
   bs_user_id: 3
-  role_id: 2
+  role_id: 3
 
 tom_maintainer_tom:
   db_project_id: 1001
   bs_user_id: 3
-  role_id: 2
+  role_id: 3
 
 # for read access permissions
 adrian_maintainer:
   db_project_id: 3000
   bs_user_id: 42
-  role_id: 2
+  role_id: 3
 adrian2_reader:
   db_project_id: 3000
   bs_user_id: 43
-  role_id: 5
+  role_id: 7
 adrian3_downloader:
   db_project_id: 3000
   bs_user_id: 44
-  role_id: 6
+  role_id: 5
 
