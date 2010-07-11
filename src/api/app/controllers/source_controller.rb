@@ -24,6 +24,7 @@ class SourceController < ApplicationController
         end
       else
         dir = Project.find :all
+        # ACL: projects with flag 'access' are not listed
         accessprjs = DbProject.find_by_sql("select p.name from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
         accessprjs.each do |prj|
           dir.delete_element(p) if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
@@ -36,6 +37,12 @@ class SourceController < ApplicationController
   def index_project
     project_name = params[:project]
     pro = DbProject.find_by_name project_name
+    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
     if pro.nil?
       unless params[:cmd] == "undelete"
         render_error :status => 404, :errorcode => 'unknown_project',
@@ -52,12 +59,8 @@ class SourceController < ApplicationController
       if params.has_key? :deleted
         pass_to_backend
       else
-        # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-        if pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
-          render_error :status => 404, :errorcode => 'unknown_project',
-          :message => "Unknown project '#{project_name}'"
         # ACL: in case of privacy, this behaves like a binary project when accessor has no permission
-        elsif pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
+        if pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
           @dir = Package.find :all, :project => project_name
           render :text => @dir.dump_xml, :content_type => "text/xml"
         else
@@ -824,7 +827,7 @@ class SourceController < ApplicationController
     end
 
     # ACL: source access gives permisson denied
-    if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_access_downloadsrcany?(pack)
+    if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
       return
@@ -1272,7 +1275,7 @@ class SourceController < ApplicationController
     end
 
     # ACL: source access gives permisson denied
-    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_access_downloadsrcany?(pkg)
+    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
       return
@@ -1327,7 +1330,7 @@ class SourceController < ApplicationController
     end
 
     # ACL: source access gives permisson denied
-    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_access_downloadsrcany?(pkg)
+    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
       return
