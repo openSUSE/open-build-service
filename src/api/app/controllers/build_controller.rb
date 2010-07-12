@@ -220,6 +220,10 @@ class BuildController < ApplicationController
   def result
     valid_http_methods :get
     prj = DbProject.find_by_name params[:project]
+    if prj.nil?
+      pass_to_backend
+      return
+    end
     pkg = prj.find_package params[:package]
 
     # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
