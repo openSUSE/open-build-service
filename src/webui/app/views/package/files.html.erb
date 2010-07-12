@@ -64,7 +64,7 @@
               <% if file[:editable] %>
                 <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %>
               <% else %>
-                <%= file[:name] %>
+                <%= h file[:name] %>
               <% end %>
               <% if @link && @link.has_add_patch?( file[:name] ) %>
                 (Added Patch)
