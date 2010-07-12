@@ -56,6 +56,7 @@ namespace :config do
   task :symlink_shared_config do
     run "rm #{release_path}#{git_subdir}/config/options.yml"
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
+    run "ln -s #{shared_path}/secret.key #{release_path}#{git_subdir}/config/"
     run "rm -f #{release_path}#{git_subdir}/config/environments/production.rb"
     run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/"
     run "ln -s #{shared_path}/database.db #{release_path}#{git_subdir}/db/"
