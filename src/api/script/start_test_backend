@@ -132,6 +132,7 @@ Suse::Backend.put( '/source/kde4/kdebase/_meta', DbPackage.find_by_name('kdebase
 Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
 Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
 Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
+Suse::Backend.put( '/source/home:tom/_meta', DbProject.find_by_name('home:tom').to_axml)
 
 puts "DONE NOW"
 $stdout.flush

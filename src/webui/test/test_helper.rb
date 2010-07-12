@@ -19,6 +19,10 @@ module ActionController
     assert_equal "You are logged in now", @response.flash[:success]
   end
   
+  def logout
+    post '/user/logout'
+  end
+
   end
 end
 

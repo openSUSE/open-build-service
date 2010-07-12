@@ -446,6 +446,7 @@ class SpiderTest < ActionController::IntegrationTest
      do_spider(@response.body, '')
      @@errorurls = @errors.keys
      assert_equal Hash.new, @errors
+     logout
   end
 
   def test_2respider
@@ -455,5 +456,6 @@ class SpiderTest < ActionController::IntegrationTest
        get @@errorurls[0]
        assert_response :success
      end
+     logout
   end
 end
