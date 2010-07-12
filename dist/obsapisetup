@@ -52,10 +52,12 @@ case "$1" in
 		echo -n "Migrate OBS webui database"
         	cd $webuidir
 		RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+                dd if=/dev/urandom bs=128 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key
 		echo
 		echo -n "Migrate OBS api database"
         	cd $apidir
 		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+                dd if=/dev/urandom bs=128 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key
 		echo
 
                 cd $webuidir
