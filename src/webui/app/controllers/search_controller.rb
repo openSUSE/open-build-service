@@ -9,6 +9,8 @@ class SearchController < ApplicationController
 
   def search
 
+    required_parameters :search_text
+
     @search_text = params[:search_text]
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "")
     @attribute = params[:attribute]
