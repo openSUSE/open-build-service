@@ -6,10 +6,12 @@ class UserController < ApplicationController
   def logout
     logger.info "Logging out: #{session[:login]}"
     reset_session
+    @user = nil
     @return_to_path = "/"
     if ICHAIN_MODE == 'on'
       redirect_to '/cmd/ICSLogout'
     end
+    Person.free_cache session
   end
 
   def login
@@ -27,7 +29,7 @@ class UserController < ApplicationController
       session[:passwd] = params[:password]
       authenticate_form_auth
       begin
-        find_cached(Person, session[:login] )
+        Person.find( session[:login] )
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
         reset_session

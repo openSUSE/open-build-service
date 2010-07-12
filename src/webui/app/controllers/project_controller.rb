@@ -998,8 +998,14 @@ class ProjectController < ApplicationController
         if submits.has_key? key
           currentpack['requests_to'].concat(submits[key])
         end
-        currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
-        currentpack['develmd5'] ||= p.develpack.package.srcmd5
+        if p.develpack.has_element? 'package'
+          currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
+          currentpack['develmd5'] ||= p.develpack.package.srcmd5
+      
+          if p.develpack.package.has_element? :error
+             currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
+          end
+        end
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
           currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
@@ -1013,9 +1019,6 @@ class ProjectController < ApplicationController
               e.message
             end
           end
-        end
-        if p.develpack.package.has_element? :error
-          currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
         end
       elsif @current_develproject != no_project
         next if @current_develproject != all_packages

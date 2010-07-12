@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class WebratTest < ActionController::IntegrationTest
 
     def test_login
+      logout
       visit '/'
       click_link "Login"
       fill_in "Username", :with => "tom"

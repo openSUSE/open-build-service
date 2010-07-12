@@ -11,4 +11,7 @@ class ProjectControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def teardown
+    logout
+  end
 end
