@@ -7,30 +7,12 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def setup
     @controller = RequestController.new
- 
-    @tom = User.find_by_login("tom")
-    @tscholz = User.find_by_login("tscholz")
-
     @controller.start_test_backend
-    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
-    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
-    Suse::Backend.put( '/source/home:tscholz/TestPack/myfile', "DummyContent")
-    Suse::Backend.put( '/source/home:tscholz/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
-    Suse::Backend.put( '/source/home:tscholz:OldProject/_meta', DbProject.find_by_name('home:tscholz:OldProject').to_axml)
-    Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
-    Suse::Backend.put( '/source/kde4/kdebase/_meta', DbPackage.find_by_name('kdebase').to_axml)
-    Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
-    Suse::Backend.post( '/source/kde4/kdebase?cmd=commit', "")
 
+    Suse::Backend.post( '/source/kde4/kdebase?cmd=commit', "")
     Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
     Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
-    Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/myfile', "DummyContent")
     Suse::Backend.post( '/source/home:tscholz:branches:kde4/BranchPack?cmd=commit', "")
-  end
-
-  def teardown
-    Suse::Backend.delete( '/source/home:tscholz' )
-    Suse::Backend.delete( '/source/kde4' )
   end
 
   def test_set_and_get_1

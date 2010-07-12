@@ -5,17 +5,6 @@ class AttributeControllerTest < ActionController::IntegrationTest
   
   fixtures :all
 
-  def setup
-    @tom = User.find_by_login("tom")
-    @tscholz = User.find_by_login("tscholz")
-
-    @controller = SourceController.new
-    @controller.start_test_backend
-
-    Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
-    Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
-  end
-
   def test_index
     ActionController::IntegrationTest::reset_auth
     get "/attribute/"

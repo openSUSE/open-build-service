@@ -4,18 +4,6 @@ class SearchControllerTest < ActionController::IntegrationTest
   
   fixtures :all
 
-  def setup
-    @tom = User.find_by_login("tom")
-    @tscholz = User.find_by_login("tscholz")
-
-    @controller = SourceController.new
-    @controller.start_test_backend
-
-    Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
-    Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
-    Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
-  end
-
   def test_search_unknown
     ActionController::IntegrationTest::reset_auth
     get "/search/attribute?namespace=OBS&name=FailedCommend"

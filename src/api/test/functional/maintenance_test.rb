@@ -4,23 +4,6 @@ require 'source_controller'
 class MaintenanceTests < ActionController::IntegrationTest 
   fixtures :all
   
-  def setup
-    @controller = SourceController.new
-    @controller.start_test_backend
-
-    Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
-    Suse::Backend.put( '/source/BaseDistro:Update/_meta', DbProject.find_by_name('BaseDistro:Update').to_axml)
-    Suse::Backend.put( '/source/BaseDistro2/_meta', DbProject.find_by_name('BaseDistro2').to_axml)
-    Suse::Backend.put( '/source/BaseDistro2:LinkedUpdateProject/_meta', DbProject.find_by_name('BaseDistro2:LinkedUpdateProject').to_axml)
-    Suse::Backend.put( '/source/BaseDistro3/_meta', DbProject.find_by_name('BaseDistro3').to_axml)
-    Suse::Backend.put( '/source/home:adrian:BaseDistro/_meta', DbProject.find_by_name('home:adrian:BaseDistro').to_axml)
-    Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_name('pack1').to_axml)
-    Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_id('10097').to_axml)
-    Suse::Backend.put( '/source/BaseDistro:Update/pack2/_meta', DbPackage.find_by_id(10098).to_axml)
-    Suse::Backend.put( '/source/BaseDistro2/pack2/_meta', DbPackage.find_by_id(10099).to_axml)
-    Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', DbPackage.find_by_id('10094').to_axml)
-  end
-
   def test_branch_package
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"

@@ -6,13 +6,6 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def setup
     prepare_request_valid_user
-
-    @controller = BuildController.new
-    @controller.start_test_backend
-
-    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
-    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
-
   end
 
   def test_index

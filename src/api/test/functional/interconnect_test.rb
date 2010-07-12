@@ -5,24 +5,6 @@ class InterConnectTests < ActionController::IntegrationTest
 
   fixtures :all
    
-  def setup
-    @controller = SourceController.new
-    @controller.start_test_backend  
-
-    Suse::Backend.put( '/source/RemoteInstance/_meta', DbProject.find_by_name('RemoteInstance').to_axml)
-    Suse::Backend.put( '/source/UseRemoteInstance/_meta', DbProject.find_by_name('UseRemoteInstance').to_axml)
-
-    Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
-    Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack1").to_axml)
-    Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
-    Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack2").to_axml)
-    Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
-    Suse::Backend.put( '/source/LocalProject/_meta', DbProject.find_by_name('LocalProject').to_axml)
-    Suse::Backend.put( '/source/LocalProject/remotepackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "remotepackage").to_axml)
-    Suse::Backend.put( '/source/LocalProject/remotepackage/_link', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
-  end
-
-
   def test_basic_read_tests
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"

@@ -4,20 +4,6 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
-  def setup
-    @controller = SourceController.new
-    @controller.start_test_backend
-
-    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
-    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
-    Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
-    Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
-    Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
-    Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
-    Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
-    Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
-  end
-
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -413,7 +399,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs/my_patch.diff"
     assert_response :success
-    assert_equal( @response.body.to_s, "argl\n" )
+    assert_equal( @response.body.to_s, "argl" )
     
     get "/source/kde4/kdelibs/BLUB"
     #STDERR.puts(@response.body)
@@ -427,10 +413,14 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   def add_file_to_package
+    get "/source/kde4/kdelibs"
+    # before md5
+    assert_tag :tag => 'directory', :attributes => { :srcmd5 => "1636661d96a88cd985d82dc611ebd723" }
     teststring = '&;'
     put "/source/kde4/kdelibs/testfile", teststring
     assert_response :success
-    assert_select "revision > srcmd5", '325ed8671e5201c3a91639edf59547de'
+    # afterwards new md5
+    assert_select "revision > srcmd5", 'bc1d31b2403fa8925b257101b96196ec'
   
     get "/source/kde4/kdelibs/testfile"
     assert_response :success
@@ -649,7 +639,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /branch target package already exists/, @response.body
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response :success
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "1"
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
     assert_response 400
     assert_match /no such revision/, @response.body
     # FIXME: do a real commit and branch afterwards
@@ -918,7 +908,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/home:tscholz/TestPack"
     assert_response :success
    
-    Suse::Backend.put( '/source/home:tscholz/TestPack/bnc#620675.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
+    Suse::Backend.put( '/source/home:tscholz/TestPack/bnc#620675.diff', 'argl')
     assert_response :success
 
     get "/source/home:tscholz/TestPack"
