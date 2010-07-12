@@ -45,9 +45,15 @@ Rails::Initializer.run do |config|
   config.gem 'delayed_job'
   config.gem 'exception_notification'
 
+  # default secret
+  secret = "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+  if File.exist? "#{RAILS_ROOT}/config/secret.key"
+    file = File.open( "#{RAILS_ROOT}/config/secret.key", "r" )
+    secret = file.readline
+  end
   config.action_controller.session = {
     :key => "_frontend_session",
-    :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+    :secret => secret
   }
 
   # Enable page/fragment caching by setting a file-based store
