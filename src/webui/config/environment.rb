@@ -27,10 +27,16 @@ init = Rails::Initializer.run do |config|
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake create_sessions_table')
   config.action_controller.session_store = :active_record_store
+  # default secret
+  secret = "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+  if File.exist? "#{RAILS_ROOT}/config/secret.key"
+    file = File.open( "#{RAILS_ROOT}/config/secret.key", "r" )
+    secret = file.readline
+  end
   config.action_controller.session = {
     :prefix => "ruby_webclient_session",
     :key => "opensuse_webclient_session",
-    :secret => "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+    :secret => secret
   }
 
   # Enable page/fragment caching by setting a file-based store
