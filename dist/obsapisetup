@@ -49,10 +49,12 @@ case "$1" in
 			mysqladmin -u root password "opensuse"
         		cd $webuidir
 			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
-                        dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key
+                        ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
+			chown lighttpd.lighttpd config/secret.key
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
-                        dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key
+                        ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
+			chown lighttpd.lighttpd config/secret.key
 		else
 			echo
 			echo -n "Migrate OBS webui database"
