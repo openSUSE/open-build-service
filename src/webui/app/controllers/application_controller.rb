@@ -19,7 +19,7 @@ class ApplicationController < ActionController::Base
   end
 
   # Scrub sensitive parameters from your log
-  filter_parameter_logging :password
+  filter_parameter_logging :password unless Rails.env.test?
 
   class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end

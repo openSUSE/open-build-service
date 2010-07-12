@@ -3,6 +3,12 @@ require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 require 'action_controller/integration'
 
+require "webrat"
+
+Webrat.configure do |config|
+   config.mode = :rails
+end
+
 module ActionController
   class IntegrationTest
 
