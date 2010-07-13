@@ -497,7 +497,7 @@ sub getrev {
     }
     $rev = {'srcmd5' => 'empty'} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
-    return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
+    return undef unless -e "$projectsdir/$projid.pkg/$packid.rev" || -e "$projectsdir/$projid.pkg/$packid.mrev";
     $rev = {'srcmd5' => $rev, 'rev' => $rev};
   } elsif ($rev =~ /^[0-9a-f]{40}$/) {
     return getrev_git($projid, $packid, $rev);
@@ -2238,8 +2238,19 @@ sub getpackage {
   my ($cgi, $projid, $packid) = @_;
   my $proj = checkprojrepoarch($projid, undef, undef, 1);
   if ($proj->{'remoteurl'}) {
-    my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack);
+    my @args;
+    push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
+    my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
     return ($pack, $BSXML::pack);
+  }
+  if ($cgi->{'rev'}) {
+    # return the exact file here
+    # we also do not look at project links
+    my $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
+    my $files = lsrev($rev);
+    die("404 _meta: no such file\n") unless $files->{'_meta'};
+    my $meta = repreadstr($rev, '_meta', $files->{'_meta'});
+    return ($meta);
   }
   my $pack = readpack($projid, $packid, 1);
   if (!$pack && $proj->{'link'}) {
@@ -2252,10 +2263,8 @@ sub getpackage {
       my $lproj = readproj($lprojid, 1);
       $lproj = remoteprojid($lprojid) if !$lproj || $lproj->{'remoteurl'};
       if ($lproj->{'remoteurl'}) {
-	my @args;
-	push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
 	eval {
-	  $pack = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
+	  $pack = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack);
 	};
         die($@) if $@ && $@ !~ /^404/;
       } else {
