@@ -2020,7 +2020,7 @@ sub createkey {
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$uploaddir/signkey.$$", '-g', @keyargs , "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$uploaddir/signkey.$$", '-g', @keyargs, "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
   die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
@@ -2029,6 +2029,25 @@ sub createkey {
   # XXX: these are two commits...
   addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
   addrev_meta($cgi, $projid, undef, "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey');
+  return $BSStdServer::return_ok;
+}
+
+sub extendkey {
+  my ($cgi, $projid) = @_;
+  $cgi->{'comment'} ||= 'extend public key expiry date';
+  die("don't know how to extend a key\n") unless $BSConfig::sign;
+  die("project does not have a key\n") unless -s "$projectsdir/$projid.pkg/_pubkey";
+  die("project does not have a signkey\n") unless -s "$projectsdir/$projid.pkg/_signkey";
+  my @keyargs = ('800');
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  my $pubkey = '';
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-x', @keyargs, "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
+  1 while sysread(F, $pubkey, 4096, length($pubkey));
+  close(F) || die("$BSConfig::sign: $?\n");
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/pubkey.$$", undef, $pubkey);
+  addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
   return $BSStdServer::return_ok;
 }
 
@@ -4932,6 +4951,7 @@ my $dispatches = [
   '/source deleted:bool?' => \&getprojectlist,
 
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
+  'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project deleted:bool?' => \&getpackagelist,
