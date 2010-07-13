@@ -192,6 +192,7 @@ POST /source/<project>
 
   Multiple commands on processing sources in package. Possible commands are
   createkey: Generate a new gpg key. If the project already has an own gpg key, the old key is discarded.
+  extendkey: Extend the expiration date of gpg keys.
   undelete: undelete the project and all packages existing when the project got removed.
   
 
