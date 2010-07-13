@@ -7,12 +7,22 @@ class SourceController < ApplicationController
   skip_before_filter :extract_user, :only => [:file, :project_meta] 
 
   def index
+    # ACL(index): projects with flag 'access' are not listed
     projectlist
   end
 
   def projectlist
+    project_name = params[:project]
+
+    pro = DbProject.find_by_name project_name
+    # ACL(index_project): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
+
     if request.post?
-      # a bit danguerous, never implment a command without proper permission check
       dispatch_command
     elsif request.get?
       if params.has_key? :deleted
@@ -24,7 +34,7 @@ class SourceController < ApplicationController
         end
       else
         dir = Project.find :all
-        # ACL: projects with flag 'access' are not listed
+        # ACL(projectlist): projects with flag 'access' are not listed
         accessprjs = DbProject.find_by_sql("select p.name from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
         accessprjs.each do |prj|
           dir.delete_element(p) if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
@@ -37,7 +47,7 @@ class SourceController < ApplicationController
   def index_project
     project_name = params[:project]
     pro = DbProject.find_by_name project_name
-    # ACL: in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    # ACL(index_project): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
@@ -59,12 +69,12 @@ class SourceController < ApplicationController
       if params.has_key? :deleted
         pass_to_backend
       else
-        # ACL: in case of privacy, this behaves like a binary project when accessor has no permission
+        # ACL(index_project): in case of privacy, this behaves like a binary project when accessor has no permission
         if pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
           @dir = Package.find :all, :project => project_name
           render :text => @dir.dump_xml, :content_type => "text/xml"
         else
-          # ACL: private projects appear as empty (FIXME)
+          # ACL(index_project): private projects appear as empty (FIXME)
           render :text => '<directory count="0"></directory>', :content_type => "text/xml"
         end
       end
@@ -180,13 +190,19 @@ class SourceController < ApplicationController
   def index_package
     valid_http_methods :get, :delete, :post
     required_parameters :project, :package
-
     project_name = params[:project]
     package_name = params[:package]
     cmd = params[:cmd]
     deleted = params.has_key? :deleted
 
     prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
     unless prj
       if request.get?
         # Check if this is a package on a remote OBS instance
@@ -200,14 +216,7 @@ class SourceController < ApplicationController
         :message => "Unknown project '#{project_name}'"
       return
     end
-    pkg = prj.find_package(package_name)
-    # ACL: in case of access, package is really hidden and shown as non existant to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => "unknown_project",
-      :message => "Unknown project '#{project_name}'"
-      return
-    end
-    # ACL: if private view is on behave like pkg without any src files
+    # ACL(index_package): if private view is on behave like pkg without any src files
     if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
       render_ok
       return
@@ -296,6 +305,7 @@ class SourceController < ApplicationController
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
+    # ACL(update_product_autopackages) TODO: check if this needs to be instrumented
     backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
     frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "name LIKE '_product:%'")
@@ -346,7 +356,7 @@ class SourceController < ApplicationController
       end
     end
 
-    # ACL: in case of access, project or package is really hidden
+    # ACL(attribute_meta): in case of access, project or package is really hidden
     if @attribute_container and (@attribute_container.disabled_for?('access', nil, nil) and not @http_user.can_access?(@attribute_container))
       if params[:package]
         render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
@@ -463,7 +473,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL: in case of access, project or package is really hidden
+    # ACL(pattern_meta): in case of access, project or package is really hidden
     if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
       render_error :message => "Unknown project '#{params[:project]}'",
       :status => 404, :errorcode => "unknown_project"
@@ -504,7 +514,7 @@ class SourceController < ApplicationController
       return
     end
     
-    # ACL: in case of access, project or package is really hidden
+    # ACL(index_pattern): in case of access, project or package is really hidden
     if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
       render_error :message => "Unknown project '#{params[:project]}'",
       :status => 404, :errorcode => "unknown_project"
@@ -523,11 +533,15 @@ class SourceController < ApplicationController
     return unless extract_user
     params[:user] = @http_user.login
 
+    @project = DbProject.find_by_name( project_name )
+    # ACL(project_meta): if access is set, this behaves like project non existing
+    if @project and (@project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project))
+      render_error :message => "Unknown project '#{project_name}'",
+      :status => 404, :errorcode => "unknown_project"
+      return
+    end
     if request.get?
-      @project = DbProject.find_by_name( project_name )
-
-      # ACL: if access is set, this behaves like project non existing
-      if @project and (@project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project))
+      if @project.nil?
         render_error :message => "Unknown project '#{project_name}'",
           :status => 404, :errorcode => "unknown_project"
         return
@@ -615,7 +629,7 @@ class SourceController < ApplicationController
     #assemble path for backend
     params[:user] = @http_user.login
 
-    # ACL: in case of access, project is really hidden, accessing says project is not existing
+    # ACL(project_config): in case of access, project is really hidden, accessing says project is not existing
     if @project and (@project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project))
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
@@ -662,7 +676,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL: in case of access, project or package is really hidden
+    # ACL(project_pubkey): in case of access, project or package is really hidden
     if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
       render_error :message => "Unknown project '#{params[:project]}'",
       :status => 404, :errorcode => "unknown_project"
@@ -685,6 +699,7 @@ class SourceController < ApplicationController
   end
 
   def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
+    # ACL(update_package_meta) TODO: check if this needs to be instrumented
     allowed = false
     # Try to fetch the package to see if it already exists
     @package = Package.find( package_name, :project => project_name )
@@ -761,7 +776,7 @@ class SourceController < ApplicationController
 
     pack = pro.find_package( package_name )
 
-    # ACL: in case of access, project is really hidden, accessing says project is not existing
+    # ACL(package_meta): in case of access, project is really hidden, accessing says project is not existing
     if pack and (pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack))
       render_error :message => "Unknown package '#{project_name}/#{package_name}'",
       :status => 404, :errorcode => "unknown_package"
@@ -799,6 +814,12 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login
 
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
+    # ACL(file): acces behaves like project not existing
+    if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+      render_error :status => 404, :errorcode => 'not_found',
+      :message => "The given package #{package_name} does not exist in project #{project_name}"
+      return
+    end
 
     if package_name == "_project"
       allowed = permissions.project_change? project_name
@@ -819,26 +840,21 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
     end
 
-    # ACL: acces behaves like project not existing
-    if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
-      render_error :status => 404, :errorcode => 'not_found',
-      :message => "The given package #{package_name} does not exist in project #{project_name}"
-      return
-    end
-
-    # ACL: source access gives permisson denied
+    # ACL(file): source access gives permisson denied
     if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
       return
     end
 
+    # ACL(file) TODO: lookup via :rev can circumvent access control because all files are shared via MD5SUM in sources DB
     if request.get?
       path += build_query_from_hash(params, [:rev])
       pass_to_backend path
       return
     end
 
+    # ACL(file) TODO: validate if a link is created in the backend to hidden source files
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
       
@@ -896,6 +912,7 @@ class SourceController < ApplicationController
       mparams[:target_project] += ":#{params[:package]}" if params[:package]
     end
 
+    # ACL(index_branch) TODO: check if branching is a security violation for access
     # permission check
     unless @http_user.can_create_project?(mparams[:target_project])
       render_error :status => 403, :errorcode => "create_project_no_permission",
@@ -1001,20 +1018,38 @@ class SourceController < ApplicationController
     render_ok :data => {:targetproject => mparams[:target_project]}
   end
 
-  # POST /source/<project>?cmd=extendkey
+    # POST /source/<project>?cmd=extendkey
   def index_project_extendkey
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+
+    pro = DbProject.find_by_name project_name
+    # ACL(index_project_extendkey): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
     pass_to_backend path
   end
 
-  # POST /source/<project>?cmd=createkey
+    # POST /source/<project>?cmd=createkey
   def index_project_createkey
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+
+    pro = DbProject.find_by_name project_name
+    # ACL(index_project_createkey): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
@@ -1025,6 +1060,15 @@ class SourceController < ApplicationController
   def index_project_undelete
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+
+    pro = DbProject.find_by_name project_name
+    # ACL(index_project_undelete): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
@@ -1033,6 +1077,16 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
+    project_name = params[:project]
+
+    pro = DbProject.find_by_name project_name
+    # ACL(index_project_createpatchinfo): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
+
     name=""
     if params[:name]
       name=params[:name] if params[:name]
@@ -1085,6 +1139,7 @@ class SourceController < ApplicationController
   end
 
   def list_all_binaries_in_path path
+    # ACL(list_all_binaries_in_path) TODO: check if this needs to be instrumented
     d = backend_get(path)
     data = REXML::Document.new(d)
     binaries = []
@@ -1110,6 +1165,17 @@ class SourceController < ApplicationController
   def index_package_undelete
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_undelete): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
@@ -1118,6 +1184,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
   def index_package_createSpecFileTemplate
+    # ACL(index_package_createSpecFileTemplate) TODO: check if this needs access check
     specfile_path = "#{request.path}/#{params[:package]}.spec"
     begin
       backend_get( specfile_path )
@@ -1138,9 +1205,17 @@ class SourceController < ApplicationController
     repo_name = params[:repo]
     arch_name = params[:arch]
 
+    p = DbProject.find_by_name(project_name)
+    pkg = p.find_package(package_name)
+    # ACL(index_package_rebuild): in case of access, project is really hidden and shown as non existing to users without access
+    if pkg.nil? and p and p.disabled_for?('access', repo_name, arch_name) and not @http_user.can_access?(p)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{project_name}'"
+      return
+    end
+
     path = "/build/#{project_name}?cmd=rebuild&package=#{package_name}"
     
-    p = DbProject.find_by_name project_name
     if p.nil?
       render_error :status => 400, :errorcode => 'unknown_project',
         :message => "Unknown project '#{project_name}'"
@@ -1175,6 +1250,17 @@ class SourceController < ApplicationController
   def index_package_commit
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_commit): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
@@ -1189,6 +1275,17 @@ class SourceController < ApplicationController
   def index_package_commitfilelist
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_commitfilelist): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
@@ -1202,6 +1299,18 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
     valid_http_methods :post
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok])
     pass_to_backend path
@@ -1210,6 +1319,18 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=linkdiff
   def index_package_linkdiff
     valid_http_methods :post
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_linkdiff): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+
     path = request.path
     path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     pass_to_backend path
@@ -1227,7 +1348,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL: acces behaves like package / project not existing
+    # ACL(index_package_copy): acces behaves like package / project not existing
     if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
       render_error :status => 404, :errorcode => 'unknown_package',
       :message => "Unknown package #{params[:package]} in project #{params[:project]}"
@@ -1244,6 +1365,17 @@ class SourceController < ApplicationController
   def index_package_runservice
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_runservice): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment])
@@ -1254,6 +1386,17 @@ class SourceController < ApplicationController
   def index_package_deleteuploadrev
     valid_http_methods :post
     params[:user] = @http_user.login
+    project_name = params[:project]
+    package_name = params[:package]
+
+    prj = DbProject.find_by_name(project_name)
+    pkg = prj.find_package(package_name)
+    # ACL(index_package_deleteuploadrev): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd])
@@ -1277,14 +1420,14 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL: acces behaves like package / project not existing
+    # ACL(index_package_linktobranch): acces behaves like package / project not existing
     if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
       :message => "Unknown package #{pkg_name} in project #{prj_name}"
       return
     end
 
-    # ACL: source access gives permisson denied
+    # ACL(index_package_linktobranch): source access gives permisson denied
     if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
@@ -1332,14 +1475,14 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL: acces behaves like project not existing
+    # ACL(index_package_branch): acces behaves like project not existing
     if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
       :message => "Unknown package #{pkg_name} in project #{prj.name}"
       return
     end
 
-    # ACL: source access gives permisson denied
+    # ACL(index_package_branch): source access gives permisson denied
     if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
@@ -1476,7 +1619,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL: acces behaves like project not existing
+    # ACL(index_package_set_flag): acces behaves like project not existing
     if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => "unknown_package",
       :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
@@ -1504,6 +1647,12 @@ class SourceController < ApplicationController
     prj_name = params[:project]
 
     prj = DbProject.find_by_name prj_name
+    # ACL(index_project_set_flag): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{prj_name}'"
+      return
+    end
 
     begin
       # first remove former flags of the same class
@@ -1535,7 +1684,7 @@ class SourceController < ApplicationController
         :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
     end
-    # ACL: acces behaves like project not existing
+    # ACL(index_package_remove_flag): acces behaves like project not existing
     if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
@@ -1549,12 +1698,19 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
   def index_project_remove_flag
     valid_http_methods :post
-
     required_parameters :project, :flag
 
     prj_name = params[:project]
 
     prj = DbProject.find_by_name prj_name
+
+    # ACL(index_project_remove_flag): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{prj_name}'"
+      return
+    end
+
     prj.remove_flag(params[:flag], params[:repository], params[:arch])
     prj.store
     render_ok
