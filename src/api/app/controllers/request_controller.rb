@@ -155,13 +155,6 @@ class RequestController < ApplicationController
         end
       end
 
-      # ACL(create_create): in case of access, package is really hidden and shown as non existing to users without access
-      if spkg and spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
-        render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{action.source.package} in project #{action.source.project}"
-        return
-      end
-
       if action.has_element? 'target'
         if action.target.has_attribute? 'project'
           tprj = DbProject.find_by_name action.target.project
@@ -179,6 +172,13 @@ class RequestController < ApplicationController
             return
           end
         end
+      end
+
+      # ACL(create_create): in case of access, package is really hidden and shown as non existing to users without access
+      if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{action.target.package} in project #{action.target.project}"
+        return
       end
 
       # Type specific checks
