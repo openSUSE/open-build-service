@@ -541,18 +541,14 @@ class SourceController < ApplicationController
       return
     end
     if request.get?
-      if @project.nil?
-        render_error :message => "Unknown project '#{project_name}'",
-          :status => 404, :errorcode => "unknown_project"
-        return
-      elsif @project
+      if @project
         render :text => @project.to_axml(params[:view]), :content_type => 'text/xml'
       elsif DbProject.find_remote_project(project_name)
         # project from remote buildservice, get metadata from backend
         pass_to_backend
       else
         render_error :message => "Unknown project '#{project_name}'",
-          :status => 404, :errorcode => "unknown_project"
+        :status => 404, :errorcode => "unknown_project"
       end
       return
     end
