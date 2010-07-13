@@ -1001,6 +1001,16 @@ class SourceController < ApplicationController
     render_ok :data => {:targetproject => mparams[:target_project]}
   end
 
+  # POST /source/<project>?cmd=extendkey
+  def index_project_extendkey
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    pass_to_backend path
+  end
+
   # POST /source/<project>?cmd=createkey
   def index_project_createkey
     valid_http_methods :post
