@@ -117,6 +117,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-16.png"/>
   <link>http://www.centos.org/</link>
  </distribution>
+ <distribution vendor="Mandriva" version="2010.1" id="mandriva-2010.1">
+  <name>Mandriva 2010.1</name>
+  <project>openSUSE.org:Mandriva:2010.1</project>
+  <reponame>Mandriva_2010.1</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2010-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2010-16.png"/>
+  <link>http://www.mandriva.com/</link>
+ </distribution>
  <distribution vendor="Mandriva" version="2010" id="mandriva-2010">
   <name>Mandriva 2010</name>
   <project>openSUSE.org:Mandriva:2010</project>
