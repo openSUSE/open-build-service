@@ -10,6 +10,7 @@
       <strong>Architectures: </strong>
       <% VISIBLE_ARCHITECTURES.each do |arch| %>
         <%= check_box_tag "arch[#{arch}]", "", @arch_list.include?(arch.to_s) %><%=arch%>
+        <%= observe_field "arch_#{arch}", :function => "document.getElementById('save_button').disabled = false" %>
       <% end %>
       <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>
     </p>
@@ -30,13 +31,15 @@
           <% end -%>
         <% rescue; end %>
       </div>
+<!-- nice idea, but this adds just another repo and not a path to an existing repo atm
       <p>
-        <%= link_to(image_tag("icons/drive_add.png", :title => "Add Path"), :action => 'add_target_simple', :project => @project) %>
-        <%= link_to( 'Add', :action => 'add_target_simple', :project => @project) %> path
+        <%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
+        <%= link_to( 'Add path', :action => 'add_target_simple', :project => @project) %>
       </p>
+-->
     </div>
 
-    <p><%= submit_tag "Update #{repository.name}", :disabled => true %></p>
+    <p><%= submit_tag "Update #{repository.name}", :id => "save_button", :disabled => true %></p>
   <% end %>
 
 </div>

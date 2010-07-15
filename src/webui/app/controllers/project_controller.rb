@@ -256,16 +256,13 @@ class ProjectController < ApplicationController
   def update_target
     valid_http_methods :post
     repo = @project.repository[params[:repo]]
-    repo.name = params[:name]
     repo.archs = params[:arch].to_a
     @arch_list = arch_list
     begin
       @project.save
-      render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
+      render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
     rescue => e
-      repo.name = params[:original_name]
-      render :partial => 'repository_edit_form', :locals => { :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}",
-        :repo => repo } and return
+      render :partial => 'edit_repository', :locals => { :repository => repo, :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}" }
     end
   end
 
