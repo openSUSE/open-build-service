@@ -146,6 +146,15 @@ class Project < ActiveXML::Base
     end
   end
 
+  def remove_path_from_target( repository, path_project, path_repository )
+    return nil if not repository
+    return nil if not path_project
+    return nil if not path_repository
+
+    r = data.find("//repository[@name='#{repository}']/path[@project='#{path_project}'][@repository='#{path_repository}']").first
+    delete_element "//repository[@name='#{repository}']/path[@project='#{path_project}'][@repository='#{path_repository}']"
+  end
+
   def remove_repository( repository )
     return nil if not repository
     return nil if not self.has_element? :repository

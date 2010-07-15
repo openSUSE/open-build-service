@@ -460,10 +460,6 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => @project
   end
 
-
-  def save_add_path_to_repo
-  end
-
   def save_targets
     valid_http_methods :post
 
@@ -533,6 +529,12 @@ class ProjectController < ApplicationController
     redirect_to :action => :repositories, :project => @project
   end
 
+  def remove_path_from_target
+   @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
+   @project.save
+   redirect_to :action => :repositories, :project => @project
+   return
+  end
 
   def save_person
     valid_http_methods(:post)
