@@ -113,6 +113,24 @@ class Project < ActiveXML::Base
     end
   end
 
+  def add_path_to_repository( opt={} )
+    return nil if opt == {}
+    repository = data.find("//repository[@name='#{opt[:reponame]}']").first
+
+    unless opt[:repo_path].blank?
+      opt[:repo_path] =~ /(.*)\/(.*)/;
+      param = XML::Node.new 'path'
+      param['project'] = $1
+      param['repository'] = $2
+      # put it on top
+      if repository.children?
+        repository.children.first.prev = param
+      else
+        repository << param
+      end
+    end
+  end
+
   def add_repository( opt={} )
     return nil if opt == {}
     repository = add_element 'repository', 'name' => opt[:reponame]

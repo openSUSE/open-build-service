@@ -1,4 +1,4 @@
-<% @pagetitle = "Add Target"
+<% @pagetitle = "Add Repository"
    @metarobots = 'noindex'
    project_bread_crumb( 'Add Repository' ) 
 -%>
@@ -7,7 +7,9 @@
 
 <h2>Add Repositories to Project <%=h @project%></h2>
 
-<p>Please choose the repositories that your packages will be built for.</p>
+<p>Please choose the repositories that your packages will be built for by following default list. Or 
+<%= link_to "pick one via advanced interface", :action => :add_repository, :project => @project %>.
+</p>
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
 
@@ -89,24 +91,3 @@
   });
 <% end -%>
 
-<div class="clear"></div>
-<h2>Advanced search for build targets</h2>
-
-<% form_tag( {:action => :save_targets, :project => @project} ) do -%>
-  <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %>
-    <i>(gets auto-completed)</i></p>
-  <p><strong>Repository: </strong>
-    <%= select_tag "target_repo", "<option value=''></option>", :id => 'target_repo', :disabled => true %></p>
-  <p><strong>New name: </strong><%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %></p>
-
-  <p><strong>Architectures: </strong>
-    <% VISIBLE_ARCHITECTURES.each do |arch| %>
-      <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
-    <% end %>
-  </p>
-
-  <p>
-    <%= submit_tag "Add repository" %>
-  </p>
-
-<% end-%>

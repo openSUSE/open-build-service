@@ -25,18 +25,16 @@
             <% else %>
               <span><%=  h path.project + "/" + path.repository %></span>
               <%=  link_to(image_tag('icons/drive_delete.png'), {:action => :remove_target, :project => @project, :target => repository.name},
-                {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) -%>
+                {:confirm => "Really remove repository path '#{repository.name}'?", :class => 'x', :method => :post}) -%>
               <br/>
             <% end %>
           <% end -%>
         <% rescue; end %>
       </div>
-<!-- nice idea, but this adds just another repo and not a path to an existing repo atm
       <p>
-        <%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
-        <%= link_to( 'Add path', :action => 'add_target_simple', :project => @project) %>
+        <%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_repository', :project => @project, :torepository => repository.name) %>
+        <%= link_to( 'Add additional path to this repository', :action => 'add_repository', :project => @project, :torepository => repository.name) %>
       </p>
--->
     </div>
 
     <p><%= submit_tag "Update #{repository.name}", :id => "save_button", :disabled => true %></p>

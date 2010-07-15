@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
     :rebuild_time_png]
 
   before_filter :load_current_requests, :only => [:delete, :view,
-    :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
+    :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
@@ -161,7 +161,7 @@ class ProjectController < ApplicationController
   end
 
   # TODO we need the architectures in api/distributions
-  def add_target_simple
+  def add_repository_from_default_list
     Rails.cache.delete("distributions") if discard_cache?
     dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
       frontend = ActiveXML::Config::transport_for( :package )
@@ -169,6 +169,11 @@ class ProjectController < ApplicationController
     end
     @distributions = XML::Document.string dist_xml
   end
+
+  def add_repository
+    @torepository = params[:torepository]
+  end
+
 
   def add_person
     @roles = Role.local_roles
@@ -456,17 +461,26 @@ class ProjectController < ApplicationController
   end
 
 
+  def save_add_path_to_repo
+  end
+
   def save_targets
     valid_http_methods :post
-    if (params['repo'].blank?)
-      flash[:error] = "Please select a repository."
-      redirect_to :action => :add_target_simple, :project => @project and return
+
+    # extend an existing repository with a path
+    unless (params['torepository'].blank?)
+      repo_path = "#{params['target_project']}/#{params['target_repo']}"
+      @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
+      @project.save
+      redirect_to :action => :repositories, :project => @project
+      return
     end
 
+    # add new repositories
     params['repo'].each do |repo|
       if !valid_target_name? repo
         flash[:error] = "Illegal target name #{repo}."
-        redirect_to :action => :add_target_simple, :project => @project and return
+        redirect_to :action => :add_repository_from_default_list, :project => @project and return
       end
       repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
       repo_archs = params[repo + '_arch'] || params['arch']
@@ -475,7 +489,7 @@ class ProjectController < ApplicationController
 
       # FIXME: will be cleaned up after implementing FATE #308899
       if repo == "images"
-        prjconf = frontend.get_source(:project => @project, :filename => '_config')
+        prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
         unless prjconf =~ /^Type:/
           prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
           frontend.put_file(prjconf, :project => @project, :filename => '_config')
