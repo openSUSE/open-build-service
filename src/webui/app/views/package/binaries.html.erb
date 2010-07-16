@@ -8,7 +8,7 @@
 
 <h2>Repository state for <%= @repository %></h2>
 
-<p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) %>
+<p><%= link_to image_tag( 'icons/drive_web.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) %>
 </p>
 
 <% @buildresult.data.find( 'result').each do |result| 
