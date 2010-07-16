@@ -151,7 +151,6 @@ class Project < ActiveXML::Base
     return nil if not path_project
     return nil if not path_repository
 
-    r = data.find("//repository[@name='#{repository}']/path[@project='#{path_project}'][@repository='#{path_repository}']").first
     delete_element "//repository[@name='#{repository}']/path[@project='#{path_project}'][@repository='#{path_repository}']"
   end
 
