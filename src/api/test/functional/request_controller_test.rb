@@ -13,6 +13,10 @@ class RequestControllerTest < ActionController::IntegrationTest
     Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
     Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
     Suse::Backend.post( '/source/home:tscholz:branches:kde4/BranchPack?cmd=commit', "")
+
+    Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
+    Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
+    Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
   end
 
   def test_set_and_get_1
