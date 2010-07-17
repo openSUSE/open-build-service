@@ -17,6 +17,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
     Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
     Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
+    Suse::Backend.put( '/source/HiddenProject/pack1/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack1").to_axml)
+    Suse::Backend.put( '/source/HiddenProject/pack1/my_file', "Protected Content #2")
+
   end
 
   def test_set_and_get_1
@@ -256,6 +259,64 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "request", :child => { :tag => 'state' } )
     assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
   end
+
+  # ACL
+  #
+  # create requests to hidden from external
+  def request_to_hidden(user, pass, backend_file)
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file(backend_file)
+    post "/request?cmd=create", req
+    assert_response 401
+    assert_select "status[code] > summary", /Authentication required/
+    prepare_request_with_user user, pass
+    post "/request?cmd=create", req
+  end
+  ## create request to hidden package from open place - valid user  - success
+  def test_create_request_to_hidden_package_from_open_place_valid_user
+    request_to_hidden("adrian", "so_alone", 'request/to_hidden_from_open_valid')
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+  end
+  ## create request to hidden package from open place - invalid user - fail 
+  def test_create_request_to_hidden_package_from_open_place_invalid_user
+    request_to_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_open_invalid')
+#    puts @response.body
+    assert_response 404
+  end
+  ## create request to hidden package from hidden place - valid user - success
+  def test_create_request_to_hidden_package_from_hidden_place_valid_user
+    request_to_hidden("adrian", "so_alone", 'request/to_hidden_from_hidden_valid')
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+  end
+
+  ## create request to hidden package from hidden place - invalid user - fail
+  def test_create_request_to_hidden_package_from_hidden_place_invalid_user
+    request_to_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
+#    puts @response.body
+    assert_response 404
+  end
+
+  # requests from Hidden to external
+  ## create request from hidden package to open place - valid user  - fail ! ?
+  ## create request from hidden package to open place - invalid user  - fail !
+  ## create request from hidden package to hidden place - valid user  - success 
+  ## create request from hidden package to hidden place - invalid user - fail
+
+  # request workflow on Hidden project / pkg
+  ## revoke
+  ## accept
+  ## decline
+  ## (re)new
+  ## show !
+  ## search !
+
+  # requests on hidden prj/pkg
+  ## requests on hidden project - valid user  - success
+  ## requests on hidden project - invalid user  - fail
+  ## requests on hidden package - valid user  - success
+  ## requests on hidden package - invalid user  - fail
 
 end
 
