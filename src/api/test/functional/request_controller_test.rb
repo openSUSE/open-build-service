@@ -246,7 +246,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   # ACL
   #
   # create requests to hidden from external
-  def request_to_hidden(user, pass, backend_file)
+  def request_hidden(user, pass, backend_file)
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file(backend_file)
     post "/request?cmd=create", req
@@ -257,35 +257,44 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
   ## create request to hidden package from open place - valid user  - success
   def test_create_request_to_hidden_package_from_open_place_valid_user
-    request_to_hidden("adrian", "so_alone", 'request/to_hidden_from_open_valid')
+    request_hidden("adrian", "so_alone", 'request/to_hidden_from_open_valid')
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
   ## create request to hidden package from open place - invalid user - fail 
   def test_create_request_to_hidden_package_from_open_place_invalid_user
-    request_to_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_open_invalid')
+    request_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_open_invalid')
 #    puts @response.body
     assert_response 404
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
-    request_to_hidden("adrian", "so_alone", 'request/to_hidden_from_hidden_valid')
+    request_hidden("adrian", "so_alone", 'request/to_hidden_from_hidden_valid')
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
-    request_to_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
+    request_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
 #    puts @response.body
     assert_response 404
   end
 
   # requests from Hidden to external
   ## create request from hidden package to open place - valid user  - fail ! ?
+  def test_create_request_from_hidden_package_to_open_place_valid_user
+    request_hidden("adrian", "so_alone", 'request/from_hidden_to_open_valid')
+    puts @response.body
+    # should we really allow this - might be a mistake. qualified procedure could be:
+    # sr from hidden to hidden and then make new location visible
+    assert_response 404
+  end
   ## create request from hidden package to open place - invalid user  - fail !
-  ## create request from hidden package to hidden place - valid user  - success 
-  ## create request from hidden package to hidden place - invalid user - fail
+  def test_create_request_from_hidden_package_to_open_place_invalid_user
+    request_hidden("tscholz", "asdfasdf", 'request/from_hidden_to_open_invalid')
+    assert_response 404
+  end
 
   # request workflow on Hidden project / pkg
   ## revoke
