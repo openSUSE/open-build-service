@@ -5,23 +5,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   
   fixtures :all
 
-  def setup
-    @controller = RequestController.new
-    @controller.start_test_backend
-
-    Suse::Backend.post( '/source/kde4/kdebase?cmd=commit', "")
-    Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
-    Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
-    Suse::Backend.post( '/source/home:tscholz:branches:kde4/BranchPack?cmd=commit', "")
-
-    Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
-    Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
-    Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
-    Suse::Backend.put( '/source/HiddenProject/pack1/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack1").to_axml)
-    Suse::Backend.put( '/source/HiddenProject/pack1/my_file', "Protected Content #2")
-
-  end
-
   def test_set_and_get_1
     prepare_request_with_user "king", "sunflower"
     # make sure there is at least one

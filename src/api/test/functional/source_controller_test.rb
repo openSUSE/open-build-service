@@ -4,26 +4,6 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
-  def setup
-    @controller = SourceController.new
-    @controller.start_test_backend
-
-    Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
-    Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
-    Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
-    Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
-    Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', load_backend_file('source/kde4/kdelibs/my_patch.diff'))
-    Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
-    Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
-    Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
-
-    # ACL#2:
-    Suse::Backend.put( '/source/ViewprotectedProject/_meta', DbProject.find_by_name('ViewprotectedProject').to_axml)
-    Suse::Backend.put( '/source/ViewprotectedProject/pack/_meta', DbPackage.find_by_project_and_name("ViewprotectedProject", "pack").to_axml)
-    Suse::Backend.put( '/source/ViewprotectedProject/pack/my_file', "Protected Content")
-
-  end
-
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
     get "/source"
