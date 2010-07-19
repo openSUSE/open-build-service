@@ -4018,6 +4018,44 @@ sub search_proj {
   return ($res, $BSXML::collection);
 }
 
+sub pkgsearch_fetch {
+  my ($db, $k) = @_;
+  my ($projid, $packid) = split('/', $k, 2);
+  my ($pack, undef) = getpackage({}, $projid, $packid);
+  $pack->{'project'} = $projid;
+  return $pack;
+}
+
+sub pkgsearch_indexfunc {
+  my ($db, $path, $value, $lkeys) = @_;
+  if (!defined($path)) {
+    return @{$db->{'_allkeys'}} if $db->{'_allkeys'};
+    my @projids = findprojects();
+    my @r;
+    for my $projid (@projids) {
+      push @r, map {"$projid/$_"} findpackages($projid, {}, 1);
+    }
+    $db->{'_allkeys'} = \@r;
+    return @r;
+  } elsif (!defined($value)) {
+    return BSDBIndex::getkeys($db, "$db->{'index'}$path") if $path =~ /^linkinfo\//;
+    return findprojects() if $path eq 'project';
+    if ($path eq 'name') {
+      $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+      my %v = map {$_ => 1} grep {s/^.*\///} map {$_} @$lkeys;
+      return sort keys %v;
+    }
+  } else {
+    return BSDBIndex::getvalues($db, "$db->{'index'}$path", $value) if $path =~ /^linkinfo\//;
+    return map {"$value/$_"} findpackages($value, {}, 1) if $path eq 'project';
+    if ($path eq 'name') {
+      $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+      return grep {/\Q$value\E$/} @$lkeys;
+    }
+  }
+  return ();
+}
+
 sub search_pack {
   my ($cgi, $match, $id) = @_;
   $match =~ s/^\[(.*)\]$/$1/s;
@@ -4037,26 +4075,25 @@ sub search_pack {
     my $res = {'package' => $data};
     return ($res, $BSXML::collection);
   }
-  my $data = [];
-  my @projids;
-  if ($match =~ /^\@project='(.+)'$/) {
-    @projids = ($1);
-  } else {
-    @projids = findprojects();
-  }
-  for my $projid (@projids) {
-    my @packages = findpackages($projid, {});
-    for my $packid (@packages) {
-      my ($pack, undef) = getpackage($cgi, $projid, $packid);
-      $pack->{'project'} = $projid;
-      push @$data, $pack;
-    }
-  }
-  $data = BSXPath::match($data, $match);
+  my $db = BSDB::opendb($sourcedb, '');
+  $db->{'indexfunc'} = {
+    'project' => \&pkgsearch_indexfunc,
+    'name' => \&pkgsearch_indexfunc,
+    'linkinfo/project' => \&pkgsearch_indexfunc,
+    'linkinfo/package' => \&pkgsearch_indexfunc,
+    'linkinfo/rev' => \&pkgsearch_indexfunc,
+  };
+  $db->{'noindexatall'} = 1;
+  $db->{'fetch'} = \&pkgsearch_fetch;
+  my $data = BSXPathKeys::node($db, '');
   if ($id) {
-    for (@{$data || []}) {
-      $_ = {'name' => $_->{'name'}, 'project' => $_->{'project'}};
+    $data = $data->keymatch($match);
+    for (@$data) {
+      my @p = split('/', $_, 2);
+      $_ = {'name' => $p[1], 'project' => $p[0]};
     }
+  } else {
+    $data = BSXPath::match($data, $match);
   }
   my $res = {'package' => $data};
   return ($res, $BSXML::collection);
