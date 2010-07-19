@@ -11,8 +11,8 @@ testpack_maintainer:
   bs_user_id: 267
   role_id: 3
 
-testpack_maintainer:
-  db_package_id: 10095
+testpack1_maintainer:
+  db_package_id: 11006
   bs_user_id: 42
   role_id: 3
 
