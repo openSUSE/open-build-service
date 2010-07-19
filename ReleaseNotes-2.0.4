@@ -1,0 +1,20 @@
+#
+# Release Notes for OBS 2.0.4
+#
+
+Updaters from 2.0.X can just update the packages and restart all services.
+Updaters from former releases need to check the 2.0.0 Release Notes file.
+
+Changes since 2.0.3:
+====================
+
+Changes:
+* api/backend: support to extend experation date for pgp keys
+* OBS is now compatible with Rails 2.3.5 and 2.3.8
+* correct session key in api and webui, it can be stored in a config/secret.key file now
+  (this is no security leak, because session data is stored in MySQL and therefore not reachable)
+* Adding Mandriva 2010.1 to default targets
+
+Fixes:
+* api: correct handling of source files which contain special characters like hashes
+* backend: filter broken SLP announcements to "localhost"
