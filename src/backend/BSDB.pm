@@ -163,10 +163,14 @@ sub selectpath {
 
 sub values {
   my ($db, $path, $lkeys) = @_;
-  if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
-    return $db->{'indexfunc'}->{$path}->($db, $path);
+  if (!defined($path)) {
+    # hack to get all indices
+    return BSDBIndex::getkeys($db, $db->{'table'});
   }
-  if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || ($lkeys && $db->{'cheapfetch'})) {
+  if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
+    return $db->{'indexfunc'}->{$path}->($db, $path, undef, $lkeys);
+  }
+  if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || $db->{'noindexatall'} || ($lkeys && $db->{'cheapfetch'})) {
     $lkeys = [ $db->keys() ] unless $lkeys;
     my @v;
     for my $k (@$lkeys) {
@@ -182,15 +186,17 @@ sub keys {
   my ($db, $path, $value, $lkeys) = @_;
   if (!defined($path)) {
     return @$lkeys if $lkeys;
-    if ($db->{'allkeyspath'}) {
-      return map {BSDBIndex::getvalues($db, "$db->{'index'}$db->{'allkeyspath'}", $_)} BSDBIndex::getkeys($db, "$db->{'index'}$db->{'allkeyspath'}");
+    $path = $db->{'allkeyspath'};
+    return () unless defined $path;
+    if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
+      return $db->{'indexfunc'}->{$path}->($db);
     }
-    return BSDBIndex::getkeys($db, $db->{'table'});
+    return map {BSDBIndex::getvalues($db, "$db->{'index'}$path", $_)} BSDBIndex::getkeys($db, "$db->{'index'}$path");
   }
   if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
-    return $db->{'indexfunc'}->{$path}->($db, $path, $value);
+    return $db->{'indexfunc'}->{$path}->($db, $path, $value, $lkeys);
   }
-  if ($db->{'noindex'} && $db->{'noindex'}->{$path}) {
+  if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || $db->{'noindexatall'}) {
     $lkeys = [ $db->keys() ] unless $lkeys;
     my @v;
     my @k;
