@@ -197,7 +197,7 @@ sub boolop {
       if ($v1->{'keys'} && @values > @{$v1->{'keys'}}) {
 	for my $k (@{$v1->{'keys'}}) {
 	  my $vv = $db->fetch($k);
-	  next unless defined $v;
+	  next unless defined $vv;
 	  if (!$negpol) {
 	    next unless grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
 	  } else {
@@ -252,7 +252,7 @@ sub boolop {
       if ($v2->{'keys'} && @values > @{$v2->{'keys'}}) {
 	for my $k (@{$v2->{'keys'}}) {
 	  my $vv = $db->fetch($k);
-	  next unless defined $v;
+	  next unless defined $vv;
 	  if (!$negpol) {
 	    next unless grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
 	  } else {

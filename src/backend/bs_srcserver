@@ -4021,7 +4021,7 @@ sub search_proj {
 sub pkgsearch_fetch {
   my ($db, $k) = @_;
   my ($projid, $packid) = split('/', $k, 2);
-  my ($pack, undef) = getpackage({}, $projid, $packid);
+  my $pack = readpack($projid, $packid, 1) || {'name' => $packid};
   $pack->{'project'} = $projid;
   return $pack;
 }
