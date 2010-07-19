@@ -163,10 +163,6 @@ sub selectpath {
 
 sub values {
   my ($db, $path, $lkeys) = @_;
-  if (!defined($path)) {
-    # hack to get all indices
-    return BSDBIndex::getkeys($db, $db->{'table'});
-  }
   if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
     return $db->{'indexfunc'}->{$path}->($db, $path, undef, $lkeys);
   }
@@ -187,7 +183,7 @@ sub keys {
   if (!defined($path)) {
     return @$lkeys if $lkeys;
     $path = $db->{'allkeyspath'};
-    return () unless defined $path;
+    return BSDBIndex::getkeys($db, $db->{'table'}) unless defined $path;
     if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
       return $db->{'indexfunc'}->{$path}->($db);
     }
