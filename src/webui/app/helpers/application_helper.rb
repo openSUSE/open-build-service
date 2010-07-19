@@ -281,6 +281,7 @@ module ApplicationHelper
     when "blocked" then "icons/time.png"
     when "outdated_blocked" then "icons/time_delete.png"
     when "broken" then "icons/exclamation.png"
+    when "outdated_broken" then "icons/exclamation.png"
     when "scheduling" then "icons/cog.png"
     when "outdated_scheduling" then "icons/cog_delete.png"
     else "icons/eye.png"
