@@ -88,7 +88,7 @@ class PublicController < ApplicationController
     package_name = params[:pkg]
     file = params[:file]
 
-    path = "/source/#{project_name}/#{package_name}/#{file}"
+    path = "/source/#{CGI.escape(project_name)}/#{CGI.escape(package_name)}/#{CGI.escape(file)}"
 
     if request.get?
       path += build_query_from_hash(params, [:rev])

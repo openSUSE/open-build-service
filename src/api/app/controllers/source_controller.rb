@@ -806,7 +806,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-    path = "/source/#{project_name}/#{package_name}/#{CGI.escape(file)}"
+    path = "/source/#{CGI.escape(project_name)}/#{CGI.escape(package_name)}/#{CGI.escape(file)}"
 
     #authenticate
     return unless extract_user
