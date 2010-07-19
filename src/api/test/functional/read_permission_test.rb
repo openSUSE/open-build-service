@@ -68,6 +68,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
   # * test public controller
   # * test tag controller
   # For binary access
+  # * test project repository path setup
   # * test aggregate creation
   # * test kiwi live image file creation
   # * test kiwi product file creation
