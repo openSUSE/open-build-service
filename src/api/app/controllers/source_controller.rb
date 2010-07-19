@@ -308,7 +308,7 @@ class SourceController < ApplicationController
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     # ACL(update_product_autopackages) TODO: check if this needs to be instrumented
-    backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
+    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
     frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "name LIKE '_product:%'")
     f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
