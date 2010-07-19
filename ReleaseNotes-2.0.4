@@ -9,7 +9,7 @@ Changes since 2.0.3:
 ====================
 
 Changes:
-* api/backend: support to extend experation date for pgp keys
+* api/backend: support to extend experation date for pgp keys. Requires obs-signd 2.1.0.
 * OBS is now compatible with Rails 2.3.5 and 2.3.8
 * correct session key in api and webui, it can be stored in a config/secret.key file now
   (this is no security leak, because session data is stored in MySQL and therefore not reachable)
@@ -17,4 +17,5 @@ Changes:
 
 Fixes:
 * api: correct handling of source files which contain special characters like hashes
+* api: LDAP connections were not being closed properly (#623397
 * backend: filter broken SLP announcements to "localhost"

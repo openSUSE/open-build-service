@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        2.0.2
+Version:        2.0.4
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -30,7 +30,7 @@ BuildRequires:  obs-common
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  rubygem-rails-2_3 = 2.3.5
+BuildRequires:  rubygem-rails-2_3 >= 2.3.5
 BuildRequires:  rubygem-rmagick
 BuildRequires:  build >= 2009.05.04
 BuildRequires:  perl-BSSolv
@@ -56,6 +56,7 @@ Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
+Conflicts:      obs-signd < 2.1.1
 %else
 Requires:       yum yum-metadata-parser dpkg
 Requires:       createrepo >= 0.4.10
@@ -111,7 +112,9 @@ Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 Requires:       rubygem-rack = 1.0.1
-Requires:       rubygem-rails-2_3 = 2.3.5
+Requires:       rubygem-rails-2_3 >= 2.3.5
+Conflicts:      rubygem-rails-2_3 = 2.3.6
+Conflicts:      rubygem-rails-2_3 = 2.3.7
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
