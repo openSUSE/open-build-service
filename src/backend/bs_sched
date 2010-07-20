@@ -2897,10 +2897,7 @@ sub rebuildaggregate {
           @d = map {"$d/$_"} sort(@d);
 	}
 	my $ajobrepo = findbins_dir(\@d);
-        my $copysources = 1;
-        if ($aggregate->{'nosources'}) {
-            $copysources = 0;
-        }
+        my $copysources = 0;
 	for my $abin (sort keys %$ajobrepo) {
 	  my $r = $ajobrepo->{$abin};
 	  next unless $r->{'source'};
@@ -2912,6 +2909,7 @@ sub rebuildaggregate {
 	  $basename =~ s/^upload:// if $cpio;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
+	  $copysources = 1 unless $aggregate->{'nosources'};
 	}
 	if ($copysources) {
 	  for my $abin (sort keys %$ajobrepo) {
