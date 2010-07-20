@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC, "$wd/build";
+  unshift @INC, "$wd";
+}
+
+use Date::Parse;
+use Data::Dumper;
+
+use BSConfig;
+use BSDB;
+use BSUtil;
+use BSXML;
+
+use strict;
+
+my $user = $BSConfig::bsuser;
+my $group = $BSConfig::bsgroup;
+
+!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+if (defined $group) {
+  ($), $() = ($group, $group);
+  die "setgid: $!\n" if ($) != $group);
+}
+if (defined $user) {
+  ($>, $<) = ($user, $user);
+  die "setuid: $!\n" if ($> != $user);
+}
+
+my $requestsdir = "$BSConfig::bsdir/requests";
+my $oldrequestsdir = "$BSConfig::bsdir/requests.old";
+my $reqindexdb = "$BSConfig::bsdir/db/request";
+
+my $db = BSDB::opendb($reqindexdb, '');
+$db->{'noindex'} = {'id' => 1};
+
+my @r = sort {$a <=> $b} ls($requestsdir);
+
+my %donestates = map {$_ => 1} qw{
+  accept accepted deleted declined rejected revoked superseded
+};
+
+my $now = time;
+my $cut = 366 * 24 * 3600;
+
+mkdir_p($oldrequestsdir);
+for my $id (@r) {
+  next if $id =~ /^\./;
+  print "- $id\n";
+  my $req = readxml("$requestsdir/$id", $BSXML::request, 1);
+  next unless $req && $req->{'state'};
+  my $state = $req->{'state'}->{'name'};
+  next unless $donestates{$state || ''};
+  my $t = str2time($req->{'state'}->{'when'});
+  next unless $t;
+  next if $t + $cut > $now;
+  print "state $state, ".localtime($t)."\n";
+  $db->updateindex($id, $req, {});
+  rename("$requestsdir/$id", "$oldrequestsdir/$id") || die("rename $requestsdir/$id $oldrequestsdir/$id: $!\n");
+}
+
+
