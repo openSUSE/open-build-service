@@ -648,6 +648,42 @@ class SourceControllerTest < ActionController::IntegrationTest
     # FIXME: make a successful deletion of a key
   end
 
+  def test_linked_project_operations
+    prepare_request_with_user "tom", "thunder"
+    # pack2 exists only via linked project
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response :success
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response 404
+    assert_match /unknown package 'pack2' in project 'BaseDistro2:LinkedUpdateProject'/, @response.body
+
+    # test not permitted commands
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "wipe"
+    assert_response 403
+    assert_match /no permission to execute command 'wipe' for not existing package/, @response.body
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
+    assert_response 403
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
+    assert_response 403
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commit"
+    assert_response 403
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
+    assert_response 403
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
+    assert_response 403
+
+    # test permitted commands
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
+    assert_response :success
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "branch"
+    assert_response :success
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
+    assert_response :success
+# FIXME: construct a linked package object to test this
+#    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linkdiff"
+#    assert_response :success
+  end
+
   def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
@@ -957,6 +993,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/home:tscholz/TestPack/bnc#620675.diff"
     assert_response :success
   end
+
   # >>> ACL
   def do_read_access_project(user, pass, targetproject, response)
     ActionController::IntegrationTest::reset_auth 
@@ -965,6 +1002,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response response
     get "/source/#{targetproject}"
   end
+
   def do_read_access_package(user, pass, targetproject, package, response)
     assert_response response
     get "/source/#{targetproject}/pack"
@@ -990,6 +1028,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :child => { :tag => "entry", :attributes => { :name => "pack" } }
     do_read_access_package("adrian", "so_alone", "ViewprotectedProject", "pack", :success)
   end
+
   def test_privacy_project_invalid_user
     begin
       do_read_access_project("tscholz", "asdfasdf", "ViewprotectedProject", :success)
@@ -1006,7 +1045,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   # TODO
   # * fetch binaries
-  # ** maitainer +
+  # ** maintainer +
   # ** other user +
   # * search 
   # <<< ACL#2: privacy flag. behaves like binary-only project

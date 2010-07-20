@@ -101,6 +101,7 @@ Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_a
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
 Suse::Backend.put( '/source/BaseDistro2/_meta', DbProject.find_by_name('BaseDistro2').to_axml)
 Suse::Backend.put( '/source/BaseDistro2/pack2/_meta', DbPackage.find_by_id(10099).to_axml)
+Suse::Backend.put( '/source/BaseDistro2/pack2/myfile', "DummyContent of BaseDistro2/pack2")
 Suse::Backend.put( '/source/BaseDistro2:LinkedUpdateProject/_meta', DbProject.find_by_name('BaseDistro2:LinkedUpdateProject').to_axml)
 Suse::Backend.put( '/source/BaseDistro3/_meta', DbProject.find_by_name('BaseDistro3').to_axml)
 Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', DbPackage.find_by_id('10094').to_axml)
