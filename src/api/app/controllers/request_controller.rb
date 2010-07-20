@@ -104,6 +104,7 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   def create_create
     # ACL(create_create) TODO: check this leaks no information that is prevented by ACL
+    # ACL(create_create) TODO: how to handle if permissions in source and target project are different
     req = BsRequest.new(request.body.read)
 
     req.each_action do |action|
@@ -178,6 +179,12 @@ class RequestController < ApplicationController
       if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
         render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{action.target.package} in project #{action.target.project}"
+        return
+      end
+      # ACL(create_create): in case of sourceaccess, give permission denied 
+      if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{params[:user]} has no read access to package #{action.target.package}, project #{action.target.project}"
         return
       end
 

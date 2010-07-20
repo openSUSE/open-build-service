@@ -142,7 +142,7 @@ class BuildController < ApplicationController
       return
     end
 
-    # ACL(file): acces should be handled different
+    # ACL(file): binarydownload denies access to build files
     if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
@@ -232,8 +232,8 @@ class BuildController < ApplicationController
       return
     end
 
-    # ACL(result): binarydownload on for prj means behave like a binary only project
-    if prj and prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
+    # ACL(result): privacy on for prj means behave like a binary only project
+    if prj and prj.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
       render_ok
       return
     end
@@ -245,11 +245,12 @@ class BuildController < ApplicationController
       return
     end
 
-    # ACL(result): privacy on means again not listing files
-    if pkg and pkg.enabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
+    # ACL(result): privacy on means not listing files
+    if pkg and pkg.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
       render_ok
       return
     end
+
     pass_to_backend
   end
 

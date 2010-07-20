@@ -69,14 +69,12 @@ class SourceController < ApplicationController
       if params.has_key? :deleted
         pass_to_backend
       else
-        # ACL#1(index_project): in case of privacy, this behaves like a binary project when accessor has no permission
-        # tested in read_permission_test.rb, search_controller_test.rb
-        if pro.disabled_for?('privacy', nil, nil) or @http_user.can_private_view?(pro)
+        # ACL(index_project): private projects appear as empty
+        if pro and pro.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pro)
+          render :text => '<directory count="0"></directory>', :content_type => "text/xml"
+        else
           @dir = Package.find :all, :project => project_name
           render :text => @dir.dump_xml, :content_type => "text/xml"
-        else
-          # ACL(index_project): private projects appear as empty (FIXME)
-          render :text => '<directory count="0"></directory>', :content_type => "text/xml"
         end
       end
       return
@@ -1261,6 +1259,14 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL(index_package_commit): sourceaccess gives permisson denied
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{params[:package]}, project #{params[:project]}"
+      return
+    end
+
+    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
@@ -1286,6 +1292,14 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL(index_package_commitfilelist): sourceaccess gives permisson denied
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{params[:package]}, project #{params[:project]}"
+      return
+    end
+
+    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
@@ -1310,6 +1324,14 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL(index_package_diff): sourceaccess gives permisson denied
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{params[:package]}, project #{params[:project]}"
+      return
+    end
+
+    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok])
     pass_to_backend path
@@ -1330,6 +1352,14 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL(index_package_linkdiff): sourceaccess gives permisson denied
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{params[:package]}, project #{params[:project]}"
+      return
+    end
+
+    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
     path = request.path
     path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     pass_to_backend path
@@ -1354,6 +1384,14 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL(index_package_copy): source access gives permisson denied
+    if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
+      return
+    end
+
+    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
