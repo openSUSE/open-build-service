@@ -194,6 +194,9 @@ class SourceController < ApplicationController
     cmd = params[:cmd]
     deleted = params.has_key? :deleted
 
+    # list of commands which are allowed even when the project has the package only via a project link
+    read_commands = ['diff', 'branch', 'copy', 'linkdiff']
+
     prj = DbProject.find_by_name(project_name)
     unless prj
       if request.get?
@@ -208,7 +211,7 @@ class SourceController < ApplicationController
         :message => "Unknown project '#{project_name}'"
       return
     end
-    if request.get? or ( request.post? and ['diff', 'branch'].include?(cmd) )
+    if request.get? or ( request.post? and read_commands.include?(cmd) )
       # include project links on get or for diff and branch command
       pkg = prj.find_package(package_name)
     else
@@ -293,7 +296,7 @@ class SourceController < ApplicationController
             :message => "no permission to execute command '#{cmd}' for not existing package"
           return
         end
-      elsif not ['diff', 'branch'].include?(cmd) and not @http_user.can_modify_package?(pkg)
+      elsif not read_commands.include?(cmd) and not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
@@ -1370,14 +1373,15 @@ class SourceController < ApplicationController
     valid_http_methods :post
     params[:user] = @http_user.login
 
-    pack = DbPackage.find_by_project_and_name(params[:project], params[:package])
+    prj = DbProject.find_by_name(params[:project])
+    pack = prj.find_package(params[:package])
     if pack.nil? 
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{params[:package]} in project #{params[:project]}"
       return
     end
 
-    # ACL(index_package_copy): acces behaves like package / project not existing
+    # ACL(index_package_copy): access behaves like package / project not existing
     if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
       render_error :status => 404, :errorcode => 'unknown_package',
       :message => "Unknown package #{params[:package]} in project #{params[:project]}"
@@ -1392,7 +1396,8 @@ class SourceController < ApplicationController
     end
 
     # ACL(index_package_commit) TODO: using rev can underrun ACL checks
-    path = request.path
+    # We need to use the project name of package object, since it might come via a project linked project
+    path = "/source/#{pack.db_project.name}/#{pack.name}"
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
     pass_to_backend path
