@@ -1763,7 +1763,11 @@ sub getbuildinfo {
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  #$ret->{'subpack'} = \@subpacks;
+  if ($info->{'subpacks'} || !@subpacks) {
+    $ret->{'subpack'} = $info->{'subpacks'};
+  } else {
+    $ret->{'subpack'} = [ @subpacks ];
+  }
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
   # expand deps
@@ -2052,6 +2056,7 @@ sub getbuildinfo_post {
   }
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
+  $info->{'subpacks'} = $d->{'subpacks'};
   if ($d->{'prereqs'}) {
     my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
     my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
