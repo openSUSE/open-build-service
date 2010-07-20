@@ -178,7 +178,13 @@ class SourceController < ApplicationController
     end
     # look also via linked projects, package source may come from another project
     begin
-      pkg = prj.find_package(package_name)
+      if request.get?
+        # include project links on get
+        pkg = prj.find_package(package_name)
+      else
+        # look only in local packages for operations on them
+        pkg = prj.db_packages.find_by_name(package_name)
+      end
     rescue DbProject::CycleError => e
       render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
       return
