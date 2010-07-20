@@ -68,6 +68,7 @@ my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
 my $requestsdir = "$BSConfig::bsdir/requests";
+my $oldrequestsdir = "$BSConfig::bsdir/requests.old";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $diffcache = "$BSConfig::bsdir/diffcache";
 
@@ -4023,6 +4024,8 @@ sub pkgsearch_fetch {
   my ($projid, $packid) = split('/', $k, 2);
   my $pack = readpack($projid, $packid, 1) || {'name' => $packid};
   $pack->{'project'} = $projid;
+  #my @linkinfo = BSDBIndex::getvalues($db, 'linkinfo', $k);
+  #$pack->{'linkinfo'} = $linkinfo[0] if @linkinfo;
   return $pack;
 }
 
@@ -4094,6 +4097,7 @@ sub search_pack {
     }
   } else {
     $data = BSXPath::match($data, $match);
+    delete $_->{'linkinfo'} for @$data;
   }
   my $res = {'package' => $data};
   return ($res, $BSXML::collection);
@@ -4524,6 +4528,7 @@ sub createrequest {
 sub getrequest {
   my ($cgi, $id) = @_;
   my $req = readxml("$requestsdir/$id", $BSXML::request, 1);
+  $req ||= readxml("$oldrequestsdir/$id", $BSXML::request, 1);
   die("404 no such request '$id'\n") unless $req;
   return ($req, $BSXML::request);
 }
