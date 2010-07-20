@@ -208,7 +208,13 @@ class SourceController < ApplicationController
         :message => "Unknown project '#{project_name}'"
       return
     end
-    pkg = prj.find_package(package_name)
+    if request.get?
+      # include project links on get
+      pkg = prj.find_package(package_name)
+    else
+      # allow operations only for local packages
+      pkg = prj.db_packages.find_by_name(package_name)
+    end
     # ACL(index_package): in case of access, package is really hidden and shown as non existing to users without access
     if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
