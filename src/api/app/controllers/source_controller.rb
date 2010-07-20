@@ -208,8 +208,8 @@ class SourceController < ApplicationController
         :message => "Unknown project '#{project_name}'"
       return
     end
-    if request.get?
-      # include project links on get
+    if request.get? or ( request.post? and ['diff', 'branch'].include?(cmd) )
+      # include project links on get or for diff and branch command
       pkg = prj.find_package(package_name)
     else
       # allow operations only for local packages
