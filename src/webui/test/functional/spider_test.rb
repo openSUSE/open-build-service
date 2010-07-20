@@ -339,7 +339,7 @@ module SpiderIntegrator
           
         @stacktraces[next_link.uri] = @response.body
       end
-      consume_page( @response.body, next_link.uri )
+      @response.each { |body| consume_page( body, next_link.uri ) }
       @visited_urls[next_link.uri] = true
     end
 

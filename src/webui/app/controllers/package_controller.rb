@@ -654,7 +654,11 @@ class PackageController < ApplicationController
       maxsize = 1024 * 256
       offset = 0
       while true
-        chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
+        begin
+          chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
+        rescue ActiveXML::Transport::Error
+          chunk = ''
+        end
         if chunk.length == 0
           break
         end
