@@ -13,8 +13,8 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="package"    type="xs:string" minOccurs="0" maxOccurs="unbounded" />
-        <xs:element name="nosources"  type="xs:string" minOccurs="0" maxOccurs="1" />
         <xs:element name="binary"     type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="nosources"  type="xs:string" minOccurs="0" maxOccurs="1" />
         <xs:element ref="repository"                   minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute name="project" type="xs:string"/>
