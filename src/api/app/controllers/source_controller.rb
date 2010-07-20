@@ -228,13 +228,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # look also via linked projects, package source may come from another project
-    begin
-      # TODO(adrian) what is supposed to be in here?
-    rescue DbProject::CycleError => e
-      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
-      return
-    end
+    # package may not exist currently here, but can we work anyway with it ?
     unless deleted.blank? and not request.delete?
       unless package_name == "_project" or pkg or DbProject.find_remote_project(project_name)
         render_error :status => 404, :errorcode => "unknown_package",

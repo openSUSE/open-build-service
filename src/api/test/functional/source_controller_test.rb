@@ -472,12 +472,37 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
   
-  def test_remove_project1
+  def test_remove_and_undelete_operations
     ActionController::IntegrationTest::reset_auth 
+    delete "/source/kde4/kdelibs"
+    assert_response 401
     delete "/source/kde4"
     assert_response 401
 
+    # delete single package in project
     prepare_request_with_user "fredlibs", "geröllheimer"
+    delete "/source/kde4/kdelibs" 
+    assert_response :success
+
+    get "/source/kde4/kdelibs" 
+    assert_response 404
+    get "/source/kde4/kdelibs/_meta" 
+    assert_response 404
+
+    # list deleted packages
+    get "/source/kde4", :deleted => 1
+    assert_response 200
+    assert_tag( :tag => "entry", :attributes => { :name => "kdelibs"} )
+
+    # undelete single package
+    post "/source/kde4/kdelibs", :cmd => :undelete
+    assert_response :success
+    get "/source/kde4/kdelibs"
+    assert_response :success
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+
+    # delete entire project
     delete "/source/kde4" 
     assert_response :success
 
@@ -486,6 +511,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/_meta" 
     assert_response 404
 
+    # list content of deleted project
+    prepare_request_with_user "king", "sunflower"
+    get "/source", :deleted => 1
+    assert_response 200
+    assert_tag( :tag => "entry", :attributes => { :name => "kde4"} )
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    get "/source", :deleted => 1
+    assert_response 403
+    assert_match /only admins can see deleted projects/, @response.body
+
+    prepare_request_with_user "fredlibs", "geröllheimer"
     # undelete project
     post "/source/kde4", :cmd => :undelete
     assert_response 403
@@ -513,7 +549,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
   end
 
-  def test_remove_project2
+  def test_remove_project_and_verify_repositories
     prepare_request_with_user "tom", "thunder" 
     delete "/source/home:coolo"
     assert_response 403
