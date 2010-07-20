@@ -460,6 +460,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
 #    response.time_to_live = 5.minutes
 
+    # ACL(latest_updated) TODO: this exploits hidden projects. even shown without loggin in (when cookies are off in the webbrowser on WebUI)
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.updated_at, pro.name AS project_name',

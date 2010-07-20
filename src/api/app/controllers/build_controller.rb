@@ -11,6 +11,7 @@ class BuildController < ApplicationController
       return
     end
 
+    # ACL(project_index) TODO: since this function is done in the backend, it exploits hidden projects
     path = request.path
     unless request.query_string.empty?
       path += '?' + request.query_string
