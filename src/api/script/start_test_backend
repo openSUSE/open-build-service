@@ -161,14 +161,15 @@ f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:tscholz::10.2::Test
 f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
 f.close
 
-# upload build result
-system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*.rpm' | cpio -H newc -o | curl -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400&jobid=#{jobid}'")
+# upload build result as a worker would do
+system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400&jobid=#{jobid}'")
 # run scheduler again to handle the build result
-#$sched_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586")
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+   # just for waiting until scheduler finishes
+   io.each {||}
+end
 # upload a binary file to repository directly
 #Suse::Backend.put( '/build/home:tscholz/10.2/i586/_repository/package.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
-
-exit
 
 puts "DONE NOW"
 $stdout.flush

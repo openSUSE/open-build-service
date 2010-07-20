@@ -33,9 +33,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_logfile
     get "/build/home:tscholz/10.2/i586/TestPack/_log"
-    # no workers, no logfile
-    assert_response 400
-    assert_match /no logfile/, @response.body
+    assert_response :success
 
     get "/build/home:tscholz/10.2/i586/notthere/_log"
     assert_response 404
@@ -50,16 +48,22 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_binary_view
     get "/build/home:tscholz/10.2/i586/TestPack/file?view=fileinfo"
-    assert_response 400
+    assert_response 404
     assert_match /file: No such file or directory/, @response.body
 
-    # FIXME: implement a test for an existing file
+    get "/build/home:tscholz/10.2/i586/TestPack/package-1.0-1.i586.rpm?view=fileinfo"
+    assert_response :success
+    #FIXME validate xml content
   end
 
   def test_file
-    get "/build/home:tscholz/10.2/i586/TestPack/myfile"
+    get "/build/home:tscholz/10.2/i586/TestPack"
+    assert_response 200
+    get "/build/home:tscholz/10.2/i586/TestPack/package-1.0-1.i586.rpm"
+    assert_response 200
+    get "/build/home:tscholz/10.2/i586/TestPack/NOT_EXISTING"
     assert_response 404
-    assert_match /myfile: No such file or directory/, @response.body
+    assert_match /NOT_EXISTING: No such file or directory/, @response.body
   end
 
   def test_project_index
