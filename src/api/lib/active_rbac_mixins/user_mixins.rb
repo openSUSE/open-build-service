@@ -545,7 +545,10 @@ module UserMixins
                 end
                 conn.bind(user_name, password)
               rescue LDAP::ResultError
-                logger.debug( "Not bound:  error #{conn.err}" )
+                if not conn.nil?
+                  conn.unbind()
+                end
+                logger.debug( "Not bound:  error #{conn.err} for #{user_name}" )
                 return nil
               end
               logger.debug( "Bound as #{user_name}" )
