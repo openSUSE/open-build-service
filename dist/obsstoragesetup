@@ -240,7 +240,8 @@ case "$1" in
 			ln -sf $backenddir /obs
                 fi
 
-                if [ -e /dev/hw_random -o -e /dev/hwrng ]; then
+# We try out more entropy generators atm, so lets always enable signing for now
+#                if [ -e /dev/hw_random -o -e /dev/hwrng ]; then
 			# create default gpg key if not existing
 			if [ ! -e /obs/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
 				echo -n Generating OBS default GPG key ....
@@ -279,7 +280,7 @@ EOF
 				sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 				sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 			fi
-		fi
+#		fi
 		if [ ! -e /obs/obs-default-gpg.asc ] ; then
 			sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
