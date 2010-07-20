@@ -671,13 +671,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
     assert_response 403
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
+    assert_response 403
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
     assert_response :success
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "branch"
-    assert_response :success
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
     assert_response :success
 # FIXME: construct a linked package object to test this
 #    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linkdiff"

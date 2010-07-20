@@ -186,6 +186,7 @@ class SourceController < ApplicationController
     end
   end
 
+  # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
   def index_package
     valid_http_methods :get, :delete, :post
     required_parameters :project, :package
@@ -195,7 +196,7 @@ class SourceController < ApplicationController
     deleted = params.has_key? :deleted
 
     # list of commands which are allowed even when the project has the package only via a project link
-    read_commands = ['diff', 'branch', 'copy', 'linkdiff']
+    read_commands = ['diff', 'branch', 'linkdiff']
 
     prj = DbProject.find_by_name(project_name)
     unless prj
