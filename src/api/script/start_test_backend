@@ -19,7 +19,7 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
     line.gsub!(/:5352/, ":#{SOURCE_PORT}")
-    line.gsub!(/:5252/, ":3201") # not yet used
+    line.gsub!(/:5252/, ":3201") # used via source server
     file.print line
   end
 end
@@ -27,7 +27,7 @@ file.close
 
 perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
 
-%w{bs_srcserver bs_repserver}.each do |srv|
+%w{bs_srcserver bs_repserver bs_sched}.each do |srv|
   FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
   system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1") or exit 1
 end
@@ -121,9 +121,10 @@ Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:cool
 Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
 Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
 Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
+Suse::Backend.put( '/source/home:tscholz/_config', "Type: spec")
 Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
-Suse::Backend.put( '/source/home:tscholz/TestPack/_prjconf', "DUMMY")
 Suse::Backend.put( '/source/home:tscholz/TestPack/myfile', "DummyContent")
+Suse::Backend.put( '/source/home:tscholz/TestPack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put( '/source/home:tscholz/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
 Suse::Backend.put( '/source/home:tscholz:OldProject/_meta', DbProject.find_by_name('home:tscholz:OldProject').to_axml)
 Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
@@ -140,6 +141,34 @@ Suse::Backend.put( '/source/ViewprotectedProject/_meta', DbProject.find_by_name(
 Suse::Backend.put( '/source/ViewprotectedProject/pack/_meta', DbPackage.find_by_project_and_name("ViewprotectedProject", "pack").to_axml)
 Suse::Backend.put( '/source/ViewprotectedProject/pack/my_file', "Protected Content")
 
+#
+# Prepare backend meta and binary data
+#
+
+# run scheduler once
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+   # just for waiting until scheduler finishes
+   io.each {||}
+end
+
+# find out about the triggered build job and write back dispatching data
+# FIXME: make me more robust and detect MD5SUMs
+jobid=""
+IO.popen("md5sum #{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400|cut -d' ' -f 1") do |io|
+   jobid = io.readlines.first.chomp
+end
+f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400:status", 'w')
+f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+f.close
+
+# upload build result
+system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*.rpm' | cpio -H newc -o | curl -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400&jobid=#{jobid}'")
+# run scheduler again to handle the build result
+#$sched_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586")
+# upload a binary file to repository directly
+#Suse::Backend.put( '/build/home:tscholz/10.2/i586/_repository/package.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
+
+exit
 
 puts "DONE NOW"
 $stdout.flush

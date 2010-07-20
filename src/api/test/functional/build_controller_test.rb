@@ -50,7 +50,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_binary_view
     get "/build/home:tscholz/10.2/i586/TestPack/file?view=fileinfo"
-    assert_response 404
+    assert_response 400
     assert_match /file: No such file or directory/, @response.body
 
     # FIXME: implement a test for an existing file
