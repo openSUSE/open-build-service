@@ -3193,6 +3193,7 @@ if (@lookat_low) {
 my $slept = 0;
 my $notlow = 0;
 my $schedulerstart = time();
+my $gotevent = 1;
 
 while(1) {
   if (%changed_low || %changed_med || %changed_high) {
@@ -3251,7 +3252,6 @@ while(1) {
   }
 
   my $dummy;
-  my $gotevent;
   my @remoteevents;
   my $pingsock = {
     'socket' => \*PING,
@@ -3368,6 +3368,7 @@ while(1) {
     $slept += time() - $sleepstart;
   }
   if ($gotevent) {
+    $gotevent = 0;
     # drain ping pipe
     fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
     1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
