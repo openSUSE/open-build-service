@@ -61,6 +61,18 @@ class DbProject < ActiveRecord::Base
     end
   end
 
+  def find_linking_projects
+      sql =<<-END_SQL
+      SELECT prj.*
+      FROM db_projects prj
+      LEFT OUTER JOIN linked_projects lp ON lp.db_project_id = prj.id
+      LEFT OUTER JOIN db_projects lprj ON lprj.id = lp.linked_db_project_id
+      WHERE lprj.name = BINARY ?
+      END_SQL
+
+      result = DbProject.find_by_sql [sql, self.name]
+  end
+
   def store_axml( project, force=nil )
     DbProject.transaction do
       logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{project.name.to_s}"

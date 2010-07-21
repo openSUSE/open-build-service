@@ -107,6 +107,7 @@ Suse::Backend.put( '/source/BaseDistro3/_meta', DbProject.find_by_name('BaseDist
 Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', DbPackage.find_by_id('10094').to_axml)
 Suse::Backend.put( '/source/BaseDistro:Update/_meta', DbProject.find_by_name('BaseDistro:Update').to_axml)
 Suse::Backend.put( '/source/BaseDistro:Update/pack2/_meta', DbPackage.find_by_id(10098).to_axml)
+Suse::Backend.put( '/source/BaseDistro:Update/pack2/_link', "<link project=\"BaseDistro\" package=\"pack2\" />")
 Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
 Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
 Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")

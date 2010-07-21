@@ -684,6 +684,26 @@ class SourceControllerTest < ActionController::IntegrationTest
 #    assert_response :success
   end
 
+  def test_list_of_linking_instances
+    prepare_request_with_user "tom", "thunder"
+
+    # list all linking projects
+    post "/source/BaseDistro2", :cmd => "showlinked"
+    assert_response :success
+    assert_tag( :tag => "project", :attributes => { :name => "BaseDistro2:LinkedUpdateProject"}, :content => nil )
+
+    # list all linking packages with a local link
+    post "/source/BaseDistro/pack2", :cmd => "showlinked"
+    assert_response :success
+    assert_tag( :tag => "package", :attributes => { :project => "BaseDistro:Update", :name => "pack2" }, :content => nil )
+
+    # list all linking packages, base package is a package on a remote OBS instance
+# FIXME: support for this search is possible, but not yet implemented
+#    post "/source/RemoteInstance:BaseDistro/pack", :cmd => "showlinked"
+#    assert_response :success
+#    assert_tag( :tag => "package", :attributes => { :project => "BaseDistro:Update", :name => "pack2" }, :content => nil )
+  end
+
   def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"

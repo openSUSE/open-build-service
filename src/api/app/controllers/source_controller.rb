@@ -152,7 +152,7 @@ class SourceController < ApplicationController
     elsif request.post?
       cmd = params[:cmd]
 
-      if ['undelete'].include?(cmd) 
+      if 'undelete' == cmd
         unless @http_user.can_create_project?(project_name)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{cmd}'"
@@ -173,7 +173,7 @@ class SourceController < ApplicationController
         return
       end
 
-      if @http_user.can_modify_project?(pro)
+      if @http_user.can_modify_project?(pro) or cmd == "showlinked"
         dispatch_command
       else
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
@@ -196,7 +196,7 @@ class SourceController < ApplicationController
     deleted = params.has_key? :deleted
 
     # list of commands which are allowed even when the project has the package only via a project link
-    read_commands = ['diff', 'branch', 'linkdiff']
+    read_commands = ['diff', 'branch', 'linkdiff', 'showlinked']
 
     prj = DbProject.find_by_name(project_name)
     unless prj
@@ -1019,7 +1019,27 @@ class SourceController < ApplicationController
     render_ok :data => {:targetproject => mparams[:target_project]}
   end
 
-    # POST /source/<project>?cmd=extendkey
+  # create a id collection of all projects doing a project link to this one
+  # POST /source/<project>?cmd=showlinked
+  def index_project_showlinked
+    valid_http_methods :post
+    project_name = params[:project]
+
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    pro = DbProject.find_by_name project_name
+    xml = builder.collection() do |c|
+      pro.find_linking_projects.each do |l|
+        unless pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
+          p={}
+          p[:name] = l.name
+          c.project(p)
+        end
+      end
+    end
+    render :text => xml.target!, :content_type => "text/xml"
+  end
+
+  # POST /source/<project>?cmd=extendkey
   def index_project_extendkey
     valid_http_methods :post
     params[:user] = @http_user.login
@@ -1027,6 +1047,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
     # ACL(index_project_extendkey): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    # adrian: this should be checked anyway in index_project already
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
@@ -1038,7 +1059,7 @@ class SourceController < ApplicationController
     pass_to_backend path
   end
 
-    # POST /source/<project>?cmd=createkey
+  # POST /source/<project>?cmd=createkey
   def index_project_createkey
     valid_http_methods :post
     params[:user] = @http_user.login
@@ -1046,6 +1067,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
     # ACL(index_project_createkey): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    # adrian: this should be checked anyway in index_project already
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
@@ -1065,6 +1087,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
     # ACL(index_project_undelete): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    # adrian: this should be checked anyway in index_project already
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
@@ -1082,6 +1105,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
     # ACL(index_project_createpatchinfo): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    # adrian: this should be checked anyway in index_project already
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
@@ -1160,6 +1184,33 @@ class SourceController < ApplicationController
 
     binaries.uniq!
     return binaries
+  end
+
+  # create a id collection of all packages doing a package source link to this one
+  # POST /source/<project>/<package>?cmd=showlinked
+  def index_package_showlinked
+    valid_http_methods :post
+    project_name = params[:project]
+    package_name = params[:package]
+
+# This works perfect and fast, but is not verified for read access restrictions
+#    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
+#    answer = Suse::Backend.post path, nil
+#    render :text => answer.body, :content_type => 'text/xml'
+
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    pack = DbPackage.find_by_project_and_name ( project_name, package_name )
+    xml = builder.collection() do |c|
+      pack.find_linking_packages.each do |l|
+        unless pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+          p={}
+          p[:project] = l.db_project.name
+          p[:name] = l.name
+          c.package(p)
+        end
+      end
+    end
+    render :text => xml.target!, :content_type => "text/xml"
   end
 
   # POST /source/<project>/<package>?cmd=undelete

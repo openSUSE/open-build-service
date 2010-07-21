@@ -109,6 +109,20 @@ class DbPackage < ActiveRecord::Base
 
   end
 
+  def find_linking_packages
+    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\")"
+    answer = Suse::Backend.post path, nil
+    data = REXML::Document.new(answer.body)
+    result = []
+
+    data.elements.each("collection/package") do |e|
+      p = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
+      result.push( p )
+    end
+
+    return result
+  end
+
   def resolve_devel_package
     pkg = self
     prj_name = pkg.db_project.name
