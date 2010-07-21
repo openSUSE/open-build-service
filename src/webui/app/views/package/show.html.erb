@@ -26,7 +26,7 @@
         </span>
       <% end %>
 
-      <% if @bugowner_mail and BUGZILLA_HOST %>
+      <% if @bugowner_mail and defined? BUGZILLA_HOST %>
         <span>
           <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
         </span>
