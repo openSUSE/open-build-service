@@ -157,6 +157,12 @@ OBS_VM_KERNEL="none"
 ## Default:     "none"
 ## Config:      OBS
 #
+# for KVM, you have to create with (example for openSUSE 11.2):
+#
+# export rootfstype="ext4"
+# mkinitrd -d /dev/null -m "ext4 binfmt_misc virtio_pci virtio_blk" -k vmlinuz-2.6.31.12-0.2-default -i initrd-2.6.31.12-0.2-default-obs_worker
+#
+# a working initrd file which includes virtio and binfmt_misc for OBS in order to work fine
 #
 OBS_VM_INITRD="none"
 
