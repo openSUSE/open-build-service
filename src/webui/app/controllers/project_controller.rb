@@ -145,7 +145,7 @@ class ProjectController < ApplicationController
     load_packages_mainpage
 
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
-    @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
+    @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       if buildresult
         results = buildresult.data.find( 'result/status' )
@@ -155,9 +155,18 @@ class ProjectController < ApplicationController
       end
     end
 
+    linking_projects
+
     load_buildresult
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
+  end
+
+  def linking_projects
+    Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
+    @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
+       @project.linking_projects
+    end
   end
 
   # TODO we need the architectures in api/distributions

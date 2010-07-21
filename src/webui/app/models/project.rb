@@ -199,6 +199,22 @@ class Project < ActiveXML::Base
     return repo_hash
   end
     
+  def linking_projects
+    opt = Hash.new
+    opt[:project] = self.name
+    opt[:cmd] = "showlinked"
+    fc = FrontendCompat.new
+    answer = fc.do_post nil, opt
+
+    doc = XML::Parser.string(answer).parse
+    result = []
+    doc.find("/collection/project").each do |e|
+      result.push( e.attributes["name"] )
+    end
+
+    return result
+  end
+
   def bugowner
     b = all_persons("bugowner")
     return b.first if b

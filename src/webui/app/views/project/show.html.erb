@@ -65,16 +65,24 @@
             <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project %></p></div>
       <% end %>
 
-      <% if @problem_packages > 0 %>
-        <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@problem_packages, "is", "are") %> <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
-            <%= plural(@problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
+      <% if @nr_of_problem_packages > 0 %>
+        <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@nr_of_problem_packages, "is", "are") %> <%= @nr_of_problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+            <%= plural(@nr_of_problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
       <% elsif @nr_packages > 0 %>
         <p><%= image_tag 'icons/accept.png' %> All <%= @nr_packages %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
-      <% elsif @project.is_remote? %>
-        <p><%= image_tag 'icons/information.png' %> This project is linking the remote obs instance at: <i>
-            <a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i></p>
       <% else %>
         <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
+      <% end %>
+
+      <% if @project.is_remote? %>
+        <p><%= image_tag 'icons/information.png' %> This project is linking the remote obs instance at: <i>
+            <a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i></p>
+      <% end %>
+
+      <% if @linking_projects.size > 0 %>
+        <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@linking_projects.size, "is", "are") %> <%= @linking_projects.size %>
+            <%= link_to_remote("linking", :url => { :action => :linking_projects, :project => @project } ) %>
+            <%= plural(@linking_projects.size, "project", "projects") %> linking this project, this does not include single package links.</p></div>
       <% end %>
     </div>
   </div>
