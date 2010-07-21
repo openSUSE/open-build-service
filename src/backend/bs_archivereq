@@ -10,6 +10,8 @@ BEGIN {
 use Date::Parse;
 use Data::Dumper;
 
+use XML::Structured ':bytes';
+
 use BSConfig;
 use BSDB;
 use BSUtil;
