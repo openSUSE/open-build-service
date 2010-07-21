@@ -34,7 +34,7 @@ class ProjectControllerTest < ActionController::IntegrationTest
     get "/project/show?project=Apache"
     assert_response :success
     assert( assigns(:packages).each.size == 4 )
-    assert( assigns(:problem_packages) == 0 )
+    assert( assigns(:nr_of_problem_packages) == 0 )
     assert( assigns(:project) )
   end
 
