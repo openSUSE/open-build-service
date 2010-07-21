@@ -27,24 +27,24 @@ home:dmayr:
   description: description
   created_at: 2005-01-01 00:00:01
   updated_at: 2007-01-26 12:14:22
-home:tscholz:
-  name: home:tscholz
+home:Iggy:
+  name: home:Iggy
   updated_at: 2005-01-01 00:00:01
-  title: tscholz Home Project
+  title: Iggy Home Project
   id: 502
   description: ""
   created_at: 2005-01-01 00:00:01
-home:tscholz:OldProject:
-  name: home:tscholz:OldProject
+home:Iggy:OldProject:
+  name: home:Iggy:OldProject
   updated_at: 2005-01-01 00:00:01
   title: This project gets deleted by request test
   id: 503
   description: ""
   created_at: 2005-01-01 00:00:01
-home:tscholz:branches:kde4:
-  name: home:tscholz:branches:kde4
+home:Iggy:branches:kde4:
+  name: home:Iggy:branches:kde4
   updated_at: 2005-01-01 00:00:01
-  title: tscholz Home Project
+  title: Iggy Home Project
   id: 504
   description: ""
   created_at: 2005-01-01 00:00:01

@@ -57,7 +57,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
  
     # now testing if also others can see it
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
@@ -568,7 +568,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_diff_package
     prepare_request_with_user "tom", "thunder" 
-    post "/source/home:tscholz/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
   end
 
@@ -706,54 +706,54 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 401
     prepare_request_with_user "fredlibs", "geröllheimer"
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "NotExisting"
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "NotExisting"
     assert_response 403
     assert_match /no permission to create project/, @response.body
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 403
     assert_match /no permission to create package/, @response.body
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response 403
     assert_match /no permission to create package/, @response.body
  
     prepare_request_with_user "tom", "thunder"
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response :success
     get "/source/home:coolo:test/TestPack/_meta"
     assert_response :success
 
     # branch again
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response 400
     assert_match /branch target package already exists/, @response.body
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response :success
-    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
     assert_response 400
     assert_match /no such revision/, @response.body
     # FIXME: do a real commit and branch afterwards
 
     # now with a new project
-    post "/source/home:tscholz/TestPack", :cmd => :branch
+    post "/source/home:Iggy/TestPack", :cmd => :branch
     assert_response :success
     
-    get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
+    get "/source/home:tom:branches:home:Iggy/TestPack/_meta"
     assert_response :success
 
-    get "/source/home:tom:branches:home:tscholz/_meta"
+    get "/source/home:tom:branches:home:Iggy/_meta"
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.repository.name, "10.2"
     assert_equal ret.repository.path.repository, "10.2"
-    assert_equal ret.repository.path.project, "home:tscholz"
+    assert_equal ret.repository.path.project, "home:Iggy"
 
     # check source link
-    get "/source/home:tom:branches:home:tscholz/TestPack/_link"
+    get "/source/home:tom:branches:home:Iggy/TestPack/_link"
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.project, "home:tscholz"
+    assert_equal ret.project, "home:Iggy"
     assert_equal ret.package, "TestPack"
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
@@ -769,40 +769,40 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # delete package
     ActionController::IntegrationTest::reset_auth 
-    delete "/source/home:tom:branches:home:tscholz/TestPack"
+    delete "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response 401
 
     prepare_request_with_user "tom", "thunder"
-    delete "/source/home:tom:branches:home:tscholz/TestPack"
+    delete "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response :success
 
-    get "/source/home:tom:branches:home:tscholz/TestPack"
+    get "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response 404
-    get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
+    get "/source/home:tom:branches:home:Iggy/TestPack/_meta"
     assert_response 404
 
     # undelete package
-    post "/source/home:tom:branches:home:tscholz/TestPack", :cmd => :undelete
+    post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
     assert_response :success
 
     # content got restored ?
-    get "/source/home:tom:branches:home:tscholz/TestPack"
+    get "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response :success
-    get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
+    get "/source/home:tom:branches:home:Iggy/TestPack/_meta"
     assert_response :success
-    get "/source/home:tom:branches:home:tscholz/TestPack/_link"
+    get "/source/home:tom:branches:home:Iggy/TestPack/_link"
     assert_response :success
 
     # undelete package again
-    post "/source/home:tom:branches:home:tscholz/TestPack", :cmd => :undelete
+    post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
     assert_response 403
 
   end
 
   def test_package_set_flag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
     original = @response.body
 
@@ -810,23 +810,23 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_match /Unknown project 'home:tschols'/, @response.body
 
-    post "/source/home:tscholz/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
     assert_match /Required Parameter status missing/, @response.body
 
-    post "/source/home:tscholz/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=enable"
+    post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=enable"
     assert_response 404
     assert_match /Unknown package 'Nothere'/, @response.body
 
-    post "/source/home:tscholz/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
+    post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
     assert_response 400
     assert_match /Error: unknown status for flag 'anything'/, @response.body
 
-    post "/source/home:tscholz/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
+    post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
     assert_response 400
     assert_match /Error: unknown flag type 'shine' not found./, @response.body
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
@@ -835,21 +835,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
-    post "/source/home:tscholz/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_not_equal original, @response.body
 
-    get "/source/home:tscholz/TestPack/_meta?view=flagdetails"
+    get "/source/home:Iggy/TestPack/_meta?view=flagdetails"
     assert_response :success
   end
 
 
   def test_project_set_flag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_response :success
     original = @response.body
 
@@ -857,19 +857,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_match /Unknown project 'home:tschols'/, @response.body
 
-    post "/source/home:tscholz?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
     assert_match /Required Parameter status missing/, @response.body
 
-    post "/source/home:tscholz?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
+    post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
     assert_response 400
     assert_match /Error: unknown status for flag 'anything'/, @response.body
 
-    post "/source/home:tscholz?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
+    post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
     assert_response 400
     assert_match /Error: unknown flag type 'shine' not found./, @response.body
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
@@ -878,29 +878,29 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
-    post "/source/home:tscholz?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post "/source/home:Iggy?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_not_equal original, @response.body
 
     original = @response.body
     
-    post "/source/home:tscholz?cmd=set_flag&flag=build&status=enable"
+    post "/source/home:Iggy?cmd=set_flag&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_not_equal original, @response.body
 
-    get "/source/home:tscholz/_meta?view=flagdetails"
+    get "/source/home:Iggy/_meta?view=flagdetails"
     assert_response :success
 
   end
 
   def test_package_remove_flag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
     original = @response.body
 
@@ -908,19 +908,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_match /Unknown project 'home:tschols'/, @response.body
 
-    post "/source/home:tscholz/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
+    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 400
     assert_match /Required Parameter flag missing/, @response.body
 
-    post "/source/home:tscholz/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
     assert_match /Unknown package 'Nothere'/, @response.body
 
-    post "/source/home:tscholz/TestPack?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
+    post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400
     assert_match /Error: unknown flag type 'shine' not found./, @response.body
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
@@ -929,29 +929,29 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
-    post "/source/home:tscholz/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_not_equal original, @response.body
 
     # non existant repos should not change anything
     original = @response.body
 
-    post "/source/home:tscholz/TestPack?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo"
+    post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo"
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:tscholz/TestPack/_meta"
+    get "/source/home:Iggy/TestPack/_meta"
     assert_equal original, @response.body
 
-    get "/source/home:tscholz/TestPack/_meta?view=flagdetails"
+    get "/source/home:Iggy/TestPack/_meta?view=flagdetails"
     assert_response :success
   end
 
   def test_project_remove_flag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_response :success
     original = @response.body
 
@@ -959,15 +959,15 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_match /Unknown project 'home:tschols'/, @response.body
 
-    post "/source/home:tscholz/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
+    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 400
     assert_match /Required Parameter flag missing/, @response.body
 
-    post "/source/home:tscholz?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
+    post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400
     assert_match /Error: unknown flag type 'shine' not found./, @response.body
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
@@ -976,41 +976,41 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match /no permission to execute command/, @response.body
 
-    post "/source/home:tscholz?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_not_equal original, @response.body
 
     # non existant repos should not change anything
     original = @response.body
 
-    post "/source/home:tscholz?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo"
+    post "/source/home:Iggy?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo"
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:tscholz/_meta"
+    get "/source/home:Iggy/_meta"
     assert_equal original, @response.body
 
-    get "/source/home:tscholz/_meta?view=flagdetails"
+    get "/source/home:Iggy/_meta?view=flagdetails"
     assert_response :success
   end
 
   def test_wild_chars
-    prepare_request_with_user "tscholz", "asdfasdf"
-    get "/source/home:tscholz/TestPack"
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/source/home:Iggy/TestPack"
     assert_response :success
    
-    Suse::Backend.put( '/source/home:tscholz/TestPack/bnc#620675.diff', 'argl')
+    Suse::Backend.put( '/source/home:Iggy/TestPack/bnc#620675.diff', 'argl')
     assert_response :success
 
-    get "/source/home:tscholz/TestPack"
+    get "/source/home:Iggy/TestPack"
     assert_response :success
 
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "bnc#620675.diff" } } }
 
-    get "/source/home:tscholz/TestPack/bnc#620675.diff"
+    get "/source/home:Iggy/TestPack/bnc#620675.diff"
     assert_response :success
   end
 
@@ -1051,7 +1051,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_privacy_project_invalid_user
     begin
-      do_read_access_project("tscholz", "asdfasdf", "ViewprotectedProject", :success)
+      do_read_access_project("Iggy", "asdfasdf", "ViewprotectedProject", :success)
       # we reuse the listing here, invalid-user -> no packages visible
       assert_tag :tag => "directory", :children => { :count => 0 }
       # this should fail !
@@ -1060,7 +1060,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     else
       #FIXME: package in privacy-enabled project ?
       #puts "\n This test should fail! We need to verify the logic! \n"
-      #do_read_access_package("tscholz", "asdfasdf", "ViewprotectedProject", "pack", 404)
+      #do_read_access_package("Iggy", "asdfasdf", "ViewprotectedProject", "pack", 404)
     end
   end
   # TODO

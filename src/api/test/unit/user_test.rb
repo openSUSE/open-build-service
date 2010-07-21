@@ -5,8 +5,8 @@ class UserTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    @project = DbProject.find( :first, :conditions => { :name => "home:tscholz" } )
-    @user = User.find_by_login("tscholz")
+    @project = DbProject.find( :first, :conditions => { :name => "home:Iggy" } )
+    @user = User.find_by_login("Iggy")
   end
   
   def test_basics

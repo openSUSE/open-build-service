@@ -35,8 +35,8 @@ class DbProjectTest < ActiveSupport::TestCase
     
     #project is given as axml
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description> 
         <build> 
           <disable repository='10.2' arch='i586'/>
@@ -63,7 +63,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'i586', @project.type_flags('build')[0].architecture.name
     assert_equal 1, @project.type_flags('build')[0].position
     assert_nil @project.type_flags('build')[0].db_package    
-    assert_equal 'home:tscholz', @project.type_flags('build')[0].db_project.name
+    assert_equal 'home:Iggy', @project.type_flags('build')[0].db_project.name
     
     assert_equal 1, @project.type_flags('publish').size
     assert_equal 'enable', @project.type_flags('publish')[0].status
@@ -71,7 +71,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
     assert_equal 2, @project.type_flags('publish')[0].position
     assert_nil @project.type_flags('publish')[0].db_package    
-    assert_equal 'home:tscholz', @project.type_flags('publish')[0].db_project.name  
+    assert_equal 'home:Iggy', @project.type_flags('publish')[0].db_project.name  
     
     assert_equal 1, @project.type_flags('debuginfo').size
     assert_equal 'disable', @project.type_flags('debuginfo')[0].status
@@ -79,7 +79,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @project.type_flags('debuginfo')[0].position
     assert_nil @project.type_flags('debuginfo')[0].db_package    
-    assert_equal 'home:tscholz', @project.type_flags('debuginfo')[0].db_project.name      
+    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].db_project.name      
     
   end
   
@@ -91,8 +91,8 @@ class DbProjectTest < ActiveSupport::TestCase
     
     #project is given as axml
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description> 
       </project>"
       )    
@@ -113,8 +113,8 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 2, @project.type_flags('build').size    
   
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description>
         <build>
           <enable repository='10.2' arch='i586'/>
@@ -133,8 +133,8 @@ class DbProjectTest < ActiveSupport::TestCase
 
     #project is given as axml
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description>
         <debuginfo>
           <disable repository='10.0' arch='i586'/>

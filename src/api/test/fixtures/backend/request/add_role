@@ -1,10 +1,10 @@
 <request>
   <action type='add_role'>
     <target project='kde4' package='kdelibs' />
-    <person name='tscholz' role='reviewer' />
+    <person name='Iggy' role='reviewer' />
   </action>
   <description/>
-  <state who="tscholz" name="new"/>
+  <state who="Iggy" name="new"/>
   </request>
 
 

@@ -1,22 +1,22 @@
 <request>
   <action type='submit'>
-    <source project='home:tscholz:branches:kde4' package='kdebase' rev='1' />
+    <source project='home:Iggy:branches:kde4' package='kdebase' rev='1' />
     <target project='kde4' package="kdebase" />
   </action>
   <action type='submit'>
-    <source project='home:tscholz:branches:kde4' package='BranchPack' rev='1' />
+    <source project='home:Iggy:branches:kde4' package='BranchPack' rev='1' />
     <target project='kde4' package="Testing" />
     <options><sourceupdate>cleanup</sourceupdate></options>
   </action>
   <action type="delete">
-    <target project="home:tscholz" package="ToBeDeletedTestPack" />
+    <target project="home:Iggy" package="ToBeDeletedTestPack" />
   </action>
   <action type="delete">
-    <target project="home:tscholz:OldProject"/>
+    <target project="home:Iggy:OldProject"/>
   </action>
   <action type="add_role">
     <target project="kde4" />
-    <person name="tscholz" role="maintainer" />
+    <person name="Iggy" role="maintainer" />
   </action>
   <action type="add_role">
     <target project="kde4" />
@@ -24,7 +24,7 @@
   </action>
   <action type="add_role">
     <target project="kde4" package="kdelibs" />
-    <person name="tscholz" role="maintainer" />
+    <person name="Iggy" role="maintainer" />
   </action>
   <action type="add_role">
     <target project="kde4" package="kdelibs" />
@@ -32,18 +32,18 @@
   </action>
   <action type="set_bugowner">
     <target project="kde4" />
-    <person name="tscholz"  />
+    <person name="Iggy"  />
   </action>
   <action type="set_bugowner">
     <target project="kde4" package="kdelibs" />
-    <person name="tscholz"  />
+    <person name="Iggy"  />
   </action>
   <action type="change_devel">
-    <source project="home:tscholz" package="TestPack" />
+    <source project="home:Iggy" package="TestPack" />
     <target project="kde4" package="kdelibs" />
   </action>
 
   <description/>
-  <state who="tscholz" name="new"/>
+  <state who="Iggy" name="new"/>
 </request>
 

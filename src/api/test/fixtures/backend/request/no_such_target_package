@@ -1,7 +1,7 @@
   <request>
   <action type="add_role">
-    <target project='home:tscholz' package='DoesNotExist' />
-    <person name="tscholz" role="maintainer" />
+    <target project='home:Iggy' package='DoesNotExist' />
+    <person name="Iggy" role="maintainer" />
   </action>
   <description/>
   <state who="DoesNotExist" name="new"/>

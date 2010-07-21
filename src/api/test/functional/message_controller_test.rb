@@ -15,10 +15,10 @@ class MessageControllerTest < ActionController::IntegrationTest
     get "/message/1"
     assert_response 404
    
-    get "/message?project=home:tscholz"
+    get "/message?project=home:Iggy"
     assert_response :success
 
-    get "/message?project=home:tscholz&package=TestPack"
+    get "/message?project=home:Iggy&package=TestPack"
     assert_response :success
     assert_tag( :tag => "messages" ) 
   
@@ -38,7 +38,7 @@ class MessageControllerTest < ActionController::IntegrationTest
     assert_response 400
     assert_match /must give either project or package/, @response.body
 
-    put "/message?project=home:tscholz", '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    put "/message?project=home:Iggy", '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 403 # so close!
 
     put "/message?project=home:tom", '<message severity="1" send_mail="true" private="true">sample message...</message>'
@@ -57,8 +57,8 @@ class MessageControllerTest < ActionController::IntegrationTest
       assert_match /id not found/, @response.body
     end
     
-    prepare_request_with_user "tscholz", "asdfasdf"
-    put "/message?project=home:tscholz&package=TestPack", '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/message?project=home:Iggy&package=TestPack", '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 200
 
     get "/message"

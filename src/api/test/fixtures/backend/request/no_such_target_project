@@ -1,9 +1,9 @@
   <request>
   <action type='submit'>
-    <source project='home:tscholz' package='TestPack' rev='1' />
+    <source project='home:Iggy' package='TestPack' rev='1' />
     <target project='DoesNotExist' package='mypackage' />
   </action>
   <description/>
-  <state who="tscholz" name="new"/>
+  <state who="Iggy" name="new"/>
   </request>
 

@@ -44,7 +44,7 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 4, t.count, "Wrong tag-count for TagB."
     
     #user-context
-    u = User.find_by_login('tscholz')
+    u = User.find_by_login('Iggy')
     assert_kind_of User, u
     
     opt = {:scope => 'user', :user => u}

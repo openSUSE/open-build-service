@@ -1,6 +1,6 @@
   <request>
   <action type="add_role">
-    <target project='home:tscholz' package='TestPack' />
+    <target project='home:Iggy' package='TestPack' />
     <person name="DoesNotExist" role="maintainer" />
   </action>
   <description/>

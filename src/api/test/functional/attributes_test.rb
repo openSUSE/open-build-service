@@ -10,7 +10,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/attribute/"
     assert_response 401
 
-    prepare_request_with_user "tscholz", "asdfasdf" 
+    prepare_request_with_user "Iggy", "asdfasdf" 
     get "/attribute/"
     assert_response :success
 
@@ -22,7 +22,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_namespace_index
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
 
     get "/attribute/NotExisting"
     assert_response 400
@@ -36,7 +36,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_namespace_meta
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     get "/attribute/OBS/UpdateProject/_meta"
     assert_response :success
     assert_tag :tag => 'definition', :attributes => { :name => "UpdateProject", :namespace => "OBS" }
@@ -51,7 +51,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match /Namespace changes are only permitted by the administrator/, @response.body
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     delete "/attribute/OBS/_meta"
     assert_response 403
     assert_match /Namespace changes are only permitted by the administrator/, @response.body
@@ -95,7 +95,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     post "/attribute/TEST/Dummy/_meta", data
     assert_response 401
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     delete "/attribute/OBS/Maintenance/_meta"
     assert_response 403
     assert_match /Attribute type changes are not permitted/, @response.body
@@ -112,7 +112,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_attrib_type_meta
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
 
     get "/attribute/OBS"
     assert_response :success
@@ -163,7 +163,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     # not allowed
     ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/home:tom/_attribute", data
     assert_response 403
     delete "/source/home:tom/_attribute/OBS:Maintained"
@@ -239,7 +239,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     # no permission check
     ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 403
     post "/source/kde4/kdelibs/_attribute/OBS:Maintained", data

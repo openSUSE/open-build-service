@@ -39,10 +39,11 @@ king:
   password_hash_type: md5
 
 # standard User for tagging tests
-tscholz:
+Iggy:
   id: 267
-  login: tscholz
-  email: tscholz@suse.de
+  login: Iggy
+  email: Iggy@pop.org
+  realname: Iggy Pop
   password: <%= Digest::MD5.hexdigest("asdfasdf") %>
   password_salt: ""
   password_hash_type: md5

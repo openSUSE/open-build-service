@@ -6,7 +6,7 @@ class LinkedProjectTest < ActiveSupport::TestCase
   def test_validation
     prj = LinkedProject.new
     assert_equal false, prj.valid?
-    prj.db_project = DbProject.find_by_name("home:tscholz")
+    prj.db_project = DbProject.find_by_name("home:Iggy")
     assert_equal false, prj.valid?
     prj.linked_db_project = DbProject.find_by_name("BaseDistro2")
     assert_equal true, prj.valid?

@@ -16,20 +16,20 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_get_invalid_1
-    prepare_request_with_user "tscholz", "xxx"
+    prepare_request_with_user "Iggy", "xxx"
     get "/request/1"
     assert_response 401
   end
 
   def test_submit_broken_request
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/no_such_project')
     assert_response 404
     assert_select "status[code] > summary", /Unknown source project home:guest/
   
     post "/request?cmd=create", load_backend_file('request/no_such_package')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown source package mypackage in project home:tscholz/
+    assert_select "status[code] > summary", /Unknown source package mypackage in project home:Iggy/
 
     post "/request?cmd=create", load_backend_file('request/no_such_user')
     assert_response 404
@@ -61,20 +61,20 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_set_bugowner_request
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner')
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner_fail')
     assert_response 404
     assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
 
     # test direct put
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     put "/request/#{id}", load_backend_file('request/set_bugowner')
     assert_response 403
 
@@ -84,7 +84,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_add_role_request
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response :success
 
@@ -106,11 +106,11 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", req
     assert_response 403
-    assert_select "status[code] > summary", /No permission to create request for package 'TestPack' in project 'home:tscholz'/
+    assert_select "status[code] > summary", /No permission to create request for package 'TestPack' in project 'home:Iggy'/
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/submit_without_target')
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", req
     assert_response 400
     assert_select "status[code] > summary", /target project does not exist/
@@ -132,7 +132,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response 403
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
@@ -144,7 +144,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     # create kdelibs package
     post "/source/kde4/kdebase", :cmd => :branch
     assert_response :success
@@ -175,31 +175,31 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # Validate the executed actions
-    get "/source/home:tscholz:branches:kde4"
+    get "/source/home:Iggy:branches:kde4"
     assert_response 404
-    get "/source/home:tscholz/ToBeDeletedTestPack"
+    get "/source/home:Iggy/ToBeDeletedTestPack"
     assert_response 404
-    get "/source/home:tscholz:OldProject"
+    get "/source/home:Iggy:OldProject"
     assert_response 404
     get "/source/kde4/Testing/myfile"
     assert_response :success
     get "/source/kde4/_meta"
     assert_response :success
-    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
-    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "maintainer" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
     assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
-    assert_tag( :tag => "devel", :attributes => { :project => "home:tscholz", :package => "TestPack" } )
-    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "bugowner" } )
-    assert_tag( :tag => "person", :attributes => { :userid => "tscholz", :role => "maintainer" } )
+    assert_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
     assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
   end
 
   def test_submit_with_review
     req = load_backend_file('request/submit_with_review')
 
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", req
     assert_response :success
     assert_tag( :tag => "request" )
@@ -263,7 +263,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
   ## create request to hidden package from open place - invalid user - fail 
   def test_create_request_to_hidden_package_from_open_place_invalid_user
-    request_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_open_invalid')
+    request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
 #    puts @response.body
     begin
       assert_response 404
@@ -281,7 +281,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
-    request_hidden("tscholz", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
+    request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
 #    puts @response.body
     begin
       assert_response 404
@@ -305,7 +305,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
   ## create request from hidden package to open place - invalid user  - fail !
   def test_create_request_from_hidden_package_to_open_place_invalid_user
-    request_hidden("tscholz", "asdfasdf", 'request/from_hidden_to_open_invalid')
+    request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
     begin
       assert_response 404
     rescue

@@ -53,7 +53,7 @@ class StatusControllerTest < ActionController::IntegrationTest
 
   def test_project_status
     # exists only in the API, should give minimal status
-    get "/status/project/home:tscholz"
+    get "/status/project/home:Iggy"
     assert_response :success
   end
 end

@@ -1,6 +1,6 @@
   <request>
   <action type='submit'>
-    <source project='home:tscholz' package='TestPack' />
+    <source project='home:Iggy' package='TestPack' />
   </action>
   <description/>
   </request>

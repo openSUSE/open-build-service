@@ -38,7 +38,7 @@ class DbPackageTest < ActiveSupport::TestCase
     
     #package is given as axml
     axml = ActiveXML::Base.new(
-      "<package name='TestPack' project='home:tscholz'>
+      "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <build>
@@ -97,7 +97,7 @@ class DbPackageTest < ActiveSupport::TestCase
     
     #package is given as axml
     axml = ActiveXML::Base.new(
-      "<package name='TestPack' project='home:tscholz'>
+      "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
       </package>"

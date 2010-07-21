@@ -122,16 +122,16 @@ Suse::Backend.put( '/source/home:adrian:BaseDistro/_meta', DbProject.find_by_nam
 Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
 Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
 Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
-Suse::Backend.put( '/source/home:tscholz/_meta', DbProject.find_by_name('home:tscholz').to_axml)
-Suse::Backend.put( '/source/home:tscholz/_config', "Type: spec")
-Suse::Backend.put( '/source/home:tscholz/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
-Suse::Backend.put( '/source/home:tscholz/TestPack/myfile', "DummyContent")
-Suse::Backend.put( '/source/home:tscholz/TestPack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
-Suse::Backend.put( '/source/home:tscholz/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
-Suse::Backend.put( '/source/home:tscholz:OldProject/_meta', DbProject.find_by_name('home:tscholz:OldProject').to_axml)
-Suse::Backend.put( '/source/home:tscholz:branches:kde4/_meta', DbProject.find_by_name('home:tscholz:branches:kde4').to_axml)
-Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
-Suse::Backend.put( '/source/home:tscholz:branches:kde4/BranchPack/myfile', "DummyContent")
+Suse::Backend.put( '/source/home:Iggy/_meta', DbProject.find_by_name('home:Iggy').to_axml)
+Suse::Backend.put( '/source/home:Iggy/_config', "Type: spec")
+Suse::Backend.put( '/source/home:Iggy/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
+Suse::Backend.put( '/source/home:Iggy/TestPack/myfile', "DummyContent")
+Suse::Backend.put( '/source/home:Iggy/TestPack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put( '/source/home:Iggy/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
+Suse::Backend.put( '/source/home:Iggy:OldProject/_meta', DbProject.find_by_name('home:Iggy:OldProject').to_axml)
+Suse::Backend.put( '/source/home:Iggy:branches:kde4/_meta', DbProject.find_by_name('home:Iggy:branches:kde4').to_axml)
+Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
+Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/myfile', "DummyContent")
 Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
 Suse::Backend.put( '/source/kde4/kdebase/_meta', DbPackage.find_by_name('kdebase').to_axml)
 Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
@@ -156,22 +156,22 @@ end
 # find out about the triggered build job and write back dispatching data
 # FIXME: make me more robust and detect MD5SUMs
 jobid=""
-IO.popen("md5sum #{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400|cut -d' ' -f 1") do |io|
+IO.popen("md5sum #{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-cfbfb77264afef8c58488f10495fe400|cut -d' ' -f 1") do |io|
    jobid = io.readlines.first.chomp
 end
-f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400:status", 'w')
+f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-cfbfb77264afef8c58488f10495fe400:status", 'w')
 f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
 f.close
 
 # upload build result as a worker would do
-system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=home:tscholz::10.2::TestPack-cfbfb77264afef8c58488f10495fe400&jobid=#{jobid}'")
+system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=home:Iggy::10.2::TestPack-cfbfb77264afef8c58488f10495fe400&jobid=#{jobid}'")
 # run scheduler again to handle the build result
 IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
    # just for waiting until scheduler finishes
    io.each {||}
 end
 # upload a binary file to repository directly
-#Suse::Backend.put( '/build/home:tscholz/10.2/i586/_repository/package.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
+#Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/package.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
 
 puts "DONE NOW"
 $stdout.flush

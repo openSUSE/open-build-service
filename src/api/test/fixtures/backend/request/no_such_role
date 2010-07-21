@@ -1,9 +1,9 @@
   <request>
   <action type="add_role">
-    <target project='home:tscholz' package='TestPack' />
-    <person name="tscholz" role="DoesNotExist" />
+    <target project='home:Iggy' package='TestPack' />
+    <person name="Iggy" role="DoesNotExist" />
   </action>
   <description/>
-  <state who="tscholz" name="new"/>
+  <state who="Iggy" name="new"/>
   </request>
 
