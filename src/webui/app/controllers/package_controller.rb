@@ -39,6 +39,15 @@ class PackageController < ApplicationController
       @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s
     end
     fill_status_cache unless @buildresult.blank?
+    linking_packages
+  end
+
+  def linking_packages
+    cache_string = "%s/%s_linking_packages" % [ @project, @package ]
+    Rails.cache.delete(cache_string) if discard_cache?
+    @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
+       @package.linking_packages
+    end
   end
 
   def dependency

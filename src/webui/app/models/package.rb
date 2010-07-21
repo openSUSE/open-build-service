@@ -96,6 +96,25 @@ class Package < ActiveXML::Base
     return nil
   end
 
+  def linking_packages
+    opt = Hash.new
+    opt[:project] = self.project
+    opt[:package] = self.name
+    opt[:cmd] = "showlinked"
+    fc = FrontendCompat.new
+    answer = fc.do_post nil, opt
+
+    doc = XML::Parser.string(answer).parse
+    result = []
+    doc.find("/collection/package").each do |e|
+      hash = {}
+      hash[:project] = e.attributes["project"]
+      hash[:package] = e.attributes["name"]
+      result.push( hash )
+    end
+
+    return result
+  end
 
   def all_persons( role )
     ret = Array.new

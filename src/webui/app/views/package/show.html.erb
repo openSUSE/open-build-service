@@ -90,6 +90,14 @@
         </p>
       <% end %>
 
+      <% if @linking_packages and @linking_packages.size > 0 %>
+        <p>
+          <%= image_tag 'icons/information.png' %> There <%= plural(@linking_packages.size, "is", "are") %>
+          <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+          from this package.
+        </p>
+      <% end %>
+
 
     </div>
   </div>
