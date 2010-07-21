@@ -1930,6 +1930,66 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 		    MAPSET(&xp->conflicts, id2);
 		  }
 	      }
+	    /* XXX: this modifies the pool, which is a bit unclean! */
+	    svp = hv_fetch(config, "fileprovides", 12, 0);
+	    sv = svp ? *svp : 0;
+	    if (sv && SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVHV)
+	      {
+		HV *hv = (HV *)SvRV(sv);
+		I32 strl;
+		Queue q;
+
+		hv_iterinit(hv);
+		queue_init(&q);
+		while ((sv = hv_iternextsv(hv, &str, &strl)) != 0)
+		  {
+		    AV *av;
+		    Id p, pp;
+		    int havenew = 0;
+
+		    if (!SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV)
+		      continue;
+		    id = str2id(pool, str, 1);
+		    queue_empty(&q);
+		    FOR_PROVIDES(p, pp, id)
+		      queue_push(&q, p);
+		    av = (AV *)SvRV(sv);
+		    for (i = 0; i <= av_len(av); i++)
+		      {
+			svp = av_fetch(av, i, 0);
+			if (!svp)
+			  continue;
+			sv = *svp;
+			str = SvPV_nolen(sv);
+			if (!str)
+			  continue;
+			id2 = str2id(pool, str, 0);
+			FOR_PROVIDES(p, pp, id2)
+			  {
+			    int j;
+			    for (j = 0; j < q.count; j++)
+			      {
+				if (q.elements[j] == p)
+				  break;
+				if (q.elements[j] > p)
+				  {
+				    queue_insert(&q, j, p);
+				    havenew = 1;
+				    break;
+				  }
+			      }
+			    if (j == q.count)
+			      {
+			        queue_push(&q, p);
+				havenew = 1;
+			      }
+			  }
+		      }
+		    if (havenew)
+		      pool->whatprovides[id] = pool_queuetowhatprovides(pool, &q);
+		  }
+		queue_free(&q);
+	      }
 	    sv = get_sv("Build::expand_dbg", FALSE);
 	    if (sv && SvTRUE(sv))
 	      xp->debug = 1;
