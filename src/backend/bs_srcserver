@@ -67,6 +67,7 @@ $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
+my $treesdir = $BSConfig::nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrep;
 my $requestsdir = "$BSConfig::bsdir/requests";
 my $oldrequestsdir = "$BSConfig::bsdir/requests.old";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
@@ -533,10 +534,13 @@ sub addmeta {
     } else {
       unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS");
     }
-  } elsif (! -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
-    mkdir_p($uploaddir);
-    mkdir_p("$srcrep/$packid");
-    writestr("$uploaddir/addmeta$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
+  } else {
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+    if (! -e "$treedir/$srcmd5-MD5SUMS") {
+      mkdir_p($uploaddir);
+      mkdir_p($treedir);
+      writestr("$uploaddir/addmeta$$", "$treedir/$srcmd5-MD5SUMS", $meta);
+    }
   }
   return $srcmd5;
 }
@@ -546,14 +550,15 @@ sub addmeta {
 sub addmeta_link {
   my ($projid, $packid, $files, $srcmd5, $linkinfo) = @_;
 
-  if (! -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  if (! -e "$treedir/$srcmd5-MD5SUMS") {
     my $meta = '';
     $meta .= "$files->{$_}  $_\n" for sort keys %$files;
     $meta .= "$linkinfo->{'srcmd5'}  /LINK\n";
     $meta .= "$linkinfo->{'lsrcmd5'}  /LOCAL\n";
     mkdir_p($uploaddir);
-    mkdir_p("$srcrep/$packid");
-    writestr("$uploaddir/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
+    mkdir_p($treedir);
+    writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
   }
 }
 
@@ -705,9 +710,13 @@ sub lsrev {
      return lsrev_git($rev, $linkinfo);
   } else {
     die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
-    if (!open(F, '<', "$srcrep/$packid/$srcmd5-MD5SUMS")) {
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+    if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$srcmd5-MD5SUMS") {
+      $treedir = "$srcrep/$packid";
+    }
+    if (!open(F, '<', "$treedir/$srcmd5-MD5SUMS")) {
       return {'_linkerror' => $srcmd5} if -e "$srcrep/$packid/$srcmd5-_linkerror";
-      die("$packid/$srcmd5-$packid: not in repository\n");
+      die("$projid/$packid/$srcmd5: not in repository\n");
     }
   }
   my @files = <F>;
@@ -1257,7 +1266,8 @@ sub handlelinks {
     }
     my $md5c = "$md5  /LINK\n$l->{'srcmd5'}  /LOCAL\n";
     $md5 = Digest::MD5::md5_hex($md5c);
-    if (! -e "$srcrep/$l->{'package'}/$md5-MD5SUMS") {
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$l->{'project'}/$l->{'package'}" : "$treesdir/$l->{'package'}";
+    if (! -e "$treedir/$md5-MD5SUMS") {
       my $error = applylink($md5, $oldl, $l);
       if ($error) {
         $rev->{'srcmd5'} = $md5 if $l == $linkinfo[0];
@@ -1304,7 +1314,12 @@ sub findlastworkinglink {
 
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
-  my @cand = grep {s/-MD5SUMS$//} ls("$srcrep/$packid");
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  my @cand = grep {s/-MD5SUMS$//} ls($treedir);
+  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2) {
+    push @cand, grep {s/-MD5SUMS$//} ls("$srcrep/$packid");
+    @cand = unify(@cand);
+  }
   my %cand;
   for my $cand (@cand) {
     my $candrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cand};

@@ -63,6 +63,13 @@ our $enable_download_on_demand = 1;
 our $rundir = "$bsdir/run";
 our $logdir = "$bsdir/log";
 
+# optional for non-acl systems, should be set for access control
+# 0: trees are shared between projects (default)
+# 1: trees are not shared
+# 2: new trees are not shared, in case of a missing tree the shared
+#    location is also tried
+our $nosharedtrees = 1;
+
 # optional: limit visibility of projects for some architectures
 #our $limit_projects = {
 # "ppc" => [ "openSUSE:Factory", "FATE" ],
