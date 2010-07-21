@@ -669,7 +669,7 @@ sub rpc_recv_file {
 
 sub rpc_tossl {
   my ($ev) = @_;
-  print "switching to https\n";
+#  print "switching to https\n";
   fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
   eval {
     ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'});
