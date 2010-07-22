@@ -73,7 +73,7 @@ class Service < ActiveXML::Base
 
   def getParameters(serviceid)
      parameters = data.find("/services/service[#{serviceid}]/param")
-     return nil if not parameters or parameters.count <= 0
+     return [] if not parameters or parameters.count <= 0
 
      ret = []
      parameters.each do |p|
