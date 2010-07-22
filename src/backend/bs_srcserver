@@ -2784,7 +2784,7 @@ sub getfilelist_ajax {
     addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
   }
   BSWatcher::serialize_end($serial) if $serial;
-  delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"};
+  delete $getfilelist_ajax_inprogress{"$projid/$packid/$cgi->{'rev'}"};
   notify_repservers('package', $projid, $packid);
   return '';
 }
