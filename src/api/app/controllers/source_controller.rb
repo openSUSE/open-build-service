@@ -848,14 +848,14 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(file) TODO: lookup via :rev can circumvent access control because all files are shared via MD5SUM in sources DB
+    # ACL(file): lookup via :rev is prevented now by backend if $nosharedtrees is set
     if request.get?
       path += build_query_from_hash(params, [:rev])
       pass_to_backend path
       return
     end
 
-    # ACL(file) TODO: validate if a link is created in the backend to hidden source files
+    # ACL(file): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
       
@@ -1087,7 +1087,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
     # ACL(index_project_undelete): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    # adrian: this should be checked anyway in index_project already
+    # ACL Adrian: this should have be checked anyway in index_project already
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
@@ -1198,8 +1198,16 @@ class SourceController < ApplicationController
 #    answer = Suse::Backend.post path, nil
 #    render :text => answer.body, :content_type => 'text/xml'
 
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
     pack = DbPackage.find_by_project_and_name ( project_name, package_name )
+    # ACL(index_package_showlinked): in case of access, package is really hidden and shown as non existing to users without access
+    if pack and pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+
+
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
       pack.find_linking_packages.each do |l|
         unless pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
@@ -1321,7 +1329,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
+    # ACL(index_package_commit): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
@@ -1354,7 +1362,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
+    # ACL(index_package_commitfilelist): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
@@ -1386,7 +1394,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
+    # ACL(index_package_diff): lookup via :rev* / :linkrev* is prevented now by backend if $nosharedtrees is set
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok])
     pass_to_backend path
@@ -1414,7 +1422,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
+    # ACL(index_package_linkdiff): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     path = request.path
     path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     pass_to_backend path
@@ -1447,7 +1455,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(index_package_commit) TODO: using rev can underrun ACL checks
+    # ACL(index_package_copy): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     # We need to use the project name of package object, since it might come via a project linked project
     path = "/source/#{pack.db_project.name}/#{pack.name}"
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
