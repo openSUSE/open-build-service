@@ -1198,7 +1198,7 @@ class SourceController < ApplicationController
 #    answer = Suse::Backend.post path, nil
 #    render :text => answer.body, :content_type => 'text/xml'
 
-    pack = DbPackage.find_by_project_and_name ( project_name, package_name )
+    pack = DbPackage.find_by_project_and_name( project_name, package_name )
     # ACL(index_package_showlinked): in case of access, package is really hidden and shown as non existing to users without access
     if pack and pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
       render_error :status => 404, :errorcode => 'unknown_package',
