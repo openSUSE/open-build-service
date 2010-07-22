@@ -103,8 +103,7 @@ class Person < ActiveXML::Base
   end
 
   def is_admin?
-    # FIXME: we should actually ask the backend here
-    return true if login.to_s == "Admin"
+    return true if has_element? ("globalrole[text() = \"Admin\"]")
     return false
   end
 
