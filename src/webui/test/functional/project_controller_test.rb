@@ -7,7 +7,7 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_basic_project
-      @project = Project.find("home:tscholz")
+      @project = Project.find("home:Iggy")
 
       assert_equal "i586", @project.architectures[0]
       assert_equal "x86_64", @project.architectures[1]
