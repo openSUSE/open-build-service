@@ -1763,7 +1763,7 @@ sub getbuildinfo {
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  if ($info->{'subpacks'} || !@subpacks) {
+  if ($info->{'subpacks'} && !@subpacks) {
     $ret->{'subpack'} = $info->{'subpacks'};
   } else {
     $ret->{'subpack'} = [ @subpacks ];
