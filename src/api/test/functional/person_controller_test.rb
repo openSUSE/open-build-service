@@ -93,10 +93,16 @@ class PersonControllerTest < ActionController::IntegrationTest
     put "/person/new_user", doc.to_s
     assert_response :success
 
+    # check global role
+    get "/person/king"
+    assert_response :success
+    assert_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
+
     # refetch the user info if the name has really change
     prepare_request_valid_user
     get "/person/tom"
     assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
+    assert_no_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
 
   def test_register
