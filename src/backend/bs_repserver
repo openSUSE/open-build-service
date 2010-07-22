@@ -1763,9 +1763,9 @@ sub getbuildinfo {
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  if ($info->{'subpacks'} || !@subpacks) {
+  if ($info->{'subpacks'}) {
     $ret->{'subpack'} = $info->{'subpacks'};
-  } else {
+  } elsif (@subpacks) {
     $ret->{'subpack'} = [ @subpacks ];
   }
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
