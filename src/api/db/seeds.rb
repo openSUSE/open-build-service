@@ -23,18 +23,46 @@
     Architecture.create :name => "sparcv9v"
     Architecture.create :name => "x86_64"
 
-    admin_role = Role.create :title => "Admin"
+    admin_role = Role.create :title => "Admin", :global => true
+    user_role  = Role.create :title => "User", :global => true
+    maintainer_role = Role.create :title => "maintainer"
+    downloader_role = Role.create :title => 'downloader'
+    reader_role     = Role.create :title => 'reader'
     Role.create :title => 'bugowner'
-    Role.create :title => 'downloader'
-    Role.create :title => "maintainer"
-    Role.create :title => 'reader'
     Role.create :title => 'reviewer'
-    Role.create :title => "User"
 
     admin  = User.create :login => 'Admin', :email => "root@localhost", :realname => "OBS Instance Superuser", :state => "2", :password => "opensuse", :password_confirmation => "opensuse"
     nobody = User.create :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
 
     RolesUser.create :user => admin, :role => admin_role
+    RolesUser.create :user => admin, :role => user_role
+
+    StaticPermission.create :title => "status_message_create"
+    StaticPermission.create :title => "set_download_counters"
+    StaticPermission.create :title => "download_binaries"
+    StaticPermission.create :title => "source_access"
+    StaticPermission.create :title => "private_view"
+    StaticPermission.create :title => "access"
+    StaticPermission.create :title => "global_change_project"
+    StaticPermission.create :title => "global_create_project"
+    StaticPermission.create :title => "global_change_package"
+    StaticPermission.create :title => "global_create_package"
+    StaticPermission.create :title => "change_project"
+    StaticPermission.create :title => "create_project"
+    StaticPermission.create :title => "change_package"
+    StaticPermission.create :title => "create_package"
+
+    StaticPermission.find(:all).each do |sp|
+      admin_role.static_permissions << sp
+    end
+    maintainer_role.static_permissions << StaticPermission.find_by_title('change_project')
+    maintainer_role.static_permissions << StaticPermission.find_by_title('create_project')
+    maintainer_role.static_permissions << StaticPermission.find_by_title('change_package')
+    maintainer_role.static_permissions << StaticPermission.find_by_title('create_package')
+    reader_role.static_permissions     << StaticPermission.find_by_title('access')
+    reader_role.static_permissions     << StaticPermission.find_by_title('source_access')
+    reader_role.static_permissions     << StaticPermission.find_by_title('private_view')
+    downloader_role.static_permissions << StaticPermission.find_by_title('download_binaries')
 
     p={}
     p[:user] = admin
