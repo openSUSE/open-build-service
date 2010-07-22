@@ -37,7 +37,7 @@ namespace :db do
         ActiveRecord::Base.establish_connection(abcs[RAILS_ENV])
         structure = ActiveRecord::Base.connection.structure_dump
       else
-        raise "Task not supported by '#{abcs["test"]["adapter"]}'"
+        raise "Task not supported by '#{abcs[RAILS_ENV]["adapter"]}'"
       end
 
       if ActiveRecord::Base.connection.supports_migrations?
@@ -51,15 +51,15 @@ namespace :db do
      
     task :load => :environment do
       abcs = ActiveRecord::Base.configurations
-      case abcs["test"]["adapter"]
+      case abcs[RAILS_ENV]["adapter"]
       when "mysql"
-        ActiveRecord::Base.establish_connection(:test)
+        ActiveRecord::Base.establish_connection(RAILS_ENV)
         ActiveRecord::Base.connection.execute('SET foreign_key_checks = 0')
         IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql").join.split("\n\n").each do |table|
           ActiveRecord::Base.connection.execute(table)
         end
       else
-        raise "Task not supported by '#{abcs["test"]["adapter"]}'"
+        raise "Task not supported by '#{abcs[RAILS_ENV]["adapter"]}'"
       end
     end
   end
