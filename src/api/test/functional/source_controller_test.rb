@@ -649,6 +649,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def test_linked_project_operations
+    # first go with a read-only user
     prepare_request_with_user "tom", "thunder"
     # pack2 exists only via linked project
     get "/source/BaseDistro2:LinkedUpdateProject/pack2"
@@ -658,6 +659,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /unknown package 'pack2' in project 'BaseDistro2:LinkedUpdateProject'/, @response.body
 
     # test not permitted commands
+    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "rebuild"
+    assert_response 403
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "wipe"
     assert_response 403
     assert_match /no permission to execute command 'wipe' for not existing package/, @response.body
@@ -682,6 +685,13 @@ class SourceControllerTest < ActionController::IntegrationTest
 # FIXME: construct a linked package object to test this
 #    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linkdiff"
 #    assert_response :success
+
+    # read-write user, binary operations must be allowed
+    prepare_request_with_user "king", "sunflower"
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "rebuild"
+    assert_response :success
+    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "wipe"
+    assert_response :success
   end
 
   def test_list_of_linking_instances

@@ -23,3 +23,7 @@ home_Iggy_102:
   name: 10.2
   db_project_id: 502
   id: 85
+BaseDistro2:LinkedUpdateProject:
+  name: pop
+  db_project_id: 2046
+  id: 86

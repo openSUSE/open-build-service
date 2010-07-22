@@ -13,10 +13,12 @@ class BuildController < ApplicationController
 
     # ACL(project_index) TODO: since this function is done in the backend, it exploits hidden projects
     path = request.path
-    unless request.query_string.empty?
-      path += '?' + request.query_string
-    end
 
+    if not request.query_string.blank?
+      path += '?' + request.query_string
+    elsif not request.env["rack.request.form_vars"].blank?
+      path += '?' + request.env["rack.request.form_vars"]
+    end
     if request.get?
       pass_to_backend path
     elsif request.post?

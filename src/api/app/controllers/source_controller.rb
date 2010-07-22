@@ -1266,43 +1266,40 @@ class SourceController < ApplicationController
     arch_name = params[:arch]
 
     p = DbProject.find_by_name(project_name)
-    pkg = p.find_package(package_name)
     # ACL(index_package_rebuild): in case of access, project is really hidden and shown as non existing to users without access
-    if pkg.nil? and p and p.disabled_for?('access', repo_name, arch_name) and not @http_user.can_access?(p)
+    if p.nil? or (p.disabled_for?('access', repo_name, arch_name) and not @http_user.can_access?(p))
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
       return
     end
 
-    path = "/build/#{project_name}?cmd=rebuild&package=#{package_name}"
-    
-    if p.nil?
-      render_error :status => 400, :errorcode => 'unknown_project',
-        :message => "Unknown project '#{project_name}'"
-      return
-    end
-
-    pkg = p.find_package( package_name )
+    # check for sources in this or linked project
+    pkg = p.find_package(package_name)
     unless pkg
-      render_error :status => 400, :errorcode => 'unknown_package',
-        :message => "Unknown package '#{package_name}'"
-      return
+      # check if this is a package on a remote OBS instance
+      answer = Suse::Backend.get(request.path)
+      unless answer
+        render_error :status => 400, :errorcode => 'unknown_package',
+          :message => "Unknown package '#{package_name}'"
+        return
+      end
     end
 
+    path = "/build/#{project_name}?cmd=rebuild&package=#{package_name}"
     if repo_name
-      path += "&repository=#{repo_name}"
       if p.repositories.find_by_name(repo_name).nil?
         render_error :status => 400, :errorcode => 'unknown_repository',
           :message=> "Unknown repository '#{repo_name}'"
         return
       end
+      path += "&repository=#{repo_name}"
     end
-
     if arch_name
       path += "&arch=#{arch_name}"
     end
 
     backend.direct_http( URI(path), :method => "POST", :data => "" )
+
     render_ok
   end
 
