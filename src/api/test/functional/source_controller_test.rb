@@ -816,9 +816,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     original = @response.body
 
-    post "/source/home:tschols/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:unknown/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /Unknown project 'home:tschols'/, @response.body
+    assert_match /project 'home:unknown' does not exist/, @response.body
 
     post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
@@ -863,9 +863,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     original = @response.body
 
-    post "/source/home:tschols?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /Unknown project 'home:tschols'/, @response.body
+    assert_match /Unknown project 'home:unknown'/, @response.body
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
@@ -914,9 +914,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     original = @response.body
 
-    post "/source/home:tschols/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /Unknown project 'home:tschols'/, @response.body
+    assert_match /project 'home:unknown' does not exist/, @response.body
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 400
@@ -965,9 +965,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     original = @response.body
 
-    post "/source/home:tschols/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post "/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /Unknown project 'home:tschols'/, @response.body
+    assert_match /project 'home:unknown' does not exist/, @response.body
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 400

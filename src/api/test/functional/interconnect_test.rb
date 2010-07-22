@@ -20,6 +20,8 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/RemoteInstance:BaseDistro/pack1/my_file"
     assert_response :success
+    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "showlinked"
+    assert_response :success
 
     # direct access to remote instance, not existing project/package
     get "/source/RemoteInstance:NotExisting/_meta"
@@ -48,6 +50,8 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/UseRemoteInstance/pack1/my_file"
     assert_response :success
+    post "/source/UseRemoteInstance/pack1", :cmd => "showlinked"
+    assert_response :success
     get "/source/UseRemoteInstance/NotExisting"
     assert_response 404
     get "/source/UseRemoteInstance/NotExisting/_meta"
@@ -61,6 +65,8 @@ class InterConnectTests < ActionController::IntegrationTest
     ret = ActiveXML::XMLNode.new @response.body
     xsrcmd5 = ret.linkinfo.xsrcmd5
     assert_not_nil xsrcmd5
+    post "/source/LocalProject/remotepackage", :cmd => "showlinked"
+    assert_response :success
     get "/source/LocalProject/remotepackage/_meta"
     assert_response :success
     get "/source/LocalProject/remotepackage/my_file"

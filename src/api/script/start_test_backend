@@ -29,7 +29,10 @@ perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
 
 %w{bs_srcserver bs_repserver bs_sched}.each do |srv|
   FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
-  system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1") or exit 1
+  unless system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
+    puts "ERROR: syntax broken of #{srv}"
+    exit 1
+  end
 end
 
 puts "Starting backend srcserver..."

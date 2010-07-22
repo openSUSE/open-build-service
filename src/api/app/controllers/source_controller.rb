@@ -200,12 +200,17 @@ class SourceController < ApplicationController
 
     prj = DbProject.find_by_name(project_name)
     unless prj
-      if request.get?
-        # Check if this is a package on a remote OBS instance
-        answer = Suse::Backend.get(request.path)
-        if answer
-          pass_to_backend
-          return
+      # Check if this is a package on a remote OBS instance
+      answer = Suse::Backend.get(request.path)
+      if answer
+        # exist remote
+        if request.get?
+            pass_to_backend
+            return
+        end
+        if request.post? and cmd == "showlinked"
+            dispatch_command
+            return
         end
       end
       render_error :status => 404, :errorcode => "unknown_project",
@@ -291,7 +296,7 @@ class SourceController < ApplicationController
         return
       end
 
-      if pkg.nil?
+      if pkg.nil? and not cmd == "showlinked"
         unless @http_user.can_modify_project?(prj)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{cmd}' for not existing package"
@@ -1193,11 +1198,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-# This works perfect and fast, but is not verified for read access restrictions
-#    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
-#    answer = Suse::Backend.post path, nil
-#    render :text => answer.body, :content_type => 'text/xml'
-
     pack = DbPackage.find_by_project_and_name( project_name, package_name )
     # ACL(index_package_showlinked): in case of access, package is really hidden and shown as non existing to users without access
     if pack and pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
@@ -1206,6 +1206,18 @@ class SourceController < ApplicationController
       return
     end
 
+    unless pack
+      # package comes from remote instance
+
+      # FIXME: return an empty list for now
+      # we could request the links on remote instance via that: but we would need to search also localy and merge ...
+
+#      path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
+#      answer = Suse::Backend.post path, nil
+#      render :text => answer.body, :content_type => 'text/xml'
+      render :text => "<collection/>", :content_type => 'text/xml'
+      return
+    end
 
     builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
