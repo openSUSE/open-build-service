@@ -254,6 +254,7 @@ sub serialize {
   my ($file) = @_;
   my $jev = $BSServerEvents::gev;
   die("only supported in AJAX servers\n") unless $jev;
+  $jev->{'closehandler'} = \&deljob;
   if ($serializations{$file}) {
     if ($serializations{$file} != $jev) {
       #print "adding to serialization queue of $file\n";
@@ -1004,6 +1005,20 @@ sub getstatus {
       push @{$r->{'job'}}, $j;
     }
     push @{$ret->{'rpc'}}, $r;
+  }
+  for my $filename (sort keys %serializations_waiting) {
+    my $sz = {'filename' => $filename};
+    for my $jev (@{$serializations_waiting{$filename}}) {
+      my $j = {'ev' => $jev->{'id'}};
+      $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
+      my $req = $jev->{'request'};
+      if ($req) {
+        $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
+        $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
+      }
+      push @{$sz->{'job'}}, $j;
+    }
+    push @{$ret->{'serialize'}}, $sz;
   }
   return $ret;
 }

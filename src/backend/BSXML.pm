@@ -705,6 +705,16 @@ our $ajaxstatus = [
 		'request',
 	 ]],
      ]],
+     [[ 'serialize' =>
+	    'filename',
+	 [[ 'job' =>
+		'id',
+		'ev',
+		'fd',
+		'peer',
+		'request',
+	 ]],
+     ]],
 ];
 
 our $serverstatus = [
