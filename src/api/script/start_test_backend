@@ -94,6 +94,7 @@ while true
   break
 end
 
+system("rake db:fixtures:load")
 Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack1").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
