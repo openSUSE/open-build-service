@@ -100,7 +100,7 @@ class BuildController < ApplicationController
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
     # ACL(buildinfo): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
+    if not pkg.nil? and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
       render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
       :status => 404, :errorcode => "unknown_package"
       return
