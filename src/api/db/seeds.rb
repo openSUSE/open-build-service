@@ -23,7 +23,7 @@
     Architecture.create :name => "sparcv9v"
     Architecture.create :name => "x86_64"
 
-    Role.create :title => "Admin"
+    admin_role = Role.create :title => "Admin"
     Role.create :title => 'bugowner'
     Role.create :title => 'downloader'
     Role.create :title => "maintainer"
@@ -33,6 +33,8 @@
 
     admin  = User.create :login => 'Admin', :email => "root@localhost", :realname => "OBS Instance Superuser", :state => "2", :password => "opensuse", :password_confirmation => "opensuse"
     nobody = User.create :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
+
+    RolesUser.create :user => admin, :role => admin_role
 
     p={}
     p[:user] = admin
