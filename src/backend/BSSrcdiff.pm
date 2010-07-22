@@ -344,12 +344,12 @@ sub tardiff {
     $d = "$lcnt lines of diff (skipped)\n";
   }
   while ($e1cnt > 0) {
-    unlink("$edir/a$e1cnt");
     $e1cnt--;
+    unlink("$edir/a$e1cnt");
   }
   while ($e2cnt > 0) {
-    unlink("$edir/b$e2cnt");
     $e2cnt--;
+    unlink("$edir/b$e2cnt");
   }
   rmdir($edir);
   return $d;
