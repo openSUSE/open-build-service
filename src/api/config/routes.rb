@@ -26,6 +26,11 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'repository', :controller => 'repository', :action => 'index'
 
+  ### /service
+
+  map.connect 'service/:service', :controller => "service",
+    :action => 'index_service', :service => /\w[^\/]*/
+
   ### /source
 
   # project level

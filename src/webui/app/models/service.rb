@@ -9,15 +9,59 @@ class Service < ActiveXML::Base
       doc.root = XML::Node.new 'services'
     end
 
+    def updateServiceList
+       # cache service list
+       @servicelist = []
+       @serviceparameterlist = {}
+
+       path = "/service"
+       frontend = ActiveXML::Config::transport_for( :service )
+       answer = frontend.direct_http URI("/service"), :method => "GET"
+
+       doc = XML::Parser.string(answer).parse.root
+       doc.find("/servicelist/service").each do |s|
+         serviceName = s.attributes["name"]
+         hash = {}
+         hash[:name]        = serviceName
+         hash[:summary]     = s.find_first("summary").content
+         hash[:description] = s.find_first("description").content
+         @servicelist.push( hash )
+
+         @serviceparameterlist[serviceName] = []
+         s.find("parameter").each do |p|
+           hash = {}
+           hash[:name] = p.attributes["name"]
+           hash[:description] = p.find_first("description").content
+           hash[:required] = true if p.find_first("required")
+
+           @allowedvalues = []
+           p.find("allowedvalue").each do |a|
+             @allowedvalues.push(a.content)
+           end
+           hash[:allowedvalues] = @allowedvalues
+
+           @serviceparameterlist[serviceName].push( hash )
+         end
+       end
+    end
+
+    def findAvailableParameters(serviceName)
+      if @servicelist.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+
+      return [] unless @serviceparameterlist[serviceName]
+      @serviceparameterlist[serviceName]
+    end
+
     def available
-      # hardcoded for now, this should get checked via installed services
-      [
-             { "icon" => "download",  "name" => "download_url",    "summary" => "Download File" },
-             { "icon" => "download",  "name" => "download_src_package",    "summary" => "Download src rpm and extract" },
-             { "icon" => "verify",    "name" => "verify_file",     "summary" => "Verify a file" },
-#             { "icon" => "generator", "name" => "generator_qmake", "summary" => "Generator for qmake" },
-#             { "icon" => "generator", "name" => "generator_kde",   "summary" => "Generator for KDE" },
-      ]
+      if @servicelist.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+
+      @servicelist
     end
   end
 

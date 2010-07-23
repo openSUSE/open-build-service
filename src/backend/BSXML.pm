@@ -1077,4 +1077,24 @@ our $dispatchprios = [
      ]],
 ];
 
+our $service = [
+    'service' =>
+        'name',
+        [],
+        'summary',
+        'description',
+        [[ 'parameter' =>
+                     'name',
+                     [],
+                     'description',
+                     'required', # don't run without this parameter
+                     [[ 'allowedvalue' => '_content' ]], # list of possible values
+        ]],
+];
+
+our $servicelist = [
+    'servicelist' =>
+        [ $service ],
+];
+
 1;

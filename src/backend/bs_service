@@ -197,6 +197,30 @@ sub hello {
   return "<hello name=\"Source Service Server\" />\n";
 }
 
+sub show_service {
+  my ($cgi) = @_;
+}
+
+sub list_service {
+  my ($cgi) = @_;
+
+  my $servicelist = {};
+  my @sl;
+  
+  for my $servicefile (ls($servicedir)){
+     next unless $servicefile =~ /.service$/;
+     my $service = readxml($servicedir."/".$servicefile, $BSXML::service);
+     next unless $service;
+     next unless $service->{'name'};
+     next unless -x "$servicedir/$service->{'name'}";
+     push @sl, $service;
+  }
+
+  $servicelist->{'service'} = \@sl;
+
+  return ($servicelist, $BSXML::servicelist); 
+}
+
 # define server
 my $dispatches = [
   '/' => \&hello,
@@ -205,6 +229,8 @@ my $dispatches = [
   '!- GET:' => undef,
   '!- HEAD:' => undef,
 
+  '/service' => \&list_service,
+#  '/service/$service' => \&show_service,
   'POST:/sourceupdate/$project/$package' => \&run_source_update,
 ];
 

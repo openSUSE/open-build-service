@@ -5,7 +5,7 @@
     Services
   </h3>
 
-    <!-- code generators -->
+    <!-- available services -->
     <% if @services || @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || @user.is_admin?%>
     <table class="grid"> <tbody>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
@@ -20,9 +20,9 @@
              <% object_id = "new_service_#{service["name"]}" %>
              <li>
              <div class="service" id="<%= object_id %>" >
-               <%= service["summary"] %>
+               <%= service[:summary] %>
                <div style="color: #999; font-size: 8pt">
-                  <%= service["name"] %>
+                  <%= service[:name] %>
                </div>
              </div>
              <%= draggable_element(object_id, :revert=>true) %>
@@ -41,7 +41,7 @@
                  <div class="service" id="<%= object_id %>" >
                    <%= h service.name %>
                    <div style="color: #999; font-size: 8pt">
-                       <%= link_to_remote("Edit Parameters", :url => { :action => :service_parameter, :project => @project, :package => @package, :serviceid => number } ) %>
+                       <%= link_to_remote("Edit Parameters", :url => { :action => :service_parameter, :project => @project, :package => @package, :servicename => service.name, :serviceid => number } ) %>
                    </div>
                  </div>
                  <%= draggable_element(object_id) %>

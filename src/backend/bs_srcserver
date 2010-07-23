@@ -4380,6 +4380,34 @@ sub postrepo {
   return ($res, $BSXML::collection);
 }
 
+sub service {
+  my ($cgi, $service) = @_;
+
+  return unless $BSConfig::serviceserver;
+
+  my ($cgi) = @_;
+  my $param = {
+    'uri' => "$BSConfig::serviceserver/service/$service",
+    'request' => 'GET',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+  return BSWatcher::rpc($param, undef);
+}
+
+sub listservices {
+  my ($cgi) = @_;
+
+  return unless $BSConfig::serviceserver;
+
+  my ($cgi) = @_;
+  my $param = {
+    'uri' => "$BSConfig::serviceserver/service",
+    'request' => 'GET',
+  };
+  return BSWatcher::rpc($param, undef);
+}
+
 sub published {
   my ($cgi, $projid, $repoid, $arch, $filename) = @_;
   my @args;
@@ -5121,6 +5149,10 @@ my $dispatches = [
   'POST:/search/published cmd:' => \&search_published_updatedb,
   '/search/published/binary/id $match: limit:num?' => \&search_published_binary_id,
   '/search/published/pattern/id $match: limit:num?' => \&search_published_pattern_id,
+
+  # service interface, just for listing for now
+  '/service' => \&listservices,
+#  '/service/$service' => \&service,
 
   # build calls for binary files
   '/build' => \&getprojectlist,

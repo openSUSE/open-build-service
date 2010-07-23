@@ -42,12 +42,11 @@
          <%= hidden_field_tag(:parameter_count, number) %>
 
          <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-           <tr class="addrow"><td><select name="add_parameter_name" id="add_new_parameter">
-                      <!-- FIXME: read these options via model from installed config files -->
-                      <option value="protocol" selected>Protocol</option>
-                      <option value="host" selected>Host</option>
-                      <option value="port" selected>Port</option>
-                      <option value="path" selected>Path</option>
+           <tr class="addrow"><td>
+               <select name="add_parameter_name" id="add_new_parameter">
+               <% Service.findAvailableParameters(@servicename).each do |p|%>
+                      <option value="<%=p[:name]%>" selected><%=p[:name]%></option>
+               <% end %>
                </select></td>
                <td><input type="text" id="add_new_value" name="add_parameter_value"></td>
                <td><a href="#" id="add_new_row">+</a></td>

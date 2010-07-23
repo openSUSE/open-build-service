@@ -121,6 +121,7 @@ class PackageController < ApplicationController
   def service_parameter
     begin
       @serviceid = params[:serviceid]
+      @servicename = params[:servicename]
       @services = find_cached(Service,  :project => @project, :package => @package )
       @parameters = @services.getParameters(@serviceid)
     rescue
