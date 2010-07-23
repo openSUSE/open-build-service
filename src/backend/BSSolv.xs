@@ -35,6 +35,7 @@ typedef struct _Expander {
   Map conflicts;
 
   int debug;
+  int havefileprovides;
 } Expander;
 
 typedef Pool *BSSolv__pool;
@@ -232,9 +233,12 @@ expander_installed(Expander *xp, Id p, Map *installed, Map *conflicts, Queue *ou
 	    }
 	  if (*n == '/')
 	    {
-	      MAPEXP(&xp->ignored, id);
-	      MAPSET(&xp->ignored, id);
-	      continue;
+	      if (!xp->havefileprovides || !pool->whatprovides[id])
+		{
+		  MAPEXP(&xp->ignored, id);
+		  MAPSET(&xp->ignored, id);
+		  continue;
+		}
 	    }
 	  queue_push2(todo, req, p);
 	}
@@ -1939,6 +1943,7 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 		I32 strl;
 		Queue q;
 
+		xp->havefileprovides = 1;
 		hv_iterinit(hv);
 		queue_init(&q);
 		while ((sv = hv_iternextsv(hv, &str, &strl)) != 0)
