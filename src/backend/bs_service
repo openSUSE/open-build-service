@@ -56,6 +56,8 @@ my $silent;
 
 my $servicedir = $BSConfig::servicedir;
 $servicedir="/usr/lib/obs/service" unless $servicedir;
+my $rootservicedir = $servicedir;
+$rootservicedir = $BSConfig::serviceroot."/".$servicedir if $BSConfig::serviceroot;
 
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
 
@@ -204,12 +206,12 @@ sub list_service {
   my $servicelist = {};
   my @sl;
   
-  for my $servicefile (ls($servicedir)){
+  for my $servicefile (ls($rootservicedir)){
      next unless $servicefile =~ /.service$/;
-     my $service = readxml($servicedir."/".$servicefile, $BSXML::service);
+     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::service);
      next unless $service;
      next unless $service->{'name'};
-     next unless -x "$servicedir/$service->{'name'}";
+     next unless -x "$rootservicedir/$service->{'name'}";
      push @sl, $service;
   }
 
