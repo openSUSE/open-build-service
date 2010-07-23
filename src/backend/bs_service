@@ -103,22 +103,6 @@ sub rm_rf {
   rmdir($dir);
 }
 
-sub qsystem {
-  my (@args) = @_;
-  if ($silent) {
-    my $pid;
-    if (!($pid = xfork())) {
-      open(STDOUT, ">/dev/null");
-      exec(@args);
-      die("$args[0]: $!\n"); 
-    }
-    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n"); 
-    return $?;
-  } else {
-    return system @args;
-  }
-}
-
 sub run_source_update {
   my ($cgi, $projid, $packid) = @_;
 
@@ -156,28 +140,41 @@ sub run_source_update {
     push @run, "$servicedir/$service->{'name'}";
     for my $param (@{$service->{'param'}}) {
       next if $param->{'name'} eq 'outdir';
+      next unless $param->{'_content'};
       push @run, "--$param->{'name'}";
       push @run, $param->{'_content'};
     }
     push @run, "--outdir";
     push @run, "$myworkdir/.tmp";
     BSUtil::cleandir("$myworkdir/.tmp");
-    if (qsystem(@run)) {
-      BSUtil::cleandir(".");
-     
-      # Create error file
-      local *F;
-      if (open(F, '>>', "_service_error")) {
-         print F "service $service->{'name'} ".join(' ', @run)." failed\n";
-         close F;
-      }
-      last;
-    } else { 
-      # copy files inside and add prefix
+
+    if (!open(SERVICE, '-|')) {
+      open(STDERR, ">&STDOUT");
+      exec(@run);
+      die("$run[0]: $!\n");
+    }
+
+    my $output = "";
+    while (<SERVICE>) {
+      $output .= $_;
+    }
+
+    if (close SERVICE) {
+      # SUCCESS, copy files inside and add prefix
       for my $file (grep {!/^[:\.]/} ls("$myworkdir/.tmp")) {
         my $tfile = "_service:".$service->{'name'}.":".$file;
         rename("$myworkdir/.tmp/".$file, $tfile);
       }
+    } else { 
+      # FAILURE, Create error file
+      BSUtil::cleandir(".");
+      local *F;
+      if (open(F, '>>', "_service_error")) {
+         print F "service $service->{'name'} ".join(' ', @run)." failed:\n";
+         print F $output;
+         close F;
+      }
+      last;
     }
   }
   BSUtil::cleandir("$myworkdir/.tmp");
