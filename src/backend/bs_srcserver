@@ -1272,6 +1272,7 @@ sub handlelinks {
       my $error = applylink($md5, $oldl, $l);
       if ($error) {
         $rev->{'srcmd5'} = $md5 if $l == $linkinfo[0];
+	$error = "$l->{'project'}/$l->{'package'}: $error" if $l != $linkinfo[0];
         return $error;
       }
     }
