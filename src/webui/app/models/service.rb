@@ -152,6 +152,15 @@ class Service < ActiveXML::Base
      service_elements[to-1].prev = service_elements[from-1]
   end
 
+  def error
+    opt = Hash.new
+    opt[:project] = self.init_options[:project]
+    opt[:package] = self.init_options[:package]
+    opt[:filename] = "_service_error"
+    fc = FrontendCompat.new
+    fc.get_source opt
+  end
+
   def execute()
     opt = Hash.new
     opt[:project] = self.init_options[:project]

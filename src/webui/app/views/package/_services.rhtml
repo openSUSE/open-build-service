@@ -5,6 +5,18 @@
     Services
   </h3>
 
+    <!-- source is currently broken due to an error -->
+    <% if @serviceerror %>
+    <div id="error" class="error">
+      <h4>
+        Source processing is currently broken:
+      </h4>
+      <pre id="code" class="text">
+        <%=h @serviceerror %>
+      </pre>
+    </div>
+    <% end %>
+
     <!-- available services -->
     <% if @services || @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || @user.is_admin?%>
     <table class="grid"> <tbody>

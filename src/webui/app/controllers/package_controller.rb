@@ -167,6 +167,8 @@ class PackageController < ApplicationController
         rescue
           @services = nil
         end
+      elsif file[:name] == "_service_error"
+        @serviceerror = @services.error
       end
     end
   end
