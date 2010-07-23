@@ -4383,7 +4383,7 @@ sub postrepo {
 
 sub service {
   my ($cgi, $service) = @_;
-  die("404 no such service 'service'\n") unless $BSConfig::serviceserver;
+  die("404 no such service '$service'\n") unless $BSConfig::serviceserver;
   return BSWatcher::rpc("$BSConfig::serviceserver/service/$service", undef);
 }
 
