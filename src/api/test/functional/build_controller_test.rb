@@ -89,7 +89,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match /Project does not exist/, @response.body
     post "/build/home:Iggy?cmd=wipe&package=DoesNotExist"
     assert_response 404
-    assert_match /Package does not exist/, @response.body
+    assert_match /unknown package: DoesNotExist/, @response.body
   
     post "/build/home:Iggy?cmd=wipe"
     assert_response :success

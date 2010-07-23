@@ -50,7 +50,7 @@ class BuildController < ApplicationController
         allowed = true if permissions.project_change? prj
       end
 
-      if not params[:package].nil?
+      if not allowed and not params[:package].nil?
         package_names = nil
         if params[:package].kind_of? Array
           package_names = params[:package]
@@ -60,15 +60,19 @@ class BuildController < ApplicationController
         package_names.each do |pack_name|
           pkg = DbPackage.find_by_project_and_name( prj.name, pack_name ) 
           if pkg.nil?
-            render_error :status => 404, :errorcode => "not_found",
-              :message => "Package does not exist #{pack_name}"
-            return
-          end
-          allowed = permissions.package_change? pkg
-          if not allowed
-            render_error :status => 403, :errorcode => "execute_cmd_no_permission",
-              :message => "No permission to execute command on package #{pack_name}"
-            return
+            allowed = permissions.project_change? prj
+            if not allowed
+              render_error :status => 403, :errorcode => "execute_cmd_no_permission",
+                :message => "No permission to execute command on package #{pack_name} in project #{prj.name}"
+              return
+            end
+          else
+            allowed = permissions.package_change? pkg
+            if not allowed
+              render_error :status => 403, :errorcode => "execute_cmd_no_permission",
+                :message => "No permission to execute command on package #{pack_name}"
+              return
+            end
           end
         end
       end

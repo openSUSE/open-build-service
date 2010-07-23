@@ -22,8 +22,19 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "showlinked"
     assert_response :success
+    # test binary operations
+    prepare_request_with_user "king", "sunflower"
+    post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"
+    assert_response 404
+    post "/build/RemoteInstance:BaseDistro", :cmd => "rebuild", :package => "pack1"
+    assert_response 404
+    post "/build/RemoteInstance:BaseDistro", :cmd => "wipe"
+    assert_response 404
+    post "/build/RemoteInstance:BaseDistro", :cmd => "rebuild"
+    assert_response 404
 
     # direct access to remote instance, not existing project/package
+    prepare_request_with_user "tom", "thunder"
     get "/source/RemoteInstance:NotExisting/_meta"
     assert_response 404
     get "/source/RemoteInstance:NotExisting/pack1"
@@ -58,8 +69,19 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     get "/source/UseRemoteInstance/NotExisting/my_file"
     assert_response 404
+    # test binary operations
+    prepare_request_with_user "king", "sunflower"
+    post "/build/UseRemoteInstance", :cmd => "wipe", :package => "pack1"
+    assert_response :success
+    post "/build/UseRemoteInstance", :cmd => "rebuild", :package => "pack1"
+    assert_response :success
+    post "/build/UseRemoteInstance", :cmd => "wipe"
+    assert_response :success
+    post "/build/UseRemoteInstance", :cmd => "rebuild"
+    assert_response :success
 
     # access via a local package linking to a remote package
+    prepare_request_with_user "tom", "thunder"
     get "/source/LocalProject/remotepackage"
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
@@ -82,6 +104,16 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     get "/source/LocalProject/remotepackage/not_existing"
     assert_response 404
+    # test binary operations
+    prepare_request_with_user "king", "sunflower"
+    post "/build/LocalProject", :cmd => "wipe", :package => "remotepackage"
+    assert_response :success
+    post "/build/LocalProject", :cmd => "rebuild", :package => "remotepackage"
+    assert_response :success
+    post "/build/LocalProject", :cmd => "wipe"
+    assert_response :success
+    post "/build/LocalProject", :cmd => "rebuild"
+    assert_response :success
   end
 
   def test_diff_package

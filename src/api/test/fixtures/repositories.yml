@@ -27,3 +27,11 @@ BaseDistro2:LinkedUpdateProject:
   name: pop
   db_project_id: 2046
   id: 86
+UseRemoteInstance:
+  name: pop
+  db_project_id: 5001
+  id: 87
+LocalProject:
+  name: pop
+  db_project_id: 5002
+  id: 88
