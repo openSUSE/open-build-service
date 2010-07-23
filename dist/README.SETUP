@@ -4,6 +4,11 @@ services run on the same system.  This document does not describe how
 to distribute them to increase reliability and do load balancing, but
 this is possible.
 
+An easier way to run OBS is via using the OBS Appliance. It is also 
+usable for a production server. Please find details here:
+
+   http://en.opensuse.org/Build_Service/OBS-Appliance 
+
 1. run the backend
 ==================
 The backend hosts all sources and built packages.  It also schedules
