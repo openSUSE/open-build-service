@@ -4382,30 +4382,14 @@ sub postrepo {
 
 sub service {
   my ($cgi, $service) = @_;
-
-  return unless $BSConfig::serviceserver;
-
-  my ($cgi) = @_;
-  my $param = {
-    'uri' => "$BSConfig::serviceserver/service/$service",
-    'request' => 'GET',
-    'data' => \&BSServer::forward_sender,
-    'chunked' => 1,
-  };
-  return BSWatcher::rpc($param, undef);
+  die("404 no such service 'service'\n") unless $BSConfig::serviceserver;
+  return BSWatcher::rpc("$BSConfig::serviceserver/service/$service", undef);
 }
 
 sub listservices {
   my ($cgi) = @_;
-
-  return unless $BSConfig::serviceserver;
-
-  my ($cgi) = @_;
-  my $param = {
-    'uri' => "$BSConfig::serviceserver/service",
-    'request' => 'GET',
-  };
-  return BSWatcher::rpc($param, undef);
+  return "<servicelist/>\n" unless $BSConfig::serviceserver;
+  return BSWatcher::rpc("$BSConfig::serviceserver/service", undef);
 }
 
 sub published {
