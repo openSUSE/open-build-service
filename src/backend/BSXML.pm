@@ -194,9 +194,10 @@ our $aggregatelist = [
     'aggregatelist' =>
      [[ 'aggregate' =>
 	    'project',
+	    [],
+            'nosources',
 	  [ 'package' ],
 	  [ 'binary' ],
-          [ 'nosources' ],
 	 [[ 'repository' =>
 		'target',
 		'source',

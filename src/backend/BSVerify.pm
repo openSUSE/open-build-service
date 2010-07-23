@@ -267,6 +267,9 @@ sub verify_aggregatelist {
   my ($al) = @_;
   for my $a (@{$al->{'aggregate'} || []}) {
     verify_projid($a->{'project'});
+    if (defined($a->{'nosources'})) {
+      die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
+    }
     for my $p (@{$a->{'package'} || []}) {
       verify_packid($p);
     }

@@ -2897,21 +2897,21 @@ sub rebuildaggregate {
           @d = map {"$d/$_"} sort(@d);
 	}
 	my $ajobrepo = findbins_dir(\@d);
-        my $copysources = 1;
-	$copysources = 0 if $aggregate->{'nosources'};
+	my $copysources;
 	for my $abin (sort keys %$ajobrepo) {
 	  my $r = $ajobrepo->{$abin};
 	  next unless $r->{'source'};
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  next if $jobbins{$r->{'name'}};
           # FIXME: How is debian handling debug packages ?
-          next if ($copysources == 0) && ($r->{'name'} =~ /-debug(info|source)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/);
+          next if exists($aggregate->{'nosources'}) && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  $jobbins{$r->{'name'}} = 1;
 	  my $basename = $abin;
 	  $basename =~ s/.*\///;
 	  $basename =~ s/^upload:// if $cpio;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
+	  $copysources = 1 unless exists($aggregate->{'nosources'});
 	}
 	if ($copysources) {
 	  for my $abin (sort keys %$ajobrepo) {
