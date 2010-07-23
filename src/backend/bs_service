@@ -208,7 +208,7 @@ sub list_service {
   
   for my $servicefile (ls($rootservicedir)){
      next unless $servicefile =~ /.service$/;
-     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::service);
+     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::service, 1);
      next unless $service;
      next unless $service->{'name'};
      next unless -x "$rootservicedir/$service->{'name'}";
