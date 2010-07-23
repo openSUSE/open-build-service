@@ -29,7 +29,7 @@
       <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || (@user && @user.is_admin?) %>
          <td> <ul>
            <% Service.available.each do |service| %>
-             <% object_id = "new_service_#{service["name"]}" %>
+             <% object_id = "new_service_#{service[:name]}" %>
              <li>
              <div class="service" id="<%= object_id %>" >
                <%= service[:summary] %>
