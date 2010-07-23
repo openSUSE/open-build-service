@@ -349,12 +349,12 @@ i586:
 
    osc -A http://$servername:81 meta prj openSUSE:Tools -e
 
-check whether that worked on http://127.0.42.1/project/list_all
+check whether that worked on http://$servername/project/list_all
 
    osc -A http://$servername:81 meta pkg openSUSE:Tools obs-server -e
 
 check whether that worked on
-http://127.0.42.1/project/show?project=openSUSE%3ATools
+   http://$servername/project/show?project=openSUSE%3ATools
 
 Now prepare for a check-in.  This will do a checkout and locally build
 using the packages from your local buildserver:
