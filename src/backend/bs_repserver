@@ -1737,7 +1737,7 @@ sub getbuildinfo {
   if ($pdata->{'ldepfile'}) {
     # have local deps, add them to pool
     my $data = {};
-    Build::readdeps(undef, $data, $pdata->{'ldepfile'});
+    Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
     my $r = $pool->repofromdata('', $data);
     die("ldepfile repo add failed\n") unless $r;
   }
