@@ -33,13 +33,18 @@ class PackageController < ApplicationController
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
+    begin 
+      # This may fail when trying to find out from not existing local project, in case of project link.
+      # This may need to be changed in source server via rewriting the project name.
+      linking_packages
+    rescue => e
+    end
     if @package.bugowner
       @bugowner_mail = find_cached(Person, @package.bugowner ).email.to_s
     elsif @project.bugowner
       @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s
     end
     fill_status_cache unless @buildresult.blank?
-    linking_packages
   end
 
   def linking_packages
