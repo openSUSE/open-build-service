@@ -216,6 +216,7 @@ our $productdesc = [
             'flavor',
             'repo_only',
             'mediastyle',
+            'registration',
             'create_repomd',
             'sourcemedia',
             'debugmedia',

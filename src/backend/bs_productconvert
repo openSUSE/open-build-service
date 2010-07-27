@@ -333,7 +333,9 @@ sub createProductOptions($$$)
     }
 
     # Add REGISTERPRODUCT string - see: bnc#458340
-    if (defined($medium->{'productdependency'})){
+    if (defined($medium->{'registration'}) and $medium->{'registration'} eq "false") {
+	$info{'REGISTERPRODUCT'} .= "false"
+    } elsif (defined($medium->{'productdependency'})) {
 	$info{'REGISTERPRODUCT'} .= "true" if (defined($product->{'register'}));
     }
 
