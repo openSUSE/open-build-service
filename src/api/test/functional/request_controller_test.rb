@@ -123,6 +123,25 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
 
+    # add reviewer
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=addreview&by_user=adrian"
+    assert_response 403
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=addreview&by_group=test_group"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+
     # and revoke it
     ActionController::IntegrationTest::reset_auth
     post "/request/#{id}?cmd=changestate&newstate=revoked"
