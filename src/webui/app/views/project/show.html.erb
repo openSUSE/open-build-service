@@ -81,8 +81,8 @@
 
       <% if @linking_projects.size > 0 %>
         <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@linking_projects.size, "is", "are") %> <%= @linking_projects.size %>
-            <%= link_to_remote("linking", :url => { :action => :linking_projects, :project => @project } ) %>
-            <%= plural(@linking_projects.size, "project", "projects") %> linking this project, this does not include single package links.</p></div>
+            <%= link_to_remote(plural(@linking_projects.size, "project", "projects"), :url => { :action => :linking_projects, :project => @project } ) %>
+            linking this project. </p></div>
       <% end %>
     </div>
   </div>
