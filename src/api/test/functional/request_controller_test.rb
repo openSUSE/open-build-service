@@ -143,8 +143,8 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
-
     prepare_request_with_user "Iggy", "asdfasdf"
+
     # create kdelibs package
     post "/source/kde4/kdebase", :cmd => :branch
     assert_response :success
@@ -153,6 +153,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
+    assert_tag( :tag => "review", :attributes => { :by_user => "adrian", :state => "new" } )
 
     # do not accept request in review state
     get "/request/#{id}"

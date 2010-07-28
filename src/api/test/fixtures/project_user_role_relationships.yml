@@ -37,6 +37,11 @@ tom_maintainer_tom:
   bs_user_id: 3
   role_id: 3
 
+adrian_reviewer_for_kde4:
+  db_project_id: 2
+  bs_user_id: 42
+  role_id: 6
+
 # for read access permissions
 # HiddenProject
 adrian_maintainer:
