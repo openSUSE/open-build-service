@@ -268,53 +268,70 @@ class RequestController < ApplicationController
       end
     end
 
-
-    params[:user] = @http_user.login if @http_user
-    path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment])
-    # forward_path is not working here, because we may modify the request.
-    # can get cleaned up when we moved this to the client
-    response = backend_post( path, req.dump_xml )
-
+    #
+    # Find out about defined reviewers in target
+    #
     # check targets for defined default reviewers
     reviewers = []
     review_groups = []
 
-    req = BsRequest.new(response.to_s)
     req.each_action do |action|
-      tprj = DbProject.find_by_name action.target.project
-      if action.target.has_attribute? 'package'
-        tpkg = tprj.db_packages.find_by_name action.target.package
+      tprj = nil
+      tpkg = nil
+      if action.has_element? 'target'
+        tprj = DbProject.find_by_name action.target.project
+        if action.target.has_attribute? 'package'
+	  tpkg = tprj.db_packages.find_by_name action.target.package
+	elsif action.has_element? 'source' and action.source.has_attribute? 'package'
+	  tpkg = tprj.db_packages.find_by_name action.source.package
+        end
+      elsif action.has_element? 'source'
+        # find target via linkinfo or fail
+        data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}") )
+        data.elements.each("directory/linkinfo") do |e|
+          tprj = DbProject.find_by_name e.attributes["project"]
+          tpkg = tprj.db_packages.find_by_name e.attributes["package"]
+        end
+      end
+
+      # find reviewers in target package
+      if tpkg
         reviewers += find_reviewers(tpkg)
         review_groups += find_review_groups(tpkg)
-      else
+      end
+      # project reviewers get added additionaly
+      if tprj
         reviewers += find_reviewers(tprj)
         review_groups += find_review_groups(tprj)
       end
     end
 
     # apply reviewers
+    reviewers.uniq!
     if reviewers.length > 0
       reviewers.each do |r|
-        p = {}
-        p[:cmd]     = "addreview"
-        p[:by_user] = r.login
-        path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_user])
-        r = backend_post( path, "" )
+        e = req.add_element "review"
+        e.data.attributes["by_user"] = r.login
+        e.data.attributes["state"] = "new"
       end
     end
+    review_groups.uniq!
     if review_groups.length > 0
-      review_groups.each do |r|
-        p = {}
-        p[:cmd]     = "addreview"
-        p[:by_group] = r.title
-        path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_group])
-        r = backend_post( path, "" )
+      review_groups.each do |g|
+        e = req.add_element "review"
+        e.data.attributes["by_group"] = g.title
+        e.data.attributes["state"] = "new"
       end
     end
 
+    #
+    # create the actual request
+    #
+    params[:user] = @http_user.login if @http_user
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    response = backend_post( path, req.dump_xml )
     send_data( response, :disposition => "inline" )
-    return
   end
 
   def modify_addreview
@@ -382,7 +399,7 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_missing_parameter",
                :message => "Supersed a request requires a 'superseded_by' parameter with the request id."
       return
-    elsif (params[:cmd] == "addreview" and req.creator == @http_user.login)
+    elsif params[:cmd] == "addreview" and (req.creator == @http_user.login or req.is_reviewer? @http_user)
       # allow request creator to add further reviewers
       permission_granted = true
 #    elsif (params[:cmd] == "changereviewstate" and params[:by_group] == # FIXME: support groups
