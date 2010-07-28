@@ -92,9 +92,16 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   # the database and displays an edit form with the user.
   def edit
     @user = User.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    flash[:error] = 'You sent an invalid request.'
-    redirect_to :action => 'list'
+
+    # if no user was found, try to find the user by login
+    if @user.nil?
+      @user = User.find_by_login(params[:id])
+    end
+
+    if @user.nil?
+      flash[:error] = 'You sent an invalid request.'
+      redirect_to :action => 'list'
+    end
   end
 
   # Updates a user record in the database. +update+ is only accessible via
