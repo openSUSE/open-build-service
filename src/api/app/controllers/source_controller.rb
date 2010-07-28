@@ -200,7 +200,7 @@ class SourceController < ApplicationController
 
     prj = DbProject.find_by_name(project_name)
     unless prj
-      # Check if this is a package on a remote OBS instance
+      # Check if this is a package via project link to a remote OBS instance
       answer = Suse::Backend.get(request.path)
       if answer
         # exist remote
