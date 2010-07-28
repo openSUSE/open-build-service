@@ -1477,7 +1477,7 @@ sub calc_projpacks_linked {
     if ($projpacks->{$projid}->{'link'}) {
       my @li = expandprojlink($projid);
       for my $li (@li) {
-	addwatchremote('project', $li->{'project'}, '');
+	addwatchremote('package', $li->{'project'}, '');	# watch all packages
 	$li->{'package'} = ':*';
 	$li->{'myproject'} = $projid;
       }
