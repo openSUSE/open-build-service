@@ -2042,7 +2042,20 @@ sub getproject {
   my $proj = readproj($projid, 1, $cgi->{'rev'});
   $proj = remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
   die("404 project '$projid' does not exist\n") unless $proj;
-  $proj = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", 'proxy' => $proxy}, $BSXML::proj) if $proj->{'remoteurl'};
+  if ($proj->{'remoteurl'}) {
+    my $p = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", 'proxy' => $proxy}, $BSXML::proj);
+    # map remote names to local names
+    $p->{'name'} = $projid;
+    for my $r (@{$p->{'repository'} || []}) {
+      for my $re (@{$r->{'path'} || []}) {
+	$re->{'project'} = maptoremote($proj, $re->{'project'});
+      }
+    }
+    for my $pp (@{$p->{'link'} || []}) {
+      $pp->{'project'} = maptoremote($proj, $pp->{'project'});
+    }
+    $proj = $p;
+  }
   return ($proj, $BSXML::proj);
 }
 
@@ -2271,11 +2284,16 @@ sub getpackage {
     my @args;
     push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
     my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
+    $pack->{'project'} = $projid;	# local name
+    if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
+      $pack->{'devel'}->{'project'} = maptoremote($proj, $pack->{'devel'}->{'project'});
+    }
     return ($pack, $BSXML::pack);
   }
   if ($cgi->{'rev'}) {
     # return the exact file here
     # we also do not look at project links
+    # we return the data as string so that the md5 sum matches
     my $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
     my $files = lsrev($rev);
     die("404 _meta: no such file\n") unless $files->{'_meta'};
@@ -2297,6 +2315,12 @@ sub getpackage {
 	  $pack = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack);
 	};
         die($@) if $@ && $@ !~ /^404/;
+	if ($pack) {
+	  $pack->{'project'} = $lprojid;	# local name
+	  if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
+	    $pack->{'devel'}->{'project'} = maptoremote($lproj, $pack->{'devel'}->{'project'});
+	  }
+	}
       } else {
         $pack = readpack($lprojid, $packid, 1);
         unshift @todo, map {$_->{'project'}} @{$lproj->{'link'}} if !$pack && $lproj->{'link'};
