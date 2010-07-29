@@ -224,6 +224,7 @@ sub verify_pack {
   if (defined($packid)) {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
+  verify_packid($pack->{'name'});
   verify_disableenable($pack);	# obsolete
   for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
