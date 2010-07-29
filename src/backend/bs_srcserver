@@ -564,6 +564,24 @@ sub addmeta_link {
 }
 
 
+sub updatelinkinfodb {
+  my ($projid, $packid, $rev, $files) = @_;
+
+  mkdir_p($sourcedb) unless -d $sourcedb;
+  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
+  my $linkinfo;
+  if ($files && $files->{'_link'}) {
+    my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    if ($l) {
+      $linkinfo = {};
+      $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
+      $linkinfo->{'package'} = defined $l->{'package'} ? $l->{'package'} : $packid;
+      $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
+    }
+  }
+  $linkdb->store("$projid/$packid", $linkinfo);
+}
+
 #
 # create a new revision from a file list, returns revision object
 #
@@ -640,18 +658,7 @@ sub addrev {
   $rev->{'package'} = $packid;
 
   # update linked package database
-  mkdir_p($sourcedb) unless -d $sourcedb;
-  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  my $linkinfo;
-  if ($files->{'_link'}) {
-    my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
-    if ($l) {
-      $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
-      $linkinfo->{'package'} = defined $l->{'package'} ? $l->{'package'} : $packid;
-      $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
-    }
-  }
-  $linkdb->store("$projid/$packid", $linkinfo);
+  updatelinkinfodb($projid, $packid, $rev, $files);
 
   # send out hermes notification
   BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
@@ -2181,6 +2188,7 @@ sub delproject {
     }
     for my $f (ls("$projectsdir/$projid.pkg")) {
       if ($f =~ /\.m?rev(?:\.del)?$/) {
+        updatelinkinfodb($projid, $1) if $f =~ /^(.*)\.rev$/;
         my $oldrev = readstr("$projectsdir/$projid.pkg/$f", 1);
         if (defined($oldrev) && $oldrev ne '') {
 	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f");
@@ -2220,7 +2228,11 @@ sub undeleteproject {
       $rev->{'package'} = $packid;
       # extract legacy files
       if ($suf eq 'rev') {
-        extract_old_prjsource($projid, $rev) if $packid eq '_project';
+	if ($packid eq '_project') {
+          extract_old_prjsource($projid, $rev);
+	} else {
+	  updatelinkinfodb($projid, $packid, $rev, lsrev($rev));
+	}
       } elsif ($suf eq 'mrev') {
         extract_old_meta($projid, $packid, $rev);
       }
@@ -2342,6 +2354,7 @@ sub delpackage {
     BSUtil::lockopen(\*F, '+>>', "$projectsdir/$projid.pkg/$packid.rev.del");
     BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.rev.del", $oldrev);
     close F;
+    updatelinkinfodb($projid, $packid);
   }
   unlink("$projectsdir/$projid.pkg/$packid.rev");
   $oldrev = readstr("$projectsdir/$projid.pkg/$packid.mrev", 1);
@@ -2390,7 +2403,12 @@ sub undeletepackage {
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
   extract_old_meta($projid, $packid, $rev);
-  undelete_rev($cgi, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
+  if (-s "$projectsdir/$projid.pkg/$packid.rev.del") {
+    my $nrev = undelete_rev($cgi, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
+    $nrev->{'project'} = $projid;
+    $nrev->{'package'} = $packid;
+    updatelinkinfodb($projid, $packid, $nrev, lsrev($nrev));
+  }
   notify_repservers('package', $projid, $packid);
   return $BSStdServer::return_ok;
 }
