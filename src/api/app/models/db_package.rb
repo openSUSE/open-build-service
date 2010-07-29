@@ -117,7 +117,11 @@ class DbPackage < ActiveRecord::Base
 
     data.elements.each("collection/package") do |e|
       p = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
-      result.push( p )
+      if p.nil?
+        logger.error "Data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
+      else
+        result.push( p )
+      end
     end
 
     return result
