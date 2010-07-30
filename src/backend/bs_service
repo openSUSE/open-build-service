@@ -52,6 +52,7 @@ undef $BSConfig::bsgroup;
 
 my $buildroot;
 my $port = 5152;
+$port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
 my $silent;
 
 my $servicedir = $BSConfig::servicedir;
