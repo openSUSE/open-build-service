@@ -19,4 +19,13 @@ class GrouopControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'directory', :child => {:tag => 'entry' }
     assert_tag :tag => 'entry', :attributes => {:name => 'adrian' }
   end
+
+  def test_groups_of_user
+    prepare_request_valid_user
+    get "/person/adrian/group"
+    assert_response :success
+    assert_tag :tag => 'directory', :child => {:tag => 'entry' }
+    assert_tag :tag => 'entry', :attributes => {:name => 'test_group' }
+  end
+
 end
