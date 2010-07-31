@@ -65,4 +65,13 @@ class Request < ActiveXML::Base
     return last
   end
 
+  def self.find_open_review_requests(user)
+    unless user
+      raise RuntimeError, "missing parameters"
+    end
+    pred = "state/@name='review' and review/@state='new' and review/@by_user='#{user}'"
+    requests = Collection.find_cached :what => :request, :predicate => pred
+    return requests
+  end
+
 end

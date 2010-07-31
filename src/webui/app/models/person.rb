@@ -77,7 +77,8 @@ class Person < ActiveXML::Base
     Rails.cache.delete cachekey unless opts[:cache]
 
     requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      # we assume that the user is involved in all his subprojects (home:#{login}:...)
+      # FIXME: we assume that the user is involved in all his subprojects (home:#{login}:...)
+      #        that should not be needed ... verify ...
       iprojects = involved_projects.each.map {|x| x.name}.reject {|x| /^home:#{login}:/.match(x) }.sort
       requests = Array.new
 
@@ -93,6 +94,13 @@ class Person < ActiveXML::Base
         keys = myrequests.keys().sort {|x,y| y <=> x}
         keys.each {|id| requests << myrequests[id] }
       end
+
+      # check for all open review tasks
+      collection = Request.find_open_review_requests(login)
+      collection.each do |req| myrequests[Integer(req.value :id)] = req end
+      keys = myrequests.keys().sort {|x,y| y <=> x}
+      keys.each {|id| requests << myrequests[id] }
+
       requests
     end
     return requests
