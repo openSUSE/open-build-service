@@ -106,8 +106,32 @@ class Person < ActiveXML::Base
     return requests
   end
 
+  def groups
+    cachekey = "#{login}_groups"
+    mygroups = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      g=[]
+
+      path = "/person/#{login}/group"
+      frontend = ActiveXML::Config::transport_for( :person )
+      answer = frontend.direct_http URI(path), :method => "GET"
+
+      doc = XML::Parser.string(answer).parse.root
+      doc.find("/directory/entry").each do |e|
+        g.push s.attributes["name"]
+      end
+
+      g
+    end
+
+    return mygroups
+  end
+
   def packagesorter(a, b)
     a.project == b.project ? a.name <=> b.name : a.project <=> b.project
+  end
+
+  def is_in_group? (group)
+    return groups.include? group
   end
 
   def is_admin?
