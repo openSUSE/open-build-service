@@ -1,13 +1,17 @@
-<% @pagetitle = "Submit Request ##{@id}" %>
+<% @pagetitle = "Request ##{@id}" %>
 <%
 req = @therequest
 @crumb_list = [
   link_to( 'Requests', :controller => :home, :action => :list_requests),
-  "Submit Request #{h @id}"
+  "Request #{h @id}"
 ]
 -%>
 
-<h2>Submit Request #<%=h @id%></h2>
+<% if req.state.name == "review" %>
+<h2>Review of Request #<%=h @id%></h2>
+<% else %>
+<h2>Request #<%=h @id%></h2>
+<% end %>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
@@ -97,34 +101,73 @@ setup_buildresult_trigger
   <p/>
   <div class="section">
     <h3>
-      <% if @is_maintainer %>
+      <% if req.state.name == "review" %>
+        Do you approve this request?
+      <% elsif @is_maintainer %>
         Do you want to accept or decline this request?
       <% elsif @is_author %>
         Do you want to revoke your request?
       <% end %>
     </h3>
 
-    <% form_tag :action => "submitreq" do %>
+    <% form_tag :action => "changerequest" do %>
       <div>
-        <p>
-          <strong>Reason:</strong>
-          <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
-          <%= hidden_field_tag( "id", @id) %>
-        </p>
-        <p>
-          <% if @is_maintainer %>
-            <% linked = @target_pkg.linked_to if @target_pkg -%>
-            <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
-              <%= hidden_field_tag( "forward_project", linked[0]) %>
-              <%= hidden_field_tag( "forward_package", linked[1]) %>
-              <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-            <% end -%>
+<!-- IMPLEMENT ME: ask another user for review -->
+        <% if req.state.name == "review" %>
+          <p>To be reviewed by:</p>
+          <% req.each_review do |r|%>
+            <% if r.has_attribute? :by_user %>
+              <p>User <b><%=r.by_user%></b>
+              <% if @is_reviewer and r.state.to_s == "new" and r.by_user.to_s == @user.login.to_s %>
+                <%= submit_tag("Approve", :name => 'modify_by_user') %>
+                <%= submit_tag("Reject", :name => 'modify_by_user') %>
+              <% else %>
+                <%= r.state %>
+                <% unless r.text.blank? %> <!-- show comment, if existing -->
+                 (<%= r.text %>)
+                <% end %>
+              <% end %>
+              </p>
+            <%end%>
+
+            <% if r.has_attribute? :by_group %>
+              <p>Group <b><%=r.by_group%></b>
+              <% if @is_reviewer and r.state.to_s == "new" and @user.is_in_group? r.by_group %>
+                <%= submit_tag("Approve_#{r.by_group}", :name => "modify_by_group") %>
+                <%= submit_tag("Reject_#{r.by_group}", :name => "modify_by_group") %>
+              <% else %>
+                <%= r.state %>
+                <% unless r.text.blank? %> <!-- show comment, if existing -->
+                 (<%= r.text %>)
+                <% end %>
+              <% end %>
+              </p>
+            <%end%>
+          <%end%>
+        <% end %>
+
+        <% if @is_maintainer %>
+          <p>
+            <strong>Reason:</strong>
+            <%= text_field_tag :reason, '' , :size => 80 %><br/>
+            <%= hidden_field_tag( "id", @id) %>
+          </p>
+          <% linked = @target_pkg.linked_to if @target_pkg -%>
+          <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
+            <%= hidden_field_tag( "forward_project", linked[0]) %>
+            <%= hidden_field_tag( "forward_package", linked[1]) %>
+            <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+          <p>Note: Accepting will apply the changes.</p>
+          <% end -%>
+          <% if req.state.name.to_s == "review" %>
+            <%= submit_tag "Accept", :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
+          <% else %>
             <%= submit_tag "Accept", :name => 'accepted' %>
-            <%= submit_tag "Decline", :name => 'declined' %>
-          <% elsif @is_author %>
-            <%= submit_tag "Revoke", :name => 'revoked' %>
           <% end %>
-        </p>
+          <%= submit_tag "Decline", :name => 'declined' %>
+        <% elsif @is_author %>
+          <%= submit_tag "Revoke", :name => 'revoked' %>
+        <% end %>
       </div>
     <% end %>
   </div>

@@ -14,6 +14,23 @@ class RequestController < ApplicationController
     @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']"
     @newpackage = []
 
+    @is_reviewer = false
+    @therequest.each_review do |review|
+       if review.has_attribute? :by_user
+          if review.by_user.to_s == session[:login]
+            @is_reviewer = true
+            break
+          end
+       end
+
+       if review.has_attribute? :by_group
+         if @user.is_in_group? review.by_group
+            @is_reviewer = true
+            break
+         end
+       end
+    end
+
     @therequest.each_action do |action|
       @type = action.data.attributes["type"]
       if @type=="submit"
@@ -48,6 +65,40 @@ class RequestController < ApplicationController
   
   end
  
+  def change_review(params)
+    Request.free_cache( params[:id] )
+    begin
+      if params[:modify_by_user]
+        if params[:modify_by_user] == "Approve"
+          changestate = "accepted"
+        elsif params[:modify_by_user] == "Reject"
+          changestate = "declined"
+        end
+        r = Request.modifyReviewByUser( params[:id], changestate, params[:reason], session[:login] )
+      end
+
+      if params[:modify_by_group]
+        if params[:modify_by_group] =~ /^Approve_/
+          changestate = "accepted"
+        elsif params[:modify_by_group] =~ /^Reject_/
+          changestate = "declined"
+        end
+        r << Request.modifyReviewByUser( params[:id], changestate, params[:reason], params[:modify_by_group].gsub(/[^_]*_/, '') )
+      end
+
+      if r
+        flash[:note] = "Review #{changestate}!"
+        return true
+      else
+        flash[:error] = "Can't change review of request to #{changestate}!"
+      end
+    rescue Request::ModifyError => e
+      flash[:error] = e.message
+    end
+    return false
+  end
+  private :change_review
+
   def change_request(changestate, params)
     Request.free_cache( params[:id] )
     begin
@@ -65,7 +116,7 @@ class RequestController < ApplicationController
   private :change_request
 
 
-  def submitreq
+  def changerequest
     changestate = nil
     %w{forward accepted declined revoked}.each do |s|
       if params.has_key? s
@@ -99,7 +150,11 @@ class RequestController < ApplicationController
       return
     end
 
-    change_request(changestate, params)
+    if req.state.name == "review"
+      change_review(params)
+    else
+      change_request(changestate, params)
+    end
     Directory.free_cache( :project => req.action.target.project, :package => req.action.target.package )
 
     redirect_to :action => :show, :id => params[:id]

@@ -109,7 +109,7 @@ class Person < ActiveXML::Base
   def groups
     cachekey = "#{login}_groups"
     mygroups = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      g=[]
+      groups=[]
 
       path = "/person/#{login}/group"
       frontend = ActiveXML::Config::transport_for( :person )
@@ -117,10 +117,10 @@ class Person < ActiveXML::Base
 
       doc = XML::Parser.string(answer).parse.root
       doc.find("/directory/entry").each do |e|
-        g.push s.attributes["name"]
+        groups.push e.attributes["name"]
       end
 
-      g
+      groups
     end
 
     return mygroups

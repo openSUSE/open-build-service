@@ -32,6 +32,38 @@ class Request < ActiveXML::Base
     return ret
   end
 
+  def self.modifyReviewByGroup(id, changestate, comment, group)
+    modifyReview(id, changestate, comment, nil, group)
+  end
+  def self.modifyReviewByUser(id, changestate, comment, user)
+    modifyReview(id, changestate, comment, user)
+  end
+
+  def self.modifyReview(id, changestate, comment, user=nil, group=nil)
+    unless (changestate=="accepted" || changestate=="declined")
+      raise ModifyError, "unknown changestate #{changestate}"
+    end
+
+    transport = ActiveXML::Config::transport_for(:request)
+    path = "/request/#{id}?newstate=#{changestate}&cmd=changereviewstate"
+    if user
+      path << "&by_user=#{CGI.escape(user)}"
+    end
+    if group
+      path << "&by_group=#{CGI.escape(group)}"
+    end
+    begin
+      transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment.to_s
+      return true
+    rescue ActiveXML::Transport::ForbiddenError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      raise ModifyError, message
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      raise ModifyError, message
+    end
+  end
+
   def self.modify(id, changestate, reason)
     if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
       transport = ActiveXML::Config::transport_for(:request)
