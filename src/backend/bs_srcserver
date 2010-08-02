@@ -2054,6 +2054,7 @@ sub getproject {
     for my $pp (@{$p->{'link'} || []}) {
       $pp->{'project'} = maptoremote($proj, $pp->{'project'});
     }
+    $p->{'mountproject'} = $proj->{'root'} if defined $proj->{'root'};
     $proj = $p;
   }
   return ($proj, $BSXML::proj);
