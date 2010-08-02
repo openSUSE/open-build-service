@@ -60,6 +60,9 @@
 
       <attribute name="name" />
       <optional>
+        <attribute name="mountproject"/>
+      </optional>
+      <optional>
         <attribute name="created"/>
       </optional>
       <optional>
