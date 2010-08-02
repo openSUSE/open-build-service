@@ -126,8 +126,8 @@ case "$1" in
 					NUM=$(( $NUM - 1 ))  # for Dom0
 				fi
 			fi
-			if [ ! "0$OBS_WORKER_INSTANCES" -gt 0 ]; then
-				echo "ERROR: OBS worker instances are 0, either miss configuration or not enough resources"
+			if [ ! "0$NUM" -gt 0 ]; then
+				echo "ERROR: OBS worker instances are 0, either misconfiguration or not enough resources"
 				exit 1
 			fi
 
