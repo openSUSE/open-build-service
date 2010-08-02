@@ -217,6 +217,7 @@ sub verify_proj {
   for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
+  die('project must not have mountproject\n') if exists $proj->{'mountproject'};
 }
 
 sub verify_pack {
