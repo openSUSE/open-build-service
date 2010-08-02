@@ -405,6 +405,18 @@ class RequestController < ApplicationController
        end
     end
 
+    # valid users and groups ?
+    if params[:by_user] and User.find_by_login(params[:by_user]).nil?
+       render_error :status => 404, :errorcode => "unknown_user",
+                :message => "User #{params[:by_user]} is unkown"
+       return
+    end
+    if params[:by_group] and Group.find_by_title(params[:by_group]).nil?
+       render_error :status => 404, :errorcode => "unknown_user",
+                :message => "Group #{params[:by_group]} is unkown"
+       return
+    end
+
     # generic permission check
     permission_granted = false
     if @http_user.is_admin?
