@@ -215,12 +215,12 @@ OBS_STORAGE_AUTOSETUP=""
 
 ## Path:        Applications/OBS
 ## Description: Setup LVM via obsstoragesetup
-## Type:        ("take_all" | "use_obs" | "none")
+## Type:        ("take_all" | "use_obs_vg" | "none")
 ## Default:     "use_obs"
 ## Config:      OBS
 #
 # take_all: WARNING: all LVM partitions will be used and all data erased !
-# use_obs:  A lvm volume group named "OBS" will be re-setup for the workers.
+# use_obs_vg:  A lvm volume group named "OBS" will be re-setup for the workers.
 #
 OBS_SETUP_WORKER_PARTITIONS="use_obs"
 
