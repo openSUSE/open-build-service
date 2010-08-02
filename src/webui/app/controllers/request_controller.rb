@@ -11,12 +11,11 @@ class RequestController < ApplicationController
       elsif params[:group]
         r = Request.addReviewByGroup( params[:id], params[:group] )
       end
-    end
-    if r
-      render :text => "added"
+    rescue Request::ModifyError => e
+      render :text => e.message
       return
     end
-    render :text => "ERROR: adding failed"
+    render :text => "added"
   end
 
   def show
