@@ -220,6 +220,7 @@ case "$1" in
 
 			# Create cache partition on remaining space
 			lvcreate -n cache -l 100%FREE OBS || exit
+			mkfs -text4 /dev/OBS/cache || exit
 		fi
 
 		echo "Looking for OBS Server LVM Volume"
