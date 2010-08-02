@@ -1,5 +1,24 @@
 class RequestController < ApplicationController
 
+  def addreviewer
+    if params[:id]
+      @therequest = find_cached(Request, params[:id] )
+    end
+    Request.free_cache( params[:id] )
+    begin
+      if params[:user]
+        r = Request.addReviewByUser( params[:id], params[:user] )
+      elsif params[:group]
+        r = Request.addReviewByGroup( params[:id], params[:group] )
+      end
+    end
+    if r
+      render :text => "added"
+      return
+    end
+    render :text => "ERROR: adding failed"
+  end
+
   def show
     if params[:id]
       @therequest = find_cached(Request, params[:id] )
