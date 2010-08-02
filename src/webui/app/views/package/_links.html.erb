@@ -11,8 +11,13 @@
         <%- linked_package = @package.linkinfo.package -%>
 
         This package links to the sources of the package
-        <%= link_to linked_package, :action => :files, :project => linked_project, :package => linked_package %>
-        of project <%= link_to_project linked_project %>.
+        <% if Project.is_remote? linked_project %>
+          <%= linked_package %>
+          of project <%= linked_project %>.
+        <% else %>
+          <%= link_to linked_package, :action => :files, :project => linked_project, :package => linked_package %>
+          of project <%= link_to_project linked_project %>.
+        <% end %>
         Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project,
           :opackage => linked_package, :project => @project, :package => @package %>
       <% end %>
