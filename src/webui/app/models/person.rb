@@ -135,8 +135,7 @@ class Person < ActiveXML::Base
   end
 
   def is_admin?
-    return true if has_element? ("globalrole[text() = \"Admin\"]")
-    return false
+    has_element?( "globalrole[text() = \"Admin\"]" )
   end
 
   # if package is nil, returns project maintainership
