@@ -178,7 +178,7 @@ class RequestController < ApplicationController
       return
     end
 
-    if @therequest.state.name == "review"
+    if @therequest.state.name == "review" and (params[:modify_by_user] or params[:modify_by_group])
       change_review(params)
     else
       change_request(changestate, params)

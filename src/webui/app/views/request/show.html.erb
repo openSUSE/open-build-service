@@ -180,11 +180,11 @@ setup_buildresult_trigger
         </table>
 
         <!-- handle the request itself -->
+        <%= hidden_field_tag( "id", @id) %>
         <% if @is_maintainer %>
           <p>
             <strong>Reason:</strong>
             <%= text_field_tag :reason, '' , :size => 80 %><br/>
-            <%= hidden_field_tag( "id", @id) %>
           </p>
           <% linked = @target_pkg.linked_to if @target_pkg -%>
           <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
