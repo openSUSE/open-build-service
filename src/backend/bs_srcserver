@@ -4692,14 +4692,25 @@ sub postrequest {
   BSNotify::notify("SRCSRV_REQUEST_STATECHANGE", BSNotify::requestParams($req, $cgi->{'user'}));
   # Additionally send type specific hermes notifications
   my $hermes_type;
-  if( $cgi->{'newstate'} eq "accepted" ) {
-    $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
-  } elsif( $cgi->{'newstate'} eq "rejected" ) {
-    $hermes_type = "SRCSRV_REQUEST_REJECTED";
-  } elsif( $cgi->{'newstate'} eq "revoked" ) {
-    $hermes_type = "SRCSRV_REQUEST_REVOKED";
+  my $notification = BSNotify::requestParams($req, $cgi->{'user'});
+  if ($cmd eq 'addreview') {
+    if ($cgi->{'by_user'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
+      $notification->{'newreviewer'} = $cgi->{'by_user'};
+    } else {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
+      $notification->{'newreviewer'} = $cgi->{'by_group'};
+    }
+  } else {
+    if( $cgi->{'newstate'} eq "accepted" ) {
+      $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
+    } elsif( $cgi->{'newstate'} eq "rejected" ) {
+      $hermes_type = "SRCSRV_REQUEST_REJECTED";
+    } elsif( $cgi->{'newstate'} eq "revoked" ) {
+      $hermes_type = "SRCSRV_REQUEST_REVOKED";
+    }
   }
-  BSNotify::notify( $hermes_type, BSNotify::requestParams($req, $cgi->{'user'})) if( $hermes_type );
+  BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
 
   return $BSStdServer::return_ok;
 }
