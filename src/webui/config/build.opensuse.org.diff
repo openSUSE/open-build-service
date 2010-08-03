@@ -1,0 +1,14 @@
+diff --git a/src/webui/app/views/project/add_repository_from_default_list.rhtml b/src/webui/app/views/project/add_repository_from_default_list.rhtml
+index 2b8aa10..bf550c2 100644
+--- a/src/webui/app/views/project/add_repository_from_default_list.rhtml
++++ b/src/webui/app/views/project/add_repository_from_default_list.rhtml
+@@ -50,7 +50,8 @@
+       <input id="images_repo" name="images_repo" value="" type="hidden"/>
+       <input id="images_arch_i586" name="images_arch[]" value="i586" type="hidden"/>
+       <input id="images_arch_x86_64" name="images_arch[]" value="x86_64" type="hidden"/>
+-      KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
++      KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>
++      <b>Server side building is not enabled by default, request the admins to enable your project <a href="https://bugzilla.novell.com/enter_bug.cgi?product=openSUSE.org&component=OBS%20Request">here</a>.</b>        </span>
+   </p>
+ 
+   <p>

@@ -67,6 +67,11 @@ namespace :config do
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/database.yml"
   end
 
+  desc "Patch local changes"
+  task :patch_build_opensuse_org do
+    run "cd #{current_path}; patch -p3 < config/build.opensuse.org.diff"
+  end
+
   desc "Set permissions"
   task :permissions do
     run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{current_path}/public/main"
