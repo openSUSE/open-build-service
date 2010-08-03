@@ -131,51 +131,51 @@ setup_buildresult_trigger
         <table id="pTable">
         <tr><th colspan="3">Reviews</th></tr>
         <tr><th></th><th valign="top">Owner</th><th>State</th></tr>
-        <% if req.state.name == "review" %>
-          <% req.each_review do |r|%>
-            <tr>
-            <% if r.has_attribute? :by_user %>
-              <td>User</td> <td><%=r.by_user%></td>
-              <td>
-              <% if @is_reviewer and r.state.to_s == "new" and r.by_user.to_s == @user.login.to_s %>
-                <%= submit_tag("Approve", :name => 'modify_by_user') %>
-                <%= submit_tag("Reject", :name => 'modify_by_user') %>
-              <% else %>
-                <%= r.state %>
-                <% unless r.text.blank? %> <!-- show comment, if existing -->
-                 (<%= r.text %>)
-                <% end %>
+        <% req.each_review do |r|%>
+          <tr>
+          <% if r.has_attribute? :by_user %>
+            <td>User</td> <td><%=r.by_user%></td>
+            <td>
+            <% if @is_reviewer and req.state.name == "review" and r.state.to_s == "new" and r.by_user.to_s == @user.login.to_s %>
+              <%= submit_tag("Approve", :name => 'modify_by_user') %>
+              <%= submit_tag("Reject", :name => 'modify_by_user') %>
+            <% else %>
+              <%= r.state %>
+              <% unless r.text.blank? %> <!-- show comment, if existing -->
+               (<%= r.text %>)
               <% end %>
-              </td>
-            <%end%>
-
-            <% if r.has_attribute? :by_group %>
-              <td>Group</td> <td><%=r.by_group%></td>
-              <td>
-              <% if @is_reviewer and r.state.to_s == "new" and @user.is_in_group? r.by_group %>
-                <%= submit_tag("Approve_#{r.by_group}", :name => "modify_by_group") %>
-                <%= submit_tag("Reject_#{r.by_group}", :name => "modify_by_group") %>
-              <% else %>
-                <%= r.state %>
-                <% unless r.text.blank? %> <!-- show comment, if existing -->
-                 (<%= r.text %>)
-                <% end %>
-              <% end %>
-              </td>
-            <%end%>
-            </tr>
+            <% end %>
+            </td>
           <%end%>
-        <% end %>
+
+          <% if r.has_attribute? :by_group %>
+            <td>Group</td> <td><%=r.by_group%></td>
+            <td>
+            <% if @is_reviewer and req.state.name == "review" and r.state.to_s == "new" and @user.is_in_group? r.by_group %>
+              <%= submit_tag("Approve_#{r.by_group}", :name => "modify_by_group") %>
+              <%= submit_tag("Reject_#{r.by_group}", :name => "modify_by_group") %>
+            <% else %>
+              <%= r.state %>
+              <% unless r.text.blank? %> <!-- show comment, if existing -->
+               (<%= r.text %>)
+              <% end %>
+            <% end %>
+            </td>
+          <%end%>
+          </tr>
+        <%end%>
 
         <!-- add another review -->
-        <% if @is_maintainer or @is_reviewer %>
-          <tr class="add_reviewer">
-            <td><%=select_tag "add_review_type", "<option>User</option> <option>Group</option>" %></td>
-            <td><%=text_field_tag "add_review_name" %></td>
-            <td><%=button_to_function "Add Reviewer" do |r|
-                    r.call :insertRow
-                   end %></td>
-          </tr>
+        <% if req.state.name == "review" %>
+          <% if @is_maintainer or @is_reviewer %>
+            <tr class="add_reviewer">
+              <td><%=select_tag "add_review_type", "<option>User</option> <option>Group</option>" %></td>
+              <td><%=text_field_tag "add_review_name" %></td>
+              <td><%=button_to_function "Add Reviewer" do |r|
+                      r.call :insertRow
+                     end %></td>
+            </tr>
+          <% end %>
         <% end %>
         </table>
 
