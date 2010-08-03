@@ -138,6 +138,14 @@ class RequestController < ApplicationController
 
 
   def changerequest
+    if params[:id]
+      @therequest = find_cached(Request, params[:id] )
+    end
+    unless @therequest
+      flash[:error] = "Can't find request #{params[:id]}"
+      redirect_to :action => :index and return
+    end
+
     changestate = nil
     %w{forward accepted declined revoked}.each do |s|
       if params.has_key? s
@@ -146,13 +154,12 @@ class RequestController < ApplicationController
       end
     end
 
-    req = find_cached(Request, params[:id] )
     if changestate == 'forward' # special case
-      description = req.description.text
-      logger.debug 'request ' +  req.dump_xml
+      description = @therequest.description.text
+      logger.debug 'request ' +  @therequest.dump_xml
 
-      if req.has_element? 'state'
-        who = req.state.data["who"].to_s
+      if @therequest.has_element? 'state'
+        who = @therequest.state.data["who"].to_s
         description += " (forwarded request %d from %s)" % [params[:id], who]
       end
 
@@ -161,22 +168,22 @@ class RequestController < ApplicationController
         return
       end
 
-      rev = Package.current_rev(req.action.target.project, req.action.target.package)
-      req = Request.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
-        :project => req.action.target.project, :package => req.action.target.package, :rev => rev, :description => description)
-      req.save(:create => true)
+      rev = Package.current_rev(@therequest.action.target.project, @therequest.action.target.package)
+      @therequest = Request.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
+        :project => @therequest.action.target.project, :package => @therequest.action.target.package, :rev => rev, :description => description)
+      @therequest.save(:create => true)
       Rails.cache.delete "requests_new"
       flash[:note] = "Request #{params[id]} accepted and forwarded"
-      redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+      redirect_to :controller => :request, :action => :show, :id => @therequest.data["id"]
       return
     end
 
-    if req.state.name == "review"
+    if @therequest.state.name == "review"
       change_review(params)
     else
       change_request(changestate, params)
     end
-    Directory.free_cache( :project => req.action.target.project, :package => req.action.target.package )
+    Directory.free_cache( :project => @therequest.action.target.project, :package => @therequest.action.target.package )
 
     redirect_to :action => :show, :id => params[:id]
   end
