@@ -4653,7 +4653,8 @@ sub postrequest {
     die("review state must be accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
         $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
 
-    my $go_new_state = $req->{'state'}->{'name'};
+    my $go_new_state = "review";
+    my $go_new_state = $cgi->{'newstate'} if $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
     my $found = 0;
     for my $r (@{$req->{'review'} || []}) {
       if (defined($r->{'by_user'}) and defined($cgi->{'by_user'}) and $r->{'by_user'} eq $cgi->{'by_user'}){
