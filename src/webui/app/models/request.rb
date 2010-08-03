@@ -48,7 +48,8 @@ class Request < ActiveXML::Base
       path << "&by_group=#{CGI.escape(group)}"
     end
     begin
-      transport.direct_http URI("https://#{path}"), :method => "POST"
+      r = transport.direct_http URI("https://#{path}"), :method => "POST"
+      # FIXME add a full error handler here
       return true
     rescue ActiveXML::Transport::ForbiddenError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e

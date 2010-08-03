@@ -10,6 +10,9 @@ class RequestController < ApplicationController
         r = Request.addReviewByUser( params[:id], params[:user] )
       elsif params[:group]
         r = Request.addReviewByGroup( params[:id], params[:group] )
+      else
+        render :text => "ERROR: don't know how to add reviewer"
+        return
       end
     rescue Request::ModifyError => e
       render :text => e.message

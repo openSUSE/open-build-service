@@ -8,7 +8,7 @@
     var type = document.getElementById('add_review_type').value;
     var value = document.getElementById('add_review_name').value;
     var id = "id_"+type+"_"+value
-    var path = "/request/addreviewer/1?"
+    var path = "/request/addreviewer/<%=@id%>?"
     if (type == "User") {
       path = path + "user="+value
     } else {
