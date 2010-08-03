@@ -4594,7 +4594,24 @@ sub createrequest {
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   $req->{'id'} = nextreqid();
   writereq(undef, $req);
+
+  # notification about new request
   BSNotify::notify("SRCSRV_REQUEST_CREATE", BSNotify::requestParams($req, $cgi->{'user'}));
+
+  # notification about new review of request
+  for my $r (@{$req->{'review'} || []}) {
+    my $notification = BSNotify::requestParams($req, $cgi->{'user'});
+    my $hermes_type;
+    if ($r->{'by_user'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
+      $notification->{'newreviewer'} = $r->{'by_user'};
+    } elsif ($r->{'by_group'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
+      $notification->{'newreviewer'} = $r->{'by_group'};
+    }
+    BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
+   }
+
   return ($req, $BSXML::request);
 }
 
