@@ -1,9 +1,11 @@
 1:
   repository_id: 85
   architecture_id: 1
+  position: 0
 2:
   repository_id: 85
   architecture_id: 2
+  position: 1
 3:
   repository_id: 86
   architecture_id: 2
@@ -13,5 +15,4 @@
 5:
   repository_id: 88
   architecture_id: 1
-
 
