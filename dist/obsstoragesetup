@@ -241,6 +241,8 @@ case "$1" in
 			ln -sf $backenddir /obs
                 fi
 
+		# Only used if there is a local BSConfig
+		if [ -e /usr/lib/obs/server/BSConfig.pm ]; then
 # We try out more entropy generators atm, so lets always enable signing for now
 #                if [ -e /dev/hw_random -o -e /dev/hwrng ]; then
 			# create default gpg key if not existing
@@ -282,9 +284,10 @@ EOF
 				sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 			fi
 #		fi
-		if [ ! -e /obs/obs-default-gpg.asc ] ; then
-			sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
-			sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+			if [ ! -e /obs/obs-default-gpg.asc ] ; then
+			    sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+			    sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+			fi
 		fi
 
 		echo "Looking for OBS Worker Cache LVM Volume"
