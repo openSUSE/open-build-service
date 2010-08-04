@@ -545,8 +545,7 @@ sub createpatterns_comps {
   my @grps;
   for my $pattern (@$patterns) {
     my $pat = XMLin($BSXML::pattern, $pattern->{'data'});
-    next unless $pattern->{'name'} =~ /^(.*)\.xml$/s;
-    my $grp = { 'id' => $1 };
+    my $grp = { 'id' => $pattern->{'name'} };
     for (@{$pat->{'summary'}}) {
       my $el = { '_content' => $_->{'_content'} };
       $el->{'xml:lang'} = $_->{lang} if $_->{'lang'};
@@ -586,7 +585,7 @@ sub createpatterns_comps {
 sub deletepatterns_comps {
   my ($extrep) = @_;
   for my $pat (ls("$extrep/repodata")) {
-    next unless $pat =~ /^group/;
+    next unless $pat =~ /group.xml/;
     unlink("$extrep/repodata/$pat");
   }
 }
