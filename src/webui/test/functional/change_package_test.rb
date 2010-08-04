@@ -23,6 +23,9 @@ class ChangePackageTest < ActionController::IntegrationTest
      
      assert_contain("Branched package home:coolo:test / kdelibs_DEVEL_package")
      click_link 'Files'
+     assert_response :success
+
+     click_link 'Add file'
      
    end
    
