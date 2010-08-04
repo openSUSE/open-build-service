@@ -9,13 +9,13 @@ class WizardControllerTest < ActionController::IntegrationTest
   
     get "/source/kde4/kdelibs/_wizard"
     assert_response 403
-    assert_match /no permission to change package/, @response.body
+    assert_match(/no permission to change package/, @response.body)
 
     prepare_request_with_user "fredlibs", "geröllheimer"
 
     get "/source/kde4/kdelibs-not/_wizard"
     assert_response 404
-    assert_match /unknown package 'kdelibs-not' in project 'kde4'/, @response.body
+    assert_match(/unknown package 'kdelibs-not' in project 'kde4'/, @response.body)
 
     get "/source/kde4/kdelibs/_wizard"
     assert_response 200

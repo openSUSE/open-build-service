@@ -11,14 +11,14 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_index
     get "/build"
     assert_response :success
-    assert_match /entry name="home:Iggy"/, @response.body
+    assert_match(/entry name="home:Iggy"/, @response.body)
   end
 
   def test_buildinfo
     # just testing routing
     get "/build/buildinfo"
     assert_response 404
-    assert_match /project 'buildinfo' does not exist/, @response.body
+    assert_match(/project 'buildinfo' does not exist/, @response.body)
 
     get "/build/home:Iggy/10.2/i586/TestPack/_buildinfo"
     # we can't test this without running schedulers
@@ -37,7 +37,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
     get "/build/home:Iggy/10.2/i586/notthere/_log"
     assert_response 404
-    assert_match /package 'notthere' does not exist/, @response.body
+    assert_match(/package 'notthere' does not exist/, @response.body)
   end
   
   def test_result
@@ -49,7 +49,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_binary_view
     get "/build/home:Iggy/10.2/i586/TestPack/file?view=fileinfo"
     assert_response 404
-    assert_match /file: No such file or directory/, @response.body
+    assert_match(/file: No such file or directory/, @response.body)
 
     get "/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response :success
@@ -63,7 +63,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 200
     get "/build/home:Iggy/10.2/i586/TestPack/NOT_EXISTING"
     assert_response 404
-    assert_match /NOT_EXISTING: No such file or directory/, @response.body
+    assert_match(/NOT_EXISTING: No such file or directory/, @response.body)
   end
 
   def test_project_index
@@ -73,11 +73,11 @@ class BuildControllerTest < ActionController::IntegrationTest
 
     put "/build/home:Iggy", :cmd => 'say_hallo'
     assert_response 403
-    assert_match /No permission to execute command on project/, @response.body
+    assert_match(/No permission to execute command on project/, @response.body)
 
     post "/build/home:Iggy", :cmd => 'say_hallo'
     assert_response 400
-    assert_match /illegal POST request to/, @response.body
+    assert_match(/illegal POST request to/, @response.body)
 
     prepare_request_with_user "Iggy", "asdfasdf" 
     post "/build/home:Iggy"
@@ -86,10 +86,10 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 400
     post "/build/home:NotExisting?cmd=wipe"
     assert_response 404
-    assert_match /Project does not exist/, @response.body
+    assert_match(/Project does not exist/, @response.body)
     post "/build/home:Iggy?cmd=wipe&package=DoesNotExist"
     assert_response 404
-    assert_match /unknown package: DoesNotExist/, @response.body
+    assert_match(/unknown package: DoesNotExist/, @response.body)
   
     post "/build/home:Iggy?cmd=wipe"
     assert_response :success
@@ -99,10 +99,10 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian", "so_alone" 
     post "/build/home:Iggy?cmd=wipe"
     assert_response 403
-    assert_match /No permission to execute command on project/, @response.body
+    assert_match(/No permission to execute command on project/, @response.body)
     post "/build/home:Iggy?cmd=wipe&package=TestPack"
     assert_response 403
-    assert_match /No permission to execute command on package/, @response.body
+    assert_match(/No permission to execute command on package/, @response.body)
   end
   
   def test_remoteinstance

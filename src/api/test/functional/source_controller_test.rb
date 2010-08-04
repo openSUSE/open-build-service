@@ -113,22 +113,22 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fred", "geröllheimer"
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s
     assert_response 403
-    assert_match /admin rights are required to change remoteurl/, @response.body
+    assert_match(/admin rights are required to change remoteurl/, @response.body)
 
     # invalid xml
     put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<asd/>"
     assert_response 400
-    assert_match /validation failed/, @response.body
+    assert_match(/validation failed/, @response.body)
 
     # new project
     put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
     assert_response 403
-    assert_match /not allowed to create new project/, @response.body
+    assert_match(/not allowed to create new project/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
-    assert_match /projid '_NewProject' is illegal/, @response.body
+    assert_match(/projid '_NewProject' is illegal/, @response.body)
   end
   
   
@@ -519,7 +519,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fredlibs", "geröllheimer"
     get "/source", :deleted => 1
     assert_response 403
-    assert_match /only admins can see deleted projects/, @response.body
+    assert_match(/only admins can see deleted projects/, @response.body)
 
     prepare_request_with_user "fredlibs", "geröllheimer"
     # undelete project
@@ -588,12 +588,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
     assert_response 403
-    assert_match /no permission to store pattern/, @response.body
+    assert_match(/no permission to store pattern/, @response.body)
 
     prepare_request_with_user "tom", "thunder"
     put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), "broken"
     assert_response 400
-    assert_match /validation failed/, @response.body
+    assert_match(/validation failed/, @response.body)
     put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test"), load_backend_file("pattern/digiKam.xml")
     assert_response :success
     get url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
@@ -640,7 +640,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     get url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
     assert_response 404
-    assert_match /kde4: no pubkey available/, @response.body
+    assert_match(/kde4: no pubkey available/, @response.body)
 
     delete url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
     assert_response 403
@@ -656,14 +656,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response 404
-    assert_match /unknown package 'pack2' in project 'BaseDistro2:LinkedUpdateProject'/, @response.body
+    assert_match(/unknown package 'pack2' in project 'BaseDistro2:LinkedUpdateProject'/, @response.body)
 
     # test not permitted commands
     post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "rebuild"
     assert_response 403
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "wipe"
     assert_response 403
-    assert_match /no permission to execute command 'wipe' for not existing package/, @response.body
+    assert_match(/no permission to execute command 'wipe' for not existing package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
     assert_response 403
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
@@ -721,13 +721,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fredlibs", "geröllheimer"
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "NotExisting"
     assert_response 403
-    assert_match /no permission to create project/, @response.body
+    assert_match(/no permission to create project/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 403
-    assert_match /no permission to create package/, @response.body
+    assert_match(/no permission to create package/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response 403
-    assert_match /no permission to create package/, @response.body
+    assert_match(/no permission to create package/, @response.body)
  
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
@@ -738,12 +738,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     # branch again
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response 400
-    assert_match /branch target package already exists/, @response.body
+    assert_match(/branch target package already exists/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response :success
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
     assert_response 400
-    assert_match /no such revision/, @response.body
+    assert_match(/no such revision/, @response.body)
     # FIXME: do a real commit and branch afterwards
 
     # now with a new project
@@ -818,23 +818,23 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/home:unknown/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /project 'home:unknown' does not exist/, @response.body
+    assert_match(/project 'home:unknown' does not exist/, @response.body)
 
     post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
-    assert_match /Required Parameter status missing/, @response.body
+    assert_match(/Required Parameter status missing/, @response.body)
 
     post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=enable"
     assert_response 404
-    assert_match /Unknown package 'Nothere'/, @response.body
+    assert_match(/Unknown package 'Nothere'/, @response.body)
 
     post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
     assert_response 400
-    assert_match /Error: unknown status for flag 'anything'/, @response.body
+    assert_match(/Error: unknown status for flag 'anything'/, @response.body)
 
     post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
     assert_response 400
-    assert_match /Error: unknown flag type 'shine' not found./, @response.body
+    assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
@@ -843,7 +843,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response 403
-    assert_match /no permission to execute command/, @response.body
+    assert_match(/no permission to execute command/, @response.body)
 
     post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
@@ -865,19 +865,19 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /Unknown project 'home:unknown'/, @response.body
+    assert_match(/Unknown project 'home:unknown'/, @response.body)
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
-    assert_match /Required Parameter status missing/, @response.body
+    assert_match(/Required Parameter status missing/, @response.body)
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
     assert_response 400
-    assert_match /Error: unknown status for flag 'anything'/, @response.body
+    assert_match(/Error: unknown status for flag 'anything'/, @response.body)
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
     assert_response 400
-    assert_match /Error: unknown flag type 'shine' not found./, @response.body
+    assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
     get "/source/home:Iggy/_meta"
     assert_response :success
@@ -886,7 +886,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/kde4?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response 403
-    assert_match /no permission to execute command/, @response.body
+    assert_match(/no permission to execute command/, @response.body)
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
@@ -916,19 +916,19 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /project 'home:unknown' does not exist/, @response.body
+    assert_match(/project 'home:unknown' does not exist/, @response.body)
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 400
-    assert_match /Required Parameter flag missing/, @response.body
+    assert_match(/Required Parameter flag missing/, @response.body)
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /Unknown package 'Nothere'/, @response.body
+    assert_match(/Unknown package 'Nothere'/, @response.body)
 
     post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400
-    assert_match /Error: unknown flag type 'shine' not found./, @response.body
+    assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
@@ -937,7 +937,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
-    assert_match /no permission to execute command/, @response.body
+    assert_match(/no permission to execute command/, @response.body)
 
     post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success
@@ -967,15 +967,15 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
-    assert_match /project 'home:unknown' does not exist/, @response.body
+    assert_match(/project 'home:unknown' does not exist/, @response.body)
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 400
-    assert_match /Required Parameter flag missing/, @response.body
+    assert_match(/Required Parameter flag missing/, @response.body)
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400
-    assert_match /Error: unknown flag type 'shine' not found./, @response.body
+    assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
     get "/source/home:Iggy/_meta"
     assert_response :success
@@ -984,7 +984,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
-    assert_match /no permission to execute command/, @response.body
+    assert_match(/no permission to execute command/, @response.body)
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success

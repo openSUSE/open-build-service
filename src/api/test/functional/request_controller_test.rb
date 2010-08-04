@@ -209,7 +209,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fred", "geröllheimer"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_match /Request is in review state/, @response.body
+    assert_match(/Request is in review state/, @response.body)
 
     # approve reviews
     prepare_request_with_user "adrian", "so_alone"
@@ -262,16 +262,16 @@ class RequestControllerTest < ActionController::IntegrationTest
     # try to break permissions
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_match /Request is in review state./, @response.body
+    assert_match(/Request is in review state./, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response 403
-    assert_match /No permission to change state of request/, @response.body
+    assert_match(/No permission to change state of request/, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 403
-    assert_match /No permission to change state of request/, @response.body
+    assert_match(/No permission to change state of request/, @response.body)
     post "/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 404
-    assert_match /No such request/, @response.body
+    assert_match(/No such request/, @response.body)
 
     # approve reviews
     prepare_request_with_user "adrian", "so_alone"

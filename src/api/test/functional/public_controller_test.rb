@@ -53,7 +53,7 @@ class PublicControllerTest < ActionController::IntegrationTest
 
     get "/public/source/home:Iggy/TestPack/myfile2"
     assert_response 404
-    assert_match /myfile2: no such file/, @response.body
+    assert_match(/myfile2: no such file/, @response.body)
 
     get "/public/build/home:Iggy/10.2/i586/TestPack/doesnotexist"
     assert_response 404

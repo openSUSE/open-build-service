@@ -49,12 +49,12 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     post "/attribute/TEST/_meta", data
     assert_response 403
-    assert_match /Namespace changes are only permitted by the administrator/, @response.body
+    assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
     prepare_request_with_user "Iggy", "asdfasdf"
     delete "/attribute/OBS/_meta"
     assert_response 403
-    assert_match /Namespace changes are only permitted by the administrator/, @response.body
+    assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     post "/attribute/TEST/_meta", data
@@ -98,7 +98,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     delete "/attribute/OBS/Maintenance/_meta"
     assert_response 403
-    assert_match /Attribute type changes are not permitted/, @response.body
+    assert_match(/Attribute type changes are not permitted/, @response.body)
 
     prepare_request_with_user "adrian", "so_alone"
     post "/attribute/TEST/Dummy/_meta", data

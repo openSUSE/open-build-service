@@ -7,12 +7,12 @@ class AdminControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
     get "/admin"
     assert_response :success
-    assert_match /Insufficient permissions to view page/, @response.body
+    assert_match(/Insufficient permissions to view page/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     get "/admin"
     assert_response :success
-    assert_match /Administrator Tasks/, @response.body
+    assert_match(/Administrator Tasks/, @response.body)
   end
 
   def test_tags
@@ -23,7 +23,7 @@ class AdminControllerTest < ActionController::IntegrationTest
     
     get "/admin/list_blacklist_tags"
     assert_response :success
-    assert_match /IamNotAllowed/, @response.body
+    assert_match(/IamNotAllowed/, @response.body)
     assert_equal 1, assigns(:tags).size
     get "/admin/show_blacklist_tag/1"
     assert_response :success
@@ -32,7 +32,7 @@ class AdminControllerTest < ActionController::IntegrationTest
 
     get "/admin/show_tag/462"
     assert_response :success
-    assert_match /TestPack/, @response.body
+    assert_match(/TestPack/, @response.body)
     
     get "/admin/new_tag"
     assert_response :success

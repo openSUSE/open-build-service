@@ -13,7 +13,7 @@ class DistributionControllerTest < ActionController::IntegrationTest
 
   def test_put_and_get_list
     # FIXME: this is messing with production data, the controller must be fixed!
-    return
+    if false
 
     data = '<distributions>
                <distribution vendor="openSUSE" version="Factory" id="opensuse-Factory">
@@ -47,6 +47,8 @@ class DistributionControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/distributions"
     assert_response :success
+  
+    end
   end
   
   # FIXME: write distribution schema and add a check with broken XML

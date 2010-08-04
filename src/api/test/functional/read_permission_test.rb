@@ -15,7 +15,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     prepare_request_valid_user
     get "/source?deleted"
     assert_response 403
-    assert_match /only admins can see deleted projects/, @response.body 
+    assert_match(/only admins can see deleted projects/, @response.body )
 
     prepare_request_with_user "king", "sunflower"
     get "/source?deleted"

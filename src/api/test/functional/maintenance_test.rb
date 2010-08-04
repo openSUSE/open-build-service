@@ -99,7 +99,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo"
     assert_response 400
-    assert_match /No binary packages were found in project repositories/, @response.body
+    assert_match(/No binary packages were found in project repositories/, @response.body)
     # FIXME: test with binaries
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo&force=1"
     assert_response :success

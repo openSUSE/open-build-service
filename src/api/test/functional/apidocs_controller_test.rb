@@ -18,11 +18,11 @@ class ApidocsControllerTest < ActionController::IntegrationTest
   def test_subpage
     get "/apidocs/whatisthis"
     assert_response 404
-    assert_match /code="unknown_file_type"/, @response.body
+    assert_match(/code="unknown_file_type"/, @response.body)
 
     get "/apidocs/whatisthis.xml"
     assert_response 404
-    assert_match /code="file_not_found"/, @response.body
+    assert_match(/code="file_not_found"/, @response.body)
     
     get "/apidocs/project.xml" 
     assert_response :success
