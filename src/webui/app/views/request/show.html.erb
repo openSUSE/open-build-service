@@ -166,7 +166,7 @@ setup_buildresult_trigger
         <%end%>
 
         <!-- add another review -->
-        <% if req.state.name == "review" %>
+        <% if req.state.name == "review" or req.state.name == "new" %>
           <% if @is_maintainer or @is_reviewer %>
             <tr class="add_reviewer">
               <td><%=select_tag "add_review_type", "<option>User</option> <option>Group</option>" %></td>
@@ -191,7 +191,6 @@ setup_buildresult_trigger
             <%= hidden_field_tag( "forward_project", linked[0]) %>
             <%= hidden_field_tag( "forward_package", linked[1]) %>
             <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-          <p>Note: Accepting will apply the changes.</p>
           <% end -%>
           <% if req.state.name.to_s == "review" %>
             <%= submit_tag "Accept", :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
