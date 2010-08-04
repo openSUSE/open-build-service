@@ -110,5 +110,33 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
   # <<< Testing package inside HiddenProject - flag "access" set to "disabled" in Project
 
+  def get_repos
+    ret = Array.new
+    col = ActiveXML::Base.new @response.body
+    col.each_repository do |r|
+      ret << "#{r.project}/#{r.name}"
+    end
+    return ret
+  end
+
+  def test_search_repository_id
+    prepare_request_with_user "Iggy", "asdfasdf" 
+    get "/search/repository_id"
+    assert_response :success
+    assert_tag :tag => 'collection'
+    repos = get_repos
+    assert repos.include?('home:Iggy/10.2')
+    assert !repos.include?('HiddenProject/nada')
+
+    prepare_request_with_user "king", "sunflower" 
+    get "/search/repository_id"
+    assert_response :success
+    assert_tag :tag => 'collection'
+    repos = get_repos
+    assert repos.include?('home:Iggy/10.2')
+    assert repos.include?('HiddenProject/nada')
+
+  end
+
 end
 

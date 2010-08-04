@@ -35,3 +35,6 @@ LocalProject:
   name: pop
   db_project_id: 5002
   id: 88
+HiddenProjectRepo:
+  name: nada
+  db_project_id: 3000
