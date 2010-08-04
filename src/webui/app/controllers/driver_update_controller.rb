@@ -52,6 +52,7 @@ class DriverUpdateController < PackageController
     services.removeService( 'generator_driver_update_disk' )
     services.addService( 'generator_driver_update_disk', -1, dud_params )
     services.save
+    Directory.free_cache( :project => @project, :package => @package )
 
     flash[:success] = "Saved Driver update disk service."
     redirect_to :controller => :package, :action => :show, :project => @project, :package => @package
