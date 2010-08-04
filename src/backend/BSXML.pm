@@ -373,6 +373,7 @@ our $buildinfo = [
 	'verifymd5',
 	'rev',
 	'reason',       # just for the explain string of a build reason
+	'needed',       # number of blocked
 	'readytime',
 	'specfile',	# obsolete
 	'file',

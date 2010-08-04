@@ -468,6 +468,7 @@ sub killbuilding {
 #         $prpsearchpath - build repository search path
 #         $reason        - what triggered the build
 #         $relsyncmax    - bcnt sync data
+#         $needed        - packages blocked by this job
 #
 # output: $job           - the job identifier
 #         $error         - in case we could not start the job
@@ -478,7 +479,7 @@ sub killbuilding {
 # not that hard, was it?
 #
 sub set_building {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax, $needed) = @_;
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -598,6 +599,7 @@ sub set_building {
     'subpack' => ($subpacks || []),
     'bdep' => \@bdeps,
     'path' => $searchpath,
+    'needed' => $needed,
   };
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   my $release = $pdata->{'versrel'};
@@ -2272,7 +2274,7 @@ sub rebuildkiwiimage {
   local *Build::expand = $ownexpand;
   use warnings 'redefine';
 
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax);
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax, 0);
   if ($job) {
     return ('scheduled', $job);
   } else {
@@ -4123,6 +4125,7 @@ while(1) {
   my @cpacks = @packs;
   my %cycpass;
   my $nharder = 0;
+  my $needed;
 
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
@@ -4544,7 +4547,13 @@ relsynccheck:
       print "        rebuild counter sync, start build\n";
       $reason = { 'explain' => 'rebuild counter sync' };
     }
-    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax);
+    if (!$needed) {
+      $needed = {};
+      for my $p (keys %pdeps) {
+        $needed->{$_}++ for map { $dep2src{$_} || $_ } @{$pdeps{$p}};
+      }
+    }
+    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax, $needed->{$packid} || 0);
     if (!$job) {
       # could not start job...
       if ($joberror =~ /^unresolvable: (.*)$/) {
