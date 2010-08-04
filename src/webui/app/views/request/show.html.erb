@@ -138,8 +138,8 @@ setup_buildresult_trigger
               <td>User</td> <td><%=r.by_user%></td>
               <td>
               <% if @is_reviewer and req.state.name == "review" and r.state.to_s == "new" and r.by_user.to_s == @user.login.to_s %>
-                <%= submit_tag("Approve", :name => 'modify_by_user') %>
-                <%= submit_tag("Reject", :name => 'modify_by_user') %>
+                <%= submit_tag("Approve", :type => 'button', :name => 'modify_by_user') %>
+                <%= submit_tag("Reject", :type => 'button', :name => 'modify_by_user') %>
               <% else %>
                 <%= r.state %>
                 <% unless r.text.blank? %> <!-- show comment, if existing -->
@@ -153,8 +153,8 @@ setup_buildresult_trigger
               <td>Group</td> <td><%=r.by_group%></td>
               <td>
               <% if @is_reviewer and req.state.name == "review" and r.state.to_s == "new" and @user.is_in_group? r.by_group %>
-                <%= submit_tag("Approve_#{r.by_group}", :name => "modify_by_group") %>
-                <%= submit_tag("Reject_#{r.by_group}", :name => "modify_by_group") %>
+                <%= submit_tag("Approve_#{r.by_group}", :type => 'button', :name => "modify_by_group") %>
+                <%= submit_tag("Reject_#{r.by_group}", :type => 'button', :name => "modify_by_group") %>
               <% else %>
                 <%= r.state %>
                 <% unless r.text.blank? %> <!-- show comment, if existing -->
@@ -195,13 +195,13 @@ setup_buildresult_trigger
             <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
           <% end -%>
           <% if req.state.name.to_s == "review" %>
-            <%= submit_tag "Accept", :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
+            <%= submit_tag "Accept", :type => 'button', :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
           <% else %>
-            <%= submit_tag "Accept", :name => 'accepted' %>
+            <%= submit_tag "Accept", :type => 'button', :name => 'accepted' %>
           <% end %>
-          <%= submit_tag "Decline", :name => 'declined' %>
+          <%= submit_tag "Decline", :type => 'button', :name => 'declined' %>
         <% elsif @is_author %>
-          <%= submit_tag "Revoke", :name => 'revoked' %>
+          <%= submit_tag "Revoke", :type => 'button', :name => 'revoked' %>
         <% end %>
       </div>
     <% end %>
