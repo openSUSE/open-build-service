@@ -1045,7 +1045,11 @@ sub publish {
 	$pubkey = undef;
       }
     } elsif ($BSConfig::keyfile) {
-      $pubkey = readstr($BSConfig::keyfile);
+      if (-e $BSConfig::keyfile) {
+        $pubkey = readstr($BSConfig::keyfile);
+      } else {
+        print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
+      }
     }
   }
 
