@@ -64,8 +64,11 @@ class SearchController < ApplicationController
     collection.each do |item|
       if item.kind_of? DbPackage
        p = item.db_project
-      else
+      elsif item.kind_of? DbProject
        p = item
+      else
+       render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
+       return
       end
 
       # ACL(search): 'access' hides a project/package
