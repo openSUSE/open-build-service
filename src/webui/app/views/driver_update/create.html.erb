@@ -74,8 +74,10 @@
   }
 
   $("#add_package").click(function () {
+  if ($("#target_package").val() != '') {
   $("#no_inst_packs").hide();
   $("#inst_packs").append( create_package_line() );
+  }
   return false;
   });
 
@@ -94,28 +96,29 @@
 
   <h2>General Configuration:</h2>
 
-  <p>
-    <strong>Name: </strong>
-    <%= text_field_tag 'name', @name, :size => 50 %>
-  </p>
+  <table>
+  <tr>
+    <td><strong>Name: </strong></td>
+   <td><%= text_field_tag 'name', @name, :size => 50 %></td>
+  </tr>
 
-  <p>
-    <strong>Distname: </strong>
-    <%= text_field_tag 'distname', @distname, :size => 50 %>
-  </p>
+  <tr>
+    <td><strong>Distname: </strong></td>
+    <td><%= text_field_tag 'distname', @distname, :size => 50 %></td>
+  </tr>
 
-  <p>
-    <strong>Flavour: </strong>
-    <%= text_field_tag 'flavour', @flavour, :size => 50 %>
-  </p>
+  <tr>
+    <td><strong>Flavour: </strong></td>
+    <td><%= text_field_tag 'flavour', @flavour, :size => 50 %></td>
+  </tr>
 
-  <p>
-    <strong>Architectures: </strong>
-    <% VISIBLE_ARCHITECTURES.each do |arch| %>
+  <tr>
+    <td><strong>Architectures: </strong></td>
+    <td><% VISIBLE_ARCHITECTURES.each do |arch| %>
       <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
-    <% end %>
-  </p>
-
+    <% end %></td>
+  </tr>
+  </table>
 
   <h2>Installation repositories:</h2>
 
