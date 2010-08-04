@@ -95,6 +95,36 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
   end
 
+  def test_create_request_and_decline_review
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # add reviewer
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+  end
+
   def test_create_and_revoke_submit_request_permissions
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
