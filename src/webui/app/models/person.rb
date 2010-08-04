@@ -81,6 +81,7 @@ class Person < ActiveXML::Base
       #        that should not be needed ... verify ...
       iprojects = involved_projects.each.map {|x| x.name}.reject {|x| /^home:#{login}:/.match(x) }.sort
       requests = Array.new
+      request_ids = Array.new
 
       unless iprojects.empty?
         predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
@@ -92,14 +93,24 @@ class Person < ActiveXML::Base
         collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{login}'"
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         keys = myrequests.keys().sort {|x,y| y <=> x}
-        keys.each {|id| requests << myrequests[id] }
+        keys.each do |id| 
+          unless request_ids.include? id
+            requests << myrequests[id]
+            request_ids << id
+          end
+        end
       end
 
       # check for all open review tasks
       collection = Request.find_open_review_requests(login)
       collection.each do |req| myrequests[Integer(req.value :id)] = req end
       keys = myrequests.keys().sort {|x,y| y <=> x}
-      keys.each {|id| requests << myrequests[id] }
+      keys.each do |id| 
+        unless request_ids.include? id
+          requests << myrequests[id]
+          request_ids << id
+        end
+      end
 
       requests
     end
