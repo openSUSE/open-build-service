@@ -4643,9 +4643,9 @@ sub postrequest {
     my @lt = localtime(time());
     $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
     if ($cgi->{'by_user'}) {
-      push @{$req->{'review'}}, { 'state' => 'new', 'by_user' => $cgi->{'by_user'} };
+      push @{$req->{'review'}}, { 'state' => 'new', 'by_user' => $cgi->{'by_user'}, 'comment' => $cgi->{'comment'} };
     } else {
-      push @{$req->{'review'}}, { 'state' => 'new', 'by_group' => $cgi->{'by_group'} };
+      push @{$req->{'review'}}, { 'state' => 'new', 'by_group' => $cgi->{'by_group'}, 'comment' => $cgi->{'comment'} };
     }
   } elsif ($cmd eq 'changereviewstate') {
     die("request is not in review state\n") unless $req->{'state'} and $req->{'state'}->{'name'} eq "review";
