@@ -77,7 +77,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
     post "/build/home:Iggy", :cmd => 'say_hallo'
     assert_response 400
-    assert_match(/illegal POST request to/, @response.body)
+    assert_match(/unsupported POST command/, @response.body)
 
     prepare_request_with_user "Iggy", "asdfasdf" 
     post "/build/home:Iggy"
