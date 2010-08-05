@@ -412,7 +412,7 @@ class RequestController < ApplicationController
        return
     end
     if params[:by_group] and Group.find_by_title(params[:by_group]).nil?
-       render_error :status => 404, :errorcode => "unknown_user",
+       render_error :status => 404, :errorcode => "unknown_group",
                 :message => "Group #{params[:by_group]} is unkown"
        return
     end
@@ -528,6 +528,7 @@ class RequestController < ApplicationController
       return
     end
 
+    # All commands are process by the backend. Just the request accept is controlled by the api.
     unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
       pass_to_backend path
       return
