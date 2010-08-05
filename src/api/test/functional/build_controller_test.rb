@@ -96,6 +96,11 @@ class BuildControllerTest < ActionController::IntegrationTest
     post "/build/home:Iggy?cmd=wipe&package=TestPack"
     assert_response :success
 
+    post "/build/home:Iggy?cmd=abortbuild"
+    assert_response :success
+    post "/build/home:Iggy?cmd=abortbuild&package=TestPack"
+    assert_response :success
+
     prepare_request_with_user "adrian", "so_alone" 
     post "/build/home:Iggy?cmd=wipe"
     assert_response 403
@@ -103,6 +108,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     post "/build/home:Iggy?cmd=wipe&package=TestPack"
     assert_response 403
     assert_match(/No permission to execute command on package/, @response.body)
+
   end
   
   def test_remoteinstance
