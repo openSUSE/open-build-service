@@ -48,8 +48,6 @@ init = Rails::Initializer.run do |config|
   config.gem 'delayed_job'
   config.gem 'libxml-ruby'
   config.gem 'exception_notification', :version => '<= 1.1'
-# only needed for test suite
-#  config.gem 'webrat'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
