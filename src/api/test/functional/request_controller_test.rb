@@ -95,6 +95,36 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
   end
 
+  def test_create_request_clone_and_superseed_it
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # do the real mbranch for default maintained packages
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "tom", "thunder"
+    post "/source", :cmd => "branch", :request => id
+    assert_response :success
+
+    # got the correct package branched ?
+    get "/source/home:tom:branches:REQUEST_#{id}"
+    assert_response :success
+    get "/source/home:tom:branches:REQUEST_#{id}/TestPack.home_Iggy"
+    assert_response :success
+    get "/source/home:tom:branches:REQUEST_#{id}/_attribute/OBS:RequestCloned"
+    assert_response :success
+    assert_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "RequestCloned" }, 
+                :child => { :tag => "value", :content => id } )
+  end
+
   def test_create_request_and_decline_review
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')

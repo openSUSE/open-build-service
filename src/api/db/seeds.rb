@@ -66,6 +66,8 @@
 
     p={}
     p[:user] = admin
+    pm={}
+    pm[:role] = maintainer_role
     ans=AttribNamespace.create :name => "OBS"
     ans.attrib_namespace_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "VeryImportantProject", :value_count=>0 )
@@ -76,3 +78,5 @@
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "ScreenShots" )
     at.attrib_type_modifiable_bies.create(p)
+    at=AttribType.create( :attrib_namespace => ans, :name => "RequestCloned", :value_count=>1 )
+    at.attrib_type_modifiable_bies.create(pm)

@@ -16,14 +16,14 @@ CREATE TABLE `architectures_repositories` (
 CREATE TABLE `attrib_allowed_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `value` mediumtext,
+  `value` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `attrib_default_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `value` mediumtext NOT NULL,
+  `value` text NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -68,7 +68,7 @@ CREATE TABLE `attrib_types` (
 CREATE TABLE `attrib_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_id` int(11) NOT NULL,
-  `value` mediumtext NOT NULL,
+  `value` text NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_attrib_values_on_attrib_id` (`attrib_id`)
@@ -96,7 +96,7 @@ CREATE TABLE `db_packages` (
   `db_project_id` int(11) NOT NULL,
   `name` tinyblob NOT NULL,
   `title` varchar(255) DEFAULT NULL,
-  `description` mediumtext,
+  `description` text,
   `created_at` datetime DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `url` varchar(255) DEFAULT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE `db_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` tinyblob NOT NULL,
   `title` varchar(255) DEFAULT NULL,
-  `description` mediumtext,
+  `description` text,
   `created_at` datetime DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
@@ -135,8 +135,8 @@ CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `priority` int(11) DEFAULT '0',
   `attempts` int(11) DEFAULT '0',
-  `handler` mediumtext,
-  `last_error` mediumtext,
+  `handler` text,
+  `last_error` text,
   `run_at` datetime DEFAULT NULL,
   `locked_at` datetime DEFAULT NULL,
   `failed_at` datetime DEFAULT NULL,
@@ -237,7 +237,7 @@ CREATE TABLE `messages` (
   `sent_at` datetime DEFAULT NULL,
   `private` tinyint(1) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
-  `text` mediumtext,
+  `text` text,
   PRIMARY KEY (`id`),
   KEY `object` (`object_id`),
   KEY `user` (`user_id`)
@@ -369,7 +369,7 @@ CREATE TABLE `status_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `message` mediumtext,
+  `message` text,
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -399,7 +399,7 @@ CREATE TABLE `tags` (
 CREATE TABLE `user_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0',
-  `token` mediumtext NOT NULL,
+  `token` text NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `expires_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -421,7 +421,7 @@ CREATE TABLE `users` (
   `password_salt` varchar(10) NOT NULL DEFAULT '1234512345',
   `password_crypted` varchar(64) DEFAULT NULL,
   `state` int(11) NOT NULL DEFAULT '1',
-  `adminnote` mediumtext,
+  `adminnote` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)),
   KEY `users_password_index` (`password`)
@@ -564,6 +564,8 @@ INSERT INTO schema_migrations (version) VALUES ('20100705133839');
 INSERT INTO schema_migrations (version) VALUES ('20100705141045');
 
 INSERT INTO schema_migrations (version) VALUES ('20100707061034');
+
+INSERT INTO schema_migrations (version) VALUES ('20100805100000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -78,6 +78,19 @@ Parameters:
   deleted: show deleted projects instead of existing
 
 
+POST /source
+
+  Commands on processing sources globally. Possible commands are
+  branch: branch a set of packages based on attributes or on existing request
+
+Parameters:
+
+  attribute: attribute used for package search, default is OBS:Maintained
+  update_project_attribute: attribute name used to find out possible existing update projects of a package
+  request: branch by request, branch all packages in actions of request for superseding it
+  target_project: project which will get used or created
+
+
 GET /source/<project>/_meta
 
   Read project meta file.

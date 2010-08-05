@@ -17,3 +17,8 @@ status:
   id: 59
   name: status
   attrib_namespace_id: 8
+RequestCloned:
+  id: 60
+  name: RequestCloned
+  value_count: 1
+  attrib_namespace_id: 9

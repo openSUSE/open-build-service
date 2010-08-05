@@ -29,7 +29,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     get "/attribute/OBS"
     assert_response :success
-    count = 3
+    count = 4
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -116,7 +116,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     get "/attribute/OBS"
     assert_response :success
-    count = 3
+    count = 4
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }

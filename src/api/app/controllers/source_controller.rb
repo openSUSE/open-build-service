@@ -906,38 +906,75 @@ class SourceController < ApplicationController
   # POST /source?cmd=branch
   def index_branch
     # set defaults
-    mparams=params
-    if not params[:attribute]
+    unless params[:attribute]
       params[:attribute] = "OBS:Maintained"
     end
-    if not params[:update_project_attribute]
+    unless params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
-    if not params[:target_project]
-      mparams[:target_project] = "home:#{@http_user.login}:branches:#{params[:attribute].gsub(':', '_')}"
-      mparams[:target_project] += ":#{params[:package]}" if params[:package]
+    unless params[:target_project]
+      if params[:request]
+        params[:target_project] = "home:#{@http_user.login}:branches:REQUEST_#{params[:request]}"
+      else
+        params[:target_project] = "home:#{@http_user.login}:branches:#{params[:attribute].gsub(':', '_')}"
+        params[:target_project] += ":#{params[:package]}" if params[:package]
+      end
     end
 
     # ACL(index_branch) TODO: check if branching is a security violation for access
     # permission check
-    unless @http_user.can_create_project?(mparams[:target_project])
+    unless @http_user.can_create_project?(params[:target_project])
       render_error :status => 403, :errorcode => "create_project_no_permission",
-        :message => "no permission to create project '#{mparams[:target_project]}' while executing branch command"
+        :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
       return
     end
 
-    # find packages
-    at = AttribType.find_by_name(params[:attribute])
-    if not at
-      render_error :status => 403, :errorcode => 'not_found',
-        :message => "The given attribute #{params[:attribute]} does not exist"
-      return
-    end
-    if params[:value]
-      @packages = DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] )
+    # find packages to be branched
+    if params[:request]
+      # find packages from request
+      data = Suse::Backend.get("/request/#{params[:request]}").body
+      req = BsRequest.new(data)
+
+      @packages = []
+      req.each_action do |action|
+        prj=nil
+        pkg=nil
+        if action.has_element? 'source'
+          if action.source.has_attribute? 'project'
+            prj = DbProject.find_by_name action.source.project
+            unless prj
+              render_error :status => 404, :errorcode => 'unknown_project',
+                :message => "Unknown source project #{action.source.project} in request #{params[:request]}"
+              return
+            end
+          end
+          if action.source.has_attribute? 'package'
+            pkg = prj.db_packages.find_by_name action.source.package
+            unless pkg
+              render_error :status => 404, :errorcode => 'unknown_package',
+                :message => "Unknown source package #{action.source.package} in project #{action.source.project} in request #{params[:request]}"
+              return
+            end
+          end
+        end
+
+        @packages.push(pkg)
+      end
     else
-      @packages = DbPackage.find_by_attribute_type( at, params[:package] )
+      # find packages via attributes
+      at = AttribType.find_by_name(params[:attribute])
+      if not at
+        render_error :status => 403, :errorcode => 'not_found',
+          :message => "The given attribute #{params[:attribute]} does not exist"
+        return
+      end
+      if params[:value]
+        @packages = DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] )
+      else
+        @packages = DbPackage.find_by_attribute_type( at, params[:package] )
+      end
     end
+
     unless @packages.length > 0
       render_error :status => 403, :errorcode => "not_found",
         :message => "no packages could get found"
@@ -945,19 +982,30 @@ class SourceController < ApplicationController
     end
 
     #create branch project
-    oprj = DbProject.find_by_name mparams[:target_project]
+    oprj = DbProject.find_by_name params[:target_project]
     if oprj.nil?
+      title = "Branch Project for package #{params[:package]}"
+      description = "This project was created for package #{params[:package]} via attribute #{params[:attribute]}"
+      if params[:request]
+      end
       DbProject.transaction do
-        oprj = DbProject.new :name => mparams[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
+        oprj = DbProject.new :name => params[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
         oprj.add_user @http_user, "maintainer"
         oprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
-        oprj.flags.create( :position => 2, :flag => 'build', :status => "disable" )
         oprj.store
+      end
+      if params[:request]
+        ans = AttribNamespace.find_by_name "OBS"
+        at = AttribType.find( :first, :joins => ans, :conditions=>{:name=>"RequestCloned"} )
+
+        a = Attrib.new(:db_project => oprj, :attrib_type => at)
+        a.values << AttribValue.new(:value => params[:request], :position => 1)
+        a.save
       end
     else
       unless @http_user.can_modify_project?(oprj)
         render_error :status => 403, :errorcode => "modify_project_no_permission",
-          :message => "no permission to modify project '#{mparams[:target_project]}' while executing branch by attribute command"
+          :message => "no permission to modify project '#{params[:target_project]}' while executing branch by attribute command"
         return
       end
     end
@@ -965,7 +1013,6 @@ class SourceController < ApplicationController
     # create package branches
     # collect also the needed repositories here
     @packages.each do |p|
-    
       # is a update project defined and a package there ?
       pac = p
       aname = params[:update_project_attribute]
@@ -977,7 +1024,7 @@ class SourceController < ApplicationController
       # find origin package to be branched
       branch_target_project = pac.db_project.name
       branch_target_package = pac.name
-      if a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
+      if not params[:request] and a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
           pac = pa
           branch_target_project = pac.db_project.name
@@ -1021,7 +1068,7 @@ class SourceController < ApplicationController
     oprj.store
 
     # all that worked ? :)
-    render_ok :data => {:targetproject => mparams[:target_project]}
+    render_ok :data => {:targetproject => params[:target_project]}
   end
 
   # create a id collection of all projects doing a project link to this one
