@@ -765,7 +765,6 @@ class PackageController < ApplicationController
   def abort_build
     params[:redirect] = 'live_build_log'
     api_cmd('abortbuild', params)
-    render :status => 200
   end
 
 
