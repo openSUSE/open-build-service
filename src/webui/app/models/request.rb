@@ -32,13 +32,13 @@ class Request < ActiveXML::Base
     return ret
   end
 
-  def self.addReviewByGroup(id, group)
-    addReview(id, nil, group)
+  def self.addReviewByGroup(id, group, comment = nil)
+    addReview(id, nil, group, comment)
   end
-  def self.addReviewByUser(id, user)
-    addReview(id, user)
+  def self.addReviewByUser(id, user, comment = nil)
+    addReview(id, user, nil, comment)
   end
-  def self.addReview(id, user=nil, group=nil)
+  def self.addReview(id, user=nil, group=nil, comment = nil)
     transport = ActiveXML::Config::transport_for(:request)
     path = "/request/#{id}?cmd=addreview"
     if user
@@ -48,7 +48,7 @@ class Request < ActiveXML::Base
       path << "&by_group=#{CGI.escape(group)}"
     end
     begin
-      r = transport.direct_http URI("https://#{path}"), :method => "POST"
+      r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment
       # FIXME add a full error handler here
       return true
     rescue ActiveXML::Transport::ForbiddenError => e

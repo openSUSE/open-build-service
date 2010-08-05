@@ -7,9 +7,9 @@ class RequestController < ApplicationController
     Request.free_cache( params[:id] )
     begin
       if params[:user]
-        r = Request.addReviewByUser( params[:id], params[:user] )
+        r = Request.addReviewByUser( params[:id], params[:user], params[:comment] )
       elsif params[:group]
-        r = Request.addReviewByGroup( params[:id], params[:group] )
+        r = Request.addReviewByGroup( params[:id], params[:group], params[:comment] )
       else
         render :text => "ERROR: don't know how to add reviewer"
         return
@@ -19,6 +19,26 @@ class RequestController < ApplicationController
       return
     end
     render :text => "added"
+  end
+
+  def modifyreviewer
+    if params[:id]
+      @therequest = find_cached(Request, params[:id] )
+    end
+    Request.free_cache( params[:id] )
+
+    begin
+      if params[:group].blank?
+        r = Request.modifyReviewByUser( params[:id], params[:new_state], params[:comment], session[:login] )
+      else
+        r = Request.modifyReviewByGroup( params[:id], params[:new_state], params[:comment], params[:group] )
+      end
+
+    rescue Request::ModifyError => e
+      render :text => e.message
+      return
+    end
+    render :text => params[:new_state]
   end
 
   def show
@@ -86,40 +106,6 @@ class RequestController < ApplicationController
   
   end
  
-  def change_review(params)
-    Request.free_cache( params[:id] )
-    begin
-      if params[:modify_by_user]
-        if params[:modify_by_user] == "Approve"
-          changestate = "accepted"
-        elsif params[:modify_by_user] == "Reject"
-          changestate = "declined"
-        end
-        r = Request.modifyReviewByUser( params[:id], changestate, params[:reason], session[:login] )
-      end
-
-      if params[:modify_by_group]
-        if params[:modify_by_group] =~ /^Approve_/
-          changestate = "accepted"
-        elsif params[:modify_by_group] =~ /^Reject_/
-          changestate = "declined"
-        end
-        r << Request.modifyReviewByUser( params[:id], changestate, params[:reason], params[:modify_by_group].gsub(/[^_]*_/, '') )
-      end
-
-      if r
-        flash[:note] = "Review #{changestate}!"
-        return true
-      else
-        flash[:error] = "Can't change review of request to #{changestate}!"
-      end
-    rescue Request::ModifyError => e
-      flash[:error] = e.message
-    end
-    return false
-  end
-  private :change_review
-
   def change_request(changestate, params)
     Request.free_cache( params[:id] )
     begin
@@ -178,11 +164,8 @@ class RequestController < ApplicationController
       return
     end
 
-    if @therequest.state.name == "review" and (params[:modify_by_user] or params[:modify_by_group])
-      change_review(params)
-    else
-      change_request(changestate, params)
-    end
+    change_request(changestate, params)
+
     Directory.free_cache( :project => @therequest.action.target.project, :package => @therequest.action.target.package )
 
     redirect_to :action => :show, :id => params[:id]
