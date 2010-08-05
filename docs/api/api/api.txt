@@ -133,6 +133,37 @@ Parameters:
 XmlResult: status
 
 
+GET /source/<project>/_attribute/<attribute>
+
+  Get all attributes or a specific one
+
+XmlBody: attribute
+
+
+POST /source/<project>/_attribute/<attribute>
+
+  Modifies a specific attribute as in body
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
+
+
+DELETE /source/<project>/_attribute/<attribute>
+
+  Removes a specific attribute
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
+
+
 GET /source/<project>/_config
 
   Read project configuration
@@ -260,6 +291,38 @@ Parameters:
   user: user, optional
 
 XmlResult: status
+
+
+GET /source/<project>/<package>/_attribute/<attribute>
+
+  Get all attributes or a specific one
+
+XmlBody: attribute
+
+
+POST /source/<project>/<package>/_attribute/<attribute>
+
+  Modifies a specific attribute as in body
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
+
+
+DELETE /source/<project>/<package>/_attribute/<attribute>
+
+  Removes a specific attribute
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
+
 
 
 GET /source/<project>/<package>/_history
@@ -426,6 +489,39 @@ Parameters:
   dontupdatesource: Do not update origin package, optional (copy only)
   comment: comment for history, optional
   meta: switch to meta files
+
+
+
+GET /source/<project>/<package>/<binary>/_attribute/<attribute>
+
+  Get all attributes or a specific one
+
+XmlBody: attribute
+
+
+POST /source/<project>/<package>/<binary>/_attribute/<attribute>
+
+  Modifies a specific attribute as in body
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
+
+
+DELETE /source/<project>/<package>/<binary>/_attribute/<attribute>
+
+  Removes a specific attribute
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
+
 
 
 == Requests
