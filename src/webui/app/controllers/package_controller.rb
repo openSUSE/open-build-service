@@ -839,7 +839,7 @@ class PackageController < ApplicationController
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
-    fill_status_cache
+    fill_status_cache unless @buildresult.blank?
     render :partial => 'buildstatus'
   end
 
