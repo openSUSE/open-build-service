@@ -984,12 +984,14 @@ class SourceController < ApplicationController
     #create branch project
     oprj = DbProject.find_by_name params[:target_project]
     if oprj.nil?
-      title = "Branch Project for package #{params[:package]}"
+      title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{params[:attribute]}"
       if params[:request]
+        title = "Branch project based on request #{params[:request]}"
+        description = "This project was created as a clone of request #{params[:request]}"
       end
       DbProject.transaction do
-        oprj = DbProject.new :name => params[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
+        oprj = DbProject.new :name => params[:target_project], :title => title, :description => description
         oprj.add_user @http_user, "maintainer"
         oprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
         oprj.store
