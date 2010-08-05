@@ -27,7 +27,7 @@
         selected = true if @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
         -%>
 
-        <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected, :id => 'repo_' + h(reponame) -%>
+        <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected, :id => 'repo_' + h(reponame), :class => "repocheckbox" -%>
           <%= hidden_field_tag h(reponame) + "_repo", h(project + '/' + repo) -%>
           <% ['i586', 'x86_64'].each do |arch| %>
             <%= hidden_field_tag h(reponame) + "_arch[]", arch, :id => h(reponame) + "_arch_" + h(arch) -%>
@@ -54,7 +54,7 @@
   </p>
 
   <p>
-    <%= submit_tag 'Add selected repositories' -%>
+    <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
   </p>
 <% end %>
 
@@ -67,27 +67,6 @@
 <% end %>
 
 <% content_for :ready_function do %>
-  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
-  { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
-
-  $('#target_project').result(function(event, data, formatted) {
-  if (data) {
-  $('#target_repo').html('');
-  $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
-  data: {project: $("#target_project").attr('value')},
-  success: function(data){
-  $('#target_repo').removeAttr('disabled');
-  // suggest a name:
-  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
-  $.each(data.split('\n'), function(idx, val) {
-  $('#target_repo').append( new Option( val ) );
-  });
-  }});
-  }
-  });
-
-  $('#target_repo').change(function() {
-  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
-  });
+  $('.repocheckbox').click(function() { $('#submitrepos').enable(); } );
 <% end -%>
 

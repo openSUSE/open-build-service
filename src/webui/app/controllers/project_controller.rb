@@ -472,6 +472,8 @@ class ProjectController < ApplicationController
   def save_targets
     valid_http_methods :post
 
+    required_parameters :repo
+
     # extend an existing repository with a path
     unless (params['torepository'].blank?)
       repo_path = "#{params['target_project']}/#{params['target_repo']}"

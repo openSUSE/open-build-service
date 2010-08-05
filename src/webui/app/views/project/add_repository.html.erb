@@ -38,9 +38,6 @@
 
 <div class="clear"></div>
 <h2>Advanced search for build targets</h2>
-<% unless @torepository %>
- <%= link_to "Switch to default repository list", :action => :add_repository_from_default_list, :project => @project %>.
-<% end %>
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
   <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %>
