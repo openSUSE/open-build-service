@@ -166,7 +166,7 @@ class RequestController < ApplicationController
 
     change_request(changestate, params)
 
-    Directory.free_cache( :project => @therequest.action.target.project, :package => @therequest.action.target.package )
+    Directory.free_cache( :project => @therequest.action.target.project, :package => @therequest.action.target.value('package') )
 
     redirect_to :action => :show, :id => params[:id]
   end

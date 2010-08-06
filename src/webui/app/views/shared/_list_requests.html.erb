@@ -37,16 +37,21 @@
               "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
                 package_link(action_elem.source.project, action_elem.source.package, :length => 70)
             elsif reqtype(req) == "delete"
-              if action_elem.target.has_element? :package
+              if action_elem.target.has_attribute? :package and hide_package
                  "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
-                   package_link(action_elem.target.project, action_elem.target.package, :length => 70)
+                   package_link(action_elem.target.project, action_elem.target.package, :hide_package => true, :length => 70)
               end
             end -%>
           </td>
           <td>
-            <%= if action_elem.has_element? :target and action_elem.target.has_attribute? :package and reqtype(req) != "delete"
-              "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" + 
-              package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 )
+            <%= if action_elem.has_element?(:target) && action_elem.target.has_attribute?(:package)
+              out = "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->"
+              if reqtype(req) != "delete" and !hide_package
+                 out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 )
+              else
+                 out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 )
+              end
+              out
              end %>
           </td>
           <td class="nowrap">
