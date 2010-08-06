@@ -13,7 +13,7 @@ class RequestController < ApplicationController
   def show
     # ACL(show) TODO: check this leaks no information that is prevented by ACL
     # parse and rewrite the request to latest format
-    data = Suse::Backend.get("/request/#{params[:id]}").body
+    data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
     req = BsRequest.new(data)
     send_data(req.dump_xml, :type => "text/xml")
   end
