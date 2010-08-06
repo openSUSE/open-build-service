@@ -304,22 +304,42 @@ class ProjectController < ApplicationController
       repository.each_arch do |arch|
 
         cycles = Array.new
-        begin
-          # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-          deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
-          if deps and deps.has_element? :cycle
-            cycles = Array.new
-            deps.each_cycle do |cycle|
-              cycles.push( cycle.each_package.collect{ |p| p.text } )
-            end
-          end
-        rescue ActiveXML::Transport::NotFoundError
-          # builddepinfo not yet calculated by scheduler
-          cycles.push( [ 'unknown' ] )
-        end
-        if cycles.length > 0
-          @repocycles[repository.name][arch.text] = cycles
-        end
+	# skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+	deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
+	nr_cycles = 0
+	if deps and deps.has_element? :cycle
+	  packages = Hash.new
+	  deps.each_cycle do |cycle|
+	    current_cycles = Array.new
+	    cycle.each_package do |p|
+	      p = p.text
+	      if packages.has_key? p
+		current_cycles << packages[p]
+	      end
+	    end
+	    current_cycles.uniq!
+	    if current_cycles.empty?
+	      nr_cycles += 1
+	      nr_cycle = nr_cycles
+	    elsif current_cycles.length == 1
+	      nr_cycle = current_cycles[0]
+	    else
+	      logger.debug "HELP! #{current_cycles.inspect}"
+	    end
+	    cycle.each_package do |p|
+	      packages[p.text] = nr_cycle
+	    end
+	  end
+	end
+	cycles = Array.new
+	1.upto(nr_cycles) do |i|
+	  list = Array.new
+	  packages.each do |package,cycle|
+	    list.push(package) if cycle == i
+	  end
+	  cycles << list.sort
+	end
+	@repocycles[repository.name][arch.text] = cycles unless cycles.empty?
       end
     end
   end
@@ -330,7 +350,7 @@ class ProjectController < ApplicationController
     @repository = params[:repository]
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
-    @scheduler = params[:scheduler] || 'fifo'
+    @scheduler = params[:scheduler] || 'needed'
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
             :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
