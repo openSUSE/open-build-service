@@ -19,5 +19,8 @@
     </p>
     
     <p><%= link_to "Edit User Data", :controller => "user", :action => "edit" %></p>
+    <%if defined?( CHANGE_PASSWD ) && CHANGE_PASSWD == 'on' %>
+      <p><%= link_to "Change Password", :controller => "user", :action => "change_my_password" %></p>
+    <% end %>
 </div>
 

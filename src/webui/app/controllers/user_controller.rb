@@ -1,7 +1,7 @@
 class UserController < ApplicationController
 
   before_filter :require_login, :only => [:edit, :save, :register]
-  before_filter :check_user, :only => [:edit, :save]
+  before_filter :check_user, :only => [:edit, :save, :change_password]
 
   def logout
     logger.info "Logging out: #{session[:login]}"
@@ -74,5 +74,39 @@ class UserController < ApplicationController
     flash[:success] = "Your buildservice account is now active."
     redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
   end
+
+  def change_password
+    # check the valid of the params  
+    if not params[:current_password] == session[:passwd]
+      errmsg = "The value of current password does not match your current password. Please enter the password and try again."
+    end
+    if not params[:new_password] == params[:password_confirmation]
+      errmsg = "The new passwords do not match. Please enter the password and try again."
+    end    
+    if params[:current_password] == params[:new_password]
+      errmsg = "The new password is the same as your current password. Please enter the new password again."
+    end
+    if errmsg:
+      flash[:error] = errmsg
+      redirect_to :controller => :user, :action => :change_my_password
+      return
+    end
+
+    login = session[:login]
+    require 'base64'     
+    new_password = Base64.encode64(params[:new_password])
+    begin
+      path = "/person/#{login}/passwd/#{new_password}"
+      result = frontend.transport.direct_http( URI(path) )
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => :user, :action => :change_my_password
+      return
+    end
+    session[:passwd] = params[:new_password]
+    flash[:success] = "Your password has been changed successfully."
+    redirect_to :controller => :home, :action => :index
+  end 
 
 end

@@ -39,3 +39,6 @@ FRONTEND_PROTOCOL = 'https'
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "off"
 
+# Enable the interface to change user's password, it can be one of 'on', 'off'
+CHANGE_PASSWD = "on"
+
