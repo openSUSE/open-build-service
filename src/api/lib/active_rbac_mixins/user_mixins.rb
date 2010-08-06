@@ -317,6 +317,42 @@ module UserMixins
             return nil
           end
 
+          # This static method tries to update the password with the given login in the 
+          # active directory server.  Return the error msg if any error occured
+          def self.change_password_ldap(login, password)
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return "Unable to connect to LDAP server"
+            end
+            user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            dn = String.new
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+              dn = entry.dn
+            end
+            if dn.empty?
+              logger.debug( "User not found in ldap" )
+              return "User not found in ldap"
+            end
+
+            require 'digest/md5'
+            require 'base64'
+            ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+            entry = [
+              LDAP.mod(LDAP::LDAP_MOD_REPLACE, LDAP_AUTH_ATTR, [ldap_password]),
+            ]
+            begin
+              ldap_con.modify(dn, entry)
+            rescue LDAP::ResultError
+              logger.debug("Error #{ldap_con.err} for #{login}")
+              return "#{ldap_con.err}"
+            end
+
+            ldap_con.unbind()
+            return
+          end
+
+
           # This static method tries to find a user with the given login and
           # password in the active directory server.  Returns nil unless 
           # credentials are correctly found using LDAP.

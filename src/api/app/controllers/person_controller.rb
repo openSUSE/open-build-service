@@ -167,4 +167,52 @@ class PersonController < ApplicationController
     end
     true
   end
+
+  def change_my_password
+    if !@http_user
+      logger.debug "No user logged in, permission to changing password denied"
+      @errorcode = 401
+      @summary = "No user logged in, permission to changing password denied"
+      render :template => 'error', :status => 401
+    else
+      if not params[:login] or not params[:password]
+        render_error :status => 404, :errorcode => 'failed to change password',
+              :message => "Failed to change password: missing parameter"
+        return
+      end
+    end
+
+    login = URI.unescape( params[:login] )
+    newpassword = Base64.decode64(URI.unescape( params[:password]))
+
+    #change password to LDAP if LDAP is enabled    
+    if defined?( LDAP_MODE ) && LDAP_MODE == :on
+      require 'base64'
+      begin
+        logger.debug( "Using LDAP to change password for #{login}" )
+        result = User.change_password_ldap(login, newpassword)
+      rescue Exception
+          logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+      end
+      if result
+        render_error :status => 404, :errorcode => 'failed to change password to ldap', :message => "Failed to change password to ldap: #{result}"
+        return
+      end
+    end
+
+    #update password in users db
+    @user = User.find_by_login(login)
+    if @user.blank?
+      logger.debug "User is not valid!"
+      render_error :status => 404, :errorcode => 'unknown_user',
+        :message => "Unknown user: #{login}"
+      return
+    end
+    logger.debug("find the user")
+    @user.password = newpassword
+    @user.password_confirmation = newpassword
+    @user.state = User.states['confirmed']
+    @user.save!
+    render_ok
+  end
 end

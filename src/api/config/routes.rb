@@ -23,6 +23,8 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
   map.connect 'person/:login/group', :controller => 'person', :action => 'grouplist', :login => /[^\/]*/
+  map.connect 'person/:login/passwd/:password', :controller => 'person', :action => 'change_my_password', :login => /[^\/]*/,:password => /[^\/]*/
+
 
   ### /group
   map.connect 'group/:group', :controller => 'group', :action => 'grouplist', :group => /[^\/]*/
