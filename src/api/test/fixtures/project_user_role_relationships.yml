@@ -62,3 +62,33 @@ adrian_maintainer_viewprotect:
   db_project_id: 3003
   bs_user_id: 42
   role_id: 3
+
+home_maintainer_hidden_homer:
+  db_project_id: 502
+  bs_user_id: 46
+  role_id: 3
+
+hiddenproject_maintainer_homer:
+  db_project_id: 3000
+  bs_user_id: 46
+  role_id: 3
+
+binaryprotected_maintainer_homer:
+  db_project_id: 3002
+  bs_user_id: 47
+  role_id: 3
+
+binaryprotected_adrian_reader:
+  db_project_id: 3002
+  bs_user_id: 43
+  role_id: 7
+
+viewprotected_maintainer_homer:
+  db_project_id: 3003
+  bs_user_id: 48
+  role_id: 3
+
+viewprotected_adrian_reader:
+  db_project_id: 3003
+  bs_user_id: 43
+  role_id: 7

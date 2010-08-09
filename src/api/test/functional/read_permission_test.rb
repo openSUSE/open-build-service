@@ -64,7 +64,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   # * test write operations on a project or package
   # * test package link creation
   # * test project link creation
-  # * test creation and "accept" of requests
   # * test public controller
   # * test tag controller
   # For binary access
@@ -79,5 +78,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   # Done
   # * test search for hidden objects - in search controller test
   # * test read operations on a project or package
+  # * test creation and "accept" of requests
 
 end

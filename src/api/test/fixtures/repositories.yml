@@ -38,3 +38,8 @@ LocalProject:
 HiddenProjectRepo:
   name: nada
   db_project_id: 3000
+  id: 89
+BinaryprotectedProjectRepo:
+  name: nada
+  db_project_id: 3002
+  id: 90
