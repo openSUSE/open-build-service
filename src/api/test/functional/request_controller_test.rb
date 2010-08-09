@@ -2,7 +2,9 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'request_controller'
 
 class RequestControllerTest < ActionController::IntegrationTest 
-  
+ 
+  $acl = true if $ENABLE_ACL
+
   fixtures :all
 
   def test_set_and_get_1
@@ -383,19 +385,14 @@ class RequestControllerTest < ActionController::IntegrationTest
   ## create request to hidden package from open place - valid user  - success
   def test_create_request_to_hidden_package_from_open_place_valid_user
     request_hidden("adrian", "so_alone", 'request/to_hidden_from_open_valid')
-    #assert_response :success FIXME: fixture problem
+    #assert_response :success #FIXME: fixture problem
     #assert_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
   ## create request to hidden package from open place - invalid user - fail 
+  # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
-#    puts @response.body
-    begin
-      assert_response 404
-    rescue
-      # FIXME: implementation unclear/missing
-    end
-
+    assert_response 404 if $acl
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
@@ -407,37 +404,40 @@ class RequestControllerTest < ActionController::IntegrationTest
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
-#    puts @response.body
-    begin
-      assert_response 404
-    rescue
-      # FIXME: implementation unclear/missing
-    end
+    assert_response 404 if $acl
   end
 
   # requests from Hidden to external
   ## create request from hidden package to open place - valid user  - fail ! ?
   def test_create_request_from_hidden_package_to_open_place_valid_user
     request_hidden("adrian", "so_alone", 'request/from_hidden_to_open_valid')
-    #puts @response.body
     # should we really allow this - might be a mistake. qualified procedure could be:
     # sr from hidden to hidden and then make new location visible
-    begin
-      assert_response 404
-    rescue
+    assert_response 404 if $acl
     # FIXME: implementation unclear/missing
-    end
   end
   ## create request from hidden package to open place - invalid user  - fail !
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
-    begin
-      assert_response 404
-    rescue
+    assert_response 404 if $acl
     # FIXME: implementation unclear/missing
-    end
   end
 
+  ## FIXME: what else
+  ### bugowner
+  ### role 
+  def test_hidden_add_role_request
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request?cmd=create", load_backend_file('request/hidden_add_role_fail')
+    # should fail as this user shouldn't see the target package at all.
+    assert_response 404 if $acl
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request?cmd=create", load_backend_file('request/hidden_add_role')
+    assert_response :success if $acl
+  end
+  ### all action types for acl case (positive + negative)
+  ### submit review for acl case (positive + negative)
   # request workflow on Hidden project / pkg
   ## revoke
   ## accept
@@ -445,12 +445,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   ## (re)new
   ## show !
   ## search !
-
-  # requests on hidden prj/pkg
-  ## requests on hidden project - valid user  - success
-  ## requests on hidden project - invalid user  - fail
-  ## requests on hidden package - valid user  - success
-  ## requests on hidden package - invalid user  - fail
-
+  ### 
 end
 
