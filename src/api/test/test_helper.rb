@@ -2,6 +2,8 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 require 'action_controller/integration'
+# uncomment to enable acl tests
+#$ENABLE_ACL=true
 
 module ActionController
   module Integration #:nodoc:
