@@ -87,7 +87,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_acl_binarydownload_logfile
     # build_controller.rb:    # ACL(logfile): binarydownload denies logfile acces
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
-    assert_response 404 if $acl
+    assert_response 403 if $acl
     assert_match /download_binary_no_permission/, @response.body
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
@@ -159,11 +159,11 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_acl_binarydownload_binary_view
     # 404 on invalid
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo"
-    assert_response 404 if $acl
-    assert_match /Unknown package/, @response.body if $acl
+    assert_response 403 if $acl
+    assert_match /download_binary_no_permission/, @response.body if $acl
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package-1.0-1.i586.rpm?view=fileinfo"
-    assert_response 404 if $acl
-    assert_match /Unknown package/, @response.body if $acl
+    assert_response 403 if $acl
+    assert_match /download_binary_no_permission/, @response.body if $acl
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "binary_homer", "homer"

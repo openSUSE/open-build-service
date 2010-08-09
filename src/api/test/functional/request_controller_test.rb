@@ -392,7 +392,9 @@ class RequestControllerTest < ActionController::IntegrationTest
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
-    assert_response 404 if $acl
+    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $acl
+    assert_response 403 if $acl
+    assert_match(/create_request_no_permission/, @response.body)
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
@@ -404,23 +406,25 @@ class RequestControllerTest < ActionController::IntegrationTest
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
-    assert_response 404 if $acl
+    assert_response 403 if $acl
+    assert_match(/create_request_no_permission/, @response.body)
   end
 
   # requests from Hidden to external
   ## create request from hidden package to open place - valid user  - fail ! ?
   def test_create_request_from_hidden_package_to_open_place_valid_user
     request_hidden("adrian", "so_alone", 'request/from_hidden_to_open_valid')
+    # FIXME !!
     # should we really allow this - might be a mistake. qualified procedure could be:
     # sr from hidden to hidden and then make new location visible
-    assert_response 404 if $acl
-    # FIXME: implementation unclear/missing
+    assert_response :success if $acl
+    # FIXME: implementation unclear
   end
   ## create request from hidden package to open place - invalid user  - fail !
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
-    assert_response 404 if $acl
-    # FIXME: implementation unclear/missing
+    assert_response 403 if $acl
+    assert_match(/create_request_no_permission/, @response.body)
   end
 
   ## FIXME: what else
