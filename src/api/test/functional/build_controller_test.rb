@@ -52,7 +52,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_acl_hidden_package_index
-    get "/build/HiddenProject/10.2/i586/pack"
+    get "/build/HiddenProject/nada/i586/pack"
     assert_response 404 if $acl
     assert_match /Unknown package/, @response.body
     # retry with maintainer
