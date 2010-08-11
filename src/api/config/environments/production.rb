@@ -53,7 +53,7 @@ LDAP_SEARCH_AUTH=""
 #            LDAP using LDAP_AUTH_ATTR & LDAP_AUTH_MECH
 #       LDAP_AUTH_MECH can be
 #       : md5
-#       : plaintext
+#       : cleartext
 LDAP_AUTHENTICATE=:ldap
 LDAP_AUTH_ATTR="userPassword"
 LDAP_AUTH_MECH=:md5
