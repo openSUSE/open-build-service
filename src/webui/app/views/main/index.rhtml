@@ -70,18 +70,17 @@
       </div>
       <div class="clear"></div>
       <div class="aligncenter">
-        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting',
-              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-            :alt => 'i586/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
-        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'ppc_waiting',
-              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-            :alt => 'ppc waiting packages' ), :controller => "monitor", :action => :index ) %>
-        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'arm_waiting',
-              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-            :alt => 'arm waiting packages' ), :controller => "monitor", :action => :index ) %>
+        <%- VISIBLE_ARCHITECTURES.each do |arch|
+              if MONITOR_IMAGEMAP["#{arch}_waiting"] %>
+               <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => "#{arch}_waiting",
+                  :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
+                  :alt => 'i586/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
+               <%end
+            end
+         %>
       </div>
       <p class="description">
-        The above graphs show the amount of packages that are waiting to be build (<%= @waiting_packages %> at the moment) on the different architectures (ix86, ppc, arm).
+        The above graphs show the amount of packages that are waiting to be build (<%= @waiting_packages %> at the moment) on the different architectures.
         Currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
       </p>
 
