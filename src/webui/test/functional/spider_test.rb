@@ -315,7 +315,7 @@ module SpiderIntegrator
       next if spider_should_ignore_url?(next_link.uri)
       
       get next_link.uri
-      if %w( 200 201 302 401 ).include?( @response.code )
+      if %w( 200 201 302 401 403 ).include?( @response.code )
         console "GET '#{next_link.uri}'"
       elsif @response.code == '404'
         #if next_link.uri =~ /\.(html|png|jpg|gif)$/ # static file, probably.
