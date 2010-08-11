@@ -323,6 +323,51 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
   end
 
+  def test_branch_and_submit_request_to_linked_project
+    prepare_request_with_user "tom", "thunder"
+
+    # branch a package which does not exist in update project, but update project is linked
+    post "/source/BaseDistro2/pack2", :cmd => :branch
+    assert_response :success
+    # check source link
+    get "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/pack2/_link"
+    assert_response :success
+    ret = ActiveXML::XMLNode.new @response.body
+    assert_equal ret.project, "BaseDistro2:LinkedUpdateProject"
+    assert_equal ret.package, "pack2"
+
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2:LinkedUpdateProject' package='pack2' rev='1' />
+              <options>
+                <sourceupdate>cleanup</sourceupdate>
+              </options>
+            </action>
+            <description/>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # accept the request
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
+
+    # pack2 got created
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
+    assert_response :success
+    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2', :package => "pack2" } )
+  end
+
   # ACL
   #
   # create requests to hidden from external
