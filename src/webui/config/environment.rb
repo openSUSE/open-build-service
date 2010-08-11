@@ -77,14 +77,25 @@ ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
 ExceptionNotifier.email_prefix = "[OBS web error] "
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
+if CONFIG['visible_architectures']
+   VISIBLE_ARCHITECTURES=CONFIG['visible_architectures']
+else
+   VISIBLE_ARCHITECTURES=[ :i586, :x86_64 ]
+end
+if CONFIG['default_enabled_architectures']
+   DEFAULT_ENABLED_ARCHITECTURES=CONFIG['default_enabled_architectures']
+else
+   DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
+end
+
 MONITOR_IMAGEMAP = { 
-      'pc_waiting' => [
+      'i586_waiting' => [
         ["i586", 'waiting_i586'],
         ["x86_64", 'waiting_x86_64'] ],
-      'pc_blocked' => [
+      'i586_blocked' => [
         ["i586", 'blocked_i586' ],
         ["x86_64", 'blocked_x86_64'] ],
-      'pc_workers' => [
+      'i586_workers' => [
         ["idle", 'idle_i586' ],
         ["idle", 'idle_x86_64' ],
         ["building", 'building_i586' ],
@@ -97,21 +108,24 @@ MONITOR_IMAGEMAP = {
         ["ppc", 'blocked_ppc' ],
         ["ppc64", 'blocked_ppc64'] ],
       'ppc_workers' => [
+        ["idle", 'idle_ppc' ],
         ["idle", 'idle_ppc64' ],
+        ["building", 'building_ppc' ],
         ['building', 'building_ppc64' ] ],
 
-      'arm_waiting' => [
-        ["armv5", 'waiting_armv5el'],
-        ["armv7", 'waiting_armv7el'] ],
-      'arm_blocked' => [
-        ["armv5", 'blocked_armv5el'],
-        ["armv7", 'blocked_armv7el'] ],
+      'armv5el_waiting' => [
+        ["armv5el", 'waiting_armv5el'],
+        ["armv7el", 'waiting_armv7el'] ],
+      'armv5el_blocked' => [
+        ["armv5el", 'blocked_armv5el'],
+        ["armv7el", 'blocked_armv7el'] ],
 
       'ia64_waiting' => [
         ["ia64", 'waiting_ia64'] ],
       'ia64_blocked' => [
         ["ia64", 'blocked_ia64'] ],
       'ia64_workers' => [
+        ["ia64", 'idle_ia64'],
         ["ia64", 'building_ia64'] ],
 
       'hppa_waiting' => [
@@ -119,6 +133,7 @@ MONITOR_IMAGEMAP = {
       'hppa_blocked' => [
         ["hppa", 'blocked_hppa'] ],
       'hppa_workers' => [
+        ["hppa", 'idle_hppa'],
         ["hppa", 'building_hppa'] ],
 
       's390_waiting' => [
@@ -127,20 +142,12 @@ MONITOR_IMAGEMAP = {
       's390_blocked' => [
         ["s390", 'blocked_s390' ],
         ["s390x", 'blocked_s390x'] ],
-      'hppa_workers' => [
-        ["hppa", 'building_hppa'] ],
+      's390_workers' => [
+        ["s390", 'idle_s390'],
+        ["s390x", 'idle_s390x'],
+        ["s390", 'building_s390'],
+        ["s390x", 'building_s390x'] ],
     }
-
-if CONFIG['visible_architectures']
-   VISIBLE_ARCHITECTURES=CONFIG['visible_architectures']
-else
-   VISIBLE_ARCHITECTURES=[ :i586, :x86_64 ]
-end
-if CONFIG['default_enabled_architectures']
-   DEFAULT_ENABLED_ARCHITECTURES=CONFIG['default_enabled_architectures']
-else
-   DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
-end
 
 SOURCEREVISION = 'master'
 begin
