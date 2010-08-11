@@ -3,8 +3,6 @@ require 'request_controller'
 
 class RequestControllerTest < ActionController::IntegrationTest 
  
-  $acl = true if $ENABLE_ACL
-
   fixtures :all
 
   def test_set_and_get_1
@@ -392,9 +390,9 @@ class RequestControllerTest < ActionController::IntegrationTest
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
-    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $acl
-    assert_response 403 if $acl
-    assert_match(/create_request_no_permission/, @response.body)
+    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $ENABLE_BROKEN_TEST
+    assert_response 403 if $ENABLE_BROKEN_TEST
+    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
@@ -406,7 +404,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
-    assert_response 403 if $acl
+    assert_response 403
     assert_match(/create_request_no_permission/, @response.body)
   end
 
@@ -417,13 +415,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     # FIXME !!
     # should we really allow this - might be a mistake. qualified procedure could be:
     # sr from hidden to hidden and then make new location visible
-    assert_response :success if $acl
+    assert_response :success
     # FIXME: implementation unclear
   end
   ## create request from hidden package to open place - invalid user  - fail !
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
-    assert_response 403 if $acl
+    assert_response 403
     assert_match(/create_request_no_permission/, @response.body)
   end
 
@@ -434,11 +432,11 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/hidden_add_role_fail')
     # should fail as this user shouldn't see the target package at all.
-    assert_response 404 if $acl
+    assert_response 404
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     post "/request?cmd=create", load_backend_file('request/hidden_add_role')
-    assert_response :success if $acl
+    assert_response :success
   end
   ### all action types for acl case (positive + negative)
   ### submit review for acl case (positive + negative)

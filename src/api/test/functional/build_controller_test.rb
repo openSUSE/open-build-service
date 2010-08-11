@@ -4,8 +4,6 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   fixtures :all
 
-  $acl = true if $ENABLE_ACL
-
   def setup
     prepare_request_valid_user
   end
@@ -21,14 +19,14 @@ class BuildControllerTest < ActionController::IntegrationTest
     # testing build_controller project_index 
     # currently this test shows that there's an information leak.
     get "/build"
-    assert_response :success if $acl
-    assert_no_match /entry name="HiddenProject"/, @response.body if $acl
+    assert_response :success
+    assert_no_match /entry name="HiddenProject"/, @response.body
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build"
-    assert_response :success if $acl
-    assert_match /entry name="HiddenProject"/, @response.body if $acl
+    assert_response :success
+    assert_match /entry name="HiddenProject"/, @response.body
     prepare_request_valid_user
   end
 
@@ -53,13 +51,13 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_acl_hidden_package_index
     get "/build/HiddenProject/nada/i586/pack"
-    assert_response 404 if $acl
+    assert_response 404
     assert_match /Unknown package/, @response.body
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack"
-    assert_response :success if $acl
+    assert_response :success
     assert_tag( :tag => "binarylist" ) 
     prepare_request_valid_user
   end
@@ -74,26 +72,26 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_acl_hidden_logfile
     get "/build/HiddenProject/nada/i586/pack/_log"
-    assert_response 404 if $acl
+    assert_response 404
     assert_match /Unknown package/, @response.body
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack/_log"
-    assert_response :success if $acl
+    assert_response :success
     prepare_request_valid_user
   end
 
   def test_acl_binarydownload_logfile
     # build_controller.rb:    # ACL(logfile): binarydownload denies logfile acces
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
-    assert_response 403 if $acl
+    assert_response 403
     assert_match /download_binary_no_permission/, @response.body
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "binary_homer", "homer"
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
-    assert_response :success if $acl
+    assert_response :success
     prepare_request_valid_user
   end
 
@@ -105,13 +103,13 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_acl_hidden_result_prj
     get "/build/HiddenProject/_result"
-    assert_response 404 if $acl
+    assert_response 404
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/_result"
-    assert_response :success if $acl
-    assert_tag :tag => "resultlist" if $acl
+    assert_response :success
+    assert_tag :tag => "resultlist"
     prepare_request_valid_user
   end
 
@@ -140,17 +138,17 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_acl_hidden_binary_view
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
-    assert_response 404 if $acl
-    assert_match /Unknown package/, @response.body if $acl
+    assert_response 404
+    assert_match /Unknown package/, @response.body
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm?view=fileinfo"
-    assert_response 404 if $acl
-    assert_match /Unknown package/, @response.body if $acl
+    assert_response 404
+    assert_match /Unknown package/, @response.body
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
-    assert_response 404 if $acl
-    assert_match /No such file or directory/, @response.body if $acl
+    assert_response 404
+    assert_match /No such file or directory/, @response.body
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response :success
     prepare_request_valid_user
@@ -159,17 +157,17 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_acl_binarydownload_binary_view
     # 404 on invalid
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo"
-    assert_response 403 if $acl
-    assert_match /download_binary_no_permission/, @response.body if $acl
+    assert_response 403
+    assert_match /download_binary_no_permission/, @response.body
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package-1.0-1.i586.rpm?view=fileinfo"
-    assert_response 403 if $acl
-    assert_match /download_binary_no_permission/, @response.body if $acl
+    assert_response 403
+    assert_match /download_binary_no_permission/, @response.body
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "binary_homer", "homer"
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo"
-    assert_response 404 if $acl
-    assert_match /No such file or directory/, @response.body if $acl
+    assert_response 404
+    assert_match /No such file or directory/, @response.body
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response :success
     prepare_request_valid_user
@@ -188,19 +186,19 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_acl_hidden_file
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response 404
-    assert_match /Unknown package/, @response.body if $acl
+    assert_match /Unknown package/, @response.body
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
     assert_response 404
-    assert_match /Unknown package/, @response.body if $acl
+    assert_match /Unknown package/, @response.body
     get "/build/HiddenProject/nada/i586/pack/NOT_EXISTING"
     assert_response 404
-    assert_match /Unknown package/, @response.body if $acl
+    assert_match /Unknown package/, @response.body
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response :success
-    assert_match /binarylist/, @response.body if $acl
+    assert_match /binarylist/, @response.body
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
     #FIXME package.rpm missing
     assert_response :success
@@ -258,7 +256,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     #invalid
     get "/build/HiddenProject"
     assert_response 404
-    assert_match /Unknown project/, @response.body if $acl
+    assert_match /Unknown project/, @response.body
 
     put "/build/HiddenProject", :cmd => 'say_hallo'
     assert_response 404
