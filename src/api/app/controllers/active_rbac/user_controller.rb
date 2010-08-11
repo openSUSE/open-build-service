@@ -75,6 +75,17 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       params[:user][:groups] = [] if params[:user][:groups].nil?
       @user.groups = params[:user][:groups].collect { |i| Group.find(i) }
 
+      # Create the new user to LDAP server if LDAP_UPDATE_SUPPORT is enabled
+      if defined?( LDAP_MODE ) && LDAP_MODE == :on
+        if defined?( LDAP_UPDATE_SUPPORT ) && LDAP_UPDATE_SUPPORT == :on
+          result = User.new_entry_ldap(params[:user][:login], params[:user][:password],params[:user][:email])
+          if result
+            flash[:error] = result
+            return
+          end
+        end
+      end
+
       # the above should be successful if we reach here; otherwise we
       # have an exception and reach the rescue block below
       flash[:notice] = 'User was created successfully.'
@@ -144,8 +155,23 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       redir_to_opts[:onlyunconfirmed] = 1
     end
 
+    # Record the old login name, which might be changed by the user
+    login = @user.login
+
     # Bulk-Assign the other attributes from the form.
     if @user.update_attributes(params[:user])
+      # Sync the new user data to LDAP server, if LDAP_UPDATE_SUPPORT is enabled
+      if defined?( LDAP_MODE ) && LDAP_MODE == :on
+        if defined?( LDAP_UPDATE_SUPPORT ) && LDAP_UPDATE_SUPPORT == :on
+          result = User.update_entry_ldap(login, params[:user][:login], params[:user][:email], params[:user][:password])
+          if result
+            flash[:error] = result
+            redirect_to :action => 'edit'
+            return
+          end
+        end
+      end
+
       flash[:notice] = 'User was successfully updated.'
       redirect_to redir_to_opts
     else
@@ -172,7 +198,20 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   # redirects to the #show action with the selected's user's ID.
   def destroy
     if not params[:yes].nil?
+      login = User.find(params[:id]).login
       User.find(params[:id]).destroy
+      #Delete the user in LDAP server, if LDAP_UPDATE_SUPPORT is enabled
+      if defined?( LDAP_MODE ) && LDAP_MODE == :on
+        if defined?( LDAP_UPDATE_SUPPORT ) && LDAP_UPDATE_SUPPORT == :on
+          result = User.delete_entry_ldap(login)
+          if result
+            flash[:error] = result
+            redirect_to :action => 'list'
+            return
+          end
+        end
+      end
+
       flash[:notice] = 'The user has been deleted successfully'
       redirect_to :action => 'list'
     else
