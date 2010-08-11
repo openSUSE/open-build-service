@@ -575,6 +575,8 @@ class RequestController < ApplicationController
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
           unless target_package
+            # create package in database
+            linked_package = target_project.find_package(action.target.package)
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
             target_package = Package.new(source_package.to_axml, :project => action.target.project)
@@ -583,6 +585,11 @@ class RequestController < ApplicationController
             target_package.remove_all_flags
             target_package.remove_devel_project
             target_package.save
+
+            # check if package was available via project link and create a branch from it in that case
+            if linked_package
+              r = Suse::Backend.post "/source/#{action.target.project}/#{action.target.package}?cmd=branch&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+            end
           end
 
           cp_path = "/source/#{action.target.project}/#{action.target.package}"
