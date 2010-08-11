@@ -85,8 +85,11 @@ MONITOR_IMAGEMAP = {
         ["i586", 'blocked_i586' ],
         ["x86_64", 'blocked_x86_64'] ],
       'pc_workers' => [
+        ["idle", 'idle_i586' ],
         ["idle", 'idle_x86_64' ],
+        ["building", 'building_i586' ],
         ['building', 'building_x86_64' ] ],
+
       'ppc_waiting' => [
         ["ppc", 'waiting_ppc'],
         ["ppc64", 'waiting_ppc64'] ],
@@ -96,12 +99,36 @@ MONITOR_IMAGEMAP = {
       'ppc_workers' => [
         ["idle", 'idle_ppc64' ],
         ['building', 'building_ppc64' ] ],
+
       'arm_waiting' => [
         ["armv5", 'waiting_armv5el'],
         ["armv7", 'waiting_armv7el'] ],
       'arm_blocked' => [
-        ["armv5", 'blocked_armv5el' ],
-        ["armv7", 'blocked_armv7el'] ]
+        ["armv5", 'blocked_armv5el'],
+        ["armv7", 'blocked_armv7el'] ],
+
+      'ia64_waiting' => [
+        ["ia64", 'waiting_ia64'] ],
+      'ia64_blocked' => [
+        ["ia64", 'blocked_ia64'] ],
+      'ia64_workers' => [
+        ["ia64", 'building_ia64'] ],
+
+      'hppa_waiting' => [
+        ["hppa", 'waiting_hppa'] ],
+      'hppa_blocked' => [
+        ["hppa", 'blocked_hppa'] ],
+      'hppa_workers' => [
+        ["hppa", 'building_hppa'] ],
+
+      's390_waiting' => [
+        ["s390", 'waiting_s390'],
+        ["s390x", 'waiting_s390x'] ],
+      's390_blocked' => [
+        ["s390", 'blocked_s390' ],
+        ["s390x", 'blocked_s390x'] ],
+      'hppa_workers' => [
+        ["hppa", 'building_hppa'] ],
     }
 
 if CONFIG['visible_architectures']
