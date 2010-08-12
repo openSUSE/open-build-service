@@ -500,11 +500,11 @@ class RequestController < ApplicationController
            package = nil
            if action.target.has_attribute? :package
               package = project.db_packages.find_by_name(action.target.package)
-              if @http_user.can_modify_package? package
+              if package and @http_user.can_modify_package? package
                  permission_granted = true
               end
 	   else
-              if @http_user.can_modify_project? project
+              if project and @http_user.can_modify_project? project
                  permission_granted = true
               end
            end
