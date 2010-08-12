@@ -12,7 +12,7 @@
   function insertRow() {
     var name = document.getElementById('add_new_parameter').value;
     var value = document.getElementById('add_new_value').value;
-    var number = document.getElementById('parameter_count').value;
+    var number = document.getElementById('count_parameters').value;
 
     number = number + 1;
     $('#pTable tr:last').before('<tr class=\"row_'+number+'\">'+
@@ -21,7 +21,7 @@
       '<td><a href=\"#\" onclick=\"\$(\'tr.row_'+number+'\').remove(); return false;\">X</a></td>'+
       '</tr>');
     
-    document.getElementById('parameter_count').value = number;
+    document.getElementById('count_parameters').value = number;
   }
 <% end %>
 

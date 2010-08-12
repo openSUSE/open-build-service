@@ -39,7 +39,7 @@
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
             <% end %>
          <% end %>
-         <%= hidden_field_tag(:parameter_count, number) %>
+         <%= hidden_field_tag(:count_parameters, number) %>
 
          <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
            <tr class="addrow"><td>
