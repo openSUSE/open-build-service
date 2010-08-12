@@ -133,8 +133,8 @@ MONITOR_IMAGEMAP = {
       'hppa_blocked' => [
         ["hppa", 'blocked_hppa'] ],
       'hppa_workers' => [
-        ["hppa", 'idle_hppa'],
-        ["hppa", 'building_hppa'] ],
+        ["hppa", 'idle_parisc'],
+        ["hppa", 'building_parisc'] ],
 
       's390_waiting' => [
         ["s390", 'waiting_s390'],
