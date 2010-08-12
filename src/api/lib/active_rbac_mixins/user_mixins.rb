@@ -457,9 +457,14 @@ module UserMixins
               return "User not found in ldap"
             end
 
-            require 'digest/md5'
-            require 'base64'
-            ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+            case LDAP_AUTH_MECH
+            when :cleartext then
+              ldap_password = password
+            when :md5 then
+              require 'digest/md5'
+              require 'base64'
+              ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+            end
             entry = [
               LDAP.mod(LDAP::LDAP_MOD_REPLACE, LDAP_AUTH_ATTR, [ldap_password]),
             ]
