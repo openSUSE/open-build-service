@@ -11,11 +11,11 @@ following steps manually:
 1) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:setup
+    # RAILS_ENV="production" rake db:migrate
     # chown -R lighttpd.lighttpd log
 
     # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:setup
+    # RAILS_ENV="production" rake db:migrate
     # chown -R lighttpd.lighttpd log
 
 2) Default distribution configuration
