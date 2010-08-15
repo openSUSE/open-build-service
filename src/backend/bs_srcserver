@@ -724,7 +724,7 @@ sub lsrev {
     }
     if (!open(F, '<', "$treedir/$srcmd5-MD5SUMS")) {
       return {'_linkerror' => $srcmd5} if -e "$srcrep/$packid/$srcmd5-_linkerror";
-      die("$projid/$packid/$srcmd5: not in repository. Possible ACL restriction. See '\$nosharedtrees'\n");
+      die("$projid/$packid/$srcmd5: not in repository. Possible '\$nosharedtrees' problem in BSConfig.pm\n");
     }
   }
   my @files = <F>;
