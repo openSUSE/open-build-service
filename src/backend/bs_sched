@@ -4592,6 +4592,18 @@ relsynccheck:
     unlink("$reporoot/$prp/$myarch/:repostate");
   }
 
+  # building jobs may have changed back to blocked, kill the jobs
+  my $prpjobs = jobname($prp, '');
+  for (grep {!/(?::dir|:status)$/} grep {/^\Q$prpjobs\E/} ls($myjobsdir)) {
+    my $job = $_;
+    if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
+      if ($packstatus{$1} and $packstatus{$1} eq 'blocked') {
+        print "        killing old job, now in blocked state $job\n";
+        killjob($job);
+      }
+    }
+  }
+
   # notify remote build services of repository changes or block state
   # changes
   # we alse send it if we finish a prp to give linked aggregates a
