@@ -72,6 +72,8 @@ class RequestController < ApplicationController
        end
     end
 
+    @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
+  
     @therequest.each_action do |action|
       @type = action.data.attributes["type"]
       if @type=="submit"
@@ -102,8 +104,6 @@ class RequestController < ApplicationController
       end
     end
 
-    @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
-  
   end
  
   def change_request(changestate, params)

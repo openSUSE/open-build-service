@@ -140,12 +140,12 @@ setup_buildresult_trigger
   </pre>
 <% end %>
 
-<% if !["accepted", "declined", "revoked"].include? @state and (@is_reviewer || @is_maintainer || @is_author) and !@diff_error %>
+<% if !["accepted", "declined", "revoked"].include? @state and (@is_reviewer || @is_maintainer || @is_author) and (@is_author || !@diff_error) %>
   <p/>
   <div class="section">
     <% form_tag :action => "changerequest" do %>
       <div>
-        <% if @is_maintainer or @is_reviewer or @is_author or req.each_review.length > 0 %>
+        <% if !@diff_error and (@is_maintainer or @is_reviewer or @is_author or req.each_review.length > 0) %>
           <!-- handle existing reviews -->
           <table id="pTable">
           <tr><th colspan="4">Reviews</th></tr>
@@ -185,7 +185,7 @@ setup_buildresult_trigger
           <%end%>
 
           <!-- add another review -->
-          <% if req.state.name == "review" or req.state.name == "new" %>
+          <% if !@diff_error and (req.state.name == "review" or req.state.name == "new") %>
             <% if @is_maintainer or @is_reviewer or @is_author %>
               <tr class="add_reviewer">
                 <td><%=select_tag "add_review_type", "<option>User</option> <option>Group</option>" %></td>
@@ -208,18 +208,24 @@ setup_buildresult_trigger
             <%= text_field_tag :reason, '' , :size => 80 %><br/>
           </p>
           <% linked = @target_pkg.linked_to if @target_pkg -%>
-          <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
-            <%= hidden_field_tag( "forward_project", linked[0]) %>
-            <%= hidden_field_tag( "forward_package", linked[1]) %>
-            <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-          <% end -%>
-          <% if req.state.name.to_s == "review" %>
-            <%= submit_tag "Accept", :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
-          <% else %>
-            <%= submit_tag "Accept", :name => 'accepted' %>
+          <% if !@diff_error -%>
+            <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
+              <%= hidden_field_tag( "forward_project", linked[0]) %>
+              <%= hidden_field_tag( "forward_package", linked[1]) %>
+              <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+            <% end -%>
+            <% if req.state.name.to_s == "review" %>
+              <%= submit_tag "Accept", :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
+            <% else %>
+              <%= submit_tag "Accept", :name => 'accepted' %>
+            <% end %>
           <% end %>
           <%= submit_tag "Decline", :name => 'declined' %>
         <% elsif @is_author %>
+          <p>
+            <strong>Reason:</strong>
+            <%= text_field_tag :reason, '' , :size => 80 %><br/>
+          </p>
           <%= submit_tag "Revoke", :name => 'revoked' %>
         <% end %>
       </div>
