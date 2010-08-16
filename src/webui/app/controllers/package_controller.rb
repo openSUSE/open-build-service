@@ -161,14 +161,13 @@ class PackageController < ApplicationController
         rescue RuntimeError
           # possibly thrown on bad link files
         end
-      elsif file[:name] == "_service"
+      elsif file[:name] == "_service" or file[:name] == "_service_error"
         begin
           @services = find_cached(Service,  :project => @project, :package => @package )
         rescue
           @services = nil
         end
-      elsif file[:name] == "_service_error"
-        @serviceerror = @services.error
+        @serviceerror = @services.error if @services and @services.error
       end
     end
   end
