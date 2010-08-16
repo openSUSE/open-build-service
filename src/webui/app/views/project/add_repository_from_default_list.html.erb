@@ -46,7 +46,7 @@
       <% selected = false
       selected = true if @project.has_element?("repository[@name = 'images']") -%>
 
-      <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected -%>
+      <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected, :id => 'repo_images', :class => "repocheckbox" -%>
       <input id="images_repo" name="images_repo" value="" type="hidden"/>
       <input id="images_arch_i586" name="images_arch[]" value="i586" type="hidden"/>
       <input id="images_arch_x86_64" name="images_arch[]" value="x86_64" type="hidden"/>
