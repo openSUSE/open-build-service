@@ -96,11 +96,15 @@ class SourceController < ApplicationController
       end
       #check all packages, if any get refered as develpackage
       pro.db_packages.each do |pkg|
-        unless pkg.develpackages.empty?
-          msg = "Unable to delete package #{pkg.name}; following packages use this package as devel package: "
-          msg += pkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
+        msg = ""
+        pkg.develpackages do |dpkg|
+          if pro != dpkg.db_project
+            msg += dpkg.db_project.name + "/" + dkg.name + ", "
+          end
+        end
+        unless msg == ""
           render_error :status => 400, :errorcode => 'develpackage_dependency',
-            :message => msg
+            :message => "Unable to delete package #{pkg.name}; following packages use this package as devel package: #{msg}"
           return
         end
       end
