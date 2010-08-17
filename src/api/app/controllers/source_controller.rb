@@ -54,7 +54,7 @@ class SourceController < ApplicationController
       return
     end
     if pro.nil?
-      unless params[:cmd] == "undelete"
+      unless params[:cmd] == "undelete" or request.get?
         render_error :status => 404, :errorcode => 'unknown_project',
           :message => "Unknown project '#{project_name}'"
         return
@@ -73,8 +73,12 @@ class SourceController < ApplicationController
         if pro and pro.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pro)
           render :text => '<directory count="0"></directory>', :content_type => "text/xml"
         else
-          @dir = Package.find :all, :project => project_name
-          render :text => @dir.dump_xml, :content_type => "text/xml"
+          if pro
+            @dir = Package.find :all, :project => project_name
+            render :text => @dir.dump_xml, :content_type => "text/xml"
+          else
+            pass_to_backend
+          end
         end
       end
       return
