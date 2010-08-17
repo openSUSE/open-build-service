@@ -641,6 +641,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
     assert_response 404
     assert_match(/kde4: no pubkey available/, @response.body)
+    get url_for(:controller => :source, :action => :project_pubkey, :project => "BaseDistro")
+    assert_response :success
 
     delete url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
     assert_response 403

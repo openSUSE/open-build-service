@@ -14,6 +14,8 @@ class InterConnectTests < ActionController::IntegrationTest
     # direct access to remote instance
     get "/source/RemoteInstance:BaseDistro/_meta"
     assert_response :success
+    get "/source/RemoteInstance:BaseDistro/_pubkey"
+    assert_response :success
     get "/source/RemoteInstance:BaseDistro/pack1"
     assert_response :success
     get "/source/RemoteInstance:BaseDistro/pack1/_meta"
