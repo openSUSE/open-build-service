@@ -361,6 +361,10 @@ class RequestController < ApplicationController
                         #:by_user => params[:by_user], :by_group => params[:by_group]
   end
   def modify_changestate
+    if params[:id].nil? or params[:id].to_i == 0
+      render_error :status => 404, :message => "Request ID is not a number", :errorcode => "no_such_request"
+      return
+    end
     req = BsRequest.find params[:id]
     if req.nil?
       render_error :status => 404, :message => "No such request", :errorcode => "no_such_request"
