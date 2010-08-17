@@ -115,7 +115,17 @@ class PackageController < ApplicationController
 
   def files
     @package.free_directory if discard_cache?
+    @revision = params[:rev]
+    @expand = params[:expand]
     set_file_details
+  end
+
+  def file_table
+    @package.free_directory if discard_cache?
+    @revision = params[:rev]
+    @expand = params[:expand]
+    set_file_details
+    render :partial => 'files_view', :locals => {:file_list => @files}
   end
 
   def service_parameter
@@ -151,19 +161,19 @@ class PackageController < ApplicationController
   end
 
   def set_file_details
-    @files = @package.files
+    @files = @package.files(@revision, @expand)
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
         begin
-          @link = find_cached(Link, :project => @project, :package => @package )
+          @link = find_cached(Link, :project => @project, :package => @package, :rev => @revision )
         rescue RuntimeError
           # possibly thrown on bad link files
         end
       elsif file[:name] == "_service" or file[:name] == "_service_error"
         begin
-          @services = find_cached(Service,  :project => @project, :package => @package )
+          @services = find_cached(Service,  :project => @project, :package => @package, :expand => expand, :rev => @revision )
         rescue
           @services = nil
         end

@@ -1,0 +1,55 @@
+<% # locals:
+#   file_list: list of source files in package
+-%>
+
+<div id="files_view">
+
+  <% unless @files.empty? %>
+    <table cellspacing='1' id="file_table" class="tablesorter">
+      <thead>
+        <tr>
+          <th class="header">Filename</th>
+          <th class="header">Size</th>
+          <th class="header">Changed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <% @files.each do |file| %>
+          <tr><td>
+              <% if file[:editable] and not @rev %>
+                <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %>
+              <% else %>
+                <%= h file[:name] %>
+              <% end %>
+              <% if @link && @link.has_add_patch?( file[:name] ) %>
+                (Added Patch)
+              <% elsif @link && @link.has_patch?( file[:name] ) %>
+                (Global Patch)
+              <% end %>
+            </td>
+            <td><!-- <%= file[:size].rjust(10, '0') %> --><%=h human_readable_fsize( file[:size] )%></td>
+            <td><!-- <%= file[:mtime] %> --><%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %></td>
+            <td><%= link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name] ) %>
+              <% unless file[:name].match(/^_service:/) %>
+                <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+                  <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
+                    :package => @package, :filename => file[:name]},
+                    {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
+                  <% if file[:editable] %>
+                    <%= link_to( image_tag('icons/page_white_magnify.png', :alt => "View / Edit", :title => "View / Edit File"), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p><i>This package has no files yet</i></p>
+  <% end %>
+
+</div>
+

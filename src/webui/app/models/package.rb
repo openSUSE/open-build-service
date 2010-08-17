@@ -33,17 +33,19 @@ class Package < ActiveXML::Base
     put_opt[:project] = @init_options[:project]
     put_opt[:filename] = opt[:filename]
     put_opt[:comment] = opt[:comment]
+    put_opt[:expand] = "1" if opt[:expand]
 
     fc = FrontendCompat.new
     fc.put_file file.read, put_opt
     true
   end
 
-  def remove_file( name )
+  def remove_file( name, expand = nil )
     delete_opt = Hash.new
     delete_opt[:package] = self.name
     delete_opt[:project] = @init_options[:project]
     delete_opt[:filename] = name
+    delete_opt[:expand] = "1" if expand
 
     begin
        FrontendCompat.new.delete_file delete_opt
@@ -141,7 +143,9 @@ class Package < ActiveXML::Base
   end
 
   def free_directory
-    Directory.free_cache( :project => project, :package => name )
+    # just free current revision cache
+    Directory.free_cache( :project => project, :package => name, :expand => nil )
+    Directory.free_cache( :project => project, :package => name, :expand => "1" )
   end
 
   def linkinfo
@@ -160,19 +164,23 @@ class Package < ActiveXML::Base
     return []
   end
 
-  def self.current_rev(project, package)
+  def self.current_rev(project, package )
     Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_cached( :project => project, :package => package )
     return nil unless dir
     return dir.rev
   end
 
-  def files
+  def files( rev = nil, expand = nil )
     # files whose name ends in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
-    dir = Directory.find_cached( :project => project, :package => name )
-    return files unless dir
+    p = {}
+    p[:project] = project
+    p[:package] = name
+    p[:expand]  = "1"     if expand == "true"
+    p[:rev]     = rev     if rev
+    dir = Directory.find_cached(p)
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
