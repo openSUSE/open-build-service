@@ -832,7 +832,13 @@ class SourceController < ApplicationController
 
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
     if package_name == "_project"
-      allowed = permissions.project_change? project_name
+      prj = DbProject.find_by_name(project_name)
+      if prj.nil?
+        render_error :status => 403, :errorcode => 'not_found',
+          :message => "The given project #{project_name} does not exist"
+        return
+      end
+      allowed = permissions.project_change? prj
     else
       if pack.nil? and request.get?
         # Check if this is a package on a remote OBS instance
