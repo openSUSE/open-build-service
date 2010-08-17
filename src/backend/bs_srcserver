@@ -2127,12 +2127,21 @@ sub deletekey {
 sub getpubkey {
   my ($cgi, $projid) = @_;
   my $pubkey;
-  if ($cgi->{'rev'}) {
-    my $rev = getrev_meta($projid, undef, $cgi->{'rev'});
-    my $files = $rev ? lsrev($rev) : {};
-    $pubkey = repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
+
+  my $proj = readproj($projid, 1, $cgi->{'rev'});
+  $proj = remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  die("404 project '$projid' does not exist\n") unless $proj;
+
+  if ($proj->{'remoteurl'}) {
+    $pubkey = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_pubkey", 'proxy' => $proxy}, undef);
   } else {
-    $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+    if ($cgi->{'rev'}) {
+      my $rev = getrev_meta($projid, undef, $cgi->{'rev'});
+      my $files = $rev ? lsrev($rev) : {};
+      $pubkey = repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
+    } else {
+      $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+    }
   }
   die("404 $projid: no pubkey available\n") unless $pubkey;
   return ($pubkey, 'Content-Type: text/plain');

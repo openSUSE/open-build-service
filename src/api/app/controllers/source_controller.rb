@@ -680,16 +680,19 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:user, :comment, :rev])
 
     #check if project exists
-    unless (@project = DbProject.find_by_name(params[:project]))
-      render_error :status => 404, :errorcode => 'project_not_found',
-        :message => "Unknown project #{params[:project]}"
-      return
+    unless prj = DbProject.find_by_name(params[:project])
+      prj, pro_name = DbProject.find_remote_project(params[:project])
+      unless request.get? and prj
+        render_error :status => 404, :errorcode => "project_not_found",
+          :message => "Unknown project '#{params[:project]}'"
+        return
+      end
     end
 
     # ACL(project_pubkey): in case of access, project or package is really hidden
-    if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
       render_error :message => "Unknown project '#{params[:project]}'",
-      :status => 404, :errorcode => "unknown_project"
+      :status => 404, :errorcode => "project_not_found"
       return
     end
 
@@ -697,7 +700,7 @@ class SourceController < ApplicationController
       pass_to_backend path
     elsif request.delete?
       #check for permissions
-      unless @http_user.can_modify_project?(@project)
+      unless @http_user.can_modify_project?(prj)
         render_error :status => 403, :errorcode => 'delete_project_pubkey_no_permission',
           :message => "No permission to delete public key for project '#{params[:project]}'"
         return
