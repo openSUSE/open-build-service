@@ -8,9 +8,12 @@ module PackageHelper
   end
 
 
-  def file_url( project, package, filename )
-    get_frontend_url_for( :controller => '') +
-      "public/source/#{project}/#{package}/#{CGI.escape filename}"
+  def file_url( project, package, filename, revision=nil )
+    # use public/ here to avoid extra login to api in webui
+    url = get_frontend_url_for( :controller => '') +
+      "public/source/#{project}/#{package}/#{CGI.escape filename}?"
+    url += "rev=#{CGI.escape revision}&" if revision
+    return url
   end
 
 

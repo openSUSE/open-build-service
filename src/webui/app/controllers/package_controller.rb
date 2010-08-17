@@ -603,14 +603,16 @@ class PackageController < ApplicationController
     @package = params[:package]
     @filename = params[:file]
     @comment = params[:comment]
+    @srcmd5 = params[:srcmd5]
     @file = params[:content] || frontend.get_source( :project => @project,
-      :package => @package, :filename => @filename )
+      :package => @package, :filename => @filename, :revision => @srcmd5 )
     # render explicitly as in error case this is called
     render :template => 'package/edit_file'
   end
 
   def view_file
     @filename = params[:file] || ''
+    @srcmd5 = params[:srcmd5]
     @addeditlink = false
     if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
       @package.files.each do |file|
@@ -622,7 +624,7 @@ class PackageController < ApplicationController
     end
     begin
       @file = frontend.get_source( :project => @project.to_s,
-        :package => @package.to_s, :filename => @filename )
+        :package => @package.to_s, :filename => @filename, :rev => @srcmd5 )
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project

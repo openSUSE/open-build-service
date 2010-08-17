@@ -186,6 +186,7 @@ class Package < ActiveXML::Base
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = Pathname.new(file[:name]).extname
       file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and not file[:name].match(/^_service:/) and file[:size].to_i < 2**20)  # max. 1 MB
+      file[:srcmd5] = dir.srcmd5
       files << file
     end
     return files

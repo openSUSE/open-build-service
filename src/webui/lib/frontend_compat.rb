@@ -46,6 +46,8 @@ class FrontendCompat
     path += "/#{CGI.escape opt[:project]}" if opt[:project]
     path += "/#{CGI.escape opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{CGI.escape opt[:filename]}" if opt[:filename]
+    path += "?"
+    path += "rev=#{CGI.escape opt[:rev]}" if opt[:rev]
     logger.debug "--> get_source path: #{path}"
     
     transport.direct_http URI("https://#{path}")
