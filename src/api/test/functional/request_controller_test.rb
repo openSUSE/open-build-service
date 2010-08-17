@@ -210,6 +210,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response 403
+    post "/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked"
+    assert_response 404
+    assert_match /Request ID is not a number/, @response.body
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=changestate&newstate=revoked"
