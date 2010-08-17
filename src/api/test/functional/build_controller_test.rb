@@ -115,6 +115,16 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_acl_privacy_result_prj
     # FIXME: add privacy project
+    get "/build/ViewprotectedProject/_result"
+    assert_response :success
+    assert_no_tag :tag => "resultlist"
+    # retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "view_homer", "homer"
+    get "/build/ViewprotectedProject/_result"
+    assert_response :success
+    assert_tag :tag => "resultlist"
+    prepare_request_valid_user
   end
 
   def test_acl_hidden_result_pkg
