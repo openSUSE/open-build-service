@@ -299,10 +299,15 @@ sub update_request_db {
   my $db = BSDB::opendb($requestdb, '');
   $db->{'noindex'} = {'id' => 1};
 
-  for my $rid (ls($requestdir)) {
+  my @allrequests = ls($requestdir);
+  my $i = 0;
+  my $count = @allrequests;
+  for my $rid (@allrequests) {
     next if $rid eq ".nextid";
+    $i++;
+    print "$i / $count        \r";
     my $req = readxml("$requestdir/$rid", $BSXML::request, 0);
-    print "WARNING: unable to parse request: $rid\n" unless $req;
+    print "WARNING: unable to parse request: $rid!\n" unless $req;
     $db->updateindex($rid, {}, $req || {});
   }
 }
