@@ -44,7 +44,7 @@
 <!-- File list -->
 <div id="package_files">
   <h3>
-    Files
+    Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
   </h3>
 
   <% unless @files.empty? %>
@@ -56,7 +56,7 @@
 
     <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
       :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
-      :loading => '$("#file_table").addClass( "ac_loading" )', :complete => "$('#file_table').removeClass( 'ac_loading' )",
+      :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
       :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
   <% end %>
 
