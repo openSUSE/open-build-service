@@ -37,9 +37,11 @@
                   <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
                     :package => @package, :filename => file[:name]},
                     {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
+<!-- This is the same as clicking on the file. Do not confuse user with too many cryptic icons.
                   <% if file[:editable] %>
                     <%= link_to( image_tag('icons/page_white_magnify.png', :alt => "View / Edit", :title => "View / Edit File"), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :srcmd5 => file[:srcmd5] ) %>
                   <% end %>
+-->
                 <% end %>
               <% end %>
             </td>
