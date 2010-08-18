@@ -43,6 +43,8 @@ use BSUtil;
 use BSXML;
 use BSKiwiXML;
 use BSProductXML;
+use BSDB;
+use BSDBIndex;
 
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
@@ -95,6 +97,15 @@ Job Controlling
  --rescan-repository <project> <repository> <architecture>
    Asks the scheduler to scan a repository for new packages and add
    them to the cache file.
+
+Maintenance Tasks
+=================
+
+Note: the --update-*-db calls are usually only needed when corrupt data has been created, for
+      example after a file system corruption.
+
+ --update-request-db
+   Updates the index for all requests.
 
 Debug Options
 =============
@@ -279,6 +290,23 @@ sub clone_repository {
   print "finished. Have a nice day.\n";
 }
 
+sub update_request_db {
+
+  my $requestdb  = "$BSConfig::bsdir/db/request";
+  my $requestdir = "$BSConfig::bsdir/requests";
+  mkdir_p($requestdb) unless -d $requestdb;
+
+  my $db = BSDB::opendb($requestdb, '');
+  $db->{'noindex'} = {'id' => 1};
+
+  for my $rid (ls($requestdir)) {
+    next if $rid eq ".nextid";
+    my $req = readxml("$requestdir/$rid", $BSXML::request, 0);
+    print "WARNING: unable to parse request: $rid\n" unless $req;
+    $db->updateindex($rid, {}, $req || {});
+  }
+}
+
 sub check_xml_file {
   my ($file, $type) = @_;
 
@@ -423,6 +451,8 @@ while (@ARGV) {
     die("ERROR: need a file name !\n") if @ARGV != 1;
     my $file = shift @ARGV;
     check_xml_file($file, $BSXML::request);
+  } elsif ($arg eq "--update-request-db") {
+    update_request_db();
   } elsif ($arg eq "--check-kiwi-xml") {
     die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
     if (@ARGV == 1){
