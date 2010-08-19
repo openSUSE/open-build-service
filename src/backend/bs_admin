@@ -323,7 +323,7 @@ sub update_request_db {
     next if $rid eq ".nextid";
     $i++;
     print "$i / $count        \r";
-    my $req = readxml("$requestdir/$rid", $BSXML::request, 0);
+    my $req = readxml("$requestdir/$rid", $BSXML::request, 1);
     print "WARNING: unable to parse request: $rid!\n" unless $req;
     $db->updateindex($rid, {}, $req || {});
   }
