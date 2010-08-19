@@ -113,7 +113,15 @@ class PackageController < ApplicationController
   def list_requests
   end
 
+  def commit
+    render :partial => 'commit_item', :locals => {:rev => params[:revision] }
+  end
+
   def files
+    # hard coded value for the number of visible commit items in browser
+    @visible_commits = 3
+    @maxrevision = @browserrevision = Package.current_rev(@project, @package.name).to_i
+
     @package.free_directory if discard_cache?
     @revision = params[:rev]
     @expand = params[:expand]
@@ -126,6 +134,10 @@ class PackageController < ApplicationController
     @expand = params[:expand]
     set_file_details
     render :partial => 'files_view', :locals => {:file_list => @files}
+  end
+
+  def source_history
+    @browserrevision = params[:rev]
   end
 
   def service_parameter
@@ -173,7 +185,7 @@ class PackageController < ApplicationController
         end
       elsif file[:name] == "_service" or file[:name] == "_service_error"
         begin
-          @services = find_cached(Service,  :project => @project, :package => @package, :expand => expand, :rev => @revision )
+          @services = find_cached(Service,  :project => @project, :package => @package )
         rescue
           @services = nil
         end

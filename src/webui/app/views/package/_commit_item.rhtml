@@ -1,0 +1,12 @@
+<% # locals:
+#   rev: commit revision 
+-%>
+
+  <% commit = @package.commit(rev.to_s) %>
+  <% if commit %>
+    <%= commit[:revision]%>. by <%=commit[:user]%> at <%=Time.at(commit[:time].to_i)%>
+    <%= "Request " + commit[:requestid] if commit[:requestid] %>
+    <%= commit[:comment] %>
+  <% end %>
+
+

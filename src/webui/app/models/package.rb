@@ -171,6 +171,35 @@ class Package < ActiveXML::Base
     return dir.rev
   end
 
+  def commit( rev = nil )
+    if rev and rev.to_i < 0
+      # going backward from not yet known current revision, find out ...
+      r = Package.current_rev(project, name).to_i + rev.to_i + 1
+      rev = r.to_s
+      return nil if rev.to_i < 1
+    end
+    rev = Package.current_rev(project, name) unless rev
+
+    path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
+
+    frontend = ActiveXML::Config::transport_for( :package )
+    answer = frontend.direct_http URI(path), :method => "GET"
+
+    c = {}
+    doc = XML::Parser.string(answer).parse.root
+    doc.find("/revisionlist/revision").each do |s|
+         c[:revision]= s.attributes["rev"]
+         c[:comment] = s.find_first("comment").content
+         c[:user]    = s.find_first("user").content
+         c[:version] = s.find_first("version").content
+         c[:time]    = s.find_first("time").content
+         c[:srcmd5]  = s.find_first("srcmd5").content
+    end
+
+    return nil unless [:revision]
+    return c
+  end
+
   def files( rev = nil, expand = nil )
     # files whose name ends in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }

@@ -1,0 +1,24 @@
+<% # locals:
+#   currentRevision: current selected revision by the user
+#   history: History of source commits
+-%>
+
+
+<div id="sources_history">
+
+  <%= hidden_field_tag(:history_browser_revision, @browserrevision) %>
+
+  <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" %>
+  <table id="historyTable">
+
+    <% (1..@visible_commits).each do |i| %>
+      <tr id="commit_item_<%=(@browserrevision - i + 1)%>"><td>
+        <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
+      </td></tr>
+    <% end %>
+
+  </table>
+  <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button"%>
+
+</div>
+
