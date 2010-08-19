@@ -189,11 +189,13 @@ class Package < ActiveXML::Base
     doc = XML::Parser.string(answer).parse.root
     doc.find("/revisionlist/revision").each do |s|
          c[:revision]= s.attributes["rev"]
-         c[:comment] = s.find_first("comment").content
          c[:user]    = s.find_first("user").content
          c[:version] = s.find_first("version").content
          c[:time]    = s.find_first("time").content
          c[:srcmd5]  = s.find_first("srcmd5").content
+         if comment=s.find_first("comment")
+           c[:comment] = comment.content
+         end
     end
 
     return nil unless [:revision]
