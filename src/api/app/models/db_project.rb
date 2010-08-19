@@ -818,6 +818,7 @@ class DbProject < ActiveRecord::Base
     end
 
     # no package found
+    processed.delete(self)
     return nil
   end
 
