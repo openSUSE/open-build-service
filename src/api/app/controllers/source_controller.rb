@@ -606,6 +606,33 @@ class SourceController < ApplicationController
         end
       end
 
+      # the following code checks if the target project of a linked project exists or is ACL protected
+      rdata = REXML::Document.new(request.raw_post.to_s)
+      rdata.elements.each("project/link") do |e|
+        tproject_name = e.attributes["project"]
+        tprj = DbProject.find_by_name(tproject_name)
+        if tprj.nil?
+          render_error :status => 404, :errorcode => 'not_found',
+          :message => "The link target project #{tproject_name} does not exist"
+          return
+        end
+
+        # ACL(project_meta): project link to project with access behaves like target project not existing
+        if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+          render_error :status => 404, :errorcode => 'not_found',
+          :message => "The link target project #{tproject_name} does not exist"
+          return
+        end
+
+        # ACL(project_meta): project link to project with sourceaccess gives permisson denied
+        if tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
+          render_error :status => 403, :errorcode => "source_access_no_permission",
+          :message => "No permission for link target project #{tproject_name}"
+          return
+        end
+        logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
+      end
+
       p = Project.new(request_data, :name => project_name)
 
       if p.name != project_name
@@ -856,7 +883,7 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
     end
 
-    # ACL(file): acces behaves like project not existing
+    # ACL(file): access behaves like project not existing
     if pack and pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
       render_error :status => 404, :errorcode => 'not_found',
       :message => "The given package #{package_name} does not exist in project #{project_name}"
@@ -889,6 +916,61 @@ class SourceController < ApplicationController
         elsif params[:file] == "_aggregate"
            validator = Suse::Validator.new( "aggregate" )
            validator.validate(request)
+        end
+
+        if params[:file] == "_link"
+          data = REXML::Document.new(request.raw_post.to_s)
+          data.elements.each("link") do |e|
+            tproject_name = e.attributes["project"]
+            tpackage_name = e.attributes["package"]
+            tpkg = DbPackage.find_by_project_and_name(tproject_name, tpackage_name)
+            if tpkg.nil?
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+              return
+            end
+            
+            # ACL(file): _link access behaves like project not existing
+            if tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+              return
+            end
+
+            # ACL(file): _link sourceaccess gives permisson denied
+            if tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
+              render_error :status => 403, :errorcode => "source_access_no_permission",
+              :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
+              return
+            end
+            logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
+          end
+        elsif params[:file] == "_aggregate"
+          data = REXML::Document.new(request.raw_post.to_s)
+          data.elements.each("aggregate") do |e|
+            tproject_name = e.attributes["project"]
+            tprj = DbProject.find_by_name(tproject_name)
+            if tprj.nil?
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given #{tproject_name} does not exist"
+              return
+            end
+            
+            # ACL(file): _aggregate access behaves like project not existing
+            if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+              return
+            end
+
+            # ACL(file): _aggregate binarydownload denies access to repositories
+            if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+              render_error :status => 403, :errorcode => "download_binary_no_permission",
+              :message => "No permission to _aggregate binaries from project #{params[:project]}"
+              return
+            end
+            logger.debug "_aggregate checked against #{tproject_name} project permission"
+          end
         end
 
         pass_to_backend path
