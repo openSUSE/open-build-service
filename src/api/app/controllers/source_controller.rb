@@ -1191,7 +1191,7 @@ class SourceController < ApplicationController
     #convert link to branch
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
-      rev = "&rev=#{pkg_rev}"
+      rev = "&orev=#{pkg_rev}"
     end
     linkrev = ""
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
@@ -1344,7 +1344,7 @@ class SourceController < ApplicationController
     #create branch of sources in backend
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
-      rev = "&rev=#{pkg_rev}"
+      rev = "&orev=#{pkg_rev}"
     end
     comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
     Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
