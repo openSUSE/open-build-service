@@ -168,6 +168,7 @@ class Package < ActiveXML::Base
     Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_cached( :project => project, :package => package )
     return nil unless dir
+    return nil unless dir.has_attribute? :rev
     return dir.rev
   end
 
