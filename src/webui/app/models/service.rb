@@ -154,17 +154,24 @@ class Service < ActiveXML::Base
 
   def error
     opt = Hash.new
-    opt[:project] = self.init_options[:project]
-    opt[:package] = self.init_options[:package]
+    opt[:project]  = self.init_options[:project]
+    opt[:package]  = self.init_options[:package]
+    opt[:expand]   = self.init_options[:expand]
+    opt[:rev]      = self.init_options[:revision]
     opt[:filename] = "_service_error"
-    fc = FrontendCompat.new
-    fc.get_source opt
+    begin
+      fc = FrontendCompat.new
+      return fc.get_source opt
+    rescue
+      return nil
+    end
   end
 
   def execute()
     opt = Hash.new
     opt[:project] = self.init_options[:project]
     opt[:package] = self.init_options[:package]
+    opt[:expand]   = self.init_options[:expand]
     opt[:cmd] = "runservice"
     logger.debug "execute services"
     fc = FrontendCompat.new
