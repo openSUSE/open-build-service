@@ -184,7 +184,11 @@ class Package < ActiveXML::Base
     path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
 
     frontend = ActiveXML::Config::transport_for( :package )
-    answer = frontend.direct_http URI(path), :method => "GET"
+    begin
+      answer = frontend.direct_http URI(path), :method => "GET"
+    rescue
+      return nil
+    end
 
     c = {}
     doc = XML::Parser.string(answer).parse.root
