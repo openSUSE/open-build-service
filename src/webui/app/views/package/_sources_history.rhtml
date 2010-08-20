@@ -8,17 +8,21 @@
 
   <%= hidden_field_tag(:history_browser_revision, @browserrevision) %>
 
-  <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" %>
-  <table id="historyTable">
+  <% c = @visible_commits 
+     c = @maxrevision if @maxrevision <= @visible_commits
+  %>
 
-    <% (1..@visible_commits).each do |i| %>
+  <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>
+
+  <table id="historyTable">
+    <% (1..c).each do |i| %>
       <tr id="commit_item_<%=(@browserrevision - i + 1)%>"><td>
         <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
       </td></tr>
     <% end %>
-
   </table>
-  <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button"%>
+
+  <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button" if @maxrevision > @visible_commits %>
 
 </div>
 

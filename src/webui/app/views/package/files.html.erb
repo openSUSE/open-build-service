@@ -75,9 +75,9 @@
 <% end %>
 
 
-<% if @link %>
-  <%= render :partial => 'links' %>
-<% end %>
+<%= render :partial => 'links' if @link %>
+
+<%= render :partial => 'services' if @services %>
 
 <!-- Source history -->
 <div class="grid_7 alpha">
@@ -131,4 +131,3 @@
 </div>
 </div>
 
-<%= render :partial => 'services' if @services %>

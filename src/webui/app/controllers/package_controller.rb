@@ -119,7 +119,7 @@ class PackageController < ApplicationController
 
   def files
     # hard coded value for the number of visible commit items in browser
-    @visible_commits = 3
+    @visible_commits = 9
     @maxrevision = @browserrevision = Package.current_rev(@project, @package.name).to_i
 
     @package.free_directory if discard_cache?
