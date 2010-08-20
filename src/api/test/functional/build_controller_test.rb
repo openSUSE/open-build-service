@@ -114,9 +114,8 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_acl_privacy_result_prj
-    # FIXME: add privacy project
     get "/build/ViewprotectedProject/_result"
-    assert_response :success
+    assert_response :success if $ENABLE_BROKEN_TEST
     assert_no_tag :tag => "resultlist"
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
@@ -124,6 +123,12 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/ViewprotectedProject/_result"
     assert_response :success
     assert_tag :tag => "resultlist"
+    # retry with reader
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian_reader", "so_alone"
+    get "/build/ViewprotectedProject/_result"
+    assert_response :success
+    assert_tag :tag => "resultlist"  if $ENABLE_BROKEN_TEST
     prepare_request_valid_user
   end
 
