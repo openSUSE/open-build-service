@@ -14,12 +14,15 @@ class Request < ActiveXML::Base
 
     # TODO: this is function is a joke as it requires all options for a submit request
     # it should be more generic
+    option = ""
+    option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
     if opt[:type] == "submit" 
       reply = <<-ENDE
         <request type="submit">
           <submit>
 	    <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
             <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+            #{option}
           </submit>
           <state name="new"/>
           <description>#{text.to_xs}</description>

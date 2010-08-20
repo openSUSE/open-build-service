@@ -140,6 +140,26 @@ class PackageController < ApplicationController
     @browserrevision = params[:rev]
   end
 
+  def create_submit_request_dialog
+    @revision = Package.current_rev(@project, @package)
+  end
+
+  def create_submit_request
+    req = Request.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
+      :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:sourceupdate])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
+        :project => params[:project], :package => params[:package]
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+  end
+
   def service_parameter
     begin
       @serviceid = params[:serviceid]
@@ -230,23 +250,6 @@ class PackageController < ApplicationController
       @lastreq = nil # ignore all !declined
     end
 
-  end
-
-  def create_submit
-    rev = Package.current_rev(params[:project], params[:package])
-    req = Request.new(:type => "submit", :targetproject => params[:targetproject], :targetpackage => params[:targetpackage],
-      :project => params[:project], :package => params[:package], :rev => rev, :description => params[:description])
-    begin
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
-        :project => params[:project], :package => params[:package]
-      return
-    end
-    Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def wizard_new

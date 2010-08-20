@@ -17,6 +17,9 @@
           <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
             {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
         </span>
+        <span>
+          <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+        </span>
       <% end %>
 
       <% if session[:login] %>
