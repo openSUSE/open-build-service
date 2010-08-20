@@ -1144,6 +1144,7 @@ sub sendbadhostevent {
     'type' => 'badhost',
     'project' => $info->{'project'},
     'package' => $info->{'package'},
+    'repository' => $info->{'repository'},
     'arch' => $info->{'arch'},
     'job' => $idlename,
   };
