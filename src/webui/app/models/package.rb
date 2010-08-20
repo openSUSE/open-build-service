@@ -213,6 +213,7 @@ class Package < ActiveXML::Base
     p[:expand]  = "1"     if expand == "true"
     p[:rev]     = rev     if rev
     dir = Directory.find_cached(p)
+    return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
