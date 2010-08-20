@@ -115,7 +115,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_acl_privacy_result_prj
     get "/build/ViewprotectedProject/_result"
-    assert_response :success if $ENABLE_BROKEN_TEST
+    assert_response :success
     assert_no_tag :tag => "resultlist"
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
@@ -128,16 +128,40 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian_reader", "so_alone"
     get "/build/ViewprotectedProject/_result"
     assert_response :success
-    assert_tag :tag => "resultlist"  if $ENABLE_BROKEN_TEST
+    assert_tag :tag => "resultlist"
     prepare_request_valid_user
   end
 
   def test_acl_hidden_result_pkg
-    # FIXME:
+    get "/build/HiddenProject/_result?package=pack"
+    assert_response 404
+    # retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build/HiddenProject/_result?package=pack"
+    assert_response :success
+    assert_tag :tag => "resultlist"
+    prepare_request_valid_user
+
   end
 
   def test_acl_privacy_result_pkg
-    # FIXME: add privacy pkg
+    get "/build/ViewprotectedProject/_result?package=pack"
+    assert_response :success
+    assert_no_tag :tag => "resultlist"
+    # retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "view_homer", "homer"
+    get "/build/ViewprotectedProject/_result?package=pack"
+    assert_response :success
+    assert_tag :tag => "resultlist"
+    # retry with reader
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian_reader", "so_alone"
+    get "/build/ViewprotectedProject/_result?package=pack"
+    assert_response :success
+    assert_tag :tag => "resultlist"
+    prepare_request_valid_user
   end
 
   def test_binary_view
@@ -215,7 +239,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_match /binarylist/, @response.body
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
-    #FIXME package.rpm missing
     assert_response :success
     get "/build/HiddenProject/nada/i586/pack/NOT_EXISTING"
     assert_match /NOT_EXISTING: No such file or directory/, @response.body
