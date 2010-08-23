@@ -12,7 +12,33 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "directory",
       :children => { :only => { :tag => "entry" } }
   end
-  
+
+  def test_get_projectlist_acl_hidden
+    prepare_request_with_user "tom", "thunder"
+    get "/source"
+    assert_response :success 
+    assert_no_match /entry name="HiddenProject"/, @response.body if $ENABLE_BROKEN_TEST
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source"
+    assert_response :success 
+    assert_match /entry name="HiddenProject"/, @response.body
+  end
+
+  def test_get_projectlist_acl_privacy
+    # visible, but no sources
+    prepare_request_with_user "tom", "thunder"
+    get "/source"
+    assert_response :success 
+    assert_match /entry name="ViewprotectedProject"/, @response.body if $ENABLE_BROKEN_TEST
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source"
+    assert_response :success 
+    assert_match /entry name="ViewprotectedProject"/, @response.body
+  end
 
   def test_get_packagelist
     prepare_request_with_user "tom", "thunder"
@@ -23,6 +49,22 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 2, :only => { :tag => "entry" } }
   end
 
+  def test_get_packagelist_acl_hidden
+    prepare_request_with_user "tom", "thunder"
+    get "/source/HiddenProject"
+    assert_response 404
+    assert_match /unknown_project/, @response.body
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/HiddenProject"
+    assert_response :success 
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 2, :only => { :tag => "entry" } }
+    assert_match /entry name="pack"/, @response.body
+    assert_match /entry name="pack1"/, @response.body
+  end
 
   # non-existing project should return 404
   def test_get_illegal_project
