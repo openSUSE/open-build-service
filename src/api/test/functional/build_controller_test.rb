@@ -14,7 +14,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/entry name="home:Iggy"/, @response.body)
   end
 
-  def test_acl_hidden_project_index
+  def test_read_access_hidden_project_index
     # ACL(project_index)
     # testing build_controller project_index 
     # currently this test shows that there's an information leak.
@@ -41,7 +41,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     #assert_response :success
   end
 
-  # FIXME: test buildinfo for acl(hidden), too . no schedulers - no result.
+  # FIXME: test buildinfo for hidden packages, too . no schedulers - no result.
 
   def test_package_index
     get "/build/home:Iggy/10.2/i586/TestPack"
@@ -49,7 +49,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "binarylist" ) 
   end
 
-  def test_acl_hidden_package_index
+  def test_read_access_hidden_package_index
     get "/build/HiddenProject/nada/i586/pack"
     assert_response 404
     assert_match /Unknown package/, @response.body
@@ -70,7 +70,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/package 'notthere' does not exist/, @response.body)
   end
 
-  def test_acl_hidden_logfile
+  def test_read_access_hidden_logfile
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response 404
     assert_match /Unknown package/, @response.body
@@ -82,7 +82,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
   end
 
-  def test_acl_binarydownload_logfile
+  def test_read_access_binarydownload_logfile
     # build_controller.rb:    # ACL(logfile): binarydownload denies logfile acces
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
     assert_response 403
@@ -101,7 +101,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "resultlist", :children =>  { :count => 2 }
   end
 
-  def test_acl_hidden_result_prj
+  def test_read_access_hidden_result_prj
     get "/build/HiddenProject/_result"
     assert_response 404
     # retry with maintainer
@@ -113,7 +113,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
   end
 
-  def test_acl_privacy_result_prj
+  def test_read_access_privacy_result_prj
     get "/build/ViewprotectedProject/_result"
     assert_response :success
     assert_no_tag :tag => "resultlist"
@@ -132,7 +132,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
   end
 
-  def test_acl_hidden_result_pkg
+  def test_read_access_hidden_result_pkg
     get "/build/HiddenProject/_result?package=pack"
     assert_response 404
     # retry with maintainer
@@ -145,7 +145,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   end
 
-  def test_acl_privacy_result_pkg
+  def test_read_access_privacy_result_pkg
     get "/build/ViewprotectedProject/_result?package=pack"
     assert_response :success
     assert_no_tag :tag => "resultlist"
@@ -174,7 +174,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     #FIXME validate xml content
   end
   
-  def test_acl_hidden_binary_view
+  def test_read_access_hidden_binary_view
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
@@ -193,7 +193,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
   end
 
-  def test_acl_binarydownload_binary_view
+  def test_read_access_binarydownload_binary_view
     # 404 on invalid
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo"
     assert_response 403
@@ -222,7 +222,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/NOT_EXISTING: No such file or directory/, @response.body)
   end
 
-  def test_acl_hidden_file
+  def test_read_access_hidden_file
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response 404
     assert_match /Unknown package/, @response.body
@@ -290,7 +290,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   end
 
-  def test_acl_hidden_project_index
+  def test_read_access_hidden_project_index
     #invalid
     get "/build/HiddenProject"
     assert_response 404

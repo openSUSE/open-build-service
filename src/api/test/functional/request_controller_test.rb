@@ -441,8 +441,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/hidden_add_role')
     assert_response :success
   end
-  ### all action types for acl case (positive + negative)
-  ### submit review for acl case (positive + negative)
+  ### all action types for read access case (positive + negative)
+  ### submit review for read access case (positive + negative)
   # request workflow on Hidden project / pkg
   ## revoke
   ## accept

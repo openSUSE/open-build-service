@@ -13,7 +13,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :only => { :tag => "entry" } }
   end
 
-  def test_get_projectlist_acl_hidden
+  def test_get_projectlist_read_acces_forbidden_project
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
@@ -26,7 +26,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /entry name="HiddenProject"/, @response.body
   end
 
-  def test_get_projectlist_acl_privacy
+  def test_get_projectlist_with_hidden_project
     # visible, but no sources
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -49,7 +49,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 2, :only => { :tag => "entry" } }
   end
 
-  def test_get_packagelist_acl_hidden
+  def test_get_packagelist_with_hidden_packages
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject"
     assert_response 404
@@ -89,7 +89,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "project", :attributes => { :name => "kde4" }
   end
 
-  def test_get_project_meta_acl_hidden
+  def test_get_project_meta_from_hidden_project
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/_meta"
     assert_response 404
@@ -102,7 +102,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "project", :attributes => { :name => "HiddenProject" }
   end
 
-  def test_get_project_meta_acl_privacy
+  def test_get_project_meta_from_protected_project
     prepare_request_with_user "tom", "thunder"
     get "/source/ViewprotectedProject/_meta"
     assert_response :success
