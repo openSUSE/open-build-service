@@ -9,9 +9,9 @@
               "server side updated"
             else
               if commit[:requestid]
-                 "by " + commit[:user] + "accepted request " + commit[:requestid]
+                 "by " + commit[:user] + " accepted request " + commit[:requestid]
               else
-                 "by " + commit[:user] + "committed"
+                 "by " + commit[:user] + " committed"
               end 
             end %>
         <%=fuzzy_time_string(Time.at(commit[:time].to_i).to_s)%>
