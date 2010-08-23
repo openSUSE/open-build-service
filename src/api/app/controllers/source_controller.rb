@@ -12,16 +12,6 @@ class SourceController < ApplicationController
   end
 
   def projectlist
-    project_name = params[:project]
-
-    pro = DbProject.find_by_name project_name
-    # ACL(index_project): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
-      render_error :status => 404, :errorcode => 'unknown_project',
-      :message => "Unknown project '#{project_name}'"
-      return
-    end
-
     if request.post?
       dispatch_command
     elsif request.get?
