@@ -183,7 +183,7 @@ ActiveXML::Base.config do |conf|
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
-    map.connect :directory, "rest:///source/:project/:package?:expand"
+    map.connect :directory, "rest:///source/:project/:package?:expand&:rev"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service"
     map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"

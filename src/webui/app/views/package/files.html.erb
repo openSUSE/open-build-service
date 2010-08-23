@@ -101,23 +101,34 @@
 
 <!-- File list -->
 <div class="grid_9 omega">
-<div class="show_right box">
- <div class="box-header aligncenter">
-   Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
- </div>
+ <div class="show_right box">
+  <div class="box-header aligncenter">
+    Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
+  </div>
 
   <div id="package_files">
     <% unless @files.empty? %>
-      <% if @link %>
-        <%= check_box_tag 'mergesettings', 'merge', (@showmergedsources.nil? ? false : true) -%> Show merged sources
-      <% end %>
-  
       <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
-  
+
+      <% if @expand %>
+        <%= check_box_tag 'mergesettings', 'merge', true -%> Show merged sources
+      <% elsif @link %>
+        <%= check_box_tag 'mergesettings', 'merge', false -%> Show link unmerged
+      <% end %>
+
       <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
         :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
         :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
         :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+
+      <%= observe_field( :revision, :frequency => 1, :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+      <%= observe_field( :srcmd5, :frequency => 1, :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'srcmd5=' + escape($('#srcmd5').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
     <% end %>
   
     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
@@ -128,6 +139,6 @@
     <% end %>
   
   </div>
-</div>
+ </div>
 </div>
 

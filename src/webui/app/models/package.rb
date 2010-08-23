@@ -142,10 +142,9 @@ class Package < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
-  def free_directory
+  def free_directory( rev=nil, expand=false )
     # just free current revision cache
-    Directory.free_cache( :project => project, :package => name, :expand => nil )
-    Directory.free_cache( :project => project, :package => name, :expand => "1" )
+    Directory.free_cache( :project => project, :package => name, :rev => rev, :expand => expand )
   end
 
   def linkinfo
@@ -207,7 +206,7 @@ class Package < ActiveXML::Base
     return c
   end
 
-  def files( rev = nil, expand = nil )
+  def files( rev = nil, expand = false )
     # files whose name ends in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
@@ -216,7 +215,7 @@ class Package < ActiveXML::Base
     p[:package] = name
     p[:expand]  = "1"     if expand == "true"
     p[:rev]     = rev     if rev
-    dir = Directory.find_cached(p)
+    dir = Directory.find(p)
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|

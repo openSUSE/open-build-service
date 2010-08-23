@@ -122,15 +122,22 @@ class PackageController < ApplicationController
     @visible_commits = 9
     @maxrevision = @browserrevision = Package.current_rev(@project, @package.name).to_i
 
-    @package.free_directory if discard_cache?
+    @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or @srcmd5 != params[:srcmd5]
     @revision = params[:rev]
-    @expand = params[:expand]
+    @srcmd5   = params[:srcmd5]
+    @expand   = params[:expand]
     set_file_details
   end
 
   def file_table
-    @package.free_directory if discard_cache?
-    @revision = params[:rev]
+    @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or params[:srcmd5] != @srcmd5
+    if params.has_key? [:srcmd5]
+      @srcmd5 = params[:srcmd5]
+      @revision = nil
+    else
+      @revision = params[:rev]
+      @srcmd5 = nil
+    end
     @expand = params[:expand]
     set_file_details
     render :partial => 'files_view', :locals => {:file_list => @files}
@@ -193,7 +200,17 @@ class PackageController < ApplicationController
   end
 
   def set_file_details
-    @files = @package.files(@revision, @expand)
+    if not @revision and not @srcmd5
+      # on very first page load only
+      @revision = Package.current_rev(@project, @package)
+    end
+
+    if @srcmd5
+      @files = @package.files(@srcmd5, @expand)
+    else
+      @files = @package.files(@revision, @expand)
+    end
+
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"

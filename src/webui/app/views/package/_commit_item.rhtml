@@ -4,9 +4,22 @@
 
   <% commit = @package.commit(rev.to_s) %>
   <% if commit %>
-    <%= commit[:revision]%>. by <%=commit[:user]%> at <%=Time.at(commit[:time].to_i)%>
-    <%= "Request " + commit[:requestid] if commit[:requestid] %>
-    <%= commit[:comment] %>
+    <%= commit[:revision]%>.
+        <%= if commit[:user] == "_service"
+              "server side updated"
+            else
+              if commit[:requestid]
+                 "by " + commit[:user] + "accepted request " + commit[:requestid]
+              else
+                 "by " + commit[:user] + "committed"
+              end 
+            end %>
+        <%=fuzzy_time_string(Time.at(commit[:time].to_i).to_s)%>
+    <% unless commit[:user] == "_service" %>
+      <div class="info" ><i><%= commit[:comment] %></i></div>
+    <% end %>
+  <% else %>
+    <i>Revision <%=rev.to_s%> not found</i>
   <% end %>
 
 

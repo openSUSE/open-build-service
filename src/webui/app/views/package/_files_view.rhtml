@@ -6,6 +6,8 @@
 
   <% unless @files.empty? %>
     <table cellspacing='1' id="file_table" class="tablesorter">
+      
+      <!-- table header -->
       <thead>
         <tr>
           <th class="header">Filename</th>
@@ -14,8 +16,9 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
 
+      <!-- files -->
+      <tbody>
         <% @files.each do |file| %>
           <tr><td>
               <% if file[:editable] %>
@@ -46,6 +49,13 @@
         <% end %>
       </tbody>
     </table>
+
+    <p>
+    Revision: <%= text_field_tag :revision, @revision, { :size => 3, :disabled => true } %>
+    </p><p>
+    Source MD5: <%= text_field_tag :srcmd5, @files[0][:srcmd5], { :size => 33, :disabled => true } %> 
+    </p>
+
   <% else %>
     <p><i>This package has no files yet</i></p>
   <% end %>

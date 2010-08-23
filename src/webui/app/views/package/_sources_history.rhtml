@@ -17,7 +17,14 @@
   <table id="historyTable">
     <% (1..c).each do |i| %>
       <tr id="commit_item_<%=(@browserrevision - i + 1)%>"><td>
-        <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
+        <div>
+          <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
+        </div>
+        <%= link_to_remote "Show", :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'rev=#{(@browserrevision - i + 1).to_s}&expand=' + $('#mergesettings')[0].checked" %>
+
       </td></tr>
     <% end %>
   </table>
