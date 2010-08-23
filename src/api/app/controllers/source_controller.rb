@@ -23,27 +23,13 @@ class SourceController < ApplicationController
                        :message => "only admins can see deleted projects"
         end
       else
-        @dir = Project.find :all
-        @dir.each do |p|
-          # ACL(projectlist): FIXME/TODO this only works for small databases and will kill any real life database
-          # Flags.find should allow to check only those projects where the check makes sense
-          # or use DbProject.find_by_sql
-          prj = DbProject.find_by_name p.name
-          if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-            @dir.delete_element(p)
-          end
+        dir = Project.find :all
+        # ACL(projectlist): projects with flag 'access' are not listed
+        accessprjs = DbProject.find( :all, :joins => "LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id", :conditions => ["ISNULL(f.repo)", "ISNULL(f.architecture_id)"] )
+        accessprjs.each do |prj|
+          dir.delete_element("//entry[@name='#{prj.name}']") if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
         end
-        render :text => @dir.dump_xml, :content_type => "text/xml"
-
-        # ACL(projectlist): TODO this is the code not working, replace by old code above
-        #dir = Project.find :all
-        ## ACL(projectlist): projects with flag 'access' are not listed
-        #accessprjs = DbProject.find_by_sql("select p.name from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
-        #accessprjs.each do |prj|
-        #  dir.delete_element(p) if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-        #end
-        #render :text => dir.dump_xml, :content_type => "text/xml"
-
+        render :text => dir.dump_xml, :content_type => "text/xml"
       end
     end
   end
@@ -1538,32 +1524,9 @@ class SourceController < ApplicationController
     valid_http_methods :post
     project_name = params[:project]
     package_name = params[:package]
-    oproject_name = params[:oproject]
-    opackage_name = params[:opackage]
 
     prj = DbProject.find_by_name(project_name)
     pkg = prj.find_package(package_name)
-    oprj = DbProject.find_by_name(oproject_name)
-    
-    if oprj
-      opackage_name = package_name if opackage_name.nil?
-      opkg = oprj.find_package(opackage_name)
-      
-      # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
-      if opkg and opkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(opkg)
-        render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
-        return
-      end
-
-      # ACL(index_package_diff): sourceaccess gives permisson denied
-      if opkg and opkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(opkg)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{params[:user]} has no read access to package #{params[:opackage]}, project #{params[:oproject]}"
-        return
-      end
-    end
-
     # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
     if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
