@@ -88,7 +88,32 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => "project", :attributes => { :name => "kde4" }
   end
-  
+
+  def test_get_project_meta_acl_hidden
+    prepare_request_with_user "tom", "thunder"
+    get "/source/HiddenProject/_meta"
+    assert_response 404
+    assert_match /unknown_project/, @response.body
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/HiddenProject/_meta"
+    assert_response :success
+    assert_tag :tag => "project", :attributes => { :name => "HiddenProject" }
+  end
+
+  def test_get_project_meta_acl_privacy
+    prepare_request_with_user "tom", "thunder"
+    get "/source/ViewprotectedProject/_meta"
+    assert_response :success
+    assert_tag :tag => "project", :attributes => { :name => "ViewprotectedProject" }
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "view_homer", "homer"
+    get "/source/ViewprotectedProject/_meta"
+    assert_response :success
+    assert_tag :tag => "project", :attributes => { :name => "ViewprotectedProject" }
+  end
 
   def test_get_package_filelist
     prepare_request_with_user "tom", "thunder"
