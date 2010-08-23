@@ -17,13 +17,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
-    assert_no_match /entry name="HiddenProject"/, @response.body if $ENABLE_BROKEN_TEST
+    assert_no_match /entry name="HiddenProject"/, @response.body
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
-    assert_match /entry name="HiddenProject"/, @response.body if $ENABLE_BROKEN_TEST
+    assert_match /entry name="HiddenProject"/, @response.body
   end
 
   def test_get_projectlist_with_privacy_protected_project
