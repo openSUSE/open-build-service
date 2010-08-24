@@ -508,6 +508,7 @@ while (1) {
       }
       my $tries = 0;
       my $haveassigned;
+      my ($project, $repository, $arch) = split('/', $prpa, 3);
       for my $idle (@idle) {
 	last unless -e "$jobsdir/$arch/$job";
         next if $badhost{"$prpa/$idle"};
