@@ -511,7 +511,7 @@ while (1) {
       my ($project, $repository, $arch) = split('/', $prpa, 3);
       for my $idle (@idle) {
 	last unless -e "$jobsdir/$arch/$job";
-        next if $badhost{"$project/$repository/$arch/$idle"};
+        next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/@{[(split(':', $idle, 2))[1]]}"};
 	last if $assigned && $tries >= 5;
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
