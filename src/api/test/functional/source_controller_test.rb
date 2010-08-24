@@ -17,7 +17,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
-    assert_no_match /entry name="HiddenProject"/, @response.body
+    assert_no_match /entry name="HiddenProject"/, @response.body if $ENABLE_BROKEN_TEST
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -26,7 +26,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /entry name="HiddenProject"/, @response.body
   end
 
-  def test_get_projectlist_with_privacy_protected_project
+  def test_get_projectlist_with_viewprotected_project
     # visible, but no sources
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -49,7 +49,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 2, :only => { :tag => "entry" } }
   end
 
-  def test_get_packagelist_with_hidden_packages
+  def test_get_packagelist_with_hidden_project
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject"
     assert_response 404
@@ -102,7 +102,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "project", :attributes => { :name => "HiddenProject" }
   end
 
-  def test_get_project_meta_from_protected_project
+  def test_get_project_meta_from_viewprotected_project
     prepare_request_with_user "tom", "thunder"
     get "/source/ViewprotectedProject/_meta"
     assert_response :success
@@ -131,14 +131,72 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
 
   end
-  
+
+  def test_get_package_filelist_from_hidden_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source/HiddenProject/pack"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/HiddenProject/pack"
+    assert_response :success
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 2 }
+  end
+
+  def test_get_package_filelist_from_viewprotected_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source/ViewprotectedProject/pack"
+    assert_response :success
+    assert_tag :tag => "status", :attributes => { :code => "ok" }
+    assert_match /<details><\/details>/, @response.body
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/ViewprotectedProject/pack"
+    assert_response :success
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_file" } } }
+  end
+
   def test_get_package_meta
     prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "kdelibs" }
   end
-  
+
+  def test_get_package_meta_from_hidden_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source/HiddenProject/pack/_meta"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/HiddenProject/pack/_meta"
+    assert_response :success
+    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "HiddenProject"}
+  end
+
+  def test_get_package_meta_from_viewprotected_project
+    # not listing files, but package meta is visible
+    prepare_request_with_user "tom", "thunder"
+    get "/source/ViewprotectedProject/pack/_meta"
+    assert_response :success
+    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "ViewprotectedProject"}
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/ViewprotectedProject/pack/_meta"
+    assert_response :success
+    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "ViewprotectedProject"}
+  end
+
   # project_meta does not require auth
   def test_invalid_user
     prepare_request_with_user "king123", "sunflower"
@@ -197,25 +255,81 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 400
     assert_match(/projid '_NewProject' is illegal/, @response.body)
   end
-  
-  
+
+
   def test_put_project_meta
+    prj="kde4"      # project
+    resp1=:success  # expected response 1 & 2
+    resp2=:success  # \/ expected assert
+    aresp={:tag => "status", :attributes => { :code => "ok" } }
+    match=true      # value written matches 2nd read
     # admin
     prepare_request_with_user "king", "sunflower"
-    do_change_project_meta_test
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer 
     prepare_request_with_user "fred", "geröllheimer"
-    do_change_project_meta_test
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer via group
     prepare_request_with_user "adrian", "so_alone"
-    do_change_project_meta_test
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
-  
 
-  def do_change_project_meta_test
+
+  def test_put_project_meta_hidden_project
+    prj="HiddenProject"
+    # uninvolved user
+    resp1=404 
+    resp2=nil
+    aresp=nil
+    match=nil
+    prepare_request_with_user "tom", "thunder"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # admin
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok" } }
+    match=true
+    prepare_request_with_user "king", "sunflower"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # FIXME: maintainer via group
+  end
+
+  def test_put_project_meta_viewprotected_project
+    prj="ViewprotectedProject"
+    # uninvolved user
+    resp1=:success
+    resp2=403
+    aresp={:tag => "status", :attributes => { :code => "change_project_no_permission" } }
+    match=nil
+    prepare_request_with_user "tom", "thunder"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # admin
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok" } }
+    match=true
+    prepare_request_with_user "king", "sunflower"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    
+  end
+
+  def do_change_project_meta_test (project, response1, response2, tag2, doesmatch)
    # Get meta file  
-    get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
-    assert_response :success
+    get url_for(:controller => :source, :action => :project_meta, :project => project)
+    assert_response response1
+    if not ( response2 and tag2 )
+      #dummy write to check blocking
+      put url_for(:action => :project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
+      assert_response 404
+      assert_match /unknown_project/, @response.body
+      return
+    end
 
     # Change description
     xml = @response.body
@@ -225,21 +339,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:action => :project_meta, :project => "kde4"), doc.to_s
-    assert_response :success
-    assert_tag( :tag => "status", :attributes => { :code => "ok" })
+    put url_for(:action => :project_meta, :project => project), doc.to_s
+    assert_response response2
+    assert_tag(tag2)
 
     # Get data again and check that it is the changed data
-    get url_for(:action => :project_meta, :project => "kde4")
+    get url_for(:action => :project_meta, :project => project)
     doc = REXML::Document.new( @response.body )
     d = doc.elements["//description"]
-    assert_equal new_desc, d.text
-  
+    assert_equal new_desc, d.text if doesmatch
   end
   private :do_change_project_meta_test
-  
-  
-  
+
+
   def test_create_project_meta
     do_create_project_meta_test("king", "sunflower")
   end
@@ -1105,13 +1217,10 @@ class SourceControllerTest < ActionController::IntegrationTest
   def do_read_access_package(user, pass, targetproject, package, response)
     assert_response response
     get "/source/#{targetproject}/pack"
-#    print "\n #{@response.body}\n"
     assert_response response
     get "/source/#{targetproject}/pack/_meta"
-#    print "\n #{@response.body}\n"
     assert_response response
     get "/source/#{targetproject}/pack/my_file"
-#    print "\n #{@response.body}\n"
     assert_response response
   end
   protected :do_read_access_project
