@@ -1524,9 +1524,32 @@ class SourceController < ApplicationController
     valid_http_methods :post
     project_name = params[:project]
     package_name = params[:package]
-
+    oproject_name = params[:oproject]
+    opackage_name = params[:opackage]
+ 
     prj = DbProject.find_by_name(project_name)
     pkg = prj.find_package(package_name)
+    oprj = DbProject.find_by_name(oproject_name)
+    
+    if oprj
+      opackage_name = package_name if opackage_name.nil?
+      opkg = oprj.find_package(opackage_name)
+      
+      # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
+      if opkg and opkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(opkg)
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
+        return
+      end
+
+      # ACL(index_package_diff): sourceaccess gives permisson denied
+      if opkg and opkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(opkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{params[:user]} has no read access to package #{params[:opackage]}, project #{params[:oproject]}"
+        return
+      end
+    end
+
     # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
     if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
