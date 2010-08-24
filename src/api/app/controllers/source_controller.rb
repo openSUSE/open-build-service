@@ -1010,7 +1010,22 @@ class SourceController < ApplicationController
       end
     end
 
-    # ACL(index_branch) TODO: check if branching is a security violation for access
+    tprj = DbProject.find_by_name(params[:target_project]) if params[:target_project]
+    
+    # ACL(index_branch): in case of access, project is really hidden and shown as non existing to users without access
+    if tprj and tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+      render_error :status => 404, :errorcode => 'not_found',
+      :message => "Unknown project #{params[:target_project]}"
+      return
+    end
+
+    # ACL(index_branch): sourceaccess gives permisson denied
+    if tprj and tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{@http_user.login} has no read access to project #{params[:target_project]}"
+      return
+    end
+
     # permission check
     unless @http_user.can_create_project?(params[:target_project])
       render_error :status => 403, :errorcode => "create_project_no_permission",
@@ -1031,6 +1046,20 @@ class SourceController < ApplicationController
         if action.has_element? 'source'
           if action.source.has_attribute? 'project'
             prj = DbProject.find_by_name action.source.project
+            # ACL(index_branch): access behaves like project not existing
+            if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given project #{action.source.project} does not exist "
+              return
+            end
+
+            # ACL(index_branch): source access gives permisson denied
+            if prj and prj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(prj)
+              render_error :status => 403, :errorcode => "source_access_no_permission",
+              :message => "user #{@http_user.login} has no read access to project #{action.source.project}"
+              return
+            end
+
             unless prj
               render_error :status => 404, :errorcode => 'unknown_project',
                 :message => "Unknown source project #{action.source.project} in request #{params[:request]}"
@@ -1039,6 +1068,21 @@ class SourceController < ApplicationController
           end
           if action.source.has_attribute? 'package'
             pkg = prj.db_packages.find_by_name action.source.package
+
+            # ACL(index_branch): access behaves like project not existing
+            if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given package #{package_name} does not exist in project #{project_name}"
+              return
+            end
+
+            # ACL(index_branch): source access gives permisson denied
+            if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+              render_error :status => 403, :errorcode => "source_access_no_permission",
+              :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project}"
+              return
+            end
+
             unless pkg
               render_error :status => 404, :errorcode => 'unknown_package',
                 :message => "Unknown source package #{action.source.package} in project #{action.source.project} in request #{params[:request]}"
@@ -1115,6 +1159,23 @@ class SourceController < ApplicationController
       # find origin package to be branched
       branch_target_project = pac.db_project.name
       branch_target_package = pac.name
+
+      btpkg=DbPackage.find_by_project_and_name(branch_target_project, branch_target_package) 
+
+      # ACL(index_branch): access behaves like project not existing
+      if btpkg and btpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(btpkg)
+        render_error :status => 404, :errorcode => 'not_found',
+        :message => "The given package #{branch_target_package} does not exist in project #{branch_target_project}"
+        return
+      end
+
+      # ACL(index_branch): source access gives permisson denied
+      if btpkg and btpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(btpkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{@http_user.login} has no read access to package #{branch_target_package}, project #{branch_target_project}"
+        return
+      end
+
       if not params[:request] and a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
           pac = pa
@@ -1168,10 +1229,19 @@ class SourceController < ApplicationController
     valid_http_methods :post
     project_name = params[:project]
 
+    # ACL(index_project_showlinked): check project itself for access, project is really hidden and shown as non existing to users without access
+    tprj = DbProject.find_by_name(params[:project])
+    if tprj and tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project #{params[:project]}"
+      return
+    end
+
     builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
     pro = DbProject.find_by_name project_name
     xml = builder.collection() do |c|
       pro.find_linking_projects.each do |l|
+        # ACL(index_project_showlinked): sort out access proteced projects as hidden
         unless pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
           p={}
           p[:name] = l.name
@@ -1190,7 +1260,6 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
     # ACL(index_project_extendkey): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    # adrian: this should be checked anyway in index_project already
     if pro and pro.disabled_for?('access', nil, nil) and not @http_user.can_access?(pro)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{project_name}'"
