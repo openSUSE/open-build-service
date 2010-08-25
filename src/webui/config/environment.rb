@@ -115,10 +115,25 @@ MONITOR_IMAGEMAP = {
 
       'armv5el_waiting' => [
         ["armv5el", 'waiting_armv5el'],
-        ["armv7el", 'waiting_armv7el'] ],
+        ["armv6el", 'waiting_armv6el'],
+        ["armv7el", 'waiting_armv7el'],
+        ["armv8el", 'waiting_armv8el'] ],
       'armv5el_blocked' => [
         ["armv5el", 'blocked_armv5el'],
-        ["armv7el", 'blocked_armv7el'] ],
+        ["armv6el", 'blocked_armv6el'],
+        ["armv7el", 'blocked_armv7el'],
+        ["armv8el", 'blocked_armv8el'] ],
+
+      'mips_waiting' => [
+        ["mips",     'waiting_mips'],
+        ["mipsel",   'waiting_mipsel'],
+        ["mips64",   'waiting_mips64'],
+        ["mips64el", 'waiting_mips64el'] ],
+      'mips_blocked' => [
+        ["mips",     'blocked_mips'],
+        ["mipsel",   'blocked_mipsel'],
+        ["mips64",   'blocked_mips64'],
+        ["mips64el", 'blocked_mips64el'] ],
 
       'ia64_waiting' => [
         ["ia64", 'waiting_ia64'] ],
