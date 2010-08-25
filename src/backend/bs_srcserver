@@ -1416,6 +1416,7 @@ sub findprojects {
 sub findpackages {
   my ($projid, $proj, $nonfatal, $seen) = @_;
   $proj ||= readproj($projid, 1) || {};
+  local *D;
   my @packids;
   if (opendir(D, "$projectsdir/$projid.pkg")) {
     @packids = grep {s/\.xml$//} readdir(D);
