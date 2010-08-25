@@ -207,6 +207,9 @@ class Package < ActiveXML::Base
          if comment=s.find_first("comment")
            c[:comment] = comment.content
          end
+         if requestid=s.find_first("requestid")
+           c[:requestid] = requestid.content
+         end
     end
 
     return nil unless [:revision]

@@ -11,7 +11,7 @@
               user = ""
               user = "by " + commit[:user] if commit[:user]
               if commit[:requestid]
-                 user + " accepted request " + commit[:requestid]
+                 user + " accepted " + link_to("request #{commit[:requestid]}", { :controller => 'request', :action => 'show', :id => commit[:requestid] })
               else
                  user + " committed"
               end 
