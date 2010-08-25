@@ -4607,7 +4607,7 @@ relsynccheck:
           my $js = {'code' => 'deleting'};
           local *F;
           if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
-            unlink("$myjobsdir/$job");
+            unlink("$myjobsdir/$job") unless -e "$myjobsdir/$job:status";
             close F;
           }
         }
