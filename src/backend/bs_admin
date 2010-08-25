@@ -50,6 +50,9 @@ my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrepdir = "$BSConfig::bsdir/sources";
+my $treesdir = $BSConfig::nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
+my $sourcedb = "$BSConfig::bsdir/db/source";
+
 
 sub echo_help {
     print "\n
@@ -104,6 +107,9 @@ Maintenance Tasks
 Note: the --update-*-db calls are usually only needed when corrupt data has been created, for
       example after a file system corruption.
 
+ --update-source-db
+   Update the index for all source files.
+
  --update-request-db
    Updates the index for all requests.
 
@@ -150,7 +156,7 @@ Debug Options
 }
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
-my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
+my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
@@ -197,7 +203,44 @@ sub lsrep {
   chomp @files;
   return {map {substr($_, 34) => substr($_, 0, 32)} @files};
 }
+sub repreadxml {
+  my ($rev, $packid, $filename, $md5, $dtd, $nonfatal) = @_;
+  return readxml("$srcrepdir/$packid/$md5-$filename", $dtd, $nonfatal);
+}
+sub findprojects {
+  local *D;
+  opendir(D, $projectsdir) || die("$projectsdir: $!\n");
+  my @projids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @projids;
+}
+sub findpackages {
+  my ($projid) = @_;
+  my @packids;
+  if (opendir(D, "$projectsdir/$projid.pkg")) {
+    @packids = grep {s/\.xml$//} readdir(D);
+    closedir(D);
+  }
+  return sort @packids;
+}
 
+sub updatelinkinfodb {
+  my ($projid, $packid, $rev, $files) = @_;
+
+  mkdir_p($sourcedb) unless -d $sourcedb;
+  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
+  my $linkinfo;
+  if ($files && $files->{'_link'}) {
+    my $l = repreadxml($rev, $packid, '_link', $files->{'_link'}, $BSXML::link, 1);
+    if ($l) {
+      $linkinfo = {};
+      $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
+      $linkinfo->{'package'} = defined $l->{'package'} ? $l->{'package'} : $packid;
+      $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
+    }    
+  }
+  $linkdb->store("$projid/$packid", $linkinfo);
+}
 sub findfile {
   my ($projid, $packid, $repoid, $ext, $files) = @_;
   $files = lsrep($projid, $packid, $files) unless ref $files;
@@ -307,8 +350,6 @@ sub switch_to_obs_user {
 }
 
 sub update_request_db {
-  switch_to_obs_user();
-
   my $requestdb  = "$BSConfig::bsdir/db/request";
   my $requestdir = "$BSConfig::bsdir/requests";
   mkdir_p($requestdb) unless -d $requestdb;
@@ -474,7 +515,18 @@ while (@ARGV) {
     my $file = shift @ARGV;
     check_xml_file($file, $BSXML::request);
   } elsif ($arg eq "--update-request-db") {
+    switch_to_obs_user();
     update_request_db();
+  } elsif ($arg eq "--update-source-db") {
+    switch_to_obs_user();
+    for my $projid (findprojects()) {
+      for my $packid (findpackages($projid)) {
+        print "$projid/$packid\n";
+        my $rev = getrev($projid, $packid);
+        my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+        updatelinkinfodb($projid, $packid, $rev, $files);
+      }
+    }
   } elsif ($arg eq "--check-kiwi-xml") {
     die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
     if (@ARGV == 1){
