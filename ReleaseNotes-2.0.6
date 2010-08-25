@@ -5,11 +5,19 @@
 Updaters from 2.0.X can just update the packages and restart all services.
 Updaters from former releases need to check the 2.0.0 Release Notes file.
 
+The api should get migrated via 
+
+ # cd /srv/www/obs/api/
+ # RAILS_ENV="production" rake db:migrate
+ # chown -R lighttpd.lighttpd log
+
 Changes since 2.0.5:
 ====================
 
 Fixes:
 * api: branch by specified revision is working now
 * api: submit request to a project without the package, but linked project works now
+* api: fix runtime error when using group permissions in attribute permissions
+* api: fix a crash in webui when using the status view due to missing attribute
 * backend: dispatcher takes care of badhosts now and is not assigning the job again to the host
 
