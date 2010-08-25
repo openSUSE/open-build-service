@@ -20,7 +20,7 @@
         <% end %>
         Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project,
           :opackage => linked_package, :project => @project, :package => @package %>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+        <% if @package.can_edit?( session[:login] ) %>
           or <%=link_to_remote 'submit', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %> these changes back.
         <% end %>
       <% end %>

@@ -25,7 +25,7 @@
         </span>
       <% end -%>
 
-      <% if @project.is_maintainer?( session[:login] ) %>
+      <% if @project.can_edit?( session[:login] ) %>
         <span>
           <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'),
             :url => { :action => :delete, :project => @project.name } ) %>

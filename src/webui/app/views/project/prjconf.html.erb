@@ -23,7 +23,7 @@
 <% if @config.blank? %>
 
   <p>This project does not have a custom
-    <% if @project.is_maintainer?( session[:login] ) %>
+    <% if @project.can_edit?( session[:login] ) %>
       <%= link_to 'project configuration', :controller => 'project', :action => :edit_prjconf, :project => @project %>
     <% else %>
       project configuration

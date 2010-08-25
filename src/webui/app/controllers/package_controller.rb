@@ -635,19 +635,21 @@ class PackageController < ApplicationController
     @package = params[:package]
     @filename = params[:file]
     @comment = params[:comment]
+    @expand = params[:expand]
     @srcmd5 = params[:srcmd5]
     @file = params[:content] || frontend.get_source( :project => @project,
-      :package => @package, :filename => @filename, :revision => @srcmd5 )
+      :package => @package, :filename => @filename, :rev => @srcmd5, :expand => @expand )
     # render explicitly as in error case this is called
     render :template => 'package/edit_file'
   end
 
   def view_file
     @filename = params[:file] || ''
+    @expand = params[:expand]
     @srcmd5 = params[:srcmd5]
     @addeditlink = false
-    if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
-      @package.files.each do |file|
+    if @package.can_edit?( session[:login] )
+      @package.files(@srcmd5, @expand).each do |file|
         if file[:name] == @filename
           @addeditlink = file[:editable]
           break

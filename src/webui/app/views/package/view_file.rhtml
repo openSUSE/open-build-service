@@ -18,7 +18,7 @@
   <% if @addeditlink %>
     $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
     $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
-      :package => @package, :file => @filename, :rev => @srcmd5 ) %>");
+      :package => @package, :file => @filename, :srcmd5 => @srcmd5, :expand => @expand ) %>");
   <% end %>
 <% end %>
 

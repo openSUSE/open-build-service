@@ -18,15 +18,15 @@
     <% end %>
 
     <!-- available services -->
-    <% if @services || @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || @user.is_admin?%>
+    <% if @services || @package.can_edit?( session[:login] )%>
     <table class="grid"> <tbody>
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <% if @package.can_edit?( session[:login] ) %>
       <tr><td><div>Available Services</div></td><td><div>Used Services</div></td><td><div>Actions</div></td></tr>
       <% else %>
       <tr><td><div>Used Services</div></td></tr>
       <% end %>
       <tr>
-      <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) || (@user && @user.is_admin?) %>
+      <% if @package.can_edit?( session[:login] ) %>
          <td> <ul>
            <% Service.available.each do |service| %>
              <% object_id = "new_service_#{service[:name]}" %>
@@ -65,7 +65,7 @@
            <% end %>
         </ol>
 
-        <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
+        <% if @package.can_edit?( session[:login] ) %>
           <div class="aligncenter buttons" id="append">
             <%= image_tag('add.png', :alt => "Append", :title => "Drop a service here to append") %>
           </div>
@@ -76,7 +76,7 @@
         <% end %>
       </td>
 
-      <% if @project.is_maintainer?(session[:login]) || @package.is_maintainer?(session[:login]) %>
+      <% if @package.can_edit?( session[:login] ) %>
         <td>
           <div class="aligncenter buttons" id="trash">
             <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Drop a service to remove it") %>

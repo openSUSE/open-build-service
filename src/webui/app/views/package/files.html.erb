@@ -111,9 +111,12 @@
       <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
 
       <% if @expand %>
-        <%= check_box_tag 'mergesettings', 'merge', true -%> Show merged sources
+        <%= check_box_tag 'mergesettings', 'merge', true -%>
       <% elsif @link %>
-        <%= check_box_tag 'mergesettings', 'merge', false -%> Show link unmerged
+        <%= check_box_tag 'mergesettings', 'merge', false -%>
+      <% end %>
+      <% if @link %>
+        Show merged sources derived from linked package.
       <% end %>
 
       <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
@@ -131,7 +134,7 @@
         :with => "'srcmd5=' + escape($('#srcmd5').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
     <% end %>
   
-    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+    <% if @package.can_edit?( session[:login] ) %>
       <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
   	:action => :add_file, :project => @project, :package => @package %>
         <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>

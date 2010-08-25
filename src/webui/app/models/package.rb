@@ -142,6 +142,12 @@ class Package < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
+  def can_edit? userid
+    return true if is_maintainer? userid
+    return true if p=Project.find_cached(project) and p.can_edit? userid
+    Person.find_cached(userid).is_admin?
+  end
+
   def free_directory( rev=nil, expand=false )
     # just free current revision cache
     Directory.free_cache( :project => project, :package => name, :rev => rev, :expand => expand )

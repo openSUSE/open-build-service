@@ -253,6 +253,11 @@ class Project < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
+  def can_edit? userid
+    return true if is_maintainer? userid
+    Person.find_cached(userid).is_admin?
+  end
+
   def name
     @name ||= data.attributes['name']
   end
