@@ -30,6 +30,19 @@ class PublicControllerTest < ActionController::IntegrationTest
 
     get "/public/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
+
+    # hidden project access
+    get "/public/source/HiddenProject"
+    assert_response 404
+    get "/public/source/HiddenProject/_config"
+    assert_response 404
+    get "/public/source/HiddenProject/_meta"
+    assert_response 404
+    get "/public/source/HiddenProject/pack"
+    assert_response 404
+    get "/public/source/HiddenProject/pack/_meta"
+    assert_response 404
+
   end
 
   def test_lastevents
