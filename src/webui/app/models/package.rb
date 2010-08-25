@@ -143,6 +143,7 @@ class Package < ActiveXML::Base
   end
 
   def can_edit? userid
+    return false unless userid
     return true if is_maintainer? userid
     return true if p=Project.find_cached(project) and p.can_edit? userid
     Person.find_cached(userid).is_admin?

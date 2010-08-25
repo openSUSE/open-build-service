@@ -254,6 +254,7 @@ class Project < ActiveXML::Base
   end
 
   def can_edit? userid
+    return false unless userid
     return true if is_maintainer? userid
     Person.find_cached(userid).is_admin?
   end
