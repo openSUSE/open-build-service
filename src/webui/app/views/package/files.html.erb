@@ -39,7 +39,7 @@
       '</tr>');
 
     var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
-    $.ajax({type: "GET", url: path, success: function(data){$("#historyTable td#commit_item_"+number).text(data)} })
+    $("#historyTable td#commit_item_"+number).load(path);
   }
 
   function slide_history_down() {
@@ -58,7 +58,7 @@
       '</tr>');
 
     var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
-    $.ajax({type: "GET", url: path, success: function(data){$("#historyTable td#commit_item_"+number).text(data)} })
+    $("#historyTable td#commit_item_"+number).load(path);
   }
 
 <% end %>
