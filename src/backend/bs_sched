@@ -413,6 +413,24 @@ sub killjob {
 }
 
 #
+# killjob - kill a single build job if it is scheduled but not building
+#
+# input: $job - job identificator
+#
+sub killscheduled {
+  my ($job) = @_;
+
+  return if -e "$myjobsdir/$job:status";
+  local *F;
+  my $js = {'code' => 'deleting'};
+  if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+    unlink("$myjobsdir/$job");
+    unlink("$myjobsdir/$job:status");
+    close F;
+  }
+}
+
+#
 # jobname - create first part job job identifcation
 #
 # input:  $prp    - prp the job belongs to
@@ -4594,24 +4612,16 @@ relsynccheck:
 
   # building jobs may have changed back to excluded, blocked or disabled, remove the jobs
   my $prpjobs = jobname($prp, '');
-  for (grep {!/(?::dir|:status)$/} grep {/^\Q$prpjobs\E/} ls($myjobsdir)) {
-    my $job = $_;
+  for my $job (grep {!/(?::dir|:status)$/} grep {/^\Q$prpjobs\E/} ls($myjobsdir)) {
     if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
-      if ($packstatus{$1} and ($packstatus{$1} eq 'disabled' || $packstatus{$1} eq 'excluded')) {
-        print "        killing old job, now in disabled state $job\n";
+      my $status = $packstatus{$1} || '';
+      if ($status eq 'disabled' || $status eq 'excluded') {
+        print "        killing old job $job, now in disabled/excluded state\n";
         killjob($job);
-      }elsif ($packstatus{$1} and $packstatus{$1} eq 'blocked') {
+      } elsif ($status eq 'blocked' || $status eq 'unresolvable' || $status eq 'broken') {
         # blocked jobs get removed, if they are currently not building. building jobs
         # stay since they may become valid again
-        if (! -e "$myjobsdir/$job:status") {
-          my $js = {'code' => 'deleting'};
-          local *F;
-          if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
-            unlink("$myjobsdir/$job:status");
-            unlink("$myjobsdir/$job");
-            close F;
-          }
-        }
+        killscheduled($job);
       }
     }
   }
