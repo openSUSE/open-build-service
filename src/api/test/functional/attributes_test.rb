@@ -47,11 +47,11 @@ class AttributeControllerTest < ActionController::IntegrationTest
   def test_create_namespace
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
 
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/attribute/TEST/_meta", data
     assert_response 403
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
-    prepare_request_with_user "Iggy", "asdfasdf"
     delete "/attribute/OBS/_meta"
     assert_response 403
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
@@ -71,6 +71,50 @@ class AttributeControllerTest < ActionController::IntegrationTest
     # create test namespace
     prepare_request_with_user "king", "sunflower"
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
+    prepare_request_with_user "king", "sunflower"
+    post "/attribute/TEST/_meta", data
+    assert_response :success
+
+    ActionController::IntegrationTest::reset_auth
+    data = "<definition namespace='TEST' name='Dummy'>
+              <count>2</count>
+              <default>
+                <value>A</value>
+                <value>B</value>
+              </default>
+              <allowed>
+                <value>A</value>
+                <value>B</value>
+                <value>C</value>
+              </allowed>
+              <modifiable_by user='adrian'/>
+              <modifiable_by group='test_group'/>
+              <modifiable_by role='maintainer'/>
+            </definition>"
+
+    post "/attribute/TEST/Dummy/_meta", data
+    assert_response 401
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    delete "/attribute/OBS/Maintenance/_meta"
+    assert_response 403
+    assert_match(/Attribute type changes are not permitted/, @response.body)
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/attribute/TEST/Dummy/_meta", data
+    assert_response :success
+    get "/attribute/TEST/Dummy/_meta"
+    assert_response :success
+    delete "/attribute/TEST/Dummy/_meta"
+    assert_response :success
+    get "/attribute/TEST/Dummy/_meta"
+    assert_response 404
+  end
+
+  def test_create_type_via_group
+    # create test namespace
+    prepare_request_with_user "king", "sunflower"
+    data = "<namespace name='TEST'><modifiable_by group='test_group'/></namespace>"
     prepare_request_with_user "king", "sunflower"
     post "/attribute/TEST/_meta", data
     assert_response :success
@@ -161,8 +205,13 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/home:tom/_attribute/NotExisting:NotExisting"
     assert_response 403
 
+    # via group
+    prepare_request_with_user "adrian", "so_alone"
+    data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
+    post "/source/home:tom/_attribute", data
+    assert_response :success
+
     # not allowed
-    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/home:tom/_attribute", data
     assert_response 403
@@ -172,7 +221,6 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # delete
-    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom/_attribute", data
     assert_response :success
