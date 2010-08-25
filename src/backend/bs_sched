@@ -4592,14 +4592,25 @@ relsynccheck:
     unlink("$reporoot/$prp/$myarch/:repostate");
   }
 
-  # building jobs may have changed back to blocked, kill the jobs
+  # building jobs may have changed back to excluded, blocked or disabled, remove the jobs
   my $prpjobs = jobname($prp, '');
   for (grep {!/(?::dir|:status)$/} grep {/^\Q$prpjobs\E/} ls($myjobsdir)) {
     my $job = $_;
     if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
-      if ($packstatus{$1} and $packstatus{$1} eq 'blocked') {
-        print "        killing old job, now in blocked state $job\n";
+      if ($packstatus{$1} and ($packstatus{$1} eq 'disabled' || $packstatus{$1} eq 'excluded')) {
+        print "        killing old job, now in disabled state $job\n";
         killjob($job);
+      }elsif ($packstatus{$1} and $packstatus{$1} eq 'blocked') {
+        # blocked jobs get removed, if they are currently not building. building jobs
+        # stay since they may become valid again
+        if (! -e "$myjobsdir/$job:status") {
+          my $js = {'code' => 'deleting'};
+          local *F;
+          if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+            unlink("$myjobsdir/$job");
+            close F;
+          }
+        }
       }
     }
   }
