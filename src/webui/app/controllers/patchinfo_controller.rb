@@ -1,6 +1,7 @@
 class PatchinfoController < ApplicationController
   before_filter :require_all
   before_filter :require_exists, :except => [:save_new, :new_patchinfo]
+  helper :package
 
   def new_patchinfo
     @packager = @project.person.userid
