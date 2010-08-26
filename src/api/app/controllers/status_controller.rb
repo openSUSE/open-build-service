@@ -176,6 +176,7 @@ class StatusController < ApplicationController
   end
 
   def bsrequest
+    # ACL(bsrequest) TODO: this should say 404 for requests that are protected
     required_parameters :id
     req = BsRequest.find :id => params[:id]
     if req.action.value('type') != 'submit'
