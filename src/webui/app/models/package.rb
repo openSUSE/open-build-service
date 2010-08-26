@@ -225,7 +225,11 @@ class Package < ActiveXML::Base
     p[:package] = name
     p[:expand]  = "1"     if expand == "true"
     p[:rev]     = rev     if rev
-    dir = Directory.find(p)
+    begin
+      dir = Directory.find(p)
+    rescue
+      return files
+    end
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|
