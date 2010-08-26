@@ -511,6 +511,7 @@ class ProjectController < ApplicationController
       end
       repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
       repo_archs = params[repo + '_arch'] || params['arch']
+      repo_archs.uniq!
       logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
       @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
 

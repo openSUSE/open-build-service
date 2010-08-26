@@ -1,10 +1,5 @@
 class DistributionController < ApplicationController
 
-  # FIXME: AARGH ! this makes it impossible to test this controller, requires to have
-  #        weak permissions on production server, place it at a possible not backuped place
-  #        Store this either into database or store it to the backend (makes sense, to get 
-  #        a history of the file)
-  
   DISTFILEPATH = "#{RAILS_ROOT}/files/distributions.xml"
   @@distfile_last_read = Date.new(0).to_time
   @@distfile = "<distributions>\n</distributions>\n"
@@ -40,8 +35,14 @@ class DistributionController < ApplicationController
 
     valid_http_methods :get
     if request.get?
+      # FIXME: do not allow to deliver multiple distributions with same repo name, the webui can't handle it
       render :text => distfile, :content_type => "text/xml"
     elsif request.put?
+      # FIXME: AARGH ! this makes it impossible to test this controller, requires to have
+      #        weak permissions on production server, place it at a possible not backuped place
+      #        Store this either into database or store it to the backend (makes sense, to get 
+      #        a history of the file)
+  
       unless @http_user.is_admin?
         render_error :status => 403, :errorcode => "no_permission", :message => "no permission to modify distributions"
         return

@@ -29,7 +29,7 @@
 
         <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected, :id => 'repo_' + h(reponame), :class => "repocheckbox" -%>
           <%= hidden_field_tag h(reponame) + "_repo", h(project + '/' + repo) -%>
-          <% ['i586', 'x86_64'].each do |arch| %>
+          <% DEFAULT_ENABLED_ARCHITECTURES.each do |arch| %>
             <%= hidden_field_tag h(reponame) + "_arch[]", arch, :id => h(reponame) + "_arch_" + h(arch) -%>
           <% end %>
 
@@ -48,8 +48,9 @@
 
       <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected, :id => 'repo_images', :class => "repocheckbox" -%>
       <input id="images_repo" name="images_repo" value="" type="hidden"/>
-      <input id="images_arch_i586" name="images_arch[]" value="i586" type="hidden"/>
-      <input id="images_arch_x86_64" name="images_arch[]" value="x86_64" type="hidden"/>
+      <% DEFAULT_ENABLED_ARCHITECTURES.each do |arch| %>
+        <input id="images_arch_<%=arch%>" name="images_arch[]" value="<%=arch%>" type="hidden"/>
+      <% end %>
       KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
   </p>
 
