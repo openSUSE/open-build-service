@@ -443,85 +443,98 @@ class RequestController < ApplicationController
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true
-    else # check this for changestate (of request) and addreview command
-       # permission check for each request inside
-       req.each_action do |action|
-         if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
-           source_project = DbProject.find_by_name(action.source.project)
-           target_project = DbProject.find_by_name(action.target.project)
-           if target_project.nil?
+    end
+
+    # permission and validation check for each request inside
+    req.each_action do |action|
+      if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
+        source_project = DbProject.find_by_name(action.source.project)
+        target_project = DbProject.find_by_name(action.target.project)
+        if target_project.nil?
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+          return
+        end
+        if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+          return
+        end
+        if params[:newstate] != "declined" and params[:newstate] != "revoked"
+          if source_project.nil?
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          else
+            source_package = source_project.db_packages.find_by_name(action.source.package)
+          end
+          if source_package.nil? and params[:newstate] != "revoked"
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          end
+        end
+        if action.target.has_attribute? :package
+          target_package = target_project.db_packages.find_by_name(action.target.package)
+        else
+          target_package = target_project.db_packages.find_by_name(action.source.package)
+        end
+        if ( target_package and @http_user.can_modify_package? target_package ) or
+           ( not target_package and @http_user.can_modify_project? target_project )
+           permission_granted = true
+        elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
+           # source project owners should be able to revoke submit requests as well
+           source_package = source_project.db_packages.find_by_name(action.source.package)
+           if ( source_package and @http_user.can_modify_package? source_package ) or
+              ( not source_package and @http_user.can_modify_project? source_project )
+             permission_granted = true
+           elsif permission_granted != true
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+               :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
-           if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
-             return
-           end
-           if params[:newstate] != "declined" and params[:newstate] != "revoked"
-             if source_project.nil?
-               render_error :status => 403, :errorcode => "post_request_no_permission",
-                 :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-               return
-             else
-               source_package = source_project.db_packages.find_by_name(action.source.package)
-             end
-             if source_package.nil? and params[:newstate] != "revoked"
-               render_error :status => 403, :errorcode => "post_request_no_permission",
-                 :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
-               return
-             end
-           end
-           if action.target.has_attribute? :package
-             target_package = target_project.db_packages.find_by_name(action.target.package)
-           else
-             target_package = target_project.db_packages.find_by_name(action.source.package)
-           end
-           if ( target_package and @http_user.can_modify_package? target_package ) or
-              ( not target_package and @http_user.can_modify_project? target_project )
-              permission_granted = true
-           elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
-              # source project owners should be able to revoke submit requests as well
-              source_package = source_project.db_packages.find_by_name(action.source.package)
-              if ( source_package and @http_user.can_modify_package? source_package ) or
-                 ( not source_package and @http_user.can_modify_project? source_project )
-                permission_granted = true
-              else
-                render_error :status => 403, :errorcode => "post_request_no_permission",
-                  :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
-                return
-              end
-           else
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data.attributes['type']})"
-             return
-           end
+        else
+          if permission_granted != true
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data.attributes['type']})"
+            return
+          end
+        end
     
-         elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
-           # check permissions for delete
-           project = DbProject.find_by_name(action.target.project)
-           package = nil
-           if action.target.has_attribute? :package
-              package = project.db_packages.find_by_name(action.target.package)
-              if package and @http_user.can_modify_package? package
-                 permission_granted = true
-              end
-	   else
-              if project and @http_user.can_modify_project? project
-                 permission_granted = true
-              end
-           end
-           unless permission_granted == true
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+      elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
+        # check permissions for delete
+        project = DbProject.find_by_name(action.target.project)
+        if not project and params[:newstate] == "accepted"
+          msg = "Unable to delete project #{action.target.project}; it does not exist."
+          render_error :status => 400, :errorcode => 'not_existing_target',
+            :message => msg
+          return
+        end
+        package = nil
+        if action.target.has_attribute? :package
+           package = project.db_packages.find_by_name(action.target.package)
+           if not package and params[:newstate] == "accepted"
+             msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
+             render_error :status => 400, :errorcode => 'not_existing_target',
+               :message => msg
              return
            end
-         else
-           render_error :status => 403, :errorcode => "post_request_no_permission",
-             :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
-           return
-         end
+           if package and @http_user.can_modify_package? package
+              permission_granted = true
+           end
+        end
+        if not permission_granted and project and @http_user.can_modify_project? project
+           permission_granted = true
+        end
+        unless permission_granted == true
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+          return
+        end
+      else
+        render_error :status => 403, :errorcode => "post_request_no_permission",
+          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+        return
       end
     end
 
@@ -635,15 +648,6 @@ class RequestController < ApplicationController
           if sourceupdate == "cleanup"
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
-            # check for devel package defines
-            unless source_package.develpackages.empty?
-              # FIXME: this needs to be checked before, or we have a half submitted request
-              msg = "Unable to delete package #{source_package.name}; following packages use this package as devel package: "
-              msg += source_package.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
-              render_error :status => 400, :errorcode => 'develpackage_dependency',
-                :message => msg
-              return
-            end
             if source_project.db_packages.count == 1
               #find linking repos
               lreps = Array.new
@@ -679,35 +683,16 @@ class RequestController < ApplicationController
           end
       elsif action.data.attributes["type"] == "delete"
           project = DbProject.find_by_name(action.target.project)
-          unless project
-            # FIXME: this needs to be checked before, or we have a half submitted request
-            msg = "Unable to delete project #{action.target.project}; it does not exist."
-            render_error :status => 400, :errorcode => 'not_existing_target',
-              :message => msg
-            return
-          end
           if not action.target.has_attribute? :package
             project.destroy
             Suse::Backend.delete "/source/#{action.target.project}"
           else
             DbPackage.transaction do
               package = project.db_packages.find_by_name(action.target.package)
-              unless package
-                # FIXME: this needs to be checked before, or we have a half submitted request
-                msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
-                render_error :status => 400, :errorcode => 'not_existing_target',
-                  :message => msg
-                return
-              end
               package.destroy
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-      else
-        # FIXME: this needs to be checked before, or we have a half submitted request
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => "Failed to execute request state change of request #{req.id} (type #{action.data.attributes['type']})"
-        return
       end
     end
     pass_to_backend path
