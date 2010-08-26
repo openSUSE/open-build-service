@@ -116,6 +116,7 @@ password = foobar
 
       # mysql -u root -p
       mysql> create database api_production;
+      mysql> create database webui_production;
       mysql> quit
 
 * If you use the MySQL database for other services, too, then
@@ -135,9 +136,10 @@ password = foobar
       FLUSH PRIVILEGES;
 
 * Configure your MySQL user and password in
-  in the "production:" section of the api config: 
+  in the "production:" section of the api and webui config: 
 
     /srv/www/obs/api/config/database.yml
+    /srv/www/obs/webui/config/database.yml
     
   A template for this file can be found in same directory as "database.yml.example".
 
@@ -187,13 +189,7 @@ enabled by uncommenting the corresponding lines in
 
     server.modules = (
       "mod_access",
-    #  "mod_alias",
-    #  "mod_auth",
-    #  "mod_evasive",
-    #  "mod_redirect",
       "mod_rewrite",
-    #  "mod_setenv",
-    #  "mod_usertrack",
     )
 
     ##
@@ -244,8 +240,13 @@ In addition to that, it is also possible to copy base projects with the provided
 4.1 Reuse projects hosted on openSUSE.org build service
 =======================================================
 
-Create the reference project pointing to the openSUSE.org build service with 
-the following command:
+Create the reference project pointing to the openSUSE.org build service, this
+will allow you to reuse the base distributions from there and avoids further
+manual setup.
+
+You can do this via clicking on the "Setup OBS" link in your web interface.
+
+The alternative manual way is to call the following command:
 
  # curl -0 --user "Admin:opensuse" -X PUT \
         -T /usr/share/doc/packages/obs-api/openSUSE.org.xml  \

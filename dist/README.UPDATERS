@@ -1,3 +1,24 @@
+For Updaters to OBS 2.1 from OBS 2.0
+====================================
+
+1) Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R lighttpd.lighttpd log
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R lighttpd.lighttpd log
+
+2) Build backend source database
+
+   On the system, where bs_srcserver is running you need to build the
+   source database to get an index of existing linked packages.
+
+    # su -c "bs_admin --update-source-db"
+
+
 For Updaters to OBS 2.0 from OBS 1.7
 ====================================
 

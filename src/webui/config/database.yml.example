@@ -1,10 +1,12 @@
-# the web client only uses the database to store jobs to do (render plots)
-
-development:
-  adapter: sqlite3
-  database: db/database.db
+# the web ui only uses the database to store jobs to do (render plots)
 
 production:
+  adapter: mysql
+  database: webui_production
+  username: root
+  password:
+
+development:
   adapter: sqlite3
   database: db/database.db
 
