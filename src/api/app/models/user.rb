@@ -172,34 +172,6 @@ class User < ActiveRecord::Base
     return false
   end
 
-  def can_modify_attribute?(attribute)
-    unless attribute.kind_of? Attrib
-      raise ArgumentError, "illegal parameter type to User#can_modify_attribute?: #{attribute.class.name}"
-    end
-    if attribute.attrib_type.attrib_type_modifiable_bies.length > 0
-      attribute.attrib_type.attrib_type_modifiable_bies.each do |mod_rule|
-        next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group and not is_in_group(mod_rule.group)
-        if attribute.db_package
-          next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_package)
-        else
-          next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_project)
-        end
-        return true
-      end
-      return false
-    else
-      # no rules set for attribute, just check package maintainer rules
-      if attribute.db_package
-         return can_modify_package?(attribute.db_package)
-      else
-         return can_modify_project?(attribute.db_project)
-      end
-    end
-    # never reached
-    raise RuntimeError, "ERROR in user.can_modify_attribute?"
-  end
-
   # project is instance of DbProject
   def can_create_package_in?(project)
     unless project.kind_of? DbProject
@@ -242,15 +214,6 @@ class User < ActiveRecord::Base
     end
 
     return false
-  end
-
-  def can_modify_attribute_definition_in?(namespace)
-    return can_create_attribute_definition_in?(namespace)
-  end
-  def can_create_attribute_definition_in?(namespace)
-    an = AttribNamespace.find_by_name(namespace)
-    raise ArgumentError, "Attrib Namespace not found for #{namespace}" if an.nil?
-    return can_create_attribute_definition?(an)
   end
 
   def can_create_attribute_in?(object, opts)
