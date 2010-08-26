@@ -25,7 +25,7 @@ class SourceController < ApplicationController
       else
         dir = Project.find :all
         # ACL(projectlist): projects with flag 'access' are not listed
-        accessprjs = DbProject.find( :all, :joins => "LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id", :conditions => ["ISNULL(f.repo)", "ISNULL(f.architecture_id)"] )
+        accessprjs = DbProject.find( :all, :joins => "LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id", :conditions => [ "f.flag = 'access'", "ISNULL(f.repo)", "ISNULL(f.architecture_id)"] )
         accessprjs.each do |prj|
           dir.delete_element("//entry[@name='#{prj.name}']") if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
         end
