@@ -326,7 +326,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
   end
 
-  def test_branch_and_submit_request_to_linked_project
+  def test_branch_and_submit_request_to_linked_project_and_delete_it_again
     prepare_request_with_user "tom", "thunder"
 
     # branch a package which does not exist in update project, but update project is linked
@@ -369,6 +369,63 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
     assert_response :success
     assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2', :package => "pack2" } )
+
+    # create delete request two times
+    req = "<request>
+            <action type='delete'>
+              <target project='BaseDistro2:LinkedUpdateProject' package='pack2'/>
+            </action>
+            <description/>
+            <state who='king' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id2 = node.data['id']
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id3 = node.data['id']
+
+    # accept the request
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
+
+    # accept the other request, what will fail
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id2}?cmd=changestate&newstate=accepted"
+    assert_response 400
+    assert_match /Unable to delete package/, @response.body
+
+    # decline the request
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id2}?cmd=changestate&newstate=declined"
+    assert_response :success
+    get "/request/#{id2}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'declined' } )
+
+    # revoke the request
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id3}?cmd=changestate&newstate=revoked"
+    assert_response :success
+    get "/request/#{id3}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
   end
 
   # ACL
