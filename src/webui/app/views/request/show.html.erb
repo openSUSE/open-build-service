@@ -140,7 +140,7 @@ setup_buildresult_trigger
   </pre>
 <% end %>
 
-<% if !["accepted", "declined", "revoked"].include? @state and (@is_reviewer || @is_maintainer || @is_author) and (@is_author || !@diff_error) %>
+<% if !["accepted", "declined", "revoked", "superseded"].include? @state and (@is_reviewer || @is_maintainer || @is_author) %>
   <p/>
   <div class="section">
     <% form_tag :action => "changerequest" do %>

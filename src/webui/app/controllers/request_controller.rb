@@ -74,6 +74,7 @@ class RequestController < ApplicationController
 
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
   
+    @is_maintainer = nil
     @therequest.each_action do |action|
       @type = action.data.attributes["type"]
       if @type=="submit"
@@ -83,8 +84,10 @@ class RequestController < ApplicationController
       @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
       @target_pkg_name = action.target.value :package
       @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project) if @target_pkg_name
-      @is_maintainer = @target_project.can_edit?( session[:login] ) ||
-        (@target_pkg && @target_pkg.can_edit?( session[:login] ))
+      if @is_maintainer == nil or @is_maintainer == true
+        @is_maintainer = @target_project.can_edit?( session[:login] ) ||
+          (@target_pkg && @target_pkg.can_edit?( session[:login] ))
+      end
 
       if @type == "submit" and @target_pkg
         transport = ActiveXML::Config::transport_for(:request)
