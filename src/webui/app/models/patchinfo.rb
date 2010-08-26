@@ -23,19 +23,22 @@ class Patchinfo < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
-  def set_relogin(relogin)
-    self.delete_element('relogin_needed')
-    relog = self.add_element('relogin_needed')
-    relog.text = relogin
+  def set_cve(cvelist)
+    if self.each_CVE == nil
+      self.add_element('CVE')
+    end
+    cvelist.each do |cve|
+      self.each_CVE do |f|
+        self.delete_element(f)
+      end
+    end
+    for x in cvelist do
+      cve = self.add_element('CVE')
+      cve.text = x
+    end
   end
 
-  def set_reboot(reboot)
-    self.delete_element('reboot_needed')
-    reboot_needed = self.add_element('reboot_needed')
-    reboot_needed.text = reboot
-  end
-
-  def set_buglist(buglist, bugzilla)
+  def set_buglist(buglist)
     if self.each_bugzilla == nil
       self.add_element('bugzilla')
     end
@@ -50,7 +53,25 @@ class Patchinfo < ActiveXML::Base
       bug = self.add_element('bugzilla')
       bug.text = x
     end
-  end  
+  end
+
+  def set_packager(packager)
+    self.delete_element('packager')
+    cve_new = self.add_element('packager')
+    cve_new.text = packager
+  end
+
+  def set_relogin(relogin)
+    self.delete_element('relogin_needed')
+    relog = self.add_element('relogin_needed')
+    relog.text = relogin
+  end
+
+  def set_reboot(reboot)
+    self.delete_element('reboot_needed')
+    reboot_needed = self.add_element('reboot_needed')
+    reboot_needed.text = reboot
+  end
 
   def set_relogin(relogin)
     self.delete_element('relogin_needed')

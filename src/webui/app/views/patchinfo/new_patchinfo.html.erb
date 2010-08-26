@@ -1,22 +1,12 @@
-<% @pagetitle = "Patchinfo-Editor" %>
-<% patchinfo_bread_crumb 'Patchinfo' -%>
+<% @pagetitle = "New Patchinfo" %>
+<% project_bread_crumb 'Create Patchinfo' -%>
 
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
 
-
-<% content_for :ready_function do %>
-  $("#bug_table").tablesorter( {
-  sortList: [[0,1]],
-  widgets: ['zebra'],
-  } );
-<% end %>
-<% form_tag :action => "save"  do %>
+<% form_tag :controller => :patchinfo, :action => "save_new" do %>
   <div class="section">
     <div class="box show_left show_right">
-      <h2 style="display: inline">Patchinfo-Editor for <%=h @package %></h2>
+      <h2 style="display: inline">Create new Patchinfo for <%=h @project %></h2>
     </div>
     <table class="patchinfo">
       <tr>
@@ -27,12 +17,21 @@
         <td></td>
       </tr>
       <tr>
+        <th>Name: </th>
+        <td>
+          <%= text_field_tag('name', @name)%>
+        </td>
+        <td>
+          Enter a name for this patchinfo
+        </td>
+      </tr>
+      <tr>
         <th>Binaries: </th>
         <td>
           <% options = Array.new
           @binarylist.each {|d| options << "#{d.to_s}"}
           opt = {:options => options}%>
-          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5%>
+          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5 %>
         </td>
         <td>Please select the binaries (ctrl+left) which your patch includes</td>
       </tr>
@@ -78,12 +77,6 @@
             $("#category").change(onSelectChange);
 
             });
-
-            function append_cve(cveid) {
-            $("#cvelist").append("<div id='cve_" + cveid + "'><input type='hidden' name='cve[]' value='" + $("#cveid").val() + "'/>" + $("#cveid").val() + " " + "<a onclick='$(\"#cve_" + cveid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + ", " + "</div>");
-            return false;
-            }
-            
             function onSelectChange(){
             var selected = $("#category option:selected");
             if(selected.val() != "security"){
@@ -114,34 +107,17 @@
         <td>Choose the category of your patch</td>
       </tr>
       <tr id="CVE">
-        <th>CVE</th>
-        <td>
-          <div id="cvelist">
-            <% i=0 %>
-            <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
-              <div id="cve_<%= cve %>">
-                <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
-                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>,
-                <% i=i+1 %>
-                <%= "<br/>" if i.modulo(3) == 0 %>
-              </div>
-            <%end%>
-          </div>
-        </td>
+        <th >CVE</th>
+        <td><%=  text_field_tag("cve", @cve) %></td>
+        <td>Enter a CVE-numer (only for security fixes)</td>
       </tr>
-      <tr>
-        <th/>
-        <td><%= text_field_tag "cveid", @cveid %>
-            <%= link_to image_tag('icons/bug_add.png', :alt => "Add CVE", :title => "Add CVE"), '#', :onclick => 'append_cve($("#cveid").val()); return false;' %></td>
-        <td>Enter a CVE-number (only for security fixes)</td>
-     </tr>
       <tr>
         <th>Summary: </th>
         <td>
           <%=  text_area_tag 'summary', @summary, :rows => 5, :cols => 30 %>
         </td>
         <td>Enter a summary. It should have the following format:<br />
-          Mainpackage: ca. 10 signs long short-explanation what the patch fixes
+          Mainpackage: ca. 50 signs long short-explanation what the patch fixes
         </td>
       </tr>
       <tr>
@@ -166,11 +142,10 @@
         <td>Set when a reboot for the patch is needed.</td>
       </tr>
       <tr><td></td><td></td><td align="right">
-          <%= submit_tag "Save Patchinfo" %>
+          <%= submit_tag "Create Patchinfo" %>
       </td></tr>
     </table>
     <%= hidden_field_tag("project", @project.name)%>
-    <%= hidden_field_tag("package", @package)%>
     <%= observe_field( :category, :frequency => 0.5, :on => :selected,
       :update => :cve )%>
   </div>

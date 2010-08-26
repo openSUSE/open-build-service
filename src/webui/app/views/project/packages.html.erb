@@ -15,7 +15,8 @@
     <%= link_to image_tag( 'icons/package_link.png', :title => 'Link Package from other Project' ),
       :controller => 'project', :action => :new_package_link, :project => @project %>
     <%= link_to 'Link Package',
-      :controller => 'project', :action => :new_package_link, :project => @project %> from other Project
+      :controller => 'project', :action => :new_package_link, :project => @project %> from other Project &nbsp;
+    <%= link_to 'Create', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %> a new patchinfo
   </p>
 <% end %>
 
