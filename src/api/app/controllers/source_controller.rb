@@ -1863,16 +1863,18 @@ class SourceController < ApplicationController
 
     # link against srcmd5 instead of plain revision
     unless pkg_rev.nil?
-      path = "/source/#{params[:project]}/#{params[:package]}" + build_query_from_hash(params, [:rev])
-      files = Suse::Backend.get(path)
-      # get srcmd5 from the xml data
-      match = files.body.match(/<directory[-'"=\w\s]+srcmd5=['"](\w{32})['"]['"=\w\s]*>/)
-      if match
-        pkg_rev = match[1]
-      else
-        # this should not happen
+      begin
+        dir = Directory.find({ :project => params[:project], :package => params[:package], :rev => params[:rev]})
+      rescue
         render_error :status => 400, :errorcode => 'invalid_filelist',
-          :message => "Unable parse filelist from backend"
+          :message => "no such revision"
+        return
+      end
+      if dir.has_element? 'srcmd5'
+        pkg_rev = dir.srcmd5
+      else
+        render_error :status => 400, :errorcode => 'invalid_filelist',
+          :message => "no such revision"
         return
       end
     end
