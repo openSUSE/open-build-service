@@ -9,13 +9,16 @@
     <h2 style="display: inline"><%=h @package %></h2>
 
     <span style="float: right; margin-right: 0.5em" >
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <% if @package.can_edit?( session[:login] ) %>
         <span>
           <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
         </span>
         <span>
           <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
             {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
+        </span>
+        <span>
+          <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
         </span>
       <% end %>
 
@@ -26,7 +29,7 @@
         </span>
       <% end %>
 
-      <% if @bugowner_mail and BUGZILLA_HOST %>
+      <% if @bugowner_mail and defined? BUGZILLA_HOST %>
         <span>
           <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
         </span>
@@ -68,25 +71,36 @@
         </p>
       <%- end -%>
 
-      <div>
-        <% unless @current_requests.blank? %>
-          <div>
-            <p>
-              <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
-              <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project, :package => @package %>
-            </p>
-          </div>
-        <% end %>
 
-        <% if @failures and @failures > 0 %>
-          <div>
-            <p>
-              <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
-              <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
-            </p>
-          </div>
-        <% end %>
-      </div>
+      <% unless @current_requests.blank? %>
+        <p>
+          <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
+          <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project, :package => @package %>
+        </p>
+      <% end %>
+
+      <% if @failures and @failures > 0 %>
+        <p>
+          <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
+          <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+        </p>
+      <% end %>
+
+      <% if @package.name =~ %r{^_patchinfo} %>
+        <p>
+          <%= image_tag 'icons/information.png' %> This package creates a patchinfo used for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>.
+          Please use the <%= link_to 'wizard', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %> to edit it.
+        </p>
+      <% end %>
+
+      <% if @linking_packages and @linking_packages.size > 0 %>
+        <p>
+          <%= image_tag 'icons/information.png' %> There <%= plural(@linking_packages.size, "is", "are") %>
+          <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+          from this package.
+        </p>
+      <% end %>
+
 
     </div>
   </div>

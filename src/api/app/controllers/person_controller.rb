@@ -8,70 +8,87 @@ class PersonController < ApplicationController
       @errorcode = 401
       @summary = "No user logged in, permission to userinfo denied"
       render :template => 'error', :status => 401
-    else
-      if request.get?
-        with_watchlist = false
+      return
+    end
+
+    if request.get?
+      with_watchlist = false
+      if params[:login]
+        login = URI.unescape( params[:login] )
+        logger.debug "Generating for user from parameter #{login}"
+        @render_user = User.find_by_login( login )
+        if @render_user.blank?
+          logger.debug "User is not valid!"
+          render_error :status => 404, :errorcode => 'unknown_user',
+            :message => "Unknown user: #{login}"
+          return
+        end
+      else 
+        logger.debug "Generating user info for logged in user #{@http_user.login}"
+        @render_user = @http_user
+      end
+      if @http_user.is_admin? or @http_user == @render_user
+        with_watchlist = true
+      end
+      render :text => @render_user.render_axml( with_watchlist ), :content_type => "text/xml"
+    elsif request.put?
+      user = @http_user
+    
+      if user 
         if params[:login]
           login = URI.unescape( params[:login] )
-          logger.debug "Generating for user from parameter #{login}"
-          @render_user = User.find_by_login( login )
-          if @render_user.blank?
-            logger.debug "User is not valid!"
-            render_error :status => 404, :errorcode => 'unknown_user',
-              :message => "Unknown user: #{login}"
-            return
+          user = User.find_by_login( login )
+          if user and user.login != @http_user.login 
+            if @http_user.is_admin?
+              # ok, may update user info
+            else
+              logger.debug "User has no permission to change userinfo"
+              render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
+                :message => "no permission to change userinfo for user #{user.login}"
+              return
+            end
           end
-        else 
-          logger.debug "Generating user info for logged in user #{@http_user.login}"
-          @render_user = @http_user
+          if !user and @http_user.is_admin?
+            user = User.create( 
+                   :login => login,
+                   :password => "notset",
+                   :password_confirmation => "notset",
+                   :email => "TEMP" )
+            user.state = "locked"
+          end
         end
-        if @http_user.is_admin? or @http_user == @render_user
-          with_watchlist = true
-        end
-        render :text => @render_user.render_axml( with_watchlist ), :content_type => "text/xml"
-      elsif request.put?
-        user = @http_user
       
-        if user 
-          if params[:login]
-            login = URI.unescape( params[:login] )
-            user = User.find_by_login( login )
-            if user and user.login != @http_user.login 
-              # TODO: check permission to update someone elses info
-              if @http_user.is_admin?
-                # ok, may update user info
-              else
-                logger.debug "User has no permission to change userinfo"
-                render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
-                  :message => "no permission to change userinfo for user #{user.login}"
-                return
-              end
-            end
-            if !user and @http_user.is_admin?
-              user = User.create( 
-                     :login => login,
-                     :password => "notset",
-                     :password_confirmation => "notset",
-                     :email => "TEMP" )
-              user.state = "locked"
-            end
-          end
-        
-          xml = REXML::Document.new( request.raw_post )
+        xml = REXML::Document.new( request.raw_post )
 
-          logger.debug( "XML: #{request.raw_post}" )
+        logger.debug( "XML: #{request.raw_post}" )
 
-          user.email = xml.elements["/person/email"].text
-          user.realname = xml.elements["/person/realname"].text
+        user.email = xml.elements["/person/email"].text
+        user.realname = xml.elements["/person/realname"].text
 
-          update_watchlist( user, xml )
+        update_watchlist( user, xml )
 
-          user.save!
-          render_ok
-        end
+        user.save!
+        render_ok
       end
     end
   
+  end
+
+  def grouplist
+    if !@http_user
+      logger.debug "No user logged in, permission to grouplist denied"
+      @summary = "No user logged in, permission to grouplist denied"
+      render :template => 'error', :status => 401
+      return
+    end
+    unless params[:login]
+      logger.debug "Missing account parameter for grouplist"
+      @summary = "Missing account parameter for grouplist"
+      render :template => 'error', :status => 404
+      return
+    end
+
+    render :text => Group.render_group_list(params[:login]), :content_type => "text/xml"
   end
 
   def register
@@ -86,6 +103,10 @@ class PersonController < ApplicationController
     status = xml.elements["/unregisteredperson/state"].text
     password = xml.elements["/unregisteredperson/password"].text
     note = xml.elements["/unregisteredperson/note"].text
+
+    unless @http_user and @http_user.is_admin?
+      note = ""
+    end
 
     if auth_method == :ichain
       email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
@@ -145,5 +166,53 @@ class PersonController < ApplicationController
       user.watched_projects << WatchedProject.new( :name => name )
     end
     true
+  end
+
+  def change_my_password
+    if !@http_user
+      logger.debug "No user logged in, permission to changing password denied"
+      @errorcode = 401
+      @summary = "No user logged in, permission to changing password denied"
+      render :template => 'error', :status => 401
+    else
+      if not params[:login] or not params[:password]
+        render_error :status => 404, :errorcode => 'failed to change password',
+              :message => "Failed to change password: missing parameter"
+        return
+      end
+    end
+
+    login = URI.unescape( params[:login] )
+    newpassword = Base64.decode64(URI.unescape( params[:password]))
+
+    #change password to LDAP if LDAP is enabled    
+    if defined?( LDAP_MODE ) && LDAP_MODE == :on
+      require 'base64'
+      begin
+        logger.debug( "Using LDAP to change password for #{login}" )
+        result = User.change_password_ldap(login, newpassword)
+      rescue Exception
+          logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+      end
+      if result
+        render_error :status => 404, :errorcode => 'failed to change password to ldap', :message => "Failed to change password to ldap: #{result}"
+        return
+      end
+    end
+
+    #update password in users db
+    @user = User.find_by_login(login)
+    if @user.blank?
+      logger.debug "User is not valid!"
+      render_error :status => 404, :errorcode => 'unknown_user',
+        :message => "Unknown user: #{login}"
+      return
+    end
+    logger.debug("find the user")
+    @user.password = newpassword
+    @user.password_confirmation = newpassword
+    @user.state = User.states['confirmed']
+    @user.save!
+    render_ok
   end
 end

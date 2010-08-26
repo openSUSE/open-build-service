@@ -12,7 +12,7 @@
   function insertRow() {
     var name = document.getElementById('add_new_parameter').value;
     var value = document.getElementById('add_new_value').value;
-    var number = document.getElementById('parameter_count').value;
+    var number = document.getElementById('count_parameters').value;
 
     number = number + 1;
     $('#pTable tr:last').before('<tr class=\"row_'+number+'\">'+
@@ -21,8 +21,46 @@
       '<td><a href=\"#\" onclick=\"\$(\'tr.row_'+number+'\').remove(); return false;\">X</a></td>'+
       '</tr>');
     
-    document.getElementById('parameter_count').value = number;
+    document.getElementById('count_parameters').value = number;
   }
+
+  function slide_history_up() {
+    var number = parseInt(document.getElementById('history_browser_revision').value);
+    number = number + 1;
+    document.getElementById('history_browser_revision').value = number;
+    $('#go_down_button').show();
+    if (number == <%=@maxrevision%>) {
+      $('#go_up_button').hide();
+    }
+
+    $('#historyTable tr:last').remove();
+    $('#historyTable tr:first').before('<tr>'+
+      '<td id=\"commit_item_'+number+'\">...</td>'+
+      '</tr>');
+
+    var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
+    $("#historyTable td#commit_item_"+number).load(path);
+  }
+
+  function slide_history_down() {
+    var number = parseInt(document.getElementById('history_browser_revision').value);
+    number = number - 1;
+    document.getElementById('history_browser_revision').value = number;
+
+    number = number - parseInt(<%=@visible_commits%>) + 1;
+    $('#go_up_button').show();
+    if (number == 1) {
+      $('#go_down_button').hide();
+    }
+    $('#historyTable tr:first').remove();
+    $('#historyTable tr:last').after('<tr>'+
+      '<td id=\"commit_item_'+number+'\">...</td>'+
+      '</tr>');
+
+    var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
+    $("#historyTable td#commit_item_"+number).load(path);
+  }
+
 <% end %>
 
 
@@ -38,69 +76,72 @@
 
 
 <%= render :partial => 'links' if @link %>
+
 <%= render :partial => 'services' if @services %>
 
+<!-- Source history -->
+<div class="grid_7 alpha">
+<div class="show_left box">
+ <div class="box-header aligncenter">
+   Commit History <%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %>
+ </div>
+ <div id="package_history">
+    <h3>
+    </h3>
+
+    <%= render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history} %>
+
+    <%= observe_field( :mergesettings, :frequency => 0.5, :update => :sources_history,
+      :url => { :controller => 'package', :action  => 'sources_history', :project => @project, :package => @package, :revision => @revision },
+      :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+      :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+  </div>
+</div>
+</div>
+
 <!-- File list -->
-<div id="package_files">
-  <h3>
-    Files
-  </h3>
+<div class="grid_9 omega">
+ <div class="show_right box">
+  <div class="box-header aligncenter">
+    Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
+  </div>
 
-  <% if !@files.empty? %>
+  <div id="package_files">
+    <% unless @files.empty? %>
+      <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
 
-    <table cellspacing='1' id="files_table" class="tablesorter">
-      <thead>
-        <tr>
-          <th class="header">Filename</th>
-          <th class="header">Size</th>
-          <th class="header">Changed</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
+      <% if @expand %>
+        <%= check_box_tag 'mergesettings', 'merge', true -%>
+      <% elsif @link %>
+        <%= check_box_tag 'mergesettings', 'merge', false -%>
+      <% end %>
+      <% if @link %>
+        Show merged sources derived from linked package.
+      <% end %>
 
-        <% @files.each do |file| %>
-          <tr><td>
-              <% if file[:editable] %>
-                <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %>
-              <% else %>
-                <%= file[:name] %>
-              <% end %>
-              <% if @link && @link.has_add_patch?( file[:name] ) %>
-                (Added Patch)
-              <% elsif @link && @link.has_patch?( file[:name] ) %>
-                (Global Patch)
-              <% end %>
-            </td>
-            <td><!-- <%= file[:size].rjust(10, '0') %> --><%=h human_readable_fsize( file[:size] )%></td>
-            <td><!-- <%= file[:mtime] %> --><%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %></td>
-            <td><%= link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name] ) %>
-              <% unless file[:name].match(/^_service:/) %>
-                <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-                  <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
-                    :package => @package, :filename => file[:name]},
-                    {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
-                  <% if file[:editable] %>
-                    <%= link_to( image_tag('icons/page_white_magnify.png', :alt => "View / Edit", :title => "View / Edit File"), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %>
-                  <% end %>
-                <% end %>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p><i>This package has no files yet</i></p>
-  <% end %>
+      <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
 
-
-  <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-    <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
-        :action => :add_file, :project => @project, :package => @package %>
-      <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
-    </p>
-  <% end %>
-
+      <%= observe_field( :revision, :frequency => 1, :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+      <%= observe_field( :srcmd5, :frequency => 1, :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'srcmd5=' + escape($('#srcmd5').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+    <% end %>
+  
+    <% if @package.can_edit?( session[:login] ) %>
+      <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
+  	:action => :add_file, :project => @project, :package => @package %>
+        <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
+      </p>
+    <% end %>
+  
+  </div>
+ </div>
 </div>
 

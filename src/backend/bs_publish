@@ -42,6 +42,7 @@ use BSDBIndex;
 use Build;
 use BSDB;
 use BSXML;
+use BSNotify;
 
 use strict;
 
@@ -545,8 +546,7 @@ sub createpatterns_comps {
   my @grps;
   for my $pattern (@$patterns) {
     my $pat = XMLin($BSXML::pattern, $pattern->{'data'});
-    next unless $pattern->{'name'} =~ /^(.*)\.xml$/s;
-    my $grp = { 'id' => $1 };
+    my $grp = { 'id' => $pattern->{'name'} };
     for (@{$pat->{'summary'}}) {
       my $el = { '_content' => $_->{'_content'} };
       $el->{'xml:lang'} = $_->{lang} if $_->{'lang'};
@@ -586,7 +586,7 @@ sub createpatterns_comps {
 sub deletepatterns_comps {
   my ($extrep) = @_;
   for my $pat (ls("$extrep/repodata")) {
-    next unless $pat =~ /^group/;
+    next unless $pat =~ /group.xml/;
     unlink("$extrep/repodata/$pat");
   }
 }
@@ -1045,7 +1045,11 @@ sub publish {
 	$pubkey = undef;
       }
     } elsif ($BSConfig::keyfile) {
-      $pubkey = readstr($BSConfig::keyfile);
+      if (-e $BSConfig::keyfile) {
+        $pubkey = readstr($BSConfig::keyfile);
+      } else {
+        print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
+      }
     }
   }
 
@@ -1199,6 +1203,8 @@ publishprog_done:
     qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook failed: $?");
   }
 
+  
+  BSNotify::notify("REPO_PUBLISHED", { project => $projid , 'repo' => $repoid });
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
@@ -1262,6 +1268,7 @@ while(1) {
       }
     }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+    BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
       publish($ev->{'project'}, $ev->{'repository'});
     };
@@ -1270,6 +1277,7 @@ while(1) {
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
     } else {
+      BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
       unlink("$myeventdir/${event}::inprogress");
     }
     db_sync();

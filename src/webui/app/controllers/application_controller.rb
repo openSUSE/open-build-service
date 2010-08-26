@@ -14,8 +14,12 @@ class ApplicationController < ActionController::Base
   after_filter :validate_xhtml
   protect_from_forgery
 
+  if Rails.env.test?
+     prepend_before_filter :start_test_api
+  end
+
   # Scrub sensitive parameters from your log
-  filter_parameter_logging :password
+  filter_parameter_logging :password unless Rails.env.test?
 
   class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end
@@ -104,15 +108,21 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_project_name? name
-    name =~ /^\w[-_+\w\.:]+$/
+    name =~ /^[[:alnum:]][-+\w.:]+$/
   end
 
   def valid_package_name_read? name
-    name =~ /^\w[-_+\w\.:]*$/
+    return true if name =~ /^_project$/
+    return true if name =~ /^_product$/
+    return true if name =~ /^_product:[-_+\w\.:]*$/
+    return true if name =~ /^_patchinfo:[-_+\w\.:]*$/
+    name =~ /^[[:alnum:]][-_+\w\.:]*$/
   end
 
   def valid_package_name_write? name
-    name =~ /^\w[-_+\w\.]*$/
+    return true if name =~ /^_project$/
+    return true if name =~ /^_product$/
+    name =~ /^[[:alnum:]][-_+\w\.]*$/
   end
 
   def valid_file_name? name
@@ -294,7 +304,9 @@ class ApplicationController < ActionController::Base
   end
 
   def validate_xhtml
-    return unless (Rails.env.development? || Rails.env.test?)
+    # find out how to cache the w3 data before using it for test env
+    #return unless (Rails.env.development? || Rails.env.test?)
+    return unless Rails.env.development?
     return if request.xhr?
   
     return if !(response.status =~ /200/ &&
@@ -305,4 +317,22 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  @@frontend = nil
+  def start_test_api
+     return if @@frontend
+     @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
+     puts "Starting test API with pid: #{@@frontend.pid}"
+     while true do
+         line = @@frontend.gets
+         raise RuntimeError.new('Frontend died') unless line
+         break if line =~ /Test API ready/
+         logger.debug line.strip
+    end
+    puts "Test API up and running with pid: #{@@frontend.pid}"
+    at_exit do
+       puts "Killing test API with pid: #{@@frontend.pid}"
+       Process.kill "INT", @@frontend.pid
+       @@frontend = nil
+    end
+  end
 end

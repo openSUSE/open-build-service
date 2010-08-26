@@ -23,7 +23,7 @@
 
 <div class="section">
   <h3>Subprojects of <%= @project %>:</h3>
-  <% if @project.is_maintainer?( session[:login] ) %>
+  <% if @project.can_edit?( session[:login] ) %>
     <p>
       <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new %>
       <%= link_to 'Create a new subproject', :controller => :project, :action => :new, :ns => @project.name %>

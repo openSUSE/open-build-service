@@ -22,15 +22,7 @@ class DbProject < ActiveRecord::Base
   has_many :downloads, :dependent => :destroy
   has_many :ratings, :as => :object, :dependent => :destroy
 
-  has_many :flags
-  has_many :publish_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :build_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :sourceaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :access_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :flags, :dependent => :destroy
 
   def download_name
     self.name.gsub(/:/, ':/')
@@ -53,22 +45,6 @@ class DbProject < ActiveRecord::Base
       return dbp
     end
 
-    def get_repo_list
-      sql =<<-END_SQL
-      SELECT p.name AS project_name, r.name AS repo_name
-      FROM repositories r
-      LEFT JOIN db_projects p ON r.db_project_id = p.id
-      ORDER BY project_name
-      END_SQL
-
-      repolist = Repository.find_by_sql sql
-      result = []
-      repolist.each do |repo|
-        result << "#{repo.project_name}/#{repo.repo_name}"
-      end
-      result
-    end
-
     def find_remote_project(name)
       fragments = name.split(/:/)
       local_project = String.new
@@ -83,6 +59,18 @@ class DbProject < ActiveRecord::Base
       end
       return nil
     end
+  end
+
+  def find_linking_projects
+      sql =<<-END_SQL
+      SELECT prj.*
+      FROM db_projects prj
+      LEFT OUTER JOIN linked_projects lp ON lp.db_project_id = prj.id
+      LEFT OUTER JOIN db_projects lprj ON lprj.id = lp.linked_db_project_id
+      WHERE lprj.name = BINARY ?
+      END_SQL
+
+      result = DbProject.find_by_sql [sql, self.name]
   end
 
   def store_axml( project, force=nil )
@@ -293,10 +281,12 @@ class DbProject < ActiveRecord::Base
       end
 
       project.each_repository do |repo|
+        was_updated = false
+
         if not repocache.has_key? repo.name
           logger.debug "adding repository '#{repo.name}'"
           current_repo = self.repositories.create( :name => repo.name )
-          self.updated_at = Time.now
+          was_updated = true
         else
           logger.debug "modifying repository '#{repo.name}'"
           current_repo = repocache[repo.name]
@@ -306,40 +296,34 @@ class DbProject < ActiveRecord::Base
         # check for rebuild configuration
         if not repo.has_attribute? :rebuild and current_repo.rebuild
           current_repo.rebuild = nil
-          current_repo.save!
-          self.updated_at = Time.now
+          was_updated = true
         end
         if repo.has_attribute? :rebuild
           if repo.rebuild != current_repo.rebuild
             current_repo.rebuild = repo.rebuild
-            current_repo.save!
-            self.updated_at = Time.now
+            was_updated = true
           end
         end
         # check for block configuration
         if not repo.has_attribute? :block and current_repo.block
           current_repo.block = nil
-          current_repo.save!
-          self.updated_at = Time.now
+          was_updated = true
         end
         if repo.has_attribute? :block
           if repo.block != current_repo.block
             current_repo.block = repo.block
-            current_repo.save!
-            self.updated_at = Time.now
+            was_updated = true
           end
         end
         # check for linkedbuild configuration
         if not repo.has_attribute? :linkedbuild and current_repo.linkedbuild
           current_repo.linkedbuild = nil
-          current_repo.save!
-          self.updated_at = Time.now
+          was_updated = true
         end
         if repo.has_attribute? :linkedbuild
           if repo.linkedbuild != current_repo.linkedbuild
             current_repo.linkedbuild = repo.linkedbuild
-            current_repo.save!
-            self.updated_at = Time.now
+            was_updated = true
           end
         end
         #--- end of repository flags ---#
@@ -356,6 +340,14 @@ class DbProject < ActiveRecord::Base
           end
           current_repo.path_elements.create :link => link_repo, :position => position
           position += 1
+          was_updated = true
+        end
+
+        was_updated = true if current_repo.architectures.size > 0 or repo.each_arch.size > 0
+
+        if was_updated
+          current_repo.save!
+          self.updated_at = Time.now
         end
 
         #destroy architecture references
@@ -366,6 +358,7 @@ class DbProject < ActiveRecord::Base
             raise SaveError, "unknown architecture: '#{arch}'"
           end
           current_repo.architectures << Architecture.archcache[arch.to_s]
+          was_updated = true
         end
 
         repocache.delete repo.name
@@ -394,9 +387,11 @@ class DbProject < ActiveRecord::Base
           end
         end
         logger.debug "deleting repository '#{name}'"
+        self.repositories.delete object
         object.destroy
         self.updated_at = Time.now
       end
+      repocache = nil
       #--- end update repositories ---#
       
       store
@@ -530,99 +525,44 @@ class DbProject < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
-  def add_user( user, role_title )
-    logger.debug "adding user: #{user}, #{role_title}"
-    role = Role.rolecache[role_title]
+  def add_user( user, role )
+    unless role.kind_of? Role
+      role = Role.find_by_title(role)
+    end
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in project '#{self.name}'"
     end
 
     unless user.kind_of? User
-      user = User.find_by_login(user.to_s)
+      user = User.find_by_login(user)
     end
 
+    logger.debug "adding user: #{user.login}, #{role.title}"
     ProjectUserRoleRelationship.create(
       :db_project => self,
       :user => user,
       :role => role )
   end
 
-  def add_group( group, role_title )
-    logger.debug "adding group: #{group}, #{role_title}"
-    role = Role.rolecache[role_title]
+  def add_group( group, role )
+    unless role.kind_of? Role
+      role = Role.find_by_title(role)
+    end
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in project '#{self.name}'"
     end
 
     unless group.kind_of? Group
-      group = Group.find_by_title(group.to_s)
+      group = Group.find_by_title(group)
     end
 
+    logger.debug "adding group: #{group.title}, #{role.title}"
     ProjectGroupRoleRelationship.create(
       :db_project => self,
       :group => group,
       :role => role )
-  end
-
-
-  # returns true if the specified user is associated with that project. possible
-  # options are :login and :role
-  # example:
-
-  # proj.has_user? :login => "abauer", :role => "maintainer"
-  def has_user?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["purr"]
-
-    if opt.has_key? :login
-      cond_fragments << "bs_user_id = u.id"
-      cond_fragments << "u.login = ?"
-      cond_params << opt[:login]
-      join_fragments << "users u"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if ProjectUserRoleRelationship.find :first,
-      :select => "purr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
-  end
-
-  # proj.has_group? :title => "suse_review_team", :role => "maintainer"
-  def has_group?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["pgrr"]
-
-    if opt.has_key? :name
-      cond_fragments << "bs_group_id = g.id"
-      cond_fragments << "g.login = ?"
-      cond_params << opt[:name]
-      join_fragments << "group g"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if ProjectGroupRoleRelationship.find :first,
-      :select => "pgrr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
   end
 
   def each_user( opt={}, &block )
@@ -693,11 +633,11 @@ class DbProject < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload sourceaccess privacy access).each do |flag_name|
+      FlagHelper.flag_types.each do |flag_name|
         if view == 'flagdetails'
           expand_flags(builder, flag_name)
         else
-          flaglist = __send__(flag_name+"_flags")
+          flaglist = type_flags(flag_name)
           project.tag! flag_name do
             flaglist.each do |flag|
               flag.to_xml(builder)
@@ -821,8 +761,8 @@ class DbProject < ActiveRecord::Base
   # give out the XML for all repos/arch combos
   def expand_flags(builder, flag_name, pkg_flags = nil)
     builder.tag! flag_name do
-      flaglist = __send__(flag_name+"_flags")
-      flag_default = __send__(flag_name + "_flags").default_state
+      flaglist = self.type_flags(flag_name)
+      flag_default = FlagHelper.default_for(flag_name)
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       archs = Array.new
       repos.each do |repo|
@@ -878,6 +818,7 @@ class DbProject < ActiveRecord::Base
     end
 
     # no package found
+    processed.delete(self)
     return nil
   end
 

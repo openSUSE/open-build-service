@@ -1,0 +1,31 @@
+<div id="dialog_wrapper">
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="linking_projects">
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">
+      Linking Projects
+    </div>
+
+
+    <p><div class="aligncenter buttons">
+      <table>
+        <tr>
+           <th>Projects linking to <%= @project.name %></th>
+        </tr>
+        <% @linking_projects.each do |lp|%>
+           <tr>
+              <td><%=link_to(lp, :controller => :project, :action => :show, :project => lp)%></td>
+           </tr>
+        <% end %>
+      </table>
+    </div></p>
+
+    <p><div class="aligncenter buttons">
+        <%= link_to_function 'Close', 'remove_dialog()'%>
+    </div></p>
+
+
+  </div>
+
+</div></div>

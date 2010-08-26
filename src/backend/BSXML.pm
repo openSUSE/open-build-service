@@ -98,6 +98,7 @@ our $proj = [
      ]],
 	'remoteurl',
 	'remoteproject',
+	'mountproject',
      [[ 'person' =>
             'role',
             'userid',
@@ -194,6 +195,8 @@ our $aggregatelist = [
     'aggregatelist' =>
      [[ 'aggregate' =>
 	    'project',
+	    [],
+            'nosources',
 	  [ 'package' ],
 	  [ 'binary' ],
 	 [[ 'repository' =>
@@ -370,6 +373,7 @@ our $buildinfo = [
 	'verifymd5',
 	'rev',
 	'reason',       # just for the explain string of a build reason
+	'needed',       # number of blocked
 	'readytime',
 	'specfile',	# obsolete
 	'file',
@@ -701,6 +705,16 @@ our $ajaxstatus = [
 		'fd',
 		'peer',
 		'starttime',
+		'request',
+	 ]],
+     ]],
+     [[ 'serialize' =>
+	    'filename',
+	 [[ 'job' =>
+		'id',
+		'ev',
+		'fd',
+		'peer',
 		'request',
 	 ]],
      ]],
@@ -1064,6 +1078,26 @@ our $dispatchprios = [
 	    'arch',
 	    'adjust',
      ]],
+];
+
+our $service = [
+    'service' =>
+        'name',
+        [],
+        'summary',
+        'description',
+        [[ 'parameter' =>
+                     'name',
+                     [],
+                     'description',
+                     'required', # don't run without this parameter
+                     [[ 'allowedvalue' => '_content' ]], # list of possible values
+        ]],
+];
+
+our $servicelist = [
+    'servicelist' =>
+        [ $service ],
 ];
 
 1;

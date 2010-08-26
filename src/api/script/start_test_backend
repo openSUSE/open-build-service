@@ -1,0 +1,245 @@
+#!/usr/bin/env ruby
+ENV['RAILS_ENV'] = 'test'
+require File.dirname(__FILE__) + '/../config/boot'
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+
+Thread.abort_on_exception = true
+srcsrv_out = nil
+reposrv_out = nil
+logger = RAILS_DEFAULT_LOGGER
+FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
+FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
+
+puts "Creating backend config at #{RAILS_ROOT}/tmp/backend_config/BSConfig.pm"
+FileUtils.mkdir "#{RAILS_ROOT}/tmp/backend_config"
+file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
+File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
+  template.readlines.each do |line|
+    line.gsub!(/(our \$bsuser)/, '#\1')
+    line.gsub!(/(our \$bsgroup)/, '#\1')
+    line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
+    line.gsub!(/:5352/, ":#{SOURCE_PORT}")
+    line.gsub!(/:5252/, ":3201") # used via source server
+    file.print line
+  end
+end
+file.close
+
+perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
+
+%w{bs_srcserver bs_repserver bs_sched}.each do |srv|
+  FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
+  unless system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
+    puts "ERROR: syntax broken of #{srv}"
+    exit 1
+  end
+end
+
+puts "Starting backend srcserver..."
+srcsrv = Thread.new do
+  srcsrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_srcserver 2>&1")
+  puts "Started backend srcserver with pid: #{srcsrv_out.pid}"
+  begin
+    Process.setpgid srcsrv_out.pid, 0
+  rescue Errno::EACCES
+    puts "Could not set backend srcserver group to root"
+    # what to do?
+  end
+  while srcsrv_out
+    begin
+      line = srcsrv_out.gets
+      logger.debug line.strip unless line.blank?
+    rescue IOError
+      break
+    end
+  end
+end
+
+puts "Starting backend repserver..."
+reposrv = Thread.new do
+  reposrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_repserver 2>&1")
+  puts "Started backend repserver with pid #{reposrv_out.pid}"
+  begin
+    Process.setpgid reposrv_out.pid, 0
+  rescue Errno::EACCES
+    # what to do?
+    puts "Could not set backend repserver group to root"
+  end
+  while reposrv_out
+    begin
+      line = reposrv_out.gets
+      logger.debug line.strip unless line.blank?
+    rescue IOError
+      break
+    end
+  end
+end
+
+while true
+  puts "Connecting to srcserver..."
+  begin
+    Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
+  rescue Errno::ECONNREFUSED
+    sleep 0.5
+    next
+  end
+  break
+end
+
+while true
+  puts "Connecting to repserver..."
+  begin
+    Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
+  rescue Errno::ECONNREFUSED
+    sleep 0.5
+    next
+  end
+  break
+end
+
+system("rake db:fixtures:load")
+Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
+Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack1").to_axml)
+Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
+Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack2").to_axml)
+Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
+Suse::Backend.put( '/source/BaseDistro2/_meta', DbProject.find_by_name('BaseDistro2').to_axml)
+Suse::Backend.put( '/source/BaseDistro2/pack2/_meta', DbPackage.find_by_id(10099).to_axml)
+Suse::Backend.put( '/source/BaseDistro2/pack2/myfile', "DummyContent of BaseDistro2/pack2")
+Suse::Backend.put( '/source/BaseDistro2:LinkedUpdateProject/_meta', DbProject.find_by_name('BaseDistro2:LinkedUpdateProject').to_axml)
+Suse::Backend.put( '/source/BaseDistro3/_meta', DbProject.find_by_name('BaseDistro3').to_axml)
+Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', DbPackage.find_by_id('10094').to_axml)
+Suse::Backend.put( '/source/BaseDistro:Update/_meta', DbProject.find_by_name('BaseDistro:Update').to_axml)
+Suse::Backend.put( '/source/BaseDistro:Update/pack2/_meta', DbPackage.find_by_id(10098).to_axml)
+Suse::Backend.put( '/source/BaseDistro:Update/pack2/_link', "<link project=\"BaseDistro\" package=\"pack2\" />")
+# HiddenProject
+Suse::Backend.put( '/source/HiddenProject/_meta', DbProject.find_by_name('HiddenProject').to_axml)
+Suse::Backend.put( '/source/HiddenProject/_config', "Type: spec")
+Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
+Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
+Suse::Backend.put( '/source/HiddenProject/pack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put( '/source/HiddenProject/pack1/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack1").to_axml)
+Suse::Backend.put( '/source/HiddenProject/pack1/my_file', "Protected Content #2")
+# BinaryprotectedProject
+Suse::Backend.put( '/source/BinaryprotectedProject/_meta', DbProject.find_by_name('BinaryprotectedProject').to_axml)
+Suse::Backend.put( '/source/BinaryprotectedProject/_config', "Type: spec")
+Suse::Backend.put( '/source/BinaryprotectedProject/bdpack/_meta', DbPackage.find_by_project_and_name("BinaryprotectedProject", "bdpack").to_axml)
+Suse::Backend.put( '/source/BinaryprotectedProject/bdpack/my_file', "Protected Content")
+Suse::Backend.put( '/source/BinaryprotectedProject/bdpack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
+
+Suse::Backend.put( '/source/LocalProject/_meta', DbProject.find_by_name('LocalProject').to_axml)
+Suse::Backend.put( '/source/LocalProject/remotepackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "remotepackage").to_axml)
+Suse::Backend.put( '/source/LocalProject/remotepackage/_link', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
+Suse::Backend.put( '/source/RemoteInstance/_meta', DbProject.find_by_name('RemoteInstance').to_axml)
+Suse::Backend.put( '/source/UseRemoteInstance/_meta', DbProject.find_by_name('UseRemoteInstance').to_axml)
+Suse::Backend.put( '/source/home:adrian:BaseDistro/_meta', DbProject.find_by_name('home:adrian:BaseDistro').to_axml)
+Suse::Backend.put( '/source/home:coolo/_meta', DbProject.find_by_name('home:coolo').to_axml)
+Suse::Backend.put( '/source/home:coolo:test/_meta', DbProject.find_by_name('home:coolo:test').to_axml)
+Suse::Backend.put( '/source/home:coolo:test/kdelibs_DEVEL_package/_meta', DbPackage.find_by_name('kdelibs_DEVEL_package').to_axml)
+Suse::Backend.put( '/source/home:Iggy/_meta', DbProject.find_by_name('home:Iggy').to_axml)
+Suse::Backend.put( '/source/home:Iggy/_config', "Type: spec")
+Suse::Backend.put( '/source/home:Iggy/TestPack/_meta', DbPackage.find_by_name('TestPack').to_axml)
+Suse::Backend.put( '/source/home:Iggy/TestPack/myfile', "DummyContent")
+Suse::Backend.put( '/source/home:Iggy/TestPack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put( '/source/home:Iggy/ToBeDeletedTestPack/_meta', DbPackage.find_by_name('ToBeDeletedTestPack').to_axml)
+Suse::Backend.put( '/source/home:Iggy:OldProject/_meta', DbProject.find_by_name('home:Iggy:OldProject').to_axml)
+Suse::Backend.put( '/source/home:Iggy:branches:kde4/_meta', DbProject.find_by_name('home:Iggy:branches:kde4').to_axml)
+Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
+Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/myfile', "DummyContent")
+Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
+Suse::Backend.put( '/source/kde4/kdebase/_meta', DbPackage.find_by_name('kdebase').to_axml)
+Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
+Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
+Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
+Suse::Backend.put( '/source/home:tom/_meta', DbProject.find_by_name('home:tom').to_axml)
+# ACL#2:
+Suse::Backend.put( '/source/ViewprotectedProject/_meta', DbProject.find_by_name('ViewprotectedProject').to_axml)
+Suse::Backend.put( '/source/ViewprotectedProject/pack/_meta', DbPackage.find_by_project_and_name("ViewprotectedProject", "pack").to_axml)
+Suse::Backend.put( '/source/ViewprotectedProject/pack/my_file', "Protected Content")
+
+# manual placing of files
+FileUtils.cp("#{RAILS_ROOT}/test/fixtures/backend/source/_pubkey", "#{RAILS_ROOT}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
+
+#
+# Prepare backend meta and binary data
+#
+
+# run scheduler once
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+   # just for waiting until scheduler finishes
+   io.each {||}
+end
+
+# find out about the triggered build job and write back dispatching data
+# FIXME: make me more robust and detect MD5SUMs
+# home:Iggy
+jobid=""
+IO.popen("md5sum #{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-cfbfb77264afef8c58488f10495fe400|cut -d' ' -f 1") do |io|
+   jobid = io.readlines.first.chomp
+end
+f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-cfbfb77264afef8c58488f10495fe400:status", 'w')
+f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+f.close
+# upload build result as a worker would do
+system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=home:Iggy::10.2::TestPack-cfbfb77264afef8c58488f10495fe400&jobid=#{jobid}'")
+
+# HiddenProject
+jobid=""
+IO.popen("md5sum #{RAILS_ROOT}/tmp/backend_data/jobs/i586/HiddenProject::nada::pack-47a5fb1c73c75bb252283e2ad1110182|cut -d' ' -f 1") do |io|
+   jobid = io.readlines.first.chomp
+end
+f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/HiddenProject::nada::pack-47a5fb1c73c75bb252283e2ad1110182:status", 'w')
+f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+f.close
+# upload build result as a worker would do
+system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=HiddenProject::nada::pack-47a5fb1c73c75bb252283e2ad1110182&jobid=#{jobid}'")
+
+# BinaryAccess
+# BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182
+jobid=""
+IO.popen("md5sum #{RAILS_ROOT}/tmp/backend_data/jobs/i586/BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182|cut -d' ' -f 1") do |io|
+   jobid = io.readlines.first.chomp
+end
+f = File.open("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182:status", 'w')
+f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+f.close
+# upload build result as a worker would do
+system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182&jobid=#{jobid}'")
+
+# SourceAccess
+
+
+
+# run scheduler again to handle the build result
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+   # just for waiting until scheduler finishes
+   io.each {||}
+end
+# upload a binary file to repository directly
+#Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/package.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
+
+puts "DONE NOW"
+$stdout.flush
+
+dienow = false
+trap("INT") { dienow = true }
+
+while !dienow do
+  sleep 1
+end
+
+puts "kill #{srcsrv_out.pid}"
+Process.kill "INT", -srcsrv_out.pid
+puts "kill #{reposrv_out.pid}"
+Process.kill "INT", -reposrv_out.pid
+
+
+srcsrv_out.close
+srcsrv_out = nil
+srcsrv.join
+reposrv_out.close
+reposrv_out = nil
+reposrv.join
+FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
+FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
+

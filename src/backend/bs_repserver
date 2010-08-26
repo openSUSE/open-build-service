@@ -61,7 +61,7 @@ use BSXPath;
 use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
-use BSHermes;
+use BSNotify;
 
 use BSSolv;
 
@@ -154,18 +154,22 @@ sub addrepo_remote {
   };
   my $cpio = BSRPC::rpc($param, undef, "view=cache");
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
-  my $cachedata = $cpio{'repositorycache'};
-  return undef unless $cachedata;
-  my $cache;
-  eval { $cache = Storable::thaw(substr($cachedata, 4)); };
-  undef $cachedata;
-  warn($@) if $@;
-  return undef unless $cache;
-  for (values %$cache) {
-    delete $_->{'path'};
-    delete $_->{'id'};
+  if (exists $cpio{'repositorycache'}) {
+    my $cache;
+    eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    delete $cpio{'repositorycache'};	# free mem
+    warn($@) if $@;
+    return undef unless $cache;
+    # free some unused entries to save mem
+    for (values %$cache) {
+      delete $_->{'path'};
+      delete $_->{'id'};
+    }
+    return $pool->repofromdata($prp, $cache);
+  } else {
+    # return empty repo
+    return $pool->repofrombins($prp, '');
   }
-  return $pool->repofromdata($prp, $cache);
 }
 
 sub fetchdodbinary {
@@ -831,7 +835,7 @@ sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $bin) = @_;
   return getbinary_repository($cgi, $projid, $repoid, $arch, $bin) if $packid eq '_repository';
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
-  die("$bin: $!\n") unless -f $path;
+  die("404 $bin: $!\n") unless -f $path;
   my $view = $cgi->{'view'} || '';
   return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   die("unknown view '$view'\n") if $view;
@@ -1141,6 +1145,7 @@ sub sendbadhostevent {
     'type' => 'badhost',
     'project' => $info->{'project'},
     'package' => $info->{'package'},
+    'repository' => $info->{'repository'},
     'arch' => $info->{'arch'},
     'job' => $idlename,
   };
@@ -1203,9 +1208,9 @@ sub putjob {
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
-    BSHermes::notify('BUILD_UNCHANGED', $info);
+    BSNotify::notify('BUILD_UNCHANGED', $info);
   } else {
-    BSHermes::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
+    BSNotify::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
   }
 
   # calculate binary info to speed up scheduler
@@ -1733,7 +1738,7 @@ sub getbuildinfo {
   if ($pdata->{'ldepfile'}) {
     # have local deps, add them to pool
     my $data = {};
-    Build::readdeps(undef, $data, $pdata->{'ldepfile'});
+    Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
     my $r = $pool->repofromdata('', $data);
     die("ldepfile repo add failed\n") unless $r;
   }
@@ -1759,7 +1764,11 @@ sub getbuildinfo {
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  #$ret->{'subpack'} = \@subpacks;
+  if ($info->{'subpacks'}) {
+    $ret->{'subpack'} = $info->{'subpacks'};
+  } elsif (@subpacks) {
+    $ret->{'subpack'} = [ @subpacks ];
+  }
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
   # expand deps
@@ -2048,6 +2057,7 @@ sub getbuildinfo_post {
   }
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
+  $info->{'subpacks'} = $d->{'subpacks'};
   if ($d->{'prereqs'}) {
     my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
     my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};

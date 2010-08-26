@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class DbProjectTest < ActiveSupport::TestCase
-  fixtures :db_projects, :db_packages, :repositories, :flags, :users
+  fixtures :all
 
   def setup
     @project = DbProject.find( 502 )
@@ -10,8 +10,8 @@ class DbProjectTest < ActiveSupport::TestCase
     
   def test_flags_to_axml
     #check precondition
-    assert_equal 2, @project.build_flags.size
-    assert_equal 2, @project.publish_flags.size
+    assert_equal 2, @project.type_flags('build').size
+    assert_equal 2, @project.type_flags('publish').size
     
     xml_string = @project.to_axml
     #puts xml_string
@@ -35,17 +35,17 @@ class DbProjectTest < ActiveSupport::TestCase
     
     #project is given as axml
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description> 
         <build> 
-          <disabled repository='10.2' arch='i586'/>
+          <disable repository='10.2' arch='i586'/>
         </build>
         <publish>
-          <enabled repository='10.2' arch='x86_64'/>
+          <enable repository='10.2' arch='x86_64'/>
         </publish>
         <debuginfo>
-          <disabled repository='10.0' arch='i586'/>
+          <disable repository='10.0' arch='i586'/>
         </debuginfo>
       </project>"
       )
@@ -57,64 +57,64 @@ class DbProjectTest < ActiveSupport::TestCase
     @project.reload
     
     #check results
-    assert_equal 1, @project.build_flags.size
-    assert_equal 'disabled', @project.build_flags[0].status
-    assert_equal '10.2', @project.build_flags[0].repo
-    assert_equal 'i586', @project.build_flags[0].architecture.name
-    assert_equal 0, @project.build_flags[0].position
-    assert_nil @project.build_flags[0].db_package    
-    assert_equal 'home:tscholz', @project.build_flags[0].db_project.name
+    assert_equal 1, @project.type_flags('build').size
+    assert_equal 'disable', @project.type_flags('build')[0].status
+    assert_equal '10.2', @project.type_flags('build')[0].repo
+    assert_equal 'i586', @project.type_flags('build')[0].architecture.name
+    assert_equal 1, @project.type_flags('build')[0].position
+    assert_nil @project.type_flags('build')[0].db_package    
+    assert_equal 'home:Iggy', @project.type_flags('build')[0].db_project.name
     
-    assert_equal 1, @project.publish_flags.size
-    assert_equal 'enabled', @project.publish_flags[0].status
-    assert_equal '10.2', @project.publish_flags[0].repo
-    assert_equal 'x86_64', @project.publish_flags[0].architecture.name
-    assert_equal 0, @project.publish_flags[0].position
-    assert_nil @project.publish_flags[0].db_package    
-    assert_equal 'home:tscholz', @project.publish_flags[0].db_project.name  
+    assert_equal 1, @project.type_flags('publish').size
+    assert_equal 'enable', @project.type_flags('publish')[0].status
+    assert_equal '10.2', @project.type_flags('publish')[0].repo
+    assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
+    assert_equal 2, @project.type_flags('publish')[0].position
+    assert_nil @project.type_flags('publish')[0].db_package    
+    assert_equal 'home:Iggy', @project.type_flags('publish')[0].db_project.name  
     
-    assert_equal 1, @project.debuginfo_flags.size
-    assert_equal 'disabled', @project.debuginfo_flags[0].status
-    assert_equal '10.0', @project.debuginfo_flags[0].repo
-    assert_equal 'i586', @project.debuginfo_flags[0].architecture.name
-    assert_equal 0, @project.debuginfo_flags[0].position
-    assert_nil @project.debuginfo_flags[0].db_package    
-    assert_equal 'home:tscholz', @project.debuginfo_flags[0].db_project.name      
+    assert_equal 1, @project.type_flags('debuginfo').size
+    assert_equal 'disable', @project.type_flags('debuginfo')[0].status
+    assert_equal '10.0', @project.type_flags('debuginfo')[0].repo
+    assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
+    assert_equal 3, @project.type_flags('debuginfo')[0].position
+    assert_nil @project.type_flags('debuginfo')[0].db_package    
+    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].db_project.name      
     
   end
   
   
   def test_delete_flags_through_xml
     #check precondition
-    assert_equal 2, @project.build_flags.size
-    assert_equal 2, @project.publish_flags.size
+    assert_equal 2, @project.type_flags('build').size
+    assert_equal 2, @project.type_flags('publish').size
     
     #project is given as axml
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description> 
       </project>"
       )    
     
     #first update build-flags, should only delete build-flags
     @project.update_flags(axml, 'build')
-    assert_equal 0, @project.build_flags.size
+    assert_equal 0, @project.type_flags('build').size
         
     #second update publish-flags, should delete publish-flags    
     @project.update_flags(axml, 'publish')
-    assert_equal 0, @project.publish_flags.size
+    assert_equal 0, @project.type_flags('publish').size
     
   end
   
   
   def test_flag_type_mismatch
     #check precondition
-    assert_equal 2, @project.build_flags.size    
+    assert_equal 2, @project.type_flags('build').size    
   
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description>
         <build>
           <enable repository='10.2' arch='i586'/>
@@ -124,15 +124,17 @@ class DbProjectTest < ActiveSupport::TestCase
       </project>"
       )    
   
-    assert_equal 2, @project.build_flags.size  
+    assert_equal 2, @project.type_flags('build').size  
   end
   
   
   def test_store_axml
+    original = @project.to_axml
+
     #project is given as axml
     axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
         <description></description>
         <debuginfo>
           <disable repository='10.0' arch='i586'/>
@@ -144,8 +146,10 @@ class DbProjectTest < ActiveSupport::TestCase
       
     @project.store_axml(axml)
     
-    assert_equal 0, @project.build_flags.size
-    assert_equal 1, @project.debuginfo_flags.size        
+    assert_equal 0, @project.type_flags('build').size
+    assert_equal 1, @project.type_flags('debuginfo').size        
+
+    @project.store_axml(ActiveXML::Base.new(original))
   end  
   
   
@@ -167,20 +171,20 @@ end
 #TODO delete
 #  def test_update_flags
 #    
-#    puts "build flag count:\t", @project.build_flags.size, "\n" 
-#        put_flags(@project.build_flags)
+#    puts "build flag count:\t", @project.type_flags('build').size, "\n" 
+#        put_flags(@project.type_flags('build'))
 #        
 #        puts "\n adding new flag ................."
 #        f= BuildFlag.new(:status => 'disable', :repo => '10.2')
-#        @project.build_flags << f
+#        @project.type_flags('build') << f
 #        f.move_to_top    
 #        @project.reload
 #        
 #        f =  BuildFlag.new(:status => 'enabled')
-#        @project.build_flags << f
+#        @project.type_flags('build') << f
 #        f.move_to_top
 #        @project.reload
-#        put_flags(@project.build_flags)
+#        put_flags(@project.type_flags('build'))
 #        
 #        puts "\n to axml ........................."    
 #        axml = ActiveXML::Base.new(@project.to_axml.to_s)
@@ -190,7 +194,7 @@ end
 #        ret =  @project.update_flags(:project => axml, :flagtype => "build")
 #        #logger.debug "TEESSSTTT"
 #        @project.reload
-#        put_flags @project.build_flags
+#        put_flags @project.type_flags('build')
 #        
 ##        put_flags(ret)
 ##        puts ret.size

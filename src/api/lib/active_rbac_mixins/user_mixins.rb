@@ -317,6 +317,169 @@ module UserMixins
             return nil
           end
 
+          # This static method tries to update the entry with the given info in the 
+          # active directory server.  Return the error msg if any error occured
+          def self.update_entry_ldap(login, newlogin, newemail, newpassword)
+            logger.debug( " Modifying #{login} to #{newlogin} #{newemail} using ldap" )
+            
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return "Unable to connect to LDAP server"
+            end
+            user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            dn = String.new
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+              dn = entry.dn
+            end
+            if dn.empty?
+              logger.debug( "User not found in ldap" )
+              return "User not found in ldap"
+            end
+
+            # Update mail/password info
+            entry = [
+                  LDAP.mod(LDAP::LDAP_MOD_REPLACE,LDAP_MAIL_ATTR,[newemail]),
+                  ]
+            if newpassword
+              case LDAP_AUTH_MECH
+              when :cleartext then
+                entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE,LDAP_AUTH_ATTR,[newpassword])
+              when :md5 then
+                require 'digest/md5'
+                require 'base64'
+                entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE,LDAP_AUTH_ATTR,["{MD5}"+Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
+              end
+            end
+            begin
+              ldap_con.modify(dn, entry)
+            rescue LDAP::ResultError
+              logger.debug("Error #{ldap_con.err} for #{login} mail/password changing")
+              return "Failed to update entry for #{login}: error #{ldap_con.err}"
+            end
+
+            # Update the dn name if it is changed
+            if not login == newlogin
+              begin
+                ldap_con.modrdn(dn,"#{LDAP_NAME_ATTR}=#{newlogin}", true)
+              rescue LDAP::ResultError
+                logger.debug("Error #{ldap_con.err} for #{login} dn name changing")
+                return "Failed to update dn name for #{login}: error #{ldap_con.err}"
+              end
+            end
+
+            ldap_con.unbind()
+            return
+          end
+
+          # This static method tries to add the new entry with the given name/password/mail info in the 
+          # active directory server.  Return the error msg if any error occured
+          def self.new_entry_ldap(login, password, mail)
+            require 'ldap'
+            logger.debug( "Add new entry for #{login} using ldap" )
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return "Unable to connect to LDAP server"
+            end
+            case LDAP_AUTH_MECH
+            when :cleartext then
+              ldap_password = password
+            when :md5 then
+              require 'digest/md5'
+              require 'base64'
+              ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+            end
+            entry = [
+              LDAP.mod(LDAP::LDAP_MOD_ADD,'objectclass',LDAP_OBJECT_CLASS),
+              LDAP.mod(LDAP::LDAP_MOD_ADD,LDAP_NAME_ATTR,[login]),
+              LDAP.mod(LDAP::LDAP_MOD_ADD,LDAP_AUTH_ATTR,[ldap_password]),
+              LDAP.mod(LDAP::LDAP_MOD_ADD,LDAP_MAIL_ATTR,[mail]),       
+            ]
+            # Added required sn attr
+            if defined?( LDAP_SN_ATTR_REQUIRED ) && LDAP_SN_ATTR_REQUIRED == :on
+              entry << LDAP.mod(LDAP::LDAP_MOD_ADD,'sn',[login])
+            end
+
+            begin
+              ldap_con.add("#{LDAP_NAME_ATTR}=#{login},#{LDAP_ENTRY_BASE}", entry)
+            rescue LDAP::ResultError
+              logger.debug("Error #{ldap_con.err} for #{login}")
+              return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
+            end
+            ldap_con.unbind()  
+            return
+          end
+
+          # This static method tries to delete the entry with the given login in the 
+          # active directory server.  Return the error msg if any error occured
+          def self.delete_entry_ldap(login)
+            logger.debug( "Deleting #{login} using ldap" )
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return "Unable to connect to LDAP server"
+            end
+            user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            dn = String.new
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+              dn = entry.dn
+            end
+            if dn.empty?
+              logger.debug( "User not found in ldap" )
+              return "User not found in ldap"
+            end
+            begin
+              ldap_con.delete(dn)
+            rescue LDAP::ResultError
+              logger.debug( "Failed to delete: error #{ldap_con.err} for #{login}" )
+              return "Failed to delete the entry #{login}: error #{ldap_con.err}"
+            end
+            ldap_con.unbind()  
+            return
+          end
+
+          # This static method tries to update the password with the given login in the 
+          # active directory server.  Return the error msg if any error occured
+          def self.change_password_ldap(login, password)
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return "Unable to connect to LDAP server"
+            end
+            user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            dn = String.new
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+              dn = entry.dn
+            end
+            if dn.empty?
+              logger.debug( "User not found in ldap" )
+              return "User not found in ldap"
+            end
+
+            case LDAP_AUTH_MECH
+            when :cleartext then
+              ldap_password = password
+            when :md5 then
+              require 'digest/md5'
+              require 'base64'
+              ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+            end
+            entry = [
+              LDAP.mod(LDAP::LDAP_MOD_REPLACE, LDAP_AUTH_ATTR, [ldap_password]),
+            ]
+            begin
+              ldap_con.modify(dn, entry)
+            rescue LDAP::ResultError
+              logger.debug("Error #{ldap_con.err} for #{login}")
+              return "#{ldap_con.err}"
+            end
+
+            ldap_con.unbind()
+            return
+          end
+
+
           # This static method tries to find a user with the given login and
           # password in the active directory server.  Returns nil unless 
           # credentials are correctly found using LDAP.
@@ -545,7 +708,10 @@ module UserMixins
                 end
                 conn.bind(user_name, password)
               rescue LDAP::ResultError
-                logger.debug( "Not bound:  error #{conn.err}" )
+                if not conn.nil?
+                  conn.unbind()
+                end
+                logger.debug( "Not bound:  error #{conn.err} for #{user_name}" )
                 return nil
               end
               logger.debug( "Bound as #{user_name}" )

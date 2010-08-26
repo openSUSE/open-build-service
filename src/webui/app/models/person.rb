@@ -77,35 +77,76 @@ class Person < ActiveXML::Base
     Rails.cache.delete cachekey unless opts[:cache]
 
     requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      # we assume that the user is involved in all his subprojects (home:#{login}:...)
+      # FIXME: we assume that the user is involved in all his subprojects (home:#{login}:...)
+      #        that should not be needed ... verify ...
       iprojects = involved_projects.each.map {|x| x.name}.reject {|x| /^home:#{login}:/.match(x) }.sort
       requests = Array.new
+      request_ids = Array.new
 
+      myrequests = Hash.new
       unless iprojects.empty?
         predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
         predicate = "#{predicate} or starts-with(action/target/@project, 'home:#{login}:')"
         predicate = "state/@name='new' and (#{predicate})"
         collection = Collection.find :what => :request, :predicate => predicate
-        myrequests = Hash.new
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{login}'"
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         keys = myrequests.keys().sort {|x,y| y <=> x}
-        keys.each {|id| requests << myrequests[id] }
+        keys.each do |id| 
+          unless request_ids.include? id
+            requests << myrequests[id]
+            request_ids << id
+          end
+        end
       end
+
+      # check for all open review tasks
+      collection = Request.find_open_review_requests(login)
+      collection.each do |req| myrequests[Integer(req.value :id)] = req end
+      keys = myrequests.keys().sort {|x,y| y <=> x}
+      keys.each do |id| 
+        unless request_ids.include? id
+          requests << myrequests[id]
+          request_ids << id
+        end
+      end
+
       requests
     end
     return requests
+  end
+
+  def groups
+    cachekey = "#{login}_groups"
+    mygroups = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      groups=[]
+
+      path = "/person/#{login}/group"
+      frontend = ActiveXML::Config::transport_for( :person )
+      answer = frontend.direct_http URI(path), :method => "GET"
+
+      doc = XML::Parser.string(answer).parse.root
+      doc.find("/directory/entry").each do |e|
+        groups.push e.attributes["name"]
+      end
+
+      groups
+    end
+
+    return mygroups
   end
 
   def packagesorter(a, b)
     a.project == b.project ? a.name <=> b.name : a.project <=> b.project
   end
 
+  def is_in_group? (group)
+    return groups.include? group
+  end
+
   def is_admin?
-    # FIXME: we should actually ask the backend here
-    return true if login.to_s == "Admin"
-    return false
+    has_element?( "globalrole[text() = \"Admin\"]" )
   end
 
   # if package is nil, returns project maintainership

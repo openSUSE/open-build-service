@@ -1,0 +1,69 @@
+<% @pagetitle = "Add Repository"
+   @metarobots = 'noindex'
+   project_bread_crumb( 'Add Repository' ) 
+-%>
+
+<%= render :partial => "tabs" %>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
+  <%= javascript_include_tag 'jquery.ajaxmanager' %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+
+<% content_for :ready_function do %>
+  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+  { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
+
+  $('#target_project').result(function(event, data, formatted) {
+  if (data) {
+  $('#target_repo').html('');
+  $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
+  data: {project: $("#target_project").attr('value')},
+  success: function(data){
+  $('#target_repo').removeAttr('disabled');
+  // suggest a name:
+  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
+  $.each(data.split('\n'), function(idx, val) {
+  $('#target_repo').append( new Option( val ) );
+  });
+  }});
+  }
+  });
+
+  $('#target_repo').change(function() {
+  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
+  });
+<% end -%>
+
+<div class="clear"></div>
+<h2>Advanced search for build targets</h2>
+
+<% form_tag( {:action => :save_targets, :project => @project} ) do -%>
+  <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %>
+    <i>(gets auto-completed)</i></p>
+  <p><strong>Repository: </strong>
+    <%= select_tag "target_repo", "<option value=''></option>", :id => 'target_repo', :disabled => true %></p>
+
+<!-- Don't offer new name if we add this repo to an existing one as path -->
+<% if @torepository %>
+  <p><%= hidden_field_tag( "torepository", @torepository ) %></p>
+<% else %>
+  <p><strong>New name: </strong><%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %></p>
+
+  <p><strong>Architectures: </strong>
+    <% VISIBLE_ARCHITECTURES.each do |arch| %>
+      <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
+    <% end %>
+  </p>
+<% end %>
+
+  <p>
+<% if @torepository %>
+    <%= submit_tag "Add path to repository #{@torepository}" %>
+<% else %>
+    <%= submit_tag "Add repository" %>
+<% end %>
+  </p>
+
+<% end-%>

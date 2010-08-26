@@ -9,6 +9,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
+ <distribution vendor="openSUSE" version="11.3" id="opensuse-11.3">
+  <name>openSUSE 11.3</name>
+  <project>openSUSE.org:openSUSE:11.3</project>
+  <reponame>openSUSE_11.3</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.3-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.3-16.png"/>
+  <link>http://www.opensuse.org/</link>
+ </distribution>
  <distribution vendor="openSUSE" version="11.2" id="opensuse-11.2">
   <name>openSUSE 11.2</name>
   <project>openSUSE.org:openSUSE:11.2</project>
@@ -25,15 +34,6 @@
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.1-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.1-16.png"/>
-  <link>http://www.opensuse.org/</link>
- </distribution>
- <distribution vendor="openSUSE" version="11.0" id="opensuse-11.0">
-  <name>openSUSE 11.0</name>
-  <project>openSUSE.org:openSUSE:11.0</project>
-  <reponame>openSUSE_11.0</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.0-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.0-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11">
@@ -90,24 +90,6 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-12-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
- <distribution vendor="Fedora" version="11" id="fedora-11">
-  <name>Fedora 11</name>
-  <project>openSUSE.org:Fedora:11</project>
-  <reponame>Fedora_11</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-11-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-11-16.png"/>
-  <link>http://fedoraproject.org/</link>
- </distribution>
- <distribution vendor="Fedora" version="10" id="fedora-10">
-  <name>Fedora 10</name>
-  <project>openSUSE.org:Fedora:10</project>
-  <reponame>Fedora_10</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-10-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-10-16.png"/>
-  <link>http://fedoraproject.org/</link>
- </distribution>
  <distribution vendor="RedHat" version="RHEL-5" id="redhat-RHEL-5">
   <name>RedHat RHEL-5</name>
   <project>openSUSE.org:RedHat:RHEL-5</project>
@@ -135,6 +117,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-16.png"/>
   <link>http://www.centos.org/</link>
  </distribution>
+ <distribution vendor="Mandriva" version="2010.1" id="mandriva-2010.1">
+  <name>Mandriva 2010.1</name>
+  <project>openSUSE.org:Mandriva:2010.1</project>
+  <reponame>Mandriva_2010.1</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2010-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2010-16.png"/>
+  <link>http://www.mandriva.com/</link>
+ </distribution>
  <distribution vendor="Mandriva" version="2010" id="mandriva-2010">
   <name>Mandriva 2010</name>
   <project>openSUSE.org:Mandriva:2010</project>
@@ -151,15 +142,6 @@
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-16.png"/>
-  <link>http://www.mandriva.com/</link>
- </distribution>
- <distribution vendor="Mandriva" version="2009" id="mandriva-2009">
-  <name>Mandriva 2009</name>
-  <project>openSUSE.org:Mandriva:2009</project>
-  <reponame>Mandriva_2009</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2009-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2009-16.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="10.04" id="ubuntu-10.04">

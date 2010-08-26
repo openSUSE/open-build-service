@@ -5,7 +5,7 @@ set :application, "obs-api"
 # git settings
 set :scm, :git
 set :repository,  "git://gitorious.org/opensuse/build-service.git"
-set :branch, "2.0"
+set :branch, "master"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/api'
@@ -56,6 +56,7 @@ namespace :config do
   task :symlink_shared_config do
     run "rm #{release_path}#{git_subdir}/config/options.yml"
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
+    run "ln -s #{shared_path}/secret.key #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/distributions.xml #{release_path}#{git_subdir}/files"
     run "rm #{release_path}#{git_subdir}/config/environments/production.rb"

@@ -56,6 +56,7 @@ namespace :config do
   task :symlink_shared_config do
     run "rm #{release_path}#{git_subdir}/config/options.yml"
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
+    run "ln -s #{shared_path}/secret.key #{release_path}#{git_subdir}/config/"
     run "rm -f #{release_path}#{git_subdir}/config/environments/production.rb"
     run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/"
     run "ln -s #{shared_path}/database.db #{release_path}#{git_subdir}/db/"
@@ -64,6 +65,11 @@ namespace :config do
     run "ln -s #{shared_path}/maintenance #{release_path}#{git_subdir}/app/views"
     run "rm #{release_path}#{git_subdir}/config/database.yml"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/database.yml"
+  end
+
+  desc "Patch local changes"
+  task :patch_build_opensuse_org do
+    run "cd #{current_path}; patch -p3 < config/build.opensuse.org.diff"
   end
 
   desc "Set permissions"

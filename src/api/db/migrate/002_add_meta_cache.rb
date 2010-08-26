@@ -46,13 +46,6 @@ class AddMetaCache < ActiveRecord::Migration
 
     add_index "db_projects_tags", ["db_project_id", "tag_id"], :name => "projects_tags_all_index", :unique => true
 
-    create_table "bs_roles" do |t|
-      t.column "title", :string
-    end
-
-    BsRole.create :title => "maintainer"
-
-    add_index "bs_roles", ["title"], :name => "bs_roles_title_unique_index", :unique => true
   end
 
   def self.down
@@ -62,6 +55,5 @@ class AddMetaCache < ActiveRecord::Migration
     drop_table "package_user_role_relationships"
     drop_table "tags"
     drop_table "db_projects_tags"
-    drop_table "bs_roles"
   end
 end

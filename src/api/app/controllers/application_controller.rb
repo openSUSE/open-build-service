@@ -8,6 +8,7 @@ require 'xpath_engine'
 require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
+class MissingParameterError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -22,6 +23,10 @@ class ApplicationController < ActionController::Base
 
   before_filter :validate_incoming_xml, :add_api_version
 
+  if Rails.env.test?
+    before_filter :start_test_backend
+  end
+
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
@@ -29,11 +34,36 @@ class ApplicationController < ActionController::Base
 
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
+  
+  hide_action :auth_method
+  hide_action 'auth_method='
 
-  def restrict_admin_pages
-    if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
-      return require_admin
+  @@backend = nil
+  def start_test_backend
+    return if @@backend
+    logger.debug "Starting test backend..."
+    @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
+    logger.debug "Test backend started with pid: #{@@backend.pid}"
+    while true do
+      line = @@backend.gets
+      raise RuntimeError.new('Backend died') unless line
+      break if line =~ /DONE NOW/
+      logger.debug line.strip
     end
+    ActiveXML::Config.global_write_through = true
+    at_exit do
+      logger.debug "kill #{@@backend.pid}"
+      Process.kill "INT", @@backend.pid
+      @@backend = nil
+    end
+  end
+  hide_action :start_test_backend
+
+  protected
+  def restrict_admin_pages
+     if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
+        return require_admin
+     end
   end
 
   def require_admin
@@ -208,17 +238,19 @@ class ApplicationController < ActionController::Base
     end
   end
 
-
+  hide_action :setup_backend  
   def setup_backend
     # initialize backend on every request
     Suse::Backend.source_host = SOURCE_HOST
     Suse::Backend.source_port = SOURCE_PORT
   end
 
+  hide_action :add_api_version
   def add_api_version
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
+  hide_action :forward_from_backend
   def forward_from_backend(path)
 
     if CONFIG['x_rewrite_host']
@@ -252,6 +284,7 @@ class ApplicationController < ActionController::Base
     file.close
   end
 
+  hide_action :download_request
   def download_request
     file = Tempfile.new 'volley'
     b = request.body
@@ -288,6 +321,7 @@ class ApplicationController < ActionController::Base
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
+  public :pass_to_backend
 
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
@@ -315,12 +349,16 @@ class ApplicationController < ActionController::Base
       render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
-    when ActionController::RoutingError
+    when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActionController::UnknownAction
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     when ActionView::MissingTemplate
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
+    when MissingParameterError
+      render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
+    when DbProject::CycleError
+      render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
     else
       if send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
@@ -340,6 +378,14 @@ class ApplicationController < ActionController::Base
 
   def user
     return @http_user
+  end
+
+  def required_parameters(*parameters)
+    parameters.each do |parameter|
+      unless params.include? parameter.to_s
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
+      end
+    end
   end
 
   def valid_http_methods(*methods)
@@ -459,6 +505,8 @@ class ApplicationController < ActionController::Base
 
     __send__ cmd_handler
   end
+  public :dispatch_command
+  hide_action :dispatch_command
 
   def build_query_from_hash(hash, key_list=nil)
     key_list ||= hash.keys

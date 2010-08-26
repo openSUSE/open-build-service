@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
     :rebuild_time_png]
 
   before_filter :load_current_requests, :only => [:delete, :view,
-    :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
+    :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
@@ -73,9 +73,9 @@ class ProjectController < ApplicationController
 
   def get_filtered_projectlist(filterstring, excludefilter='')
     # remove illegal xpath characters
-    filterstring.sub!(/[\[\]\n]/, '')
-    filterstring.sub!(/[']/, '&apos;')
-    filterstring.sub!(/["]/, '&quot;')
+    filterstring.gsub!(/[\[\]\n]/, '')
+    filterstring.gsub!(/[']/, '&apos;')
+    filterstring.gsub!(/["]/, '&quot;')
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
@@ -145,7 +145,7 @@ class ProjectController < ApplicationController
     load_packages_mainpage
 
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
-    @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
+    @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       if buildresult
         results = buildresult.data.find( 'result/status' )
@@ -155,13 +155,22 @@ class ProjectController < ApplicationController
       end
     end
 
+    linking_projects
+
     load_buildresult
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
+  def linking_projects
+    Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
+    @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
+       @project.linking_projects
+    end
+  end
+
   # TODO we need the architectures in api/distributions
-  def add_target_simple
+  def add_repository_from_default_list
     Rails.cache.delete("distributions") if discard_cache?
     dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
       frontend = ActiveXML::Config::transport_for( :package )
@@ -169,6 +178,11 @@ class ProjectController < ApplicationController
     end
     @distributions = XML::Document.string dist_xml
   end
+
+  def add_repository
+    @torepository = params[:torepository]
+  end
+
 
   def add_person
     @roles = Role.local_roles
@@ -256,16 +270,13 @@ class ProjectController < ApplicationController
   def update_target
     valid_http_methods :post
     repo = @project.repository[params[:repo]]
-    repo.name = params[:name]
     repo.archs = params[:arch].to_a
     @arch_list = arch_list
     begin
       @project.save
-      render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
+      render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
     rescue => e
-      repo.name = params[:original_name]
-      render :partial => 'repository_edit_form', :locals => { :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}",
-        :repo => repo } and return
+      render :partial => 'edit_repository', :locals => { :repository => repo, :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}" }
     end
   end
 
@@ -293,22 +304,42 @@ class ProjectController < ApplicationController
       repository.each_arch do |arch|
 
         cycles = Array.new
-        begin
-          # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-          deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
-          if deps.has_element? :cycle
-            cycles = Array.new
-            deps.each_cycle do |cycle|
-              cycles.push( cycle.each_package.collect{ |p| p.text } )
-            end
-          end
-        rescue ActiveXML::Transport::NotFoundError
-          # builddepinfo not yet calculated by scheduler
-          cycles.push( [ 'unknown' ] )
-        end
-        if cycles.length > 0
-          @repocycles[repository.name][arch.text] = cycles
-        end
+	# skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+	deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
+	nr_cycles = 0
+	if deps and deps.has_element? :cycle
+	  packages = Hash.new
+	  deps.each_cycle do |cycle|
+	    current_cycles = Array.new
+	    cycle.each_package do |p|
+	      p = p.text
+	      if packages.has_key? p
+		current_cycles << packages[p]
+	      end
+	    end
+	    current_cycles.uniq!
+	    if current_cycles.empty?
+	      nr_cycles += 1
+	      nr_cycle = nr_cycles
+	    elsif current_cycles.length == 1
+	      nr_cycle = current_cycles[0]
+	    else
+	      logger.debug "HELP! #{current_cycles.inspect}"
+	    end
+	    cycle.each_package do |p|
+	      packages[p.text] = nr_cycle
+	    end
+	  end
+	end
+	cycles = Array.new
+	1.upto(nr_cycles) do |i|
+	  list = Array.new
+	  packages.each do |package,cycle|
+	    list.push(package) if cycle == i
+	  end
+	  cycles << list.sort
+	end
+	@repocycles[repository.name][arch.text] = cycles unless cycles.empty?
       end
     end
   end
@@ -319,7 +350,7 @@ class ProjectController < ApplicationController
     @repository = params[:repository]
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
-    @scheduler = params[:scheduler] || 'fifo'
+    @scheduler = params[:scheduler] || 'needed'
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
             :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
@@ -381,14 +412,20 @@ class ProjectController < ApplicationController
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
     @patchinfo = []
-    @packages.each do |p|
-      @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+    unless @packages.blank?
+      @packages.each do |p|
+        @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+      end
     end
   end
 
   def autocomplete_packages
     packages
-    render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    if valid_package_name_read?( params[:q] ) or params[:q] == ""
+      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    else
+      render :text => ""
+    end
   end
 
   def list_requests
@@ -452,18 +489,25 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => @project
   end
 
-
   def save_targets
     valid_http_methods :post
-    if (params['repo'].blank?)
-      flash[:error] = "Please select a repository."
-      redirect_to :action => :add_target_simple, :project => @project and return
+
+    required_parameters :repo
+
+    # extend an existing repository with a path
+    unless (params['torepository'].blank?)
+      repo_path = "#{params['target_project']}/#{params['target_repo']}"
+      @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
+      @project.save
+      redirect_to :action => :repositories, :project => @project
+      return
     end
 
+    # add new repositories
     params['repo'].each do |repo|
       if !valid_target_name? repo
         flash[:error] = "Illegal target name #{repo}."
-        redirect_to :action => :add_target_simple, :project => @project and return
+        redirect_to :action => :add_repository_from_default_list, :project => @project and return
       end
       repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
       repo_archs = params[repo + '_arch'] || params['arch']
@@ -472,7 +516,7 @@ class ProjectController < ApplicationController
 
       # FIXME: will be cleaned up after implementing FATE #308899
       if repo == "images"
-        prjconf = frontend.get_source(:project => @project, :filename => '_config')
+        prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
         unless prjconf =~ /^Type:/
           prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
           frontend.put_file(prjconf, :project => @project, :filename => '_config')
@@ -516,6 +560,12 @@ class ProjectController < ApplicationController
     redirect_to :action => :repositories, :project => @project
   end
 
+  def remove_path_from_target
+   @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
+   @project.save
+   redirect_to :action => :repositories, :project => @project
+   return
+  end
 
   def save_person
     valid_http_methods(:post)
@@ -881,13 +931,6 @@ class ProjectController < ApplicationController
     status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
       ProjectStatus.find(:project => @project)
     end
-    unless status
-      # a project without package and repos will not do
-      # should be handled more graceful in API, but this is WIP and google
-      # crawls a lot of these links (TODO)
-      render_error :message => "No status for this project", :status => 400
-      return
-    end
 
     all_packages = "All Packages"
     no_project = "No Project"
@@ -904,7 +947,7 @@ class ProjectController < ApplicationController
       p.each_element do |v|
         comments[p.parent['name']] = v.content
       end
-    end
+    end if attributes
 
     upstream_versions = Hash.new
     upstream_urls = Hash.new
@@ -917,7 +960,7 @@ class ProjectController < ApplicationController
         p.each_element do |v|
           upstream_versions[p.parent['name']] = v.content
         end
-      end
+      end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
@@ -926,7 +969,7 @@ class ProjectController < ApplicationController
         p.each_element do |v|
           upstream_urls[p.parent['name']] = v.content
         end
-      end
+      end if attributes
     end
 
     raw_requests = Rails.cache.fetch("requests_new", :expires_in => 5.minutes) do
@@ -999,8 +1042,14 @@ class ProjectController < ApplicationController
         if submits.has_key? key
           currentpack['requests_to'].concat(submits[key])
         end
-        currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
-        currentpack['develmd5'] ||= p.develpack.package.srcmd5
+        if p.develpack.has_element? 'package'
+          currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
+          currentpack['develmd5'] ||= p.develpack.package.srcmd5
+      
+          if p.develpack.package.has_element? :error
+             currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
+          end
+        end
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
           currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
@@ -1014,9 +1063,6 @@ class ProjectController < ApplicationController
               e.message
             end
           end
-        end
-        if p.develpack.package.has_element? :error
-          currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
         end
       elsif @current_develproject != no_project
         next if @current_develproject != all_packages

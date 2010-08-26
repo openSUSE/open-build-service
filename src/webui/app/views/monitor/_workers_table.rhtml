@@ -79,6 +79,10 @@ but just relative against each other. The exact percentage shown has no real mea
 </p>
 </div>
 
+<% if @workers_sorted.size == 0 %>
+	<p><i>No workers</i></p>
+<% else %>
+
 <ul class='monitorboxrow'>
 <% counter = -1
    @workers_sorted.each do |name,hash| 
@@ -109,4 +113,5 @@ but just relative against each other. The exact percentage shown has no real mea
   </li>
 <% end -%>
 </ul>
-<div style="clear: both"></div>
+<% end -%>
+<div class="clear"></div>

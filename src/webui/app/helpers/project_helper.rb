@@ -51,18 +51,18 @@ module ProjectHelper
     if comment
       status_comment_html = comment
       if !firstfail
-        if @project.is_maintainer?( session[:login] )
+        if @project.can_edit?( session[:login] )
           status_comment_html += " " + link_to_remote( image_tag('icons/comment_delete.png', :size => "16x16", :alt => 'Clear'), :update => "comment_#{package.gsub(':', '-')}",
           :url => { :action => :clear_failed_comment, :project => @project, :package => package })
           comments_to_clear << package
         end
-      elsif @project.is_maintainer?( session[:login] )
+      elsif @project.can_edit?( session[:login] )
         status_comment_html += " "
         status_comment_html += link_to_remote image_tag('icons/comment_edit.png', :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
           :url => { :action => "edit_comment_form", :comment=> comment, :package => package, :project => @project }
       end 
     elsif firstfail
-      if @project.is_maintainer?( session[:login] )
+      if @project.can_edit?( session[:login] )
         status_comment_html += " <span class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('icons/comment_edit.png', :size => "16x16", :alt => "Edit"),
           :update => valid_xml_id("comment_edit_#{package}"),
           :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )

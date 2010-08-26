@@ -199,6 +199,8 @@ module SpiderIntegrator
     end
   end
   
+  @@last_perc = 0
+
   protected
   # You probably don't want to be calling these from within your test.
 
@@ -221,6 +223,16 @@ module SpiderIntegrator
       form = SpiderableForm.new form
       queue_form( form, url )
     end
+    @@last_perc.times { $stdout.write "\b" }
+    $stdout.write "."
+    perc = Integer(100 - @links_to_visit.size * 100 / (@links_to_visit.size + @visited_urls.size))
+    $stdout.write "#{perc}%"
+    if perc < 10
+      @@last_perc = 1
+    else
+      @@last_perc = 2
+    end
+    @@last_perc += 1
   end
   
   def console(str)
@@ -303,7 +315,7 @@ module SpiderIntegrator
       next if spider_should_ignore_url?(next_link.uri)
       
       get next_link.uri
-      if %w( 200 201 302 401 ).include?( @response.code )
+      if %w( 200 201 302 401 403 ).include?( @response.code )
         console "GET '#{next_link.uri}'"
       elsif @response.code == '404'
         #if next_link.uri =~ /\.(html|png|jpg|gif)$/ # static file, probably.
@@ -327,7 +339,7 @@ module SpiderIntegrator
           
         @stacktraces[next_link.uri] = @response.body
       end
-      consume_page( @response.body, next_link.uri )
+      @response.each { |body| consume_page( body, next_link.uri ) }
       @visited_urls[next_link.uri] = true
     end
 
@@ -392,11 +404,15 @@ module SpiderIntegrator
   #   only the ajax action will be followed in that case.  This behavior probably should be changed
   #
   def queue_link( tag, source )
-    dest = (tag.attributes['onclick'] =~ /^new Ajax.Updater\(['"].*?['"], ['"](.*?)['"]/i) ? $1 : tag.attributes['href']
+    onclick = tag.attributes['onclick']
+    dest = (onclick =~ /^new Ajax.Updater\(['"].*?['"], ['"](.*?)['"]/i) ? $1 : tag.attributes['href']
     return if dest.nil?
+    return if onclick =~ /confirm/
     dest.gsub!(/([?]\d+)$/, '') # fix asset caching
     unless dest =~ %r{^(http://|mailto:|#|&#)} 
       dest = dest.split('#')[0] if dest.index("#") # don't want page anchors
+      next unless dest.any?
+      return if spider_should_ignore_url?( dest )
       @links_to_visit << SpiderIntegrator::Link.new( dest, source ) if dest.any? # could be empty, make sure there's no empty links queueing
     end
   end
@@ -407,7 +423,7 @@ module SpiderIntegrator
     form.action ||= source
     form.mutate_inputs!(false)
     
-    @forms_to_visit << SpiderIntegrator::Form.new( form.method, form.action, form.query_hash, source )
+    #@forms_to_visit << SpiderIntegrator::Form.new( form.method, form.action, form.query_hash, source )
     # @forms_to_visit << SpiderIntegrator::Form.new( form_method, form_action, mutate_inputs(form, true), source )
   end
 
@@ -421,14 +437,25 @@ class SpiderTest < ActionController::IntegrationTest
 
   include SpiderIntegrator
 
-  def test_spider
+  @@errorurls = []
+
+  def test_1spider
      login_tom
      follow_redirect!
-     setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => true )
+     setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => false )
      do_spider(@response.body, '')
-     @errors.each do |e|
-        puts e
+     @@errorurls = @errors.keys
+     assert_equal Hash.new, @errors
+     logout
+  end
+
+  def test_2respider
+     login_tom
+     
+     unless @@errorurls.empty?
+       get @@errorurls[0]
+       assert_response :success
      end
-     assert @errors.empty?
+     logout
   end
 end

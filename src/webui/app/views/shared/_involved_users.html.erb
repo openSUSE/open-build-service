@@ -38,13 +38,13 @@
             <% package_groups.each do |group| -%>
               <li>
                 <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
-                <%=  group.groupid %>
+                <%=  group %>
               </li>
             <% end -%>
             <% project_groups.each do |group| -%>
               <li>
                 <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
-                <%= group.groupid %>
+                <%= group %>
               </li>
             <% end -%>
 

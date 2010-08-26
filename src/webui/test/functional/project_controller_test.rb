@@ -6,10 +6,22 @@ class ProjectControllerTest < ActionController::IntegrationTest
     login_tom
   end
 
+  def test_basic_project
+      @project = Project.find("home:Iggy")
+
+      assert_equal "i586", @project.architectures[0]
+      assert_equal "x86_64", @project.architectures[1]
+
+      assert_equal "10.2", @project.repositories[0]
+      assert_equal 1, @project.repositories.size
+
+      t = Marshal.dump(@project)
+      nproject = Marshal.load(t)
+      assert_equal @project.dump_xml, nproject.dump_xml
+      assert_equal @project.init_options, nproject.init_options
+  end
+
   def test_list
-    #post '/user/do_login', :username => 'tom', :password => 'thunder', :return_to_path => '/'
-    #assert_redirected_to '/'
-    #assert_equal "You are logged in now", @response.flash[:success]
     get "/project"
     assert_redirected_to "/project/list_public"
     get "/project/list_public"
@@ -22,7 +34,7 @@ class ProjectControllerTest < ActionController::IntegrationTest
     get "/project/show?project=Apache"
     assert_response :success
     assert( assigns(:packages).each.size == 4 )
-    assert( assigns(:problem_packages) == 0 )
+    assert( assigns(:nr_of_problem_packages) == 0 )
     assert( assigns(:project) )
   end
 

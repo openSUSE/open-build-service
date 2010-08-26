@@ -35,7 +35,10 @@
 <% end %>
 
 <h1>History <span id="plots_updating" class="hidden">(updating...)</span></h1>
-<%= render :partial => 'graphs_arch', :locals => { :title => "i586 and x86_64", :prefix => 'pc_' } %>
-<%= render :partial => 'graphs_arch', :locals => { :title => "Power", :prefix => 'ppc_' } %>
-<%= render :partial => 'graphs_arch', :locals => { :title => "Arm", :prefix => 'arm_' } %>
-<div style="clear: both"></div>
+<%- VISIBLE_ARCHITECTURES.each do |arch|
+      if MONITOR_IMAGEMAP["#{arch}_waiting"] %>
+        <%= render :partial => 'graphs_arch', :locals => { :title => arch, :prefix => "#{arch}_" } %>
+     <% end
+    end
+%>
+<div class="clear"></div>

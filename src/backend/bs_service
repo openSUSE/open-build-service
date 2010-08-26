@@ -52,10 +52,13 @@ undef $BSConfig::bsgroup;
 
 my $buildroot;
 my $port = 5152;
+$port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
 my $silent;
 
 my $servicedir = $BSConfig::servicedir;
 $servicedir="/usr/lib/obs/service" unless $servicedir;
+my $rootservicedir = $servicedir;
+$rootservicedir = $BSConfig::serviceroot."/".$servicedir if $BSConfig::serviceroot;
 
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
 
@@ -103,22 +106,6 @@ sub rm_rf {
   rmdir($dir);
 }
 
-sub qsystem {
-  my (@args) = @_;
-  if ($silent) {
-    my $pid;
-    if (!($pid = xfork())) {
-      open(STDOUT, ">/dev/null");
-      exec(@args);
-      die("$args[0]: $!\n"); 
-    }
-    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n"); 
-    return $?;
-  } else {
-    return system @args;
-  }
-}
-
 sub run_source_update {
   my ($cgi, $projid, $packid) = @_;
 
@@ -156,28 +143,41 @@ sub run_source_update {
     push @run, "$servicedir/$service->{'name'}";
     for my $param (@{$service->{'param'}}) {
       next if $param->{'name'} eq 'outdir';
+      next unless $param->{'_content'};
       push @run, "--$param->{'name'}";
       push @run, $param->{'_content'};
     }
     push @run, "--outdir";
     push @run, "$myworkdir/.tmp";
     BSUtil::cleandir("$myworkdir/.tmp");
-    if (qsystem(@run)) {
-      BSUtil::cleandir(".");
-     
-      # Create error file
-      local *F;
-      if (open(F, '>>', "_service_error")) {
-         print F "service $service->{'name'} ".join(' ', @run)." failed\n";
-         close F;
-      }
-      last;
-    } else { 
-      # copy files inside and add prefix
+
+    if (!open(SERVICE, '-|')) {
+      open(STDERR, ">&STDOUT");
+      exec(@run);
+      die("$run[0]: $!\n");
+    }
+
+    my $output = "";
+    while (<SERVICE>) {
+      $output .= $_;
+    }
+
+    if (close SERVICE) {
+      # SUCCESS, copy files inside and add prefix
       for my $file (grep {!/^[:\.]/} ls("$myworkdir/.tmp")) {
         my $tfile = "_service:".$service->{'name'}.":".$file;
         rename("$myworkdir/.tmp/".$file, $tfile);
       }
+    } else { 
+      # FAILURE, Create error file
+      BSUtil::cleandir(".");
+      local *F;
+      if (open(F, '>>', "_service_error")) {
+         print F "service $service->{'name'} ".join(' ', @run)." failed:\n";
+         print F $output;
+         close F;
+      }
+      last;
     }
   }
   BSUtil::cleandir("$myworkdir/.tmp");
@@ -197,6 +197,30 @@ sub hello {
   return "<hello name=\"Source Service Server\" />\n";
 }
 
+sub show_service {
+  my ($cgi) = @_;
+}
+
+sub list_service {
+  my ($cgi) = @_;
+
+  my $servicelist = {};
+  my @sl;
+  
+  for my $servicefile (ls($rootservicedir)){
+     next unless $servicefile =~ /.service$/;
+     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::service, 1);
+     next unless $service;
+     next unless $service->{'name'};
+     next unless -x "$rootservicedir/$service->{'name'}";
+     push @sl, $service;
+  }
+
+  $servicelist->{'service'} = \@sl;
+
+  return ($servicelist, $BSXML::servicelist); 
+}
+
 # define server
 my $dispatches = [
   '/' => \&hello,
@@ -205,6 +229,8 @@ my $dispatches = [
   '!- GET:' => undef,
   '!- HEAD:' => undef,
 
+  '/service' => \&list_service,
+#  '/service/$service' => \&show_service,
   'POST:/sourceupdate/$project/$package' => \&run_source_update,
 ];
 

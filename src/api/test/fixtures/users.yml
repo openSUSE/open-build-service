@@ -38,16 +38,38 @@ king:
   password_salt: ""
   password_hash_type: md5
 
+# nobody user as existing in default setup
+nobody:
+  id: 5
+  login: _nobody_
+  email: nobody@localhost
+  state: 3
+  realname: Anonymous User
+  password: <%= Digest::MD5.hexdigest("123456") %>
+  password_salt: ""
+  password_hash_type: md5
+
 # standard User for tagging tests
-tscholz:
+Iggy:
   id: 267
-  login: tscholz
-  email: tscholz@suse.de
+  login: Iggy
+  email: Iggy@pop.org
+  realname: Iggy Pop
   password: <%= Digest::MD5.hexdigest("asdfasdf") %>
   password_salt: ""
   password_hash_type: md5
   
   
+# maintenance coordinator
+maintenance_coord:
+  id: 172
+  login: maintenance_coord
+  email: dirkmueller@suse.de
+  realname: our hero
+  password: <%= Digest::MD5.hexdigest("power") %>
+  password_salt: ""
+  password_hash_type: md5
+
 # standard User: (part of "gruppe" group)
 adrian:
   id: 42
@@ -84,3 +106,29 @@ adrian_nobody:
   password_salt: ""
   password_hash_type: md5
 
+user_of_hidden_project:
+  id: 46
+  login: hidden_homer
+  email: homer@nospam.net
+  realname: user is maintainer in hidden project
+  password: <%= Digest::MD5.hexdigest("homer") %>
+  password_salt: ""
+  password_hash_type: md5
+
+user_of_binary_protected_project:
+  id: 47
+  login: binary_homer
+  email: homer@nospam.net
+  realname: user is maintainer in binary protected project (binarydownload)
+  password: <%= Digest::MD5.hexdigest("homer") %>
+  password_salt: ""
+  password_hash_type: md5
+
+user_of_view_protected_project:
+  id: 48
+  login: view_homer
+  email: homer@nospam.net
+  realname: user is maintainer in binary protected project (binarydownload)
+  password: <%= Digest::MD5.hexdigest("homer") %>
+  password_salt: ""
+  password_hash_type: md5

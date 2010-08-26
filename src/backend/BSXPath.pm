@@ -276,7 +276,7 @@ sub expr {
       $v = [ map {$_->[1]} @$cwd ];
       $expr = substr($expr, 1);
     }
-  } elsif ($expr =~ /^([-a-zA-Z0-9]+)\s*\((.*?)$/s) {
+  } elsif ($expr =~ /^([-_a-zA-Z0-9]+)\s*\((.*?)$/s) {
     my $f = $1;
     $expr = $2;
     my @args;
@@ -350,7 +350,7 @@ sub expr {
     } else {
       die("unknown function: $f\n");
     }
-  } elsif ($expr =~ /^(\@?(?:[-a-zA-Z0-9]+|\*))(.*?)$/s) {
+  } elsif ($expr =~ /^(\@?(?:[-_a-zA-Z0-9]+|\*))(.*?)$/s) {
     # path component
     my $c = $1;
     $expr = $2;
@@ -418,7 +418,7 @@ sub expr {
       $v = op($cwd, $v, $v2, sub {$_[0] % $_[1]});
     } elsif ($expr =~ /^\|/) {
       die("union op not implemented yet\n");
-    } elsif ($expr =~ /^\/(\@?(?:[-a-zA-Z0-9]+|\*))(.*?)$/s) {
+    } elsif ($expr =~ /^\/(\@?(?:[-_a-zA-Z0-9]+|\*))(.*?)$/s) {
       my $c = $1;
       $expr = $2;
       $c =~ s/^\@//;

@@ -1,17 +1,12 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'tag_controller'
 
-# Re-raise errors caught by the controller.
-class TagController; def rescue_action(e) raise e end; end
-
 class TagControllerTest < ActionController::IntegrationTest 
   
-  fixtures :users, :db_projects, :db_packages, :tags, :taggings, :blacklist_tags
+  fixtures :all
   
   def setup
     @controller = TagController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
     
     #wrapper for testing private functions
     def @controller.private_s_to_tag(tag)
@@ -65,10 +60,10 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_create_relationship_rollback
-    u = User.find_by_login("tscholz")
+    u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    p = DbProject.find_by_name("home:tscholz")
+    p = DbProject.find_by_name("home:Iggy")
     assert_kind_of DbProject, p
     
     t = Tag.find_by_name("TagA")
@@ -81,13 +76,13 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_create_relationship
-    u = User.find_by_login("tscholz")
+    u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
     initial_user_tags = u.tags.clone
     assert_kind_of Array, initial_user_tags
     
-    p = DbProject.find_by_name("home:tscholz")
+    p = DbProject.find_by_name("home:Iggy")
     assert_kind_of DbProject, p
     
     
@@ -110,7 +105,7 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #reload the user, seems to be necessary
-    u = User.find_by_login("tscholz")
+    u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
     #testing the relationship.
@@ -119,10 +114,10 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_save_tags
-    u = User.find_by_login("tscholz")
+    u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    p = DbProject.find_by_name("home:tscholz")
+    p = DbProject.find_by_name("home:Iggy")
     assert_kind_of DbProject, p
     
     #Precondition check: Tag "TagX" should not exist.
@@ -165,10 +160,10 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_taglist_xml_to_tags
-    u = User.find_by_login("tscholz")
+    u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    p = DbProject.find_by_name("home:tscholz")
+    p = DbProject.find_by_name("home:Iggy")
     assert_kind_of DbProject, p
     
     #tags to create
@@ -187,7 +182,7 @@ class TagControllerTest < ActionController::IntegrationTest
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("tags") )
-    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    xml.root.add_attribute REXML::Attribute.new("project", "home:Iggy")       
     tags.each do |tag|
       element = REXML::Element.new( 'tag' )
       element.add_attribute REXML::Attribute.new('name', tag)
@@ -214,19 +209,19 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_get_project_tags
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown project
     get url_for(:controller => :tag, :action => :project_tags, :project => "IamAnAlien")
     assert_response 404
     
     #request tags for an existing project
-    get url_for(:action => :project_tags, :project => "home:tscholz" )
+    get url_for(:action => :project_tags, :project => "home:Iggy" )
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :user => ""
     },
     :child => { :tag => "tag" }
@@ -245,19 +240,19 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_get_package_tags
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown project
     get url_for(:controller => :tag, :action => :package_tags, :project => "IamAnAlien", :package => "MeToo")
     assert_response 404
     
     #request tags for an existing project
-    get url_for(:action => :package_tags, :project => "home:tscholz", :package => "TestPack" )
+    get url_for(:action => :package_tags, :project => "home:Iggy", :package => "TestPack" )
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :package => "TestPack",
       :user => ""
     },
@@ -277,7 +272,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   #  def test_put_project_tags
-  #    prepare_request_with_user "tscholz", "asdfasdf"
+  #    prepare_request_with_user "Iggy", "asdfasdf"
   #    
   #    #tags = ["TagX", "TagY", "TagZ", "IamNotAllowed", "TagA"]
   #    tags = ["TagX", "TagY", "TagZ", "TagA"]
@@ -286,7 +281,7 @@ class TagControllerTest < ActionController::IntegrationTest
   #    xml = REXML::Document.new
   #    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
   #      xml.add_element( REXML::Element.new("tags") )
-  #      xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+  #      xml.root.add_attribute REXML::Attribute.new("project", "home:Iggy")       
   #      tags.each do |tag|
   #        element = REXML::Element.new( 'tag' )
   #        element.add_attribute REXML::Attribute.new('name', tag)
@@ -295,7 +290,7 @@ class TagControllerTest < ActionController::IntegrationTest
   #    
   #    
   #    #put tags for an existing project
-  #    put :project_tags, :project => "home:tscholz" , xml.to_s
+  #    put :project_tags, :project => "home:Iggy" , xml.to_s
   #    assert_response :success
   #    
   #    
@@ -307,7 +302,7 @@ class TagControllerTest < ActionController::IntegrationTest
   #in the case of controller-internal usage of this function. 
   def test_get_tags_by_user_and_project_internal_use
     def @controller.params
-      return {:user => "tscholz", :project => "home:tscholz"}
+      return {:user => "Iggy", :project => "home:Iggy"}
     end
     
     tags = @controller.get_tags_by_user_and_project( false )
@@ -324,7 +319,7 @@ class TagControllerTest < ActionController::IntegrationTest
   #in the case of controller-internal usage of this function.
   def test_get_tags_by_user_and_package_internal_use
     def @controller.params
-      return {:user => "tscholz", :project => "home:tscholz",
+      return {:user => "Iggy", :project => "home:Iggy",
       :package => "TestPack"}
     end
     
@@ -339,27 +334,27 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_get_tags_by_user_and_project
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown project
     get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => "IamAnAlien",
-    :user => "tscholz" )
+    :user => "Iggy" )
     assert_response 404
  
     #request tags for an unknown user
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:tscholz",
+    get url_for(:action => :get_tags_by_user_and_project, :project => "home:Iggy",
     :user => "Alien" )
     assert_response 404   
     
     #request tags for an existing project
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:tscholz",
-    :user => "tscholz" )
+    get url_for(:action => :get_tags_by_user_and_project, :project => "home:Iggy",
+    :user => "Iggy" )
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
-      :user => "tscholz"
+    :attributes => { :project => "home:Iggy",
+      :user => "Iggy"
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
@@ -376,13 +371,13 @@ class TagControllerTest < ActionController::IntegrationTest
     
     
     #request tags for another user than the logged on user
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:tscholz",
+    get url_for(:action => :get_tags_by_user_and_project, :project => "home:Iggy",
     :user => "fred" )
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :user => "fred"
     },
     :child => { :tag => "tag" }
@@ -398,37 +393,37 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_get_tags_by_user_and_package
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown project
     get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => "IamAnAlien",
     :package => "MeToo",
-    :user => "tscholz" )
+    :user => "Iggy" )
     assert_response 404
     
     #request tags for an unknown package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "AlienPackage",
-    :user => "tscholz" )
+    :user => "Iggy" )
     assert_response 404
      
     #request tags for an unknown user
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "TestPack",
     :user => "Alien" )
     assert_response 404   
     
     #request tags for an existing package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "TestPack",
-    :user => "tscholz" )
+    :user => "Iggy" )
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :package => "TestPack",
-      :user => "tscholz"
+      :user => "Iggy"
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
@@ -444,14 +439,14 @@ class TagControllerTest < ActionController::IntegrationTest
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     
     #request tags for another user than the logged on user
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "TestPack",
     :user => "fred" )
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :user => "fred"
     },
     :child => { :tag => "tag" }
@@ -463,20 +458,20 @@ class TagControllerTest < ActionController::IntegrationTest
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
   end
   
-  #This test gets all projects with tags by the logged on user tscholz
+  #This test gets all projects with tags by the logged on user Iggy
   def test_get_tagged_projects_by_user_1
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown user
     get url_for(:controller => :tag, :action => :get_tagged_projects_by_user, :user => "IamAnAlienToo" )
     assert_response 404
     
-    get url_for(:action => :get_tagged_projects_by_user, :user => "tscholz")
+    get url_for(:action => :get_tagged_projects_by_user, :user => "Iggy")
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "collection",
-    :attributes => { :user => "tscholz"
+    :attributes => { :user => "Iggy"
     },
     :child => { :tag => "project" }
     assert_tag :tag => "collection",
@@ -485,7 +480,7 @@ class TagControllerTest < ActionController::IntegrationTest
     #TODO: check the others too
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz"},
+                :attributes => {:name => "home:Iggy"},
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
     assert_tag  :tag => "collection",
@@ -500,9 +495,9 @@ class TagControllerTest < ActionController::IntegrationTest
 
 
   #This test gets all projects with tags by another user than the the logged on
-  #user tscholz
+  #user Iggy
   def test_get_tagged_projects_by_user_2
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_tagged_projects_by_user, :user => "fred")
     assert_response :success
@@ -517,7 +512,7 @@ class TagControllerTest < ActionController::IntegrationTest
     #checking the project and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz"},
+                :attributes => {:name => "home:Iggy"},
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
@@ -527,21 +522,21 @@ class TagControllerTest < ActionController::IntegrationTest
   end
   
 
-  #This test gets all packages with tags by the logged on user tscholz
+  #This test gets all packages with tags by the logged on user Iggy
   def test_get_tagged_packages_by_user_1
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown user
     get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "IamAnAlienToo" )
     assert_response 404
     
     
-    get url_for(:action => :get_tagged_packages_by_user, :user => "tscholz")
+    get url_for(:action => :get_tagged_packages_by_user, :user => "Iggy")
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "collection",
-    :attributes => { :user => "tscholz"
+    :attributes => { :user => "Iggy"
     },
     :child => { :tag => "package" }
     assert_tag :tag => "collection",
@@ -550,28 +545,28 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                :project => "home:tscholz"
+                :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                :project => "home:tscholz"
+                :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                :project => "home:tscholz"
+                :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                :project => "home:tscholz"
+                :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     }
@@ -579,9 +574,9 @@ class TagControllerTest < ActionController::IntegrationTest
 
 
   #This test gets all packages with tags by another user than the the logged on
-  #user tscholz
+  #user Iggy
   def test_get_tagged_packages_by_user_2
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "fred")
     assert_response :success
@@ -597,7 +592,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                :project => "home:tscholz"
+                :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
@@ -605,7 +600,7 @@ class TagControllerTest < ActionController::IntegrationTest
 
 
   def test_get_projects_by_tag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown tag
     get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "AlienTag")
@@ -625,25 +620,25 @@ class TagControllerTest < ActionController::IntegrationTest
     #TODO: check the others too
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
@@ -651,9 +646,9 @@ class TagControllerTest < ActionController::IntegrationTest
     
     
   #This test gets all projects tagged by the tree tags TagA, TagB, TagC
-  #Result: only one project (home:tscholz)
+  #Result: only one project (home:Iggy)
   def test_get_projects_by_three_tags
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagA::TagB::TagC")
     assert_response :success
@@ -667,25 +662,25 @@ class TagControllerTest < ActionController::IntegrationTest
     #checking the project and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
@@ -694,9 +689,9 @@ class TagControllerTest < ActionController::IntegrationTest
   
   #This test gets all projects tagged by the tree tags TagA, TagB, TagC, 
   #but tags are in different order
-  #Result: only one project (home:tscholz)
+  #Result: only one project (home:Iggy)
   def test_get_projects_by_three_tags_different_order
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagC::TagA::TagB")
     assert_response :success
@@ -710,25 +705,25 @@ class TagControllerTest < ActionController::IntegrationTest
     #checking the project and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
@@ -736,9 +731,9 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   #This test gets all projects tagged by the two tags TagA and TagC
-  #Result: two projects (home:tscholz, kde)
+  #Result: two projects (home:Iggy, kde)
   def test_get_projects_by_two_tags
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagA::TagC")
     assert_response :success
@@ -750,33 +745,33 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "collection",
     :children => { :count => 2, :only => { :tag => "project" } }
     
-    #checking the project home:tscholz and each tag
+    #checking the project home:Iggy and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz",
+                :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
     
-    #checking the second project home:tscholz and each tag
+    #checking the second project home:Iggy and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "kde",
@@ -793,7 +788,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
     
   def test_get_packages_by_tag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown tag
     get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "AlienTag")
@@ -813,28 +808,28 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 }, 
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     }
@@ -843,7 +838,7 @@ class TagControllerTest < ActionController::IntegrationTest
   #This test gets all packages tagged by the two tags TagA and TagC
   #Result: only one package (TestPack)
   def test_get_packages_by_two_tags
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "TagB::TagC")
     assert_response :success
@@ -859,28 +854,28 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 }, 
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     }
@@ -890,7 +885,7 @@ class TagControllerTest < ActionController::IntegrationTest
   #This test gets all packages tagged by the two tags TagA and TagB
   #Result: no package can be found
   def test_get_packages_by_two_tags_nothing_found
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "TagA::TagB")
     assert_response :success
@@ -904,7 +899,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_get_objects_by_tag
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #request tags for an unknown tag
     get url_for(:controller => :tag, :action => :get_objects_by_tag, :tag => "AlienTag")
@@ -925,25 +920,25 @@ class TagControllerTest < ActionController::IntegrationTest
     #checking the project and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz"
+                :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz"
+                :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz"
+                :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
-                :attributes => {:name => "home:tscholz"
+                :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
@@ -951,28 +946,28 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },               
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
-                  :project => "home:tscholz"
+                  :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     }
@@ -980,7 +975,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_wrong_parameter    
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #parameter steps
     get "/tag/tagcloud", :steps => -1
@@ -1010,7 +1005,7 @@ class TagControllerTest < ActionController::IntegrationTest
 
   
   def test_tagcloud_raw
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get "/tag/tagcloud", :distribution => 'raw', :limit => 4
     assert_response :success
@@ -1035,7 +1030,7 @@ class TagControllerTest < ActionController::IntegrationTest
 
 
   def test_tagcloud_linear
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get "/tag/tagcloud", :distribution => 'linear', :steps => 10, :limit => 4
     assert_response :success
@@ -1060,7 +1055,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_logarithmic
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :limit => 6
     assert_response :success
@@ -1089,16 +1084,16 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_by_user
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
-    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'Iggy'
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "logarithmic",
                      :steps => 12,
-                     :user => "tscholz"
+                     :user => "Iggy"
     },
     :children => { :count => 6, :only => { :tag => "tag"} }
     
@@ -1136,14 +1131,14 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
     #get the tag-cloud from another user
-    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'Iggy'
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "logarithmic",
                      :steps => 12,
-                     :user => "tscholz"
+                     :user => "Iggy"
     },
     :children => { :count => 6, :only => { :tag => "tag"} }
     
@@ -1169,15 +1164,15 @@ class TagControllerTest < ActionController::IntegrationTest
   
   def test_tags_by_user_and_object_put_for_a_project
     
-    #Precondition check: Get all tags for tscholz and the home:project.  
-    prepare_request_with_user "tscholz", "asdfasdf"
-    get "/tag/get_tags_by_user_and_project", :project => 'home:tscholz',
-    :user => 'tscholz'
+    #Precondition check: Get all tags for Iggy and the home:project.  
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/tag/get_tags_by_user_and_project", :project => 'home:Iggy',
+    :user => 'Iggy'
     assert_response :success
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
-      :user => "tscholz"
+    :attributes => { :project => "home:Iggy",
+      :user => "Iggy"
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
@@ -1199,7 +1194,7 @@ class TagControllerTest < ActionController::IntegrationTest
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("tags") )
-    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    xml.root.add_attribute REXML::Attribute.new("project", "home:Iggy")       
     tags.each do |tag|
       element = REXML::Element.new( 'tag' )
       element.add_attribute REXML::Attribute.new('name', tag)
@@ -1207,18 +1202,18 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #add tags
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:tscholz', :user => 'tscholz'), xml.to_s
+    put url_for(:action => :tags_by_user_and_object, :project => 'home:Iggy', :user => 'Iggy'), xml.to_s
     assert_response :success
     
     
     # Get data again and check that tags where added or removed 
-    get url_for(:action => :get_tags_by_user_and_project, :project => 'home:tscholz',
-    :user => 'tscholz')
+    get url_for(:action => :get_tags_by_user_and_project, :project => 'home:Iggy',
+    :user => 'Iggy')
     assert_response :success
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
-      :user => "tscholz"
+    :attributes => { :project => "home:Iggy",
+      :user => "Iggy"
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
@@ -1237,16 +1232,16 @@ class TagControllerTest < ActionController::IntegrationTest
   
   def test_tags_by_user_and_object_put_for_a_package
     
-    #Precondition check: Get all tags for tscholz and a package.  
-    prepare_request_with_user "tscholz", "asdfasdf"
-    get "/tag/get_tags_by_user_and_package", :project => 'home:tscholz',
-    :package => 'TestPack', :user => 'tscholz'
+    #Precondition check: Get all tags for Iggy and a package.  
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/tag/get_tags_by_user_and_package", :project => 'home:Iggy',
+    :package => 'TestPack', :user => 'Iggy'
     assert_response :success
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :package => "TestPack",
-      :user => "tscholz"
+      :user => "Iggy"
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
@@ -1268,7 +1263,7 @@ class TagControllerTest < ActionController::IntegrationTest
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("tags") )
-    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    xml.root.add_attribute REXML::Attribute.new("project", "home:Iggy")       
     tags.each do |tag|
       element = REXML::Element.new( 'tag' )
       element.add_attribute REXML::Attribute.new('name', tag)
@@ -1276,22 +1271,22 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #add tags
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:tscholz', 
+    put url_for(:action => :tags_by_user_and_object, :project => 'home:Iggy', 
     :package => "TestPack",
-    :user => 'tscholz'), xml.to_s
+    :user => 'Iggy'), xml.to_s
     assert_response :success
     
     
     # Get data again and check that tags where added or removed 
-    get url_for(:action => :get_tags_by_user_and_package, :project => 'home:tscholz',
+    get url_for(:action => :get_tags_by_user_and_package, :project => 'home:Iggy',
     :package => 'TestPack',
-    :user => 'tscholz')
+    :user => 'Iggy')
     assert_response :success
     #checking response-data 
     assert_tag :tag => "tags",
-    :attributes => { :project => "home:tscholz",
+    :attributes => { :project => "home:Iggy",
       :package => "TestPack",
-      :user => "tscholz"
+      :user => "Iggy"
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
@@ -1310,7 +1305,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   #test for writing tags for another user than the logged in user <- forbidden
   def test_tags_by_user_and_object_put_as_invalid_user
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #tags to create  
     tags = ["TagX", "TagY", "TagZ", "TagB"]  
@@ -1318,7 +1313,7 @@ class TagControllerTest < ActionController::IntegrationTest
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("tags") )
-    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    xml.root.add_attribute REXML::Attribute.new("project", "home:Iggy")       
     tags.each do |tag|
       element = REXML::Element.new( 'tag' )
       element.add_attribute REXML::Attribute.new('name', tag)
@@ -1326,13 +1321,13 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #put request for an unknown user
-    put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:tscholz', 
+    put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:Iggy', 
     :package => "TestPack",
     :user => 'Alien'), xml.to_s
     assert_response 404
     
     #put request for another user than the logged on user.
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:tscholz', 
+    put url_for(:action => :tags_by_user_and_object, :project => 'home:Iggy', 
     :package => "TestPack",
     :user => 'fred'), xml.to_s
     assert_response 403
@@ -1340,22 +1335,22 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tags_by_user_and_object_put_for_invalid_objects
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #put request for an unknown project
-    get "/tag/tags_by_user_and_object", :project => 'AlienProject', :user => 'tscholz'
+    get "/tag/tags_by_user_and_object", :project => 'AlienProject', :user => 'Iggy'
     assert_response 404
     
     #put request for an unknown package
-    get "/tag/tags_by_user_and_object", :project => 'home:tscholz', 
+    get "/tag/tags_by_user_and_object", :project => 'home:Iggy', 
     :package => "AlienPackage",
-    :user => 'tscholz'
+    :user => 'Iggy'
     assert_response 404
   end
   
   
   def test_tagcloud_by_projects_unknown_project
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #prepare the xml document (request data)
     xml = REXML::Document.new
@@ -1371,14 +1366,14 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_by_projects
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #prepare the xml document (request data)
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("collection") )
     element = REXML::Element.new( 'project' )
-    element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'home:Iggy')
     xml.root.add_element(element)
     
     post url_for(:controller => :tag, :action => :tagcloud, :distribution => "raw"), xml.to_s
@@ -1404,14 +1399,14 @@ class TagControllerTest < ActionController::IntegrationTest
  
  
   def test_tagcloud_by_packages_unknown_package
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #prepare the xml document (request data)
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("collection") )
     element = REXML::Element.new( 'package' )
-    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('project', 'home:Iggy')
     element.add_attribute REXML::Attribute.new('name', 'AlienPack')
     xml.root.add_element(element)
     
@@ -1421,14 +1416,14 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_by_packages
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #prepare the xml document (request data)
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
     xml.add_element( REXML::Element.new("collection") )
     element = REXML::Element.new( 'package' )
-    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('project', 'home:Iggy')
     element.add_attribute REXML::Attribute.new('name', 'TestPack')
     xml.root.add_element(element)
     
@@ -1455,7 +1450,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_by_objects
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #prepare the xml document (request data)
     xml = REXML::Document.new
@@ -1463,11 +1458,11 @@ class TagControllerTest < ActionController::IntegrationTest
     xml.add_element( REXML::Element.new("collection") )
     #adding a project
     element = REXML::Element.new( 'project' )
-    element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'home:Iggy')
     xml.root.add_element(element)
     #adding a package
     element = REXML::Element.new( 'package' )
-    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('project', 'home:Iggy')
     element.add_attribute REXML::Attribute.new('name', 'TestPack')
     xml.root.add_element(element)
     
@@ -1498,7 +1493,7 @@ class TagControllerTest < ActionController::IntegrationTest
   
   
   def test_tagcloud_by_objects_linear_with_steps_and_limit
-    prepare_request_with_user "tscholz", "asdfasdf"
+    prepare_request_with_user "Iggy", "asdfasdf"
     
     #prepare the xml document (request data)
     xml = REXML::Document.new
@@ -1506,11 +1501,11 @@ class TagControllerTest < ActionController::IntegrationTest
     xml.add_element( REXML::Element.new("collection") )
     #adding a project
     element = REXML::Element.new( 'project' )
-    element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'home:Iggy')
     xml.root.add_element(element)
     #adding a package
     element = REXML::Element.new( 'package' )
-    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('project', 'home:Iggy')
     element.add_attribute REXML::Attribute.new('name', 'TestPack')
     xml.root.add_element(element)
     

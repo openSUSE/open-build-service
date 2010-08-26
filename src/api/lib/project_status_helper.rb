@@ -155,7 +155,12 @@ class ProjectStatusHelper
     # against the url we expect to query. As the url is too long to be used as meaningful hash we
     # generate the md5
     path = '/build/%s/%s/%s/_jobhistory' % [CGI.escape(proj), CGI.escape(repo), arch]
-    currentlast=backend.direct_http( URI(path + '?limit=1') )
+    begin
+      currentlast=backend.direct_http( URI(path + '?limit=1') )
+    rescue ActiveXML::Transport::NotFoundError
+      # now ths is an ugly project, no backend data -> e.g. no repos
+      return nil
+    end
 
     uri = path + '?code=lastfailures'
     mypackages.each do |key, package|
@@ -182,7 +187,7 @@ class ProjectStatusHelper
       r.architectures.each do |arch|
         reponame = r.name + "/" + arch.name
         d = fetch_jobhistory(backend, dbproj.name, r.name, arch.name, mypackages)
-        data = XML::Parser.string(d).parse
+        data = XML::Parser.string(d).parse unless d.blank?
         if data then
           data.find('/jobhistlist/jobhist').each do |p|
             packname = p.attributes['package']

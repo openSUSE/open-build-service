@@ -1,0 +1,34 @@
+<div id="dialog_wrapper">
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="linking_packages">
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">
+      Derived Packages
+    </div>
+
+
+    <p><div>
+      <table>
+        <tr>
+           <th>Packages refering to this package</th>
+        </tr>
+        <% @linking_packages.each do |lp|%>
+           <tr>
+              <%- name = lp[:project].dup
+                 name << "(#{lp[:package]})" if lp[:package] != @package.name
+               %>
+              <td><%=link_to(name, :controller => :package, :action => :show, :project => lp[:project], :package => lp[:package])%></td>
+           </tr>
+        <% end %>
+      </table>
+    </div></p>
+
+    <p><div class="aligncenter buttons">
+        <%= link_to_function 'Close', 'remove_dialog()'%>
+    </div></p>
+
+
+  </div>
+
+</div></div>

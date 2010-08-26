@@ -1,0 +1,46 @@
+<div id="dialog_wrapper">
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="create_submit_request">
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">
+      Create submit request
+    </div>
+
+    <% tprj = tpkg = ""
+       if @package.linkinfo
+         tprj = @package.linkinfo.project
+         tpkg = @package.linkinfo.package
+       end
+     %>
+
+    <p><div class="aligncenter buttons">
+    <%= form_tag({:controller => "package", :action => "create_submit_request"}, :method => "post") %>
+       <%= hidden_field_tag(:project, @project) %>
+       <%= hidden_field_tag(:package, @package) %>
+       <%= hidden_field_tag(:revision, @revision) %>
+       Submit <%=@project%> / <%=@package%> in revision <%=@revision%>
+       <p><i>to Project / Package:</i></p>
+       <input type="text" name="target_project" value="<%=tprj%>">
+       <input type="text" name="target_package" value="<%=tpkg%>">
+       <p>
+       <i>Description:</i>
+       <textarea rows="3" cols="40" name="description"></textarea>
+       <p>
+       <i>and update this package:</i>
+       <% default = "update" %>
+       <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
+       <%= select_tag :source_update, options_for_select([['Remove this package', 'cleanup'], ['Update this package', 'update'], ['Do not touch this package', 'noupdate']], :selected => default) %>
+       <p>
+       <input type="submit" />
+     </form>
+    </div></p>
+
+    <p><div class="aligncenter buttons">
+        <%= link_to_function 'Close', 'remove_dialog()'%>
+    </div></p>
+
+
+  </div>
+
+</div></div>

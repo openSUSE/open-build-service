@@ -39,6 +39,15 @@ class PackageController < ApplicationController
       @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s
     end
     fill_status_cache unless @buildresult.blank?
+    linking_packages
+  end
+
+  def linking_packages
+    cache_string = "%s/%s_linking_packages" % [ @project, @package ]
+    Rails.cache.delete(cache_string) if discard_cache?
+    @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
+       @package.linking_packages
+    end
   end
 
   def dependency
@@ -62,20 +71,24 @@ class PackageController < ApplicationController
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
       redirect_to :controller => "package", :action => :binaries, :project => @project, 
-                  :package => @package, :repository => @repository, :nextstatus => 404
+        :package => @package, :repository => @repository, :nextstatus => 404
       return
     end
-
-    if @fileinfo.value :arch 
-      @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
-      if @durl and not file_available?( @durl )
-        # ignore files not available
-        @durl = nil
-      end
-    end
+    @durl = "#{repo_url( @project, @repository )}/#{@fileinfo.arch}/#{@filename}" if @fileinfo.value :arch
+    @durl = "#{repo_url( @project, @repository )}/iso/#{@filename}" if (@fileinfo.value :filename) =~ /\.iso$/
+    if @durl and not file_available?( @durl )
+      # ignore files not available
+      @durl = nil
+    end 
     if @user and !@durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
+    end
+    logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
+    # little trick to give users eager to download binaries a single click
+    if request.format != Mime::HTML and @durl
+      redirect_to @durl
+      return
     end
   end
 
@@ -100,14 +113,64 @@ class PackageController < ApplicationController
   def list_requests
   end
 
+  def commit
+    render :partial => 'commit_item', :locals => {:rev => params[:revision] }
+  end
+
   def files
-    @package.free_directory if discard_cache?
+    # hard coded value for the number of visible commit items in browser
+    @visible_commits = 9
+    @maxrevision = @browserrevision = Package.current_rev(@project, @package.name).to_i
+
+    @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or @srcmd5 != params[:srcmd5]
+    @revision = params[:rev]
+    @srcmd5   = params[:srcmd5]
+    @expand   = params[:expand]
     set_file_details
+  end
+
+  def file_table
+    @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or params[:srcmd5] != @srcmd5
+    if params.has_key? [:srcmd5]
+      @srcmd5 = params[:srcmd5]
+      @revision = nil
+    else
+      @revision = params[:rev]
+      @srcmd5 = nil
+    end
+    @expand = params[:expand]
+    set_file_details
+    render :partial => 'files_view', :locals => {:file_list => @files}
+  end
+
+  def source_history
+    @browserrevision = params[:rev]
+  end
+
+  def create_submit_request_dialog
+    @revision = Package.current_rev(@project, @package)
+  end
+
+  def create_submit_request
+    req = Request.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
+      :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:sourceupdate])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
+        :project => params[:project], :package => params[:package]
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def service_parameter
     begin
       @serviceid = params[:serviceid]
+      @servicename = params[:servicename]
       @services = find_cached(Service,  :project => @project, :package => @package )
       @parameters = @services.getParameters(@serviceid)
     rescue
@@ -137,22 +200,33 @@ class PackageController < ApplicationController
   end
 
   def set_file_details
-    @files = @package.files
+    if not @revision and not @srcmd5
+      # on very first page load only
+      @revision = Package.current_rev(@project, @package)
+    end
+
+    if @srcmd5
+      @files = @package.files(@srcmd5, @expand)
+    else
+      @files = @package.files(@revision, @expand)
+    end
+
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
         begin
-          @link = find_cached(Link, :project => @project, :package => @package )
+          @link = find_cached(Link, :project => @project, :package => @package, :rev => @revision )
         rescue RuntimeError
           # possibly thrown on bad link files
         end
-      elsif file[:name] == "_service"
+      elsif file[:name] == "_service" or file[:name] == "_service_error"
         begin
           @services = find_cached(Service,  :project => @project, :package => @package )
         rescue
           @services = nil
         end
+        @serviceerror = @services.error if @services and @services.error
       end
     end
   end
@@ -193,23 +267,6 @@ class PackageController < ApplicationController
       @lastreq = nil # ignore all !declined
     end
 
-  end
-
-  def create_submit
-    rev = Package.current_rev(params[:project], params[:package])
-    req = Request.new(:type => "submit", :targetproject => params[:targetproject], :targetpackage => params[:targetpackage],
-      :project => params[:project], :package => params[:package], :rev => rev, :description => params[:description])
-    begin
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
-        :project => params[:project], :package => params[:package]
-      return
-    end
-    Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def wizard_new
@@ -500,8 +557,8 @@ class PackageController < ApplicationController
   end
 
   def remove_service
-    id = params[:id]
-    id.gsub!( %r{^service_}, '' )
+    required_parameters :id
+    id = params[:id].gsub( %r{^service_}, '' )
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services
       flash[:warn] = "Service removal failed because no _service file found "
@@ -510,7 +567,8 @@ class PackageController < ApplicationController
     @services.removeService( id )
     @services.save
     Service.free_cache :project => @project, :package => @package
-    flash[:warn] = "Service \##{id} got removed"
+    Directory.free_cache( :project => @project, :package => @package )
+    flash[:note] = "Service \##{id} got removed"
     redirect_to :action => :files, :project => @project, :package => @package and return
   end
 
@@ -577,17 +635,21 @@ class PackageController < ApplicationController
     @package = params[:package]
     @filename = params[:file]
     @comment = params[:comment]
+    @expand = params[:expand]
+    @srcmd5 = params[:srcmd5]
     @file = params[:content] || frontend.get_source( :project => @project,
-      :package => @package, :filename => @filename )
+      :package => @package, :filename => @filename, :rev => @srcmd5, :expand => @expand )
     # render explicitly as in error case this is called
     render :template => 'package/edit_file'
   end
 
   def view_file
     @filename = params[:file] || ''
+    @expand = params[:expand]
+    @srcmd5 = params[:srcmd5]
     @addeditlink = false
-    if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
-      @package.files.each do |file|
+    if @package.can_edit?( session[:login] )
+      @package.files(@srcmd5, @expand).each do |file|
         if file[:name] == @filename
           @addeditlink = file[:editable]
           break
@@ -596,7 +658,7 @@ class PackageController < ApplicationController
     end
     begin
       @file = frontend.get_source( :project => @project.to_s,
-        :package => @package.to_s, :filename => @filename )
+        :package => @package.to_s, :filename => @filename, :rev => @srcmd5 )
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project
@@ -649,7 +711,11 @@ class PackageController < ApplicationController
       maxsize = 1024 * 256
       offset = 0
       while true
-        chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
+        begin
+          chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
+        rescue ActiveXML::Transport::Error
+          chunk = ''
+        end
         if chunk.length == 0
           break
         end
@@ -744,7 +810,6 @@ class PackageController < ApplicationController
   def abort_build
     params[:redirect] = 'live_build_log'
     api_cmd('abortbuild', params)
-    render :status => 200
   end
 
 
@@ -819,7 +884,7 @@ class PackageController < ApplicationController
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
-    fill_status_cache
+    fill_status_cache unless @buildresult.blank?
     render :partial => 'buildstatus'
   end
 

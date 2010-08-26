@@ -1,0 +1,35 @@
+<% # locals:
+#   currentRevision: current selected revision by the user
+#   history: History of source commits
+-%>
+
+
+<div id="sources_history">
+
+  <%= hidden_field_tag(:history_browser_revision, @browserrevision) %>
+
+  <% c = @visible_commits 
+     c = @maxrevision if @maxrevision <= @visible_commits
+  %>
+
+  <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>
+
+  <table id="historyTable">
+    <% (1..c).each do |i| %>
+      <tr id="commit_item_<%=(@browserrevision - i + 1)%>"><td>
+        <div>
+          <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
+        </div>
+        <%= link_to_remote "Show", :update => :files_view,
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+        :with => "'rev=#{(@browserrevision - i + 1).to_s}&expand=' + $('#mergesettings')[0].checked" %>
+
+      </td></tr>
+    <% end %>
+  </table>
+
+  <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button" if @maxrevision > @visible_commits %>
+
+</div>
+

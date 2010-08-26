@@ -5,6 +5,7 @@ class StatusController < ApplicationController
   skip_before_filter :extract_user, :only => [ :history, :project ]
 
   def messages
+    # ACL(history) TODO: check this leaks no information that is prevented by ACL
     if request.get?
 
       @messages = StatusMessage.find :all,
@@ -31,20 +32,21 @@ class StatusController < ApplicationController
           new_messages.each_message do |msg|
             message = StatusMessage.new
             message.message = msg.to_s
-            message.severity = msg.severity
+            message.severity = msg.value :severity
             message.user = @http_user
             message.save
           end
         else
+          raise RuntimeError.new 'no message' if new_messages.element_name != 'message'
           # just one message, NOT wrapped in outer xml tag 'status_messages'
           message = StatusMessage.new
           message.message = new_messages.to_s
-          message.severity = new_messages.severity
+          message.severity = new_messages.value :severity
           message.user = @http_user
           message.save
         end
         render_ok
-      rescue
+      rescue RuntimeError
         render_error :status => 400, :errorcode => "error creating message(s)",
           :message => "message(s) cannot be created"
         return
@@ -77,6 +79,7 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
+    # ACL(workerstatus) TODO: this is an information leak if all packages / projects even hidden ones are listed
      data = Rails.cache.fetch('workerstatus') do
        update_workerstatus_cache
      end
@@ -84,6 +87,7 @@ class StatusController < ApplicationController
   end
 
   def history
+      # ACL(history) TODO: check this leaks no information that is prevented by ACL
      hours = params[:hours] || "24"
      starttime = Time.now.to_i - hours.to_i * 3600
      @data = Hash.new
@@ -94,6 +98,7 @@ class StatusController < ApplicationController
   end
 
   def update_workerstatus_cache
+      # ACL(update_workerstatus_cache) TODO: this is an information leak if all packages / projects even hidden ones are listed
       ret = backend_get('/build/_workerstatus')
       mytime = Time.now.to_i
       Rails.cache.write('workerstatus', ret)
@@ -155,6 +160,7 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
+    # ACL(history) TODO: check this leaks no information that is prevented by ACL
      dbproj = DbProject.find_by_name(params[:id])
      if ! dbproj
         render_error :status => 404, :errorcode => "no such project",

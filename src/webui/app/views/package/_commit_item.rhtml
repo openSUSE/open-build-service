@@ -1,0 +1,27 @@
+<% # locals:
+#   rev: commit revision 
+-%>
+
+  <% commit = @package.commit(rev.to_s) %>
+  <% if commit %>
+    <%= commit[:revision]%>.
+        <%= if commit[:user] == "_service"
+              "server side updated"
+            else
+              user = ""
+              user = "by " + commit[:user] if commit[:user]
+              if commit[:requestid]
+                 user + " accepted " + link_to("request #{commit[:requestid]}", { :controller => 'request', :action => 'show', :id => commit[:requestid] })
+              else
+                 user + " committed"
+              end 
+            end %>
+        <%=fuzzy_time_string(Time.at(commit[:time].to_i).to_s)%>
+    <% unless commit[:user] == "_service" %>
+      <div class="info" ><i><%= commit[:comment] %></i></div>
+    <% end %>
+  <% else %>
+    <i>Revision <%=rev.to_s%> not found</i>
+  <% end %>
+
+

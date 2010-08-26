@@ -156,7 +156,7 @@ class StatisticsController < ApplicationController
       object = DbProject.find_by_name @project
       object = DbPackage.find :first, :conditions =>
         [ 'name=? AND db_project_id=?', @package, object.id ] if @package
-      throw if object.nil?
+      raise RuntimeError.new('nil object') if object.nil?
     rescue
       @package = @project = @rating = object = nil
       return
@@ -460,6 +460,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
 #    response.time_to_live = 5.minutes
 
+    # ACL(latest_updated) TODO: this exploits hidden projects. even shown without loggin in (when cookies are off in the webbrowser on WebUI)
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.updated_at, pro.name AS project_name',
@@ -505,66 +506,5 @@ class StatisticsController < ApplicationController
   def get_limit
     @limit = 10 if (@limit = params[:limit].to_i) == 0
   end
-
-
-  def randomize_timestamps
-
-    # ONLY enable on test-/development database!
-    # it will randomize created/updated timestamps of ALL packages/projects!
-    # this should NOT be enabled for prodution data!
-    enable = false
-    #
-
-    if enable
-
-      # deactivate automatic timestamps for this action
-      ActiveRecord::Base.record_timestamps = false
-
-      projects = DbProject.find(:all)
-      packages = DbPackage.find(:all)
-
-      projects.each do |project|
-        date_min = Time.utc 2005, 9
-        date_max = Time.now
-        date_diff = ( date_max - date_min ).to_i
-        t = [ (date_min + rand(date_diff)), (date_min + rand(date_diff)) ]
-        t.sort!
-        project.created_at = t[0]
-        project.updated_at = t[1]
-        if project.save
-          logger.debug "Project #{project.name} got new timestamps"
-        else
-          logger.debug "Project #{project.name} : ERROR setting timestamps"
-        end
-      end
-
-      packages.each do |package|
-        date_min = Time.utc 2005, 6
-        date_max = Time.now - 36000
-        date_diff = ( date_max - date_min ).to_i
-        t = [ (date_min + rand(date_diff)), (date_min + rand(date_diff)) ]
-        t.sort!
-        package.created_at = t[0]
-        package.updated_at = t[1]
-        if package.save
-          logger.debug "Package #{package.name} got new timestamps"
-        else
-          logger.debug "Package #{package.name} : ERROR setting timestamps"
-        end
-      end
-
-      # re-activate automatic timestamps
-      ActiveRecord::Base.record_timestamps = true
-
-      render :text => "ok, done randomizing all timestams."
-      return
-    else
-      logger.debug "tried to execute randomize_timestamps, but it's not enabled!"
-      render :text => "this action is deactivated."
-      return
-    end
-
-  end
-
 
 end

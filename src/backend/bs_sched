@@ -52,6 +52,7 @@ use BSSolv;
 use strict;
 
 my $testprojid;
+my $testmode;
 
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
@@ -80,6 +81,11 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $infodir = "$BSConfig::bsdir/info";
+
+if ($ARGV[0] eq '--testmode') {
+  $testmode = 1;
+  shift;
+};
 
 my $myarch = $ARGV[0] || 'i586';
 
@@ -407,6 +413,24 @@ sub killjob {
 }
 
 #
+# killjob - kill a single build job if it is scheduled but not building
+#
+# input: $job - job identificator
+#
+sub killscheduled {
+  my ($job) = @_;
+
+  return if -e "$myjobsdir/$job:status";
+  local *F;
+  my $js = {'code' => 'deleting'};
+  if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+    unlink("$myjobsdir/$job");
+    unlink("$myjobsdir/$job:status");
+    close F;
+  }
+}
+
+#
 # jobname - create first part job job identifcation
 #
 # input:  $prp    - prp the job belongs to
@@ -462,6 +486,7 @@ sub killbuilding {
 #         $prpsearchpath - build repository search path
 #         $reason        - what triggered the build
 #         $relsyncmax    - bcnt sync data
+#         $needed        - packages blocked by this job
 #
 # output: $job           - the job identifier
 #         $error         - in case we could not start the job
@@ -472,7 +497,7 @@ sub killbuilding {
 # not that hard, was it?
 #
 sub set_building {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax, $needed) = @_;
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -592,6 +617,7 @@ sub set_building {
     'subpack' => ($subpacks || []),
     'bdep' => \@bdeps,
     'path' => $searchpath,
+    'needed' => $needed,
   };
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   my $release = $pdata->{'versrel'};
@@ -1386,7 +1412,13 @@ sub update_project_meta {
   return 0 unless identical($proj->{'build'}, $oldproj->{'build'});
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
-  # XXX: should really also compare build type and macros section of build config
+
+  # check macro definitions
+  my $cold = Build::read_config($myarch, split("\n", $oldproj->{'config'} || ''));
+  my $cnew = Build::read_config($myarch, split("\n", $proj->{'config'} || ''));
+  return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
+
+  # XXX: should really also compare build type
   $projpacks->{$projid} = $proj;
   return 1;
 }
@@ -1465,7 +1497,7 @@ sub calc_projpacks_linked {
     if ($projpacks->{$projid}->{'link'}) {
       my @li = expandprojlink($projid);
       for my $li (@li) {
-	addwatchremote('project', $li->{'project'}, '');
+	addwatchremote('package', $li->{'project'}, '');	# watch all packages
 	$li->{'package'} = ':*';
 	$li->{'myproject'} = $projid;
       }
@@ -2260,7 +2292,7 @@ sub rebuildkiwiimage {
   local *Build::expand = $ownexpand;
   use warnings 'redefine';
 
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax);
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax, 0);
   if ($job) {
     return ('scheduled', $job);
   } else {
@@ -2885,19 +2917,21 @@ sub rebuildaggregate {
           @d = map {"$d/$_"} sort(@d);
 	}
 	my $ajobrepo = findbins_dir(\@d);
-	my $copysources = 0;
+	my $copysources;
 	for my $abin (sort keys %$ajobrepo) {
 	  my $r = $ajobrepo->{$abin};
 	  next unless $r->{'source'};
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  next if $jobbins{$r->{'name'}};
+          # FIXME: How is debian handling debug packages ?
+          next if exists($aggregate->{'nosources'}) && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  $jobbins{$r->{'name'}} = 1;
 	  my $basename = $abin;
 	  $basename =~ s/.*\///;
 	  $basename =~ s/^upload:// if $cpio;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
-	  $copysources = 1;
+	  $copysources = 1 unless exists($aggregate->{'nosources'});
 	}
 	if ($copysources) {
 	  for my $abin (sort keys %$ajobrepo) {
@@ -3181,6 +3215,7 @@ if (@lookat_low) {
 my $slept = 0;
 my $notlow = 0;
 my $schedulerstart = time();
+my $gotevent = 1;
 
 while(1) {
   if (%changed_low || %changed_med || %changed_high) {
@@ -3239,7 +3274,6 @@ while(1) {
   }
 
   my $dummy;
-  my $gotevent;
   my @remoteevents;
   my $pingsock = {
     'socket' => \*PING,
@@ -3335,6 +3369,10 @@ while(1) {
   }
 
   if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
+    if ($testmode) {
+      print "Test mode, all sources and events processed, exiting...\n";
+      exit(0);
+    }
     my @ltim = localtime(time);
     my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
     print "$msgtm waiting for an event...\n";
@@ -3352,6 +3390,7 @@ while(1) {
     $slept += time() - $sleepstart;
   }
   if ($gotevent) {
+    $gotevent = 0;
     # drain ping pipe
     fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
     1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
@@ -4104,6 +4143,7 @@ while(1) {
   my @cpacks = @packs;
   my %cycpass;
   my $nharder = 0;
+  my $needed;
 
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
@@ -4157,6 +4197,15 @@ while(1) {
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $pdata->{'error'};
       next;
+    }
+
+    if (exists($pdata->{'originproject'})) {
+      # this is a package from a project link
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+        $packstatus{$packid} = 'excluded';
+        $packerror{$packid} = 'project link';
+        next;
+      }
     }
 
     if ($pdata->{'build'}) {
@@ -4319,10 +4368,6 @@ while(1) {
 	  $packerror{$packid} = 'project link, only depends on non-local packages';
 	  next;
         }
-      } elsif (!($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'all')) {
-	  $packstatus{$packid} = 'excluded';
-	  $packerror{$packid} = 'project link';
-	  next;
       }
     }
 
@@ -4520,7 +4565,13 @@ relsynccheck:
       print "        rebuild counter sync, start build\n";
       $reason = { 'explain' => 'rebuild counter sync' };
     }
-    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax);
+    if (!$needed) {
+      $needed = {};
+      for my $p (keys %pdeps) {
+        $needed->{$_}++ for map { $dep2src{$_} || $_ } @{$pdeps{$p}};
+      }
+    }
+    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax, $needed->{$packid} || 0);
     if (!$job) {
       # could not start job...
       if ($joberror =~ /^unresolvable: (.*)$/) {
@@ -4557,6 +4608,22 @@ relsynccheck:
     writexml("$reporoot/$prp/$myarch/.:repostate", "$reporoot/$prp/$myarch/:repostate", {'blocked' => \@blocked}, $BSXML::repositorystate);
   } else {
     unlink("$reporoot/$prp/$myarch/:repostate");
+  }
+
+  # building jobs may have changed back to excluded, blocked or disabled, remove the jobs
+  my $prpjobs = jobname($prp, '');
+  for my $job (grep {!/(?::dir|:status)$/} grep {/^\Q$prpjobs\E/} ls($myjobsdir)) {
+    if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
+      my $status = $packstatus{$1} || '';
+      if ($status eq 'disabled' || $status eq 'excluded') {
+        print "        killing old job $job, now in disabled/excluded state\n";
+        killjob($job);
+      } elsif ($status eq 'blocked' || $status eq 'unresolvable' || $status eq 'broken') {
+        # blocked jobs get removed, if they are currently not building. building jobs
+        # stay since they may become valid again
+        killscheduled($job);
+      }
+    }
   }
 
   # notify remote build services of repository changes or block state

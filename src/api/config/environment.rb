@@ -7,14 +7,16 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '>=2.3.5' unless defined? RAILS_GEM_VERSION
+
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 require "common/libxmlactivexml"
 require 'custom_logger'
-require 'rexml-expansion-fix'
 
 # define our current api version
-api_version = '1.9'
+api_version = '2.0.90'
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -45,9 +47,15 @@ Rails::Initializer.run do |config|
   config.gem 'delayed_job'
   config.gem 'exception_notification'
 
+  # default secret
+  secret = "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+  if File.exist? "#{RAILS_ROOT}/config/secret.key"
+    file = File.open( "#{RAILS_ROOT}/config/secret.key", "r" )
+    secret = file.readline
+  end
   config.action_controller.session = {
-    :session_key => "_frontend_session",
-    :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+    :key => "_frontend_session",
+    :secret => secret
   }
 
   # Enable page/fragment caching by setting a file-based store
@@ -60,9 +68,7 @@ Rails::Initializer.run do |config|
   # Make Active Record use UTC-base instead of local time
   # config.active_record.default_timezone = :utc
   
-  # Use Active Record's schema dumper instead of SQL when creating the test database
-  # (enables use of different database adapters for development and test environments)
-  # config.active_record.schema_format = :ruby
+  config.active_record.schema_format = :sql
 
   config.logger = NiceLogger.new(config.log_path)
   # See Rails::Configuration for more options
@@ -112,3 +118,6 @@ if defined? API_DATE
 else
   CONFIG['version'] = api_version
 end
+
+LibXML::XML::Error.set_handler(&LibXML::XML::Error::QUIET_HANDLER)
+

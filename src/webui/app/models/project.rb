@@ -56,11 +56,15 @@ class Project < ActiveXML::Base
 
   #check if named project exists
   def self.exists?(pro_name)
-    if Project.find pro_name
-      return true
-    else
-      return false
-    end
+    return true if Project.find pro_name
+    return false
+  end
+  
+  #check if named project comes from a remote OBS instance
+  def self.is_remote?(pro_name)
+    p = Project.find pro_name
+    return true if p.has_element? :mountproject
+    return false
   end
   
   def to_s
@@ -113,6 +117,24 @@ class Project < ActiveXML::Base
     end
   end
 
+  def add_path_to_repository( opt={} )
+    return nil if opt == {}
+    repository = data.find("//repository[@name='#{opt[:reponame]}']").first
+
+    unless opt[:repo_path].blank?
+      opt[:repo_path] =~ /(.*)\/(.*)/;
+      param = XML::Node.new 'path'
+      param['project'] = $1
+      param['repository'] = $2
+      # put it on top
+      if repository.children?
+        repository.children.first.prev = param
+      else
+        repository << param
+      end
+    end
+  end
+
   def add_repository( opt={} )
     return nil if opt == {}
     repository = add_element 'repository', 'name' => opt[:reponame]
@@ -126,6 +148,14 @@ class Project < ActiveXML::Base
       arch = repository.add_element 'arch'
       arch.text = arch_text
     end
+  end
+
+  def remove_path_from_target( repository, path_project, path_repository )
+    return nil if not repository
+    return nil if not path_project
+    return nil if not path_repository
+
+    delete_element "//repository[@name='#{repository}']/path[@project='#{path_project}'][@repository='#{path_repository}']"
   end
 
   def remove_repository( repository )
@@ -173,6 +203,22 @@ class Project < ActiveXML::Base
     return repo_hash
   end
     
+  def linking_projects
+    opt = Hash.new
+    opt[:project] = self.name
+    opt[:cmd] = "showlinked"
+    fc = FrontendCompat.new
+    answer = fc.do_post nil, opt
+
+    doc = XML::Parser.string(answer).parse
+    result = []
+    doc.find("/collection/project").each do |e|
+      result.push( e.attributes["name"] )
+    end
+
+    return result
+  end
+
   def bugowner
     b = all_persons("bugowner")
     return b.first if b
@@ -205,6 +251,12 @@ class Project < ActiveXML::Base
 
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+  end
+
+  def can_edit? userid
+    return false unless userid
+    return true if is_maintainer? userid
+    Person.find_cached(userid).is_admin?
   end
 
   def name

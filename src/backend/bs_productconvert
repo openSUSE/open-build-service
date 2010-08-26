@@ -333,7 +333,9 @@ sub createProductOptions($$$)
     }
 
     # Add REGISTERPRODUCT string - see: bnc#458340
-    if (defined($medium->{'productdependency'})){
+    if (defined($medium->{'registration'}) and $medium->{'registration'} eq "false") {
+	$info{'REGISTERPRODUCT'} .= "false"
+    } elsif (defined($medium->{'productdependency'})) {
 	$info{'REGISTERPRODUCT'} .= "true" if (defined($product->{'register'}));
     }
 
@@ -1093,7 +1095,7 @@ $product->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}'
 my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple products.
 
 my $kiwiImage = {};
-my $name = sprintf( "%s %s %s",
+my $name = sprintf( "OBS__%s___%s___%s",
 		    $product->{vendor},
 		    $product->{name},
 		    $product->{version} );

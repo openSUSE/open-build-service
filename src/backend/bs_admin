@@ -43,11 +43,16 @@ use BSUtil;
 use BSXML;
 use BSKiwiXML;
 use BSProductXML;
+use BSDB;
+use BSDBIndex;
 
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrepdir = "$BSConfig::bsdir/sources";
+my $treesdir = $BSConfig::nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
+my $sourcedb = "$BSConfig::bsdir/db/source";
+
 
 sub echo_help {
     print "\n
@@ -82,19 +87,31 @@ Job Controlling
  --check-package <project> <package> <architecture>
    Check status of a package in all repositories
 
- --publish-repository <project> <repositroy>
+ --publish-repository <project> <repository>
    Creates an event for the publisher. The scheduler is NOT scanning for new packages.
    The publisher may skip the event, if nothing has changed. So you might need to remove
    the directory in your /repos/ directory first.
 
- --clone-repository <source project> <source repositroy> <destination repositroy>
- --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
+ --clone-repository <source project> <source repository> <destination repository>
+ --clone-repository <source project> <source repository> <destination project> <destination repository>
    Clone an existing repo into another existing repository.
    Usefull for creating snapshots.
 
- --rescan-repository <project> <repositroy> <architecture>
+ --rescan-repository <project> <repository> <architecture>
    Asks the scheduler to scan a repository for new packages and add
    them to the cache file.
+
+Maintenance Tasks
+=================
+
+Note: the --update-*-db calls are usually only needed when corrupt data has been created, for
+      example after a file system corruption.
+
+ --update-source-db
+   Update the index for all source files.
+
+ --update-request-db
+   Updates the index for all requests.
 
 Debug Options
 =============
@@ -139,7 +156,7 @@ Debug Options
 }
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
-my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
+my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
@@ -186,7 +203,44 @@ sub lsrep {
   chomp @files;
   return {map {substr($_, 34) => substr($_, 0, 32)} @files};
 }
+sub repreadxml {
+  my ($rev, $packid, $filename, $md5, $dtd, $nonfatal) = @_;
+  return readxml("$srcrepdir/$packid/$md5-$filename", $dtd, $nonfatal);
+}
+sub findprojects {
+  local *D;
+  opendir(D, $projectsdir) || die("$projectsdir: $!\n");
+  my @projids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @projids;
+}
+sub findpackages {
+  my ($projid) = @_;
+  my @packids;
+  if (opendir(D, "$projectsdir/$projid.pkg")) {
+    @packids = grep {s/\.xml$//} readdir(D);
+    closedir(D);
+  }
+  return sort @packids;
+}
 
+sub updatelinkinfodb {
+  my ($projid, $packid, $rev, $files) = @_;
+
+  mkdir_p($sourcedb) unless -d $sourcedb;
+  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
+  my $linkinfo;
+  if ($files && $files->{'_link'}) {
+    my $l = repreadxml($rev, $packid, '_link', $files->{'_link'}, $BSXML::link, 1);
+    if ($l) {
+      $linkinfo = {};
+      $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
+      $linkinfo->{'package'} = defined $l->{'package'} ? $l->{'package'} : $packid;
+      $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
+    }    
+  }
+  $linkdb->store("$projid/$packid", $linkinfo);
+}
 sub findfile {
   my ($projid, $packid, $repoid, $ext, $files) = @_;
   $files = lsrep($projid, $packid, $files) unless ref $files;
@@ -277,6 +331,43 @@ sub clone_repository {
   system('rm', '-rf', "$tmpdir.old") && die("removing of $tmpdir.old failed!\n");
 
   print "finished. Have a nice day.\n";
+}
+
+sub switch_to_obs_user {
+  my $user = $BSConfig::bsuser;
+  my $group = $BSConfig::bsgroup;
+  
+  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+  if (defined $group) {
+    ($), $() = ($group, $group);
+    die "setgid: $!\n" if ($) != $group);
+  }
+  if (defined $user) {
+    ($>, $<) = ($user, $user);
+    die "setuid: $!\n" if ($> != $user);
+  }
+}
+
+sub update_request_db {
+  my $requestdb  = "$BSConfig::bsdir/db/request";
+  my $requestdir = "$BSConfig::bsdir/requests";
+  mkdir_p($requestdb) unless -d $requestdb;
+
+  my $db = BSDB::opendb($requestdb, '');
+  $db->{'noindex'} = {'id' => 1};
+
+  my @allrequests = ls($requestdir);
+  my $i = 0;
+  my $count = @allrequests;
+  for my $rid (@allrequests) {
+    next if $rid eq ".nextid";
+    $i++;
+    print "$i / $count        \r";
+    my $req = readxml("$requestdir/$rid", $BSXML::request, 1);
+    print "WARNING: unable to parse request: $rid!\n" unless $req;
+    $db->updateindex($rid, {}, $req || {});
+  }
 }
 
 sub check_xml_file {
@@ -423,6 +514,19 @@ while (@ARGV) {
     die("ERROR: need a file name !\n") if @ARGV != 1;
     my $file = shift @ARGV;
     check_xml_file($file, $BSXML::request);
+  } elsif ($arg eq "--update-request-db") {
+    switch_to_obs_user();
+    update_request_db();
+  } elsif ($arg eq "--update-source-db") {
+    switch_to_obs_user();
+    for my $projid (findprojects()) {
+      for my $packid (findpackages($projid)) {
+        print "$projid/$packid\n";
+        my $rev = getrev($projid, $packid);
+        my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+        updatelinkinfodb($projid, $packid, $rev, $files);
+      }
+    }
   } elsif ($arg eq "--check-kiwi-xml") {
     die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
     if (@ARGV == 1){

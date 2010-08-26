@@ -4,7 +4,7 @@
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '>=2.3.5' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
@@ -27,10 +27,16 @@ init = Rails::Initializer.run do |config|
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake create_sessions_table')
   config.action_controller.session_store = :active_record_store
+  # default secret
+  secret = "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+  if File.exist? "#{RAILS_ROOT}/config/secret.key"
+    file = File.open( "#{RAILS_ROOT}/config/secret.key", "r" )
+    secret = file.readline
+  end
   config.action_controller.session = {
     :prefix => "ruby_webclient_session",
-    :session_key => "opensuse_webclient_session",
-    :secret => "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+    :key => "opensuse_webclient_session",
+    :secret => secret
   }
 
   # Enable page/fragment caching by setting a file-based store
@@ -41,7 +47,7 @@ init = Rails::Initializer.run do |config|
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'libxml-ruby'
-  config.gem 'exception_notification'
+  config.gem 'exception_notification', :version => '<= 1.1'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
@@ -71,33 +77,6 @@ ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
 ExceptionNotifier.email_prefix = "[OBS web error] "
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
-MONITOR_IMAGEMAP = { 
-      'pc_waiting' => [
-        ["i586", 'waiting_i586'],
-        ["x86_64", 'waiting_x86_64'] ],
-      'pc_blocked' => [
-        ["i586", 'blocked_i586' ],
-        ["x86_64", 'blocked_x86_64'] ],
-      'pc_workers' => [
-        ["idle", 'idle_x86_64' ],
-        ['building', 'building_x86_64' ] ],
-      'ppc_waiting' => [
-        ["ppc", 'waiting_ppc'],
-        ["ppc64", 'waiting_ppc64'] ],
-      'ppc_blocked' => [
-        ["ppc", 'blocked_ppc' ],
-        ["ppc64", 'blocked_ppc64'] ],
-      'ppc_workers' => [
-        ["idle", 'idle_ppc64' ],
-        ['building', 'building_ppc64' ] ],
-      'arm_waiting' => [
-        ["armv5", 'waiting_armv5el'],
-        ["armv7", 'waiting_armv7el'] ],
-      'arm_blocked' => [
-        ["armv5", 'blocked_armv5el' ],
-        ["armv7", 'blocked_armv7el'] ]
-    }
-
 if CONFIG['visible_architectures']
    VISIBLE_ARCHITECTURES=CONFIG['visible_architectures']
 else
@@ -109,14 +88,90 @@ else
    DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
 end
 
+MONITOR_IMAGEMAP = { 
+      'i586_waiting' => [
+        ["i586", 'waiting_i586'],
+        ["x86_64", 'waiting_x86_64'] ],
+      'i586_blocked' => [
+        ["i586", 'blocked_i586' ],
+        ["x86_64", 'blocked_x86_64'] ],
+      'i586_workers' => [
+        ["idle", 'idle_i586' ],
+        ["idle", 'idle_x86_64' ],
+        ["building", 'building_i586' ],
+        ['building', 'building_x86_64' ] ],
+
+      'ppc_waiting' => [
+        ["ppc", 'waiting_ppc'],
+        ["ppc64", 'waiting_ppc64'] ],
+      'ppc_blocked' => [
+        ["ppc", 'blocked_ppc' ],
+        ["ppc64", 'blocked_ppc64'] ],
+      'ppc_workers' => [
+        ["idle", 'idle_ppc' ],
+        ["idle", 'idle_ppc64' ],
+        ["building", 'building_ppc' ],
+        ['building', 'building_ppc64' ] ],
+
+      'armv5el_waiting' => [
+        ["armv5el", 'waiting_armv5el'],
+        ["armv6el", 'waiting_armv6el'],
+        ["armv7el", 'waiting_armv7el'],
+        ["armv8el", 'waiting_armv8el'] ],
+      'armv5el_blocked' => [
+        ["armv5el", 'blocked_armv5el'],
+        ["armv6el", 'blocked_armv6el'],
+        ["armv7el", 'blocked_armv7el'],
+        ["armv8el", 'blocked_armv8el'] ],
+
+      'mips_waiting' => [
+        ["mips",     'waiting_mips'],
+        ["mipsel",   'waiting_mipsel'],
+        ["mips64",   'waiting_mips64'],
+        ["mips64el", 'waiting_mips64el'] ],
+      'mips_blocked' => [
+        ["mips",     'blocked_mips'],
+        ["mipsel",   'blocked_mipsel'],
+        ["mips64",   'blocked_mips64'],
+        ["mips64el", 'blocked_mips64el'] ],
+
+      'ia64_waiting' => [
+        ["ia64", 'waiting_ia64'] ],
+      'ia64_blocked' => [
+        ["ia64", 'blocked_ia64'] ],
+      'ia64_workers' => [
+        ["ia64", 'idle_ia64'],
+        ["ia64", 'building_ia64'] ],
+
+      'hppa_waiting' => [
+        ["hppa", 'waiting_hppa'] ],
+      'hppa_blocked' => [
+        ["hppa", 'blocked_hppa'] ],
+      'hppa_workers' => [
+        ["hppa", 'idle_parisc'],
+        ["hppa", 'building_parisc'] ],
+
+      's390_waiting' => [
+        ["s390", 'waiting_s390'],
+        ["s390x", 'waiting_s390x'] ],
+      's390_blocked' => [
+        ["s390", 'blocked_s390' ],
+        ["s390x", 'blocked_s390x'] ],
+      's390_workers' => [
+        ["s390", 'idle_s390'],
+        ["s390x", 'idle_s390x'],
+        ["s390", 'building_s390'],
+        ["s390x", 'building_s390x'] ],
+    }
+
 SOURCEREVISION = 'master'
 begin
   SOURCEREVISION = File.open("#{RAILS_ROOT}/REVISION").read
 rescue Errno::ENOENT
 end
 
-DOWNLOAD_URL = nil
-BUGZILLA_HOST = nil
+#DOWNLOAD_URL = "http://download.opensuse.org/repositories"
+#BUGZILLA_HOST = nil
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
@@ -143,9 +198,10 @@ ActiveXML::Base.config do |conf|
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
-    map.connect :directory, "rest:///source/:project/:package?:expand"
+    map.connect :directory, "rest:///source/:project/:package?:expand&:rev"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service"
+    map.connect :file, "rest:///source/:project/:package/:filename?:expand&:rev"
     map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository"

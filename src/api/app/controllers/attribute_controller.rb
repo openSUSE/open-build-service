@@ -49,7 +49,7 @@ class AttributeController < ApplicationController
     # namespace definitions must be managed by the admin
     return unless extract_user
     unless @http_user.is_admin?
-      render_error :status => 400, :errorcode => 'permissions denied',
+      render_error :status => 403, :errorcode => 'permissions denied',
         :message => "Namespace changes are only permitted by the administrator"
       return
     end
@@ -122,7 +122,7 @@ class AttributeController < ApplicationController
     # permission check via User model
     return unless extract_user
     unless @http_user.can_modify_attribute_definition?(ans)
-      render_error :status => 400, :errorcode => 'permissions denied',
+      render_error :status => 403, :errorcode => 'permissions denied',
         :message => "Attribute type changes are not permitted"
       return
     end

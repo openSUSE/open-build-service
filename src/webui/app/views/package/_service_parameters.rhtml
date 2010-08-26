@@ -13,7 +13,7 @@
 
 
     <p><div class="aligncenter buttons">
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <% if @package.can_edit?( session[:login] ) %>
         <%= form_tag({:controller => "package", :action => "update_parameters"}, :method => "post") %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
@@ -22,14 +22,14 @@
       <% end %>
        <table id="pTable">
        <tr><td valign="top">Parameter</td><td>Value</td>
-       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+       <% if @package.can_edit?( session[:login] ) %>
           <td>Remove</td>
        <% end %>
        </tr>
          <% number = 0 %>
          <% @parameters.each do |p|%>
             <% number = number + 1 %>
-            <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+            <% if @package.can_edit?( session[:login] ) %>
                <tr class="row_<%=number%>">
                   <td><%=p[:name]%></td> 
                   <td><input type="text" name="parameter_<%=number%>_<%=p[:name]%>" value="<%=p[:value]%>"></td>
@@ -39,15 +39,14 @@
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
             <% end %>
          <% end %>
-         <%= hidden_field_tag(:parameter_count, number) %>
+         <%= hidden_field_tag(:count_parameters, number) %>
 
-         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-           <tr class="addrow"><td><select name="add_parameter_name" id="add_new_parameter">
-                      <!-- FIXME: read these options via model from installed config files -->
-                      <option value="protocol" selected>Protocol</option>
-                      <option value="host" selected>Host</option>
-                      <option value="port" selected>Port</option>
-                      <option value="path" selected>Path</option>
+         <% if @package.can_edit?( session[:login] ) %>
+           <tr class="addrow"><td>
+               <select name="add_parameter_name" id="add_new_parameter">
+               <% Service.findAvailableParameters(@servicename).each do |p|%>
+                      <option value="<%=p[:name]%>" selected><%=p[:name]%></option>
+               <% end %>
                </select></td>
                <td><input type="text" id="add_new_value" name="add_parameter_value"></td>
                <td><a href="#" id="add_new_row">+</a></td>
@@ -56,7 +55,7 @@
 
        </table>
 
-     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+     <% if @package.can_edit?( session[:login] ) %>
        <input type="submit" />
      </form>
      <% end %>

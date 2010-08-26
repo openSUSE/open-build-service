@@ -3,6 +3,15 @@ kdelibs:
   id: 1
   db_project_id: 2
   name: kdelibs
+  develpackage_id: 1234
+  created_at: 2001-01-01 01:01:01
+  updated_at: 2002-02-02 02:02:02
+  title: blub
+  description: blub
+kdelibs_DEVEL_package:
+  id: 1234
+  db_project_id: 601
+  name: kdelibs_DEVEL_package
   created_at: 2001-01-01 01:01:01
   updated_at: 2002-02-02 02:02:02
   title: blub
@@ -71,6 +80,28 @@ TestPack:
   description: ""
   update_counter: 1
   created_at: 2007-05-16 14:19:18
+BranchPack:
+  name: BranchPack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: My Test package
+  db_project_id: 504
+  url: ""
+  id: 10089
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+ToBeDeletedTestPack:
+  name: ToBeDeletedTestPack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: This package gets deleted by request test
+  db_project_id: 502
+  url: ""
+  id: 10195
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
 
 # for maintenance checks
 pack1:
@@ -106,8 +137,8 @@ update_pack2:
   description: ""
   update_counter: 1
   created_at: 2007-05-16 14:19:18
-pack:
-  name: pack
+packother:
+  name: pack2
   updated_at: 2007-05-16 14:19:18
   activity_index: 10
   title: For maintenance tests
@@ -117,9 +148,21 @@ pack:
   description: ""
   update_counter: 1
   created_at: 2007-05-16 14:19:18
+packanother:
+  name: pack2
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: For maintenance tests
+  db_project_id: 2047
+  url: ""
+  id: 10094
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
 
 # in hidden project
-pack:
+hidden_pack:
   name: pack
   updated_at: 2007-05-16 14:19:18
   activity_index: 10
@@ -127,6 +170,82 @@ pack:
   db_project_id: 3000
   url: ""
   id: 11000
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+hidden_pack1:
+  name: pack1
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package in a hidden project
+  db_project_id: 3000
+  url: ""
+  id: 11006
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+hidden_pack2:
+  name: pack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package in a hidden project
+  db_project_id: 3001
+  url: ""
+  id: 11004
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+privacy_pack4:
+  name: pack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package in a privacy-enabled project
+  db_project_id: 3003
+  url: ""
+  id: 11003
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+# binarydownload
+binarydownload_pack:
+  name: bdpack
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package in a binarydownload enabled project
+  db_project_id: 3002
+  url: ""
+  id: 11007
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+
+
+# for OBS interconnect
+remotepackage:
+  name: remotepackage
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package with a remote link
+  db_project_id: 5002
+  url: ""
+  id: 11001
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+newpackage:
+  name: newpackage
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A package without a remote link
+  db_project_id: 5002
+  url: ""
+  id: 11002
   description: ""
   update_counter: 1
   created_at: 2007-05-16 14:19:18

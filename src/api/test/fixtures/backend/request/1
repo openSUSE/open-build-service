@@ -1,6 +1,6 @@
 <request>
   <action type='submit'>
-    <source project='home:tscholz' package='wpa_supplicant' rev='2'/>
+    <source project='home:Iggy' package='wpa_supplicant' rev='2'/>
     <target project='kde4' package='wpa_supplicant'/>
   </action>
   <description/>

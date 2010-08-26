@@ -53,16 +53,26 @@ LDAP_SEARCH_AUTH=""
 #            LDAP using LDAP_AUTH_ATTR & LDAP_AUTH_MECH
 #       LDAP_AUTH_MECH can be
 #       : md5
-#       : plaintext
+#       : cleartext
 LDAP_AUTHENTICATE=:ldap
 LDAP_AUTH_ATTR="userPassword"
 LDAP_AUTH_MECH=:md5
 
+# Whether to update the user info to LDAP server, it does not take effect 
+# when LDAP_MODE is not set.
+# Since adding new entry operation are more depend on your slapd db define, it might not 
+# compatiable with all LDAP server settings, you can use other LDAP client tools for your specific usage
+LDAP_UPDATE_SUPPORT = :off
+# ObjectClass, used for adding new entry
+LDAP_OBJECT_CLASS = ['inetOrgPerson']
+# Base dn for the new added entry
+LDAP_ENTRY_BASE = "ou=OBSUSERS,dc=EXAMPLE,dc=COM"
+# Does sn attribute required, it is a necessary attribute for most of people objectclass,
+# used for adding new entry
+LDAP_SN_ATTR_REQUIRED = :on
+
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 5352
-
-APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 EXTENDED_BACKEND_LOG = false
 

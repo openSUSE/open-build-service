@@ -18,26 +18,25 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /person
 
+  # FIXME: this is no clean namespace, a person "register" could exist ...
+  #        suggested solution is POST person/:login?cmd=register
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
+  map.connect 'person/:login/group', :controller => 'person', :action => 'grouplist', :login => /[^\/]*/
+  map.connect 'person/:login/passwd/:password', :controller => 'person', :action => 'change_my_password', :login => /[^\/]*/,:password => /[^\/]*/
 
-  ### /result
 
-  map.connect 'result/:project/result', :controller => 'result',
-    :action => 'projectresult', :project => /[^\/]*/
-  map.connect 'result/:project/packstatus', :controller => 'result',
-    :action => 'packstatus', :project => /[^\/]*/
-  map.connect 'result/:project/:platform/result', :controller => 'result',
-    :action => 'projectresult', :project => /[^\/]*/, :platform => /[^\/]*/
-  map.connect 'result/:project/:platform/:package/result', :controller => 'result',
-    :action => 'packageresult', :project => /[^\/]*/, :platform => /[^\/]*/, :package => /[^\/]*/
-  map.connect 'result/:project/:platform/:package/:arch/log',
-    :controller => 'result',
-    :action => 'log', :project => /[^\/]*/, :platform => /[^\/]*/, :package => /[^\/]*/
+  ### /group
+  map.connect 'group/:group', :controller => 'group', :action => 'grouplist', :group => /[^\/]*/
 
   ### /repository
 
   map.connect 'repository', :controller => 'repository', :action => 'index'
+
+  ### /service
+
+  map.connect 'service/:service', :controller => "service",
+    :action => 'index_service', :service => /\w[^\/]*/
 
   ### /source
 

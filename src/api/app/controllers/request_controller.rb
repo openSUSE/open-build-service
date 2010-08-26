@@ -1,6 +1,8 @@
 class RequestController < ApplicationController
   #TODO: request schema validation
 
+  # the simple writing action.type instead of action.data.attributes['type'] can not be used, since it is a rails function
+
   # GET /request
   alias_method :index, :pass_to_backend
 
@@ -9,8 +11,9 @@ class RequestController < ApplicationController
 
   # GET /request/:id
   def show
+    # ACL(show) TODO: check this leaks no information that is prevented by ACL
     # parse and rewrite the request to latest format
-    data = Suse::Backend.get("/request/#{params[:id]}").body
+    data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
     req = BsRequest.new(data)
     send_data(req.dump_xml, :type => "text/xml")
   end
@@ -20,12 +23,14 @@ class RequestController < ApplicationController
 
   # PUT /request/:id
   def update
+    # ACL(update) TODO: check this leaks no information that is prevented by ACL
     params[:user] = @http_user.login if @http_user
     
     #TODO: allow PUT for non-admins
     unless @http_user.is_admin?
       render_error :status => 403, :errorcode => 'put_request_no_permission',
         :message => "PUT on requests currently requires admin privileges"
+      return
     end
 
     path = request.path
@@ -74,14 +79,13 @@ class RequestController < ApplicationController
     # obj can be a project or package object
     review_groups = Array.new(0)
     prj = nil
-
     # check for reviewers in a package first
     if obj.class == DbProject
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
         obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
-          review_groups << User.find_by_id(r.bs_user_id)
+          review_groups << Group.find_by_id(r.bs_group_id)
         end
       end
       prj = obj.db_project
@@ -91,7 +95,7 @@ class RequestController < ApplicationController
     # add reviewers of project in any case
     if defined? prj.project_group_role_relationships
       prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
-        review_groups << User.find_by_id(r.bs_user_id)
+        review_groups << Group.find_by_id(r.bs_group_id)
       end
     end
     return review_groups
@@ -99,6 +103,8 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create_create
+    # ACL(create_create) TODO: check this leaks no information that is prevented by ACL
+    # ACL(create_create) TODO: how to handle if permissions in source and target project are different
     req = BsRequest.new(request.body.read)
 
     req.each_action do |action|
@@ -109,12 +115,12 @@ class RequestController < ApplicationController
       tprj=nil
       tpkg=nil
       if action.has_element? 'person'
-        unless User.find_by_login(action.person.data.attributes["name"])
+        unless User.find_by_login(action.person.name)
           render_error :status => 404, :errorcode => 'unknown_person',
             :message => "Unknown person  #{action.person.data.attributes["name"]}"
           return
         end
-        role = action.person.data.attributes["role"] if action.person.has_attribute? 'role'
+        role = action.person.role if action.person.has_attribute? 'role'
       end
       if action.has_element? 'group'
         unless Group.find_by_title(action.group.data.attributes["name"])
@@ -122,7 +128,7 @@ class RequestController < ApplicationController
             :message => "Unknown group  #{action.group.data.attributes["name"]}"
           return
         end
-        role = action.group.data.attributes["role"] if action.group.has_attribute? 'role'
+        role = action.group.role if action.group.has_attribute? 'role'
       end
       if role
         unless Role.find_by_title(role)
@@ -149,6 +155,7 @@ class RequestController < ApplicationController
           end
         end
       end
+
       if action.has_element? 'target'
         if action.target.has_attribute? 'project'
           tprj = DbProject.find_by_name action.target.project
@@ -166,6 +173,19 @@ class RequestController < ApplicationController
             return
           end
         end
+      end
+
+      # ACL(create_create): in case of access, package is really hidden and shown as non existing to users without access
+      if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{action.target.package} in project #{action.target.project}"
+        return
+      end
+      # ACL(create_create): in case of sourceaccess, give permission denied 
+      if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{params[:user]} has no read access to package #{action.target.package}, project #{action.target.project}"
+        return
       end
 
       # Type specific checks
@@ -266,53 +286,70 @@ class RequestController < ApplicationController
       end
     end
 
-
-    params[:user] = @http_user.login if @http_user
-    path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment])
-    # forward_path is not working here, because we may modify the request.
-    # can get cleaned up when we moved this to the client
-    response = backend_post( path, req.dump_xml )
-
+    #
+    # Find out about defined reviewers in target
+    #
     # check targets for defined default reviewers
     reviewers = []
     review_groups = []
 
-    req = BsRequest.new(response.to_s)
     req.each_action do |action|
-      tprj = DbProject.find_by_name action.target.project
-      if action.target.has_attribute? 'package'
-        tpkg = tprj.db_packages.find_by_name action.target.package
+      tprj = nil
+      tpkg = nil
+      if action.has_element? 'target'
+        tprj = DbProject.find_by_name action.target.project
+        if action.target.has_attribute? 'package'
+	  tpkg = tprj.db_packages.find_by_name action.target.package
+	elsif action.has_element? 'source' and action.source.has_attribute? 'package'
+	  tpkg = tprj.db_packages.find_by_name action.source.package
+        end
+      elsif action.has_element? 'source'
+        # find target via linkinfo or fail
+        data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}") )
+        data.elements.each("directory/linkinfo") do |e|
+          tprj = DbProject.find_by_name e.attributes["project"]
+          tpkg = tprj.db_packages.find_by_name e.attributes["package"]
+        end
+      end
+
+      # find reviewers in target package
+      if tpkg
         reviewers += find_reviewers(tpkg)
         review_groups += find_review_groups(tpkg)
-      else
+      end
+      # project reviewers get added additionaly
+      if tprj
         reviewers += find_reviewers(tprj)
         review_groups += find_review_groups(tprj)
       end
     end
 
     # apply reviewers
+    reviewers.uniq!
     if reviewers.length > 0
       reviewers.each do |r|
-        p = {}
-        p[:cmd]     = "addreview"
-        p[:by_user] = r.login
-        path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_user])
-        r = backend_post( path, "" )
+        e = req.add_element "review"
+        e.data.attributes["by_user"] = r.login
+        e.data.attributes["state"] = "new"
       end
     end
+    review_groups.uniq!
     if review_groups.length > 0
-      review_groups.each do |r|
-        p = {}
-        p[:cmd]     = "addreview"
-        p[:by_user] = r.login
-        path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_group])
-        r = backend_post( path, "" )
+      review_groups.each do |g|
+        e = req.add_element "review"
+        e.data.attributes["by_group"] = g.title
+        e.data.attributes["state"] = "new"
       end
     end
 
+    #
+    # create the actual request
+    #
+    params[:user] = @http_user.login if @http_user
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    response = backend_post( path, req.dump_xml )
     send_data( response, :disposition => "inline" )
-    return
   end
 
   def modify_addreview
@@ -324,9 +361,14 @@ class RequestController < ApplicationController
                         #:by_user => params[:by_user], :by_group => params[:by_group]
   end
   def modify_changestate
+    if params[:id].nil? or params[:id].to_i == 0
+      render_error :status => 404, :message => "Request ID is not a number", :errorcode => "no_such_request"
+      return
+    end
     req = BsRequest.find params[:id]
-    unless req
+    if req.nil?
       render_error :status => 404, :message => "No such request", :errorcode => "no_such_request"
+      return
     end
     if not @http_user or not @http_user.login
       render_error :status => 403, :errorcode => "post_request_no_permission",
@@ -360,11 +402,23 @@ class RequestController < ApplicationController
     end
     # Do not accept to skip the review, except force argument is given
     if params[:newstate] == "accepted"
-       if req.state.name == "review" and not params[:force]
+       if params[:cmd] == "changestate" and req.state.name == "review" and not params[:force]
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "Request is in review state."
           return
        end
+    end
+
+    # valid users and groups ?
+    if params[:by_user] and User.find_by_login(params[:by_user]).nil?
+       render_error :status => 404, :errorcode => "unknown_user",
+                :message => "User #{params[:by_user]} is unkown"
+       return
+    end
+    if params[:by_group] and Group.find_by_title(params[:by_group]).nil?
+       render_error :status => 404, :errorcode => "unknown_group",
+                :message => "Group #{params[:by_group]} is unkown"
+       return
     end
 
     # generic permission check
@@ -379,95 +433,108 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_missing_parameter",
                :message => "Supersed a request requires a 'superseded_by' parameter with the request id."
       return
-    elsif (params[:cmd] == "addreview" and req.creator == @http_user.login)
+    elsif params[:cmd] == "addreview" and (req.creator == @http_user.login or req.is_reviewer? @http_user)
       # allow request creator to add further reviewers
       permission_granted = true
-#    elsif (params[:cmd] == "changereviewstate" and params[:by_group] == # FIXME: support groups
-#      permission_granted = true
+    elsif (params[:cmd] == "changereviewstate" and @http_user.is_in_group?(params[:by_group]))
+      permission_granted = true
     elsif (params[:cmd] == "changereviewstate" and params[:by_user] == @http_user.login)
       permission_granted = true
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true
-    else # check this for changestate (of request) and addreview command
-       # permission check for each request inside
-       req.each_action do |action|
-         if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
-           source_project = DbProject.find_by_name(action.source.project)
-           target_project = DbProject.find_by_name(action.target.project)
-           if target_project.nil?
+    end
+
+    # permission and validation check for each request inside
+    req.each_action do |action|
+      if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
+        source_project = DbProject.find_by_name(action.source.project)
+        target_project = DbProject.find_by_name(action.target.project)
+        if target_project.nil?
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+          return
+        end
+        if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+          return
+        end
+        if params[:newstate] != "declined" and params[:newstate] != "revoked"
+          if source_project.nil?
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          else
+            source_package = source_project.db_packages.find_by_name(action.source.package)
+          end
+          if source_package.nil? and params[:newstate] != "revoked"
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          end
+        end
+        if action.target.has_attribute? :package
+          target_package = target_project.db_packages.find_by_name(action.target.package)
+        else
+          target_package = target_project.db_packages.find_by_name(action.source.package)
+        end
+        if ( target_package and @http_user.can_modify_package? target_package ) or
+           ( not target_package and @http_user.can_modify_project? target_project )
+           permission_granted = true
+        elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
+           # source project owners should be able to revoke submit requests as well
+           source_package = source_project.db_packages.find_by_name(action.source.package)
+           if ( source_package and @http_user.can_modify_package? source_package ) or
+              ( not source_package and @http_user.can_modify_project? source_project )
+             permission_granted = true
+           elsif permission_granted != true
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+               :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
-           if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
-             return
-           end
-           if params[:newstate] != "declined" and params[:newstate] != "revoked"
-             if source_project.nil?
-               render_error :status => 403, :errorcode => "post_request_no_permission",
-                 :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-               return
-             else
-               source_package = source_project.db_packages.find_by_name(action.source.package)
-             end
-             if source_package.nil? and params[:newstate] != "revoked"
-               render_error :status => 403, :errorcode => "post_request_no_permission",
-                 :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
-               return
-             end
-           end
-           if action.target.has_attribute? :package
-             target_package = target_project.db_packages.find_by_name(action.target.package)
-           else
-             target_package = target_project.db_packages.find_by_name(action.source.package)
-           end
-           if ( target_package and @http_user.can_modify_package? target_package ) or
-              ( not target_package and @http_user.can_modify_project? target_project )
-              permission_granted = true
-           elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
-              # source project owners should be able to revoke submit requests as well
-              source_package = source_project.db_packages.find_by_name(action.source.package)
-              if ( source_package and @http_user.can_modify_package? source_package ) or
-                 ( not source_package and @http_user.can_modify_project? source_project )
-                permission_granted = true
-              else
-                render_error :status => 403, :errorcode => "post_request_no_permission",
-                  :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
-                return
-              end
-           else
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data.attributes['type']})"
-             return
-           end
+        else
+          if permission_granted != true
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data.attributes['type']})"
+            return
+          end
+        end
     
-         elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
-           # check permissions for delete
-           project = DbProject.find_by_name(action.target.project)
-           package = nil
-           if action.target.has_attribute? :package
-              package = project.db_packages.find_by_name(action.target.package)
-              if @http_user.can_modify_package? package
-                 permission_granted = true
-              end
-	   else
-              if @http_user.can_modify_project? project
-                 permission_granted = true
-              end
-           end
-           unless permission_granted == true
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+      elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
+        # check permissions for delete
+        project = DbProject.find_by_name(action.target.project)
+        if not project and params[:newstate] == "accepted"
+          msg = "Unable to delete project #{action.target.project}; it does not exist."
+          render_error :status => 400, :errorcode => 'not_existing_target',
+            :message => msg
+          return
+        end
+        package = nil
+        if action.target.has_attribute? :package
+           package = project.db_packages.find_by_name(action.target.package)
+           if not package and params[:newstate] == "accepted"
+             msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
+             render_error :status => 400, :errorcode => 'not_existing_target',
+               :message => msg
              return
            end
-         else
-           render_error :status => 403, :errorcode => "post_request_no_permission",
-             :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
-           return
-         end
+           if package and @http_user.can_modify_package? package
+              permission_granted = true
+           end
+        end
+        if not permission_granted and project and @http_user.can_modify_project? project
+           permission_granted = true
+        end
+        unless permission_granted == true
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+          return
+        end
+      else
+        render_error :status => 403, :errorcode => "post_request_no_permission",
+          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+        return
       end
     end
 
@@ -478,7 +545,8 @@ class RequestController < ApplicationController
       return
     end
 
-    unless params[:newstate] == "accepted"
+    # All commands are process by the backend. Just the request accept is controlled by the api.
+    unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
       pass_to_backend path
       return
     end
@@ -488,7 +556,7 @@ class RequestController < ApplicationController
       if action.data.attributes["type"] == "set_bugowner"
           object = DbProject.find_by_name(action.target.project)
           bugowner = Role.find_by_title("bugowner")
-          if action.target.package
+          if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
  	     PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
 		r.destroy
@@ -498,22 +566,22 @@ class RequestController < ApplicationController
 		r.destroy
              end
           end
-	  object.add_user( action.person.data.attributes["name"], bugowner )
+	  object.add_user( action.person.name, bugowner )
           object.store
-          render_ok
       elsif action.data.attributes["type"] == "add_role"
           object = DbProject.find_by_name(action.target.project)
-          if action.target.package
+          if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
           end
           if action.has_element? 'person'
-	     object.add_user( action.person.data.attributes["name"], action.person.data.attributes["role"] )
+             role = Role.find_by_title(action.person.role)
+	     object.add_user( action.person.name, role )
           end
           if action.has_element? 'group'
-	     object.add_group( action.group.data.attributes["name"], action.group.data.attributes["role"] )
+             role = Role.find_by_title(action.group.role)
+	     object.add_group( action.group.name, role )
           end
           object.store
-          render_ok
       elsif action.data.attributes["type"] == "change_devel"
           target_project = DbProject.find_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
@@ -522,10 +590,10 @@ class RequestController < ApplicationController
             target_package.resolve_devel_package
             target_package.store
           rescue DbPackage::CycleError => e
+            # FIXME: this needs to be checked before, or we have a half submitted request
             render_error :status => 403, :errorcode => "devel_cycle", :message => e.message
             return
           end
-          render_ok
       elsif action.data.attributes["type"] == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
@@ -555,6 +623,8 @@ class RequestController < ApplicationController
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
           unless target_package
+            # create package in database
+            linked_package = target_project.find_package(action.target.package)
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
             target_package = Package.new(source_package.to_axml, :project => action.target.project)
@@ -563,6 +633,11 @@ class RequestController < ApplicationController
             target_package.remove_all_flags
             target_package.remove_devel_project
             target_package.save
+
+            # check if package was available via project link and create a branch from it in that case
+            if linked_package
+              r = Suse::Backend.post "/source/#{action.target.project}/#{action.target.package}?cmd=branch&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+            end
           end
 
           cp_path = "/source/#{action.target.project}/#{action.target.package}"
@@ -573,14 +648,6 @@ class RequestController < ApplicationController
           if sourceupdate == "cleanup"
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
-            # check for devel package defines
-            unless source_package.develpackages.empty?
-              msg = "Unable to delete package #{source_package.name}; following packages use this package as devel package: "
-              msg += source_package.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
-              render_error :status => 400, :errorcode => 'develpackage_dependency',
-                :message => msg
-              return
-            end
             if source_project.db_packages.count == 1
               #find linking repos
               lreps = Array.new
@@ -614,36 +681,18 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
             end
           end
-          render_ok
       elsif action.data.attributes["type"] == "delete"
           project = DbProject.find_by_name(action.target.project)
-          unless project
-            msg = "Unable to delete project #{action.target.project}; it does not exist."
-            render_error :status => 400, :errorcode => 'not_existing_target',
-              :message => msg
-            return
-          end
           if not action.target.has_attribute? :package
             project.destroy
             Suse::Backend.delete "/source/#{action.target.project}"
           else
             DbPackage.transaction do
               package = project.db_packages.find_by_name(action.target.package)
-              unless package
-                msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
-                render_error :status => 400, :errorcode => 'not_existing_target',
-                  :message => msg
-                return
-              end
               package.destroy
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-          render_ok
-      else
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => "Failed to execute request state change of request #{req.id} (type #{action.data.attributes['type']})"
-        return
       end
     end
     pass_to_backend path

@@ -79,10 +79,6 @@ sub verify_patchinfo {
   my $p = $_[0];
   die("No patch name defined in _patchinfo") unless defined($p->{'name'}) and $p->{'name'} ne "";
   verify_filename($p->{'name'});
-  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
-  for my $binary (@{$p->{'binary'}}) {
-    verify_filename($binary);
-  }
   die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
                                                     || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature'
                                                     || $p->{'category'} eq ''; # empty is allowed here
@@ -102,6 +98,10 @@ sub verify_patchinfo_complete {
   die("No category defined in _patchinfo") unless $p->{'category'};
   die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
                                                     || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature';
+  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
+  for my $binary (@{$p->{'binary'}}) {
+    verify_filename($binary);
+  }
 
   # checks of optional content to be added here
 }
@@ -217,6 +217,7 @@ sub verify_proj {
   for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
+  die('project must not have mountproject\n') if exists $proj->{'mountproject'};
 }
 
 sub verify_pack {
@@ -224,6 +225,7 @@ sub verify_pack {
   if (defined($packid)) {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
+  verify_packid($pack->{'name'});
   verify_disableenable($pack);	# obsolete
   for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
@@ -267,6 +269,9 @@ sub verify_aggregatelist {
   my ($al) = @_;
   for my $a (@{$al->{'aggregate'} || []}) {
     verify_projid($a->{'project'});
+    if (defined($a->{'nosources'})) {
+      die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
+    }
     for my $p (@{$a->{'package'} || []}) {
       verify_packid($p);
     }

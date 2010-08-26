@@ -138,10 +138,16 @@ class User < ActiveRecord::Base
   end
 
   def is_in_group?(group)
-    unless attribute.kind_of? Group
+    if group.nil?
+      return false
+    end
+    if group.kind_of? String
+      group = Group.find_by_title(group)
+    end
+    unless group.kind_of? Group
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
     end
-    return true if groups.find(:all, :conditions => [ "id = ?", group ]) > 0
+    return true if groups.find(:all, :conditions => [ "id = ?", group ]).length > 0
     return false
   end
 
@@ -227,11 +233,11 @@ class User < ActiveRecord::Base
     end
 
     return true  if is_admin?
-    return false if object.attrib_type_modifiable_bies.length <= 0
+    return false if object.attrib_namespace_modifiable_bies.length <= 0
 
     object.attrib_namespace_modifiable_bies.each do |mod_rule|
       next if mod_rule.user and mod_rule.user != self
-      next if mod_rule.group and not is_in_group(mod_rule.group)
+      next if mod_rule.group and not is_in_group? mod_rule.group
       return true
     end
 
@@ -266,7 +272,7 @@ class User < ActiveRecord::Base
     if atype.attrib_type_modifiable_bies.length > 0
       atype.attrib_type_modifiable_bies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group and not is_in_group(mod_rule.group)
+        next if mod_rule.group and not is_in_group? mod_rule.group
         next if mod_rule.role and not has_local_role?(mod_rule.role, object)
         return true
       end
@@ -285,20 +291,12 @@ class User < ActiveRecord::Base
   def can_download_binaries?(package)
     return true if has_global_permission? "download_binaries"
 
-    unless package.kind_of? DbPackage
-      raise ArgumentError, "illegal argument to can_download_binaries, DbPackage expected, got #{package.class.name}"
-    end
-
     return true if has_local_permission?("download_binaries", package)
     return false
   end
 
   def can_source_access?(package)
     return true if has_global_permission? "source_access"
-
-    unless package.kind_of? DbPackage
-      raise ArgumentError, "illegal argument to can_read_access, DbPackage expected, got #{package.class.name}"
-    end
 
     return true if has_local_permission?("source_access", package)
     return false
@@ -358,19 +356,19 @@ class User < ActiveRecord::Base
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
         rels = package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
-        groups.each do |g|
-          rels = package_group_role_relationships.find :all, :conditions => ["db_group_id = ? and role_id = ?", g, role], :include => :role
-          return true if rels > 0
-        end
+        rels = PackageGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+                                                  :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role],
+                                                  :include => :role
+         return true if rels > 0
         return has_local_role?(role, object.db_project)
       when DbProject
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
-        groups.each do |g|
-          rels = project_group_role_relationships.find :all, :conditions => ["db_group_id = ? and role_id = ?", g, role], :include => :role
-          return true if rels > 0
-        end
+        rels = ProjectGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+                                                  :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role],
+                                                  :include => :role
+        return true if rels > 0
         return false
       end
     return false

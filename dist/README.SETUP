@@ -4,6 +4,11 @@ services run on the same system.  This document does not describe how
 to distribute them to increase reliability and do load balancing, but
 this is possible.
 
+An easier way to run OBS is via using the OBS Appliance. It is also 
+usable for a production server. Please find details here:
+
+   http://wiki.opensuse.org/openSUSE:Build_Service_Appliance
+
 1. run the backend
 ==================
 The backend hosts all sources and built packages.  It also schedules
@@ -139,30 +144,31 @@ password = foobar
 * populate the database
 
       # cd /srv/www/obs/api/
-      # sudo RAILS_ENV="production" rake db:migrate
+      # sudo RAILS_ENV="production" rake db:setup
       # sudo chown lighttpd.lighttpd log/*
 
       # cd /srv/www/obs/webui/
-      # sudo RAILS_ENV="production" rake db:migrate
+      # sudo RAILS_ENV="production" rake db:setup
       # sudo chown lighttpd.lighttpd log/*
 
 3.2 Setup and configure lighttpd for the api and webui
 ======================================================
 
-Now we need the webserver configuration of the api (and webui). 
-A default configuration for accessing via
-http://127.0.42.1 and http://127.0.42.2 gets automatically installed
-into /etc/lighttpd/vhosts.d/obs.conf
+Now we need to configure the webserver. By default, you can reach the
+familiar web user interface on port 80 (e.g: http://localhost), the api
+on port 81 (e.g. http://localhost:81), and the repos on port 82 (once
+some packages are built).
 
-If you need other hostnames, edit the file /etc/lighttpd/vhosts.d/obs.conf:
+If you need to change the default hostnames and/or ports, edit the file
+/etc/lighttpd/vhosts.d/obs.conf E.g.:
 
     $HTTP["host"] =~ "buildserver.my.domain.example.org" {
       ...
     }
 
 
-To enable these vhosts, make sure to uncomment the following in the
-'custom includes' section at the bottom of
+Nevertheless, make sure to uncomment the following lines in
+the 'custom includes' section at the bottom of
 /etc/lighttpd/lighttpd.conf:
 
 
@@ -204,9 +210,9 @@ enabled by uncommenting the corresponding lines in
 3.2.1 Change /srv/www/obs/webui/config/environments/production.rb
 ===========================================================================
 
-If you changed the hostnames/ips of the api away from 127.0.42.x, you 
-need to configure also 
-/srv/www/obs/webui/config/environments/production.rb (2 entries).
+If you change the hostnames/ips of the api, you need to adjust 
+FRONTEND_HOST, FRONTEND_PORT and DOWNLOAD_URL accordingly in
+/srv/www/obs/webui/config/environments/production.rb
 
 
 3.2.2 Change /srv/www/obs/api/config/environments/production.rb
@@ -243,7 +249,7 @@ the following command:
 
  # curl -0 --user "Admin:opensuse" -X PUT \
         -T /usr/share/doc/packages/obs-api/openSUSE.org.xml  \
-        http://127.0.42.2/source/openSUSE.org/_meta
+        http://localhost:81/source/openSUSE.org/_meta
 
 
 4.2 import base distributions into the backend
@@ -275,11 +281,11 @@ the following steps:
 
 By default you can access the api using any browser with the URL
 
-  http://127.0.42.2
+  http://$servername:81
 
 The web interface is accessible via
 
-  http://127.0.42.1
+  http://$servername
 
 The default user is "Admin" with the password "opensuse".
 
@@ -317,10 +323,10 @@ your ~/.oscrc to something like this:
 #apisrv = https://api.opensuse.org
 
 # our local build service api:
-apisrv = http://127.0.42.2
+apisrv = http://$servername:81
 
 # local default admin account
-[http://127.0.42.2]
+[http://$servername:81]
 user = Admin
 pass = opensuse
 
@@ -341,19 +347,19 @@ following commands offer you a template project or package description
 file.  In the self- explanatory xml, only enable the 10.2 distro on
 i586:
 
-   osc -A http://127.0.42.2 meta prj openSUSE:Tools -e
+   osc -A http://$servername:81 meta prj openSUSE:Tools -e
 
-check whether that worked on http://127.0.42.1/project/list_all
+check whether that worked on http://$servername/project/list_all
 
-   osc -A http://127.0.42.2 meta pkg openSUSE:Tools obs-server -e
+   osc -A http://$servername:81 meta pkg openSUSE:Tools obs-server -e
 
 check whether that worked on
-http://127.0.42.1/project/show?project=openSUSE%3ATools
+   http://$servername/project/show?project=openSUSE%3ATools
 
 Now prepare for a check-in.  This will do a checkout and locally build
 using the packages from your local buildserver:
 
-  OSCOPT="-A http://127.0.42.2" ./distribute
+  OSCOPT="-A http://$servername:81" ./distribute
 
 now do a check-in into the build server:
 
@@ -364,7 +370,7 @@ now do a check-in into the build server:
 The rebuild will automatically be triggered.  Monitor the build status
 here:
 
-  http://127.0.42.1/project/monitor?project=openSUSE%3ATools
+  http://localhost/project/monitor?project=openSUSE%3ATools
 
 6.2. Run and Stop the Service
 =============================
@@ -406,7 +412,7 @@ at boot.
 
 The following service are optional:
  * obswarden
-   It checks if build hosts are dieing and cleans up hanging builds
+   It checks if build hosts are dying and cleans up hanging builds
  * obssigner
    It is used to sign packages via the obs-sign daemon. You need to configure
    it in BSConfig.pm before you can use it.
@@ -434,8 +440,8 @@ opensuse-buildservice@opensuse.org
 =====================
 
  * OBS in the production mode uses memcached optionally. 
-   You can install and enable it as a aservice:
-      # zypper in memchached
+   You can install and enable it as a service:
+      # zypper in memcached
       # rcmemcached start
 
  * logs are located in various directories.
