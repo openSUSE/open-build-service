@@ -317,6 +317,7 @@ sub getcommitinfo {
     next unless defined $d->{'version'};
     $version = $d->{'version'};
     $release = $d->{'release'} if defined $d->{'release'};
+    $version = 'unknown' if $d->{'multiversion'};
     last;
   }
   if (defined($release)) {
@@ -651,6 +652,19 @@ sub addrev {
     BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => $user });
     return $rev;
   }
+
+  # help a little with link<->nolink and singleversion<->multiversion changes
+  if ($rev->{'version'} && $rev_old->{'version'}) {
+    # if this is a known -> unknown version change, max with vrev of last commit
+    if ($rev->{'version'} eq 'unknown' && $rev_old->{'version'} ne 'unknown') {
+      $rev->{'vrev'} = $rev_old->{'vrev'} + 1 if $rev_old->{'vrev'} + 1 > $rev->{'vrev'};
+    }
+    # same for unknown -> known
+    if ($rev->{'version'} ne 'unknown' && $rev_old->{'version'} eq 'unknown') {
+      $rev->{'vrev'} = $rev_old->{'vrev'} + 1 if $rev_old->{'vrev'} + 1 > $rev->{'vrev'};
+    }
+  }
+
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $rev->{'version'});
 
   # add missing data to complete the revision object
