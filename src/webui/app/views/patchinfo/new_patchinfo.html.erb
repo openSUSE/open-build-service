@@ -31,6 +31,7 @@
           <% options = Array.new
           @binarylist.each {|d| options << "#{d.to_s}"}
           opt = {:options => options}%>
+          <%=debugger%>
           <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5 %>
         </td>
         <td>Please select the binaries (ctrl+left) which your patch includes</td>

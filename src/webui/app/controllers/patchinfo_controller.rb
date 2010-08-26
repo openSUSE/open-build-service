@@ -7,6 +7,7 @@ class PatchinfoController < ApplicationController
     @packager = @project.person.userid
     @buglist = Array.new
     @cvelist = Array.new
+    @binaries = Array.new
   end
 
   def save_new
@@ -104,8 +105,10 @@ class PatchinfoController < ApplicationController
         end
         node.swampid     swampid
         node.category    category
-        cvelist.each do |cve|
-          node.CVE        cve
+        if @category == "security"
+          cvelist.each do |cve|
+            node.CVE        cve
+          end
         end
         node.summary     summary
         node.description description
