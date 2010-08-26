@@ -6,8 +6,9 @@ class PatchinfoController < ApplicationController
   def new_patchinfo
     @packager = @project.person.userid
     @buglist = Array.new
+    @cvelist = Array.new
   end
-  
+
   def save_new
     valid_http_methods(:post)
     
@@ -43,7 +44,7 @@ class PatchinfoController < ApplicationController
       filename = "_patchinfo"
       name = params[:name]
       packager = @project.person.userid
-      cve = params[:cve]
+      cvelist = params[:cve]
       binaries = params[:binaries]
       if params[:bug] != nil
         buglist = params[:bug]

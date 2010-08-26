@@ -72,9 +72,11 @@
             var selected_start = $("#category option:selected");
             if(selected_start.val() != "security"){
             $("#CVE").hide();
+            $("#CVEID").hide();
             }
             else
-            {    $("#CVE").show();}
+            {    $("#CVE").show();
+                 $("#CVEID").show();}
 
 
             $("#category").change(onSelectChange);
@@ -90,9 +92,11 @@
             var selected = $("#category option:selected");
             if(selected.val() != "security"){
             $("#CVE").hide();
+            $("#CVEID").hide();
             }
             else
-            {    $("#CVE").show();}
+            {    $("#CVE").show();
+                 $("#CVE").show();}
             }
           <% end %>
 
@@ -131,7 +135,7 @@
           </div>
         </td>
       </tr>
-      <tr>
+      <tr id="CVEID">
         <th/>
         <td><%= text_field_tag "cveid", @cveid %>
             <%= link_to image_tag('icons/bug_add.png', :alt => "Add CVE", :title => "Add CVE"), '#', :onclick => 'append_cve($("#cveid").val()); return false;' %></td>

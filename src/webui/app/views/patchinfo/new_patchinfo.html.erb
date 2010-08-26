@@ -64,15 +64,22 @@
             return false;
             }
 
+            function append_cve(cveid) {
+            $("#cvelist").append("<div id='cve_" + cveid + "'><input type='hidden' name='cve[]' value='" + $("#cveid").val() + "'/>" + $("#cveid").val() + " " + "<a onclick='$(\"#cve_" + cveid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + ", " + "</div>");
+            return false;
+            }
+
             $(document).ready(function(){
 
             var selected_start = $("#category option:selected");
             if(selected_start.val() != "security"){
             $("#CVE").hide();
+            $("#CVEID").hide();
             }
             else
-            {    $("#CVE").show();}
-
+            {    $("#CVE").show();
+                 $("#CVEID").show();
+            }
 
             $("#category").change(onSelectChange);
 
@@ -80,10 +87,12 @@
             function onSelectChange(){
             var selected = $("#category option:selected");
             if(selected.val() != "security"){
+            $("#CVEID").hide();
             $("#CVE").hide();
             }
             else
-            {    $("#CVE").show();}
+            {    $("#CVE").show();
+                 $("#CVEID").show();}
             }
           <% end %>
 
@@ -107,10 +116,24 @@
         <td>Choose the category of your patch</td>
       </tr>
       <tr id="CVE">
-        <th >CVE</th>
-        <td><%=  text_field_tag("cve", @cve) %></td>
-        <td>Enter a CVE-numer (only for security fixes)</td>
+        <th>CVE</th>
+        <td>
+          <div id="cvelist">
+            <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
+              <div id="cve_<%= cve %>">
+                <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
+                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>,
+              </div>
+            <%end%>
+          </div>
+        </td>
       </tr>
+      <tr id="CVEID">
+        <th/>
+        <td><%= text_field_tag "cveid", @cveid %>
+            <%= link_to image_tag('icons/bug_add.png', :alt => "Add CVE", :title => "Add CVE"), '#', :onclick => 'append_cve($("#cveid").val()); return false;' %></td>
+        <td>Enter a CVE-number (only for security fixes)</td>
+     </tr>
       <tr>
         <th>Summary: </th>
         <td>
