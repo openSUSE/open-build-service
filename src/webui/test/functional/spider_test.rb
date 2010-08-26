@@ -58,7 +58,7 @@ module SpiderIntegrator
       @form.find_all(:tag => 'select').each do |select|
         options = select.find_all(:tag => 'option')
         option = options[ rand(options.length) ]
-        input_hash[ select['name'] ] = option['value'] 
+        input_hash[ select['name'] ] = option['value'] if option and select['name']
       end
 
       @query_hash = input_hash
