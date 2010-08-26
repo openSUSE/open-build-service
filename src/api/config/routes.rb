@@ -299,6 +299,11 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'status'
 
 
+  ### /status
+   
+  # action request somehow does not work
+  map.connect 'status/request/:id', :controller => 'status', :action => 'request'
+
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id', :id => /[^\/]*/
   map.connect ':controller/:action'

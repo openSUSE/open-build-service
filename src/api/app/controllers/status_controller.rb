@@ -174,5 +174,66 @@ class StatusController < ApplicationController
      end
      render :text => xml
   end
-end
 
+  def bsrequest
+    required_parameters :id
+    req = BsRequest.find :id => params[:id]
+    if req.action.value('type') != 'submit'
+      render :text => '<status code="unknown">Not submit</status>' and return
+    end
+
+    tproj = DbProject.find_by_name(req.action.target.project)
+    sproj = DbProject.find_by_name(req.action.source.project)
+    
+    unless tproj
+      render :text => '<status code="error">Target project does not exist</status>' and return
+    end
+
+    unless sproj
+      render :text => '<status code="error">Source project does not exist</status>' and return
+    end
+    
+    tocheck_repos = Array.new
+    sproj.repositories.each do |srep| 
+      if srep.links_to_project?(tproj)
+	tocheck_repos << srep
+      end
+    end
+    if tocheck_repos.empty?
+      render :text => '<status code="warning">No repositories build against target</status>'
+      return
+    end
+    dir = Directory.find(:project => req.action.source.project, 
+			 :package => req.action.target.package, 
+			 :expand => 1, :rev => req.action.source.value('rev'))
+    unless dir
+      render :text => '<status code="error">Source package does not exist</status>' and return
+    end
+    srcmd5 = dir.value('srcmd5')
+
+    everbuilt = 0
+    eversucceeded = 0
+
+    tocheck_repos.each do |srep|
+      srep.architectures.each do |arch|
+	hist = Jobhistory.find(:project => sproj.name, 
+			       :repository => srep.name, 
+			       :package => req.action.source.package,
+			       :arch => arch.name, :limit => 20 )
+	next unless hist
+	hist.each_jobhist do |jh|
+	  next if jh.srcmd5 != srcmd5
+	  everbuilt = 1
+	  if jh.code == 'succeeded'
+	    eversucceeded = 1
+	  end
+	end
+	render :text => "<status code='what'>built=#{everbuilt} success=#{eversucceeded}</status>"
+	return
+      end
+    end
+
+    render :text => tocheck_repos.to_xml
+  end
+
+end

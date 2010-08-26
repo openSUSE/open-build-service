@@ -94,6 +94,9 @@ ActiveXML::Base.config do |conf|
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
 
+    map.connect :directory, "rest:///source/:project/:package?:expand&:rev"
+    map.connect :jobhistory, "rest:///build/:project/:repository/:arch/_jobhistory?:package&:limit&:code"
+
     #map.connect :project, "rest:///source/:name/_meta",
     #    :all    => "rest:///source/"
     #map.connect :package, "rest:///source/:project/:name/_meta",
