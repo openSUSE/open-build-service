@@ -41,6 +41,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal ret.project, "BaseDistro2:LinkedUpdateProject"
     assert_equal ret.package, "pack2"
 
+    # check if we can upload a link to a packge only exist via project link
+    put "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/pack2/_link", @response.body
+    assert_response :success
   end
 
   def test_mbranch
