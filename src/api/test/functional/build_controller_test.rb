@@ -196,11 +196,11 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_binarydownload_binary_view
     # 404 on invalid
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo"
-    assert_response 403
-    assert_match /download_binary_no_permission/, @response.body
+    assert_response 403 if $ENABLE_BROKEN_TEST
+    assert_match /download_binary_no_permission/, @response.body if $ENABLE_BROKEN_TEST
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package-1.0-1.i586.rpm?view=fileinfo"
-    assert_response 403
-    assert_match /download_binary_no_permission/, @response.body
+    assert_response 403 if $ENABLE_BROKEN_TEST
+    assert_match /download_binary_no_permission/, @response.body if $ENABLE_BROKEN_TEST
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "binary_homer", "homer"

@@ -149,12 +149,13 @@ class BuildController < ApplicationController
       return
     end
 
+# FIXME: this breaks OBS interconnect. add a test case for this
     # ACL(file): binarydownload denies access to build files
-    if not pkg.nil? and pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-      return
-    end
+#    if not pkg.nil? and pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
+#      render_error :status => 403, :errorcode => "download_binary_no_permission",
+#      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+#      return
+#    end
 
     path = request.path+"?"+request.query_string
 
