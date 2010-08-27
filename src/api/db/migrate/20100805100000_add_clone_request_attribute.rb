@@ -2,7 +2,6 @@ class AddCloneRequestAttribute  < ActiveRecord::Migration
 
 
   def self.up
-    # set owner ship to Admin, but actually not even the Admin should change these
     p={}
     p[:role] = Role.find_by_title("maintainer")
     ans = AttribNamespace.find_by_name "OBS"
