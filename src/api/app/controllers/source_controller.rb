@@ -913,7 +913,13 @@ class SourceController < ApplicationController
           data.elements.each("link") do |e|
             tproject_name = e.attributes["project"]
             tpackage_name = e.attributes["package"]
-            tpkg = DbPackage.find_by_project_and_name(tproject_name, tpackage_name)
+            tprj = DbProject.find_by_name(tproject_name)
+            if tprj.nil?
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given project #{tproject_name} does not exist"
+              return
+            end
+            tpkg = tprj.find_package(tpackage_name)
             if tpkg.nil?
               render_error :status => 404, :errorcode => 'not_found',
               :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
