@@ -4190,8 +4190,13 @@ while(1) {
 	next;
       }
       if ($pdata->{'error'} =~ /download in progress/) {
-        $packstatus{$packid} = 'blocked';
-        $packerror{$packid} = $pdata->{'error'};
+	$packstatus{$packid} = 'blocked';
+	$packerror{$packid} = $pdata->{'error'};
+	next;
+      }
+      if ($pdata->{'error'} =~ /source update running/) {
+	$packstatus{$packid} = 'blocked';
+	$packerror{$packid} = $pdata->{'error'};
 	next;
       }
       $packstatus{$packid} = 'broken';
@@ -4236,15 +4241,6 @@ while(1) {
 
     # name of src package, needed for block detection
     my $pname = $info->{'name'} || $packid;
-
-    if (-e "$eventdir/service/${projid}::$packid") {
-      my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
-      $notready{$pname} = 1 if $useforbuildenabled;
-      $unfinished{$pname} = 1;
-      $packstatus{$packid} = 'blocked';
-      $packerror{$packid} = 'source update running';
-      next;
-    }
 
     if ($info->{'error'}) {
       print "      - $packid ($info->{'error'})\n";

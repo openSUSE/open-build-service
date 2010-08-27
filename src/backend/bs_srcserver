@@ -1760,7 +1760,7 @@ sub getprojpack {
     @packages = findpackages($projid, $proj, 1) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
-    for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link}) {
+    for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
     # Check build flags in project meta data
@@ -1888,6 +1888,10 @@ sub getprojpack {
 	if ($@) {
 	  $pinfo->{'error'} = $@;
 	  $pinfo->{'error'} =~ s/\n$//s;
+ 	  next;
+	}
+	if ($files->{'_service'} && -e "$eventdir/service/${projid}::$packid") {
+	  $pinfo->{'error'} = 'source update running';
  	  next;
 	}
         if ($files->{'_service_error'}) {
