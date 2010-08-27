@@ -754,12 +754,16 @@ sub createFlavorReadme( $$ ){
     return $reame_file;
 }
 
-sub writeMigrationSPECfile( $$$$ )
+sub writeMigrationSPECfile( $$$$$ )
 {
-    my( $file, $prodRef, $product, $newpatchlevel ) = @_;
+    my( $file, $prodRef, $product, $newpatchlevel, $migtarget ) = @_;
     my $mproduct = Storable::dclone($product);
 
-    $mproduct->{name} = $product->{name}."-SP".$newpatchlevel."-migration";
+    if ($migtarget) {
+	$mproduct->{name} = $product->{name}."-".$migtarget."-migration";
+    } else {
+	$mproduct->{name} = $product->{name}."-SP".$newpatchlevel."-migration";
+    }
 
     # Upgrade section must not be in migration to avoid double notification
     delete $mproduct->{upgrades};
@@ -772,8 +776,16 @@ sub writeMigrationSPECfile( $$$$ )
 
     my $content="# ";
     $content.="\n\n";
-    $content.="Name:           $mproduct->{name}\n";
-    $content.="Summary:        $product->{name} Service Pack $newpatchlevel Migration Product\n";
+
+    my $package_name = $mproduct->{name};
+    $package_name =~ s/\./_/g;
+    $content.="Name:           $package_name\n";
+
+    if ($migtarget) {
+	$content.="Summary:        $product->{name} $migtarget Migration Product\n";
+    } else {
+	$content.="Summary:        $product->{name} Service Pack $newpatchlevel Migration Product\n";
+    }
     $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
     $content.="License:        BSD 3-Clause\n";
@@ -784,7 +796,11 @@ sub writeMigrationSPECfile( $$$$ )
     $content.="AutoReqProv:    on\n";
     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
     $content.="\n%description\n";
-    $content.="Product to migrate to $product->{name} Service Pack $newpatchlevel.\n";
+    if ($migtarget) {
+	$content.="Product to migrate to $product->{name} $migtarget.\n";
+    } else {
+	$content.="Product to migrate to $product->{name} Service Pack $newpatchlevel.\n";
+    }
     $content.="\n\n";
     $content.="\n%prep\n";
     $content.="\n%build\n\n";
@@ -1114,7 +1130,20 @@ parseArchsets( $prodRef->{archsets}{archset} );
 #
 
 # handle migration case
-if (defined($product->{patchlevel})){
+if (defined($product->{migrationtarget})){
+  my $newpatchlevel = 0;
+  my $productname = $product->{name}."-".$product->{migrationtarget}."-migration";
+  # enforce correct upgrade product name
+  for my $upgrade ( @{$product->{upgrades}->{upgrade}||[]} ) {
+    $upgrade->{name} = $productname;
+    $upgrade->{product} = $productname;
+  }
+  my $packagename = $productname;
+  $packagename =~ s/\./_/g;
+  mkdir_p( "$outdir/_product:$packagename" ) || die ("Unable to create migration directory\n");
+  writeMigrationSPECfile( "$outdir/_product:".$packagename."/".$packagename.".spec",
+                          $prodRef, $product, $newpatchlevel, $product->{migrationtarget} );
+} elsif (defined($product->{patchlevel})){
   my $newpatchlevel = $product->{'patchlevel'} + 1;
   my $productname = $product->{name}."-SP".$newpatchlevel."-migration";
 
@@ -1126,7 +1155,7 @@ if (defined($product->{patchlevel})){
 
   mkdir_p( "$outdir/_product:$productname" ) || die ("Unable to create migration directory\n");
   writeMigrationSPECfile( "$outdir/_product:".$productname."/".$productname.".spec",
-                          $prodRef, $product, $newpatchlevel );
+                          $prodRef, $product, $newpatchlevel, undef);
 }
 
 my $SPECtemplateFile;

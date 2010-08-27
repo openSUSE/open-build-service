@@ -88,6 +88,7 @@ our $product = [
            'version',       # shall not be used, if baseversion is used. It is baseversion.patchlevel than.
            'baseversion',
            'patchlevel',
+           'migrationtarget',
            'release',
            'arch',
            'productline',
