@@ -348,7 +348,13 @@ class RequestController < ApplicationController
     params[:user] = @http_user.login if @http_user
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
-    response = backend_post( path, req.dump_xml )
+    begin
+      response = backend_post( path, req.dump_xml )
+    rescue ActiveXML::Transport::Error => e
+      render_error :status => 400, :errorcode => "backend_error",
+        :message => e.message
+      return
+    end
     send_data( response, :disposition => "inline" )
   end
 
