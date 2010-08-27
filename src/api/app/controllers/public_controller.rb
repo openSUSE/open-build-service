@@ -11,24 +11,6 @@ class PublicController < ApplicationController
     valid_http_methods :get
     required_parameters :prj, :pkg, :repo, :arch
     
-    prj = DbProject.find_by_name(params[:prj])
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(build): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if prj and prj.disabled_for?('access', params[:repo], params[:arch]) and not @http_user.can_access?(prj)
-      render_error :message => "Unknown project '#{params[:prj]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-
-    # ACL(build): binarydownload denies access to build files
-    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from project #{params[:prj]}"
-      return
-    end
-    @http_user=ouser
-
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
 
@@ -56,18 +38,7 @@ class PublicController < ApplicationController
   def project_meta
     valid_http_methods :get
 
-    prj = DbProject.find_by_name(params[:prj])
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(project_meta): in case of access, project is really hidden and accessing says project is not existing
-    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-      render_error :message => "Unknown project '#{params[:prj]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-    @http_user=ouser
-
-    if prj
+    if prj = DbProject.find_by_name(params[:prj])
       render :text => prj.to_axml, :content_type => 'text/xml'
     else
       render_error :message => "Unknown project '#{params[:prj]}'",
@@ -78,24 +49,6 @@ class PublicController < ApplicationController
   # GET /public/source/:prj
   def project_index
     valid_http_methods :get
-
-    prj = DbProject.find_by_name(params[:prj])
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(project_index): in case of access, project is really hidden and accessing says project is not existing
-    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-      render_error :message => "Unknown project '#{params[:prj]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-    # ACL(project_index): if private view is on behave like pkg without any src files
-    if prj and prj.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(prj)
-      render :text => '<directory count="0"></directory>', :content_type => "text/xml"
-      return
-    end
-    @http_user=ouser
-
-    # ACL(project_index): TODO this lists also hidden projects because done in the backend, information exploit
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
@@ -104,18 +57,6 @@ class PublicController < ApplicationController
   # GET /public/source/:prj/_config
   def project_config
     valid_http_methods :get
-
-    prj = DbProject.find_by_name(params[:prj])
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(project_config): in case of access, project is really hidden and accessing says project is not existing
-    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-      render_error :message => "Unknown project '#{params[:prj]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-    @http_user=ouser
-
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
@@ -124,24 +65,6 @@ class PublicController < ApplicationController
   # GET /public/source/:prj/:pkg
   def package_index
     valid_http_methods :get
-
-    pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(package_index): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:pkg]} in project #{params[:prj]}"
-      return
-    end
-
-    # ACL(package_index): if private view is on behave like pkg without any src files
-    if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
-      render :text => '<directory count="0"></directory>', :content_type => "text/xml"
-      return
-    end
-    @http_user=ouser
-
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
@@ -150,19 +73,7 @@ class PublicController < ApplicationController
   # GET /public/source/:prj/:pkg/_meta
   def package_meta
     valid_http_methods :get
-
-    pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(package_meta): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:pkg]} in project #{params[:prj]}"
-      return
-    end
-    @http_user=ouser
-
-    if pkg
+    if pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
       render :text => pkg.to_axml, :content_type => 'text/xml'
     else
       render_error :message => "Unknown package "+params[:prj]+'/'+params[:pkg],
@@ -177,24 +88,6 @@ class PublicController < ApplicationController
     package_name = params[:pkg]
     file = params[:file]
 
-    pack = DbPackage.find_by_project_and_name(project_name, package_name)
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(source_file): access behaves like project not existing
-    if pack and pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
-      render_error :status => 404, :errorcode => 'not_found',
-      :message => "The given package #{package_name} does not exist in project #{project_name}"
-      return
-    end
-
-    # ACL(source_file): source access gives permisson denied
-    if pack and pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
-      return
-    end
-    @http_user=ouser
-
     path = "/source/#{CGI.escape(project_name)}/#{CGI.escape(package_name)}/#{CGI.escape(file)}"
 
     if request.get?
@@ -208,8 +101,6 @@ class PublicController < ApplicationController
   def lastevents
     valid_http_methods :get
     
-    # ACL(lastevents): TODO this API is not protected at all, this could be a security hole
-
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
 
@@ -219,43 +110,20 @@ class PublicController < ApplicationController
   # GET /public/distributions
   def distributions
     valid_http_methods :get
-
-    # ACL(distributions): TODO this API is not protected at all, OBS admin should not put in a hidden project into this list.
-
     render :text => DistributionController.read_distfile, :content_type => "text/xml"
   end
 
   # GET /public/binary_packages/:project/:package
   def binary_packages
-
-    @prj = DbProject.find_by_name params[:project]
-    if @prj.blank?
+    if (@prj = DbProject.find_by_name params[:project]).blank?
       render_error :status => 404, :errorcode => 'unknown_project', :message => "The requested project #{params[:project]} does not exist."
       return
     end
 
-    @pkg = @prj.db_packages.find_by_name params[:package]
-    if @pkg.blank?
-      render_error :status => 404, :errorcode => 'unknown_package', :message => "The requested package #{params[:package]} does not exist."
+    if (@pkg = @prj.db_packages.find_by_name params[:package]).blank?
+      render_error :status => 404, :errorcode => 'unknown_package', :message => "The requested project #{params[:project]} does not exist."
       return
     end
-
-    ouser=@http_user
-    @http_user=User.find_by_login "_nobody_"
-    # ACL(binary_packages): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if @pkg and @pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(@pkg)
-      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-      :status => 404, :errorcode => "unknown_package"
-      return
-    end
-
-    # ACL(binary_packages): binarydownload denies access to build files
-    if @pkg and @pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(@pkg)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-      return
-    end
-    @http_user=ouser
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
     begin

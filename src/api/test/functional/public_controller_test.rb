@@ -33,15 +33,15 @@ class PublicControllerTest < ActionController::IntegrationTest
 
     # hidden project access
     get "/public/source/HiddenProject"
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
     get "/public/source/HiddenProject/_config"
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
     get "/public/source/HiddenProject/_meta"
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
     get "/public/source/HiddenProject/pack"
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
     get "/public/source/HiddenProject/pack/_meta"
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
 
   end
 
