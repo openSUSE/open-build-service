@@ -422,7 +422,6 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   
-  
   def test_put_package_meta_with_invalid_permissions
     prepare_request_with_user "tom", "thunder"
     # The user is valid, but has weak permissions
@@ -448,13 +447,29 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal( olddoc.to_s, REXML::Document.new(( @response.body )).to_s)    
   end
 
+  def test_put_package_meta_to_hidden_pkg_invalid_permissions
+    prepare_request_with_user "tom", "thunder"
+    # The user is valid, but has weak permissions
+    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack")
+    assert_response 404
 
+    # Write changed data back
+    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"foo\"><title></title><description></description></package>"
+    assert_response 404
+  end
 
-  def do_change_package_meta_test
+  def do_change_package_meta_test (project, package, response1, response2, tag2, match)
    # Get meta file  
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
-    assert_response :success
+    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    assert_response response1
 
+    if not ( response2 and tag2 )
+      #dummy write to check blocking
+      put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
+      assert_response 404
+      assert_match /unknown_package/, @response.body
+      return
+    end
     # Change description
     xml = @response.body
     new_desc = "Changed description"
@@ -463,39 +478,86 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
-    assert_response(:success, "--> Was not able to update kdelibs _meta")   
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), doc.to_s
+    assert_response response2 #(:success, "--> Was not able to update kdelibs _meta")   
+    assert_tag tag2 #( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["//description"]
     #ignore updated change
     newdoc.root.attributes['updated'] = doc.root.attributes['updated']
-    assert_equal new_desc, d.text
-    assert_equal doc.to_s, newdoc.to_s
+    assert_equal new_desc, d.text if match
+    assert_equal doc.to_s, newdoc.to_s if match
   end
   private :do_change_package_meta_test
 
 
-
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
-      # admin
-      prepare_request_with_user "king", "sunflower"
-      do_change_package_meta_test
-      # maintainer via user
-      prepare_request_with_user "fred", "geröllheimer"
-      do_change_package_meta_test
-      prepare_request_with_user "fredlibs", "geröllheimer"
-      do_change_package_meta_test
-      # maintainer via group
-      prepare_request_with_user "adrian", "so_alone"
-      do_change_package_meta_test
+    prj="kde4"
+    pkg="kdelibs"
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok"} }
+    match=true
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # maintainer via user
+    prepare_request_with_user "fred", "geröllheimer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # maintainer via group
+    prepare_request_with_user "adrian", "so_alone"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
   end
 
+  def test_put_package_meta_hidden_package
+    prj="HiddenProject"
+    pkg="pack"
+    resp1=404
+    resp2=nil
+    aresp=nil
+    match=false
+    # uninvolved user
+    prepare_request_with_user "fred", "geröllheimer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # admin
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok"} }
+    match=true
+    prepare_request_with_user "king", "sunflower"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+  end
 
+  def test_put_package_meta_viewprotected_package
+    prj="ViewprotectedProject"
+    pkg="pack"
+    resp1=:success
+    resp2=403
+    aresp={:tag => "status", :attributes => { :code => "change_package_no_permission" } }
+    match=nil
+    # uninvolved user
+    prepare_request_with_user "fred", "geröllheimer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # admin
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok"} }
+    match=true
+    prepare_request_with_user "king", "sunflower"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+  end
 
   def test_create_package_meta
     # user without any special roles
@@ -520,24 +582,84 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal(d.attribute('name').value(), 'kdelibs2', message="Project name was not set to kdelibs2")
   end
 
-
-  def test_change_package_meta
-    # user without any special roles
-    prepare_request_with_user "fred", "geröllheimer"
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
-    assert_response :success
+  def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
+    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    assert_response response1
+    if not (response2 or tag2 or response3 or select3)
+      #dummy write to check blocking
+      put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
+      assert_response 404
+      assert_match /unknown_package/, @response.body
+      return
+    end
     xml = @response.body
     doc = REXML::Document.new( xml )
     d = doc.elements["/package"]
     b = d.add_element 'build'
     b.add_element 'enable'
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
-    assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), doc.to_s
+    assert_response response2
+    assert_tag(tag2)
 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
-    assert_response :success
-    assert_select "package > build > enable"
+    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    assert_response response3
+    assert_select select3 if select3
+  end
+
+  def test_change_package_meta
+    prj="kde4"      # project
+    pkg="kdelibs"   # package
+    resp1=:success  # assert response #1
+    resp2=:success  # assert response #2
+    atag2={ :tag => "status", :attributes => { :code => "ok"} } # assert_tag after response #2
+    resp3=:success  # assert respons #3
+    asel3="package > build > enable" # assert_select after response #3
+    # user without any special roles
+    prepare_request_with_user "fred", "geröllheimer"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
+  end
+
+  def test_change_package_meta_hidden
+    prj="HiddenProject"
+    pkg="pack"
+    # uninvolved user
+    resp1=404
+    resp2=nil
+    atag2=nil
+    resp3=nil
+    asel3=nil
+    prepare_request_with_user "fred", "geröllheimer"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
+    resp1=:success
+    resp2=:success
+    atag2={ :tag => "status", :attributes => { :code => "ok"} }
+    resp3=:success
+    asel3="package > build > enable"
+    # maintainer
+    prepare_request_with_user "adrian", "so_alone"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
+  end
+
+  def test_change_package_meta_viewprotect
+    prj="ViewprotectedProject"
+    pkg="pack"
+    # uninvolved user
+    resp1=:success
+    resp2=403
+    atag2={ :tag => "status", :attributes => { :code => "change_package_no_permission"} }
+    resp3=:success
+    asel3=nil
+    prepare_request_with_user "fred", "geröllheimer"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
+
+    # maintainer
+    resp1=:success
+    resp2=:success
+    atag2={ :tag => "status", :attributes => { :code => "ok"} }
+    resp3=:success
+    asel3="package > build > enable"
+    prepare_request_with_user "view_homer", "homer"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
   end
 
   def test_put_invalid_package_meta
@@ -590,39 +712,117 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response( 404, "Was able to read file outside of package scope" )
     assert_tag( :tag => "status" )
   end
-  
-  def add_file_to_package
-    get "/source/kde4/kdelibs"
-    # before md5
-    assert_tag :tag => 'directory', :attributes => { :srcmd5 => "1636661d96a88cd985d82dc611ebd723" }
-    teststring = '&;'
-    put "/source/kde4/kdelibs/testfile", teststring
-    assert_response :success
-    # afterwards new md5
-    assert_select "revision > srcmd5", 'bc1d31b2403fa8925b257101b96196ec'
-  
-    get "/source/kde4/kdelibs/testfile"
-    assert_response :success
-    assert_equal teststring, @response.body
 
-    delete "/source/kde4/kdelibs/testfile"
+  def test_read_file_hidden_proj
+    # nobody 
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    get "/source/HiddenProject/pack/my_file"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "not_found"} 
+    # uninvolved, 
+    prepare_request_with_user "tom", "thunder"
+    get "/source/HiddenProject/pack/my_file"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "not_found"} 
+    # reader
+    # downloader
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    get "/source/HiddenProject/pack/my_file"
     assert_response :success
-  
-    get "/source/kde4/kdelibs/testfile"
+    assert_equal( @response.body.to_s, "Protected Content")
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    get "/source/HiddenProject/pack/my_file"
+    assert_response :success
+    assert_equal( @response.body.to_s, "Protected Content")
+  end
+
+  def add_file_to_package (url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    get url1
+    # before md5
+    assert_tag asserttag1 if asserttag1
+    teststring = '&;'
+    put url2, teststring
+    assert_response assertresp2
+    # afterwards new md5
+    assert_select assertselect2, assertselect2rev if assertselect2
+    # reread file
+    get url2
+    assert_response assertresp3 
+    assert_equal teststring, @response.body if asserteq3
+    # delete
+    delete url2
+    assert_response assertresp4
+    # file gone
+    get url2
     assert_response 404
   end
   private :add_file_to_package
-  
-  
-  
-  def test_add_file_to_package
+
+  def test_add_file_to_package_hidden
+    # uninvolved user
     prepare_request_with_user "fredlibs", "geröllheimer"
-    add_file_to_package
-    prepare_request_with_user "fred", "geröllheimer"
-    add_file_to_package
+    url1="/source/HiddenProject/pack"
+    asserttag1={ :tag => 'status', :attributes => { :code => "unknown_package"} }
+    url2="/source/HiddenProject/pack/testfile"
+    assertresp2=404
+    assertselect2=nil
+    assertselect2rev=nil
+    assertresp3=404
+    asserteq3=nil
+    assertresp4=404
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # nobody 
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "47a5fb1c73c75bb252283e2ad1110182" }}
+    assertresp2=:success
+    assertselect2="revision > srcmd5"
+    assertselect2rev='16bbde7f26e318a5c893c182f7a3d433'
+    assertresp3=:success
+    asserteq3=true
+    assertresp4=:success
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # admin
     prepare_request_with_user "king", "sunflower"
-    add_file_to_package
-  
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+  end
+
+  def test_add_file_to_package
+    url1="/source/kde4/kdelibs"
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "1636661d96a88cd985d82dc611ebd723" } }
+    url2="/source/kde4/kdelibs/testfile"
+    assertresp2=:success
+    assertselect2="revision > srcmd5"
+    assertselect2rev='bc1d31b2403fa8925b257101b96196ec'
+    assertresp3=:success
+    asserteq3=true
+    assertresp4=:success
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    prepare_request_with_user "fred", "geröllheimer"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    prepare_request_with_user "king", "sunflower"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
     # write without permission: 
     prepare_request_with_user "tom", "thunder"
     get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
