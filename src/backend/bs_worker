@@ -264,7 +264,7 @@ while (@ARGV) {
   if ($ARGV[0] eq '--reposerver') {
     shift @ARGV;
     my $server = shift @ARGV;
-    push @reposervers, $server;
+    push @reposervers, $server unless grep {$_ eq $server} @reposervers;
     next;
   }
   if ($ARGV[0] eq '--id') {
@@ -467,6 +467,10 @@ sub send_state {
   push @args, "workerid=$workerid" if defined $workerid;
   for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
+    if ($state eq 'idle' && @reposervers > 1) {
+      my $curstate = readxml("$statedir/state", $BSXML::workerstate, 1);
+      last if $curstate && $curstate->{'state'} ne $state;
+    }
     eval {
       BSRPC::rpc({
         'uri' => "$server/worker",
