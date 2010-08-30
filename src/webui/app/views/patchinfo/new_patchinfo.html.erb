@@ -31,7 +31,6 @@
           <% options = Array.new
           @binarylist.each {|d| options << "#{d.to_s}"}
           opt = {:options => options}%>
-          <%=debugger%>
           <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5 %>
         </td>
         <td>Please select the binaries (ctrl+left) which your patch includes</td>
@@ -40,14 +39,11 @@
         <th>Bugzilla: </th>
         <td>
 
-          <div id="buglist">
-            <% i=0 %>
+          <div id="buglist
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
               <div id="bug_<%= bug %>">
                 <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
-                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
-                <% i=i+1 %>
-                <%= "<br/>" if i.modulo(3) == 0 %>
+                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>
               </div>
             <%end%>
           </div>
@@ -58,7 +54,6 @@
         <th></th>
         <td>
           <%= text_field_tag 'bugid', @bugid %>
-
           <% content_for :head_javascript do %>
             function append_bug(bugid) {
             $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + $("#bugid").val() + "'/>" + $("#bugid").val() + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + ", " + "</div>");
