@@ -497,9 +497,14 @@ class PackageController < ApplicationController
       unless @services
         @services = Service.new( :project => @project, :package => @package )
       end
-      @services.addDownloadURL( file_url )
-      @services.save
-      Service.free_cache :project => @project, :package => @package
+      if @services.addDownloadURL( file_url )
+         @services.save
+         Service.free_cache :project => @project, :package => @package
+      else
+         flash[:error] = "Failed to add URL #{file_url} to service."
+         redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
+         return
+      end
     else
       flash[:error] = 'No file or URI given.'
       redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
