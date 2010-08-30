@@ -4,7 +4,7 @@ production:
   adapter: mysql
   database: webui_production
   username: root
-  password:
+  password: opensuse
 
 development:
   adapter: sqlite3

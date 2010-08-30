@@ -414,6 +414,14 @@ for i in production_slave.rb production.rb development_base.rb; do
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
 done
+# install initial version of database config
+if [ ! -e /srv/www/obs/webui/config/database.yml ]; then
+  cp -a /srv/www/obs/webui/config/database.yml.example /srv/www/obs/webui/config/database.yml
+fi
+if [ ! -e /srv/www/obs/api/config/database.yml ]; then
+  cp -a /srv/www/obs/api/config/database.yml.example /srv/www/obs/api/config/database.yml
+fi
+# for update to 1.7, new names of components
 if [ -e /etc/lighttpd/vhosts.d/obs.conf ]; then
   sed -i -e 's,/srv/www/obs/webclient,/srv/www/obs/webui,' \
 	 -e 's,/srv/www/obs/frontend,/srv/www/obs/api,' \
