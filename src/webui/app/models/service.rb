@@ -64,7 +64,11 @@ class Service < ActiveXML::Base
   end
 
   def addDownloadURL( url )
-     uri = URI.parse( url )
+     begin
+       uri = URI.parse( url )
+     rescue
+       return false
+     end
 
      p = []
      p << { :name => "host", :value => uri.host }
@@ -82,6 +86,7 @@ class Service < ActiveXML::Base
         # just download
         addService( "download_url", -1, p )
      end
+     return true
   end
 
   def removeService( serviceid )
