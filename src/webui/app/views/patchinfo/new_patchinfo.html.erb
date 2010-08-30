@@ -39,7 +39,7 @@
         <th>Bugzilla: </th>
         <td>
 
-          <div id="buglist
+          <div id="buglist">
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
               <div id="bug_<%= bug %>">
                 <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
