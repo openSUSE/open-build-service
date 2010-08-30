@@ -55,8 +55,8 @@ class FrontendCompat
 
   def put_file( data, opt={} )
     path = "#{@url_prefix}/source"
-    path += "/#{opt[:project]}" if opt[:project]
-    path += "/#{opt[:package]}" if opt[:project] && opt[:package]
+    path += "/#{CGI.escape opt[:project]}" if opt[:project]
+    path += "/#{CGI.escape opt[:package]}" if opt[:project] && opt[:package]
     path += URI.escape("/#{opt[:filename]}") if opt[:filename]
     path += URI.escape("?comment=#{opt[:comment]}") if !opt[:comment].blank?
     transport.direct_http URI("https://#{path}"),
@@ -65,8 +65,8 @@ class FrontendCompat
 
   def do_post( data, opt={} )
     path = "#{@url_prefix}/source"
-    path += "/#{opt[:project]}" if opt[:project]
-    path += "/#{opt[:package]}" if opt[:project] && opt[:package]
+    path += "/#{CGI.escape opt[:project]}" if opt[:project]
+    path += "/#{CGI.escape opt[:package]}" if opt[:project] && opt[:package]
     path += URI.escape("/#{opt[:filename]}") if opt[:filename]
     path += "?"
     path += URI.escape("cmd=#{opt[:cmd]}") if !opt[:cmd].blank?
