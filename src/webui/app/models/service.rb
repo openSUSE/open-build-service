@@ -1,7 +1,5 @@
 class Service < ActiveXML::Base
 
-  belongs_to :package
-
   class << self
     def make_stub( opt )
       logger.debug "make stub params: #{opt.inspect}"

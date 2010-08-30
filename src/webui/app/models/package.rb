@@ -1,7 +1,5 @@
 class Package < ActiveXML::Base
    
-  belongs_to :project
-
   handles_xml_element 'package'
 
   #cache variables

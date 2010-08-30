@@ -2,9 +2,6 @@ class Project < ActiveXML::Base
   
   default_find_parameter :name
 
-  has_many :package
-  has_many :repository
-  
   attr_accessor :bf_updated
   attr_accessor :pf_updated
   attr_accessor :df_updated
