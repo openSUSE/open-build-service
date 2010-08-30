@@ -56,12 +56,12 @@
           <%= text_field_tag 'bugid', @bugid %>
           <% content_for :head_javascript do %>
             function append_bug(bugid) {
-            $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + $("#bugid").val() + "'/>" + $("#bugid").val() + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + ", " + "</div>");
+            $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + $("#bugid").val() + "'/>" + $("#bugid").val() + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
             return false;
             }
 
             function append_cve(cveid) {
-            $("#cvelist").append("<div id='cve_" + cveid + "'><input type='hidden' name='cve[]' value='" + $("#cveid").val() + "'/>" + $("#cveid").val() + " " + "<a onclick='$(\"#cve_" + cveid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + ", " + "</div>");
+            $("#cvelist").append("<div id='cve_" + cveid + "'><input type='hidden' name='cve[]' value='" + $("#cveid").val() + "'/>" + $("#cveid").val() + " " + "<a onclick='$(\"#cve_" + cveid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + "</div>");
             return false;
             }
 
@@ -118,7 +118,7 @@
             <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
               <div id="cve_<%= cve %>">
                 <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
-                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>,
+                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>
               </div>
             <%end%>
           </div>
