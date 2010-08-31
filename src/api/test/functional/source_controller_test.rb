@@ -1122,6 +1122,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match(/branch target package already exists/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response :success
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "1"
+    assert_response :success
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
     assert_response 400
     assert_match(/no such revision/, @response.body)
