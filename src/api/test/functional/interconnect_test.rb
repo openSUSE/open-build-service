@@ -5,8 +5,45 @@ class InterConnectTests < ActionController::IntegrationTest
 
   fixtures :all
    
-  def test_basic_read_tests
+  def test_anonymous_access_tests
     ActionController::IntegrationTest::reset_auth 
+    # direct access to remote instance
+    get "/public/source/RemoteInstance:BaseDistro"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/_meta"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/_pubkey"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/pack1"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/pack1/_meta"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/pack1/my_file"
+    assert_response :success
+    # binary access
+    get "/public/build/home:Iggy/10.2/i586/_repository?view=cache"
+    assert_response :success
+
+    # access to local project with project link to remote
+    get "/public/source/UseRemoteInstance"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/_meta"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/pack1"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/pack1/_meta"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/pack1/my_file"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/NotExisting"
+    assert_response 404
+    get "/public/source/UseRemoteInstance/NotExisting/_meta"
+    assert_response 404
+    get "/public/source/UseRemoteInstance/NotExisting/my_file"
+    assert_response 404
+  end
+
+  def test_basic_read_tests
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success
