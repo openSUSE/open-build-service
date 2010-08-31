@@ -41,8 +41,13 @@ class PublicController < ApplicationController
     if prj = DbProject.find_by_name(params[:prj])
       render :text => prj.to_axml, :content_type => 'text/xml'
     else
-      render_error :message => "Unknown project '#{params[:prj]}'",
-        :status => 404, :errorcode => "unknown_project"
+      if prj = DbProject.find_remote_project(params[:prj])
+        # project from remote buildservice, get metadata via backend
+        pass_to_backend unshift_public(request.path)
+      else
+        render_error :message => "Unknown project '#{params[:prj]}'",
+          :status => 404, :errorcode => "unknown_project"
+      end
     end
   end
 
@@ -73,11 +78,16 @@ class PublicController < ApplicationController
   # GET /public/source/:prj/:pkg/_meta
   def package_meta
     valid_http_methods :get
-    if pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
-      render :text => pkg.to_axml, :content_type => 'text/xml'
+    if project = DbProject.find_by_name(params[:prj])
+      if pkg = project.find_package(params[:pkg])
+        render :text => pkg.to_axml, :content_type => 'text/xml'
+      else
+         # may be a package in a linked remote project
+        pass_to_backend unshift_public(request.path)
+      end
     else
-      render_error :message => "Unknown package "+params[:prj]+'/'+params[:pkg],
-        :status => 404, :errorcode => "unknown_package"
+      # may be a package in remote project
+      pass_to_backend unshift_public(request.path)
     end
   end
 
