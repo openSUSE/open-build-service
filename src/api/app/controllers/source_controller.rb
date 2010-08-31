@@ -916,29 +916,38 @@ class SourceController < ApplicationController
             tpackage_name = e.attributes["package"]
             tprj = DbProject.find_by_name(tproject_name)
             if tprj.nil?
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given project #{tproject_name} does not exist"
-              return
-            end
-            tpkg = tprj.find_package(tpackage_name)
-            if tpkg.nil?
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
-              return
-            end
-            
-            # ACL(file): _link access behaves like project not existing
-            if tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
-              return
-            end
+              # link to remote project ?
+              unless tprj = DbProject.find_remote_project(tproject_name)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given project #{tproject_name} does not exist"
+                return
+              end
+            else
+              tpkg = tprj.find_package(tpackage_name)
+              if tpkg.nil?
+                # check if this is a package on a remote OBS instance
+                begin
+                  answer = Suse::Backend.get("/source/#{URI.escape tproject_name}/#{URI.escape tpackage_name}/_meta")
+                rescue
+                  render_error :status => 404, :errorcode => 'not_found',
+                  :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+                  return
+                end
+              end
+              
+              # ACL(file): _link access behaves like project not existing
+              if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+                return
+              end
 
-            # ACL(file): _link sourceaccess gives permisson denied
-            if tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
-              render_error :status => 403, :errorcode => "source_access_no_permission",
-              :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
-              return
+              # ACL(file): _link sourceaccess gives permisson denied
+              if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
+                render_error :status => 403, :errorcode => "source_access_no_permission",
+                :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
+                return
+              end
             end
             logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
           end
