@@ -209,8 +209,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/_meta"
     assert_response :success
   end
-  
-  
+
   
   def test_put_project_meta_with_invalid_permissions
     prepare_request_with_user "tom", "thunder"
@@ -1093,6 +1092,46 @@ class SourceControllerTest < ActionController::IntegrationTest
 #    post "/source/RemoteInstance:BaseDistro/pack", :cmd => "showlinked"
 #    assert_response :success
 #    assert_tag( :tag => "package", :attributes => { :project => "BaseDistro:Update", :name => "pack2" }, :content => nil )
+  end
+
+  def test_create_links
+    # user without any special roles
+    prepare_request_with_user "fred", "geröllheimer"
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary")
+    assert_response 404
+    xml = @response.body
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary"), 
+        '<package project="kde4" name="temporary"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    url = "/source/kde4/temporary/_link"
+
+    # illegal targets
+    put url, '<link project="notexisting" />'
+    assert_response 404
+    assert_match /The given project notexisting does not exist/, @response.body
+    put url, '<link project="kde4" package="notexiting" />'
+    assert_response 404
+    assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
+
+    # working local link
+    put url, '<link project="BaseDistro" package="pack1" />'
+    assert_response :success
+    # working link to package via project link
+    put url, '<link project="BaseDistro2:LinkedUpdateProject" package="pack2" />'
+    assert_response :success
+    # working link to remote package
+    put url, '<link project="RemoteInstance:BaseDistro" package="pack1" />'
+    assert_response :success
+    put url, '<link project="RemoteInstance:BaseDistro2:LinkedUpdateProject" package="pack2" />'
+    assert_response :success
+    # working link to remote project link
+    put url, '<link project="UseRemoteInstance" package="pack1" />'
+    assert_response :success
+
+    # cleanup
+    delete url
   end
 
   def test_branch_package_delete_and_undelete
