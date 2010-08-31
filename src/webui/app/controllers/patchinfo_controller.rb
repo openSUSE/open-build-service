@@ -37,9 +37,11 @@ class PatchinfoController < ApplicationController
     end
     if params[:category] == "security"
       debugger
-      if !valid_cve_number? params[:cve]
-        valid_params = false
-        flash[:error] = "#{flash[:error]}" + " || CVE-Number has the wrong format. Expected \"cve-year-number\""
+      if params[:cve] != nil
+        if !valid_cve_number? params[:cve]
+          valid_params = false
+          flash[:error] = "#{flash[:error]}" + " || CVE-Number has the wrong format. Expected \"cve-year-number\""
+        end
       end
     end
 
@@ -280,9 +282,11 @@ class PatchinfoController < ApplicationController
       flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 100 signs and longer than summary)"
     end
     if params[:category] == "security"
-      if !valid_cve_number? params[:cve]
-        valid_params = false
-        flash[:error] = "#{flash[:error]}" + " || CVE-Number has the wrong format. Expected \"cve-year-number\""
+      if params[:cve] != nil
+        if !valid_cve_number? params[:cve]
+          valid_params = false
+          flash[:error] = "#{flash[:error]}" + " || CVE-Number has the wrong format. Expected \"cve-year-number\""
+        end
       end
     end
 
@@ -364,7 +368,7 @@ class PatchinfoController < ApplicationController
     end
   end
 
-  def valid_cve_number? name
+  def valid_cve_number? name    
     name != nil and name.each do |cve|
       cve =~ /^cve-\d{4}-\d{4}$/
     end
