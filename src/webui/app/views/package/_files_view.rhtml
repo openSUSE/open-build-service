@@ -37,11 +37,9 @@
             <td><%= link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name], file[:srcmd5] ) %>
               <% unless file[:name].match(/^_service:/) %>
                 <% if @package.can_edit?( session[:login] ) %>
-                  <% if file[:editable] %>
-                    <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
-                      :package => @package, :filename => file[:name]},
-                      {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
-                  <% end %>
+                  <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
+                    :package => @package, :filename => file[:name]},
+                    {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
                 <% end %>
               <% end %>
             </td>
