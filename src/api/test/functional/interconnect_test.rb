@@ -5,12 +5,35 @@ class InterConnectTests < ActionController::IntegrationTest
 
   fixtures :all
    
-  def test_anonymous_access_tests
+  def test_anonymous_access
     ActionController::IntegrationTest::reset_auth 
+    get "/public/lastevents"
+    assert_response :success
+
+    # direct access
+    get "/public/source/BaseDistro"
+    assert_response :success
+    get "/public/source/BaseDistro/_meta"
+    assert_response :success
+    get "/public/source/BaseDistro/_config"
+    assert_response :success
+    get "/public/source/BaseDistro/_pubkey"
+    assert_response :success
+    get "/public/source/BaseDistro/pack1"
+    assert_response :success
+    get "/public/source/BaseDistro/pack1?view=cpio"
+    assert_response :success
+    get "/public/source/BaseDistro/pack1/_meta"
+    assert_response :success
+    get "/public/source/BaseDistro/pack1/my_file"
+    assert_response :success
+
     # direct access to remote instance
     get "/public/source/RemoteInstance:BaseDistro"
     assert_response :success
     get "/public/source/RemoteInstance:BaseDistro/_meta"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/_config"
     assert_response :success
     get "/public/source/RemoteInstance:BaseDistro/_pubkey"
     assert_response :success
@@ -20,8 +43,19 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/public/source/RemoteInstance:BaseDistro/pack1/my_file"
     assert_response :success
+
     # binary access
     get "/public/build/home:Iggy/10.2/i586/_repository?view=cache"
+    assert_response :success
+    get "/public/build/home:Iggy/10.2/i586/_repository?view=solvstate"
+    assert_response :success
+    get "/public/build/home:Iggy/10.2/i586/_repository?view=binaryversions"
+    assert_response :success
+    get "/public/build/home:Iggy/10.2/i586/pack1"
+    assert_response :success
+    get "/public/build/home:Iggy/10.2/i586/pack1?view=cpio"
+    assert_response :success
+    get "/public/build/home:Iggy/10.2/i586/pack1?view=binaryversions"
     assert_response :success
 
     # access to local project with project link to remote
