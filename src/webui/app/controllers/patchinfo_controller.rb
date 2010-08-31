@@ -1,4 +1,5 @@
 class PatchinfoController < ApplicationController
+  include ApplicationHelper
   before_filter :require_all
   before_filter :require_exists, :except => [:save_new, :new_patchinfo]
   helper :package
@@ -35,6 +36,7 @@ class PatchinfoController < ApplicationController
       flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 100 signs and longer than summary)"
     end
     if params[:category] == "security"
+      debugger
       if !valid_cve_number? params[:cve]
         valid_params = false
         flash[:error] = "#{flash[:error]}" + " || CVE-Number has the wrong format. Expected \"cve-year-number\""
@@ -45,7 +47,11 @@ class PatchinfoController < ApplicationController
       filename = "_patchinfo"
       name = params[:name]
       packager = @project.person.userid
-      cvelist = params[:cve]
+      if params[:cve] != nil
+        cvelist = params[:cve]
+      else
+        cvelist = Array.new
+      end
       binaries = params[:binaries]
       if params[:bug] != nil
         buglist = params[:bug]
@@ -105,9 +111,9 @@ class PatchinfoController < ApplicationController
         end
         node.swampid     swampid
         node.category    category
-        if @category == "security"
+        if category == "security"
           cvelist.each do |cve|
-            node.CVE        cve
+            node.CVE(cve)
           end
         end
         node.summary     summary
@@ -119,6 +125,7 @@ class PatchinfoController < ApplicationController
         frontend.put_file( xml, :project => @project,
           :package => pkg, :filename => filename,
           :category => [:category], :bug => [:bug],
+          :cve => [:cve],
           :binarylist => [:binarylist],
           :binaries => [:binaries], :swampid => [:swampid],
           :summary => [:summary], :description => [:description],
@@ -198,24 +205,26 @@ class PatchinfoController < ApplicationController
       params[:bug] << params[:bugid]
       @buglist = params[:bug]
     end
+    @category = @file.category.to_s
     @cves = []
-    if @file.has_element?("CVE")
-      @file.each_CVE do |cve|
-        @cves << cve.text
+    @cvelist = []
+    if @category == "security"
+      if @file.has_element?("CVE")
+        @file.each_CVE do |cve|
+          @cves << cve.text
+        end if @file
+        if @cvelist.empty?
+          @cvelist = @cves
+        end
+        if params[:cve] == nil
+          params[:cve] = Array.new
+          params[:cve] << params[:cveid]
+        end
+        if params[:cveid] != nil
+          params[:cve] << params[:cveid]
+          @cvelist = params[:cve]
+        end
       end
-      if @cvelist == nil
-        @cvelist = @cves
-      end
-      if params[:cve] == nil
-        params[:cve] = Array.new
-        params[:cve] << params[:cveid]
-      end
-      if params[:cveid] != nil
-        params[:cve] << params[:cveid]
-        @cvelist = params[:cve]
-      end
-    else
-      @cvelist = [""]
     end
 
     @swampid = @file.swampid.to_s
@@ -302,6 +311,7 @@ class PatchinfoController < ApplicationController
         frontend.put_file( @patchinfo, :project => @project,
           :package => @package,:filename => filename,
           :category => [:category], :bug => [:bug],
+          :cve => [:cve],
           :binarylist => [:binarylist],
           :binaries => [:binaries], :swampid => [:swampid],
           :summary => [:summary], :description => [:description],
@@ -355,7 +365,7 @@ class PatchinfoController < ApplicationController
   end
 
   def valid_cve_number? name
-    name.each do |cve|
+    name != nil and name.each do |cve|
       cve =~ /^cve-\d{4}-\d{4}$/
     end
   end
@@ -365,12 +375,12 @@ class PatchinfoController < ApplicationController
   end
 
   def valid_summary? name
-    name != nil and name =~ /^.{10,}$/
+    name != nil and name =~ /^.{10,}$/m
   end
 
   def valid_description? name
     name != nil and
-      name.length > params[:summary].length and name =~ /^.{100,}$/
+      name.length > params[:summary].length and name =~ /^.{100,}$/m
   end
 
 
