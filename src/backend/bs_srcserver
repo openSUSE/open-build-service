@@ -2768,7 +2768,11 @@ sub getconfig {
 
 sub getprojectconfig {
   my ($cgi, $projid) = @_;
-  my $proj = readproj($projid);
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    my $config = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config", 'proxy' => $proxy}, undef);
+    return ($config, 'Content-Type: text/plain');
+  }
   my $config;
   if ($cgi->{'rev'}) {
     my $rev = getrev($projid, '_project', $cgi->{'rev'});
@@ -3060,8 +3064,10 @@ sub sourcediff {
       $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
       my %li;
       my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
-      $l->{'project'} = $rev->{'project'} unless defined $l->{'project'};
-      $l->{'package'} = $rev->{'package'} unless defined $l->{'package'};
+      if ($l) {
+        $l->{'project'} = $rev->{'project'} unless defined $l->{'project'};
+        $l->{'package'} = $rev->{'package'} unless defined $l->{'package'};
+      }
       $files = handlelinks($rev, $files, \%li);
       die("bad link: $files\n") unless ref $files;
       if ($l && $cgi->{'linkrev'} && $l->{'project'} eq $oprojid && $l->{'package'} eq $opackid && !$l->{'rev'} && !$cgi->{'orev'}) {
