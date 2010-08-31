@@ -15,7 +15,7 @@ class PublicController < ApplicationController
     path << "?#{request.query_string}" unless request.query_string.empty?
 
     if params[:view]
-      unless %w(names cpio cache binaryversions).include?(params[:view])
+      unless %w(names cpio cache binaryversions solvstate).include?(params[:view])
         render_error :status => 400, :errorcode => "missing_parameter",
           :message => "query parameter 'view' has to be either names, cpio or cache"
         return
