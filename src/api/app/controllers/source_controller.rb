@@ -818,8 +818,9 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      unless pack
+      if pack.nil? or params.has_key?(:rev)
         # check if this comes from a remote project, also true for _project package
+        # or if rev it specified we need to fetch the meta from the backend
         answer = Suse::Backend.get(request.path)
         if answer
           render :text => answer.body.to_s, :content_type => 'text/xml'
