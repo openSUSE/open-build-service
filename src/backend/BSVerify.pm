@@ -306,6 +306,7 @@ sub verify_request {
     $actions = $req->{'action'};
   }
   die("request must contain an action\n") unless $actions && @$actions;
+  my %pkgchange;
   for my $r (@$actions) {
     die("request action has no type\n") unless $r->{'type'};
     if ($r->{'type'} eq 'delete') {
@@ -340,6 +341,10 @@ sub verify_request {
       verify_rev($r->{'source'}->{'rev'}) if exists $r->{'source'}->{'rev'};
     } else {
       die("unknown request action type '$r->{'type'}'\n");
+    }
+    if ($r->{'type'} eq 'submit' || ($r->{'type'} eq 'delete' && exists($r->{'target'}->{'package'}))) {
+      die("request contains multiple source changes for package \"$r->{'target'}->{'package'}\"\n") if $pkgchange{"$r->{'target'}->{'project'}/$r->{'target'}->{'package'}"};
+      $pkgchange{"$r->{'target'}->{'project'}/$r->{'target'}->{'package'}"} = 1;
     }
   }
 }
