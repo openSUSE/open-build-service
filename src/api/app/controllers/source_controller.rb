@@ -1876,11 +1876,11 @@ class SourceController < ApplicationController
           :message => "no such revision"
         return
       end
-      if dir.has_element? 'srcmd5'
+      if dir.has_attribute? 'srcmd5'
         pkg_rev = dir.srcmd5
       else
         render_error :status => 400, :errorcode => 'invalid_filelist',
-          :message => "no such revision"
+          :message => "no srcmd5 revision found"
         return
       end
     end
