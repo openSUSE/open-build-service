@@ -294,7 +294,7 @@ module ApplicationHelper
     end
     description = case status
     when "published" then "Repository has been published"
-    when "publishing" then "Repository is getting created right now"
+    when "publishing" then "Repository is created right now"
     when "unpublished" then "Build finished, but repository publishing is disabled"
     when "building" then "Build jobs exists"
     when "finished" then "Build jobs have been processed, new repository is not yet created"
