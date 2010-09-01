@@ -907,30 +907,37 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
-	'type',             # obsolete in future, type will be defined per action
+	'type',		# obsolete in future, type will be defined per action
      [[ 'action' =>
-	   'type',          # currently submit, delete, change_devel, add_role
-	   [ 'source' =>
-	         'project',
-	         'package',
-	         'rev',
-	   ],
-	   [ 'target' =>
-	         'project',
-	         'package',
-	   ],
-	   [ 'person' =>
-	         'name',
-	         'role',
-	   ],
-	   [ 'group' =>
-	         'name',
-	         'role',
-	   ],
-           [ 'options' =>
-                 [],
-	         'sourceupdate', # can be cleanup, update or noupdate
-           ],
+	    'type',	# currently submit, delete, change_devel, add_role
+	  [ 'source' =>
+	        'project',
+	        'package',
+	        'rev',
+	  ],
+	  [ 'target' =>
+		'project',
+		'package',
+	  ],
+	  [ 'person' =>
+		'name',
+		'role',
+	  ],
+	  [ 'group' =>
+		'name',
+		'role',
+	  ],
+          [ 'options' =>
+		[],
+		'sourceupdate', # can be cleanup, update or noupdate
+          ],
+	  [ 'acceptinfo' =>
+	        'rev',
+	        'srcmd5',
+	        'osrcmd5',
+	        'xsrcmd5',
+	        'oxsrcmd5',
+          ],
      ]],
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
