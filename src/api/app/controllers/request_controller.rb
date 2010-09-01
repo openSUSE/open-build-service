@@ -11,15 +11,18 @@ class RequestController < ApplicationController
 
   # GET /request/:id
   def show
+    valid_http_methods :get
     # ACL(show) TODO: check this leaks no information that is prevented by ACL
     # parse and rewrite the request to latest format
+
     data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
     req = BsRequest.new(data)
+
     send_data(req.dump_xml, :type => "text/xml")
   end
 
   # POST /request/:id? :cmd :newstate
-  alias_method :modify, :dispatch_command
+  alias_method :command, :dispatch_command
 
   # PUT /request/:id
   def update
@@ -358,15 +361,66 @@ class RequestController < ApplicationController
     send_data( response, :disposition => "inline" )
   end
 
-  def modify_addreview
-     modify_changestate# :cmd => "addreview",
+  def command_diff
+    valid_http_methods :post
+
+    data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
+    req = BsRequest.new(data)
+
+    diff_text = ""
+
+    req.each_action do |action|
+      if action.data.attributes["type"] == "submit" and action.target.project and action.target.package
+        transport = ActiveXML::Config::transport_for(:request)
+        if action.has_element? :acceptinfo
+          # OBS 2.1 adds acceptinfo on request accept
+          path = "/source/%s/%s?cmd=diff" %
+               [CGI.escape(action.target.project), CGI.escape(action.target.package)]
+          if action.acceptinfo.data.attributes["xsrcmd5"]
+            path += "&rev=" + action.acceptinfo.data.attributes["xsrcmd5"]
+          else
+            path += "&rev=" + action.acceptinfo.data.attributes["srcmd5"]
+          end
+          if action.acceptinfo.data.attributes["oxsrcmd5"]
+            path += "&orev=" + action.acceptinfo.data.attributes["oxsrcmd5"]
+          elsif action.acceptinfo.data.attributes["osrcmd5"]
+            path += "&orev=" + action.acceptinfo.data.attributes["osrcmd5"]
+          else
+            # md5sum of empty package
+            path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
+          end
+        else
+          # for requests accepted with OBS 2.0 and before, this can not work in all cases
+          path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
+               [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
+          if action.source.data['rev']
+            path += "&rev=#{action.source.rev}"
+          end
+        end
+
+        begin
+          diff_text += Suse::Backend.post(path, nil).body
+        rescue ActiveXML::Transport::Error => e
+          render_error :status => 404, :errorcode => 'diff_failure',
+                       :message => "The diff call for #{path} failed"
+          return
+        end
+
+      end
+    end
+
+    send_data(diff_text, :type => "text/plain")
+  end
+
+  def command_addreview
+     command_changestate# :cmd => "addreview",
                        # :by_user => params[:by_user], :by_group => params[:by_group]
   end
-  def modify_changereviewstate
-     modify_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
+  def command_changereviewstate
+     command_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
                         #:by_user => params[:by_user], :by_group => params[:by_group]
   end
-  def modify_changestate
+  def command_changestate
     if params[:id].nil? or params[:id].to_i == 0
       render_error :status => 404, :message => "Request ID is not a number", :errorcode => "no_such_request"
       return

@@ -251,7 +251,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :request
   
   map.connect 'request/:id', :controller => 'request',
-    :action => 'modify'
+    :action => 'command'
   map.connect 'search/request', :controller => 'request', 
     :action => 'pass_to_backend'
 
