@@ -950,6 +950,36 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_diff_package_hidden_project
+    prepare_request_with_user "tom", "thunder"
+    post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response 404
+    assert_tag :tag => 'status', :attributes => { :code => "unknown_package"}
+    #reverse
+    post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
+    assert_response 404
+    assert_tag :tag => 'status', :attributes => { :code => "unknown_package"}
+
+    prepare_request_with_user "hidden_homer", "homer"
+    post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_match /Minimal rpm package for testing the build controller/, @response.body
+    # reverse
+    post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
+    assert_response :success
+    assert_match /argl/, @response.body
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_match /Minimal rpm package for testing the build controller/, @response.body
+    # reverse
+    prepare_request_with_user "king", "sunflower"
+    post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
+    assert_response :success
+    assert_match /argl/, @response.body
+  end
+
   def test_pattern
     ActionController::IntegrationTest::reset_auth 
     put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
@@ -1132,6 +1162,31 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # cleanup
     delete url
+  end
+
+  def test_branch_package_hidden_project
+    ActionController::IntegrationTest::reset_auth 
+    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
+    assert_response 401
+    #  reverse
+    post "/source/home:coolo/test", :cmd => :branch, :target_project => "HiddenProject"
+    assert_response 401
+    # new user
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
+    assert_response 404
+    #  reverse
+    post "/source/home:coolo:test/kdelibs_DEVEL_package", :cmd => :branch, :target_project => "HiddenProject"
+    assert_response 403
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
+    assert_response 403
+    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:hidden_homer:branches:HiddenProject"
+    assert_response :success
+    # reverse
+    post "/source/home:coolo:test/kdelibs_DEVEL_package", :cmd => :branch, :target_project => "HiddenProject"
+    assert_response :success
   end
 
   def test_branch_package_delete_and_undelete
