@@ -91,11 +91,33 @@ class RequestController < ApplicationController
 
       if @type == "submit" and @target_pkg
         transport = ActiveXML::Config::transport_for(:request)
-        path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
-        [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
-        if action.source.data['rev']
-          path += "&rev=#{action.source.rev}"
+
+        if action.has_element? :acceptinfo
+          path = "/source/%s/%s?cmd=diff" %
+               [CGI.escape(@target_project.name), CGI.escape(@target_pkg.name)]
+          if action.acceptinfo.data.attributes["xsrcmd5"]
+            path += "&rev=" + action.acceptinfo.data.attributes["xsrcmd5"]
+          else
+            path += "&rev=" + action.acceptinfo.data.attributes["srcmd5"]
+          end
+          if action.acceptinfo.data.attributes["oxsrcmd5"]
+            path += "&orev=" + action.acceptinfo.data.attributes["oxsrcmd5"]
+          else
+            if action.acceptinfo.data.attributes["osrcmd5"]
+              path += "&orev=" + action.acceptinfo.data.attributes["osrcmd5"]
+            else
+              # md5sum of empty package
+              path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
+            end
+          end
+        else
+          path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
+               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
+          if action.source.data['rev']
+            path += "&rev=#{action.source.rev}"
+          end
         end
+
         begin
           @diff_text = transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
         rescue ActiveXML::Transport::Error => e
