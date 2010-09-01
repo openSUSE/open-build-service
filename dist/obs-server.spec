@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        2.0.4
+Version:        2.0.6
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -61,7 +61,7 @@ Conflicts:      obs-signd < 2.1.1
 Requires:       yum yum-metadata-parser dpkg
 Requires:       createrepo >= 0.4.10
 %endif
-Requires:       perl-Compress-Zlib perl-Net_SSLeay perl-Socket-MsgHdr perl-XML-Parser
+Requires:       perl-Compress-Zlib perl-Net-SSLeay perl-Socket-MsgHdr perl-XML-Parser
 
 %description
 Authors:
@@ -222,7 +222,6 @@ install -m 0644 sysconfig.obs-server sysconfig.obs-worker $FILLUP_DIR/
 CRON_DIR=$RPM_BUILD_ROOT/etc/cron.d
 install -d -m 755 $CRON_DIR
 install -m 0644 crontab.obs-api   $CRON_DIR/obs-api
-install -m 0644 crontab.obs-webui $CRON_DIR/obs-webui
 # install SLP registration files
 SLP_DIR=$RPM_BUILD_ROOT/etc/slp.reg.d/
 install -d -m 755  $SLP_DIR
@@ -608,7 +607,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
-%config(noreplace) /etc/cron.d/obs-webui
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
 %config(noreplace) %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db/database.db

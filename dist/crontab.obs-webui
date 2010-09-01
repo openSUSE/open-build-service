@@ -1,2 +1,0 @@
-*/5  * * * *     lighttpd        cd /srv/www/obs/webui/ && RAILS_ENV=production rake -s jobs:render24
-42 */4 * * *     lighttpd        cd /srv/www/obs/webui/ && RAILS_ENV=production rake -s jobs:render72
