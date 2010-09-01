@@ -4844,7 +4844,14 @@ sub addacceptinfo {
     next unless $r->{'type'} eq 'submit';
     next unless $r->{'target'} && defined($r->{'target'}->{'project'}) && defined($r->{'target'}->{'package'});
     next unless $r->{'target'}->{'project'} eq $projid && $r->{'target'}->{'package'} eq $packid;
-    $r->{'acceptinfo'} = $acceptinfo;
+    if ($r->{'acceptinfo'}) {
+      for ('rev', 'srcmd5', 'xsrcmd5') {
+        delete $r->{'acceptinfo'}->{$_};
+        $r->{'acceptinfo'}->{$_} = $acceptinfo->{$_} if defined $acceptinfo->{$_};
+      }
+    } else {
+      $r->{'acceptinfo'} = $acceptinfo;
+    }
     $changed = 1;
   }
   writereq($oreq, $req) if $changed;
