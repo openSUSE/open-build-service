@@ -153,7 +153,7 @@ class PackageController < ApplicationController
 
   def create_submit_request
     req = Request.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
-      :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:sourceupdate])
+      :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:source_update])
     begin
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
