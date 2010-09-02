@@ -42,6 +42,8 @@ class PublicControllerTest < ActionController::IntegrationTest
     assert_response 404 if $ENABLE_BROKEN_TEST
     get "/public/source/HiddenProject/pack/_meta"
     assert_response 404 if $ENABLE_BROKEN_TEST
+    get "/public/source/HiddenProject/pack/my_file"
+    assert_response 404 if $ENABLE_BROKEN_TEST
 
   end
 
