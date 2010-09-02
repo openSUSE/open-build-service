@@ -980,6 +980,38 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /argl/, @response.body
   end
 
+  def test_diff_package_viewprotected_project
+    prepare_request_with_user "tom", "thunder"
+    post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_tag :tag => 'status', :attributes => { :code => "ok"}
+    #reverse
+    # FIXME: unclear implementation - leak
+    post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
+    assert_response :success if $ENABLE_BROKEN_TEST
+    assert_tag :tag => 'status', :attributes => { :code => "unknown_package"} if $ENABLE_BROKEN_TEST
+
+    prepare_request_with_user "view_homer", "homer"
+    post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_match /Protected Content/, @response.body
+    # reverse
+    post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
+    assert_response :success
+    assert_match /argl/, @response.body
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_match /Ok/, @response.body
+    # reverse
+    prepare_request_with_user "king", "sunflower"
+    post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
+    assert_response :success
+    assert_match /argl/, @response.body
+  end
+
+
   def test_pattern
     ActionController::IntegrationTest::reset_auth 
     put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
