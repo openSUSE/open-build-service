@@ -8,7 +8,7 @@
 <div class="dialog darkgrey_box" id="service_paramaters">
   <div class="box box-shadow">
     <div class="box-header aligncenter">
-      Service Parameters
+      Service Parameters <%= image_tag('ajax-loader.gif', :id => 'spinner_parameter_editor', :class => 'hidden') %>
     </div>
 
 
@@ -18,6 +18,7 @@
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
         <%= hidden_field_tag(:serviceid, @serviceid) %>
+        <%= hidden_field_tag(:servicename, @servicename) %>
         <!-- FIXME: send source revision, so in-between changes can be detected -->
       <% end %>
        <table id="pTable">
@@ -31,8 +32,9 @@
             <% number = number + 1 %>
             <% if @package.can_edit?( session[:login] ) %>
                <tr class="row_<%=number%>">
-                  <td><%=p[:name]%></td> 
-                  <td><input type="text" name="parameter_<%=number%>_<%=p[:name]%>" value="<%=p[:value]%>"></td>
+                  <td><%=p[:name]%></td>
+                  <% @values=Service.findAvailableParameterValues(@servicename, p[:name])  %>
+                  <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => p[:name], :number => number, :value => p[:value] }) %></td>
                   <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
                </tr>
             <% else %>
@@ -44,11 +46,11 @@
          <% if @package.can_edit?( session[:login] ) %>
            <tr class="addrow"><td>
                <select name="add_parameter_name" id="add_new_parameter">
-               <% Service.findAvailableParameters(@servicename).each do |p|%>
-                      <option value="<%=p[:name]%>" selected><%=p[:name]%></option>
+               <% Service.findAvailableParameters(@servicename).keys.each do |p|%>
+                      <option value="<%=p%>" selected><%=p%></option>
                <% end %>
                </select></td>
-               <td><input type="text" id="add_new_value" name="add_parameter_value"></td>
+               <td id="value_input_field"><input type="text" id="add_new_value" name="add_new_value"></td>
                <td><a href="#" id="add_new_row">+</a></td>
            </tr>
          <% end %>
@@ -69,3 +71,9 @@
   </div>
 
 </div></div>
+
+<%= observe_field( :add_new_parameter, :frequency => 0.5, :update => :value_input_field, 
+      :url => { :controller => 'package', :action  => 'service_parameter_value', :project => @project, :package => @package, :servicename => @servicename}, 
+      :loading => "$('#spinner_parameter_editor').show();", :complete => "$('#spinner_parameter_editor').hide();", 
+      :with => "'parameter=' + escape($('#add_new_parameter').attr('value')) + '&setid=add_new_value'") %> 
+

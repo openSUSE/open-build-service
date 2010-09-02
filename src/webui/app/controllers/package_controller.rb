@@ -143,6 +143,12 @@ class PackageController < ApplicationController
     render :partial => 'files_view', :locals => {:file_list => @files}
   end
 
+  def service_parameter_value
+    @values=Service.findAvailableParameterValues(params[:servicename], params[:parameter])
+    render :partial => 'service_parameter_value_selector',
+           :locals => { :servicename => params[:servicename], :parameter => params[:parameter], :number => params[:number], :value => params[:value], :setid => params[:setid] }
+  end
+
   def source_history
     @browserrevision = params[:rev]
   end

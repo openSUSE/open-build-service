@@ -9,8 +9,8 @@ class Service < ActiveXML::Base
 
     def updateServiceList
        # cache service list
-       @servicelist = []
-       @serviceparameterlist = {}
+       @serviceList = []
+       @serviceParameterList = {}
 
        path = "/service"
        frontend = ActiveXML::Config::transport_for( :service )
@@ -23,43 +23,55 @@ class Service < ActiveXML::Base
          hash[:name]        = serviceName
          hash[:summary]     = s.find_first("summary").content
          hash[:description] = s.find_first("description").content
-         @servicelist.push( hash )
+         @serviceList.push( hash )
 
-         @serviceparameterlist[serviceName] = []
+         @serviceParameterList[serviceName] = {}
          s.find("parameter").each do |p|
            hash = {}
-           hash[:name] = p.attributes["name"]
+#           hash[:name] = p.attributes["name"]
            hash[:description] = p.find_first("description").content
            hash[:required] = true if p.find_first("required")
 
-           @allowedvalues = []
+           allowedvalues = []
            p.find("allowedvalue").each do |a|
-             @allowedvalues.push(a.content)
+             allowedvalues.push(a.content)
            end
-           hash[:allowedvalues] = @allowedvalues
+           hash[:allowedvalues] = allowedvalues
 
-           @serviceparameterlist[serviceName].push( hash )
+           @serviceParameterList[serviceName][p.attributes["name"]] = hash
          end
        end
     end
 
+    def findAvailableParameterValues(serviceName, parameter)
+      if @serviceList.nil? or true
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+      if @serviceParameterList[serviceName] and @serviceParameterList[serviceName][parameter] \
+         and @serviceParameterList[serviceName][parameter][:allowedvalues]
+        return @serviceParameterList[serviceName][parameter][:allowedvalues]
+      end
+      return nil
+    end
+
     def findAvailableParameters(serviceName)
-      if @servicelist.nil?
+      if @serviceList.nil?
          # FIXME: do some more clever cacheing
          updateServiceList
       end
 
-      return [] unless @serviceparameterlist[serviceName]
-      @serviceparameterlist[serviceName]
+      return [] unless @serviceParameterList[serviceName]
+      @serviceParameterList[serviceName]
     end
 
     def available
-      if @servicelist.nil?
+      if @serviceList.nil?
          # FIXME: do some more clever cacheing
          updateServiceList
       end
 
-      @servicelist
+      @serviceList
     end
   end
 

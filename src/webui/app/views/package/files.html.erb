@@ -10,18 +10,21 @@
 
 
   function insertRow() {
-    var name = document.getElementById('add_new_parameter').value;
-    var value = document.getElementById('add_new_value').value;
-    var number = document.getElementById('count_parameters').value;
+    var name     = document.getElementById('add_new_parameter').value;
+    var service  = document.getElementById('servicename').value;
+    var value    = document.getElementById('add_new_value').value;
+    var number   = document.getElementById('count_parameters').value + 1;
 
-    number = number + 1;
     $('#pTable tr:last').before('<tr class=\"row_'+number+'\">'+
       '<td>'+name+'</td>'+
-      '<td><input type=\"text\" name=\"parameter_'+number+'_'+name+'\" value=\"'+value+'\"></td>'+
+      '<td id="added_parameter_'+number+'">...</td>'+
       '<td><a href=\"#\" onclick=\"\$(\'tr.row_'+number+'\').remove(); return false;\">X</a></td>'+
       '</tr>');
     
     document.getElementById('count_parameters').value = number;
+
+    var path="/package/service_parameter_value?number="+number+"&servicename="+escape(service)+"&parameter="+escape(name)+"&value="+escape(value)+"&package=<%=@package%>&project=<%=@project%>";
+    $("#pTable td#added_parameter_"+number).load(path);
   }
 
   function slide_history_up() {
