@@ -102,7 +102,7 @@ class Person < ActiveXML::Base
       end
 
       # check for all open review tasks
-      collection = Request.find_open_review_requests(login)
+      collection = BsRequest.find_open_review_requests(login)
       collection.each do |req| myrequests[Integer(req.value :id)] = req end
       keys = myrequests.keys().sort {|x,y| y <=> x}
       keys.each do |id| 

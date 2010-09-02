@@ -152,7 +152,7 @@ class PackageController < ApplicationController
   end
 
   def create_submit_request
-    req = Request.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
+    req = BsRequest.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
       :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:source_update])
     begin
       req.save(:create => true)
@@ -261,7 +261,7 @@ class PackageController < ApplicationController
       end
     end
 
-    @lastreq = Request.find_last_request(:targetproject => params[:oproject], :targetpackage => params[:opackage],
+    @lastreq = BsRequest.find_last_request(:targetproject => params[:oproject], :targetpackage => params[:opackage],
       :sourceproject => params[:project], :sourcepackage => params[:package])
     if @lastreq and @lastreq.state.name != "declined"
       @lastreq = nil # ignore all !declined

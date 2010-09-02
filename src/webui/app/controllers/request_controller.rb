@@ -2,19 +2,19 @@ class RequestController < ApplicationController
 
   def addreviewer
     if params[:id]
-      @therequest = find_cached(Request, params[:id] )
+      @therequest = find_cached(BsRequest, params[:id] )
     end
-    Request.free_cache( params[:id] )
+    BsRequest.free_cache( params[:id] )
     begin
       if params[:user]
-        r = Request.addReviewByUser( params[:id], params[:user], params[:comment] )
+        r = BsRequest.addReviewByUser( params[:id], params[:user], params[:comment] )
       elsif params[:group]
-        r = Request.addReviewByGroup( params[:id], params[:group], params[:comment] )
+        r = BsRequest.addReviewByGroup( params[:id], params[:group], params[:comment] )
       else
         render :text => "ERROR: don't know how to add reviewer"
         return
       end
-    rescue Request::ModifyError => e
+    rescue BsRequest::ModifyError => e
       render :text => e.message
       return
     end
@@ -23,18 +23,18 @@ class RequestController < ApplicationController
 
   def modifyreviewer
     if params[:id]
-      @therequest = find_cached(Request, params[:id] )
+      @therequest = find_cached(BsRequest, params[:id] )
     end
-    Request.free_cache( params[:id] )
+    BsRequest.free_cache( params[:id] )
 
     begin
       if params[:group].blank?
-        r = Request.modifyReviewByUser( params[:id], params[:new_state], params[:comment], session[:login] )
+        r = BsRequest.modifyReviewByUser( params[:id], params[:new_state], params[:comment], session[:login] )
       else
-        r = Request.modifyReviewByGroup( params[:id], params[:new_state], params[:comment], params[:group] )
+        r = BsRequest.modifyReviewByGroup( params[:id], params[:new_state], params[:comment], params[:group] )
       end
 
-    rescue Request::ModifyError => e
+    rescue BsRequest::ModifyError => e
       render :text => e.message
       return
     end
@@ -42,9 +42,7 @@ class RequestController < ApplicationController
   end
 
   def show
-    if params[:id]
-      @therequest = find_cached(Request, params[:id] )
-    end
+    @therequest = BsRequest.find_cached(params[:id]) if params[:id]
     unless @therequest
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_to :action => :index and return
@@ -76,6 +74,7 @@ class RequestController < ApplicationController
   
     @is_maintainer = nil
     @therequest.each_action do |action|
+      # FIXME: this can't handle multiple actions in a request
       @type = action.data.attributes["type"]
       if @type=="submit"
         @src_project = action.source.project
@@ -84,63 +83,29 @@ class RequestController < ApplicationController
       @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
       @target_pkg_name = action.target.value :package
       @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project) if @target_pkg_name
-      if @is_maintainer == nil or @is_maintainer == true
-        @is_maintainer = (@target_project && @target_project.can_edit?( session[:login] )) ||
-          (@target_pkg && @target_pkg.can_edit?( session[:login] ))
-      end
+    end
 
-      if @type == "submit" and @target_pkg
-        transport = ActiveXML::Config::transport_for(:request)
-
-        if action.has_element? :acceptinfo
-          path = "/source/%s/%s?cmd=diff" %
-               [CGI.escape(@target_project.name), CGI.escape(@target_pkg.name)]
-          if action.acceptinfo.data.attributes["xsrcmd5"]
-            path += "&rev=" + action.acceptinfo.data.attributes["xsrcmd5"]
-          else
-            path += "&rev=" + action.acceptinfo.data.attributes["srcmd5"]
-          end
-          if action.acceptinfo.data.attributes["oxsrcmd5"]
-            path += "&orev=" + action.acceptinfo.data.attributes["oxsrcmd5"]
-          else
-            if action.acceptinfo.data.attributes["osrcmd5"]
-              path += "&orev=" + action.acceptinfo.data.attributes["osrcmd5"]
-            else
-              # md5sum of empty package
-              path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
-            end
-          end
-        else
-          path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
-               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
-          if action.source.data['rev']
-            path += "&rev=#{action.source.rev}"
-          end
-        end
-
-        begin
-          @diff_text = transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
-        rescue ActiveXML::Transport::Error => e
-          @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
-          flash.now[:error] = "Can't get diff for request: #{@diff_error}"
-        end
-      elsif @type == "submit" and @target_pkg.nil?
-        @newpackage << { :package => @src_pkg, :project => @src_project }
-      end
+    # get the entire diff from the api
+    begin
+      transport ||= ActiveXML::Config::transport_for :bsrequest
+      @diff_text = transport.direct_http URI("/request/#{@id}?cmd=diff"), :method => "POST", :data => ""
+    rescue ActiveXML::Transport::Error => e
+      @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash.now[:error] = "Can't get diff for request: #{@diff_error}"
     end
 
   end
  
   def change_request(changestate, params)
-    Request.free_cache( params[:id] )
+    BsRequest.free_cache( params[:id] )
     begin
-      if Request.modify( params[:id], changestate, params[:reason] )
+      if BsRequest.modify( params[:id], changestate, params[:reason] )
         flash[:note] = "Request #{changestate}!"
         return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end
-    rescue Request::ModifyError => e
+    rescue BsRequest::ModifyError => e
       flash[:error] = e.message
     end
     return false
@@ -150,7 +115,7 @@ class RequestController < ApplicationController
 
   def changerequest
     if params[:id]
-      @therequest = find_cached(Request, params[:id] )
+      @therequest = find_cached(BsRequest, params[:id] )
     end
     unless @therequest
       flash[:error] = "Can't find request #{params[:id]}"
@@ -180,7 +145,7 @@ class RequestController < ApplicationController
       end
 
       rev = Package.current_rev(@therequest.action.target.project, @therequest.action.target.package)
-      @therequest = Request.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
+      @therequest = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
         :project => @therequest.action.target.project, :package => @therequest.action.target.package, :rev => rev, :description => description)
       @therequest.save(:create => true)
       Rails.cache.delete "requests_new"

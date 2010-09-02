@@ -216,7 +216,7 @@ ActiveXML::Base.config do |conf|
       :tags_by_user => "rest:///user/:user/tags/:type",
       :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
-    map.connect :request, "rest:///request/:id", :create => "rest:///request?cmd=create"
+    map.connect :bsrequest, "rest:///request/:id", :create => "rest:///request?cmd=create"
 
     map.connect :packageattribute, "rest:///search/attribute?:namespace&:name&:project"
  
