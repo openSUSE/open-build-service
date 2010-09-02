@@ -231,10 +231,12 @@ sub expandproduct {
     waitpid($pid, 0) == $pid || die("500 waitpid $pid: $!\n");
     if ($?) {
       my $s = readstr($olog);
+      $s =~ s/^\n+//s;
+      $s =~ s/\n+$//s;
       warn("bs_productconvert failed: $?\n");
       BSUtil::cleandir($dir);
       rmdir($dir);
-      die($s) if $fail;
+      die("$s\n") if $fail;
       return undef;
     }
     my @out = sort(ls($odir));
