@@ -1,0 +1,27 @@
+<div id="dialog_wrapper">
+
+  <div class="dialog" id="disable_mask"></div>
+    <div class="dialog darkgrey_box" id="add_service">
+      <div class="box box-shadow">
+        <div class="box-header aligncenter">
+          Add a source service
+        </div>
+    
+        <p><div class="aligncenter buttons">
+          <% Service.available.each do |service| %>
+            <% object_id = "new_service_#{service[:name]}" %>
+            <div class="service" id="<%= object_id %>" onclick="window.location = '<%= url_for :action => :add_or_move_service, :id => object_id, :position => -1, :package => @package, :project => @project %>'" >
+              <%= service[:summary] %>
+              <div style="color: #999; font-size: 8pt">
+                 <%= service[:name] %>
+              </div>
+            </div>
+          <% end %>
+        </div></p>
+          
+        <p><div class="aligncenter buttons">
+          <%= link_to_function 'Close', 'remove_dialog()'%>
+        </div></p>
+    </div>
+  </div>
+</div>

@@ -153,6 +153,9 @@ class PackageController < ApplicationController
     @browserrevision = params[:rev]
   end
 
+  def add_service
+  end
+
   def create_submit_request_dialog
     @revision = Package.current_rev(@project, @package)
   end
@@ -553,8 +556,7 @@ class PackageController < ApplicationController
     id = params[:id]
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services
-      flash[:warn] = "Service add failed because no _service file found "
-      redirect_to :action => :files, :project => @project, :package => @package and return
+      @services = Service.new(:project => @project, :package => @package)
     end
 
     if id =~ /^new_service_/

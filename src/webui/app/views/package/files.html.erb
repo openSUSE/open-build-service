@@ -69,41 +69,51 @@
 
 <% content_for :ready_function do %>
   $("#files_table").tablesorter( {
-  sortList: [[0,1]],
-  widgets: ['zebra'],
-  headers: {
-  3: { sorter: false }
-  }
+    sortList: [[0,1]],
+    widgets: ['zebra'],
+    headers: {
+      3: { sorter: false }
+    }
   } );
 <% end %>
 
 
 <%= render :partial => 'links' if @link %>
 
-<%= render :partial => 'services' if @services %>
-
 <!-- Source history -->
 <div class="grid_7 alpha">
-<div class="show_left box">
- <div class="box-header aligncenter">
-   Commit History <%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %>
- </div>
- <div id="package_history">
-    <h3>
-    </h3>
-
-    <%= render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history} %>
-
-    <%= observe_field( :mergesettings, :frequency => 0.5, :update => :sources_history,
-      :url => { :controller => 'package', :action  => 'sources_history', :project => @project, :package => @package, :revision => @revision },
-      :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-      :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+ <div class="show_left box">
+  <div class="box-header aligncenter">
+    Commit History <%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %>
   </div>
-</div>
+  <div id="package_history">
+     <%= if @revision
+ 	  render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history}
+ 	else
+ 	  "<i>No commits exists yet.</i>"
+ 	end %>
+ 
+     <%= observe_field( :mergesettings, :frequency => 0.5, :update => :sources_history,
+       :url => { :controller => 'package', :action  => 'sources_history', :project => @project, :package => @package, :revision => @revision },
+       :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+       :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+   </div>
+ </div>
 </div>
 
-<!-- File list -->
+<!-- Sources -->
 <div class="grid_9 omega">
+ <!-- Service list -->
+ <div class="show_right box">
+  <div class="box-header aligncenter">
+    Source Services
+  </div>
+  <div>
+    <%= render :partial => 'services' %>
+  </div>
+ </div>
+
+ <!-- Source file list -->
  <div class="show_right box">
   <div class="box-header aligncenter">
     Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
