@@ -455,6 +455,10 @@ class ProjectController < ApplicationController
     @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
     @project.add_person :userid => session[:login], :role => 'maintainer'
     @project.add_person :userid => session[:login], :role => 'bugowner'
+    if params[:source_protection]
+      @project.add_element "sourceaccess"
+      @project.sourceaccess.add_element "disable"
+    end
     begin
       if @project.save
         flash[:note] = "Project '#{@project}' was created successfully"

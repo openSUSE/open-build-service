@@ -341,6 +341,10 @@ class PackageController < ApplicationController
     @package = Package.new( :name => params[:name], :project => @project )
     @package.title.text = params[:title]
     @package.description.text = params[:description]
+    if params[:source_protection]
+      @package.add_element "sourceaccess"
+      @package.sourceaccess.add_element "disable"
+    end
     if @package.save
       flash[:note] = "Package '#{@package}' was created successfully"
       Rails.cache.delete("%s_packages_mainpage" % @project)

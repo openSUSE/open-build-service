@@ -23,8 +23,7 @@ end
 
 <% form_tag :action => 'save_new' do -%>
   <div>
-    <p><strong>Project Name:</strong></p>
-    <p>
+    <p><strong>Project Name:</strong>
       <% if @project_name %>
         <%= @project_name %>
         <%= hidden_field_tag( "name", @project_name ) %>
@@ -33,7 +32,7 @@ end
           <%= hidden_field_tag('ns',@namespace)%>
           <strong><%=@namespace%>:</strong>
         <%end-%>
-        <%= text_field_tag 'name', @new_project_name, :size => 80 %>
+        <%= text_field_tag 'name', @new_project_name, :size => 50 %>
 
       <% end %>
     </p>
@@ -45,6 +44,7 @@ end
     <p><label for="description"><strong>Description:</strong></label></p>
     <p><%= text_area_tag 'description', @project_description, :cols => 80,
       :rows => 10 %></p>
+    <p><%= check_box_tag 'source_protection', false %> <strong>Deny access to sources of project.</strong></p>
     <p><%= submit_tag "Create Project" %></p>
   </div>
 <% end -%>

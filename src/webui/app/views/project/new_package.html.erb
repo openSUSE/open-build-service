@@ -19,6 +19,7 @@
 <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
 <strong>Description:</strong><br/>
 <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
+<%= check_box_tag 'source_protection', false %><strong>Deny access to sources of project.</strong><br/>
 <%= submit_tag %>
 <%= hidden_field_tag 'project', @project.name %>
 </p>
