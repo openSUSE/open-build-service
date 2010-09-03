@@ -391,6 +391,9 @@ class ProjectController < ApplicationController
       end
       @longestpaths << currentpath
     end
+    # we append 4 empty paths, so there are always at least 4 in the array
+    # to simplify the view code
+    4.times { @longestpaths << Array.new }
     FileUtils.rm_rf indir
     FileUtils.rm_rf outdir
   end
