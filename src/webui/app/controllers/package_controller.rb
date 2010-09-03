@@ -378,6 +378,9 @@ class PackageController < ApplicationController
     @linked_project = params[:linked_project].strip
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
+    @use_branch     = true if params[:branch]
+    @revision       = nil
+    @current_revision = true if params[:current_revision]
 
     if !valid_package_name_read? @linked_package
       flash[:error] = "Invalid package name: '#{@linked_package}'"
@@ -415,6 +418,11 @@ class PackageController < ApplicationController
     description += linked_package.description.text if linked_package.description.text
     package.description.text = description
     
+    if @current_revision
+      @revision = Package.current_xsrcmd5(@linked_project, @linked_package)
+      @revision = Package.current_rev(@linked_project, @linked_package) unless @revision
+    end
+
     begin
       saved = package.save
     rescue ActiveXML::Transport::ForbiddenError => e
@@ -433,6 +441,8 @@ class PackageController < ApplicationController
       logger.debug "link params: #{@linked_project}, #{@linked_package}"
       link = Link.new( :project => @project,
         :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
+      link.set_branch   true      if @use_branch
+      link.set_revision @revision if @revision
       link.save
       flash[:note] = "Successfully linked package '#{@linked_package}'"
       Rails.cache.delete("%s_packages_mainpage" % @project)

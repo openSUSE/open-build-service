@@ -1,5 +1,5 @@
-<% @pagetitle = "New Link" %>
-<% project_bread_crumb('Add Package Link') -%>
+<% @pagetitle = "New Branch" %>
+<% project_bread_crumb('Add Package Branch') -%>
 
 <%= render :partial => "tabs" %>
 
@@ -20,12 +20,12 @@
   });
 <% end -%>
 
-<h2>New Package Link in Project <%= @project.name %></h2>
+<h2>New Package Branch in Project <%= @project.name %></h2>
 
-<p>By linking a package from another project you add the package and its files
+<p>By branching a package from another project you add the package and its files
 to your project in a transparent way. Changes of the files in the original
-project will also change the files in the linked package in your project.</p>
-<p>You can add patches to the linked package without affecting the original
+project will also change the files in the branched package in your project.</p>
+<p>You can add patches to the branched package without affecting the original
 package.</p>
 
 <% form_tag :controller => "package", :action => "save_new_link" do %>
@@ -38,12 +38,16 @@ package.</p>
 <%= text_field_tag 'linked_package', @linked_package, :size => 80, :id => 'linked_package' %>
 </p>
 <p>
-<strong>Name of linked package in target project:</strong> (Leave blank to use the
+<strong>Name of branched package in target project:</strong> (Leave blank to use the
 same name as in the original project) <br/>
 <%= text_field_tag 'target_package', @target_package, :size => 80 %><br/>
 </p>
 <p>
-<%= submit_tag "Create Link" %>
+<%= check_box_tag 'current_revision', false %> <strong>Stay on current revision, don't merge future upstream changes automatically</strong>
+</p>
+<p>
+<%= hidden_field_tag 'branch', true %>
+<%= submit_tag "Create Branch" %>
 <%= hidden_field_tag 'project', @project.name %>
 </p>
 <% end %>
