@@ -37,6 +37,7 @@ class Service < ActiveXML::Base
              allowedvalues.push(a.content)
            end
            hash[:allowedvalues] = allowedvalues
+puts "AAAAAAAA", hash.inspect
 
            @serviceParameterList[serviceName][p.attributes["name"]] = hash
          end

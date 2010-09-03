@@ -28,8 +28,10 @@
        <% end %>
        </tr>
          <% number = 0 %>
+         <% used_parameter = {} %>
          <% @parameters.each do |p|%>
             <% number = number + 1 %>
+            <% used_parameter[p[:name]] = 1 %>
             <% if @package.can_edit?( session[:login] ) %>
                <tr class="row_<%=number%>">
                   <td><%=p[:name]%></td>
@@ -39,6 +41,21 @@
                </tr>
             <% else %>
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
+            <% end %>
+         <% end %>
+         <% if @package.can_edit?( session[:login] ) %>
+            <% Service.findAvailableParameters(@servicename).each do |parameter|%>
+              <% name=parameter[0] %>
+              <% p=parameter[1] %>
+              <% if p[:required] and not used_parameter[name] %>
+                <% number = number + 1 %>
+                <tr class="row_<%=number%>">
+                   <td><%=name%></td>
+                   <% @values=Service.findAvailableParameterValues(@servicename, name)  %>
+                   <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => name, :number => number, :value => ""}) %></td>
+                   <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+                </tr>
+              <% end %>
             <% end %>
          <% end %>
          <%= hidden_field_tag(:count_parameters, number) %>
