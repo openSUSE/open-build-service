@@ -28,7 +28,6 @@ class Service < ActiveXML::Base
          @serviceParameterList[serviceName] = {}
          s.find("parameter").each do |p|
            hash = {}
-#           hash[:name] = p.attributes["name"]
            hash[:description] = p.find_first("description").content
            hash[:required] = true if p.find_first("required")
 
@@ -37,7 +36,6 @@ class Service < ActiveXML::Base
              allowedvalues.push(a.content)
            end
            hash[:allowedvalues] = allowedvalues
-puts "AAAAAAAA", hash.inspect
 
            @serviceParameterList[serviceName][p.attributes["name"]] = hash
          end
