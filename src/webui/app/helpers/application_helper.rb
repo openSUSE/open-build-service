@@ -82,7 +82,7 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    if DOWNLOAD_URL
+    if defined? DOWNLOAD_URL
       "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
     else
       nil
