@@ -1684,23 +1684,44 @@ sub findfile {
 
   $files = lsrev($rev) unless $files;
   return (undef, undef) unless $files;
+
+  # Look for a unique file independend of packid
+  my @files = grep {/\.$ext$/} keys %$files;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+  @files = grep {/^_service:.*/} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+  @files = grep {/_service.*-$repoid\.$ext$/} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+
+  # Try the same but take $packid into account
   my $packid = $rev->{'package'};
+  @files = grep {/^_service.*:$packid\.$ext$/} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+  @files = grep {/^_service.*:$packid-$repoid\.$ext$/} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
-  # 28.4.2009 mls: deleted "&& defined($repoid)"
   return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"};
+
   # try again without last components
   if ($packid =~ /^(.*?)\./) {
     return ($files->{"$1.$ext"}, "$1.$ext") if $files->{"$1.$ext"};
   }
-  my @files = grep {/\.$ext$/} keys %$files;
+  @files = grep {/\.$ext$/} keys %$files;
+  @files = grep {/^_service:.*:\Q$packid\E/i} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+
+  @files = grep {/\.$ext$/} keys %$files if @files == 0;
   @files = grep {/^\Q$packid\E/i} @files if @files > 1;
   return ($files->{$files[0]}, $files[0]) if @files == 1;
+
   if (@files > 1) {
     if (!defined($repoid)) {
       # return (undef, undef);
       @files = sort @files;
       return ($files->{$files[0]}, $files[0]);
     }
+    @files = grep {/^_service:.*:$packid-$repoid/} @files if @files > 1;
+    @files = grep {/^_service:.*:$packid/} @files if @files > 1;
     @files = grep {/^\Q$packid-$repoid\E/i} @files if @files > 1;
     return ($files->{$files[0]}, $files[0]) if @files == 1;
   }
