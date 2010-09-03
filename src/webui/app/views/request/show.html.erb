@@ -140,12 +140,12 @@ setup_buildresult_trigger
   </pre>
 <% end %>
 
-<% if !["accepted", "declined", "revoked", "superseded"].include? @state and (@is_reviewer || @is_maintainer || @is_author) %>
+<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
   <p/>
   <div class="section">
     <% form_tag :action => "changerequest" do %>
       <div>
-        <% if !@diff_error and (@is_maintainer or @is_reviewer or @is_author or req.each_review.length > 0) %>
+        <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author || req.each_review.length > 0) %>
           <!-- handle existing reviews -->
           <table id="pTable">
           <tr><th colspan="4">Reviews</th></tr>
@@ -185,8 +185,8 @@ setup_buildresult_trigger
           <%end%>
 
           <!-- add another review -->
-          <% if !@diff_error and (req.state.name == "review" or req.state.name == "new") %>
-            <% if @is_maintainer or @is_reviewer or @is_author %>
+          <% if !@diff_error && (req.state.name == "review" || req.state.name == "new") %>
+            <% if @is_maintainer || @is_reviewer || @is_author %>
               <tr class="add_reviewer">
                 <td><%=select_tag "add_review_type", "<option>User</option> <option>Group</option>" %></td>
                 <td><%=text_field_tag "add_review_name" %></td>
