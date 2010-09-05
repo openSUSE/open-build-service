@@ -660,17 +660,13 @@ class RequestController < ApplicationController
             sourceupdate = action.options.sourceupdate.text
           end
           src = action.source
-          comment = "Copy from #{src.project}/#{src.package} via accept of submit request #{params[:id]}"
-          comment += " revision #{src.rev}" if src.has_attribute? :rev
-          comment += ".\n"
-          comment += "Request was accepted with message:\n#{params[:comment]}\n" if params[:comment]
           cp_params = {
             :cmd => "copy",
             :user => @http_user.login,
             :oproject => src.project,
             :opackage => src.package,
             :requestid => params[:id],
-            :comment => comment
+            :comment => params[:comment]
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
