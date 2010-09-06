@@ -19,17 +19,17 @@
       <% if @package.can_edit?( session[:login] ) %>
         <% if @services %>
            <%= link_to_remote image_tag('add.png', :title => 'Add Service'), :url => { :action => :add_service, :project => @project, :package => @package} %>
+           <div class="aligncenter buttons" id="run">
+             <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
+                   {:action => :execute_services, :project => @project, :package => @package },
+                   {:confirm => "Execute all services again now?", :method => :post } %>
+           </div>
            <div class="aligncenter buttons" id="trash">
              <%= image_tag('trash_empty.png', :alt => "Trash", :title => "Drop a service to remove it") %>
            </div>
            <%= drop_receiving_element( "trash",
                :onDrop => "function(drag, drop) { window.location='/package/remove_service?id=' + drop.draggable.first()[0].id + '&package=#{@package}&project=#{@project}' }"
            )%>
-           <div class="aligncenter buttons" id="run">
-             <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
-                   {:action => :execute_services, :project => @project, :package => @package },
-                   {:confirm => "Execute all services again now?", :method => :post } %>
-           </div>
         <% else %>
            <%= link_to_remote '<i>Add a service for source processing.</i>', :url => { :action => :add_service, :project => @project, :package => @package} %>
         <% end %>
@@ -43,7 +43,7 @@
              number += 1 %>
              <% object_id = "service_#{number}" %>
                 <div class="service" id="<%= object_id %>" >
-                  <%= h service.name %>
+                  <%= h Service.summary(service.name) %>
                   <div style="color: #999; font-size: 8pt">
                       <%= link_text = "Show Parameter"
                           link_text = "Edit Parameter" if @package.can_edit?( session[:login] )

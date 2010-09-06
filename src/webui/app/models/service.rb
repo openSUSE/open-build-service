@@ -43,7 +43,7 @@ class Service < ActiveXML::Base
     end
 
     def findAvailableParameterValues(serviceName, parameter)
-      if @serviceList.nil? or true
+      if @serviceList.nil?
          # FIXME: do some more clever cacheing
          updateServiceList
       end
@@ -71,6 +71,26 @@ class Service < ActiveXML::Base
       end
 
       @serviceList
+    end
+
+    def findService(name)
+      # would be nicer if we store it as hash, but it makes us impossible to order it
+      if @serviceList.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+   
+      @serviceList.each do |s|
+        return s if s[:name] == name
+      end
+
+      return nil
+    end
+
+    def summary(name)
+      return nil unless s = findService(name)
+      return "" unless s[:summary]
+      s[:summary]
     end
   end
 
