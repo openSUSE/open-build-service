@@ -1196,6 +1196,81 @@ class SourceControllerTest < ActionController::IntegrationTest
     delete url
   end
 
+  def test_create_links_hidden_project
+    # user without any special roles
+    prepare_request_with_user "adrian", "so_alone"
+    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary")
+    assert_response 404
+    xml = @response.body
+    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary"), 
+        '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    url = "/source/HiddenProject/temporary/_link"
+
+    # illegal targets
+    put url, '<link project="notexisting" />'
+    assert_response 404
+    assert_match /The given project notexisting does not exist/, @response.body
+    put url, '<link project="HiddenProject" package="notexisting" />'
+    assert_response 404
+    assert_match /package 'notexisting' does not exist in project 'HiddenProject'/, @response.body
+
+    # working local link from hidden package to hidden package
+    put url, '<link project="HiddenProject" package="pack" />'
+    assert_response :success
+
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2")
+    assert_response 404
+    xml = @response.body
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2"), 
+        '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    url = "/source/kde4/temporary2/_link"
+
+    # illegal targets
+    put url, '<link project="notexisting" />'
+    assert_response 404
+    assert_match /The given project notexisting does not exist/, @response.body
+    put url, '<link project="kde4" package="notexiting" />'
+    assert_response 404
+    assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
+
+    # special user cannot link unprotected to protected package
+    put url, '<link project="HiddenProject" package="pack1" />'
+    assert_response 403
+
+    # user without any special roles
+    prepare_request_with_user "fred", "geröllheimer"
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3")
+    assert_response 404
+    xml = @response.body
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3"), 
+        '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    url = "/source/kde4/temporary3/_link"
+
+    # illegal targets
+    put url, '<link project="notexisting" />'
+    assert_response 404
+    assert_match /The given project notexisting does not exist/, @response.body
+    put url, '<link project="kde4" package="notexiting" />'
+    assert_response 404
+    assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
+
+    # normal user cannot access hidden project
+    put url, '<link project="HiddenProject" package="pack1" />'
+    assert_response 404
+
+    # cleanup
+    delete url
+  end
+
   def test_branch_package_hidden_project
     ActionController::IntegrationTest::reset_auth 
     post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
