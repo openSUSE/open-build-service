@@ -1684,25 +1684,36 @@ sub findfile {
 
   $files = lsrev($rev) unless $files;
   return (undef, undef) unless $files;
+
+  # create filename -> return value hash
+  my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
+
+  # map services files to their real name
+  for (grep {s/^_service://} sort keys %files) {
+    next unless $files{"_service:$_"};
+    $files{$_} = $files{"_service:$_"};
+    delete $files{"_service:$_"};
+  }
+
   my $packid = $rev->{'package'};
-  return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
+  return (@{$files{"$packid-$repoid.$ext"}}) if defined($repoid) && $files{"$packid-$repoid.$ext"};
   # 28.4.2009 mls: deleted "&& defined($repoid)"
-  return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"};
+  return @{$files{"$packid.$ext"}} if $files{"$packid.$ext"};
   # try again without last components
   if ($packid =~ /^(.*?)\./) {
-    return ($files->{"$1.$ext"}, "$1.$ext") if $files->{"$1.$ext"};
+    return @{$files{"$1.$ext"}} if $files{"$1.$ext"};
   }
-  my @files = grep {/\.$ext$/} keys %$files;
+  my @files = grep {/\.$ext$/} keys %files;
   @files = grep {/^\Q$packid\E/i} @files if @files > 1;
-  return ($files->{$files[0]}, $files[0]) if @files == 1;
+  return @{$files{$files[0]}} if @files == 1;
   if (@files > 1) {
     if (!defined($repoid)) {
       # return (undef, undef);
       @files = sort @files;
-      return ($files->{$files[0]}, $files[0]);
+      return @{$files{$files[0]}};
     }
     @files = grep {/^\Q$packid-$repoid\E/i} @files if @files > 1;
-    return ($files->{$files[0]}, $files[0]) if @files == 1;
+    return @{$files{$files[0]}} if @files == 1;
   }
   return (undef, undef);
 }
