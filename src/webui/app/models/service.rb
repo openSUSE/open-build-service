@@ -47,6 +47,7 @@ class Service < ActiveXML::Base
          # FIXME: do some more clever cacheing
          updateServiceList
       end
+
       if @serviceParameterList[serviceName] and @serviceParameterList[serviceName][parameter] \
          and @serviceParameterList[serviceName][parameter][:allowedvalues]
         return @serviceParameterList[serviceName][parameter][:allowedvalues]
@@ -91,6 +92,19 @@ class Service < ActiveXML::Base
       return nil unless s = findService(name)
       return "" unless s[:summary]
       s[:summary]
+    end
+
+    def description(name)
+      return nil unless s = findService(name)
+      return "" unless s[:description]
+      s[:description]
+    end
+
+    def parameterDescription(serviceName, name)
+      return nil unless s = findService(serviceName)
+      return nil unless @serviceParameterList[serviceName]
+      return ""  unless @serviceParameterList[serviceName][name][:description]
+      @serviceParameterList[serviceName][name][:description]
     end
   end
 

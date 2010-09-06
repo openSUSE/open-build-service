@@ -11,6 +11,8 @@
       Service Parameters <%= image_tag('ajax-loader.gif', :id => 'spinner_parameter_editor', :class => 'hidden') %>
     </div>
 
+    Source Service: <%= @servicename %><br>
+    <i><%= @servicedescription %></i>
 
     <p><div class="aligncenter buttons">
       <% if @package.can_edit?( session[:login] ) %>
@@ -34,7 +36,12 @@
             <% used_parameter[p[:name]] = 1 %>
             <% if @package.can_edit?( session[:login] ) %>
                <tr class="row_<%=number%>">
-                  <td><%=p[:name]%></td>
+                  <td 
+                    <%= if desc = Service.parameterDescription(@servicename, p[:name])
+                          ' title="' + CGI::escapeHTML(desc) + '"'
+                        end %>
+                  ><%=p[:name]%>
+                  </td>
                   <% @values=Service.findAvailableParameterValues(@servicename, p[:name])  %>
                   <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => p[:name], :number => number, :value => p[:value] }) %></td>
                   <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
@@ -50,7 +57,11 @@
               <% if p[:required] and not used_parameter[name] %>
                 <% number = number + 1 %>
                 <tr class="row_<%=number%>">
-                   <td><%=name%></td>
+                   <td 
+                     <%= if desc = Service.parameterDescription(@servicename, p[:name])
+                           'title="' + CGI::escapeHTML(desc) + '"'
+                         end %>
+                   ><%=p[:name]%>
                    <% @values=Service.findAvailableParameterValues(@servicename, name)  %>
                    <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => name, :number => number, :value => ""}) %></td>
                    <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
