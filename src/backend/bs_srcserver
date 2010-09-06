@@ -1689,7 +1689,7 @@ sub findfile {
   my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
 
   # map services files to their real name
-  for (grep {s/^_service://} sort keys %files) {
+  for (grep {s/^_service:.*://} sort keys %files) {
     next unless $files{"_service:$_"};
     $files{$_} = $files{"_service:$_"};
     delete $files{"_service:$_"};
