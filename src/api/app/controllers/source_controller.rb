@@ -206,7 +206,7 @@ class SourceController < ApplicationController
             pass_to_backend
             return
         end
-        if request.post? and cmd == "showlinked"
+        if request.post? and [ "showlinked", "branch" ].include?(cmd)
             dispatch_command
             return
         end
@@ -294,7 +294,7 @@ class SourceController < ApplicationController
         return
       end
 
-      if pkg.nil? and not cmd == "showlinked"
+      if pkg.nil? and not [ "showlinked", "branch" ].include?(cmd)
         unless @http_user.can_modify_project?(prj)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{cmd}' for not existing package"
@@ -1890,27 +1890,33 @@ class SourceController < ApplicationController
     logger.debug "branch call of #{prj_name} #{pkg_name}"
 
     prj = DbProject.find_by_name prj_name
-    if prj.nil?
+    if prj.nil? and DbProject.find_remote_project(prj_name).nil?
       render_error :status => 404, :errorcode => 'unknown_project',
         :message => "Unknown project #{prj_name}"
       return
     end
-    pkg = prj.find_package( pkg_name )
-    if pkg.nil?
-      render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{pkg_name} in project #{prj.name}"
-      return
+    if prj 
+      pkg = prj.find_package( pkg_name )
+      if pkg.nil?
+        # Check if this is a package via project link to a remote OBS instance
+        answer = Suse::Backend.get("/source/#{CGI.escape(prj.name)}/#{CGI.escape(pkg_name)}")
+        unless answer
+          render_error :status => 404, :errorcode => 'unknown_package',
+            :message => "Unknown package #{pkg_name} in project #{prj.name}"
+          return
+        end
+      end
     end
 
     # ACL(index_package_branch): acces behaves like project not existing
-    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
       :message => "Unknown package #{pkg_name} in project #{prj.name}"
       return
     end
 
     # ACL(index_package_branch): source access gives permisson denied
-    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
       :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
       return
@@ -1923,7 +1929,7 @@ class SourceController < ApplicationController
       raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
 
-    if a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
+    if prj and a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
         # We have a package in the update project already, take that
         pkg = pa
@@ -1941,7 +1947,7 @@ class SourceController < ApplicationController
     end
 
     # validate and resolve devel package or devel project definitions
-    if not params[:ignoredevel] and ( pkg.develproject or pkg.develpackage )
+    if not params[:ignoredevel] and pkg and ( pkg.develproject or pkg.develpackage )
       pkg = pkg.resolve_devel_package
       prj = pkg.db_project
       logger.debug "devel project is #{prj.name} #{pkg.name}"
@@ -1965,8 +1971,10 @@ class SourceController < ApplicationController
       end
     end
  
-    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}"
-    opkg_name = pkg.name
+    oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
+    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj
+    opkg_name = pkg_name
+    opkg_name = pkg.name if pkg
     oprj_name = target_project unless target_project.nil?
     opkg_name = target_package unless target_package.nil?
 
@@ -1980,13 +1988,16 @@ class SourceController < ApplicationController
       end
 
       DbProject.transaction do
-        oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj.title}", :description => prj.description
+        oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj_name}"
         oprj.add_user @http_user, "maintainer"
         oprj.flags.create( :status => "disable", :flag => 'publish')
-        prj.repositories.each do |repo|
-          orepo = oprj.repositories.create :name => repo.name
-          orepo.architectures = repo.architectures
-          orepo.path_elements << PathElement.new(:link => repo, :position => 1)
+        if prj
+          # FIXME: support this also for remote projects
+          prj.repositories.each do |repo|
+            orepo = oprj.repositories.create :name => repo.name
+            orepo.architectures = repo.architectures
+            orepo.path_elements << PathElement.new(:link => repo, :position => 1)
+          end
         end
         oprj.store
       end
@@ -2014,7 +2025,11 @@ class SourceController < ApplicationController
         return
       end
 
-      opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
+      if pkg
+        opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
+      else
+        opkg = oprj.db_packages.create(:name => opkg_name, :description => params.has_key?(:comment) ? params[:comment] : "" )
+      end
       opkg.add_user @http_user, "maintainer"
       opkg.store
     end
@@ -2025,9 +2040,13 @@ class SourceController < ApplicationController
       rev = "&orev=#{pkg_rev}"
     end
     comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
-    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
-
-    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
+    if pkg
+      Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+      render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
+    else
+      Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+      render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
+    end
   end
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
