@@ -4852,8 +4852,8 @@ sub search_request {
 sub addacceptinfo {
   my ($id, $projid, $packid, $acceptinfo) = @_;
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
+  return unless $oreq && $oreq->{'id'} eq $id;
   my $req = Storable::dclone($oreq);	# deep clone
-  return unless $req && $req->{'id'} eq $id;
   my $changed;
   for my $r (@{$req->{'action'} || []}) {
     next unless $r->{'type'} eq 'submit';
