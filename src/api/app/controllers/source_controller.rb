@@ -458,7 +458,12 @@ class SourceController < ApplicationController
       @attribute_container.store
       render_ok
     elsif request.delete?
-      @attribute_container.find_attribute(name_parts[0], name_parts[1],binary).destroy
+      ac = @attribute_container.find_attribute(name_parts[0], name_parts[1],binary)
+      unless ac
+          render_error :status => 404, :errorcode => "not_found",
+            :message => "Attribute #{aname} does not exist" and return
+      end
+      ac.destroy
       @attribute_container.store
       render_ok
     else
