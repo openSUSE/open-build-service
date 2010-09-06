@@ -462,7 +462,11 @@ while (1) {
 	$info->{'readytime'} = $s[9];
       }
       if ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
-	push @srcchange, $job;
+	# only count direct changes as source change, not changes because of
+	# a change in a linked package
+	if (!$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
+	  push @srcchange, $job;
+	}
       }
     }
     @b = List::Util::shuffle(@b);

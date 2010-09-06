@@ -1930,6 +1930,7 @@ sub getprojpack {
 	}
 	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
 	$pinfo->{'rev'} = $rev->{'rev'};
+	$pinfo->{'revtime'} = $rev->{'time'};
 	my $files;
 	eval {
           $files = lsrev($rev);

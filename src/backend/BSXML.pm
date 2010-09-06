@@ -251,6 +251,7 @@ our $projpack = [
 		'versrel',
 		'verifymd5',	# tree id
 		'originproject',
+		'revtime',
 		[ $linked ],
 		'error',
 		[ $packinfo ],
@@ -374,6 +375,7 @@ our $buildinfo = [
 	'rev',
 	'reason',       # just for the explain string of a build reason
 	'needed',       # number of blocked
+	'revtime',	# time of last commit
 	'readytime',
 	'specfile',	# obsolete
 	'file',
