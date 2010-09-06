@@ -223,7 +223,7 @@ class Package < ActiveXML::Base
   end
 
   def files( rev = nil, expand = false )
-    # files whose name ends in the following extensions should not be editable
+    # files whose name ends in the following extensions should not be editable and viewable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
     p = {}
@@ -242,6 +242,7 @@ class Package < ActiveXML::Base
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = Pathname.new(file[:name]).extname
       file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and not file[:name].match(/^_service[_:]/) and file[:size].to_i < 2**20)  # max. 1 MB
+      file[:viewable] = ((not no_edit_ext.include?( file[:ext].downcase )) and file[:size].to_i < 2**20)  # max. 1 MB
       file[:srcmd5] = dir.srcmd5
       files << file
     end

@@ -21,7 +21,7 @@
       <tbody>
         <% @files.each do |file| %>
           <tr><td>
-              <% if file[:editable] %>
+              <% if file[:viewable] %>
                 <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :srcmd5 => file[:srcmd5], :expand => params[:expand] ) %>
               <% else %>
                 <%= h file[:name] %>
