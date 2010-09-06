@@ -372,6 +372,7 @@ class RequestController < ApplicationController
     req.each_action do |action|
       if action.data.attributes["type"] == "submit" and action.target.project and action.target.package
         transport = ActiveXML::Config::transport_for(:request)
+        path = nil
         if action.has_element? :acceptinfo
           # OBS 2.1 adds acceptinfo on request accept
           path = "/source/%s/%s?cmd=diff" %
@@ -390,16 +391,20 @@ class RequestController < ApplicationController
             path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
           end
         else
-          # for requests accepted with OBS 2.0 and before, this can not work in all cases
-          path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
-               [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
-          if action.source.data['rev']
-            path += "&rev=#{action.source.rev}"
+          # for requests not yet accepted or accepted with OBS 2.0 and before
+          if DbPackage.find_by_project_and_name( action.target.project, action.target.package )
+            path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
+                   [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
+            if action.source.data['rev']
+              path += "&rev=#{action.source.rev}"
+            end
+          else
+            diff_text = "New package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
           end
         end
 
         begin
-          diff_text += Suse::Backend.post(path, nil).body
+          diff_text += Suse::Backend.post(path, nil).body if path
         rescue ActiveXML::Transport::Error => e
           render_error :status => 404, :errorcode => 'diff_failure',
                        :message => "The diff call for #{path} failed"
