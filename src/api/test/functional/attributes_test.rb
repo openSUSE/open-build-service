@@ -226,6 +226,9 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
+    delete "/source/home:tom/_attribute/OBS:Maintained"
+    assert_response 404
+
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)

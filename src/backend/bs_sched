@@ -3214,6 +3214,7 @@ if (@lookat_low) {
 
 my $slept = 0;
 my $notlow = 0;
+my $notmed = 0;
 my $schedulerstart = time();
 my $gotevent = 1;
 
@@ -3756,7 +3757,7 @@ while(1) {
     @lookat_med = grep {$_ ne $prp} @lookat_med;
     $notlow = 0;
   }
-  if (!defined($prp) && @lookat_high) {
+  if (!defined($prp) && @lookat_high && (!@lookat_med || $notmed < 3)) {
     $prp = shift @lookat_high;
     if ($nextmed{$prp}) {
       my $now = time();
@@ -3772,8 +3773,10 @@ while(1) {
     }
     print "$msgtm looking at high prio $prp" if defined $prp;
     $notlow++ if defined $prp;
+    $notmed++ if defined $prp;
   }
   if (!defined($prp) && @lookat_med) {
+    $notmed = 0;
     $prp = shift @lookat_med;
     if ($nextmed{$prp}) {
       my $now = time();
