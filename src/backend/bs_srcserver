@@ -1689,10 +1689,12 @@ sub findfile {
   my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
 
   # map services files to their real name
-  for (grep {s/^_service:.*://} sort keys %files) {
-    next unless $files{"_service:$_"};
-    $files{$_} = $files{"_service:$_"};
-    delete $files{"_service:$_"};
+  for (grep {s/^_service://} sort keys %files) {
+    if ($_ =~ /^(.*):(.*)/) {
+      next unless $files{"_service:$1:$2"};
+      $files{$2} = $files{"_service:$1:$2"};
+      delete $files{"_service:$1:$2"};
+    }
   }
 
   my $packid = $rev->{'package'};
