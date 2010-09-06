@@ -596,7 +596,7 @@ class SourceController < ApplicationController
         end
       end
 
-      # the following code checks if the target project of a linked project exists or is ACL protected
+      # ACL(project_meta): the following code checks if the target project of a linked project exists or is ACL protected
       rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
         tproject_name = e.attributes["project"]
@@ -620,7 +620,54 @@ class SourceController < ApplicationController
           :message => "No permission for link target project #{tproject_name}"
           return
         end
+
+        # ACL(project_meta): check that user does not link an unprotected project to a protected project
+        if @project
+          if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('sourceaccess', nil, nil)) and
+              (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('souceaccess', nil, nil)))
+            render_error :status => 403, :errorcode => "source_access_no_permission" ,
+            :message => "linking with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+            return
+          end
+        end
+
         logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
+      end
+
+      rdata.elements.each("project/repository/path") do |e|
+        tproject_name = e.attributes["project"]
+        tprj = DbProject.find_by_name(tproject_name)
+        if tprj.nil?
+          render_error :status => 404, :errorcode => 'not_found',
+          :message => "The link target project #{tproject_name} does not exist"
+          return
+        end
+
+        # ACL(project_meta): project link to project with access behaves like target project not existing
+        if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+          render_error :status => 404, :errorcode => 'not_found',
+          :message => "The project #{tproject_name} does not exist"
+          return
+        end
+
+        # ACL(project_meta): project link to project with binarydownload gives permisson denied
+        if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+          render_error :status => 403, :errorcode => "binary_download_no_permission",
+          :message => "No permission for a repository path to project #{tproject_name}"
+          return
+        end
+
+        # ACL(project_meta): check that user does not link an unprotected project to a protected project
+        if @project
+          if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
+              (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('binarydownload', nil, nil)))
+            render_error :status => 403, :errorcode => "source_access_no_permission" ,
+            :message => "repository path from an unprotected project  #{project_name} to a protected project #{tproject_name}"
+            return
+          end
+        end
+
+        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
 
       p = Project.new(request_data, :name => project_name)
@@ -848,9 +895,9 @@ class SourceController < ApplicationController
     return unless extract_user
     params[:user] = @http_user.login
 
+    prj = DbProject.find_by_name(project_name)
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
     if package_name == "_project"
-      prj = DbProject.find_by_name(project_name)
       if prj.nil?
         render_error :status => 403, :errorcode => 'not_found',
           :message => "The given project #{project_name} does not exist"
@@ -909,6 +956,7 @@ class SourceController < ApplicationController
            validator.validate(request)
         end
 
+        # ACL(file): the following code checks if link or aggregate opens a protection hole
         if params[:file] == "_link"
           data = REXML::Document.new(request.raw_post.to_s)
           data.elements.each("link") do |e|
@@ -948,7 +996,18 @@ class SourceController < ApplicationController
                 :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
                 return
               end
+
+              # ACL(file): check that user does not link an unprotected package to a protected package
+              if pack and tpkg
+                if ((tpkg.disabled_for?('access', nil, nil) or tpkg.disabled_for?('sourceaccess', nil, nil)) and
+                    (pack.enabled_for?('access', nil, nil) or pack.enabled_for?('souceaccess', nil, nil)))
+                  render_error :status => 403, :errorcode => "source_access_no_permission" ,
+                  :message => "linking an unprotected package #{package_name}/#{project_name} to a protected package #{tpackage_name}/#{tproject_name}"
+                  return
+                end
+              end
             end
+
             logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
           end
         elsif params[:file] == "_aggregate"
@@ -975,6 +1034,17 @@ class SourceController < ApplicationController
               :message => "No permission to _aggregate binaries from project #{params[:project]}"
               return
             end
+
+            # ACL(file): check that user does not aggregate an unprotected project to a protected project
+            if tprj and prj
+              if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
+                  (prj.enabled_for?('access', nil, nil) or prj.enabled_for?('binarydownload', nil, nil)))
+                render_error :status => 403, :errorcode => "download_binary_no_permission" ,
+                :message => "aggregate with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+                return
+              end
+            end
+
             logger.debug "_aggregate checked against #{tproject_name} project permission"
           end
         end
