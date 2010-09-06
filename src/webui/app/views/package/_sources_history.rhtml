@@ -21,9 +21,9 @@
           <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
         </div>
         <%= link_to_remote "Show", :update => :files_view,
-        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package, :rev => (@browserrevision - i + 1) },
         :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'rev=#{(@browserrevision - i + 1).to_s}&expand=' + $('#mergesettings')[0].checked" %>
+        :with => ( @link ? "&expand=' + $('#mergesettings')[0].checked" : "" ) %>
 
       </td></tr>
     <% end %>

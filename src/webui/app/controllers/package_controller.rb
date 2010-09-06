@@ -151,6 +151,7 @@ class PackageController < ApplicationController
 
   def source_history
     @browserrevision = params[:rev]
+    @link = find_cached(Link, :project => @project, :package => @package, :rev => @browserrevision )
   end
 
   def add_service
@@ -587,10 +588,6 @@ class PackageController < ApplicationController
     required_parameters :id
     id = params[:id].gsub( %r{^service_}, '' )
     @services = find_cached(Service,  :project => @project, :package => @package )
-    unless @services
-      flash[:warn] = "Service removal failed because no _service file found "
-      redirect_to :action => :files, :project => @project, :package => @package and return
-    end
     @services.removeService( id )
     @services.save
     Service.free_cache :project => @project, :package => @package

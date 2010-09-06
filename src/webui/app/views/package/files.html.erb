@@ -123,10 +123,13 @@
     <% unless @files.empty? %>
       <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
 
+      <% mergejs = "" %>
       <% if @expand %>
         <%= check_box_tag 'mergesettings', 'merge', true -%>
+        <% mergejs = "'&expand=' + $('#mergesettings')[0].checked" %>
       <% elsif @link %>
         <%= check_box_tag 'mergesettings', 'merge', false -%>
+        <% mergejs = "'&expand=' + $('#mergesettings')[0].checked" %>
       <% end %>
       <% if @link %>
         Show merged sources derived from linked package.
@@ -135,16 +138,15 @@
       <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
         :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
         :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
-
+        :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
       <%= observe_field( :revision, :frequency => 1, :update => :files_view,
         :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
         :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+        :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
       <%= observe_field( :srcmd5, :frequency => 1, :update => :files_view,
         :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
         :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'srcmd5=' + escape($('#srcmd5').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
+        :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
     <% end %>
   
     <% if @package.can_edit?( session[:login] ) %>
