@@ -84,8 +84,12 @@ class RequestController < ApplicationController
       @target_pkg_name = action.target.value :package
       @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project) if @target_pkg_name
       if @is_maintainer == nil or @is_maintainer == true
-        @is_maintainer = (@target_project && @target_project.can_edit?( session[:login] )) ||
-          (@target_pkg && @target_pkg.can_edit?( session[:login] ))
+        @is_maintainer = @target_project && @target_project.can_edit?( session[:login] )
+        if @target_pkg
+          @is_maintainer = @is_maintainer || @target_pkg.can_edit?( session[:login] )
+        else
+          @newpackage << { :project => action.target.project, :package => @target_pkg_name }
+        end
       end
     end
 
