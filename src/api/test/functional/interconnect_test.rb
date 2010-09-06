@@ -77,7 +77,7 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
   end
 
-  def test_basic_read_tests
+  def test_read_and_command_tests
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success
@@ -96,6 +96,8 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/source/RemoteInstance:BaseDistro/pack1/my_file"
     assert_response :success
     post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "showlinked"
+    assert_response :success
+    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "branch"
     assert_response :success
     # test binary operations
     prepare_request_with_user "king", "sunflower"
@@ -141,6 +143,8 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/UseRemoteInstance/pack1", :cmd => "showlinked"
     assert_response :success
+    post "/source/UseRemoteInstance/pack1", :cmd => "branch"
+    assert_response :success
     get "/source/UseRemoteInstance/NotExisting"
     assert_response 404
     get "/source/UseRemoteInstance/NotExisting/_meta"
@@ -177,6 +181,8 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_equal ret.project, "RemoteInstance:BaseDistro"
     assert_equal ret.package, "pack1"
     get "/source/LocalProject/remotepackage/my_file?rev=#{xsrcmd5}"
+    assert_response :success
+    post "/source/LocalProject/remotepackage", :cmd => "branch"
     assert_response :success
     get "/source/LocalProject/remotepackage/_link?rev=#{xsrcmd5}"
     assert_response 404
