@@ -601,84 +601,84 @@ class SourceController < ApplicationController
         end
       end
 
-      if false
-      # FIXME: this breaks linking to remote projects. Disabled for now since it is a regression, but needs to be fixed for 2.1
-      # ACL(project_meta): the following code checks if the target project of a linked project exists or is ACL protected
+      # ACL(project_meta): the following code checks if the target project of a linked project exists or is ACL protected, skip remote projects
       rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
         tproject_name = e.attributes["project"]
         tprj = DbProject.find_by_name(tproject_name)
+
         if tprj.nil?
-          render_error :status => 404, :errorcode => 'not_found',
-          :message => "The link target project #{tproject_name} does not exist"
-          return
-        end
-
-        # ACL(project_meta): project link to project with access behaves like target project not existing
-        if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
-          render_error :status => 404, :errorcode => 'not_found',
-          :message => "The link target project #{tproject_name} does not exist"
-          return
-        end
-
-        # ACL(project_meta): project link to project with sourceaccess gives permisson denied
-        if tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
-          render_error :status => 403, :errorcode => "source_access_no_permission",
-          :message => "No permission for link target project #{tproject_name}"
-          return
-        end
-
-        # ACL(project_meta): check that user does not link an unprotected project to a protected project
-        if @project
-          if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('sourceaccess', nil, nil)) and
-              (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('souceaccess', nil, nil)))
-            render_error :status => 403, :errorcode => "source_access_no_permission" ,
-            :message => "linking with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+          if not DbProject.find_remote_project(tproject_name)
+            render_error :status => 404, :errorcode => 'not_found',
+            :message => "The link target project #{tproject_name} does not exist"
             return
+          end
+        else
+          # ACL(project_meta): project link to project with access behaves like target project not existing
+          if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+            render_error :status => 404, :errorcode => 'not_found',
+            :message => "The link target project #{tproject_name} does not exist"
+            return
+          end
+
+          # ACL(project_meta): project link to project with sourceaccess gives permisson denied
+          if tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
+            render_error :status => 403, :errorcode => "source_access_no_permission",
+            :message => "No permission for link target project #{tproject_name}"
+            return
+          end
+
+          # ACL(project_meta): check that user does not link an unprotected project to a protected project
+          if @project
+            if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('sourceaccess', nil, nil)) and
+                (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('souceaccess', nil, nil)))
+              render_error :status => 403, :errorcode => "source_access_no_permission" ,
+              :message => "linking with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+              return
+            end
           end
         end
 
         logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
       end
-      end
 
-      if false
-      # FIXME: this breaks linking to remote repositories. Disabled for now since binary protection is not the goal of OBS 2.1
+      # ACL(project_meta): the following code checks if a repository path is to protected project, skip remote projects
       rdata.elements.each("project/repository/path") do |e|
         tproject_name = e.attributes["project"]
         tprj = DbProject.find_by_name(tproject_name)
         if tprj.nil?
-          render_error :status => 404, :errorcode => 'not_found',
-          :message => "The link target project #{tproject_name} does not exist"
-          return
-        end
-
-        # ACL(project_meta): project link to project with access behaves like target project not existing
-        if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
-          render_error :status => 404, :errorcode => 'not_found',
-          :message => "The project #{tproject_name} does not exist"
-          return
-        end
-
-        # ACL(project_meta): project link to project with binarydownload gives permisson denied
-        if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
-          render_error :status => 403, :errorcode => "binary_download_no_permission",
-          :message => "No permission for a repository path to project #{tproject_name}"
-          return
-        end
-
-        # ACL(project_meta): check that user does not link an unprotected project to a protected project
-        if @project
-          if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
-              (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('binarydownload', nil, nil)))
-            render_error :status => 403, :errorcode => "source_access_no_permission" ,
-            :message => "repository path from an unprotected project  #{project_name} to a protected project #{tproject_name}"
+          if not DbProject.find_remote_project(tproject_name)
+            render_error :status => 404, :errorcode => 'not_found',
+            :message => "The link target project #{tproject_name} does not exist"
             return
+          end
+        else
+          # ACL(project_meta): project link to project with access behaves like target project not existing
+          if tprj and tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+            render_error :status => 404, :errorcode => 'not_found',
+            :message => "The project #{tproject_name} does not exist"
+            return
+          end
+
+          # ACL(project_meta): project link to project with binarydownload gives permisson denied
+          if tprj and tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+            render_error :status => 403, :errorcode => "binary_download_no_permission",
+            :message => "No permission for a repository path to project #{tproject_name}"
+            return
+          end
+
+          # ACL(project_meta): check that user does not link an unprotected project to a protected project
+          if @project
+            if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
+                (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('binarydownload', nil, nil)))
+              render_error :status => 403, :errorcode => "source_access_no_permission" ,
+              :message => "repository path from an unprotected project  #{project_name} to a protected project #{tproject_name}"
+              return
+            end
           end
         end
 
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
-      end
       end
 
       p = Project.new(request_data, :name => project_name)
