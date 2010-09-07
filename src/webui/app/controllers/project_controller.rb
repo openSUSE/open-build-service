@@ -499,36 +499,37 @@ class ProjectController < ApplicationController
   def save_targets
     valid_http_methods :post
 
-    required_parameters :repo
-
     # extend an existing repository with a path
-    unless (params['torepository'].blank?)
+    if (params['torepository'])
       repo_path = "#{params['target_project']}/#{params['target_repo']}"
       @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
       @project.save
       redirect_to :action => :repositories, :project => @project
       return
-    end
+    elsif params.has_key? :repo
+      # add new repositories
+      params['repo'].each do |repo|
+        if !valid_target_name? repo
+          flash[:error] = "Illegal target name #{repo}."
+          redirect_to :action => :add_repository_from_default_list, :project => @project and return
+        end
+        repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
+        repo_archs = params[repo + '_arch'] || params['arch']
+        logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
+        @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
 
-    # add new repositories
-    params['repo'].each do |repo|
-      if !valid_target_name? repo
-        flash[:error] = "Illegal target name #{repo}."
-        redirect_to :action => :add_repository_from_default_list, :project => @project and return
-      end
-      repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
-      repo_archs = params[repo + '_arch'] || params['arch']
-      logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
-      @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
-
-      # FIXME: will be cleaned up after implementing FATE #308899
-      if repo == "images"
-        prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
-        unless prjconf =~ /^Type:/
-          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-          frontend.put_file(prjconf, :project => @project, :filename => '_config')
+        # FIXME: will be cleaned up after implementing FATE #308899
+        if repo == "images"
+          prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
+          unless prjconf =~ /^Type:/
+            prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+            frontend.put_file(prjconf, :project => @project, :filename => '_config')
+          end
         end
       end
+    else
+      render :text => 'Missing argument, either torepository or repo', :status => 400
+      return
     end
 
     begin
