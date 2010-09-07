@@ -516,9 +516,14 @@ sub set_building {
   my $syspath;
   if ($packtype eq 'kiwi') {
     if ($prpsearchpath) {
-      $syspath = [ @$prpsearchpath ];
-      for (@$syspath) {
-	$_->{'server'} = $remoteprojs{$_->{'project'}} ? $BSConfig::srcserver : $BSConfig::reposerver;
+      $syspath = [];
+      for (@$prpsearchpath) {
+	my @pr = split('/', $_, 2);
+	if ($remoteprojs{$pr[0]}) {
+	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+	} else {
+	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+	}
       }
     }
     $prpsearchpath = [ map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []} ];
