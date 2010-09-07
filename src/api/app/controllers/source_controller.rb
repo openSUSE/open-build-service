@@ -601,6 +601,8 @@ class SourceController < ApplicationController
         end
       end
 
+      if false
+      # FIXME: this breaks linking to remote projects. Disabled for now since it is a regression, but needs to be fixed for 2.1
       # ACL(project_meta): the following code checks if the target project of a linked project exists or is ACL protected
       rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
@@ -638,7 +640,10 @@ class SourceController < ApplicationController
 
         logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
       end
+      end
 
+      if false
+      # FIXME: this breaks linking to remote repositories. Disabled for now since binary protection is not the goal of OBS 2.1
       rdata.elements.each("project/repository/path") do |e|
         tproject_name = e.attributes["project"]
         tprj = DbProject.find_by_name(tproject_name)
@@ -673,6 +678,7 @@ class SourceController < ApplicationController
         end
 
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
+      end
       end
 
       p = Project.new(request_data, :name => project_name)
