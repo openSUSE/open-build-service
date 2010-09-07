@@ -26,6 +26,20 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /entry name="HiddenProject"/, @response.body
   end
 
+  def test_get_projectlist_with_sourceaccess_protected_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source"
+    assert_response :success 
+    assert_match /entry name="SourceprotectedProject"/, @response.body
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source"
+    assert_response :success 
+    assert_match /entry name="SourceprotectedProject"/, @response.body
+  end
+
+
   def test_get_projectlist_with_viewprotected_project
     # visible, but no sources
     prepare_request_with_user "tom", "thunder"
@@ -106,6 +120,25 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /entry name="pack1"/, @response.body
   end
 
+  def test_get_packagelist_with_sourceprotected_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject"
+    assert_response :success 
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 1, :only => { :tag => "entry" } }
+    assert_match /entry name="pack"/, @response.body
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/SourceprotectedProject"
+    assert_response :success 
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 1, :only => { :tag => "entry" } }
+    assert_match /entry name="pack"/, @response.body
+  end
+
   # non-existing project should return 404
   def test_get_illegal_project
     prepare_request_with_user "tom", "thunder"
@@ -153,6 +186,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/ViewprotectedProject/_meta"
     assert_response :success
     assert_tag :tag => "project", :attributes => { :name => "ViewprotectedProject" }
+  end
+
+  def test_get_project_meta_from_sourceaccess_protected_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/_meta"
+    assert_response :success
+    assert_tag :tag => "project", :attributes => { :name => "SourceprotectedProject" }
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/source/SourceprotectedProject/_meta"
+    assert_response :success
+    assert_tag :tag => "project", :attributes => { :name => "SourceprotectedProject" }
   end
 
   def test_get_package_filelist
@@ -203,6 +249,24 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_file" } } }
   end
 
+  def test_get_package_filelist_from_sourceaccess_protected_project
+    prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/pack"
+    assert_response :success
+    # filelist visible, but files itself not
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 2 }
+    #retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/source/SourceprotectedProject/pack"
+    assert_response :success
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 2 }
+  end
+
   def test_get_package_meta
     prepare_request_with_user "tom", "thunder"
     get "/source/kde4/kdelibs/_meta"
@@ -235,6 +299,20 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/ViewprotectedProject/pack/_meta"
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "ViewprotectedProject"}
+  end
+
+  def test_get_package_meta_from_sourceacces_protected_project
+    # package meta is visible
+    prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/pack/_meta"
+    assert_response :success
+    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "SourceprotectedProject"}
+    # retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/source/SourceprotectedProject/pack/_meta"
+    assert_response :success
+    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "SourceprotectedProject"}
   end
 
   # project_meta does not require auth
@@ -355,7 +433,27 @@ class SourceControllerTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "view_homer", "homer"
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
-    
+  end
+
+  def test_put_project_meta_sourceaccess_protected_project
+    prj="SourceprotectedProject"
+    # uninvolved user - can't change meta
+    resp1=:success
+    resp2=403
+    aresp={:tag => "status", :attributes => { :code => "change_project_no_permission" } }
+    match=nil
+    prepare_request_with_user "tom", "thunder"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # admin
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok" } }
+    match=true
+    prepare_request_with_user "king", "sunflower"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
 
   def do_change_project_meta_test (project, response1, response2, tag2, doesmatch)
@@ -598,6 +696,28 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
   end
 
+  def test_put_package_meta_sourceaccess_protected_package
+    prj="SourceprotectedProject"
+    pkg="pack"
+    resp1=:success
+    resp2=403
+    aresp={:tag => "status", :attributes => { :code => "change_package_no_permission" } }
+    match=nil
+    # uninvolved user
+    prepare_request_with_user "fred", "geröllheimer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # admin
+    resp1=:success
+    resp2=:success
+    aresp={:tag => "status", :attributes => { :code => "ok"} }
+    match=true
+    prepare_request_with_user "king", "sunflower"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+  end
+
   def test_create_package_meta
     # user without any special roles
     prepare_request_with_user "fred", "geröllheimer"
@@ -701,6 +821,28 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
   end
 
+  def test_change_package_meta_sourceaccess_protect
+    prj="SourceprotectedProject"
+    pkg="pack"
+    # uninvolved user
+    resp1=:success
+    resp2=403
+    atag2={ :tag => "status", :attributes => { :code => "change_package_no_permission"} }
+    resp3=:success
+    asel3=nil
+    prepare_request_with_user "fred", "geröllheimer"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
+
+    # maintainer
+    resp1=:success
+    resp2=:success
+    atag2={ :tag => "status", :attributes => { :code => "ok"} }
+    resp3=:success
+    asel3="package > build > enable"
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
+  end
+
   def test_put_invalid_package_meta
     prepare_request_with_user "fredlibs", "geröllheimer"
    # Get meta file  
@@ -777,6 +919,31 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal( @response.body.to_s, "Protected Content")
   end
 
+  def test_read_file_sourceaccess_proj
+    # nobody 
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    get "/source/SourceprotectedProject/pack/my_file"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
+    # uninvolved, 
+    prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/pack/my_file"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
+    # reader
+    # downloader
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/source/SourceprotectedProject/pack/my_file"
+    assert_response :success
+    assert_equal( @response.body.to_s, "Protected Content")
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    get "/source/SourceprotectedProject/pack/my_file"
+    assert_response :success
+    assert_equal( @response.body.to_s, "Protected Content")
+  end
+
   def add_file_to_package (url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
@@ -797,7 +964,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response assertresp4
     # file gone
     get url2
-    assert_response 404
+    assert_response 404 if asserteq3
   end
   private :add_file_to_package
 
@@ -1043,10 +1210,41 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Ok/, @response.body
+    #assert_match /Ok/, @response.body
     # reverse
     prepare_request_with_user "king", "sunflower"
     post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
+    assert_response :success
+    assert_match /argl/, @response.body
+  end
+
+  def test_diff_package_sourceaccess_protected_project
+    prepare_request_with_user "tom", "thunder"
+    post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response 403
+    assert_tag :tag => 'status', :attributes => { :code => "source_access_no_permission"}
+    #reverse
+    # FIXME: unclear implementation - leak
+    post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
+    assert_response 403
+    assert_tag :tag => 'status', :attributes => { :code => "source_access_no_permission"}
+
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_match /Protected Content/, @response.body
+    # reverse
+    post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
+    assert_response :success
+    assert_match /argl/, @response.body
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    assert_response :success
+    assert_match /Protected Content/, @response.body
+    # reverse
+    prepare_request_with_user "king", "sunflower"
+    post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
     assert_response :success
     assert_match /argl/, @response.body
   end
