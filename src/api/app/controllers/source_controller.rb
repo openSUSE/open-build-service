@@ -973,6 +973,8 @@ class SourceController < ApplicationController
           data.elements.each("link") do |e|
             tproject_name = e.attributes["project"]
             tpackage_name = e.attributes["package"]
+            tproject_name = project_name if tproject_name.blank?
+            tpackage_name = package_name if tpackage_name.blank?
             tprj = DbProject.find_by_name(tproject_name)
             if tprj.nil?
               # link to remote project ?
