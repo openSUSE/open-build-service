@@ -73,6 +73,11 @@ hiddenproject_maintainer_homer:
   bs_user_id: 46
   role_id: 3
 
+sourceaccess_project_maintainer_homer:
+  db_project_id: 3001
+  bs_user_id: 49
+  role_id: 3
+
 binaryprotected_maintainer_homer:
   db_project_id: 3002
   bs_user_id: 47

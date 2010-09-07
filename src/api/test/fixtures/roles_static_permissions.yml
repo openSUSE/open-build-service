@@ -76,6 +76,10 @@ maintainer_private:
   role_id:              3
   static_permission_id: 13
 
+admin_private:
+  role_id:              1
+  static_permission_id: 13
+
 maintainer_access:
   role_id:              3
   static_permission_id: 14
@@ -83,6 +87,10 @@ maintainer_access:
 admin_access:
   role_id:              1
   static_permission_id: 14
+
+admin_sourceaccess:
+  role_id:              1
+  static_permission_id: 12
 
 downloader:
   role_id:              5
