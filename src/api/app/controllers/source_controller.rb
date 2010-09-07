@@ -1027,32 +1027,34 @@ class SourceController < ApplicationController
             tproject_name = e.attributes["project"]
             tprj = DbProject.find_by_name(tproject_name)
             if tprj.nil?
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given #{tproject_name} does not exist"
-              return
-            end
-            
-            # ACL(file): _aggregate access behaves like project not existing
-            if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
-              return
-            end
-
-            # ACL(file): _aggregate binarydownload denies access to repositories
-            if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
-              render_error :status => 403, :errorcode => "download_binary_no_permission",
-              :message => "No permission to _aggregate binaries from project #{params[:project]}"
-              return
-            end
-
-            # ACL(file): check that user does not aggregate an unprotected project to a protected project
-            if tprj and prj
-              if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
-                  (prj.enabled_for?('access', nil, nil) or prj.enabled_for?('binarydownload', nil, nil)))
-                render_error :status => 403, :errorcode => "download_binary_no_permission" ,
-                :message => "aggregate with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+              if not DbProject.find_remote_project(tproject_name)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given #{tproject_name} does not exist"
                 return
+              end
+            else
+              # ACL(file): _aggregate access behaves like project not existing
+              if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+                return
+              end
+
+              # ACL(file): _aggregate binarydownload denies access to repositories
+              if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+                render_error :status => 403, :errorcode => "download_binary_no_permission",
+                :message => "No permission to _aggregate binaries from project #{params[:project]}"
+                return
+              end
+
+              # ACL(file): check that user does not aggregate an unprotected project to a protected project
+              if prj
+                if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
+                    (prj.enabled_for?('access', nil, nil) or prj.enabled_for?('binarydownload', nil, nil)))
+                  render_error :status => 403, :errorcode => "download_binary_no_permission" ,
+                  :message => "aggregate with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+                  return
+                end
               end
             end
 
