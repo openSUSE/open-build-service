@@ -49,6 +49,25 @@ class SourceControllerTest < ActionController::IntegrationTest
       :children => { :count => 2, :only => { :tag => "entry" } }
   end
 
+  def test_resubmit_fixtures
+    # this just reads and writes again the data from the fixtures
+    prepare_request_with_user "king", "sunflower"
+
+    # projects
+    get "/source"
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    node.each_entry do |e|
+      get "/source/#{e.name}/_meta"
+      assert_response :success
+      r = @response.body
+      # FIXME: add some more validation checks here
+      put "/source/#{e.name}/_meta", r
+      assert_response :success
+    end
+    
+  end
+
   def test_get_packagelist_with_hidden_project
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject"
