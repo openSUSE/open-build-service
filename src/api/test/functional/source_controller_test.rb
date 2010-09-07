@@ -1283,6 +1283,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     put url, '<link project="HiddenProject" package="pack1" />'
     assert_response 403
 
+    # check this works with remote projects also
+    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4")
+    assert_response 404
+    xml = @response.body
+    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4"), 
+        '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    url = "/source/HiddenProject/temporary4/_link"
+
+    # working local link from hidden package to hidden package
+    put url, '<link project="LocalProject" package="remotepackage" />'
+    assert_response :success
+
     # user without any special roles
     prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3")
