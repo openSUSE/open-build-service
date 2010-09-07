@@ -64,6 +64,27 @@ class SourceControllerTest < ActionController::IntegrationTest
       # FIXME: add some more validation checks here
       put "/source/#{e.name}/_meta", r
       assert_response :success
+      get "/source/#{e.name}/_meta"
+      assert_response :success
+      assert_not_nil r
+      assert_equal r, @response.body
+
+      # packages
+      get "/source/#{e.name}"
+      assert_response :success
+      packages = ActiveXML::XMLNode.new(@response.body)
+      packages.each_entry do |p|
+        get "/source/#{e.name}/#{p.name}/_meta"
+        assert_response :success
+        r = @response.body
+        # FIXME: add some more validation checks here
+        put "/source/#{e.name}/#{p.name}/_meta", r
+        assert_response :success
+        get "/source/#{e.name}/#{p.name}/_meta"
+        assert_response :success
+        assert_not_nil r
+        assert_equal r, @response.body
+      end
     end
     
   end
