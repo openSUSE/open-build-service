@@ -363,6 +363,9 @@ sub getconfig {
 ## Job management functions
 ##
 
+# scheduled jobs (does not need to be exact)
+my %ourjobs = map {$_ => 1} grep {!/(?::dir|:status)$/} ls($myjobsdir);
+
 #
 # killjob - kill a single build job
 #
@@ -380,6 +383,7 @@ sub killjob {
       unlink("$myjobsdir/$job");
       unlink("$myjobsdir/$job:status");
       close F;
+      delete $ourjobs{$job};
       return;
     }
     # lock failed, dispatcher was faster!
@@ -390,6 +394,7 @@ sub killjob {
     # can't happen actually
     print "        (job was not building)\n";
     unlink("$myjobsdir/$job");
+    delete $ourjobs{$job};
     return;
   }
   if ($js->{'code'} eq 'building') {
@@ -410,6 +415,7 @@ sub killjob {
   unlink("$myjobsdir/$job");
   unlink("$myjobsdir/$job:status");
   close(F);
+  delete $ourjobs{$job};
 }
 
 #
@@ -427,6 +433,7 @@ sub killscheduled {
     unlink("$myjobsdir/$job");
     unlink("$myjobsdir/$job:status");
     close F;
+    delete $ourjobs{$job};
   }
 }
 
@@ -654,6 +661,7 @@ sub set_building {
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
+  $ourjobs{$job} = 1;
   return $job;
 }
 
@@ -2716,6 +2724,7 @@ sub rebuildkiwiproduct {
   $reason->{'time'} = $now;
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+  $ourjobs{$job} = 1;
   return ('scheduled', $job);
 }
 
@@ -3022,6 +3031,7 @@ sub rebuildaggregate {
   } else {
     sendevent($ev, $myarch, "finished:$job");
   }
+  $ourjobs{$job} = 1;
   return ('scheduled', $job);
 }
 
@@ -3486,6 +3496,7 @@ while(1) {
 	unlink("$myjobsdir/$job");
 	unlink("$myjobsdir/$job:status");
 	close F;
+	delete $ourjobs{$job};
 	next;
       }
 
@@ -4648,9 +4659,14 @@ relsynccheck:
 
   # building jobs may have changed back to excluded, blocked or disabled, remove the jobs
   my $prpjobs = jobname($prp, '');
-  for my $job (grep {!/(?::dir|:status)$/} grep {/^\Q$prpjobs\E/} ls($myjobsdir)) {
+  for my $job (grep {/^\Q$prpjobs\E/} sort keys %ourjobs) {
     if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
       my $status = $packstatus{$1} || '';
+      next if $status eq 'scheduled';
+      if (! -e "$myjobsdir/$job") {
+	delete $ourjobs{$job};
+	next;
+      }
       if ($status eq 'disabled' || $status eq 'excluded') {
         print "        killing old job $job, now in disabled/excluded state\n";
         killjob($job);
