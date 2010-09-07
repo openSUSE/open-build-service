@@ -15,6 +15,7 @@ class PatchinfoController < ApplicationController
     valid_http_methods(:post)
     
     valid_params = true
+    flash[:error] = nil
     if binaries_selected? params[:binaries]
       valid_params = false
       flash[:error] = "|| No binaries selected"
