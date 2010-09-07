@@ -142,20 +142,21 @@ class BuildController < ApplicationController
     required_parameters :project, :repository, :arch, :package, :filename
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
-    # ACL(file): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if not pkg.nil? and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
-      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-      :status => 404, :errorcode => "unknown_package"
-      return
-    end
+    if pkg and not DbProject.find_remote_project params[:project]
+      # ACL(file): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+      if pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
+        render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+        :status => 404, :errorcode => "unknown_package"
+        return
+      end
 
-# FIXME: this breaks OBS interconnect. add a test case for this
-    # ACL(file): binarydownload denies access to build files
-#    if not pkg.nil? and pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
-#      render_error :status => 403, :errorcode => "download_binary_no_permission",
-#      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-#      return
-#    end
+      # ACL(file): binarydownload denies access to build files
+      if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
+        render_error :status => 403, :errorcode => "download_binary_no_permission",
+        :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+        return
+      end
+    end
 
     path = request.path+"?"+request.query_string
 
