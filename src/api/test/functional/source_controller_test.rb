@@ -2132,10 +2132,119 @@ class SourceControllerTest < ActionController::IntegrationTest
     end
   end
   # TODO
-  # * fetch binaries
-  # ** maintainer +
-  # ** other user +
   # * search 
   # <<< ACL#2: privacy flag. behaves like binary-only project
+
+  def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    get "/source/#{destprj}/#{destpkg}/_meta"
+    orig=@response.body
+    post "/source/#{destprj}/#{destpkg}", :cmd => "copy", :oproject => "#{srcprj}", :opackage => "#{srcpkg}"
+    print @response.body if debug
+    assert_response resp if resp
+    # ret destination package meta
+    get "/source/#{destprj}/#{destpkg}/_meta"
+    print @response.body if debug
+    # Fixme do assert_tag or assert_select if implementation is fixed
+    assert_match flag, @response.body if flag
+    delete "/source/#{destprj}/#{destpkg}"
+    print @response.body if debug
+    assert_response delresp if delresp
+    get url_for(:controller => :source, :action => :package_meta, :project => "#{destprj}", :package => "#{destpkg}")
+    put "/source/#{destprj}/#{destpkg}/_meta", orig
+  end
+  protected :do_test_copy_package
+
+  def test_copy_hidden_project
+    # invalid
+    ActionController::IntegrationTest::reset_auth 
+    srcprj="HiddenProject"
+    srcpkg="pack"
+    destprj="CopyTest"
+    destpkg="target"
+    resp=401
+    flag=nil
+    delresp=401
+    debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # some user
+    prepare_request_with_user "tom", "thunder"
+    resp=200 # wrong ! FIXME
+    resp=404 if $ENABLE_BROKEN_TEST
+    delresp=200 # wrong ! FIXME
+    delresp=404 if $ENABLE_BROKEN_TEST
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    resp=:success
+    # flag not inherited
+    flag=/access/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "king", "sunflower"
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+  end
+
+  def test_copy_viewprotected_project
+    # invalid
+    ActionController::IntegrationTest::reset_auth 
+    srcprj="ViewprotectedProject"
+    srcpkg="pack"
+    destprj="CopyTest"
+    destpkg="target"
+    resp=401
+    flag=nil
+    delresp=401
+    debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # some user
+    prepare_request_with_user "tom", "thunder"
+    resp=200 # wrong ! FIXME
+    resp=404 if $ENABLE_BROKEN_TEST
+    delresp=200 # wrong ! FIXME
+    delresp=404 if $ENABLE_BROKEN_TEST
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    resp=:success
+    # flag not inherited
+    flag=/privacy/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "king", "sunflower"
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+  end
+
+  def test_copy_sourceaccess_protected_project
+    # invalid
+    ActionController::IntegrationTest::reset_auth 
+    srcprj="SourceprotectedProject"
+    srcpkg="pack"
+    destprj="CopyTest"
+    destpkg="target"
+    resp=401
+    flag=nil
+    delresp=401
+    debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # some user
+    prepare_request_with_user "tom", "thunder"
+    resp=200 # wrong ! FIXME
+    resp=404 if $ENABLE_BROKEN_TEST
+    delresp=200 # wrong ! FIXME
+    delresp=404 if $ENABLE_BROKEN_TEST
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    resp=:success
+    # flag not inherited
+    flag=/sourceaccess/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "king", "sunflower"
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+  end
 
 end

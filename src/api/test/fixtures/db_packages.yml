@@ -224,6 +224,31 @@ sourceaccess_pack:
   update_counter: 1
   created_at: 2007-05-16 14:19:18
 
+# copytest test pack
+copytest_pack:
+  name: test
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A test package to copy
+  db_project_id: 3004
+  url: ""
+  id: 11009
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
+# copytest test pack target
+copytest_pack2:
+  name: target
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: A test package to copy
+  db_project_id: 3004
+  url: ""
+  id: 11010
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
 
 # for OBS interconnect
 remotepackage:

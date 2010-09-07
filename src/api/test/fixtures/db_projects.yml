@@ -139,7 +139,15 @@ ViewprotectedProject:
   description: "for testing read/view permissions = privacy enabled"
   created_at: 2005-01-01 00:00:01
 
+CopyTestProject:
+  name: CopyTest
+  updated_at: 2005-01-01 00:00:01
+  title: This project serves as copy target/source
+  id: 3004
+  description: "for testing access/sourceacces/privacy"
+  created_at: 2005-01-01 00:00:01
 # For testing remote project handling (we are our own remote instance)
+
 RemoteInstance:
   name: RemoteInstance
   updated_at: 2005-01-01 00:00:01
@@ -162,4 +170,3 @@ LocalProject:
   id: 5002
   description: "for testing remoteurl support"
   created_at: 2005-01-01 00:00:01
-

@@ -97,3 +97,22 @@ viewprotected_adrian_reader:
   db_project_id: 3003
   bs_user_id: 43
   role_id: 7
+
+# copytest
+copytest_hidden_homer:
+  db_project_id: 3004
+  bs_user_id: 46
+  role_id: 3
+copytest_view_homer:
+  db_project_id: 3004
+  bs_user_id: 48
+  role_id: 3
+copytest_sourceaccess_homer:
+  db_project_id: 3004
+  bs_user_id: 49
+  role_id: 3
+copytest_tom:
+  db_project_id: 3004
+  bs_user_id: 3
+  role_id: 3
+
