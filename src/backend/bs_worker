@@ -904,11 +904,12 @@ sub getbinaries_kiwiproduct {
   mkdir_p($dir);
 
   # fetch packages needed for product building
-  for my $repo (@{$buildinfo->{'path'} || []}) {
+  for my $repo (@{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []}) {
     last if !@kdeps;
     my $repoarch = $buildinfo->{'arch'};
     $repoarch = $BSConfig::localarch if $repoarch eq 'local' && $BSConfig::localarch;
-    my $got = getbinaries_cache($dir, $repo->{'server'}, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps);
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps);
     @kdeps = grep {!$got->{$_}} @kdeps;
   }
   die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
@@ -1138,6 +1139,19 @@ sub getbinaries {
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
 
+  if ($kiwimode && $buildinfo->{'syspath'}) {
+    # two path mode: fetch environment
+    @todo = grep {!$bdep_noinstall{$_}} @bdep;
+    for my $repo (@{$buildinfo->{'syspath'} || []}) {
+      last if !@todo;
+      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, 1, \@todo);
+      @todo = grep {!$got->{$_}} @todo;
+    }
+    die("getbinaries: missing packages: @todo\n") if @todo;
+    @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
+  }
+
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo && !$kiwimode;
     my @args;
@@ -1169,7 +1183,7 @@ sub getbinaries {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
 	  push @m, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
 	}
-	if (!$bdep_noinstall{$n}) {
+	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
           if (!-e "$dir/$f->{'name'}") {
 	    link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
 	  }
@@ -1348,7 +1362,7 @@ sub dobuild {
 
   my @configpath;
   if ($kiwimode) {
-    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'path'} || []};
+    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []};
     unshift @configpath, "path=$projid/$repoid" unless @configpath;
   }
   my $server = $buildinfo->{'srcserver'} || $srcserver;

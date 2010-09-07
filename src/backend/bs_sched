@@ -508,7 +508,21 @@ sub set_building {
   $job = "$job-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.
+  my $prptype = $bconf->{'type'};
+  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  my $packtype = $1 || 'spec';
+
   my $searchpath = [];
+  my $syspath;
+  if ($packtype eq 'kiwi') {
+    if ($prpsearchpath) {
+      $syspath = [ @$prpsearchpath ];
+      for (@$syspath) {
+	$_->{'server'} = $remoteprojs{$_->{'project'}} ? $BSConfig::srcserver : $BSConfig::reposerver;
+      }
+    }
+    $prpsearchpath = [ map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []} ];
+  }
   for (@$prpsearchpath) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
@@ -519,10 +533,6 @@ sub set_building {
   }
 
   # calculate packages needed for building
-  my $prptype = $bconf->{'type'};
-  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-  my $packtype = $1 || 'spec';
-
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
   if ($packtype eq 'kiwi') {
@@ -619,6 +629,7 @@ sub set_building {
     'path' => $searchpath,
     'needed' => $needed,
   };
+  $binfo->{'syspath'} = $syspath if $syspath;
   $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   my $release = $pdata->{'versrel'};
@@ -2171,7 +2182,6 @@ sub checkkiwiimage {
   my $prp = "$projid/$repoid";
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
-
   # get config from path
   my $bconf = getconfig($myarch, \@aprps);
   if (!$bconf) {
@@ -2275,25 +2285,32 @@ sub rebuildkiwiimage {
   my $bconf = $data->[0];
   my $edeps = $data->[1];
   my $reason = $data->[2];
-  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
-  # setup pool again
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
-  for my $aprp (@aprps) {
-    addrepo($pool, $aprp);
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  return ('broken', 'missing repo') unless $repo;	# can't happen
+
+  my ($job, $joberror);
+  if (!@{$repo->{'path'} || []}) {
+    # setup pool again for kiwi system expansion
+    my $pool = BSSolv::pool->new();
+    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+    for my $aprp (@aprps) {
+      addrepo($pool, $aprp);
+    }
+    $pool->createwhatprovides();
+    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $ownexpand = sub {
+      $_[0] = $xp; 
+      goto &BSSolv::expander::expand;
+    };   
+    no warnings 'redefine';
+    *Build::expand = $ownexpand;
+    use warnings 'redefine';
+    ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, undef, $reason, $relsyncmax, 0);
+  } else {
+    ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, $prpsearchpath{"$projid/$repoid"} || [], $reason, $relsyncmax, 0);
   }
-  $pool->createwhatprovides();
-  my $xp = BSSolv::expander->new($pool, $bconf);
-  my $ownexpand = sub {
-    $_[0] = $xp; 
-    goto &BSSolv::expander::expand;
-  };   
-  no warnings 'redefine';
-  local *Build::expand = $ownexpand;
-  use warnings 'redefine';
-
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax, 0);
   if ($job) {
     return ('scheduled', $job);
   } else {
@@ -2595,10 +2612,22 @@ sub rebuildkiwiproduct {
 
   my $now = time(); # ensure that we use the same time in all logs
 
+  my $syspath;
+  if (@{$repo->{'path'} || []}) {
+    # images repo has a configured path, use it to set up the kiwi system
+    $syspath = [];
+    for (@{$prpsearchpath{$prp}}) {
+      my @pr = split('/', $_, 2);
+      if ($remoteprojs{$pr[0]}) {
+        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      } else {
+        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+      }
+    }
+  }
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  my @bprps = @{$repo->{'path'} || []} ? @{$prpsearchpath{$prp} || []} : @aprps;
   my $searchpath = [];
-  for (unify(@bprps, @aprps)) {
+  for (@aprps) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
@@ -2674,6 +2703,7 @@ sub rebuildkiwiproduct {
     'reason' => $reason->{'explain'},
     'readytime' => $now,
   };
+  $binfo->{'syspath'} = $syspath if $syspath;
   $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   mkdir_p("$reporoot/$prp/$myarch/$packid");

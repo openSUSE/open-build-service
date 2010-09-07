@@ -411,7 +411,12 @@ our $buildinfo = [
 	    'project',
 	    'repository',
 	    'server',
-     ]]
+     ]],
+     [[ 'syspath' =>
+	    'project',
+	    'repository',
+	    'server',
+     ]],
 ];
 
 our $jobstatus = [
