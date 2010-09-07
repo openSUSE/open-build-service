@@ -1007,6 +1007,84 @@ class SourceControllerTest < ActionController::IntegrationTest
                                assertresp3, asserteq3, assertresp4)
   end
 
+  def test_add_file_to_package_viewprotect
+    # uninvolved user
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    url1="/source/ViewprotectedProject/pack"
+    asserttag1={ :tag => 'status', :attributes => { :code => "ok"} }
+    url2="/source/ViewprotectedProject/pack/testfile"
+    assertresp2=403
+    assertselect2=nil
+    assertselect2rev=nil
+    assertresp3=404
+    asserteq3=nil
+    assertresp4=403
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # nobody 
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "20189c0a1f15a9628e7d0ae59edd0c49" }}
+    assertresp2=:success
+    assertselect2="revision > srcmd5"
+    assertselect2rev='38ba097d164af7973f8508a3e73db3da'
+    assertresp3=:success
+    asserteq3=true
+    assertresp4=:success
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+  end
+
+  def test_add_file_to_package_sourceaccess_protect
+    # uninvolved user
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    url1="/source/SourceprotectedProject/pack"
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "47a5fb1c73c75bb252283e2ad1110182"} }
+    url2="/source/SourceprotectedProject/pack/testfile"
+    assertresp2=403
+    assertselect2=nil
+    assertselect2rev=nil
+    assertresp3=403
+    asserteq3=nil
+    assertresp4=403
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # nobody 
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "47a5fb1c73c75bb252283e2ad1110182" }}
+    assertresp2=:success
+    assertselect2="revision > srcmd5"
+    assertselect2rev='16bbde7f26e318a5c893c182f7a3d433'
+    assertresp3=:success
+    asserteq3=true
+    assertresp4=:success
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+                               assertselect2, assertselect2rev, 
+                               assertresp3, asserteq3, assertresp4)
+  end
+
   def test_add_file_to_package
     url1="/source/kde4/kdelibs"
     asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "1636661d96a88cd985d82dc611ebd723" } }
@@ -1210,7 +1288,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    #assert_match /Ok/, @response.body
+    assert_match /Protected Content/, @response.body
     # reverse
     prepare_request_with_user "king", "sunflower"
     post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
@@ -1524,29 +1602,180 @@ class SourceControllerTest < ActionController::IntegrationTest
     delete url
   end
 
-  def test_branch_package_hidden_project
+  def do_branch_package_test (sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    post "/source/#{sprj}/#{spkg}", :cmd => :branch, :target_project => "#{tprj}"
+    print @response.body if debug
+    assert_response resp if resp
+    assert_match match, @response.body if match
+    get "/source/#{tprj}" if debug
+    print @response.body if debug
+    get "/source/#{tprj}/#{spkg}/_meta"
+    print @response.body if debug
+    # FIXME: implementation is not done, change to assert_tag or assert_select
+    assert_match testflag, @response.body if testflag
+    delete "/source/#{tprj}/#{spkg}"
+    print @response.body if debug
+    assert_response delresp if delresp
+  end
+
+  def test_branch_package_hidden_project_new
+    # hidden -> open
+    # FIXME: package doesn't inherit access from project on branch
+    # unauthorized
     ActionController::IntegrationTest::reset_auth 
-    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
-    assert_response 401
-    #  reverse
-    post "/source/home:coolo/test", :cmd => :branch, :target_project => "HiddenProject"
-    assert_response 401
-    # new user
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
-    assert_response 404
-    #  reverse
-    post "/source/home:coolo:test/kdelibs_DEVEL_package", :cmd => :branch, :target_project => "HiddenProject"
-    assert_response 403
+    sprj="HiddenProject"  # source project
+    spkg="pack"           # source package
+    tprj="home:tom"       # target project
+    resp=401              # response
+    match=/Authentication required/
+    testflag=nil          # test for flag in target meta
+    delresp=401           # delete again
+    debug=false
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # tom/thunder
+    prepare_request_with_user "tom", "thunder"
+    resp=404
+    match=/Unknown package pack in project HiddenProject/
+    delresp=404
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
-    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:coolo:test"
-    assert_response 403
-    post "/source/HiddenProject/pack", :cmd => :branch, :target_project => "home:hidden_homer:branches:HiddenProject"
-    assert_response :success
-    # reverse
-    post "/source/home:coolo:test/kdelibs_DEVEL_package", :cmd => :branch, :target_project => "HiddenProject"
-    assert_response :success
+    tprj="home:hidden_homer"
+    resp=:success
+    delresp=:success
+    match=/>HiddenProject</
+    testflag=/<access>/ if $ENABLE_BROKEN_TEST
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+
+    # open -> hidden
+    # unauthorized
+    ActionController::IntegrationTest::reset_auth 
+    sprj="home:coolo:test"       # source project
+    spkg="kdelibs_DEVEL_package" # source package
+    tprj="HiddenProject"         # target project
+    resp=401                     # response
+    match=/Authentication required/
+    testflag=nil          # test for flag in target meta
+    delresp=401           # delete again
+    debug=false
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # tom/thunder
+    prepare_request_with_user "tom", "thunder"
+    resp=403
+    match=/create_package_no_permission/
+    delresp=404
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    resp=:success
+    delresp=:success
+    match=/>HiddenProject</
+    testflag=/<access>/ if $ENABLE_BROKEN_TEST
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+  end
+
+  def test_branch_package_viewprotect_project_new
+    # viewprotected -> open
+    # unauthorized
+    ActionController::IntegrationTest::reset_auth 
+    sprj="ViewprotectedProject"  # source project
+    spkg="pack"                  # source package
+    tprj="home:tom"              # target project
+    resp=401                     # response
+    match=/Authentication required/
+    testflag=nil          # test for flag in target meta
+    delresp=401           # delete again
+    debug=false
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # tom/thunder
+    prepare_request_with_user "tom", "thunder"
+    resp=:success
+    # FIXME: shouldn't we find nothing to branch instead of "Ok" ?
+    resp=404 if $ENABLE_BROKEN_TEST
+    match=/Ok/
+    # FIXME: invisible should result in unknown
+    match=/Unknown package pack in project ViewprotectedProject/ if $ENABLE_BROKEN_TEST
+    delresp=404
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    tprj="home:view_homer"
+    resp=:success
+    delresp=:success
+    match=/>ViewprotectedProject</
+    # FIXME: flag inheritance on branch
+    testflag=/<privacy>/ if $ENABLE_BROKEN_TEST
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+
+    # open -> viewprotected
+    # unauthorized
+    ActionController::IntegrationTest::reset_auth 
+    sprj="home:coolo:test"       # source project
+    spkg="kdelibs_DEVEL_package" # source package
+    tprj="ViewprotectedProject"  # target project
+    resp=401                     # response
+    match=/Authentication required/
+    testflag=nil          # test for flag in target meta
+    delresp=401           # delete again
+    debug=false
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # tom/thunder
+    prepare_request_with_user "tom", "thunder"
+    resp=403
+    match=/create_package_no_permission/
+    delresp=404
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    resp=:success
+    match="ViewprotectedProject"
+    testflag=nil
+    delresp=:success
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+  end
+
+  def test_branch_package_sourceaccess_protected_project_new
+    # viewprotected -> open
+    # unauthorized
+    ActionController::IntegrationTest::reset_auth 
+    sprj="SourceprotectedProject" # source project
+    spkg="pack"                   # source package
+    tprj="home:tom"               # target project
+    resp=401                      # response
+    match=/Authentication required/
+    testflag=nil          # test for flag in target meta
+    delresp=401           # delete again
+    debug=false
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # tom/thunder
+    prepare_request_with_user "tom", "thunder"
+    resp=403
+    match=/source_access_no_permission/
+    delresp=404
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    tprj="home:sourceaccess_homer"
+    resp=:success
+    match="SourceprotectedProject"
+    testflag=/sourceaccess/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
   end
 
   def test_branch_package_delete_and_undelete
