@@ -1477,7 +1477,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary")
     assert_response 404
-    xml = @response.body
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary"), 
         '<package project="kde4" name="temporary"> <title/> <description/> </package>'
     assert_response 200
@@ -1517,7 +1516,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian", "so_alone"
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary")
     assert_response 404
-    xml = @response.body
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary"), 
         '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
     assert_response 200
@@ -1539,7 +1537,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2")
     assert_response 404
-    xml = @response.body
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2"), 
         '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
@@ -1562,7 +1559,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     # check this works with remote projects also
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4")
     assert_response 404
-    xml = @response.body
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4"), 
         '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
     assert_response 200
@@ -1578,7 +1574,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3")
     assert_response 404
-    xml = @response.body
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3"), 
         '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
     assert_response 200
