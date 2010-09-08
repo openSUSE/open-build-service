@@ -117,7 +117,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "directory",
       :children => { :count => 2, :only => { :tag => "entry" } }
     assert_match /entry name="pack"/, @response.body
-    assert_match /entry name="pack1"/, @response.body
+    assert_match /entry name="target"/, @response.body
   end
 
   def test_get_packagelist_with_sourceprotected_project
@@ -126,8 +126,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success 
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
-      :children => { :count => 1, :only => { :tag => "entry" } }
-    assert_match /entry name="pack"/, @response.body
+      :children => { :count => 2 }
+    assert_match /entry name="target"/, @response.body
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -135,8 +135,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success 
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
-      :children => { :count => 1, :only => { :tag => "entry" } }
+      :children => { :count => 2, :only => { :tag => "entry" } }
     assert_match /entry name="pack"/, @response.body
+    assert_match /entry name="target"/, @response.body
   end
 
   # non-existing project should return 404
@@ -1597,7 +1598,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
 
     # special user cannot link unprotected to protected package
-    put url, '<link project="HiddenProject" package="pack1" />'
+    put url, '<link project="HiddenProject" package="target" />'
     assert_response 403
 
     # check this works with remote projects also
@@ -2156,8 +2157,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_read_access_project("adrian", "so_alone", "ViewprotectedProject", :success)
     # we reuse the listing here, valid-user -> pack visible
     assert_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_tag :tag => "directory", :children => { :count => 1 }
+    assert_tag :tag => "directory", :children => { :count => 2 }
     assert_tag :child => { :tag => "entry", :attributes => { :name => "pack" } }
+    assert_tag :child => { :tag => "entry", :attributes => { :name => "target" } }
     do_read_access_package("adrian", "so_alone", "ViewprotectedProject", "pack", :success)
   end
 
@@ -2227,6 +2229,35 @@ class SourceControllerTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    #
+    # reverse 
+    #
+    # invalid
+    ActionController::IntegrationTest::reset_auth 
+    srcprj="CopyTest"
+    srcpkg="test"
+    destprj="HiddenProject"
+    destpkg="target"
+    resp=401
+    flag=nil
+    delresp=401
+    debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # some user
+    prepare_request_with_user "tom", "thunder"
+    resp=404
+    delresp=404
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "hidden_homer", "homer"
+    resp=:success
+    # flag not inherited - should we inherit in any case to be on the safe side ?
+    flag=/access/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "king", "sunflower"
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
   end
 
   def test_copy_viewprotected_project
@@ -2247,6 +2278,37 @@ class SourceControllerTest < ActionController::IntegrationTest
     resp=404 if $ENABLE_BROKEN_TEST
     delresp=200 # wrong ! FIXME
     delresp=404 if $ENABLE_BROKEN_TEST
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "view_homer", "homer"
+    resp=:success
+    # flag not inherited
+    flag=/privacy/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "king", "sunflower"
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    #
+    # reverse 
+    #
+    # invalid
+    ActionController::IntegrationTest::reset_auth 
+    srcprj="CopyTest"
+    srcpkg="test"
+    destprj="ViewprotectedProject"
+    destpkg="target"
+    resp=401
+    flag=nil
+    delresp=401
+    debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # some user
+    prepare_request_with_user "tom", "thunder"
+    resp=:success  # FIXME or VERIFY
+    resp=403 if $ENABLE_BROKEN_TEST
+    delresp=:success # FIXME or VERIFY
+    delresp=403 if $ENABLE_BROKEN_TEST
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "view_homer", "homer"
@@ -2289,6 +2351,35 @@ class SourceControllerTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-  end
+    #
+    # reverse 
+    #
+    # invalid
+    ActionController::IntegrationTest::reset_auth 
+    srcprj="CopyTest"
+    srcpkg="test"
+    destprj="SourceprotectedProject"
+    destpkg="target"
+    resp=401
+    flag=nil
+    delresp=401
+    debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # some user
+    prepare_request_with_user "tom", "thunder"
+    resp=403
+    delresp=403
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    resp=:success
+    # flag not inherited
+    flag=/sourceaccess/ if $ENABLE_BROKEN_TEST
+    delresp=:success
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    # maintainer
+    prepare_request_with_user "king", "sunflower"
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+ end
 
 end

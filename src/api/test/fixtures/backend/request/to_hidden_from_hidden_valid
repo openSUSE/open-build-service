@@ -1,6 +1,6 @@
   <request>
   <action type='submit'>
-    <source project='HiddenProject' package='pack1' rev='1' />
+    <source project='HiddenProject' package='target' rev='1' />
     <target project='HiddenProject' package='pack' />
     <options>
       <sourceupdate>cleanup</sourceupdate>
