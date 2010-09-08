@@ -1433,8 +1433,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
     assert_response 403
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
-    assert_response 403
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
@@ -1450,6 +1448,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "rebuild"
     assert_response :success
     post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "wipe"
+    assert_response :success
+
+    # create package and remove it again
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response 404
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
+    assert_response :success
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response :success
   end
 

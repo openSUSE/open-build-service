@@ -198,16 +198,36 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     post "/build/LocalProject", :cmd => "rebuild"
     assert_response :success
+
+  end
+
+  def test_copy_and_diff_package
+    # do copy commands twice to test it with existing target and without
+    if $ENABLE_BROKEN_TEST
+    prepare_request_with_user "tom", "thunder"
+    post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "LocalProject", :opackage => "remotepackage"
+    assert_response :success
+    post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "LocalProject", :opackage => "remotepackage"
+    assert_response :success
+    delete "/source/LocalProject/temporary"
+    assert_response :success
+    post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "UseRemoteInstance", :opackage => "pack1"
+    assert_response :success
+    post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
+    assert_response :success
+
+    post "/source/LocalProject/temporary", :cmd => :diff, :oproject => "LocalProject", :opackage => "remotepackage"
+    assert_response :success
+    post "/source/LocalProject/temporary", :cmd => :diff, :oproject => "UseRemoteInstance", :opackage => "pack1"
+    assert_response :success
+    end
   end
 
   def test_diff_package
-    ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
 
 # FIXME: not supported in api atm
 #    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
-#    assert_response :success
-#    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :copy, :target_project => "LocalProject", :target_package => "copypackage"
 #    assert_response :success
 
     Suse::Backend.put( '/source/LocalProject/newpackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "newpackage").to_axml)
