@@ -196,6 +196,26 @@ class SourceController < ApplicationController
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['diff', 'branch', 'linkdiff', 'showlinked']
 
+    # test read access from origin package if specified, ignore it when it does not exist, assuming a remote package
+    if (params[:opackage])
+      sprj = DbProject.find_by_name(params[:oproject])
+      spkg = sprj.find_package(params[:opackage]) if sprj
+
+      # ACL: access behaves like package / project not existing
+      if spkg and spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
+        return
+      end
+
+      # ACL: source access gives permisson denied
+      if spkg and spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{params[:user]} has no read access to package #{params[:opackage]} in project #{params[:oproject]}"
+        return
+      end
+    end
+
     prj = DbProject.find_by_name(project_name)
     unless prj
       # Check if this is a package via project link to a remote OBS instance
@@ -206,7 +226,7 @@ class SourceController < ApplicationController
             pass_to_backend
             return
         end
-        if request.post? and [ "showlinked", "branch", "copy" ].include?(cmd)
+        if request.post? and [ "showlinked", "branch" ].include?(cmd)
             dispatch_command
             return
         end
@@ -236,25 +256,6 @@ class SourceController < ApplicationController
       return
     end
     
-    if (params[:opackage])
-      sprj = DbProject.find_by_name(params[:oproject])
-      spkg = sprj.find_package(params[:opackage]) if sprj
-
-      # ACL: access behaves like package / project not existing
-      if spkg and spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
-        render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
-        return
-      end
-
-      # ACL: source access gives permisson denied
-      if spkg and spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{params[:user]} has no read access to package #{params[:opackage]} in project #{params[:oproject]}"
-        return
-      end
-    end
-
     # package may not exist currently here, but can we work anyway with it ?
     unless deleted.blank? and not request.delete?
       unless package_name == "_project" or pkg or DbProject.find_remote_project(project_name)
