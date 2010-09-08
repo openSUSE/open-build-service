@@ -206,7 +206,7 @@ class SourceController < ApplicationController
             pass_to_backend
             return
         end
-        if request.post? and [ "showlinked", "branch" ].include?(cmd)
+        if request.post? and [ "showlinked", "branch", "copy" ].include?(cmd)
             dispatch_command
             return
         end
@@ -230,11 +230,29 @@ class SourceController < ApplicationController
       return
     end
 
-    # FIXME what about the other subcommands
     # ACL(index_package): if private view is on behave like pkg without any src files
     if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
       render_ok
       return
+    end
+    
+    if (params[:opackage])
+      sprj = DbProject.find_by_name(params[:oproject])
+      spkg = sprj.find_package(params[:opackage]) if sprj
+
+      # ACL: access behaves like package / project not existing
+      if spkg and spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
+        return
+      end
+
+      # ACL: source access gives permisson denied
+      if spkg and spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{params[:user]} has no read access to package #{params[:opackage]} in project #{params[:oproject]}"
+        return
+      end
     end
 
     # package may not exist currently here, but can we work anyway with it ?
@@ -296,13 +314,13 @@ class SourceController < ApplicationController
         return
       end
 
-      if pkg.nil? and not [ "showlinked", "branch" ].include?(cmd)
+      if prj and pkg.nil? and not [ "showlinked", "branch", "copy" ].include?(cmd)
         unless @http_user.can_modify_project?(prj)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{cmd}' for not existing package"
           return
         end
-      elsif not read_commands.include?(cmd) and not @http_user.can_modify_package?(pkg)
+      elsif pkg and not read_commands.include?(cmd) and not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
@@ -1775,34 +1793,12 @@ class SourceController < ApplicationController
     valid_http_methods :post
     params[:user] = @http_user.login
 
-    sprj = DbProject.find_by_name(params[:oproject])
-    spkg = sprj.find_package(params[:opackage])
-
     tprj = DbProject.find_by_name(params[:project])
-    tpkg = tprj.find_package(params[:package])
-
-    if tpkg.nil?
-      render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
-
-    # ACL(index_package_copy): access behaves like package / project not existing
-    if spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
-      return
-    end
-
-    # ACL(index_package_copy): source access gives permisson denied
-    if spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{params[:opackage]} in project #{params[:oproject]}"
-      return
-    end
+    tpkg = tprj.find_package(params[:package]) if tprj
 
     # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
-    if tprj and not DbProject.find_remote_project(params[:project])
+    # FIXME: this is not working for projects linking to remote project
+    if tpkg and not DbProject.find_remote_project(params[:project])
       # ACL(index_package_copy): project link to project with access behaves like target project not existing
       if tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
         render_error :status => 404, :errorcode => 'not_found',
@@ -1818,10 +1814,29 @@ class SourceController < ApplicationController
       end
 
       # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
+      sprj = DbProject.find_by_name(params[:oproject])
+      spkg = sprj.find_package(params[:opackage])
+      # FIXME:this will break when copying from remote linked project
       if ((spkg.disabled_for?('access', nil, nil) or spkg.disabled_for?('sourceaccess', nil, nil)) and
           (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('souceaccess', nil, nil)))
         render_error :status => 403, :errorcode => "source_access_no_permission" ,
         :message => "copypack of an protected package #{params[:oproject]}/#{params[:opackage]} to an unprotected package #{params[:project]}/#{params[:package]}"
+        return
+      end
+    end
+
+    # create target package, if it does not exist
+    tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
+    if tpkg.nil?
+      answer = Suse::Backend.get("/source/#{CGI.escape(params[:oproject])}/#{CGI.escape(params[:opackage])}/_meta")
+      if answer
+        p = Package.new(answer.body, :project => params[:project])
+        p.name    = params[:package]
+        p.save
+        tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
+      else
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
         return
       end
     end
