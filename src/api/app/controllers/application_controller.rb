@@ -175,9 +175,12 @@ class ApplicationController < ActionController::Base
           require 'ldap'
           logger.debug( "Using LDAP to find #{login}" )
           ldap_info = User.find_with_ldap( login, passwd )
-        rescue Exception
+        rescue LoadError
           logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
           ldap_info = nil # now fall through as if we'd not found a user
+        rescue Exception
+          logger.debug "#{login} not found in LDAP."
+          ldap_info = nil # now fall through as if we'd not found a user          
         end
 
         if not ldap_info.nil?
