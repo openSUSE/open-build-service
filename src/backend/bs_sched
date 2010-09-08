@@ -2356,16 +2356,10 @@ sub checkkiwiproduct {
   my $prp = "$projid/$repoid";
 
   # calculate all involved architectures
-  my @archs;
-  my $savemyarch = $myarch;
-  for my $arch (@{$repo->{'arch'} || []}) {
-    my $enabled = 1;
-    $myarch = $arch;
-    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1);
-    $enabled = enabled($repoid, $pdata->{'build'}, $enabled);
-    push @archs, $arch if $enabled;
-  }
-  $myarch = $savemyarch;
+  my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
+  return ('broken', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
+  $imagearch{'local'} = 1 if $BSConfig::localarch;
+  my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   
   if (!grep {$_ eq $myarch} @archs) {
     print "      - $packid (kiwi-product)\n";
@@ -2403,6 +2397,7 @@ sub checkkiwiproduct {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
+    my $savemyarch = $myarch;
     for my $aprp (@bprps) {
       $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;

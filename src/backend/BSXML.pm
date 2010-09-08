@@ -173,6 +173,7 @@ our $packinfo = [
 	  [ 'dep' ],
 	  [ 'prereq' ],
 	  [ 'imagetype' ],
+	  [ 'imagearch' ],
 	 [[ 'path' =>
 		'project',
 		'repository',

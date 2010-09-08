@@ -1568,17 +1568,12 @@ sub getjobhistory {
 }
 
 sub getkiwiproductpackages {
-  my ($projid, $packid, $repoid, $proj, $repo, $pdata, $info, $deps) = @_;
+  my ($proj, $repo, $pdata, $info, $deps) = @_;
 
   my @got;
-  my @archs;
-  my $pd = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, "project=$projid", "package=$packid");
-  for my $arch (@{$repo->{'arch'} || []}) {
-    my $enabled = 1; 
-    $enabled = BSUtil::enabled($repoid, $proj->{'build'}, $enabled, $arch);
-    $enabled = BSUtil::enabled($repoid, $pd->{'project'}[0]->{'package'}[0]->{'build'}, $enabled, $arch) if $pd->{'project'};
-    push @archs, $arch if $enabled;
-  }
+  my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
+  my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
+  die("no architectures to use for packages\n") unless @archs;
   my @deps = @{$deps || []};
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
@@ -1896,7 +1891,7 @@ sub getbuildinfo {
     }
 
     # now the binaries from the packages
-    my @bins = getkiwiproductpackages($projid, $packid, $repoid, $proj, $repo, $pdata, $info, \@edeps);
+    my @bins = getkiwiproductpackages($proj, $repo, $pdata, $info, \@edeps);
     for my $b (@bins) {
       my @bn = split('/', $b);
       next unless $bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
