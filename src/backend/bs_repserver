@@ -1680,7 +1680,7 @@ sub getbuildinfo {
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   if ($packtype eq 'kiwi') {
     $ret->{'imagetype'} = $info->{'imagetype'} || [];
-    if ($kiwitype eq 'image' || @prp < 2) {
+    if (@prp < 2) {
       $ret->{'path'} = $info->{'path'} || [];
       @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     } else {
@@ -1816,6 +1816,28 @@ sub getbuildinfo {
     push @deps, grep {/^kiwi-/} @{$info->{'dep'} || []};
   }
 
+  my $epool;
+  if ($packtype eq 'kiwi' && $kiwitype eq 'image' && @{$repo->{'path'} || []} >= 2) {
+    # use different path for system setup
+    my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+    $bconf = Build::read_config($arch, [split("\n", $config)]);
+    @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+    $epool = $pool;
+    $pool = BSSolv::pool->new();
+    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    for my $prp (@prp) {
+      my ($rprojid, $rrepoid) = split('/', $prp, 2);
+      my $r;
+      if ($remotemap{$rprojid}) {
+	$r = addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
+      } else {
+	$r = addrepo_scan($pool, $prp, $arch);
+      }
+      die("repository $prp not available\n") unless $r;
+    }
+    $pool->createwhatprovides();
+  }
+
   my @bdeps;
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   my $xp = BSSolv::expander->new($pool, $bconf);
@@ -1892,18 +1914,55 @@ sub getbuildinfo {
     $ret->{'bdep'} = \@bdeps;
     return ($ret, $BSXML::buildinfo);
   }
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
-
   if ($packtype eq 'kiwi' && $kiwitype eq 'image') {
+    my @rdeps;
+    if ($epool) {
+      my %allnames;
+      for my $repo ($epool->repos()) {
+	my %names = $repo->pkgnames();
+	for (keys %names) {
+	  next unless $edeps{$_};
+	  push @{$allnames{$_}}, $names{$_};
+	}
+      }
+      for (@edeps) {
+	for my $p (@{$allnames{$_} || []}) {
+	  my $b = {'name' => $_};
+	  if (!$cgi->{'internal'}) {
+	    my $prp = $epool->pkg2reponame($p);
+	    ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
+	  }
+	  my $d = $epool->pkg2data($p);
+	  $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+	  $b->{'version'} = $d->{'version'};
+	  $b->{'release'} = $d->{'release'} if exists $d->{'release'};
+	  $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+	  $b->{'noinstall'} = 1;
+	  push @rdeps, $b;
+	  next;
+	}
+      }
+      @edeps = ();
+      %edeps = ();
+      %dep2pkg = ();
+    }
     # kiwi images take the binaries from all repos
     my %allnames;
     for my $repo ($pool->repos()) {
       my %names = $repo->pkgnames();
       for (keys %names) {
-        push @{$allnames{$_}}, $names{$_};
+	next unless $edeps{$_};
+	push @{$allnames{$_}}, $names{$_};
       }
     }
-    for (splice @bdeps) {
+    for my $p ($pool->consideredpackages()) {
+      my $n = $pool->pkg2name($p);
+      next if $edeps{$n};
+      push @{$allnames{$n}}, $p;
+      $dep2pkg{$n} = $p;
+    }
+    @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
+    for (@bdeps) {
       for my $p (@{$allnames{$_} || []}) {
 	my $b = {'name' => $_};
 	if (!$cgi->{'internal'}) {
@@ -1911,7 +1970,7 @@ sub getbuildinfo {
 	  ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
 	}
 	my $d = $pool->pkg2data($p);
-        $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+	$b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
 	$b->{'version'} = $d->{'version'};
 	$b->{'release'} = $d->{'release'} if exists $d->{'release'};
 	$b->{'arch'} = $d->{'arch'} if $d->{'arch'};
@@ -1925,13 +1984,14 @@ sub getbuildinfo {
 	$b->{'vminstall'} = 1 if $vmdeps{$_};
 	$b->{'runscripts'} = 1 if $runscripts{$_};
 	$b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
-	push @bdeps, $b;
+	push @rdeps, $b;
       }
     }
-    $ret->{'bdep'} = \@bdeps;
+    $ret->{'bdep'} = \@rdeps;
     return ($ret, $BSXML::buildinfo);
   }
 
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
