@@ -1,5 +1,51 @@
 
+
+<% if @package.can_edit?( session[:login] ) %>
+  <% if @services %>
+    <span class="" style="float: right; margin-right: 0.5em; z-index: 10; position: absolute; right: 10px; top: 30px;" >
+      <span>
+        <%= link_to_remote image_tag('add.png', :title => 'Add Service'), :url => { :action => :add_service, :project => @project, :package => @package} %>
+      </span>
+      <span>
+        <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
+             {:action => :execute_services, :project => @project, :package => @package },
+             {:confirm => "Execute all services again now?", :method => :post } %>
+      </span>
+    </span>
+  <% else %>
+     <%= link_to_remote '<i>Add a service for source processing.</i>', :url => { :action => :add_service, :project => @project, :package => @package} %>
+  <% end %>
+<% end %>
+
+
 <!-- Service elements -->
+<% if @services || @package.can_edit?( session[:login] )%>
+    <% number = 0 %>
+    <% if @services %>
+      <% @services.each do |service| 
+         number += 1 %>
+         <div>
+            <% object_id = "service_#{number}" %>
+            <div class="service" id="<%= object_id %>" >
+              <%= h Service.summary(service.name) %>
+              <div style="color: #999; font-size: 8pt">
+                  <%= link_text = "Show Parameter"
+                      link_text = "Edit Parameter" if @package.can_edit?( session[:login] )
+                      link_to_remote( link_text, :url => { :action => :service_parameter, :project => @project, :package => @package, :servicename => service.name, :serviceid => number } ) %>
+                  <%= if @package.can_edit?( session[:login] )
+                        CGI::escapeHTML(" | ") + link_to_remote( "Remove this service", :confirm => "Remove this service ?", :url => { :action => :remove_service, :project => @project, :package => @package, :id => number } )
+                      end %>
+              </div>
+            </div>
+            <%= draggable_element(object_id) %>
+            <%= drop_receiving_element( object_id,
+                        :hoverclass => "hover",
+                        :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=#{number}&package=#{@package}&project=#{@project}' }"
+            )%>
+         </div>
+      <% end %>
+    <% end %>
+
     <!-- source is currently broken due to an error -->
     <% if @serviceerror %>
     <div id="error" class="error">
@@ -11,51 +57,4 @@
       </pre>
     </div>
     <% end %>
-
-    <!-- available services -->
-    <% if @services || @package.can_edit?( session[:login] )%>
-
-      <% if @package.can_edit?( session[:login] ) %>
-        <% if @services %>
-          <span class="" style="float: right; margin-right: 0.5em" >
-            <span>
-              <%= link_to_remote image_tag('add.png', :title => 'Add Service'), :url => { :action => :add_service, :project => @project, :package => @package} %>
-            </span>
-            <span>
-              <%= link_to image_tag('play.png', :alt => "Run Service", :title => "Click to trigger service execution"),
-                   {:action => :execute_services, :project => @project, :package => @package },
-                   {:confirm => "Execute all services again now?", :method => :post } %>
-            </span>
-          </span>
-        <% else %>
-           <%= link_to_remote '<i>Add a service for source processing.</i>', :url => { :action => :add_service, :project => @project, :package => @package} %>
-        <% end %>
-      <% end %>
-
-        <% number = 0 %>
-        <% if @services %>
-          <% @services.each do |service| 
-             number += 1 %>
-             <div>
-                <% object_id = "service_#{number}" %>
-                <div class="service" id="<%= object_id %>" >
-                  <%= h Service.summary(service.name) %>
-                  <div style="color: #999; font-size: 8pt">
-                      <%= link_text = "Show Parameter"
-                          link_text = "Edit Parameter" if @package.can_edit?( session[:login] )
-                          link_to_remote( link_text, :url => { :action => :service_parameter, :project => @project, :package => @package, :servicename => service.name, :serviceid => number } ) %>
-                      <%= if @package.can_edit?( session[:login] )
-                            CGI::escapeHTML(" | ") + link_to_remote( "Remove this service", :confirm => "Remove this service ?", :url => { :action => :remove_service, :project => @project, :package => @package, :id => number } )
-                          end %>
-                  </div>
-                </div>
-                <%= draggable_element(object_id) %>
-                <%= drop_receiving_element( object_id,
-                            :hoverclass => "hover",
-                            :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=#{number}&package=#{@package}&project=#{@project}' }"
-                )%>
-             </div>
-          <% end %>
-        <% end %>
-
   <% end %>

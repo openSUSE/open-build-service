@@ -1106,6 +1106,7 @@ our $service = [
                      [],
                      'description',
                      'required', # don't run without this parameter
+                     'allowmultiple', # This parameter can be used multiple times
                      [[ 'allowedvalue' => '_content' ]], # list of possible values
         ]],
 ];

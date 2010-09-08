@@ -44,7 +44,9 @@
                   </td>
                   <% @values=Service.findAvailableParameterValues(@servicename, p[:name])  %>
                   <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => p[:name], :number => number, :value => p[:value] }) %></td>
-                  <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+                  <% unless definition = Service.findAvailableParameters(@servicename) and definition[p[:name]][:required] %>
+                    <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+                  <% end %>
                </tr>
             <% else %>
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
@@ -58,29 +60,36 @@
                 <% number = number + 1 %>
                 <tr class="row_<%=number%>">
                    <td 
-                     <%= if desc = Service.parameterDescription(@servicename, p[:name])
+                     <%= if desc = Service.parameterDescription(@servicename, name)
                            'title="' + CGI::escapeHTML(desc) + '"'
                          end %>
-                   ><%=p[:name]%>
+                   ><%=name%>
                    <% @values=Service.findAvailableParameterValues(@servicename, name)  %>
                    <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => name, :number => number, :value => ""}) %></td>
-                   <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+                   <!-- not removable -->
                 </tr>
               <% end %>
+              <% used_parameter[name] = 1 %>
             <% end %>
          <% end %>
          <%= hidden_field_tag(:count_parameters, number) %>
 
          <% if @package.can_edit?( session[:login] ) %>
-           <tr class="addrow"><td>
-               <select name="add_parameter_name" id="add_new_parameter">
-               <% Service.findAvailableParameters(@servicename).keys.each do |p|%>
-                      <option value="<%=p%>" selected><%=p%></option>
-               <% end %>
-               </select></td>
-               <td id="value_input_field"><input type="text" id="add_new_value" name="add_new_value"></td>
-               <td><a href="#" id="add_new_row">+</a></td>
-           </tr>
+           <% str=""
+              Service.findAvailableParameters(@servicename).keys.each do |p|
+              unless used_parameter[p[:name]] and not ( d = Service.findAvailableParameters(@servicename) and d[p[:name]][:allowmultiple] )
+               str += "<option value=\"#{p}\" selected>#{p}</option>"
+              end
+           end %>
+           <% unless str.blank? %>
+             <tr class="addrow"><td>
+                 <select name="add_parameter_name" id="add_new_parameter">
+                   <%= str %>
+                 </select></td>
+                 <td id="value_input_field"><input type="text" id="add_new_value" name="add_new_value"></td>
+                 <td><a href="#" id="add_new_row">+</a></td>
+             </tr>
+           <% end %>
          <% end %>
 
        </table>
