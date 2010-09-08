@@ -222,6 +222,7 @@ class SourceController < ApplicationController
       # allow operations only for local packages
       pkg = prj.db_packages.find_by_name(package_name)
     end
+
     # ACL(index_package): in case of access, package is really hidden and shown as non existing to users without access
     if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
       render_error :status => 404, :errorcode => 'unknown_package',
@@ -229,6 +230,7 @@ class SourceController < ApplicationController
       return
     end
 
+    # FIXME what about the other subcommands
     # ACL(index_package): if private view is on behave like pkg without any src files
     if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
       render_ok
@@ -1773,31 +1775,60 @@ class SourceController < ApplicationController
     valid_http_methods :post
     params[:user] = @http_user.login
 
-    prj = DbProject.find_by_name(params[:project])
-    pack = prj.find_package(params[:package])
-    if pack.nil? 
+    sprj = DbProject.find_by_name(params[:oproject])
+    spkg = sprj.find_package(params[:opackage])
+
+    tprj = DbProject.find_by_name(params[:project])
+    tpkg = tprj.find_package(params[:package])
+
+    if tpkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{params[:package]} in project #{params[:project]}"
       return
     end
 
     # ACL(index_package_copy): access behaves like package / project not existing
-    if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+    if spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
       render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
       return
     end
 
     # ACL(index_package_copy): source access gives permisson denied
-    if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
+    if spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
+      :message => "user #{params[:user]} has no read access to package #{params[:opackage]} in project #{params[:oproject]}"
       return
+    end
+
+    # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
+    if tprj and not DbProject.find_remote_project(params[:project])
+      # ACL(index_package_copy): project link to project with access behaves like target project not existing
+      if tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
+        render_error :status => 404, :errorcode => 'not_found',
+        :message => "The copypack target project #{params[:project]} does not exist"
+        return
+      end
+
+      # ACL(index_package_copy): project link to project with sourceaccess gives permisson denied
+      if tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "No permission on target project #{params[:project]}"
+        return
+      end
+
+      # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
+      if ((spkg.disabled_for?('access', nil, nil) or spkg.disabled_for?('sourceaccess', nil, nil)) and
+          (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('souceaccess', nil, nil)))
+        render_error :status => 403, :errorcode => "source_access_no_permission" ,
+        :message => "copypack of an protected package #{params[:oproject]}/#{params[:opackage]} to an unprotected package #{params[:project]}/#{params[:package]}"
+        return
+      end
     end
 
     # ACL(index_package_copy): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     # We need to use the project name of package object, since it might come via a project linked project
-    path = "/source/#{pack.db_project.name}/#{pack.name}"
+    path = "/source/#{tpkg.db_project.name}/#{tpkg.name}"
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
     pass_to_backend path
