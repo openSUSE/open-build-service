@@ -1473,7 +1473,11 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_links
-    # user without any special roles
+    prepare_request_with_user "king", "sunflower"
+    put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY"), 
+        '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
+    assert_response 200
+    # create packages via user without any special roles
     prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary")
     assert_response 404
@@ -1481,8 +1485,19 @@ class SourceControllerTest < ActionController::IntegrationTest
         '<package project="kde4" name="temporary"> <title/> <description/> </package>'
     assert_response 200
     assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2"), 
+        '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    put "/source/kde4/temporary/file_in_linked_package", 'FILE CONTENT'
+    assert_response 200
+    put url_for(:controller => :source, :action => :package_meta, :project => "TEMPORARY", :package => "temporary2"), 
+        '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
+    assert_response 200
 
     url = "/source/kde4/temporary/_link"
+    url2 = "/source/kde4/temporary2/_link"
+    url3 = "/source/TEMPORARY/temporary2/_link"
 
     # illegal targets
     put url, '<link project="notexisting" />'
@@ -1495,6 +1510,11 @@ class SourceControllerTest < ActionController::IntegrationTest
     # working local link
     put url, '<link project="BaseDistro" package="pack1" />'
     assert_response :success
+    put url2, '<link package="temporary" />'
+    assert_response :success
+    put url3, '<link project="kde4" />'
+    assert_response :success
+
     # working link to package via project link
     put url, '<link project="BaseDistro2:LinkedUpdateProject" package="pack2" />'
     assert_response :success
@@ -1507,8 +1527,32 @@ class SourceControllerTest < ActionController::IntegrationTest
     put url, '<link project="UseRemoteInstance" package="pack1" />'
     assert_response :success
 
+    # check backend functionality
+    get "/source/kde4/temporary"
+    assert_response :success
+    assert_no_tag( :tag => "entry", :attributes => {:name => "my_file"} )
+    assert_tag( :tag => "entry", :attributes => {:name => "file_in_linked_package"} )
+    assert_tag( :tag => "entry", :attributes => {:name => "_link"} )
+    assert_tag( :tag => "linkinfo", :attributes => {:project => "UseRemoteInstance",  :package => "pack1",
+                :srcmd5 => "96c3955b419fec1a637698e52b6a7d37", :xsrcmd5 => "6660e7c304ba16c50a415617bacb8b2f", :lsrcmd5 => "eabf686413b92c976ea073b11d797a2e"} )
+    get "/source/kde4/temporary2?expand=1"
+    assert_response :success
+    assert_tag( :tag => "entry", :attributes => {:name => "my_file"} )
+    assert_tag( :tag => "entry", :attributes => {:name => "file_in_linked_package"} )
+    assert_tag( :tag => "linkinfo", :attributes => {:project => "kde4",  :package => "temporary"} )
+    assert_no_tag( :tag => "entry", :attributes => {:name => "_link"} )
+    get "/source/TEMPORARY/temporary2?expand=1"
+    assert_response :success
+    assert_tag( :tag => "entry", :attributes => {:name => "my_file"} )
+    assert_tag( :tag => "entry", :attributes => {:name => "file_in_linked_package"} )
+    assert_tag( :tag => "linkinfo", :attributes => {:project => "kde4",  :package => "temporary2"} )
+    assert_no_tag( :tag => "entry", :attributes => {:name => "_link"} )
+
     # cleanup
-    delete url
+    delete "/source/kde4/temporary"
+    delete "/source/kde4/temporary2"
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/TEMPORARY"
   end
 
   def test_create_links_hidden_project
