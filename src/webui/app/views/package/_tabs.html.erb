@@ -5,14 +5,15 @@
 <div class="box-header header-tabs">
   <ul id="package_tabs">
     <%= package_tab 'Overview', :controller => :package, :action => :show %>
-    <%= package_tab 'Files', :controller => :package, :action => :files %>
+    <%= package_tab 'Source Files', :controller => :package, :action => :files %>
+    <%= package_tab 'Source History', :controller => :package, :action => :source_history %>
     <%= package_tab 'Repositories', :controller => :package, :action => :repositories %>
     <%= package_tab 'Attributes', :controller => :package, :action => :attributes %>
     <%= package_tab 'Users', :controller => :package, :action => :users %>
     <% if @package_has_requests %>
       <%= package_tab "Requests", :controller => :package, :action => 'list_requests'%>
     <% end -%>
-    <%= package_tab 'Raw config', :controller => :package, :action => :meta %>
+    <%= package_tab 'Raw Config', :controller => :package, :action => :meta %>
   </ul>
 
 </div>

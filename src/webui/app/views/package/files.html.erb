@@ -27,43 +27,6 @@
     $("#pTable td#added_parameter_"+number).load(path);
   }
 
-  function slide_history_up() {
-    var number = parseInt(document.getElementById('history_browser_revision').value);
-    number = number + 1;
-    document.getElementById('history_browser_revision').value = number;
-    $('#go_down_button').show();
-    if (number == <%=@maxrevision%>) {
-      $('#go_up_button').hide();
-    }
-
-    $('#historyTable tr:last').remove();
-    $('#historyTable tr:first').before('<tr>'+
-      '<td id=\"commit_item_'+number+'\">...</td>'+
-      '</tr>');
-
-    var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
-    $("#historyTable td#commit_item_"+number).load(path);
-  }
-
-  function slide_history_down() {
-    var number = parseInt(document.getElementById('history_browser_revision').value);
-    number = number - 1;
-    document.getElementById('history_browser_revision').value = number;
-
-    number = number - parseInt(<%=@visible_commits%>) + 1;
-    $('#go_up_button').show();
-    if (number == 1) {
-      $('#go_down_button').hide();
-    }
-    $('#historyTable tr:first').remove();
-    $('#historyTable tr:last').after('<tr>'+
-      '<td id=\"commit_item_'+number+'\">...</td>'+
-      '</tr>');
-
-    var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
-    $("#historyTable td#commit_item_"+number).load(path);
-  }
-
 <% end %>
 
 
@@ -80,83 +43,47 @@
 
 <%= render :partial => 'links' if @link %>
 
-<!-- Source history -->
-<div class="grid_7 alpha">
- <div class="show_left box">
-  <div class="box-header aligncenter">
-    Commit History <%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %>
-  </div>
-  <div id="package_history">
-     <%= if @revision
- 	  render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history}
- 	else
- 	  "<i>No commits exists yet.</i>"
- 	end %>
+<!-- Service list -->
+<h3>Source Services</h3>
+<%= render :partial => 'services' %>
+
+<!-- Source file list -->
+<h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %></h3>
+
+<% unless @files.empty? %>
+  <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
+
+  <% mergejs = "" %>
+  <% if @expand %>
+    <%= check_box_tag 'mergesettings', 'merge', true -%>
+    <% mergejs = "'&expand=' + $('#mergesettings')[0].checked" %>
+  <% elsif @link %>
+    <%= check_box_tag 'mergesettings', 'merge', false -%>
+    <% mergejs = "'&expand=' + $('#mergesettings')[0].checked" %>
+  <% end %>
+  <% if @link %>
+    Show merged sources derived from linked package.
+  <% end %>
+
+  <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
+    :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+    :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+    :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
+  <%= observe_field( :revision, :frequency => 1, :update => :files_view,
+    :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+    :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+    :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
+  <%= observe_field( :srcmd5, :frequency => 1, :update => :files_view,
+    :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
+    :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
+    :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
+<% end %>
+
+<% if @package.can_edit?( session[:login] ) %>
+  <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
+     :action => :add_file, :project => @project, :package => @package %>
+    <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
+  </p>
+<% end %>
  
-     <%= observe_field( :mergesettings, :frequency => 0.5, :update => :sources_history,
-       :url => { :controller => 'package', :action  => 'sources_history', :project => @project, :package => @package, :revision => @revision },
-       :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-       :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
-   </div>
- </div>
-</div>
-
-<!-- Sources -->
-<div class="grid_9 omega">
- <!-- Service list -->
- <div class="show_right box">
-  <div class="box-header aligncenter">
-    Source Services
-  </div>
-  <div>
-    <%= render :partial => 'services' %>
-  </div>
- </div>
-
- <!-- Source file list -->
- <div class="show_right box">
-  <div class="box-header aligncenter">
-    Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
-  </div>
-
-  <div id="package_files">
-    <% unless @files.empty? %>
-      <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
-
-      <% mergejs = "" %>
-      <% if @expand %>
-        <%= check_box_tag 'mergesettings', 'merge', true -%>
-        <% mergejs = "'&expand=' + $('#mergesettings')[0].checked" %>
-      <% elsif @link %>
-        <%= check_box_tag 'mergesettings', 'merge', false -%>
-        <% mergejs = "'&expand=' + $('#mergesettings')[0].checked" %>
-      <% end %>
-      <% if @link %>
-        Show merged sources derived from linked package.
-      <% end %>
-
-      <%= observe_field( :mergesettings, :frequency => 0.5, :update => :files_view,
-        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
-        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
-      <%= observe_field( :revision, :frequency => 1, :update => :files_view,
-        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
-        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
-      <%= observe_field( :srcmd5, :frequency => 1, :update => :files_view,
-        :url => { :controller => 'package', :action  => 'file_table', :project => @project, :package => @package },
-        :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-        :with => "'rev=' + escape($('#revision').attr('value'))" + mergejs ) %>
-    <% end %>
-  
-    <% if @package.can_edit?( session[:login] ) %>
-      <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
-  	:action => :add_file, :project => @project, :package => @package %>
-        <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
-      </p>
-    <% end %>
-  
-  </div>
- </div>
-</div>
 

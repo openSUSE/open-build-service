@@ -118,10 +118,6 @@ class PackageController < ApplicationController
   end
 
   def files
-    # hard coded value for the number of visible commit items in browser
-    @visible_commits = 9
-    @maxrevision = @browserrevision = Package.current_rev(@project, @package.name).to_i
-
     @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or @srcmd5 != params[:srcmd5]
     @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
@@ -150,8 +146,11 @@ class PackageController < ApplicationController
   end
 
   def source_history
+    # hard coded value for the number of visible commit items in browser
+    @visible_commits = 9
+    @maxrevision = Package.current_rev(@project, @package.name).to_i
     @browserrevision = params[:rev]
-    @link = find_cached(Link, :project => @project, :package => @package, :rev => @browserrevision )
+    @browserrevision = @maxrevision unless @browserrevision
   end
 
   def add_service
