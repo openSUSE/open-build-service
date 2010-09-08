@@ -2214,16 +2214,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=200 # wrong ! FIXME
-    resp=404 if $ENABLE_BROKEN_TEST
-    delresp=200 # wrong ! FIXME
-    delresp=404 if $ENABLE_BROKEN_TEST
+    resp=404
+    delresp=200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
-    resp=:success
     # flag not inherited
-    flag=/access/ if $ENABLE_BROKEN_TEST
+    resp=403
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
@@ -2250,9 +2247,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
-    resp=:success
     # flag not inherited - should we inherit in any case to be on the safe side ?
-    flag=/access/ if $ENABLE_BROKEN_TEST
+    resp=:success
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
@@ -2336,16 +2332,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=200 # wrong ! FIXME
-    resp=404 if $ENABLE_BROKEN_TEST
-    delresp=200 # wrong ! FIXME
-    delresp=404 if $ENABLE_BROKEN_TEST
+    resp=403
+    delresp=200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
-    resp=:success
     # flag not inherited
-    flag=/sourceaccess/ if $ENABLE_BROKEN_TEST
+    resp=403
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
@@ -2373,8 +2366,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
     resp=:success
-    # flag not inherited
-    flag=/sourceaccess/ if $ENABLE_BROKEN_TEST
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
