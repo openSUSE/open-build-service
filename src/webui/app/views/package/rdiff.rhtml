@@ -22,7 +22,11 @@
 <% if @rdiff.empty? %>
   <em>No difference</em>
 <% else %>
-  <h2>Diff between <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %> and <%=h @project.name + "/" + @package.name %></h2>
+  <% if params[:commit] %>
+    <h2>Diff of commit <%=params[:commit]%></h2>
+  <% else %>
+    <h2>Diff between <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %> and <%=h @project.name + "/" + @package.name %></h2>
+  <% end %>
 
   <pre id="code" class="patch">
   <%=h @rdiff %>
@@ -37,10 +41,15 @@
   <% if @package.can_edit?( session[:login] ) %>
     <% form_tag({:controller => 'package', :action => 'create_submit', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage}, {:method => :post}) do -%>
       <div>
-        <%= text_field_tag 'description', "Update from web client", :size => "80" -%>
+        <%= text_field_tag 'description', "", :size => "80" -%>
       </div>
       <div>
-        <%= submit_tag "Submit" %>
+        <% if params[:commit] %>
+<!-- FIXME: Add an option to just revert this single commit -->
+          <%= submit_tag "Revert to this revision" %>
+        <% else %>
+          <%= submit_tag "Submit" %>
+        <% end %>
       </div>
     <% end %>
   <% end %>

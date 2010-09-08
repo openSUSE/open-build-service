@@ -20,6 +20,9 @@
     <% unless commit[:user] == "_service" %>
       <br/><i><%= commit[:comment] %></i>
     <% end %>
+      <br/><%= link_to 'Show this commit', :controller => :package, :action => :rdiff, 
+                       :package => @package, :project => @project, :opackage => @package, :oproject => @project,
+                       :commit => commit[:revision], :linkrev => 'base'  %>
   <% else %>
     <i>Revision <%=rev.to_s%> not found</i>
   <% end %>
