@@ -173,7 +173,7 @@ sub run_source_update {
       BSUtil::cleandir(".");
       local *F;
       if (open(F, '>>', "_service_error")) {
-         print F "service $service->{'name'} ".join(' ', @run)." failed:\n";
+         print F "service $service->{'name'} failed:\n";
          print F $output;
          close F;
       }
