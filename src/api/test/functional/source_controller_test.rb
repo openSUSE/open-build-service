@@ -1649,7 +1649,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match match, @response.body if match
     get "/source/#{tprj}" if debug
     print @response.body if debug
-    get "/source/#{tprj}/#{spkg}/_meta"
+    get "/source/#{tprj}/_meta"
     print @response.body if debug
     # FIXME: implementation is not done, change to assert_tag or assert_select
     assert_match testflag, @response.body if testflag
@@ -1736,11 +1736,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # tom/thunder
     prepare_request_with_user "tom", "thunder"
     resp=:success
-    # FIXME: shouldn't we find nothing to branch instead of "Ok" ?
-    resp=404 if $ENABLE_BROKEN_TEST
     match=/Ok/
-    # FIXME: invisible should result in unknown
-    match=/Unknown package pack in project ViewprotectedProject/ if $ENABLE_BROKEN_TEST
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
@@ -2270,16 +2266,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=200 # wrong ! FIXME
-    resp=404 if $ENABLE_BROKEN_TEST
-    delresp=200 # wrong ! FIXME
-    delresp=404 if $ENABLE_BROKEN_TEST
+    resp=200
+    delresp=200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "view_homer", "homer"
     resp=:success
-    # flag not inherited
-    flag=/privacy/ if $ENABLE_BROKEN_TEST
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
@@ -2301,16 +2293,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=:success  # FIXME or VERIFY
-    resp=403 if $ENABLE_BROKEN_TEST
-    delresp=:success # FIXME or VERIFY
-    delresp=403 if $ENABLE_BROKEN_TEST
+    resp=:success
+    delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "view_homer", "homer"
     resp=:success
-    # flag not inherited
-    flag=/privacy/ if $ENABLE_BROKEN_TEST
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
