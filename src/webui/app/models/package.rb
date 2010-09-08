@@ -222,19 +222,25 @@ class Package < ActiveXML::Base
     return c
   end
 
-  def files( rev = nil, expand = false )
+  def files( rev = nil, expand = nil )
     # files whose name ends in the following extensions should not be editable and viewable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
     p = {}
     p[:project] = project
     p[:package] = name
-    p[:expand]  = "1"     if expand == "true"
+    p[:expand]  = "1"     if expand
     p[:rev]     = rev     if rev
     begin
       dir = Directory.find(p)
     rescue
-      return files
+      begin
+        # retry without merging latest base version
+        p[:linkrev] = 'base'
+        dir = Directory.find(p)
+      rescue
+        return files
+      end
     end
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'

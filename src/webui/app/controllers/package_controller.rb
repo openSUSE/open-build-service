@@ -213,7 +213,6 @@ class PackageController < ApplicationController
       # on very first page load only
       @revision = Package.current_rev(@project, @package)
     end
-
     if @srcmd5
       @files = @package.files(@srcmd5, @expand)
     else

@@ -72,11 +72,6 @@
 	else
 	  "<i>No commits exists yet.</i>"
 	end %>
-
-    <%= observe_field( :mergesettings, :frequency => 0.5, :update => :sources_history,
-      :url => { :controller => 'package', :action  => 'sources_history', :project => @project, :package => @package, :revision => @revision },
-      :loading => "$('#spinner_files').show();", :complete => "$('#spinner_files').hide();",
-      :with => "'rev=' + escape($('#revision').attr('value')) + '&expand=' + $('#mergesettings')[0].checked") %>
   </div>
 </div>
 
