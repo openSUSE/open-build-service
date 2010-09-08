@@ -1149,23 +1149,23 @@ class SourceController < ApplicationController
         if action.has_element? 'source'
           if action.source.has_attribute? 'project'
             prj = DbProject.find_by_name action.source.project
-            # ACL(index_branch): access behaves like project not existing
-            if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given project #{action.source.project} does not exist "
-              return
-            end
+            if prj
+              # ACL(index_branch): access behaves like project not existing
+              if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given project #{action.source.project} does not exist "
+                return
+              end
 
-            # ACL(index_branch): source access gives permisson denied
-            if prj and prj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(prj)
-              render_error :status => 403, :errorcode => "source_access_no_permission",
-              :message => "user #{@http_user.login} has no read access to project #{action.source.project}"
-              return
-            end
-
-            unless prj
+              # ACL(index_branch): source access gives permisson denied
+              if prj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(prj)
+                render_error :status => 403, :errorcode => "source_access_no_permission",
+                :message => "user #{@http_user.login} has no read access to project #{action.source.project}"
+                return
+              end
+            else
               render_error :status => 404, :errorcode => 'unknown_project',
-                :message => "Unknown source project #{action.source.project} in request #{params[:request]}"
+              :message => "Unknown source project #{action.source.project} in request #{params[:request]}"
               return
             end
           end
@@ -1263,22 +1263,6 @@ class SourceController < ApplicationController
       branch_target_project = pac.db_project.name
       branch_target_package = pac.name
 
-      btpkg=DbPackage.find_by_project_and_name(branch_target_project, branch_target_package) 
-
-      # ACL(index_branch): access behaves like project not existing
-      if btpkg and btpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(btpkg)
-        render_error :status => 404, :errorcode => 'not_found',
-        :message => "The given package #{branch_target_package} does not exist in project #{branch_target_project}"
-        return
-      end
-
-      # ACL(index_branch): source access gives permisson denied
-      if btpkg and btpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(btpkg)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{@http_user.login} has no read access to package #{branch_target_package}, project #{branch_target_project}"
-        return
-      end
-
       if not params[:request] and a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
           pac = pa
@@ -1314,6 +1298,31 @@ class SourceController < ApplicationController
       end
 
       opkg.store
+
+      btpkg=DbPackage.find_by_project_and_name(branch_target_project, branch_target_package)
+      if btpkg and opkg
+        # ACL(index_branch): access behaves like project not existing
+        if btpkg and btpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(btpkg)
+          render_error :status => 404, :errorcode => 'not_found',
+          :message => "The given package #{branch_target_package} does not exist in project #{branch_target_project}"
+          return
+        end
+
+        # ACL(index_branch): source access gives permisson denied
+        if btpkg and btpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(btpkg)
+          render_error :status => 403, :errorcode => "source_access_no_permission",
+          :message => "user #{@http_user.login} has no read access to package #{branch_target_package}, project #{branch_target_project}"
+          return
+        end
+
+        # ACL(index_branch): check that user does not branch an unprotected project to a protected project
+        if ((opkg.disabled_for?('access', nil, nil) or opkg.disabled_for?('sourceaccess', nil, nil)) and
+            (btpkg.enabled_for?('access', nil, nil) or btpkg.enabled_for?('souceaccess', nil, nil)))
+          render_error :status => 403, :errorcode => "source_access_no_permission" ,
+          :message => "branch of an protected package #{oprj.name}/#{opkg.name} to an unprotected package #{branch_target_project}/#{branch_target_package} "
+          return
+        end
+      end
 
       # branch sources in backend
       Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
@@ -2037,6 +2046,21 @@ class SourceController < ApplicationController
         oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj_name}"
         oprj.add_user @http_user, "maintainer"
         oprj.flags.create( :status => "disable", :flag => 'publish')
+        # ACL(index_package_branch): inherit all access flags from branched project
+        if prj 
+          if prj.disabled_for?('access', nil, nil)
+            oprj.flags.create( :status => "disable", :flag => 'access')
+          end
+          if prj.disabled_for?('sourceaccess', nil, nil)
+            oprj.flags.create( :status => "disable", :flag => 'sourceaccess')
+          end
+          if prj.disabled_for?('binarydownload', nil, nil)
+            oprj.flags.create( :status => "disable", :flag => 'binarydownload')
+          end
+          if prj.enabled_for?('privacy', nil, nil)
+            oprj.flags.create( :status => "enable", :flag => 'privacy')
+          end
+        end
         if prj
           # FIXME: support this also for remote projects
           prj.repositories.each do |repo|
