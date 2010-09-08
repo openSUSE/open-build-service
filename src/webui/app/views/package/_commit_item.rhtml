@@ -18,7 +18,7 @@
             end %>
         <%=fuzzy_time_string(Time.at(commit[:time].to_i).to_s)%>
     <% unless commit[:user] == "_service" %>
-      <div class="info" ><i><%= commit[:comment] %></i></div>
+      <br/><i><%= commit[:comment] %></i>
     <% end %>
   <% else %>
     <i>Revision <%=rev.to_s%> not found</i>

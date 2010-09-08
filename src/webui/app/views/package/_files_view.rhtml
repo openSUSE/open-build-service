@@ -48,12 +48,17 @@
       </tbody>
     </table>
 
+      <div>
     <p>
-    Revision: <%= text_field_tag :revision, @revision, { :size => 3, :disabled => true } %>
-    </p><p>
+        Revision: <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
+    </p>
+      </div>
+
+<!-- Simplified for now.
+    <p>
     Source MD5: <%= text_field_tag :srcmd5, @files[0][:srcmd5], { :size => 33, :disabled => true } %> 
     </p>
-
+-->
   <% else %>
     <p><i>This package has no files yet</i></p>
   <% end %>
