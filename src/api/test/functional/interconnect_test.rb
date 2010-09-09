@@ -204,6 +204,7 @@ class InterConnectTests < ActionController::IntegrationTest
   def test_copy_and_diff_package
     # do copy commands twice to test it with existing target and without
     if $ENABLE_BROKEN_TEST
+#FIXME2.1
     prepare_request_with_user "tom", "thunder"
     post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "LocalProject", :opackage => "remotepackage"
     assert_response :success

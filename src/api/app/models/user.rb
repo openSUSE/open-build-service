@@ -190,7 +190,9 @@ class User < ActiveRecord::Base
     return true if /^home:#{self.login}:/.match( project_name )
     
     return true if has_global_permission? "create_project"
-    return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
+    p = DbProject.find_parent_for(project_name)
+    return false if p.nil?
+    return has_local_permission?( "create_project", p.name)
   end
 
   def can_modify_attribute_definition?(object)
@@ -252,57 +254,55 @@ class User < ActiveRecord::Base
   end
 
   def can_download_binaries?(package)
+    return true if is_admin?
     return true if has_global_permission? "download_binaries"
-
     return true if has_local_permission?("download_binaries", package)
     return false
   end
 
   def can_source_access?(package)
+    return true if is_admin?
     return true if has_global_permission? "source_access"
-
     return true if has_local_permission?("source_access", package)
     return false
   end
 
   def can_private_view?(parm)
+    return true if is_admin?
     return true if has_global_permission? "private_view"
-
     return true if has_local_permission?("private_view", parm)
-
     return false
   end
 
   def can_access?(parm)
+    return true if is_admin?
     return true if has_global_permission? "access"
-
     return true if has_local_permission?("access", parm)
-
     return false
   end
 
   def can_access_viewany?(parm)
+    return true if is_admin?
     return true if can_private_view?(parm)
     return true if can_access?(parm)
-    
     return false
   end
 
   def can_access_downloadbinany?(parm)
+    return true if is_admin?
     if parm.kind_of? DbPackage
       return true if can_download_binaries?(parm)
     end
     return true if can_access?(parm)
-    
     return false
   end
 
   def can_access_downloadsrcany?(parm)
+    return true if is_admin?
     if parm.kind_of? DbPackage
       return true if can_source_access?(parm)
     end
     return true if can_access?(parm)
-    
     return false
   end
 
