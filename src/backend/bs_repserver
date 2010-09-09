@@ -2098,7 +2098,7 @@ sub getbuildinfo_post {
   } elsif (looks_like_kiwi($descr)) {
     $d = Build::Kiwi::parse($bconf, $descr);
     $info->{'imagetype'} = $d->{'imagetype'};
-    $info->{'imagearch'} = @{$d->{'exclarch'}} if $d->{'exclarch'};
+    $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
     $info->{'path'} = $d->{'path'};
     $info->{'file'} = 'upload.kiwi';
   } else {
