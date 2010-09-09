@@ -43,6 +43,7 @@ use Storable ();
 use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
+use File::Basename;
 use Symbol;
 
 use BSConfig;
@@ -2315,9 +2316,31 @@ sub abortbuild {
   return $BSStdServer::return_ok;
 }
 
+sub getqemuinterpreters {
+  my @intrs;
+  my $l;
+  if (open(RegF, "<", "build/qemu-reg")) {
+    while ($l = <RegF>) {
+      my @f = split(':',$l);
+      if (exists $f[6]) {
+	if (-f "$f[6]") {
+	  push @intrs, "$f[6]";
+	}
+      }
+    }
+    close(RegF);
+  }
+  return @intrs;
+}
+
 sub getcode {
   my ($cgi, $dir) = @_;
   my @send;
+  if ($dir eq 'build') {
+    for my $inter (getqemuinterpreters) {
+      push @send, {'name' => (basename("$inter")), 'filename' => "$inter"};
+    }
+  }
   for my $file (grep {!/^\./} ls($dir)) {
     if ($file eq 'Build' && -d "$dir/$file") {
       for my $file2 (grep {!/^\./} ls("$dir/Build")) {
