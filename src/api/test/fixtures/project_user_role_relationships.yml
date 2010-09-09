@@ -57,6 +57,11 @@ adrian3_downloader:
   bs_user_id: 44
   role_id: 5
 
+tom_maintainer_of_LocalProject:
+  db_project_id: 5002
+  bs_user_id: 3
+  role_id: 3
+
 # ViewProtectedProject/privacy
 adrian_maintainer_viewprotect:
   db_project_id: 3003

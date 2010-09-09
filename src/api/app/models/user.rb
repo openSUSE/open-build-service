@@ -156,6 +156,7 @@ class User < ActiveRecord::Base
     unless project.kind_of? DbProject
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
+    return true if is_admin?
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
     return false
@@ -167,6 +168,7 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
 
+    return true if is_admin?
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package
     return false
@@ -178,6 +180,7 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
+    return true if is_admin?
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project
     return false
@@ -192,6 +195,7 @@ class User < ActiveRecord::Base
     return true if has_global_permission? "create_project"
     p = DbProject.find_parent_for(project_name)
     return false if p.nil?
+    return true  if is_admin?
     return has_local_permission?( "create_project", p.name)
   end
 

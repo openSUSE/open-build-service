@@ -352,9 +352,9 @@ class SourceController < ApplicationController
 
       # ACL: check if user is allowed to modify project, if package is not existing yet
       if prj and pkg.nil? and package_creating_commands.include?(cmd)
-        unless @http_user.can_modify_project?(prj)
+        unless @http_user.can_create_package_in?(prj)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to execute command '#{cmd}' for not existing package"
+            :message => "no permission to execute command '#{cmd}' creating not existing package"
           return
         end
       elsif pkg and not read_commands.include?(cmd) and not @http_user.can_modify_package?(pkg)
@@ -1822,9 +1822,9 @@ class SourceController < ApplicationController
 
       # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
       sprj = DbProject.find_by_name(params[:oproject])
-      spkg = sprj.find_package(params[:opackage])
+      spkg = sprj.find_package(params[:opackage]) if sprj
       # FIXME:this will break when copying from remote linked project
-      if ((spkg.disabled_for?('access', nil, nil) or spkg.disabled_for?('sourceaccess', nil, nil)) and
+      if (spkg and (spkg.disabled_for?('access', nil, nil) or spkg.disabled_for?('sourceaccess', nil, nil)) and
           (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('souceaccess', nil, nil)))
         render_error :status => 403, :errorcode => "source_access_no_permission" ,
         :message => "copypack of an protected package #{params[:oproject]}/#{params[:opackage]} to an unprotected package #{params[:project]}/#{params[:package]}"
