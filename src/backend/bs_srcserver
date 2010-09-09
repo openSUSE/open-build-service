@@ -2041,7 +2041,7 @@ sub getprojpack {
 	      }
 	      next;
 	    }
-	    if ($type eq 'kiwi' && $BSConfig::kiwiprojects) {
+	    if ($type eq 'kiwi' && $BSConfig::kiwiprojects && !$cgi->{'ignoredisable'}) {
 	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
 	      if (!$kiwiprojects{$projid}) {
 		$rinfo->{'error'} = 'kiwi image building is not enabled for this project';
