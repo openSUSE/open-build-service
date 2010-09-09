@@ -1,6 +1,5 @@
 <% # locals:
 #   currentRevision: current selected revision by the user
-#   history: History of source commits
 -%>
 
 
@@ -12,21 +11,27 @@
      c = @maxrevision if @maxrevision <= @visible_commits
   %>
 
-  <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>
+  <% if @maxrevision > @visible_commits %>
+    <%= link_to 'Show all commits', :controller => 'package', :action  => 'source_history', :project => @project, :package => @package, :showall => 1 %>
+    <br/>
+    <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>
+  <% end %>
 
   <table id="historyTable">
-    <% (1..c).each do |i| %>
-      <tr id="commit_item_<%=(@browserrevision - i + 1)%>"><td>
+    <% (0..(c-1)).each do |i| %>
+      <tr id="commit_item_<%=(@browserrevision - i)%>"><td>
         <div>
-          <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i + 1) } %>
+          <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i) } %>
         </div>
         <%= link_to "Go to sources",
-              :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i + 1) %> 
+              :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i) %> 
       </td></tr>
     <% end %>
   </table>
 
-  <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button" if @maxrevision > @visible_commits %>
+  <% if @maxrevision > @visible_commits %>
+    <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button" %>
+  <% end %>
 
 </div>
 

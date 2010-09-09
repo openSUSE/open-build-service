@@ -184,7 +184,12 @@ class Package < ActiveXML::Base
     return dir.rev
   end
 
-  def commit( rev = nil )
+  def cacheAllCommits
+    commit( nil, true )
+    return true
+  end
+
+  def commit( rev = nil, cacheAll = nil )
     if rev and rev.to_i < 0
       # going backward from not yet known current revision, find out ...
       r = Package.current_rev(project, name).to_i + rev.to_i + 1
@@ -193,7 +198,17 @@ class Package < ActiveXML::Base
     end
     rev = Package.current_rev(project, name) unless rev
 
-    path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
+    if rev and not cacheAll
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
+      cache_key = "Commit/#{project}/#{name}/#{rev}"
+      c = Rails.cache.fetch(cache_key, :expires_in => 30.minutes)
+      if c
+        return c
+      end
+    else
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history"
+    end
+
 
     frontend = ActiveXML::Config::transport_for( :package )
     begin
@@ -210,15 +225,18 @@ class Package < ActiveXML::Base
          c[:version] = s.find_first("version").content
          c[:time]    = s.find_first("time").content
          c[:srcmd5]  = s.find_first("srcmd5").content
+         c[:comment] = nil
+         c[:requestid] = nil
          if comment=s.find_first("comment")
            c[:comment] = comment.content
          end
          if requestid=s.find_first("requestid")
            c[:requestid] = requestid.content
          end
+         Rails.cache.fetch( cache_key ) { c } if cache_key and c[:revision]
     end
 
-    return nil unless [:revision]
+    return nil unless c[:revision]
     return c
   end
 

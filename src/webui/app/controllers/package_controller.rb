@@ -150,7 +150,14 @@ class PackageController < ApplicationController
     @visible_commits = 9
     @maxrevision = Package.current_rev(@project, @package.name).to_i
     @browserrevision = params[:rev]
-    @browserrevision = @maxrevision unless @browserrevision
+    @browserrevision = @maxrevision if not @browserrevision
+
+    # we need to fetch commits alltogether for the cache and not each single one
+    if params[:showall]
+      p = find_cached(Package, @package.name, :project => @project)
+      p.cacheAllCommits
+      @browserrevision = @visible_commits = @maxrevision
+    end
   end
 
   def add_service
