@@ -306,7 +306,7 @@ module ApplicationHelper
 
     description = "State needs recalculations, former state was: " + description if outdated
 
-    image_tag icon, :size => "16x16", :title => description
+    image_tag icon, :size => "16x16", :title => description, :alt => description
   end
 
 
