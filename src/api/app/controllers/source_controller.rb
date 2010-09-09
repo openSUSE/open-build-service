@@ -609,12 +609,18 @@ class SourceController < ApplicationController
       return
     end
 
-    @project = DbProject.find_by_name( project_name )
     # ACL(project_meta): if access is set, this behaves like project non existing
-    if @project and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
-      render_error :message => "Unknown project '#{project_name}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
+    flag_access = false
+    flag_sourceaccess = false
+    @project = DbProject.find_by_name( project_name )
+    if @project
+      flag_access       = @project.disabled_for?('access', nil, nil)
+      flag_sourceaccess = @project.disabled_for?('sourceaccess', nil, nil)
+      if flag_access and not @http_user.can_access?(@project)
+        render_error :message => "Unknown project '#{project_name}'",
+        :status => 404, :errorcode => "unknown_project"
+        return
+      end
     end
 
     if request.get?
@@ -713,14 +719,14 @@ class SourceController < ApplicationController
           end
         else
           # ACL(project_meta): project link to project with access behaves like target project not existing
-          if tprj and tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+          if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
             render_error :status => 404, :errorcode => 'not_found',
             :message => "The project #{tproject_name} does not exist"
             return
           end
 
           # ACL(project_meta): project link to project with binarydownload gives permisson denied
-          if tprj and tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+          if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
             render_error :status => 403, :errorcode => "binary_download_no_permission",
             :message => "No permission for a repository path to project #{tproject_name}"
             return
@@ -756,6 +762,29 @@ class SourceController < ApplicationController
 
       p.add_person(:userid => @http_user.login) unless @project
       p.save
+
+      # ACL(project_meta): raising the protection level of a project from open to source protected is forbidden for security reasons
+      prj = DbProject.find_by_name( project_name )
+
+      if @project
+        if (not flag_access and prj.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and prj.disabled_for?('sourceaccess', nil, nil)) and not
+            @http_user.is_admin?
+          
+          DbProject.transaction do
+            if not flag_access
+              prj.remove_flag('access', nil, nil)
+            end
+            if not flag_sourceaccess
+              prj.remove_flag('sourceaccess', nil, nil)
+            end
+            prj.store
+          end
+
+          render_error :status => 403, :errorcode => "change_project_protection_level",
+          :message => "admin rights are required to raise the protection level of a project"
+          return
+        end
+      end
 
       render_ok
     else
@@ -850,8 +879,17 @@ class SourceController < ApplicationController
   end
 
   def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
-    # ACL(update_package_meta) TODO: check if this needs to be instrumented
     allowed = false
+
+    # ACL(update_package_meta): save old permissions to check for illegal raise of protection level later
+    flag_access = false
+    flag_sourceaccess = false
+    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+    if pkg
+      flag_access       = pkg.disabled_for?('access', nil, nil)
+      flag_sourceaccess = pkg.disabled_for?('sourceaccess', nil, nil)
+    end
+
     # Try to fetch the package to see if it already exists
     @package = Package.find( package_name, :project => project_name )
 
@@ -896,6 +934,30 @@ class SourceController < ApplicationController
         render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
         return
       end
+
+
+      # ACL(update_package_meta): raising the protection level of a project from open to source protected is forbidden for security reasons
+      tpkg = DbPackage.find_by_project_and_name(project_name, package_name)
+      if pkg
+        if (not flag_access and tpkg.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and tpkg.disabled_for?('sourceaccess', nil, nil)) and not
+            @http_user.is_admin?
+          
+          DbPackage.transaction do
+            if not flag_access
+              tpkg.remove_flag('access', nil, nil)
+            end
+            if not flag_sourceaccess
+              tpkg.remove_flag('sourceaccess', nil, nil)
+            end
+            tpkg.store
+          end
+
+          render_error :status => 403, :errorcode => "change_package_protection_level",
+          :message => "admin rights are required to raise the protection level of a package"
+          return
+        end
+      end
+
       render_ok
     else
       logger.debug "user #{user} has no permission to write package meta for package #{@package}"
@@ -2156,6 +2218,20 @@ class SourceController < ApplicationController
       :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
     end
+    # ACL(index_package_set_flag): you are not allowed to protect an unprotected package with access
+    if params[:flag] == "access" and params[:status] == "disable" and pkg.enabled_for?('access', params[:repository], params[:arch]) and not
+            @http_user.is_admin?
+      render_error :status => 403, :errorcode => "change_package_protection_level",
+      :message => "admin rights are required to raise the protection level of a package"
+      return
+    end
+    # ACL(index_package_set_flag): you are not allowed to protect an unprotected package with sourceaccess
+    if params[:flag] == "sourceaccess" and params[:status] == "disable" and pkg.enabled_for?('sourceaccess', params[:repository], params[:arch]) and not
+        @http_user.is_admin? 
+      render_error :status => 403, :errorcode => "change_package_protection_level",
+      :message => "admin rights are required to raise the protection level of a package"
+      return
+    end
 
     # first remove former flags of the same class
     begin
@@ -2197,6 +2273,20 @@ class SourceController < ApplicationController
     if prj and prj.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(prj)
       render_error :status => 404, :errorcode => 'unknown_project',
       :message => "Unknown project '#{prj_name}'"
+      return
+    end
+    # ACL(index_project_set_flag): you are not allowed to protect an unprotected project with access
+    if params[:flag] == "access" and params[:status] == "disable" and prj.enabled_for?('access', params[:repository], params[:arch]) and not
+        @http_user.is_admin?
+      render_error :status => 403, :errorcode => "change_project_protection_level",
+      :message => "admin rights are required to raise the protection level of a project"
+      return
+    end
+    # ACL(index_project_set_flag): you are not allowed to protect an unprotected project with sourceaccess
+    if params[:flag] == "sourceaccess" and params[:status] == "disable" and prj.enabled_for?('sourceaccess', params[:repository], params[:arch]) and not
+        @http_user.is_admin?
+      render_error :status => 403, :errorcode => "change_project_protection_level",
+      :message => "admin rights are required to raise the protection level of a project"
       return
     end
 
