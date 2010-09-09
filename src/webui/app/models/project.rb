@@ -60,7 +60,7 @@ class Project < ActiveXML::Base
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
     p = Project.find pro_name
-    return true if p.has_element? :mountproject
+    return true if p && p.has_element?(:mountproject)
     return false
   end
   
