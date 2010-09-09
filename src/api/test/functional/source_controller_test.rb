@@ -1835,7 +1835,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match(/no permission to execute command 'branch' creating not existing package/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
     assert_response 403
-    assert_match(/no permission to execute command 'branch' for not existing package/, @response.body)
+    assert_match(/no permission to execute command 'branch' creating not existing package/, @response.body)
  
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
