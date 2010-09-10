@@ -1661,8 +1661,6 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def test_branch_package_hidden_project_new
-    # hidden -> open
-    # FIXME: package doesn't inherit access from project on branch
     # unauthorized
     ActionController::IntegrationTest::reset_auth 
     sprj="HiddenProject"  # source project
@@ -1740,7 +1738,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     resp=:success
     match=/Ok/
     delresp=:success
-    #FIXME: TBD: This package is not viewable, but I should be able to branch it ?
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
     prepare_request_with_user "view_homer", "homer"
@@ -1748,9 +1745,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     resp=:success
     delresp=:success
     match=/>ViewprotectedProject</
-    # FIXME: flag inheritance on branch
     testflag=/<privacy>/
-    #FIXME: TBD: This package is not viewable, but I should be able to branch it ?
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
     prepare_request_with_user "king", "sunflower"
