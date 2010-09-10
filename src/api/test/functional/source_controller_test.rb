@@ -1270,12 +1270,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_tag :tag => 'status', :attributes => { :code => "ok"}
     #reverse
-    # FIXME: unclear implementation - leak
     post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
-    assert_response :success if $ENABLE_BROKEN_TEST
-    assert_tag :tag => 'status', :attributes => { :code => "unknown_package"} if $ENABLE_BROKEN_TEST
+    assert_response :success
 
     prepare_request_with_user "view_homer", "homer"
     post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
@@ -1689,7 +1686,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     resp=:success
     delresp=:success
     match=/>HiddenProject</
-    testflag=/<access>/ if $ENABLE_BROKEN_TEST
+    testflag=/<access>/
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
     prepare_request_with_user "king", "sunflower"
@@ -1718,7 +1715,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     resp=:success
     delresp=:success
     match=/>HiddenProject</
-    testflag=/<access>/ if $ENABLE_BROKEN_TEST
+    testflag=/<access>/
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
     prepare_request_with_user "king", "sunflower"
@@ -1742,19 +1739,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     resp=:success
     match=/Ok/
-    delresp=404
+    delresp=:success
     #FIXME: TBD: This package is not viewable, but I should be able to branch it ?
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug) if $ENABLE_BROKEN_TEST
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
     prepare_request_with_user "view_homer", "homer"
     tprj="home:view_homer"
-    resp=:success if $ENABLE_BROKEN_TEST
+    resp=:success
     delresp=:success
     match=/>ViewprotectedProject</
     # FIXME: flag inheritance on branch
     testflag=/<privacy>/
     #FIXME: TBD: This package is not viewable, but I should be able to branch it ?
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug) if $ENABLE_BROKEN_TEST
+    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
     prepare_request_with_user "king", "sunflower"
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
@@ -1813,8 +1810,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     tprj="home:sourceaccess_homer"
     resp=:success
     match="SourceprotectedProject"
-#FIXME2.1:
-    testflag=/sourceaccess/ if $ENABLE_BROKEN_TEST
+    testflag=/sourceaccess/
     delresp=:success
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
