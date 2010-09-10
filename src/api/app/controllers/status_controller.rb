@@ -79,7 +79,7 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-    # ACL(workerstatus) TODO: this is an information leak if all packages / projects even hidden ones are listed
+    # ACL(workerstatus) TODO: this is an information leak. PRIO: packages / projects hidden are displayed when building
      data = Rails.cache.fetch('workerstatus') do
        update_workerstatus_cache
      end
@@ -87,7 +87,7 @@ class StatusController < ApplicationController
   end
 
   def history
-      # ACL(history) TODO: check this leaks no information that is prevented by ACL
+      # ACL(history) TODO: check this leaks no information that is prevented by ACL. Seems to sent an empty list. API call looks unused
      hours = params[:hours] || "24"
      starttime = Time.now.to_i - hours.to_i * 3600
      @data = Hash.new
