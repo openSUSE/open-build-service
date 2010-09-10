@@ -178,19 +178,6 @@ class RequestController < ApplicationController
         end
       end
 
-      # ACL(create_create): in case of access, package is really hidden and shown as non existing to users without access
-      if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
-        render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{action.target.package} in project #{action.target.project}"
-        return
-      end
-      # ACL(create_create): in case of sourceaccess, give permission denied 
-      if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{params[:user]} has no read access to package #{action.target.package}, project #{action.target.project}"
-        return
-      end
-
       # Type specific checks
       if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
         #check existence of target
@@ -271,13 +258,13 @@ class RequestController < ApplicationController
         if spkg
           unless @http_user.can_modify_package? spkg
             render_error :status => 403, :errorcode => "create_request_no_permission",
-              :message => "No permission to create request for package '#{spkg.name}' in project '#{sprj.name}'"
+              :message => "No permission to create request for package '#{spkg.name}' in project '#{sprj.name}', only maintainers can create requests."
             return
           end
         else
           unless @http_user.can_modify_project? sprj
             render_error :status => 403, :errorcode => "create_request_no_permission",
-              :message => "No permission to create request based on project '#{sprj.name}'"
+              :message => "No permission to create request based on project '#{sprj.name}', only maintainers can create requests."
             return
           end
         end
@@ -373,6 +360,7 @@ class RequestController < ApplicationController
       if action.data.attributes["type"] == "submit" and action.target.project and action.target.package
         transport = ActiveXML::Config::transport_for(:request)
         path = nil
+
         if action.has_element? :acceptinfo
           # OBS 2.1 adds acceptinfo on request accept
           path = "/source/%s/%s?cmd=diff" %
@@ -391,8 +379,35 @@ class RequestController < ApplicationController
             path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
           end
         else
+          spkg = DbPackage.find_by_project_and_name( action.source.project, action.source.package )
+          tpkg = DbPackage.find_by_project_and_name( action.target.project, action.target.package )
+          unless spkg
+              render_error :status => 404, :errorcode => "unknown_package",
+                 :message => "Source package #{action.source.package}, project #{action.source.project} does not exist"
+              return
+          end
+          # ACL: show diff only if user has either read access rights in source or has maintainer rights in target
+          if spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
+            isTargetMaintainer = false
+            if @http_user
+              if tpkg
+                isTargetMaintainer = true if @http_user.can_modify_package?(tpkg)
+              else
+                tprj = DbProject.find_by_name( action.target.project ) unless tpkg
+                if tprj and @http_user.can_create_package_in?(tprj)
+                  isTargetMaintainer = true
+                end
+              end
+            end
+            if @http_user.nil? or not isTargetMaintainer
+              render_error :status => 403, :errorcode => "source_access_no_permission",
+                 :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project} and is not a maintainer of package #{action.target.package}, project #{action.target.project}"
+              return
+            end
+          end
+
           # for requests not yet accepted or accepted with OBS 2.0 and before
-          if DbPackage.find_by_project_and_name( action.target.project, action.target.package )
+          if tpkg
             path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
                    [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
             if action.source.data['rev']

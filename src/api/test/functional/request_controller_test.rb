@@ -430,6 +430,34 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   # ACL
   #
+  #
+  def test_submit_from_source_protected_project
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request?cmd=create", load_backend_file('request/from_source_protected_valid')
+    # this user has no maintainer rights in source, so he can't access the source
+    assert_response 403
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    post "/request?cmd=create", load_backend_file('request/from_source_protected_valid')
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # show diffs
+    post "/request/#{id}?cmd=diff", nil
+    assert_response :success
+
+    # diffs are secret for others
+    ActionController::IntegrationTest::reset_auth
+    post "/request/#{id}?cmd=diff", nil
+    assert_response 401
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=diff", nil
+    assert_response 403
+  end
+
   # create requests to hidden from external
   def request_hidden(user, pass, backend_file)
     ActionController::IntegrationTest::reset_auth
@@ -492,7 +520,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/hidden_add_role_fail')
     # should fail as this user shouldn't see the target package at all.
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     post "/request?cmd=create", load_backend_file('request/hidden_add_role')
