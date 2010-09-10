@@ -5,7 +5,7 @@ class StatusController < ApplicationController
   skip_before_filter :extract_user, :only => [ :history, :project ]
 
   def messages
-    # ACL(history) TODO: check this leaks no information that is prevented by ACL
+    # ACL(messages) TODO: check this leaks no information that is prevented by ACL
     if request.get?
 
       @messages = StatusMessage.find :all,
@@ -160,7 +160,7 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
-    # ACL(history) TODO: check this leaks no information that is prevented by ACL
+    # ACL(project) TODO: check this leaks no information that is prevented by ACL. API call looks unused
      dbproj = DbProject.find_by_name(params[:id])
      if ! dbproj
         render_error :status => 404, :errorcode => "no such project",
@@ -176,7 +176,7 @@ class StatusController < ApplicationController
   end
 
   def bsrequest
-    # ACL(bsrequest) TODO: this should say 404 for requests that are protected
+    # ACL(bsrequest) TODO: this should say 404 for requests that are protected. API call looks unused
     required_parameters :id
     req = BsRequest.find :id => params[:id]
     if req.action.value('type') != 'submit'
