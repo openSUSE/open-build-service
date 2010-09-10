@@ -98,12 +98,22 @@ class PublicController < ApplicationController
       render :text => '<directory count="0"></directory>', :content_type => "text/xml"
       return
     end
-    @http_user=ouser
 
-    # ACL(project_index): TODO this lists also hidden projects because done in the backend, information exploit
-    path = unshift_public(request.path)
-    path += "?#{request.query_string}" unless request.query_string.empty?
-    pass_to_backend path
+    if prj
+      # ACL(projectlist): a project lists only if project is not protected
+      path = unshift_public(request.path)
+      path += "?#{request.query_string}" unless request.query_string.empty?
+      pass_to_backend path
+    else
+      dir = Project.find :all
+      # ACL(projectlist): projects with flag 'access' are not listed
+      accessprjs = DbProject.find( :all, :joins => "LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id", :conditions => [ "f.flag = 'access'", "ISNULL(f.repo)", "ISNULL(f.architecture_id)"] )
+      accessprjs.each do |prj|
+        dir.delete_element("//entry[@name='#{prj.name}']") if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      end
+      render :text => dir.dump_xml, :content_type => "text/xml"
+    end
+    @http_user=ouser
   end
 
   # GET /public/source/:prj/_config
