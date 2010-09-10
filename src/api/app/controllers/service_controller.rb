@@ -3,12 +3,15 @@ require "rexml/document"
 class ServiceController < ApplicationController
 
   def index
-     pass_to_backend 
+
+    # ACL(index) TODO: this is an uninstrumented call
+    pass_to_backend 
   end
 
   def index_service
-     pass_to_backend 
+    
+    # ACL(index_service) TODO: this is an uninstrumented call
+    pass_to_backend 
   end
 
 end
-
