@@ -3158,6 +3158,7 @@ my %changed_high;
 my %changed_dirty;
 my %prpfinished;
 my %lastcheck;
+my %delayedfetchprojpacks;
 
 my %lookat_next;	# not so important, next series
 my @lookat_low;         # not so important
@@ -3229,6 +3230,13 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     for my $prp (@prps) {
       $prpnotready{$prp} = $oldprpnotready->{$prp} if exists $oldprpnotready->{$prp};
     }
+
+    # update delayedfetchprojpacks hash
+    my $olddelayedfetchprojpacks = $schedstate->{'delayedfetchprojpacks'} || {};
+    for my $projid (keys %$projpacks) {
+      $delayedfetchprojpacks{$projid} = $olddelayedfetchprojpacks->{$projid};
+    }
+
     # use old start values
     if ($schedstate->{'watchremote_start'}) {
       %watchremote_start = %{$schedstate->{'watchremote_start'}};
@@ -3638,6 +3646,7 @@ while(1) {
 	$schedstate->{'lookat_oobhigh'} = \@lookat_high;
 	$schedstate->{'prpfinished'} = \%prpfinished;
 	$schedstate->{'globalnotready'} = \%prpnotready;
+	$schedstate->{'delayedfetchprojpacks'} = \%delayedfetchprojpacks;
 	$schedstate->{'watchremote_start'} = \%watchremote_start;
 	unlink("$rundir/bs_sched.$myarch.state");
 	BSUtil::store("$rundir/bs_sched.$myarch.state.new", "$rundir/bs_sched.$myarch.state", $schedstate);
@@ -3687,6 +3696,15 @@ while(1) {
     }
 
     if (%fetchprojpacks) {
+      for my $projid (sort keys %fetchprojpacks) {
+	next if grep {!defined($_)} @{$fetchprojpacks{$projid}};
+	# only source updates, delay them
+	push @{$delayedfetchprojpacks{$projid}}, @{$fetchprojpacks{$projid}};
+	delete $fetchprojpacks{$projid};
+      }
+    }
+
+    if (%fetchprojpacks) {
       # pass1: fetch all projpacks
       for my $projid (sort keys %fetchprojpacks) {
 	my $fetchedall;
@@ -3712,6 +3730,7 @@ while(1) {
 	  my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
 	  get_projpacks($projid, sort keys %packids) if %packids;
 	}
+	delete $delayedfetchprojpacks{$projid} if $fetchedall;
       }
       get_projpacks_postprocess();
 
@@ -3915,6 +3934,28 @@ while(1) {
     }
     rmdir("$reporoot/$projid");		# in case this was the last repo
     next;
+  }
+
+  # do delayed projpack fetches
+  while ($delayedfetchprojpacks{$projid}) {
+    my %packids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
+    delete $delayedfetchprojpacks{$projid};
+    get_projpacks($projid, sort keys %packids) if %packids;
+    get_projpacks_postprocess();
+    for my $packid (sort keys %packids) {
+      for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
+	my $lpackid = defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
+	next if $linfo->{'myproject'} eq $projid && $packids{$lpackid};
+	push @{$delayedfetchprojpacks{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
+	for my $lprp (@prps) {
+	  next if $lprp eq $prp;
+	  if ((split('/', $lprp, 2))[0] eq $linfo->{'myproject'}) {
+	    $changed_med{$lprp} ||= 1;
+	    $changed_dirty{$lprp} = 1;
+	  }
+	}
+      }
+    }
   }
 
   if (!$prpsearchpath{$prp}) {
