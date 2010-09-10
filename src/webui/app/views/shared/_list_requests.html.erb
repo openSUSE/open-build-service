@@ -46,7 +46,7 @@
           <td>
             <%= if action_elem.has_element?(:target) && action_elem.target.has_attribute?(:package)
               out = "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->"
-              if reqtype(req) != "delete" and !hide_package
+              if reqtype(req) != "delete" or !hide_package
                  out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 )
               else
                  out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 )
