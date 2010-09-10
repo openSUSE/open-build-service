@@ -24,6 +24,8 @@ class StatisticsController < ApplicationController
     attr_accessor :errors
 
     def initialize
+
+      # ACL(initialize) TODO: this call grabs all projects/packages/repos/archs, even for protected projects / packages
       @errors = []
       # build hashes for caching id-/name- combinations
       projects = DbProject.find :all, :select => 'id, name'
@@ -38,6 +40,8 @@ class StatisticsController < ApplicationController
     end
 
     def tag_start name, attrs
+
+      # ACL(tag_start) TODO: this call returns info about protected projects / packages / repos / archs / files
       case name
       when 'project'
         @@project_name = attrs['name']
@@ -70,6 +74,8 @@ class StatisticsController < ApplicationController
     end
 
     def text( text )
+
+      # ACL(text) TODO: potential security hole
       text.strip!
       return if text == ''
       unless @@project_id and @@package_id and @@repo_id and @@arch_id and @@count
@@ -128,6 +134,8 @@ class StatisticsController < ApplicationController
 
 
   def index
+
+    # ACL(index): nothing
     text =  "This is the statistics controller.<br />"
     text += "See the api documentation for details."
     render :text => text
@@ -136,8 +144,9 @@ class StatisticsController < ApplicationController
 
   def highest_rated
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 10.minutes
+    # response.time_to_live = 10.minutes
 
+    # ACL(highest_rated) TODO: need to check if this really needs additional protection
     ratings = Rating.find :all,
       :select => 'object_id, object_type, count(score) as count,' +
         'sum(score)/count(score) as score_calculated',
@@ -152,6 +161,7 @@ class StatisticsController < ApplicationController
     @package = params[:package]
     @project = params[:project]
 
+    # ACL(rating) TODO: this call needs ACL check
     begin
       object = DbProject.find_by_name @project
       object = DbPackage.find :first, :conditions =>
@@ -204,7 +214,9 @@ class StatisticsController < ApplicationController
 
   def download_counter
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 30.minutes
+    #    response.time_to_live = 30.minutes
+
+    # ACL(download_counter) TODO: this call directly grab project / package info an thus has to be instrumented
 
     # initialize @stats
     @stats = []
@@ -313,6 +325,9 @@ class StatisticsController < ApplicationController
 
     #breakpoint "redirect problem"
     # check permissions
+
+    # ACL(redirect_stats) TODO: check if this needs instrumentation
+
     unless permissions.set_download_counters
       render_error :status => 403, :errorcode => "permission denied",
         :message => "download counters cannot be set, insufficient permissions"
@@ -366,6 +381,7 @@ class StatisticsController < ApplicationController
     # check permissions
     # no permission needed
 
+    # ACL(newest_stats) TODO: check if this needs instrumentation
     ds = DownloadStat.find :first, :order => "counted_at DESC", :limit => 1
     @newest_stats = ds.nil? ? Time.at(0).xmlschema : ds.counted_at.xmlschema
   end
@@ -374,7 +390,9 @@ class StatisticsController < ApplicationController
 
   def most_active
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 30.minutes
+    #    response.time_to_live = 30.minutes
+
+    # ACL(most_active) TODO: this needs to hide protected projects / packages
 
     @type = params[:type] or @type = 'packages'
 
@@ -420,6 +438,9 @@ class StatisticsController < ApplicationController
 
 
   def activity
+
+    # ACL(activity) TODO: this needs to hide protected projects / packages
+
     @project = DbProject.find_by_name params[:project]
     @package = DbPackage.find :first, :conditions => [
       'name=? AND db_project_id=?', params[:package], @project.id ] if @project
@@ -428,7 +449,9 @@ class StatisticsController < ApplicationController
 
   def latest_added
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 5.minutes
+    #    response.time_to_live = 5.minutes
+
+    # ACL(latest_added) TODO: this needs to hide protected projects / packages
 
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
@@ -449,6 +472,8 @@ class StatisticsController < ApplicationController
 
 
   def added_timestamp
+
+    # ACL(added_timestamp) TODO: this needs to hide protected projects / packages
     @project = DbProject.find_by_name( params[:project] )
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
@@ -480,6 +505,8 @@ class StatisticsController < ApplicationController
 
 
   def updated_timestamp
+
+    # ACL(updated_timestamp) TODO: this exploits hidden projects / packages
     @project = DbProject.find_by_name( params[:project] )
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
@@ -488,6 +515,8 @@ class StatisticsController < ApplicationController
 
 
   def global_counters
+
+    # ACL(global_counters) TODO: this does indirectly exploit information that hidden projects are present. do we want to lie about those numbers?
     @users = User.count
     @repos = Repository.count
     @projects = DbProject.count
@@ -497,13 +526,14 @@ class StatisticsController < ApplicationController
 
   def latest_built
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 10.minutes
+    #    response.time_to_live = 10.minutes
 
     # TODO: implement or decide to abolish this functionality
   end
 
 
   def get_limit
+
     @limit = 10 if (@limit = params[:limit].to_i) == 0
   end
 
