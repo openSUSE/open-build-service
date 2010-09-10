@@ -3701,6 +3701,12 @@ while(1) {
 	# only source updates, delay them
 	push @{$delayedfetchprojpacks{$projid}}, @{$fetchprojpacks{$projid}};
 	delete $fetchprojpacks{$projid};
+	for my $prp (@prps) {
+	  if ((split('/', $prp, 2))[0] eq $projid) {
+	    $changed_high{$prp} ||= 1;
+            $changed_dirty{$prp} = 1;
+	  }
+	}
       }
     }
 
