@@ -161,7 +161,7 @@ class StatisticsController < ApplicationController
     @package = params[:package]
     @project = params[:project]
 
-    # ACL(rating) TODO: this call needs ACL check
+    # ACL(rating) TODO: this call needs ACL check. PRIO: you can rate protected projects / packages
     begin
       object = DbProject.find_by_name @project
       object = DbPackage.find :first, :conditions =>
@@ -216,7 +216,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 30.minutes
 
-    # ACL(download_counter) TODO: this call directly grab project / package info an thus has to be instrumented
+    # ACL(download_counter) TODO: this call is not instrumented
 
     # initialize @stats
     @stats = []
@@ -392,7 +392,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 30.minutes
 
-    # ACL(most_active) TODO: this needs to hide protected projects / packages
+    # ACL(most_active) TODO: this needs instrumentation. PRIO: hide protected projects / packages
 
     @type = params[:type] or @type = 'packages'
 
@@ -439,7 +439,7 @@ class StatisticsController < ApplicationController
 
   def activity
 
-    # ACL(activity) TODO: this needs to hide protected projects / packages
+    # ACL(activity) TODO: instrument. PRIO: this needs to instrument projects / packages access
 
     @project = DbProject.find_by_name params[:project]
     @package = DbPackage.find :first, :conditions => [
@@ -451,7 +451,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 5.minutes
 
-    # ACL(latest_added) TODO: this needs to hide protected projects / packages
+    # ACL(latest_added) TODO: instrument. PRIO: this needs to hide protected projects / packages
 
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
@@ -473,7 +473,7 @@ class StatisticsController < ApplicationController
 
   def added_timestamp
 
-    # ACL(added_timestamp) TODO: this needs to hide protected projects / packages
+    # ACL(added_timestamp) TODO: instrument.
     @project = DbProject.find_by_name( params[:project] )
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
@@ -483,9 +483,9 @@ class StatisticsController < ApplicationController
 
   def latest_updated
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 5.minutes
+    #    response.time_to_live = 5.minutes
 
-    # ACL(latest_updated) TODO: this exploits hidden projects. even shown without loggin in (when cookies are off in the webbrowser on WebUI)
+    # ACL(latest_updated) TODO: instrument. PRIO: this displays also protected projects / packages 
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.updated_at, pro.name AS project_name',
@@ -506,7 +506,7 @@ class StatisticsController < ApplicationController
 
   def updated_timestamp
 
-    # ACL(updated_timestamp) TODO: this exploits hidden projects / packages
+    # ACL(updated_timestamp) TODO: instrument.
     @project = DbProject.find_by_name( params[:project] )
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
