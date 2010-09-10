@@ -222,14 +222,14 @@ class SourceController < ApplicationController
       sprj = DbProject.find_by_name(origin_project_name)
       spkg = sprj.find_package(origin_package_name) if sprj
    
-      # ACL: access behaves like package / project not existing
+      # ACL(index_package): access behaves like package / project not existing
       if spkg and spkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(spkg)
         render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package '#{origin_package_name}' in project '#{origin_project_name}'"
         return
       end
 
-      # ACL: source access gives permisson denied
+      # ACL(index_package): source access gives permisson denied
       if spkg and spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
         render_error :status => 403, :errorcode => "source_access_no_permission",
         :message => "user #{params[:user]} has no read access to package #{origin_package_name} in project #{origin_project_name}"
