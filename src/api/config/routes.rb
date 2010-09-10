@@ -201,7 +201,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'search/project', :controller => "search", :action => "project"
   map.connect 'search/package', :controller => "search", :action => "package"
   map.connect 'search/attribute', :controller => "search", :action => "attribute"
-  # ACL(/search) TODO: direct passed call to  "pass_to_backend"
+  # ACL(/search): direct passed call to  "pass_to_backend". displays usage of search call.
   map.connect 'search', :controller => "search", :action => "pass_to_backend"
 
   ### /build
@@ -239,9 +239,9 @@ ActionController::Routing::Routes.draw do |map|
     :controller => "status", :action => "workerstatus"
   map.connect 'build/:project',
     :controller => "build", :action => "project_index", :project => /[^\/]*/
-  # ACL(/build) TODO: direct passed call to  "pass_to_backend"
+  # ACL(/build): this displays a project list. so we direct it to public controller build which displays all but the protected projects
   map.connect 'build',
-    :controller => "build", :action => "pass_to_backend"
+    :controller => "public", :action => "project_index"
 
   ### /published
 
@@ -256,7 +256,7 @@ ActionController::Routing::Routes.draw do |map|
   # ACL(/published/:project) TODO: direct passed call to  "pass_to_backend"
   map.connect 'published/:project',
     :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/
-  # ACL(/published/) TODO: direct passed call to  "pass_to_backend"
+  # ACL(/published/) TODO: direct passed call to  "pass_to_backend". PRIO: This displays also protected projects names.
   map.connect 'published/',
     :controller => "published", :action => "pass_to_backend"
 
