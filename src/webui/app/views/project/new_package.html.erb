@@ -19,7 +19,10 @@
 <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
 <strong>Description:</strong><br/>
 <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
-<%= check_box_tag 'source_protection', false %><strong>Deny access to sources of package.</strong><br/>
+<% unless HIDE_PRIVATE_OPTIONS == true %>
+  <%= check_box_tag :source_protection %><strong>Deny access to sources of package.</strong><br/>
+<% end %>
+<%= check_box_tag :disable_publishing %> <strong>Disable build results publishing.</strong><br/>
 <%= submit_tag %>
 <%= hidden_field_tag 'project', @project.name %>
 </p>

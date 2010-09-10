@@ -364,6 +364,10 @@ class PackageController < ApplicationController
       @package.add_element "sourceaccess"
       @package.sourceaccess.add_element "disable"
     end
+    if params[:disable_publishing]
+      @package.add_element "publish"
+      @package.publish.add_element "disable"
+    end
     if @package.save
       flash[:note] = "Package '#{@package}' was created successfully"
       Rails.cache.delete("%s_packages_mainpage" % @project)

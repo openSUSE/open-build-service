@@ -462,6 +462,10 @@ class ProjectController < ApplicationController
       @project.add_element "sourceaccess"
       @project.sourceaccess.add_element "disable"
     end
+    if params[:disable_publishing]
+      @project.add_element "publish"
+      @project.publish.add_element "disable"
+    end
     begin
       if @project.save
         flash[:note] = "Project '#{@project}' was created successfully"

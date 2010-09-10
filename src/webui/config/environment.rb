@@ -87,6 +87,11 @@ if CONFIG['default_enabled_architectures']
 else
    DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
 end
+if CONFIG['hide_private_options'] == true
+   HIDE_PRIVATE_OPTIONS = true
+else
+   HIDE_PRIVATE_OPTIONS = false
+end
 
 MONITOR_IMAGEMAP = { 
       'i586_waiting' => [
