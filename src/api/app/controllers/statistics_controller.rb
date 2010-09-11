@@ -161,7 +161,7 @@ class StatisticsController < ApplicationController
     @package = params[:package]
     @project = params[:project]
 
-    # ACL(rating) TODO: this call needs ACL check. PRIO: you can rate protected projects / packages
+    # ACL(rating) TODO: this needs to instrument projects / packages access
     begin
       object = DbProject.find_by_name @project
       object = DbPackage.find :first, :conditions =>
@@ -392,8 +392,6 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 30.minutes
 
-    # ACL(most_active) TODO: this needs instrumentation. PRIO: hide protected projects / packages
-
     @type = params[:type] or @type = 'packages'
 
     if @type == 'projects'
@@ -407,10 +405,14 @@ class StatisticsController < ApplicationController
       # count packages per project and sum up activity values
       projects = {}
       @packages.each do |package|
-        pro = package.project_name
-        projects[pro] ||= { :count => 0, :sum => 0 }
-        projects[pro][:count] += 1
-        projects[pro][:sum] += package.activity_value.to_f
+        prj = DbProject.find_by_name package.project_name
+        # ACL(most_active): dont put protected packages to the list
+        if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
+          pro = package.project_name
+          projects[pro] ||= { :count => 0, :sum => 0 }
+          projects[pro][:count] += 1
+          projects[pro][:sum] += package.activity_value.to_f
+        end
       end
       # calculate average activity of packages per project
       projects.each_key do |pro|
@@ -425,21 +427,30 @@ class StatisticsController < ApplicationController
 
     elsif @type == 'packages'
       # get all packages including activity values
+      # FIXME: calculate the number of hidden projects instead of using 4xlimit
       @packages = DbPackage.find :all,
         :from => 'db_packages pac, db_projects pro',
         :conditions => 'pac.db_project_id = pro.id',
         :order => 'activity_value DESC',
-        :limit => @limit,
+        :limit => @limit + @limit + @limit + @limit,
         :select => 'pac.*, pro.name AS project_name,' +
           "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
           'IF( @activity<0, 0, @activity ) AS activity_value'
+      list = []
+      @packages.each do |package|
+        # ACL(most_active): dont put protected packages to the list
+        pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
+        if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
+          list << package
+        end
+      end
+      @packages = list[0..@limit-1]
     end
   end
 
-
   def activity
 
-    # ACL(activity) TODO: instrument. PRIO: this needs to instrument projects / packages access
+    # ACL(activity) TODO: this needs to instrument projects / packages access
 
     @project = DbProject.find_by_name params[:project]
     @package = DbPackage.find :first, :conditions => [
@@ -451,25 +462,26 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 5.minutes
 
+    # FIXME: calculate the number of hidden projects instead of using 4xlimit
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.created_at, pro.name AS project_name',
       :conditions => 'pro.id = pac.db_project_id',
-      :order => 'created_at DESC, name', :limit => @limit
+      :order => 'created_at DESC, name', :limit => @limit + @limit + @limit + @limit
     projects = DbProject.find :all,
       :select => 'name, created_at',
-      :order => 'created_at DESC, name', :limit => @limit
+      :order => 'created_at DESC, name', :limit => @limit + @limit + @limit + @limit
 
     list = []
     projects.each do |project|
       prj = DbProject.find_by_name project.name
-      # ACL(latest_updated): dont put protected projects to the list
+      # ACL(latest_added): dont put protected projects to the list
       if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
         list << project
       end
     end
     packages.each do |package|
-      # ACL(latest_updated): dont put protected packages to the list
+      # ACL(latest_added): dont put protected packages to the list
       pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
       if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
         list << package
@@ -495,14 +507,15 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 5.minutes
 
+    # FIXME: calculate the number of hidden projects instead of using 4xlimit
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.updated_at, pro.name AS project_name',
       :conditions => 'pro.id = pac.db_project_id',
-      :order => 'updated_at DESC, name', :limit => @limit
+      :order => 'updated_at DESC, name', :limit => @limit + @limit + @limit + @limit
     projects = DbProject.find :all,
       :select => 'name, updated_at',
-      :order => 'updated_at DESC, name', :limit => @limit
+      :order => 'updated_at DESC, name', :limit => @limit + @limit + @limit + @limit
 
     list = []
     projects.each do |project|
