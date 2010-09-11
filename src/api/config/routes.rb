@@ -256,9 +256,8 @@ ActionController::Routing::Routes.draw do |map|
   # ACL(/published/:project) TODO: direct passed call to  "pass_to_backend"
   map.connect 'published/:project',
     :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/
-  # ACL(/published/) TODO: direct passed call to  "pass_to_backend". PRIO: This displays also protected projects names.
   map.connect 'published/',
-    :controller => "published", :action => "pass_to_backend"
+    :controller => "published", :action => "index"
 
   ### /request
   
