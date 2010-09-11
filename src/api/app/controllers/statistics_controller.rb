@@ -451,8 +451,6 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 5.minutes
 
-    # ACL(latest_added) TODO: instrument. PRIO: this needs to hide protected projects / packages
-
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.created_at, pro.name AS project_name',
@@ -463,8 +461,20 @@ class StatisticsController < ApplicationController
       :order => 'created_at DESC, name', :limit => @limit
 
     list = []
-    projects.each { |project| list << project }
-    packages.each { |package| list << package }
+    projects.each do |project|
+      prj = DbProject.find_by_name project.name
+      # ACL(latest_updated): dont put protected projects to the list
+      if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
+        list << project
+      end
+    end
+    packages.each do |package|
+      # ACL(latest_updated): dont put protected packages to the list
+      pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
+      if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
+        list << package
+      end
+    end
     list.sort! { |a,b| b.created_at <=> a.created_at }
 
     @list = list[0..@limit-1]
@@ -485,7 +495,6 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 5.minutes
 
-    # ACL(latest_updated) TODO: instrument. PRIO: this displays also protected projects / packages 
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.updated_at, pro.name AS project_name',
@@ -496,8 +505,20 @@ class StatisticsController < ApplicationController
       :order => 'updated_at DESC, name', :limit => @limit
 
     list = []
-    projects.each { |project| list << project }
-    packages.each { |package| list << package }
+    projects.each do |project|
+      prj = DbProject.find_by_name project.name
+      # ACL(latest_updated): dont put protected projects to the list
+      if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
+        list << project
+      end
+    end
+    packages.each do |package|
+      # ACL(latest_updated): dont put protected packages to the list
+      pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
+      if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
+        list << package
+      end
+    end
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
     @list = list[0..@limit-1]
