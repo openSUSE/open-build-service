@@ -241,7 +241,7 @@ ActionController::Routing::Routes.draw do |map|
     :controller => "build", :action => "project_index", :project => /[^\/]*/
   # ACL(/build): this displays a project list. so we direct it to public controller build which displays all but the protected projects
   map.connect 'build',
-    :controller => "public", :action => "project_index"
+    :controller => "source", :action => "index"
 
   ### /published
 
