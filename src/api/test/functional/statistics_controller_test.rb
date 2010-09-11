@@ -6,6 +6,19 @@ class StatisticsControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_latest_added
+    prepare_request_with_user "adrian", "so_alone"
+    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
+    assert_response 404
+    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
+        '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    get url_for(:controller => :statistics, :action => :latest_added)
+    assert_response :success
+    assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
+    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
+
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
@@ -14,10 +27,36 @@ class StatisticsControllerTest < ActionController::IntegrationTest
       :name => "kde4",
       :created => Time.local(2008, 04, 28, 05, 05, 05).xmlschema
     }
+
+    prepare_request_with_user "fred", "geröllheimer"
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
+    assert_response 404
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
+        '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    get url_for(:controller => :statistics, :action => :latest_added)
+    assert_response :success
+    assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
+    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
   end
 
 
  def test_latest_updated
+   prepare_request_with_user "adrian", "so_alone"
+   get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
+   assert_response 200
+   put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
+   '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
+   assert_response 200
+   assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+   get url_for(:controller => :statistics, :action => :latest_updated)
+   assert_response :success
+   assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
+   assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
+
    prepare_request_with_user 'tom', 'thunder'
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
@@ -26,6 +65,19 @@ class StatisticsControllerTest < ActionController::IntegrationTest
      :name => "kde4",
      :updated => Time.local(2008, 04, 28, 06, 06, 06).xmlschema,
    }
+
+   prepare_request_with_user "fred", "geröllheimer"
+   get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
+   assert_response 200
+   put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
+   '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
+   assert_response 200
+   assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+   get url_for(:controller => :statistics, :action => :latest_updated)
+   assert_response :success
+   assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
+   assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
  end
 
 
