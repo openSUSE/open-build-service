@@ -41,7 +41,7 @@ class StatisticsController < ApplicationController
 
     def tag_start name, attrs
 
-      # ACL(tag_start) TODO: this call returns info about protected projects / packages / repos / archs / files
+      # ACL(tag_start): only the Admin can do this, so call is protected?
       case name
       when 'project'
         @@project_name = attrs['name']
