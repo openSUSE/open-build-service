@@ -12,6 +12,18 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build"
     assert_response :success
     assert_match(/entry name="home:Iggy"/, @response.body)
+    get "/build/home:Iggy"
+    assert_response :success
+    assert_match(/entry name="10.2"/, @response.body)
+    get "/build/home:Iggy/10.2"
+    assert_response :success
+    assert_match(/entry name="i586"/, @response.body)
+    get "/build/home:Iggy/10.2/i586"
+    assert_response :success
+    assert_match(/entry name="TestPack"/, @response.body)
+    get "/build/home:Iggy/10.2/i586/TestPack"
+    assert_response :success
+    assert_match(/binary filename="package-1.0-1.i586.rpm"/, @response.body)
   end
 
   def test_read_access_hidden_project_index
