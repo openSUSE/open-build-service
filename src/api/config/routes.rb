@@ -246,16 +246,13 @@ ActionController::Routing::Routes.draw do |map|
   ### /published
 
   map.connect 'published/:project/:repository/:arch/:binary',
-    :controller => "published", :action => "binary", :project => /[^\/]*/, :repository => /[^\/]*/, :binary => /[^\/]*/
-  # ACL(/published/:project/:repository/:arch) TODO: direct passed call to  "pass_to_backend"
+    :controller => "published", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :binary => /[^\/]*/
   map.connect 'published/:project/:repository/:arch', # :arch can be also a ymp for a pattern :/
-    :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
-  # ACL(/published/:project/:repository/) TODO: direct passed call to  "pass_to_backend"
+    :controller => "published", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
   map.connect 'published/:project/:repository/',
-    :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
-  # ACL(/published/:project) TODO: direct passed call to  "pass_to_backend"
+    :controller => "published", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'published/:project',
-    :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/
+    :controller => "published", :action => "index", :project => /[^\/]*/
   map.connect 'published/',
     :controller => "published", :action => "index"
 
