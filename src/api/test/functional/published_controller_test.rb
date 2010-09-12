@@ -40,6 +40,15 @@ class PublishedControllerTest < ActionController::IntegrationTest
 
     get "/published/kde4/openSUSE_11.3/i586"
     assert_response 200
+
+    get "/published/kde4/openSUSE_11.3/i586/kdelibs"
+    assert_response 400
+
+    get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
+    assert_response 400
+
+    get "/published/home:Iggy/10.2/i586/package-1.0-1.i586.rpm"
+    assert_response 400
   end
 
   def test_binary_view
