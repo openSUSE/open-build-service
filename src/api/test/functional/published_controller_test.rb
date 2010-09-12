@@ -12,6 +12,18 @@ class PublishedControllerTest < ActionController::IntegrationTest
     get "/published"
     assert_response 401
 
+    get "/published/HiddenProject"
+    assert_response 401
+
+    get "/published/kde4"
+    assert_response 401
+
+    get "/published/kde4/openSUSE_11.3"
+    assert_response 401
+
+    get "/published/kde4/openSUSE_11.3/i586"
+    assert_response 401
+
     prepare_request_with_user "tom", "thunder"
     get "/published"
     assert_response :success
