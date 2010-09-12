@@ -1,5 +1,27 @@
 class BuildController < ApplicationController
 
+  def index
+    valid_http_methods :get
+    prj = DbProject.find_by_name params[:project]
+    pkg = prj.find_package(params[:package]) if prj and params[:package] 
+
+    # ACL(index): in case of access, package is really hidden, e.g. does not get listed, accessing says package is not existing
+    if (params[:package] and prj and pkg.nil?) or
+        (pkg and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg))
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package '#{params[:package]}' in project '#{ params[:package]}'"
+      return
+    end
+    # ACL(index): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
+    if prj and prj.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(prj)
+      render_error :status => 404, :errorcode => 'unknown_project',
+      :message => "Unknown project '#{params[:project]}'"
+      return
+    end
+
+    pass_to_backend 
+  end
+
   def project_index
     valid_http_methods :get, :post, :put
     prj = DbProject.find_by_name params[:project]

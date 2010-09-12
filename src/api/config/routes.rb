@@ -201,7 +201,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'search/project', :controller => "search", :action => "project"
   map.connect 'search/package', :controller => "search", :action => "package"
   map.connect 'search/attribute', :controller => "search", :action => "attribute"
-  # ACL(/search): direct passed call to  "pass_to_backend". displays usage of search call.
   map.connect 'search', :controller => "search", :action => "pass_to_backend"
 
   ### /build
@@ -222,24 +221,21 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/_builddepinfo',
     :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package',
-    :controller => "build", :action => "package_index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   # ACL(/build/:project/:repository/_buildconfig) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository/_buildconfig',
     :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
-  # ACL(/build/:project/:repository/:arch) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository/:arch',
-    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/_result',
     :controller => "build", :action => "result", :project => /[^\/]*/
-  # ACL(/build/:project/:repository) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository',
-    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/
   # the web client does no longer use that route, but we keep it for backward compat
   map.connect 'build/_workerstatus',
     :controller => "status", :action => "workerstatus"
   map.connect 'build/:project',
     :controller => "build", :action => "project_index", :project => /[^\/]*/
-  # ACL(/build): this displays a project list. so we direct it to public controller build which displays all but the protected projects
   map.connect 'build',
     :controller => "source", :action => "index"
 
