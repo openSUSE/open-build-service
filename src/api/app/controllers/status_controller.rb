@@ -79,7 +79,7 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-    # ACL(workerstatus) TODO: this is an information leak. PRIO: packages / projects hidden are displayed when building
+    # ACL(workerstatus): update_workerstatus_cache does the job
      data = Rails.cache.fetch('workerstatus') do
        update_workerstatus_cache
      end
@@ -98,11 +98,21 @@ class StatusController < ApplicationController
   end
 
   def update_workerstatus_cache
-      # ACL(update_workerstatus_cache) TODO: this is an information leak if all packages / projects even hidden ones are listed
       ret = backend_get('/build/_workerstatus')
+
+      data=REXML::Document.new(ret)
+      # ACL(update_workerstatus_cache): filter out all packages / projects that are hidden by access
+      accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
+      accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
+      data.root.each_element('building') do |b|
+        prj = DbProject.find_by_name(b.attributes['project'])
+        pkg = prj.find_package(b.attributes['package']) if prj
+        b.remove if (prj and accessprjs and accessprjs.include?(prj) and not @http_user.can_access?(prj)) or (pkg and accesspkgs and accesspkgs.include?(pkg) and not @http_user.can_access?(pkg))
+      end
+      ret=data.to_s
+
       mytime = Time.now.to_i
       Rails.cache.write('workerstatus', ret)
-      data = REXML::Document.new(ret)
       data.root.each_element('blocked') do |e|
         line = StatusHistory.new
         line.time = mytime
