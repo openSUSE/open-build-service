@@ -24,6 +24,16 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
     assert_match(/binary filename="package-1.0-1.i586.rpm"/, @response.body)
+
+    # FIXME: hope this is not 400 because its another hidden OBS interconnect case
+    get "/build/blabla"
+    assert_response 404
+    get "/build/home:Iggy/blabla"
+    assert_response 404
+    get "/build/home:Iggy/10.2/blabla"
+    assert_response 404
+    get "/build/home:Iggy/10.2/i586/blabla"
+    assert_response 404
   end
 
   def test_read_access_hidden_project_index
