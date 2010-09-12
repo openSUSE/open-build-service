@@ -90,13 +90,18 @@ setup_buildresult_trigger
           actions = [req.submit]
           length = 1
       end
+      if req.has_element? :history
+         creator = req.each_history.last.who
+      else
+         creator = req.state.who
+      end
       first = true %>
       <% req.each_action do |action| %>
         <tr>
           <% if first %>
              <td rowspan="<%= length %>"><%= req.value :id %></td>
              <td rowspan="<%= length %>"><%= req.state.name %></td>
-             <td rowspan="<%= length %>"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
+             <td rowspan="<%= length %>"><%= link_to creator, :controller => :project, :action => "show", :project => "home:"+creator %></td>
              <% first = nil %>
           <% end %>
           <td>
