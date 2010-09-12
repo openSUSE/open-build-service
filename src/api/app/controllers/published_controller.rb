@@ -14,14 +14,17 @@ class PublishedController < ApplicationController
       if prj.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(prj)
         render_error :status => 404, :errorcode => 'not_found',
         :message => "The link target project #{params[:project]} does not exist"
-      # ACL(index): binarydownload denies access to build files
-      elsif prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
-        render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission for binaries from project #{params[:project]}"
         return
-      else
-        pass_to_backend
       end
+      if request.post?
+        # ACL(index): binarydownload denies access to build files
+        if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
+          render_error :status => 403, :errorcode => "download_binary_no_permission",
+          :message => "No permission for binaries from project #{params[:project]}"
+          return
+        end
+      end
+      pass_to_backend
       return
     end
 
