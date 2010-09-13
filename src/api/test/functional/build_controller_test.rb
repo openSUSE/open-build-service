@@ -32,8 +32,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/build/home:Iggy/10.2/blabla"
     assert_response 404
-    get "/build/home:Iggy/10.2/i586/blabla"
-    assert_response 404
   end
 
   def test_read_access_hidden_project_index
