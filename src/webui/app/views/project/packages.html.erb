@@ -14,8 +14,8 @@
     <%= link_to 'Add', :controller => 'project', :action => :new_package, :project => @project %> a new package &nbsp;
     <%= link_to image_tag( 'icons/package_link.png', :title => 'Branch Package from other Project' ),
       :controller => 'project', :action => :new_package_branch, :project => @project %>
-    <%= link_to 'Branch Package',
-      :controller => 'project', :action => :new_package_branch, :project => @project %> from other Project &nbsp;
+    <%= link_to 'Create new package based on existing package',
+      :controller => 'project', :action => :new_package_branch, :project => @project %>&nbsp;
     <%= link_to 'Create', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %> a new patchinfo
   </p>
 <% end %>
