@@ -205,26 +205,22 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /build
 
-  # ACL(/build/:project/:repository/:arch/:package/_status) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository/:arch/:package/_status',
-    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_log',
     :controller => "build", :action => "logfile", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
     :controller => "build", :action => "buildinfo", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
-  # ACL(/build/:project/:repository/:arch/:package/_history) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository/:arch/:package/_history',
-    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/:filename',
     :controller => "build", :action => "file", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/, :filename => /[^\/]*/
-  # ACL(/build/:project/:repository/:arch/_builddepinfo) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository/:arch/_builddepinfo',
-    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package',
     :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
-  # ACL(/build/:project/:repository/_buildconfig) TODO: direct passed call to  "pass_to_backend"
   map.connect 'build/:project/:repository/_buildconfig',
-    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/:repository/:arch',
     :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/_result',
