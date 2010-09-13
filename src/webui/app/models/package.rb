@@ -31,7 +31,7 @@ class Package < ActiveXML::Base
     put_opt[:project] = @init_options[:project]
     put_opt[:filename] = opt[:filename]
     put_opt[:comment] = opt[:comment]
-    put_opt[:expand] = "1" if opt[:expand]
+    put_opt[:keeplink] = "1" if opt[:expand]
 
     fc = FrontendCompat.new
     fc.put_file file.read, put_opt
