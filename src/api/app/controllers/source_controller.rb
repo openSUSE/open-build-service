@@ -725,6 +725,8 @@ class SourceController < ApplicationController
             return
           end
 
+          # FIXME2.1: or to be discussed. This is currently a regression. It was wanted so far that it is still
+          #           possible to build against a path, where binary download was not possible.
           # ACL(project_meta): project link to project with binarydownload gives permisson denied
           if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
             render_error :status => 403, :errorcode => "binary_download_no_permission",
@@ -941,7 +943,9 @@ class SourceController < ApplicationController
       if pkg
         if (not flag_access and tpkg.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and tpkg.disabled_for?('sourceaccess', nil, nil)) and not
             @http_user.is_admin?
-          
+
+          #FIXME2.1: this makes not really sense, all _product:* package meta should just follow _product itself.
+          #          if _product can't get raised, the _product:* can't either.
           DbPackage.transaction do
             if not flag_access
               tpkg.remove_flag('access', nil, nil)
