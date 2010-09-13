@@ -285,7 +285,7 @@ sub getpatterns {
 ##########################################################################
 
 sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $legacy) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $repotag = "obsrepository://$obsname/$projid/$repoid";
@@ -307,7 +307,7 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, '--repo', $repotag;
   my @legacyargs;
-  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if $legacy;
+  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if grep {$_ eq 'legacy'} @{$options || []};
   my @updateargs;
   if (-f "$extrep/repodata/repomd.xml") {
     push @updateargs, '--update';
@@ -1114,9 +1114,27 @@ sub publish {
   }
 
   # create repositories and patterns
-  my %repotype = map {$_ => 1} @{$config->{'repotype'} || []};
-  my %patterntype = map {$_ => 1} @{$config->{'patterntype'} || []};
-
+  my %repotype;
+  for (@{$config->{'repotype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $repotype{$1} = [ split(':', $2) ];
+    } else {
+      $repotype{$_} = [];
+    }
+  }
+  my %patterntype;
+  for (@{$config->{'patterntype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $patterntype{$1} = [ split(':', $2) ];
+    } else {
+      $patterntype{$_} = [];
+    }
+  }
+  if ($repotype{'rpm-md-legacy'}) {
+    $repotype{'rpm-md'} = $repotype{'rpm-md-legacy'};
+    unshift @{$repotype{'rpm-md'}}, 'legacy';
+    delete $repotype{'rpm-md-legacy'};
+  }
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     local *PPLOCK;
     open(PPLOCK, '>', "$reporoot/$prp/.pplock") || die("$reporoot/$prp/.pplock: $!\n");
@@ -1132,9 +1150,7 @@ sub publish {
   }
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
-  } elsif ($repotype{'rpm-md-legacy'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, 1);
+    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'});
   } else {
     deleterepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }
