@@ -3076,7 +3076,12 @@ sub putfile {
   die("upload failed\n") unless $uploaded;
   addfile($projid, $packid, "$uploaddir/$$", $filename, $uploaded->{'md5'});
   # create new meta file
-  my $files = lsrev($rev);
+  my $files;
+  if ($cgi->{'keeplink'}) {
+    $files = lsrev_expanded($rev);
+  } else {
+    $files = lsrev($rev);
+  }
   $files->{$filename} = $uploaded->{'md5'};
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
@@ -3734,7 +3739,12 @@ sub delfile {
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && not $cgi->{'force'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  my $files = lsrev($rev);
+  my $files;
+  if ($cgi->{'keeplink'}) {
+    $files = lsrev_expanded($rev);
+  } else {
+    $files = lsrev($rev);
+  }
   die("404 file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
   $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
