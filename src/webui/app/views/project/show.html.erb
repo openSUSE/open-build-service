@@ -16,7 +16,7 @@
     <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
 
     <span style="float: right; margin-right: 0.5em">
-      <% if session[:login] -%>
+      <% if session[:login] and not @project.is_remote? -%>
         <span id="watchlink">
           <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
             :url => {:action => :toggle_watch, :project => @project.name },
@@ -33,9 +33,11 @@
         <span>
           <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
         </span>
-        <span>
-          <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
-        </span>
+        <% unless @project.is_remote? %>
+          <span>
+            <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
+          </span>
+        <% end %>
       <% end %>
 
       <% if @project.bugowner and defined? BUGZILLA_HOST  -%>
@@ -70,7 +72,7 @@
             <%= plural(@nr_of_problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
       <% elsif @nr_packages > 0 %>
         <p><%= image_tag 'icons/accept.png' %> All <%= @nr_packages %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
-      <% else %>
+      <% elsif not @project.is_remote? %>
         <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
       <% end %>
 
