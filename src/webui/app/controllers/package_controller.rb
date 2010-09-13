@@ -436,48 +436,61 @@ class PackageController < ApplicationController
       redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
     end
 
-    package = Package.new( :name => @target_package, :project => @project )
-    package.title.text = linked_package.title.text
-
-    description = "This package is based on the package " +
-      "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
-
-    description += linked_package.description.text if linked_package.description.text
-    package.description.text = description
-    
     if @current_revision
       @revision = Package.current_xsrcmd5(@linked_project, @linked_package)
       @revision = Package.current_rev(@linked_project, @linked_package) unless @revision
     end
 
-    begin
-      saved = package.save
-    rescue ActiveXML::Transport::ForbiddenError => e
-      saved = false
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      redirect_to :controller => 'project', :action => 'new_package_link',
-        :project => @project and return
+    if @use_branch
+      logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
+      begin
+        path = "/source/#{CGI.escape(@linked_project)}/#{CGI.escape(@linked_package)}?cmd=branch&target_project=#{CGI.escape(@project.name)}&target_package=#{CGI.escape(@target_package)}"
+        path += "&rev=#{CGI.escape(@revision)}" if @revision
+        result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
+        flash[:success] = "Branched package #{@project.name} / #{@target_package}"
+      rescue ActiveXML::Transport::Error => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash[:error] = message
+      end
+    else
+      # construct container for link
+      package = Package.new( :name => @target_package, :project => @project )
+      package.title.text = linked_package.title.text
+
+      description = "This package is based on the package " +
+        "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
+
+      description += linked_package.description.text if linked_package.description.text
+      package.description.text = description
+    
+      begin
+        saved = package.save
+      rescue ActiveXML::Transport::ForbiddenError => e
+        saved = false
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash[:error] = message
+        redirect_to :controller => 'project', :action => 'new_package_link',
+          :project => @project and return
+      end
+
+      unless saved
+        flash[:note] = "Failed to save package '#{package}'"
+        redirect_to :controller => 'project', :action => 'new_package_link',
+          :project => @project and return
+        logger.debug "link params: #{@linked_project}, #{@linked_package}"
+        link = Link.new( :project => @project,
+          :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
+        link.set_revision @revision if @revision
+        link.save
+        flash[:success] = "Successfully linked package '#{@linked_package}'"
+      end
     end
 
-    unless saved
-      flash[:note] = "Failed to save package '#{package}'"
-      redirect_to :controller => 'project', :action => 'new_package_link',
-        :project => @project and return
-    else
-      logger.debug "link params: #{@linked_project}, #{@linked_package}"
-      link = Link.new( :project => @project,
-        :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
-      link.set_branch   true      if @use_branch
-      link.set_revision @revision if @revision
-      link.save
-      flash[:note] = "Successfully linked package '#{@linked_package}'"
-      Rails.cache.delete("%s_packages_mainpage" % @project)
-      Rails.cache.delete("%s_problem_packages" % @project)
-      Package.free_cache( :all, :project => @project.name )
-      Package.free_cache( @target_package, :project => @project )
-      redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
-    end
+    Rails.cache.delete("%s_packages_mainpage" % @project)
+    Rails.cache.delete("%s_problem_packages" % @project)
+    Package.free_cache( :all, :project => @project.name )
+    Package.free_cache( @target_package, :project => @project )
+    redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
   end
 
   def save
