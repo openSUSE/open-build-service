@@ -543,6 +543,18 @@ sub getbinarylist_repository {
   return ({'binary' => \@res}, $BSXML::binarylist);
 }
 
+sub filtersources {
+  my (@bins) = @_;
+  my $debian = grep {/\.dsc$/} @bins;
+  for my $bin (splice @bins) {
+    next if $bin =~ /\.(?:no)?src\.rpm$/;
+    next if $bin =~ /-debug(:?info|source).*\.rpm$/;
+    next if $debian && ($bin !~ /\.deb$/);
+    push @bins, $bin;
+  }
+  return @bins;
+}
+
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   return getbinarylist_repository($cgi, $projid, $repoid, $arch) if $packid eq '_repository';
@@ -559,6 +571,7 @@ sub getbinarylist {
   if ($view eq 'cpio') {
     my @files;
     my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       my $fd = gensym;
@@ -570,6 +583,7 @@ sub getbinarylist {
   }
   if ($view eq 'binaryversions') {
     my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @res;
     # should use bininfo instead, but we need the leadsigmd5
     for my $bin (sort @bins) {
@@ -587,7 +601,8 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo'} ls("$reporoot/$prp/$arch/$packid");
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls("$reporoot/$prp/$arch/$packid");
+  @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
@@ -835,6 +850,11 @@ sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $bin) = @_;
   return getbinary_repository($cgi, $projid, $repoid, $arch, $bin) if $packid eq '_repository';
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
+  if (-e "$reporoot/$projid/$repoid/$arch/$packid/.nosourceaccess") {
+    my @bins = ls("$reporoot/$projid/$repoid/$arch/$packid");
+    @bins = filtersources(@bins);
+    die("404 $bin: No such file or directory\n") unless grep {$_ eq $bin} @bins;
+  }
   die("404 $bin: $!\n") unless -f $path;
   my $view = $cgi->{'view'} || '';
   return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
@@ -1434,7 +1454,7 @@ sub getresult {
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
-	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || $_ eq '.bininfo';
+	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || $_ eq '.bininfo' || $_ eq '.nosourceaccess';
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
 	  next unless @s;
 	  next if -d _;

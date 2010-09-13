@@ -680,6 +680,19 @@ sub set_building {
 ## Repository management functions
 ##
 
+sub sourceaccess {
+  my ($projid, $packid, $repoid) = @_;
+  my $sourceaccess = 1;
+  if ($projpacks->{$projid}) {
+    my $pdata;
+    $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} if defined $packid;
+    $sourceaccess = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $sourceaccess);
+    $sourceaccess = enabled($repoid, $pdata->{'useforbuild'}, $sourceaccess) if $pdata;
+  } else {
+    $sourceaccess = 0;
+  }
+}
+
 #
 # sendpublishevent - send a publish event to the publisher
 #
@@ -750,6 +763,7 @@ sub prpfinished {
 
   print "    prp $prp is finished...\n";
 
+  my ($projid, $repoid) = split('/', $prp, 2);
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
@@ -805,13 +819,19 @@ sub prpfinished {
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
     my $debian = grep {/\.dsc$/} @all;
-    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason'} @all;
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess'} @all;
+    my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
     for my $bin (@all) {
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian;
       next if exists $origin{$rbin};	# first one wins
       $origin{$rbin} = $packid;
+      if ($nosourceaccess) {
+        next if $bin =~ /\.(?:no)?src\.rpm$/;
+	next if $bin =~ /-debug(:?info|source).*\.rpm$/;
+        next if $debian && ($bin !~ /\.deb$/);
+      }
       if ($filter) {
 	my $bad;
 	for (@$filter) {
@@ -1050,6 +1070,10 @@ sub update_dst_full {
 	unlink("$dst/$f") ;
       }
     }
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my $packid = $dst;
+    $packid =~ s/^.*\///s;
+    BSUtil::touch("$dst/.nosourceaccess") unless sourceaccess($projid, $packid, $repoid);
   } else {
     # dst = undef is true for importevents
     $isimport = 1;
@@ -2938,6 +2962,7 @@ sub rebuildaggregate {
       for my $apackid (@apackids) {
         my @d;
 	my $cpio;
+        my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
         if ($remoteprojs{$aprojid}) {
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
@@ -2964,6 +2989,7 @@ sub rebuildaggregate {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  @d = grep {/\.(?:rpm|deb)$/} ls($d);
           @d = map {"$d/$_"} sort(@d);
+          $nosource = 1 if -e "$d/.nosourceaccess";
 	}
 	my $ajobrepo = findbins_dir(\@d);
 	my $copysources;
@@ -2973,14 +2999,14 @@ sub rebuildaggregate {
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  next if $jobbins{$r->{'name'}};
           # FIXME: How is debian handling debug packages ?
-          next if exists($aggregate->{'nosources'}) && ($r->{'name'} =~ /-debug(:?info|source)?$/);
+          next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  $jobbins{$r->{'name'}} = 1;
 	  my $basename = $abin;
 	  $basename =~ s/.*\///;
 	  $basename =~ s/^upload:// if $cpio;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
-	  $copysources = 1 unless exists($aggregate->{'nosources'});
+	  $copysources = 1 unless $nosource;
 	}
 	if ($copysources) {
 	  for my $abin (sort keys %$ajobrepo) {
