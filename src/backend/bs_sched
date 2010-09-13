@@ -4311,11 +4311,11 @@ while(1) {
 
     my $pdata = $packs->{$packid};
     if ($pdata->{'error'}) {
-      print "      - $packid ($pdata->{'error'})\n";
       if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $pdata->{'error'};
 	next;
       }
+      print "      - $packid ($pdata->{'error'})\n";
       if ($pdata->{'error'} =~ /download in progress/) {
 	$packstatus{$packid} = 'blocked';
 	$packerror{$packid} = $pdata->{'error'};
