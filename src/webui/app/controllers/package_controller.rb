@@ -288,7 +288,7 @@ class PackageController < ApplicationController
       end
     end
 
-    @lastreq = BsRequest.find_last_request(:targetproject => params[:oproject], :targetpackage => params[:opackage],
+    @lastreq = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage,
       :sourceproject => params[:project], :sourcepackage => params[:package])
     if @lastreq and @lastreq.state.name != "declined"
       @lastreq = nil # ignore all !declined
