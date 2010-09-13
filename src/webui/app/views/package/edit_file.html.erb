@@ -6,21 +6,8 @@
 
 <%= render :partial => "tabs" %>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'codemirror/codemirror-0.7.min' %>
-<% end %>
 
 <h2>Editing file <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>
-
-<% if File.extname(@filename) == ".spec" %>
-  <% content_for :ready_function do %>
-    CodeMirror.fromTextArea("file", {
-      basefiles: ["/javascripts/codemirror/codemirror_base.js"],
-      parserfile: "/javascripts/codemirror/parsespec.js",
-      stylesheet: "/stylesheets/codemirror.speccolors.css"
-    });
-  <% end %>
-<% end %>
 
 <% form_tag :action => :save_modified_file, :project => @project, :package => @package, "class" => "edit" do %>
   <p>
