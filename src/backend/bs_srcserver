@@ -3471,7 +3471,7 @@ sub integratelink {
   if (!$nlisbranch && $l->{'patches'}) {
     for (@{$l->{'patches'}->{''} || []}) {
       my $type = (keys %$_)[0];
-      if ($type eq 'delete' && $files->{$_->{'delete'}->{'name'}}) {
+      if ($type eq 'delete' && $files->{$_->{'delete'}->{'name'}} && !$dontcopy{$_->{'delete'}->{'name'}}) {
 	delete $files->{$_->{'delete'}->{'name'}};
       } else {
 	$nlchanged = 1;
