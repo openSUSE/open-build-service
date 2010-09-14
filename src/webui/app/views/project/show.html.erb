@@ -14,8 +14,11 @@
 
   <div class="show_left box">
     <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
-
-    <span style="float: right; margin-right: 0.5em">
+    
+    <!-- Neu -->
+    
+    <div id="local-actions">
+      
       <% if session[:login] and not @project.is_remote? -%>
         <span id="watchlink">
           <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
@@ -24,29 +27,46 @@
             :complete => '$("#imgwatch").fadeIn();') -%>
         </span>
       <% end -%>
-
-      <% if @project.can_edit?( session[:login] ) %>
-        <span>
-          <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'),
-            :url => { :action => :delete, :project => @project.name } ) %>
-        </span>
-        <span>
-          <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
-        </span>
-        <% unless @project.is_remote? %>
-          <span>
-            <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
-          </span>
-        <% end %>
-      <% end %>
-
-      <% if @project.bugowner and defined? BUGZILLA_HOST  -%>
+      
+      <% if @project.bugowner and defined? BUGZILLA_HOST -%>
         <span>
           <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
             bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
         </span>
       <% end -%>
-    </span>
+      
+      <div id="local-actions-items">
+        <a href="#" class="dropdown-menu">Actions</a>
+        <ul class="dropdown-menu-content">
+          <% if @project.can_edit?( session[:login] ) %>
+            <li>
+              <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'), :url => { :action => :delete, :project => @project.name } ) -%>
+              <%= link_to_remote('Delete Project', :url => { :action => :delete, :project => @project.name } ) -%>
+            </li>
+            <li>
+              <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
+              <%= link_to("Edit Project Information", :action => 'edit', :project => @project) -%>
+            </li>
+            <% unless @project.is_remote? %>
+              <li>
+                <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name -%>
+                <%= link_to ('Create subproject', :controller => :project, :action => :new, :ns => @project.name) -%>
+              </li>
+            <% end %>
+          <% end %>
+
+
+        </ul>
+        
+        
+      </div>
+      
+    </div>
+    
+    
+    
+    <!-- /Neu -->
+    
 
     <div class="description" id="description">
       <p>

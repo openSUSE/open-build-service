@@ -222,3 +222,13 @@ background-color: #3399CC;
 
 table.patchinfo td { vertical-align: middle; }
 
+
+#local-actions { /* Action for single project or package */
+  width: 15em;
+  float: right;
+}
+
+  #local-actions span {
+    float: left;
+    margin-right: 0.5em;
+  }
