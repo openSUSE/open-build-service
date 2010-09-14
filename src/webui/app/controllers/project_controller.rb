@@ -791,23 +791,17 @@ class ProjectController < ApplicationController
   end
 
   def toggle_watch
-    render :update do |page|
-      if @user.watches? @project.name
-        logger.debug "Remove #{@project} from watchlist for #{@user}"
-        @user.remove_watched_project @project.name
-        page << "$('#imgwatch').attr('src', '../images/magnifier_zoom_in.png');"
-        page << "$('#imgwatch').attr('title', 'Watch this project');"
-        page << "$('#watchlist_#{Digest::MD5.hexdigest @project.name}').remove(); "
-      else
-        logger.debug "Add #{@project} to watchlist for #{@user}"
-        @user.add_watched_project @project.name
-        page << "$('#imgwatch').attr('src', '../images/magnifier_zoom_out.png');"
-        page << "$('#imgwatch').attr('title', \"Don't watch this project\");"
-        page << "$('#menu-favorites').append('<li id=\"watchlist_#{ Digest::MD5.hexdigest @project.name }\">#{link_to @project, {:controller => 'project', :action => :show, :project => @project}}</li>'); "
-      end
+    if @user.watches? @project.name
+      logger.debug "Remove #{@project} from watchlist for #{@user}"
+      @user.remove_watched_project @project.name
+    else
+      logger.debug "Add #{@project} to watchlist for #{@user}"
+      @user.add_watched_project @project.name
     end
     @user.save
     Person.free_cache( :login => session[:login] )
+
+    redirect_to :back
   end
 
   def edit_meta

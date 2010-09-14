@@ -15,29 +15,16 @@
   <div class="show_left box">
     <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
     
-    <!-- Neu -->
-    
     <div id="local-actions">
-      
-      <% if session[:login] and not @project.is_remote? -%>
-        <span id="watchlink">
-          <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
-            :url => {:action => :toggle_watch, :project => @project.name },
-            :loading => '$("#imgwatch").fadeOut();',
-            :complete => '$("#imgwatch").fadeIn();') -%>
-        </span>
-      <% end -%>
-      
-      <% if @project.bugowner and defined? BUGZILLA_HOST -%>
-        <span>
-          <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
-            bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
-        </span>
-      <% end -%>
-      
       <div id="local-actions-items">
-        <a href="#" class="dropdown-menu">Actions</a>
+        <a href="#" class="dropdown-menu"><strong>Actions</strong></a>
         <ul class="dropdown-menu-content">
+          <% if @project.bugowner and defined? BUGZILLA_HOST -%>
+            <li>
+              <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
+              <%= link_to('Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
+            </li>
+          <% end -%>
           <% if @project.can_edit?( session[:login] ) %>
             <li>
               <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'), :url => { :action => :delete, :project => @project.name } ) -%>
@@ -55,19 +42,10 @@
             <% end %>
           <% end %>
 
-
         </ul>
-        
-        
       </div>
-      
     </div>
     
-    
-    
-    <!-- /Neu -->
-    
-
     <div class="description" id="description">
       <p>
         <% description = @project.description.text %>
