@@ -39,7 +39,7 @@
   <% end %>
 
   <% if @package.can_edit?( session[:login] ) %>
-    <% form_tag({:controller => 'package', :action => 'create_submit', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage}, {:method => :post}) do -%>
+    <% form_tag({:controller => 'package', :action => 'create_submit_request', :project => @project, :package => @package, :target_project => @oproject, :target_package => @opackage}, {:method => :post}) do -%>
       <div>
         <%= text_field_tag 'description', "", :size => "80" -%>
       </div>
