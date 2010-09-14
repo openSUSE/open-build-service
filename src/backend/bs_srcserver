@@ -2062,10 +2062,14 @@ sub getprojpack {
 		my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
 		$rinfo->{'prereq'} = \@prereqs if @prereqs;
 	      }
-	      # KIWI Products need local arch added, if we have it defined on this server
+	      # KIWI Products need local arch added if we have it defined on this server
 	      if ($type eq 'kiwi' && $d->{'imagetype'}[0] eq 'product' && $d->{'exclarch'}) {
 		$rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ];
 	        unshift @{$d->{'exclarch'}}, 'local' if defined($BSConfig::localarch);
+	      }
+	      # KIWI Images don't build with local arch
+	      if ($type eq 'kiwi' && $d->{'imagetype'}[0] ne 'product') {
+	        $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
 	      }
 	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
 	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $arch} @{$d->{'badarch'}};
