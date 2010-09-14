@@ -8,34 +8,51 @@
   <div class="box show_left">
     <h2 style="display: inline"><%=h @package %></h2>
 
-    <span style="float: right; margin-right: 0.5em" >
-      <% if @package.can_edit?( session[:login] ) %>
-        <span>
-          <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
-        </span>
-        <span>
-          <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
-            {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
-        </span>
-        <span>
-          <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
-        </span>
-      <% end %>
-
-      <% if session[:login] %>
-        <span>
-          <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch, :project => @project, :package => @package},
-            {:confirm => "Branch package '#{@package}'?", :method => :post } %>
-        </span>
-      <% end %>
-
-      <% if @bugowner_mail and defined? BUGZILLA_HOST %>
-        <span>
-          <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
-        </span>
-      <% end %>
-
-    </span>
+    <div id="local-actions">
+      <div id="local-actions-items">
+        <a href="#" class="dropdown-menu"><strong>Actions</strong></a>
+        <ul class="dropdown-menu-content">
+          <% if @project.bugowner and defined? BUGZILLA_HOST -%>
+            <li>
+              <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}: Bug") -%>
+              <%= link_to 'Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}: Bug") -%>
+            </li>
+          <% end -%>
+          <% if @project.can_edit?( session[:login] ) %>
+            <li>
+              <%= link_to image_tag('icons/package_delete.png', :title => 'Delete Package'), { :action => :remove, :package => @package, :project => @project },
+                                 {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+              <%= link_to 'Delete Package', { :action => :remove, :package => @package, :project => @project },
+                                 {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+            </li>
+            <li>
+              <%= link_to image_tag('icons/package_edit.png', :title => "Edit Package Information"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+              <%= link_to "Edit Package Information", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+            </li>
+            <% if @package.can_edit?( session[:login] ) %>
+              <li>
+                <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+                <%= link_to_remote 'Submit Package', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+              </li>
+            <% end %>
+            <% if session[:login] %>
+              <li>
+                <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch Package'), {:action => :branch, :project => @project, :package => @package},
+                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+                <%= link_to 'Branch Package', {:action => :branch, :project => @project, :package => @package},
+                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+              </li>
+              <% if @bugowner_mail and defined? BUGZILLA_HOST %>
+                <li>
+                  <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
+                  <%= link_to 'Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
+                </li>
+              <% end %>
+            <% end %>
+          <% end %>
+        </ul>
+      </div>
+    </div>
 
     <!-- Package meta -->
     <div id="package_meta">
