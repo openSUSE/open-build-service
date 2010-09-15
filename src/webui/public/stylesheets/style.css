@@ -232,3 +232,8 @@ table.patchinfo td { vertical-align: middle; }
     float: left;
     margin-right: 0.5em;
 }
+
+#actions-trigger {
+    background:url("../images/unfold-indicator-single.png") no-repeat scroll 4em 0.4em transparent;
+    padding-right:1.2em;
+}
