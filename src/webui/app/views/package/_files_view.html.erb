@@ -22,7 +22,11 @@
         <% @files.each do |file| %>
           <tr><td>
               <% if file[:viewable] %>
-                <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :srcmd5 => file[:srcmd5], :expand => params[:expand] ) %>
+                <% if @current_revision %>
+                  <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :expand => @expand ) %>
+                <% else %>
+                  <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :srcmd5 => file[:srcmd5], :expand => @expand ) %>
+                <% end %>
               <% else %>
                 <%= h file[:name] %>
               <% end %>
@@ -55,7 +59,7 @@
   </p>
 <% end %>
  
-<% if @revision %>
+<% unless @current_revision %>
  <h3>Revision <%= @revision %></h3>
 <% else %>
  <h3>Current Revision</h3>
