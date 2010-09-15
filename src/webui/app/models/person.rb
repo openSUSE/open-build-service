@@ -32,7 +32,9 @@ class Person < ActiveXML::Base
   end
   
   def self.email_for_login(person)
-    Person.find_cached(person).email.to_s
+    p = Person.find_cached(person)
+    return p.value(:email) if p
+    return ''
   end
   
   def to_s
