@@ -121,22 +121,12 @@ class PackageController < ApplicationController
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
     @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
-    @expand   = params[:expand] || 1
-    set_file_details
-  end
-
-  def file_table
-    @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || params[:srcmd5] != @srcmd5
-    if params.has_key? [:srcmd5]
-      @srcmd5 = params[:srcmd5]
-      @revision = nil
+    if params.has_key? :expand
+      @expand = begin Integer(params[:expand]) rescue 1 end
     else
-      @revision = params[:rev]
-      @srcmd5 = nil
+      @expand = 1
     end
-    @expand = params[:expand] || 1
     set_file_details
-    render :partial => 'files_view', :locals => {:file_list => @files}
   end
 
   def service_parameter_value

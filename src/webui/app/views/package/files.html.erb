@@ -51,13 +51,15 @@
 
 <!-- Source file list -->
 <h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
-<span style="font-size: small; font-weight: normal">
-  <% if @expand && @package.linkinfo %>
-    <%= link_to '(show unmerged sources)', :project => @project, :package => @package, :action => :files, :rev => params[:rev] %>
-  <% elsif @link %>
-    <%= link_to '(show merged sources derived from linked package)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "1" %>
-  <% end %>
-</span>
+<% if @package.linkinfo %>
+  <span style="font-size: small; font-weight: normal">
+    <% if @expand && @expand.to_s == "1" %>
+      <%= link_to '(show unmerged sources)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "0" %>
+    <% else %>
+      <%= link_to '(show merged sources derived from linked package)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "1" %>
+    <% end %>
+  </span>
+<% end %>
 </h3>
 
 <% unless @files.empty? %>
