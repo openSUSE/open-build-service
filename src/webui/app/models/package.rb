@@ -31,7 +31,7 @@ class Package < ActiveXML::Base
     put_opt[:project] = @init_options[:project]
     put_opt[:filename] = opt[:filename]
     put_opt[:comment] = opt[:comment]
-    put_opt[:keeplink] = "1" if opt[:expand]
+    put_opt[:keeplink] = opt[:expand] if opt[:expand]
 
     fc = FrontendCompat.new
     fc.put_file file.read, put_opt
@@ -43,7 +43,7 @@ class Package < ActiveXML::Base
     delete_opt[:package] = self.name
     delete_opt[:project] = @init_options[:project]
     delete_opt[:filename] = name
-    delete_opt[:expand] = "1" if expand
+    delete_opt[:keeplink] = expand if expand
 
     begin
        FrontendCompat.new.delete_file delete_opt
@@ -247,7 +247,7 @@ class Package < ActiveXML::Base
     p = {}
     p[:project] = project
     p[:package] = name
-    p[:expand]  = "1"     if expand
+    p[:expand]  = expand  if expand
     p[:rev]     = rev     if rev
     begin
       dir = Directory.find(p)
