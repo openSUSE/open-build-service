@@ -25,7 +25,7 @@ class StatisticsController < ApplicationController
 
     def initialize
 
-      # ACL(initialize) TODO: this call grabs all projects/packages/repos/archs, even for protected projects / packages
+      # ACL(initialize) this call grabs all projects/packages/repos/archs. This call is not used in config/routes.
       @errors = []
       # build hashes for caching id-/name- combinations
       projects = DbProject.find :all, :select => 'id, name'
@@ -381,7 +381,7 @@ class StatisticsController < ApplicationController
     # check permissions
     # no permission needed
 
-    # ACL(newest_stats) TODO: check if this needs instrumentation
+    # ACL(newest_stats): This currently displays an date of 1970, seens unused or non working. FIXME.
     ds = DownloadStat.find :first, :order => "counted_at DESC", :limit => 1
     @newest_stats = ds.nil? ? Time.at(0).xmlschema : ds.counted_at.xmlschema
   end
@@ -550,7 +550,7 @@ class StatisticsController < ApplicationController
 
   def global_counters
 
-    # ACL(global_counters) TODO: this does indirectly exploit information that hidden projects are present. do we want to lie about those numbers?
+    # ACL(global_counters) this does indirectly exploit information that hidden projects are present.
     @users = User.count
     @repos = Repository.count
     @projects = DbProject.count

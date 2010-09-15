@@ -225,7 +225,7 @@ class PublicController < ApplicationController
   def lastevents
     valid_http_methods :get
     
-    # ACL(lastevents): TODO this API is not protected at all, this could be a security hole
+    # ACL(lastevents): This API is not protected at all and displays a event id and a sync flag.
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
@@ -237,7 +237,7 @@ class PublicController < ApplicationController
   def distributions
     valid_http_methods :get
 
-    # ACL(distributions): TODO this API is not protected at all, OBS admin should not put in a hidden project into this list.
+    # ACL(distributions): This API is not protected at all, OBS admin should not put in a hidden project into this list.
 
     render :text => DistributionController.read_distfile, :content_type => "text/xml"
   end

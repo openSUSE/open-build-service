@@ -4,13 +4,13 @@ class ServiceController < ApplicationController
 
   def index
 
-    # ACL(index) TODO: this is an uninstrumented call
+    # ACL(index) This is an uninstrumented call. This call is not used in config/routes.
     pass_to_backend 
   end
 
   def index_service
     
-    # ACL(index_service) TODO: this is an uninstrumented call
+    # ACL(index_service) This is an uninstrumented call.
     pass_to_backend 
   end
 

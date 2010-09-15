@@ -5,7 +5,7 @@ class StatusController < ApplicationController
   skip_before_filter :extract_user, :only => [ :history, :project ]
 
   def messages
-    # ACL(messages) TODO: check this leaks no information that is prevented by ACL
+    # ACL(messages) this displays the status messages the Admin can enter for users.
     if request.get?
 
       @messages = StatusMessage.find :all,
@@ -87,7 +87,7 @@ class StatusController < ApplicationController
   end
 
   def history
-      # ACL(history) TODO: check this leaks no information that is prevented by ACL. Seems to sent an empty list. API call looks unused
+      # ACL(history): This is used by the history plotter. leaks no ACL relevant project or package information. This call is not used in config/routes.
      hours = params[:hours] || "24"
      starttime = Time.now.to_i - hours.to_i * 3600
      @data = Hash.new
@@ -170,7 +170,7 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
-    # ACL(project) TODO: check this leaks no information that is prevented by ACL. API call looks unused
+    # ACL(project): This call is not used in config/routes. FIXME: delete?
      dbproj = DbProject.find_by_name(params[:id])
      if ! dbproj
         render_error :status => 404, :errorcode => "no such project",
@@ -186,7 +186,7 @@ class StatusController < ApplicationController
   end
 
   def bsrequest
-    # ACL(bsrequest) TODO: this should say 404 for requests that are protected. API call looks unused
+    # ACL(bsrequest): This call is not used in config/routes. FIXME: delete?
     required_parameters :id
     req = BsRequest.find :id => params[:id]
     if req.action.value('type') != 'submit'
