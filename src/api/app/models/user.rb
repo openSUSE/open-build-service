@@ -196,7 +196,7 @@ class User < ActiveRecord::Base
     p = DbProject.find_parent_for(project_name)
     return false if p.nil?
     return true  if is_admin?
-    return has_local_permission?( "create_project", p.name)
+    return has_local_permission?( "create_project", p)
   end
 
   def can_modify_attribute_definition?(object)

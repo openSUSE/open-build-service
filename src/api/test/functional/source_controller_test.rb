@@ -392,6 +392,35 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
 
+  def test_create_subproject
+    subprojectmeta="<project name='kde4:subproject'><title></title><description/></project>"
+
+    # nobody
+    ActionController::IntegrationTest::reset_auth 
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response 401
+    prepare_request_with_user "tom", "thunder"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response 403
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response :success
+    delete "/source/kde4:subproject"
+    assert_response :success
+    # maintainer 
+    prepare_request_with_user "fred", "geröllheimer"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response :success
+    delete "/source/kde4:subproject"
+    assert_response :success
+    # maintainer via group
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response :success
+    delete "/source/kde4:subproject"
+    assert_response :success
+  end
 
   def test_put_project_meta_hidden_project
     prj="HiddenProject"
