@@ -55,7 +55,11 @@
   </p>
 <% end %>
  
-    <h3>Current Revision</h3>
+<% if @revision %>
+ <h3>Revision <%= @revision %></h3>
+<% else %>
+ <h3>Current Revision</h3>
+<% end %>
     <div style="margin-left: 1em">
       <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
     </div>

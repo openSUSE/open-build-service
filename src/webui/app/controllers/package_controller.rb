@@ -121,7 +121,7 @@ class PackageController < ApplicationController
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
     @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
-    @expand   = params[:expand]
+    @expand   = params[:expand] || 1
     set_file_details
   end
 
@@ -134,7 +134,7 @@ class PackageController < ApplicationController
       @revision = params[:rev]
       @srcmd5 = nil
     end
-    @expand = params[:expand]
+    @expand = params[:expand] || 1
     set_file_details
     render :partial => 'files_view', :locals => {:file_list => @files}
   end

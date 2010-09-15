@@ -25,7 +25,7 @@
     
     document.getElementById('count_parameters').value = number;
 
-    var path="/package/service_parameter_value?number="+number+"&servicename="+escape(service)+"&parameter="+escape(name)+"&value="+escape(value)+"&package=<%=@package%>&project=<%=@project%>";
+    var path="/package/service_parameter_value?number="+number+"&servicename="+escape(service)+"&parameter="+escape(name)+"&value="+escape(value)+"&package=<%= CGI.escape(@package.name) %>&project=<%= CGI.escape(@project.name) %>";
     $("#pTable td#added_parameter_"+number).load(path);
   }
 
@@ -43,7 +43,7 @@
 <% end %>
 
 
-<%= render :partial => 'links' if @link %>
+<%= render :partial => 'links' if @package.linkinfo %>
 
 <!-- Service list -->
 <h3>Source Services</h3>
@@ -52,7 +52,7 @@
 <!-- Source file list -->
 <h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
 <span style="font-size: small; font-weight: normal">
-  <% if @expand && @link %>
+  <% if @expand && @package.linkinfo %>
     <%= link_to '(show unmerged sources)', :project => @project, :package => @package, :action => :files, :rev => params[:rev] %>
   <% elsif @link %>
     <%= link_to '(show merged sources derived from linked package)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "1" %>
