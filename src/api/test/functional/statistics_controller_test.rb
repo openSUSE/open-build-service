@@ -80,6 +80,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
  end
 
+
  def test_timestamp_calls
    prepare_request_with_user "adrian", "so_alone"
    get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "test_latest_added")
@@ -111,6 +112,22 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    assert_response 404
 
    get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject")
+   assert_response 404
+ end
+
+ def test_rating
+   prepare_request_with_user "adrian", "so_alone"
+   get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "test_latest_added")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "test_latest_added")
+   assert_response 200
+
+   prepare_request_with_user "fred", "geröllheimer"
+   get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "test_latest_added")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "test_latest_added")
    assert_response 404
  end
 
