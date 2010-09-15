@@ -801,7 +801,11 @@ class ProjectController < ApplicationController
     @user.save
     Person.free_cache( :login => session[:login] )
 
-    redirect_to :back
+    if request.env["HTTP_REFERER"]
+      redirect_to :back
+    else
+      redirect_to :action => :show, :project => @project
+    end
   end
 
   def edit_meta
