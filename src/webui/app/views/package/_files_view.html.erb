@@ -48,8 +48,16 @@
       </tbody>
     </table>
 
-    <div>
-      Revision: <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
+<% if @package.can_edit?( session[:login] ) %>
+  <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
+     :action => :add_file, :project => @project, :package => @package %>
+    <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
+  </p>
+<% end %>
+ 
+    <h3>Current Revision</h3>
+    <div style="margin-left: 1em">
+      <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
     </div>
 
 <!-- Simplified for now.

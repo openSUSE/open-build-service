@@ -21,7 +21,7 @@ class PackageController < ApplicationController
     @email_hash = Hash.new
     persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
     persons.each do |person|
-      @email_hash[person] = find_cached(Person, person).email.to_s
+      @email_hash[person] = Person.email_for_login(person)
     end
     @roles = Role.local_roles
   end
@@ -118,7 +118,7 @@ class PackageController < ApplicationController
   end
 
   def files
-    @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or @srcmd5 != params[:srcmd5]
+    @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
     @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
     @expand   = params[:expand]
@@ -126,7 +126,7 @@ class PackageController < ApplicationController
   end
 
   def file_table
-    @package.free_directory if discard_cache? or @revision != params[:rev] or @expand != params[:expand] or params[:srcmd5] != @srcmd5
+    @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || params[:srcmd5] != @srcmd5
     if params.has_key? [:srcmd5]
       @srcmd5 = params[:srcmd5]
       @revision = nil

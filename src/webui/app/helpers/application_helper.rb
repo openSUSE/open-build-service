@@ -395,4 +395,11 @@ module ApplicationHelper
     ERB::Util::h(rawid.gsub(/[+&: .]/, '_'))
   end
 
+  def format_comment(comment)
+    comment ||= '-'
+    comment = ERB::Util::h(comment).gsub(%r{[\n\r]}, '<br/>')
+    comment = comment.gsub(' ', '&nbsp;')
+    return "<code>" + comment + "</code>"
+  end
+
 end

@@ -4,33 +4,37 @@ class Person < ActiveXML::Base
   handles_xml_element 'person'
   
   # redefine make_stub so that Person.new( :login => 'login_name' ) works
-  class << self
-    def make_stub( opt )
+  def self.make_stub( opt )
       
-      # stay backwards compatible to old arguments (:name instead of :login)
-      if not opt.has_key? :login
-        opt[:login] = opt[:name]
-      end
-      realname = ""
-      if opt.has_key? :realname
-        realname = opt[:realname]
-      end
-      email = ""
-      if opt.has_key? :email
-        email = opt[:email]
-      end
-      doc = XML::Document.new
-      doc.root = XML::Node.new 'person'
-      element = doc.root << 'login'
-      element.content = opt[:login]
-      element = doc.root << 'realname'
-      element.content = realname
-      element = doc.root << 'email'
-      element.content = email
-      element = doc.root << 'state'
-      element.content = 5
-      doc.root
+    # stay backwards compatible to old arguments (:name instead of :login)
+    if not opt.has_key? :login
+      opt[:login] = opt[:name]
     end
+    realname = ""
+    if opt.has_key? :realname
+      realname = opt[:realname]
+    end
+    email = ""
+    if opt.has_key? :email
+      email = opt[:email]
+    end
+    doc = XML::Document.new
+    doc.root = XML::Node.new 'person'
+    element = doc.root << 'login'
+    element.content = opt[:login]
+    element = doc.root << 'realname'
+    element.content = realname
+    element = doc.root << 'email'
+    element.content = email
+    element = doc.root << 'state'
+    element.content = 5
+    doc.root
+  end
+  
+  def self.email_for_login(person)
+    p = Person.find_cached(person)
+    return p.value(:email) if p
+    return ''
   end
   
   def to_s
@@ -156,4 +160,5 @@ class Person < ActiveXML::Base
     end
     return project.is_maintainer?(login)
   end
+
 end
