@@ -3640,8 +3640,16 @@ while(1) {
 	unlink("$gdst/:logfiles.success/$packid");
 	unlink("$gdst/:logfiles.fail/$packid");
 	unlink("$gdst/:meta/$packid");
-        BSUtil::cleandir("$gdst/$packid");
-	rmdir("$gdst/$packid");
+        for my $f (ls("$gdst/$packid")) {
+	  next if $f eq 'history';
+          if (-d "$gdst/$packid/$f") {
+            BSUtil::cleandir("$gdst/$packid/$f");
+	    rmdir("$gdst/$packid/$f");
+	  } else {
+	    unlink("$gdst/$packid/$f");
+	  }
+	}
+	rmdir("$gdst/$packid");	# in case there is no history
 	for $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_high{$prp} = 2;
