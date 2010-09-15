@@ -115,12 +115,30 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    assert_response 404
  end
 
- def test_rating
+ def test_rating_and_activity
    prepare_request_with_user "adrian", "so_alone"
    get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "test_latest_added")
    assert_response 200
 
+   get url_for(:controller => :statistics, :action => :rating, :project => "kde4")
+   assert_response 200
+
    get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "test_latest_added")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => "test_latest_added")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :activity, :project => "kde4")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => "test_latest_added")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject")
    assert_response 200
 
    prepare_request_with_user "fred", "geröllheimer"
@@ -128,6 +146,12 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    assert_response 200
 
    get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "test_latest_added")
+   assert_response 404
+
+   get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => "test_latest_added")
+   assert_response 200
+
+   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => "test_latest_added")
    assert_response 404
  end
 
