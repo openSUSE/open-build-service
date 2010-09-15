@@ -8,7 +8,7 @@
               "server side updated"
             else
               user = commit[:user] || '-'
-              user = gravatar_image(Person.email_for_login(user)) + user
+              user = gravatar_image(Person.email_for_login(user)) + ' ' + user
               if commit[:requestid]
                  user + " accepted " + link_to("request #{commit[:requestid]}", { :controller => 'request', :action => 'show', :id => commit[:requestid] })
               else
