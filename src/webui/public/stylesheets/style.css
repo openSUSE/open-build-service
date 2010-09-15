@@ -233,7 +233,7 @@ table.patchinfo td { vertical-align: middle; }
     margin-right: 0.5em;
 }
 
-#actions-trigger {
+.dropdown-menu {
     background:url("../images/unfold-indicator-single.png") no-repeat scroll 4em 0.4em transparent;
     padding-right:1.2em;
 }
