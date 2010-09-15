@@ -125,7 +125,7 @@ setup_buildresult_trigger
         </tr>
       <% end -%>
     <tr>
-      <td colspan="6"><code><%= h(req.value('description')).gsub(%r{[\n\r]}, '<br/>') || "-" %></code></td>
+      <td colspan="6"><%= format_comment(req.value('description')) %></td>
     </tr>
   </tbody>
 </table>

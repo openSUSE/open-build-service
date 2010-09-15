@@ -4,8 +4,6 @@
 
 <%= render :partial => "tabs" %>
 
-<%= javascript_include_tag 'jquery.tablesorter.js' %>
-
 <% content_for :head_javascript do %>
 
   function slide_history_up() {
@@ -47,31 +45,11 @@
 
 <% end %>
 
-
-<% content_for :ready_function do %>
-  $("#files_table").tablesorter( {
-    sortList: [[0,1]],
-    widgets: ['zebra'],
-    headers: {
-      3: { sorter: false }
-    }
-  } );
-<% end %>
-
-
 <%= render :partial => 'links' if @link %>
 
 <!-- Source history -->
-<div class="show_left box">
- <div class="box-header aligncenter">
-   Commit History <%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %>
- </div>
- <div id="package_history">
-    <%= if @maxrevision
-	  render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history}
-	else
-	  "<i>No commits exists yet.</i>"
-	end %>
-  </div>
-</div>
-
+<%= if @maxrevision
+   render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history}
+else
+  "<i>No commits exists yet.</i>"
+end %>

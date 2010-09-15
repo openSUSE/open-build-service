@@ -13,7 +13,7 @@
       </span>
     </span>
   <% else %>
-     <%= link_to_remote '<i>Add a service for source processing.</i>', :url => { :action => :add_service, :project => @project, :package => @package} %>
+    <p><%= link_to_remote '<i>Add a service for source processing.</i>', :url => { :action => :add_service, :project => @project, :package => @package} %></p>
   <% end %>
 <% end %>
 

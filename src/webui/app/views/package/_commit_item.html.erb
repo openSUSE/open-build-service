@@ -4,27 +4,28 @@
 
   <% commit = @package.commit(rev.to_s) %>
   <% if commit %>
-    <%= commit[:revision]%>.
         <%= if commit[:user] == "_service"
               "server side updated"
             else
-              user = ""
-              user = "by " + commit[:user] if commit[:user]
+              user = commit[:user] || '-'
+              user = gravatar_image(Person.email_for_login(user)) + user
               if commit[:requestid]
                  user + " accepted " + link_to("request #{commit[:requestid]}", { :controller => 'request', :action => 'show', :id => commit[:requestid] })
               else
                  user + " committed"
               end 
             end %>
-        <%=fuzzy_time_string(Time.at(commit[:time].to_i).to_s)%>
+    <%=fuzzy_time_string(Time.at(commit[:time].to_i).to_s)%>
+         <%= " (revision #{commit[:revision]})" %>
     <% unless commit[:user] == "_service" %>
-      <br/><i><%= commit[:comment] %></i>
+      <div style="margin: 0.3em .3em .5em 2em"><%= format_comment(commit[:comment]) %></div>
     <% end %>
-      <br/><%= link_to 'Show this commit', :controller => :package, :action => :rdiff, 
+      <%= link_to image_tag( 'icons/brick.png'), { :controller => :package, :action => :rdiff, 
+                       :package => @package, :project => @project, 
+                       :commit => commit[:revision], :linkrev => 'base'}, :style => "margin-left: 2em"  %>
+      <%= link_to 'Show this commit', :controller => :package, :action => :rdiff, 
                        :package => @package, :project => @project, 
                        :commit => commit[:revision], :linkrev => 'base'  %>
   <% else %>
     <i>Revision <%=rev.to_s%> not found</i>
   <% end %>
-
-

@@ -4,7 +4,9 @@
 
 <%= render :partial => "tabs" %>
 
-<%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% end %>
 
 <% content_for :head_javascript do %>
 
@@ -48,23 +50,17 @@
 <%= render :partial => 'services' %>
 
 <!-- Source file list -->
-<h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %></h3>
+<h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
+<span style="font-size: small; font-weight: normal">
+  <% if @expand && @link %>
+    <%= link_to '(show unmerged sources)', :project => @project, :package => @package, :action => :files, :rev => params[:rev] %>
+  <% elsif @link %>
+    <%= link_to '(show merged sources derived from linked package)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "1" %>
+  <% end %>
+</span>
+</h3>
 
 <% unless @files.empty? %>
   <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
-
-  <% if @expand %>
-    <%= link_to 'Show unmerged sources.', :project => @project, :package => @package, :action => :files, :rev => params[:rev] %>
-  <% elsif @link %>
-    <%= link_to 'Show merged sources derived from linked package.', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "1" %>
-  <% end %>
 <% end %>
-
-<% if @package.can_edit?( session[:login] ) %>
-  <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
-     :action => :add_file, :project => @project, :package => @package %>
-    <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
-  </p>
-<% end %>
- 
 
