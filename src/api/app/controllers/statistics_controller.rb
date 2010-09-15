@@ -494,9 +494,21 @@ class StatisticsController < ApplicationController
 
 
   def added_timestamp
-
-    # ACL(added_timestamp) TODO: instrument.
     @project = DbProject.find_by_name( params[:project] )
+    pkg = @project.find_package(params[:package]) if @project
+
+    # ACL(added_timestamp): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+    # ACL(added_timestamp): protect hidden projects with "access"
+    if @project and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "project_not_found"
+      return
+    end
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
     ) if @project
@@ -540,8 +552,23 @@ class StatisticsController < ApplicationController
 
   def updated_timestamp
 
-    # ACL(updated_timestamp) TODO: instrument.
     @project = DbProject.find_by_name( params[:project] )
+    pkg = @project.find_package(params[:package]) if @project
+
+
+    # ACL(updated_timestamp): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+
+    # ACL(updated_timestamp): protect hidden projects with "access"
+    if @project and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "project_not_found"
+      return
+    end
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
     ) if @project
