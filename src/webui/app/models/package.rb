@@ -156,7 +156,7 @@ class Package < ActiveXML::Base
     unless @linkinfo
       begin
         link = Directory.find_cached( :project => project, :package => name)
-        @linkinfo = link.linkinfo if link.has_element? 'linkinfo'
+        @linkinfo = link.linkinfo if link && link.has_element?('linkinfo')
       rescue ActiveXML::Transport::NotFoundError
       end
     end
