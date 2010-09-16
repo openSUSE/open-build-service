@@ -209,9 +209,6 @@ class PackageController < ApplicationController
     if not @revision and not @srcmd5
       # on very first page load only
       @revision = Package.current_rev(@project, @package)
-      @current_revision = true
-    else
-      @current_revision = false
     end
     if @srcmd5
       @files = @package.files(@srcmd5, @expand)
@@ -699,7 +696,7 @@ class PackageController < ApplicationController
     @expand = params[:expand]
     @srcmd5 = params[:srcmd5]
     @addeditlink = false
-    if @package.can_edit?( session[:login] ) and !@srcmd5
+    if @package.can_edit?( session[:login] )
       @package.files(@srcmd5, @expand).each do |file|
         if file[:name] == @filename
           @addeditlink = file[:editable]
@@ -712,11 +709,7 @@ class PackageController < ApplicationController
         :package => @package.to_s, :filename => @filename, :rev => @srcmd5 )
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
-      redirect_to :action => :files, :package => @package, :project => @project
-    rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      redirect_to :action => :files, :package => @package, :project => @project
+      redirect_to :action => :show, :package => @package, :project => @project
     end
   end
 
