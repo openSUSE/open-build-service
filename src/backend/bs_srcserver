@@ -314,7 +314,7 @@ sub getcommitinfo {
   my $bconf = Build::read_config('noarch');
   for my $type ('spec', 'dsc', 'kiwi') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
-    my $file = findfile($rev, undef, $type, $files);
+    my (undef, $file) = findfile($rev, undef, $type, $files);
     next unless defined $file;
     my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
     next unless defined $d->{'version'};
