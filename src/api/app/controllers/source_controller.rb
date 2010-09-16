@@ -669,6 +669,7 @@ class SourceController < ApplicationController
       # ACL(project_meta): the following code checks if the target project of a linked project exists or is ACL protected, skip remote projects
       rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
+         # ACL(project_meta) TODO: check if project linking check cannot be circumvented
         tproject_name = e.attributes["project"]
         tprj = DbProject.find_by_name(tproject_name)
 
@@ -709,6 +710,7 @@ class SourceController < ApplicationController
 
       # ACL(project_meta): the following code checks if a repository path is to protected project, skip remote projects
       rdata.elements.each("project/repository/path") do |e|
+         # ACL(project_meta) TODO: check if repository check cannot be circumvented
         tproject_name = e.attributes["project"]
         tprj = DbProject.find_by_name(tproject_name)
         if tprj.nil?
@@ -1092,10 +1094,11 @@ class SourceController < ApplicationController
            validator.validate(request)
         end
 
-        # ACL(file): the following code checks if link or aggregate opens a protection hole
+        # ACL(file): the following code checks if link or aggregate, kiwi file or product definition opens a hole
         if params[:file] == "_link"
           data = REXML::Document.new(request.raw_post.to_s)
           data.elements.each("link") do |e|
+            # ACL(file) TODO: check if the _link check cannot be circumvented by diff or else
             tproject_name = e.attributes["project"]
             tpackage_name = e.attributes["package"]
             tproject_name = project_name if tproject_name.blank?
@@ -1151,6 +1154,7 @@ class SourceController < ApplicationController
         elsif params[:file] == "_aggregate"
           data = REXML::Document.new(request.raw_post.to_s)
           data.elements.each("aggregate") do |e|
+            # ACL(file) TODO: check if the _aggregate check cannot be circumvented somehow
             tproject_name = e.attributes["project"]
             tprj = DbProject.find_by_name(tproject_name)
             if tprj.nil?
@@ -1190,6 +1194,7 @@ class SourceController < ApplicationController
         elsif params[:file] =~ /\.(product)$/
           data = REXML::Document.new(request.raw_post.to_s)
           data.root.each_element("repositories/repository") do |e|
+            # ACL(file) TODO: check if the product definition checks cannot be circumvented
             trepo_path = e.attributes["path"].split('obs://')[-1]
             tproject_name, trepo_name, tarch_name = trepo_path.split('/')[0..2]
             tprj = DbProject.find_by_name(tproject_name)            
@@ -1232,6 +1237,7 @@ class SourceController < ApplicationController
         elsif params[:file] =~ /\.(kiwi)$/
           data = REXML::Document.new(request.raw_post.to_s)
           data.elements.each("image/repository/source") do |e|
+            # ACL(file) TODO: check if the KIWI file checks cannot be circumvented
             trepo_path = e.attributes["path"].split('obs://')[-1]
             tproject_name, trepo_name, tarch_name = trepo_path.split('/')[0..2]
             tprj = DbProject.find_by_name(tproject_name)            
