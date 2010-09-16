@@ -1144,9 +1144,9 @@ class SourceController < ApplicationController
                   return
                 end
               end
-            end
 
-            logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
+              logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
+            end
           end
         elsif params[:file] == "_aggregate"
           data = REXML::Document.new(request.raw_post.to_s)
@@ -1163,7 +1163,7 @@ class SourceController < ApplicationController
               # ACL(file): _aggregate access behaves like project not existing
               if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
                 render_error :status => 404, :errorcode => 'not_found',
-                :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+                :message => "The project #{tproject_name} does not exist"
                 return
               end
 
@@ -1185,7 +1185,91 @@ class SourceController < ApplicationController
               end
             end
 
-            logger.debug "_aggregate checked against #{tproject_name} project permission"
+            logger.debug "_aggregate checked for #{tproject_name} project permission"
+          end
+        elsif params[:file] =~ /\.(product)$/
+          data = REXML::Document.new(request.raw_post.to_s)
+          data.root.each_element("repositories/repository") do |e|
+            trepo_path = e.attributes["path"].split('obs://')[-1]
+            tproject_name, trepo_name, tarch_name = trepo_path.split('/')[0..2]
+            tprj = DbProject.find_by_name(tproject_name)            
+
+            if tprj.nil?
+              if not DbProject.find_remote_project(tproject_name)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given #{tproject_name} does not exist"
+                return
+              end
+            else
+              # ACL(file): product "repository path" tag for access protected target behaves like project not existing
+              if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The project #{tproject_name} does not exist"
+                return
+              end
+
+              # ACL(file):product "repository path" tag for binarydownload protected target denies access to repositories
+              if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+                render_error :status => 403, :errorcode => "download_binary_no_permission",
+                :message => "No permission to use product repository path directive to project #{tproject_name}"
+                return
+              end
+
+              # ACL(file): check that user does not use product "repository path" from an unprotected project to a protected project
+              if prj
+                if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
+                    (prj.enabled_for?('access', nil, nil) or prj.enabled_for?('binarydownload', nil, nil)))
+                  render_error :status => 403, :errorcode => "download_binary_no_permission" ,
+                  :message => "use of product repository path directive from unprotected project  #{project_name} to a protected project #{tproject_name}"
+                  return
+                end
+              end
+            end
+
+            logger.info "product file #{params[:file]} checked against #{tproject_name} project permission"
+            logger.info "target project #{tproject_name} target repo #{trepo_name} target arch #{tarch_name}"
+          end
+        elsif params[:file] =~ /\.(kiwi)$/
+          data = REXML::Document.new(request.raw_post.to_s)
+          data.elements.each("image/repository/source") do |e|
+            trepo_path = e.attributes["path"].split('obs://')[-1]
+            tproject_name, trepo_name, tarch_name = trepo_path.split('/')[0..2]
+            tprj = DbProject.find_by_name(tproject_name)            
+
+            if tprj.nil?
+              if not DbProject.find_remote_project(tproject_name)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given #{tproject_name} does not exist"
+                return
+              end
+            else
+              # ACL(file): kiwi "source path" tag for access protected target behaves like project not existing
+              if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The project #{tproject_name} does not exist"
+                return
+              end
+
+              # ACL(file):kiwi "source path" tag for binarydownload protected target denies access to repositories
+              if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+                render_error :status => 403, :errorcode => "download_binary_no_permission",
+                :message => "No permission to use kiwi source path directive to project #{tproject_name}"
+                return
+              end
+
+              # ACL(file): check that user does not use kiwi "source path" tag from an unprotected project to a protected project
+              if prj
+                if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil)) and
+                    (prj.enabled_for?('access', nil, nil) or prj.enabled_for?('binarydownload', nil, nil)))
+                  render_error :status => 403, :errorcode => "download_binary_no_permission" ,
+                  :message => "use of kiwi source path directive from unprotected project #{project_name} to a protected project #{tproject_name}"
+                  return
+                end
+              end
+            end
+
+            logger.info "kiwi file #{params[:file]} checked against #{tproject_name} project permission"
+            logger.info "target project #{tproject_name} target repo #{trepo_name} target arch #{tarch_name}"
           end
         end
 
@@ -2347,5 +2431,4 @@ class SourceController < ApplicationController
     return true if name =~ /^_product:[-_+\w\.:]*$/
     name =~ /^\w[-_+\w\.:]*$/
   end
-
 end
