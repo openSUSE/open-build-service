@@ -1032,7 +1032,14 @@ class ProjectController < ApplicationController
       currentpack['version'] = p.version
       if upstream_versions.has_key? p.name
         upstream_version = upstream_versions[p.name]
-        if p.version < upstream_version
+	begin
+	  gup = Gem::Version.new(p.version)
+	  guv = Gem::Version.new(upstream_version)
+	rescue ArgumentError
+	  # if one of the versions can't be parsed we simply can't say
+	end
+
+        if gup && guv && gup < guv
           currentpack['upstream_version'] = upstream_version
           currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
         end
