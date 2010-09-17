@@ -3978,15 +3978,17 @@ while(1) {
 
   # do delayed projpack fetches
   while ($delayedfetchprojpacks{$projid}) {
-    my %packids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
+    my %dpackids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
+    my %packids = map {(/^:link:/ ? substr($_, 6) : $_) => 1} @{$delayedfetchprojpacks{$projid}};
     delete $delayedfetchprojpacks{$projid};
     get_projpacks($projid, sort keys %packids) if %packids;
     get_projpacks_postprocess();
     for my $packid (sort keys %packids) {
+      next unless $dpackids{$packid};	# no link update trigger if we were triggered ourselfs
       for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
 	my $lpackid = defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
 	next if $linfo->{'myproject'} eq $projid && $packids{$lpackid};
-	push @{$delayedfetchprojpacks{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
+	push @{$delayedfetchprojpacks{$linfo->{'myproject'}}}, ":link:$lpackid";
 	for my $lprp (@prps) {
 	  next if $lprp eq $prp;
 	  if ((split('/', $lprp, 2))[0] eq $linfo->{'myproject'}) {
