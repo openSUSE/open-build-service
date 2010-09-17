@@ -393,6 +393,8 @@ our $buildinfo = [
 	'vminstall',
 	'cbpreinstall',
 	'cbinstall',
+	'cbignore',
+	'cbpreignore',
 	'runscripts',
 	'notmeta',
 	'noinstall',
