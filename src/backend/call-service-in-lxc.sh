@@ -43,7 +43,7 @@ while [ $# -gt 0 ]; do
      COMMAND="$COMMAND \"${1/\"/_}\" "
      if [ -z "$MODE" ]; then
         case "$1" in
-          */download_url)
+          */download_url|*/tar_scm|*/download_src_package)
             WITH_NET="1"
             ;;
         esac
@@ -73,13 +73,13 @@ echo "lxc.tty = 1" >> $LXC_CONF
 #echo "lxc.mount = /etc/fstab" >> $LXC_CONF
 echo "lxc.rootfs = $MOUNTDIR" >> $LXC_CONF
 
-lxc-info -n obs.service.jail.$$ >& /dev/null && lxc-destroy -n obs.service.jail.$$
+lxc-info -n obs.service.jail.$$ >& /dev/null && lxc-destroy -n obs.service.jail.$$ >& /dev/null
 RETURN="0"
-lxc-create -n obs.service.jail.$$ -f $LXC_CONF || RETURN="1"
+lxc-create -n obs.service.jail.$$ -f $LXC_CONF >& /dev/null || RETURN="2"
 rm -f $LXC_CONF
 
 # run jailed process
-lxc-start -n obs.service.jail.$$ "$INNERSCRIPT" || RETURN="1"
+lxc-start -n obs.service.jail.$$ "$INNERSCRIPT" || RETURN="2"
 
 # destroy jail
 lxc-destroy -n obs.service.jail.$$
