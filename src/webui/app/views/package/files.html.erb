@@ -62,7 +62,4 @@
 <% end %>
 </h3>
 
-<% unless @files.empty? %>
-  <%= render :partial => 'files_view', :locals => {:file_list => @files} %>
-<% end %>
-
+<%= render :partial => 'files_view', :locals => {:file_list => @files} %>
