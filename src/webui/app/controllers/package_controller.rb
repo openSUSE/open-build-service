@@ -1029,7 +1029,7 @@ class PackageController < ApplicationController
   end
 
   def require_project
-    unless params[:project].blank?
+    if valid_project_name? params[:project]
       @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     end
     unless @project
