@@ -253,11 +253,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def test_get_package_filelist_from_sourceaccess_protected_project
     prepare_request_with_user "tom", "thunder"
     get "/source/SourceprotectedProject/pack"
-    assert_response :success
-    # filelist visible, but files itself not
-    assert_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_tag :tag => "directory",
-      :children => { :count => 2 }
+    assert_response 403
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "sourceaccess_homer", "homer"
@@ -949,6 +945,31 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal( @response.body.to_s, "Protected Content")
   end
 
+  def test_read_filelist_sourceaccess_proj
+    # nobody 
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    get "/source/SourceprotectedProject/pack"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
+    # uninvolved, 
+    prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/pack"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
+    # reader
+    # downloader
+    # maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/source/SourceprotectedProject/pack"
+    assert_response :success
+    assert_tag :tag => "directory"
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    get "/source/SourceprotectedProject/pack"
+    assert_response :success
+    assert_tag :tag => "directory"
+  end
+
   def test_read_file_sourceaccess_proj
     # nobody 
     prepare_request_with_user "adrian_nobody", "so_alone"
@@ -1080,7 +1101,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     # uninvolved user
     prepare_request_with_user "fredlibs", "geröllheimer"
     url1="/source/SourceprotectedProject/pack"
-    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "47a5fb1c73c75bb252283e2ad1110182"} }
     url2="/source/SourceprotectedProject/pack/testfile"
     assertresp2=403
     assertselect2=nil
@@ -1088,12 +1108,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     assertresp3=403
     asserteq3=nil
     assertresp4=403
-    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+    add_file_to_package(url1, nil, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
     # nobody 
     prepare_request_with_user "adrian_nobody", "so_alone"
-    add_file_to_package(url1, asserttag1, url2, assertresp2, 
+    add_file_to_package(url1, nil, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
     # maintainer

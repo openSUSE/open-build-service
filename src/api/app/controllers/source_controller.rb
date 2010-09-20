@@ -277,6 +277,13 @@ class SourceController < ApplicationController
       return
     end
 
+    # ACL(index_package): source access gives permisson denied
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{pkg.name} in project #{pkg.db_project.name}"
+      return
+    end
+
     if request.post? and cmd == "showlinked"
       dispatch_command
       return
