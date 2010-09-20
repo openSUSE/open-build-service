@@ -212,7 +212,7 @@ class SourceController < ApplicationController
         :message => "origin package name is specified, but no origin project"
         return
     end
-    # FIMXE: not found error messages needs to be defined in one place to avoid the risk that a typo can
+    # FIXME: not found error messages needs to be defined in one place to avoid the risk that a typo can
     #        be used to find out about existens
     unknownTargetPackageError = "Unknown package '#{target_package_name}' in project '#{target_project_name}'"
     unknownTargetProjectError = "Unknown project '#{target_project_name}'"
@@ -254,7 +254,9 @@ class SourceController < ApplicationController
         if answer
           # exist remote
           if request.get?
-              pass_to_backend
+              path = request.path
+              path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted])
+              pass_to_backend path
               return
           end
         end
@@ -299,7 +301,9 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      pass_to_backend
+      path = request.path
+      path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted])
+      pass_to_backend path
       return
     elsif request.delete?
       if target_package_name == "_project"
