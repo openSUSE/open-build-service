@@ -612,12 +612,17 @@ class PackageController < ApplicationController
     required_parameters :id
     id = params[:id].gsub( %r{^service_}, '' )
     @services = find_cached(Service,  :project => @project, :package => @package )
+    unless @services
+      flash[:error] = "ERROR: Service \##{id} not found"
+      redirect_to :action => :files, :project => @project, :package => @package 
+      return
+    end
     @services.removeService( id )
     @services.save
     Service.free_cache :project => @project, :package => @package
     Directory.free_cache( :project => @project, :package => @package )
     flash[:note] = "Service \##{id} got removed"
-    redirect_to :action => :files, :project => @project, :package => @package and return
+    redirect_to :action => :files, :project => @project, :package => @package
   end
 
   def remove_file
