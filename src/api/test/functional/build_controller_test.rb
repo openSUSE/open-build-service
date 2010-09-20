@@ -121,6 +121,8 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/package 'notthere' does not exist/, @response.body)
   end
 
+  #FIXME2.1: add test case for buildlog of source access protected content (needs to be 403)
+
   def test_read_access_hidden_logfile
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response 404

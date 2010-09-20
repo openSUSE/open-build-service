@@ -233,14 +233,21 @@ class BuildController < ApplicationController
     # ACL(logfile): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
     if pkg and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
       render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-      :status => 404, :errorcode => "unknown_package"
+        :status => 404, :errorcode => "unknown_package"
       return
     end
 
-    # ACL(logfile): binarydownload denies logfile acces
+    # ACL(logfile): binarydownload denies logfile access
     if pkg and pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
+        :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
+      return
+    end
+
+    # ACL(logfile): sourceaccess denies logfile access
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
       return
     end
     pass_to_backend
