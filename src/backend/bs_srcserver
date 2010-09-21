@@ -774,7 +774,7 @@ sub lsrev {
     }
     if (!open(F, '<', "$treedir/$srcmd5-MD5SUMS")) {
       return {'_linkerror' => $srcmd5} if -e "$srcrep/$packid/$srcmd5-_linkerror";
-      die("$projid/$packid/$srcmd5: not in repository. Possible misconfigured '\$nosharedtrees' setting in BSConfig.pm\n");
+      die("$projid/$packid/$srcmd5: not in repository. Either not existing or misconfigured server setting for '\$nosharedtrees' setting in BSConfig.pm\n");
     }
   }
   my @files = <F>;
