@@ -398,7 +398,10 @@ module ApplicationHelper
   def format_comment(comment)
     comment ||= '-'
     comment = ERB::Util::h(comment).gsub(%r{[\n\r]}, '<br/>')
-    comment = comment.gsub(' ', '&nbsp;')
+    # always prepend a newline so the following code can eat up leading spaces over all lines
+    comment = '<br/>' + comment
+    comment = comment.gsub('(<br/> *) ', '\1&nbsp;')
+    comment = comment.gsub(%r{^<br/>}, '')
     return "<code>" + comment + "</code>"
   end
 
