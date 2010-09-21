@@ -2754,7 +2754,7 @@ my $dispatches = [
   '/build/_dispatchprios' => \&getdispatchprios,
 
   # src server calls
-  '/event $type: $project $package?' => \&forwardevent,
+  'POST:/event $type: $project $package?' => \&forwardevent,
 
   # worker calls
   '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
@@ -2775,7 +2775,7 @@ my $dispatches = [
   '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? summary:bool?' => \&getresult,
-  '/_command $cmd: $prpa+ package* code:*' => \&docommand,
+  'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,

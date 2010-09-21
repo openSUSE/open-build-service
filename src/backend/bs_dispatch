@@ -241,6 +241,7 @@ sub sendeventtosrcserver {
   }
   my $param = {
     'uri' => "$BSConfig::srcserver/event",
+    'request' => 'POST',
     'timeout' => 10,
   };
   BSRPC::rpc($param, undef, @args);

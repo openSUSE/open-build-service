@@ -99,6 +99,7 @@ sub notify_repservers {
   for my $rrserver ($BSConfig::reposerver) {
     my $param = {
       'uri' => "$rrserver/event",
+      'request'   => 'POST',
       'background' => 1,
     };
     eval {
@@ -3906,7 +3907,11 @@ sub docommand {
     push @args, map {"package=$_"} @packids;
     push @args, map {"code=$_"} @{$cgi->{'code'} || []};
     push @args, "cmd=$cgi->{'cmd'}";
-    $res = BSWatcher::rpc("$rrserver/_command", undef, @args);
+    my $param = {
+      'uri' => "$rrserver/_command",
+      'request' => 'POST',
+    };
+    $res = BSWatcher::rpc($param, undef, @args);
   }
   return $res;
 }
@@ -5327,7 +5332,7 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
-  '/event type: project: package:? repository:? arch:? job:?' => \&newevent,
+  'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
   '/public/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
 
