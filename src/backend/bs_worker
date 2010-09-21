@@ -1400,12 +1400,6 @@ sub dobuild {
   if (grep {$_->{'cbinstall'}} @bdep) {
     push @rpmlist, "cbinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbinstall'}} @bdep);
   }
-  if (grep {$_->{'cbpreignore'}} @bdep) {
-    push @rpmlist, "cbpreignore: ".join(' ', map {$_->{'name'}} grep {$_->{'cbpreignore'}} @bdep);
-  }
-  if (grep {$_->{'cbignore'}} @bdep) {
-    push @rpmlist, "cbignore: ".join(' ', map {$_->{'name'}} grep {$_->{'cbignore'}} @bdep);
-  }
   writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
   print "building...\n";
