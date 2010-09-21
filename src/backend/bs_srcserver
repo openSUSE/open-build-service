@@ -4065,6 +4065,16 @@ sub putbinary {
   return BSWatcher::rpc($param, undef, @args);
 }
 
+sub delbinary {
+  my ($cgi, $projid, $repoid, $arch, $filename) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_repository/$filename",
+    'request' => 'DELETE',
+  };
+  return BSWatcher::rpc($param, undef);
+}
+
 sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
@@ -5391,6 +5401,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package_repository/$filename view:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
+  'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
 
   'POST:/request cmd: user:?' => \&createrequest,
   '/request' => \&getrequestlist,

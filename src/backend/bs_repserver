@@ -944,6 +944,24 @@ sub putbinary {
   return $BSStdServer::return_ok;
 }
 
+sub delbinary {
+  my ($cgi, $projid, $repoid, $arch, $bin) = @_;
+
+  my $tdir = "$reporoot/$projid/$repoid/$arch/:full";
+  unlink("$tdir/$bin") || die("$projid/$repoid/$arch/$bin: $!\n");
+  if ($bin =~ s/\.(?:rpm|deb)$//) {
+    unlink("$tdir/$bin.meta");
+  }
+  dirty($projid, $repoid, $arch);
+  if (-d "$eventdir/$arch") {
+    my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
+    my $evname = "scanrepo:${projid}::$repoid";
+    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    ping($arch);
+  }
+  return $BSStdServer::return_ok;
+}
+
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
   my $peerip = BSServer::getpeerdata();
@@ -2731,6 +2749,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
+  'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
   '/search/published/pattern/id $match:' => \&search_published_pattern_id,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
