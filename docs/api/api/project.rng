@@ -125,12 +125,14 @@
             <ref name="flag-element"/>
           </element>
         </optional>
+<!-- These are currently not allowed for OBS 2.1, since protection is not complete or open for discussion
+     You can remove this comment on your own risk.
         <optional>
           <element ns="" name="privacy">
             <ref name="flag-element"/>
           </element>
         </optional>
-<!--        <optional>
+        <optional>
           <element ns="" name="access">
             <ref name="flag-element"/>
           </element>

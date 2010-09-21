@@ -73,6 +73,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     node.each_entry do |e|
       next if ( "#{e.name}" == "HiddenProject" ) and not $ENABLE_ACCESS_FLAG
+      next if ( "#{e.name}" == "ViewprotectedProject" ) and not $ENABLE_ACCESS_FLAG
       get "/source/#{e.name}/_meta"
       assert_response :success
       r = @response.body
@@ -444,6 +445,7 @@ if $ENABLE_ACCESS_FLAG
 end
 
   def test_put_project_meta_viewprotected_project
+    return unless $ENABLE_ACCESS_FLAG
     prj="ViewprotectedProject"
     # uninvolved user
     resp1=:success
