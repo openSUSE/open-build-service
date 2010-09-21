@@ -130,11 +130,11 @@
             <ref name="flag-element"/>
           </element>
         </optional>
-        <optional>
+<!--        <optional>
           <element ns="" name="access">
             <ref name="flag-element"/>
           </element>
-        </optional>
+        </optional>-->
 
         <zeroOrMore>
           <ref name="repository-element"/>

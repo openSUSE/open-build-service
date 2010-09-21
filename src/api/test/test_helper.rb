@@ -5,6 +5,8 @@ require 'action_controller/integration'
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true
+# enable for "access" tests
+#$ENABLE_ACCESS_FLAG=true
 
 module ActionController
   module Integration #:nodoc:

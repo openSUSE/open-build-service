@@ -72,6 +72,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
     node.each_entry do |e|
+      next if ( "#{e.name}" == "HiddenProject" ) and not $ENABLE_ACCESS_FLAG
       get "/source/#{e.name}/_meta"
       assert_response :success
       r = @response.body
@@ -418,6 +419,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+if $ENABLE_ACCESS_FLAG
   def test_put_project_meta_hidden_project
     prj="HiddenProject"
     # uninvolved user
@@ -439,6 +441,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # FIXME: maintainer via group
   end
+end
 
   def test_put_project_meta_viewprotected_project
     prj="ViewprotectedProject"
