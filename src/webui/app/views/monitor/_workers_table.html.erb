@@ -6,34 +6,35 @@
   function processCtrl(id, item)
   {
      var delta = item["delta"];
-
-     var container = $('#p' + id);
-
-     if (delta > 90) {
-        container.children(".monitorpb_green").addClass("monitorpb_red").removeClass("monitorpb_green");
-        container.children(".monitorpb_orange").addClass("monitorpb_red").removeClass("monitorpb_orange");
-     } else if (delta > 50) {
-	container.children(".monitorpb_green").addClass("monitorpb_orange").removeClass("monitorpb_green");
-        container.children(".monitorpb_red").addClass("monitorpb_orange").removeClass("monitorpb_red");
-     } else {
-	container.children(".monitorpb_orange").addClass("monitorpb_green").removeClass("monitorpb_orange");
-        container.children(".monitorpb_red").addClass("monitorpb_green").removeClass("monitorpb_red");
+     // 0 == #0f0
+     // 100 = #f00
+     // 50 = #ff0
+     var green = 255;
+     if (delta > 50) {
+        green = Math.round(255 * (100 - delta) / 50);
+     }
+     var red = 255;
+     if (delta < 50) {
+       red = Math.round(255 * delta / 50);
      }
 
+     var container = $('#p' + id);
      var el_text = container.children(".monitorpb_text:first");
+     var ctrl = container.find(".monitorpb_ctrl:first");
      if (delta) {
         el_text.text(item[logfileinfo]);
 	if (container_width == -1) {
 	   container_width = container.width();
         }
-        var el_track = container_width - 4;
-        container.find(".monitorpb_ctrl:first").css("margin-left", (el_track * delta / 100) + "px");
+        var el_track = container_width;
+        ctrl.css("margin-left", (el_track * delta / 100) + "px");
 	el_text.attr("href", "<%= url_for :controller => :package, :action => :live_build_log %>?arch=" + encodeURIComponent(item["arch"]) + 
 	             "&package=" + encodeURIComponent(item["package"]) + "&project=" + encodeURIComponent(item["project"]) + "&repository=" + encodeURIComponent(item["repository"]));
+	container.css("background-color", "rgb(" + red + "," + green + ",0)");
      }
      else {
         el_text.html("idle");
-        container.find(".monitorpb_ctrl:first").css("margin-left", "0px");
+        ctrl.css("margin-left", "0px");
 	el_text.attr("href", "#");
      }
   }
@@ -53,7 +54,7 @@
 <% content_for :ready_function do %>
        $(".worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); })
        update();
-       setInterval("update()", 180000 );
+       setInterval("update()", 100000 );
 
        $("#worker_display").change(function() {
 	   $("select option:selected").each(function() { logfileinfo=$(this).attr("value"); })
@@ -84,12 +85,14 @@ but just relative against each other. The exact percentage shown has no real mea
 <% else %>
 
 <ul class='monitorboxrow'>
+<li class="hidden"></li>
 <% counter = -1
    @workers_sorted.each do |name,hash| 
    counter += 1
    if counter == 5 -%>
 </ul>
 <ul class='monitorboxrow'>
+  <li class="hidden"></li>
   <% counter = 0
      end -%>
   <li class='builderbox'>
@@ -97,11 +100,11 @@ but just relative against each other. The exact percentage shown has no real mea
       <% hash.each do |subid,id| -%>
 	<% if subid != '_arch' -%>
 	<div class='monitorpb' id='p<%= id %>'>
-	  <div class="monitorpb_left monitorpb_green"></div>
-	  <div class="monitorpb_track monitorpb_green">
-	    <div class="monitorpb_ctrl monitorpb_green"></div>
+	  <div class="monitorpb_left monitorpb_bar"></div>
+	  <div class="monitorpb_track monitorpb_bar">
+	    <div class="monitorpb_ctrl monitorpb_bar"></div>
 	  </div>
-	  <div class="monitorpb_right monitorpb_green"></div>
+	  <div class="monitorpb_right monitorpb_bar"></div>
 	  <a href="#" class="monitorpb_text" rel="nofollow"></a>
 	</div>
 	<% end -%>
