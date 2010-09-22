@@ -155,6 +155,47 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => "declined" } )
   end
 
+  def test_revoke_when_packages_dont_exist
+    prepare_request_with_user 'tom', 'thunder'
+    post "/source/kde4/kdebase", :cmd => :branch
+    assert_response :success
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id1 = node.data['id']
+
+    post "/source/home:tom:branches:kde4/kdebase", :cmd => :branch
+    assert_response :success
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:tom:branches:home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id2 = node.data['id']
+
+    # delete projects
+    delete "/source/home:tom:branches:kde4"
+    assert_response :success
+    delete "/source/home:tom:branches:home:tom:branches:kde4"
+    assert_response :success
+
+    # test decline and revoke
+    post "/request/#{id1}?cmd=changestate&newstate=revoked"
+    assert_response :success
+    post "/request/#{id2}?cmd=changestate&newstate=revoked"
+    assert_response :success
+  end
+
   def test_create_and_revoke_submit_request_permissions
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
