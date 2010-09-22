@@ -1,6 +1,7 @@
 <% content_for :head_javascript do %>
 
   var logfileinfo = "package";
+  var container_width = -1;
 
   function processCtrl(id, item)
   {
@@ -21,12 +22,11 @@
 
      var el_text = container.children(".monitorpb_text:first");
      if (delta) {
-        el_text.html(item[logfileinfo]);
-	container.children(".pb_repo:first").html(item["repository"]);
-	container.children(".pb_arch:first").html(item["arch"]);
-	container.children(".pb_package:first").html(item["package"]);
-	container.children(".pb_project:first").html(item["project"]);
-        var el_track = container.width() - 4;
+        el_text.text(item[logfileinfo]);
+	if (container_width == -1) {
+	   container_width = container.width();
+        }
+        var el_track = container_width - 4;
         container.find(".monitorpb_ctrl:first").css("margin-left", (el_track * delta / 100) + "px");
 	el_text.attr("href", "<%= url_for :controller => :package, :action => :live_build_log %>?arch=" + encodeURIComponent(item["arch"]) + 
 	             "&package=" + encodeURIComponent(item["package"]) + "&project=" + encodeURIComponent(item["project"]) + "&repository=" + encodeURIComponent(item["repository"]));
@@ -44,8 +44,8 @@
      $.getJSON("<%= url_for(:controller => :monitor, :action => :update_building) %>", function(json) {
 	 $.each(json, function(i,item) {
             processCtrl(i, item);
-	 });
-         $("#workers_updating").fadeOut(1200);
+	 }); 
+	 $("#workers_updating").fadeOut(1200);
      });
   }
 <% end %>
@@ -103,10 +103,6 @@ but just relative against each other. The exact percentage shown has no real mea
 	  </div>
 	  <div class="monitorpb_right monitorpb_green"></div>
 	  <a href="#" class="monitorpb_text" rel="nofollow"></a>
- 	  <span class="pb_repo hidden"></span>
-	  <span class="pb_arch hidden"></span>
- 	  <span class="pb_project hidden"></span>
-	  <span class="pb_package hidden"></span>
 	</div>
 	<% end -%>
       <% end -%>
