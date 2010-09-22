@@ -560,7 +560,7 @@ sub getbinarylist {
   return getbinarylist_repository($cgi, $projid, $repoid, $arch) if $packid eq '_repository';
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
-  if ($view eq 'cpio' && !$BSStdServer::isajax) {
+  if ($view eq 'cpio' && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
     my @args;
     push @args, "view=$view";
     push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
@@ -2738,7 +2738,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,

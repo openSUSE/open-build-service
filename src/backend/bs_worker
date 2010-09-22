@@ -1252,7 +1252,7 @@ sub getoldpackages {
     'directory' => $odir,
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::cpio_receiver,
-  }, undef, 'view=cpio');
+  }, undef, 'view=cpio', 'noajax=1');
   rmdir($odir);	# if not needed
 }
 
