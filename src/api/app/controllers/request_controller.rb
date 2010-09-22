@@ -530,17 +530,17 @@ class RequestController < ApplicationController
       if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
         source_project = DbProject.find_by_name(action.source.project)
         target_project = DbProject.find_by_name(action.target.project)
-        if target_project.nil?
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-          return
-        end
-        if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
-          return
-        end
         if params[:newstate] != "declined" and params[:newstate] != "revoked"
+          if target_project.nil?
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          end
+          if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          end
           if source_project.nil?
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
@@ -554,13 +554,15 @@ class RequestController < ApplicationController
             return
           end
         end
-        if action.target.has_attribute? :package
-          target_package = target_project.db_packages.find_by_name(action.target.package)
-        else
-          target_package = target_project.db_packages.find_by_name(action.source.package)
+        if target_project
+          if action.target.has_attribute? :package
+            target_package = target_project.db_packages.find_by_name(action.target.package)
+          else
+            target_package = target_project.db_packages.find_by_name(action.source.package)
+          end
         end
         if ( target_package and @http_user.can_modify_package? target_package ) or
-           ( not target_package and @http_user.can_modify_project? target_project )
+           ( not target_package and target_project and @http_user.can_modify_project? target_project )
            permission_granted = true
         elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
            # source project owners should be able to revoke submit requests as well
