@@ -2760,7 +2760,7 @@ my $dispatches = [
   '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
-  '!worker /putjob $arch $job $jobid:md5 $code:?' => \&putjob,
+  '!worker POST:/putjob $arch $job $jobid:md5 $code:?' => \&putjob,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 
