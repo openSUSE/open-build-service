@@ -260,3 +260,29 @@ function monitor_ready() {
       }
     );
 }
+
+function resizeMonitorBoxes()
+{
+  return; /* needs work */
+  var largestbox = new Object();
+  $(".builderbox").each(function() { 
+			  var h = $(this).height();
+			  var t = $(this).position().top;
+			  if (!largestbox[t] || (h > largestbox[t])) {
+			    largestbox[t] = h;
+			  }
+			});
+  $(".builderbox").each(function() { 
+			  var h = $(this).height();
+			  var nh = largestbox[$(this).position().top];
+			  if (h != nh) {
+			    console.log("set %d", nh);
+			    if (nh) {
+			      $(this).height( largestbox[$(this).position().top] );
+			    }
+			    resizeMonitorBoxes();
+			    return;
+			  }
+			});
+  
+}

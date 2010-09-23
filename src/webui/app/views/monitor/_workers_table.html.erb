@@ -42,6 +42,7 @@
   function update()
   {
      $("#workers_updating").fadeIn(1200);
+     resizeMonitorBoxes();
      $.getJSON("<%= url_for(:controller => :monitor, :action => :update_building) %>", function(json) {
 	 $.each(json, function(i,item) {
             processCtrl(i, item);
@@ -52,12 +53,15 @@
 <% end %>
 
 <% content_for :ready_function do %>
-       $(".worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); })
+       $(".worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+
+       resizeMonitorBoxes();
+
        update();
        setInterval("update()", 100000 );
 
        $("#worker_display").change(function() {
-	   $("select option:selected").each(function() { logfileinfo=$(this).attr("value"); })
+	   $("select option:selected").each(function() { logfileinfo=$(this).attr("value"); });
 	   update();
        });
 <% end %>
@@ -86,7 +90,15 @@ but just relative against each other. The exact percentage shown has no real mea
 
 <ul class='monitorboxrow'>
 <li class="hidden"></li>
-<% @workers_sorted.each do |name,hash| %>
+<% counter = -1
+   @workers_sorted.each do |name,hash| 
+   counter += 1
+   if counter == 5 -%>
+</ul>
+<ul class='monitorboxrow'>
+  <li class="hidden"></li>
+  <% counter = 0
+     end -%>
   <li class='builderbox'>
       <div class='builderboxtitle'><%= '%s (%s)' % [name, hash['_arch']] %></div>
       <% hash.each do |subid,id| -%>
