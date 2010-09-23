@@ -43,8 +43,7 @@ class MonitorController < ApplicationController
 	workers[hostname]['_arch'] = barch
 	workers[hostname][subid] = id
       end
-      @workers_sorted = workers.sort {|a,b| a[1].size == b[1].size ? a[0] <=> b[0] : b[1].size <=> a[1].size }
-      logger.debug @workers_sorted.inspect
+      @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] }
     end
   end
 
