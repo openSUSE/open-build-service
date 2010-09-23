@@ -931,7 +931,6 @@ class ProjectController < ApplicationController
   private :get_changes_md5
 
   def changes_file_difference(project1, package1, project2, package2)
-    return true
     md5_1 = get_changes_md5(project1, package1)
     md5_2 = get_changes_md5(project2, package2)
     return md5_1 != md5_2
