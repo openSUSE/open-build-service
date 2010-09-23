@@ -113,7 +113,7 @@
         # ignore the upstream version if there are already changes pending
         if p['upstream_version'] and sortkey.nil?
           if p['upstream_url']
-            outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
+            outs << "New upstream version <a href=\"" + h(p['upstream_url']) + "\">" + h(p['upstream_version']) + "</a> available"
           else
             outs << "New upstream version " + p['upstream_version'] + " available"
           end

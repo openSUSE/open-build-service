@@ -931,6 +931,7 @@ class ProjectController < ApplicationController
   private :get_changes_md5
 
   def changes_file_difference(project1, package1, project2, package2)
+    return true
     md5_1 = get_changes_md5(project1, package1)
     md5_2 = get_changes_md5(project2, package2)
     return md5_1 != md5_2
@@ -947,8 +948,9 @@ class ProjectController < ApplicationController
     @current_develproject = params[:filter_devel] || all_packages
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
+    @limit_to_old = !(!params[:limit_to_old].nil? && params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
-
+    
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
@@ -962,7 +964,7 @@ class ProjectController < ApplicationController
     upstream_versions = Hash.new
     upstream_urls = Hash.new
 
-    if @include_versions
+    if @include_versions || @limit_to_old
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
       attributes.data.find('//package//values').each do |p|
@@ -1010,7 +1012,6 @@ class ProjectController < ApplicationController
       newest = 0
 
       p.each_failure do |f|
-        next if f.repo =~ /ppc/
         next if f.repo =~ /snapshot/
         next if newest > (Integer(f.time) rescue 0)
         next if f.srcmd5 != p.srcmd5
@@ -1042,7 +1043,7 @@ class ProjectController < ApplicationController
         if gup && guv && gup < guv
           currentpack['upstream_version'] = upstream_version
           currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
-        end
+	end
       end
 
       currentpack['md5'] = p.value 'verifymd5'
@@ -1092,13 +1093,17 @@ class ProjectController < ApplicationController
           currentpack['lpackage'] = p.link.package
         end
       end
-
-      next if !currentpack['requests_from'].empty? and @ignore_pending
+      
+      next if !currentpack['requests_from'].empty? && @ignore_pending
       if @limit_to_fails
         next if !currentpack['firstfail']
       else
         next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
             !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+	if @limit_to_old
+	  next if (currentpack['firstfail'] or currentpack['failedcomment'] or
+		       !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+	end
       end
       @packages << currentpack
     end
