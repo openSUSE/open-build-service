@@ -7,17 +7,21 @@
   float: left;
 }
 
-.builderboxtitle { 
+.builderboxtitle {
+  font-weight: bold;
   padding: 0;
-  margin: 0;
-  border: 1px solid gray;
-  background-color: #eee;
+  margin: 0 0 0.2em;
 }
 
 .monitorboxrow {
   list-style: none;
   clear: both;
+  margin-bottom: 1em;
+  overflow:hidden;
 }
+  .monitorboxrow li {
+    margin-top: 3px !important;
+  }
 
 .monitorpb_bar { 
   background-image: url("../images/progressbar_bar.png");
