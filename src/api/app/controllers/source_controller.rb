@@ -1281,8 +1281,8 @@ class SourceController < ApplicationController
     end
 
     #create branch project
-    oprj = DbProject.find_by_name params[:target_project]
-    if oprj.nil?
+    tprj = DbProject.find_by_name params[:target_project]
+    if tprj.nil?
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{params[:attribute]}"
       if params[:request]
@@ -1290,21 +1290,21 @@ class SourceController < ApplicationController
         description = "This project was created as a clone of request #{params[:request]}"
       end
       DbProject.transaction do
-        oprj = DbProject.new :name => params[:target_project], :title => title, :description => description
-        oprj.add_user @http_user, "maintainer"
-        oprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
-        oprj.store
+        tprj = DbProject.new :name => params[:target_project], :title => title, :description => description
+        tprj.add_user @http_user, "maintainer"
+        tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
+        tprj.store
       end
       if params[:request]
         ans = AttribNamespace.find_by_name "OBS"
         at = AttribType.find( :first, :joins => ans, :conditions=>{:name=>"RequestCloned"} )
 
-        a = Attrib.new(:db_project => oprj, :attrib_type => at)
+        a = Attrib.new(:db_project => tprj, :attrib_type => at)
         a.values << AttribValue.new(:value => params[:request], :position => 1)
         a.save
       end
     else
-      unless @http_user.can_modify_project?(oprj)
+      unless @http_user.can_modify_project?(tprj)
         render_error :status => 403, :errorcode => "modify_project_no_permission",
           :message => "no permission to modify project '#{params[:target_project]}' while executing branch by attribute command"
         return
@@ -1342,57 +1342,53 @@ class SourceController < ApplicationController
       proj_name = pac.db_project.name.gsub(':', '_')
       pack_name = pac.name.gsub(':', '_')+"."+proj_name
 
+      # ACL(index_branch): source access gives permisson denied
+      if pac and pac.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pac)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "user #{@http_user.login} has no read access to package #{pac.name}, project #{pac.db_project.name}"
+        return
+      end
+
       # create branch package
       # no find_package call here to check really this project only
-      if opkg = oprj.db_packages.find_by_name(pack_name)
+      if tpkg = tprj.db_packages.find_by_name(pack_name)
         render_error :status => 400, :errorcode => "double_branch_package",
           :message => "branch target package already exists: #{oprj.name}/#{opkg.name}"
         return
       else
-        opkg = oprj.db_packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
-        oprj.db_packages << opkg
+        tpkg = tprj.db_packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
+        tprj.db_packages << tpkg
       end
 
       # create repositories, if missing
       pac.db_project.repositories.each do |repo|
-        orepo = oprj.repositories.create :name => proj_name+"_"+repo.name
-        orepo.architectures = repo.architectures
-        orepo.path_elements.create(:link => repo, :position => 1)
+        trepo = tprj.repositories.create :name => proj_name+"_"+repo.name
+        trepo.architectures = repo.architectures
+        trepo.path_elements.create(:link => repo, :position => 1)
+      end
+      tpkg.store
+
+      # ACL(index_branch): access behaves like project not existing
+      if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
+        render_error :status => 404, :errorcode => 'not_found',
+        :message => "The given package #{branch_target_package} does not exist in project #{branch_target_project}"
+        return
       end
 
-      opkg.store
-
-      btpkg=DbPackage.find_by_project_and_name(branch_target_project, branch_target_package)
-      if btpkg and opkg
-        # ACL(index_branch): access behaves like project not existing
-        if btpkg and btpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(btpkg)
-          render_error :status => 404, :errorcode => 'not_found',
-          :message => "The given package #{branch_target_package} does not exist in project #{branch_target_project}"
-          return
-        end
-
-        # ACL(index_branch): source access gives permisson denied
-        if btpkg and btpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(btpkg)
-          render_error :status => 403, :errorcode => "source_access_no_permission",
-          :message => "user #{@http_user.login} has no read access to package #{branch_target_package}, project #{branch_target_project}"
-          return
-        end
-
-        # ACL(index_branch): check that user does not branch an unprotected project to a protected project
-        if ((opkg.disabled_for?('access', nil, nil) or opkg.disabled_for?('sourceaccess', nil, nil)) and
-            (btpkg.enabled_for?('access', nil, nil) or btpkg.enabled_for?('souceaccess', nil, nil)))
-          render_error :status => 403, :errorcode => "source_access_no_permission" ,
-          :message => "branch of an protected package #{oprj.name}/#{opkg.name} to an unprotected package #{branch_target_project}/#{branch_target_package} "
-          return
-        end
+      # ACL(index_branch): check that user does not branch an unprotected project to a protected project
+      if ((pac.disabled_for?('access', nil, nil) or pac.disabled_for?('sourceaccess', nil, nil)) and
+          (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('souceaccess', nil, nil)))
+        render_error :status => 403, :errorcode => "source_access_no_permission" ,
+        :message => "branch of an protected package #{pac.db_project.name}/#{pac.name} to an unprotected package #{tpkg.db_project.name}/#{tpkg.name} "
+        return
       end
 
       # branch sources in backend
-      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
+      Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
     end
 
     # store project data in DB and XML
-    oprj.store
+    tprj.store
 
     # all that worked ? :)
     render_ok :data => {:targetproject => params[:target_project]}
