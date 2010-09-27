@@ -1133,31 +1133,6 @@ class SourceController < ApplicationController
         return
       end
 
-
-      # ACL(update_package_meta): raising the protection level of a project from open to source protected is forbidden for security reasons
-      tpkg = DbPackage.find_by_project_and_name(project_name, package_name)
-      if pkg
-        if (not flag_access and tpkg.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and tpkg.disabled_for?('sourceaccess', nil, nil)) and not
-            @http_user.is_admin?
-
-          #FIXME2.1: this makes not really sense, all _product:* package meta should just follow _product itself.
-          #          if _product can't get raised, the _product:* can't either.
-          DbPackage.transaction do
-            if not flag_access
-              tpkg.remove_flag('access', nil, nil)
-            end
-            if not flag_sourceaccess
-              tpkg.remove_flag('sourceaccess', nil, nil)
-            end
-            tpkg.store
-          end
-
-          render_error :status => 403, :errorcode => "change_package_protection_level",
-          :message => "admin rights are required to raise the protection level of a package"
-          return
-        end
-      end
-
       render_ok
     else
       logger.debug "user #{user} has no permission to write package meta for package #{@package}"
