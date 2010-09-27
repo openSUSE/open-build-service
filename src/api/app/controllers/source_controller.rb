@@ -1192,13 +1192,6 @@ class SourceController < ApplicationController
       return
     end
 
-    # ACL(index_branch): sourceaccess gives permisson denied
-    if tprj and tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{@http_user.login} has no read access to project #{params[:target_project]}"
-      return
-    end
-
     # permission check
     unless @http_user.can_create_project?(params[:target_project])
       render_error :status => 403, :errorcode => "create_project_no_permission",
