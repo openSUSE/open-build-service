@@ -681,7 +681,7 @@ class SourceController < ApplicationController
           # ACL(project_meta): check that user does not link an unprotected project to a protected project
           if @project
             if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('sourceaccess', nil, nil)) and
-                (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('souceaccess', nil, nil)))
+                (@project.enabled_for?('access', nil, nil) or @project.enabled_for?('sourceaccess', nil, nil)))
               render_error :status => 403, :errorcode => "source_access_no_permission" ,
               :message => "linking with an unprotected project  #{project_name} to a protected project #{tproject_name}"
               return
@@ -1035,7 +1035,7 @@ class SourceController < ApplicationController
               # ACL(file): check that user does not link an unprotected package to a protected package
               if pack and tpkg
                 if ((tpkg.disabled_for?('access', nil, nil) or tpkg.disabled_for?('sourceaccess', nil, nil)) and
-                    (pack.enabled_for?('access', nil, nil) or pack.enabled_for?('souceaccess', nil, nil)))
+                    (pack.enabled_for?('access', nil, nil) or pack.enabled_for?('sourceaccess', nil, nil)))
                   render_error :status => 403, :errorcode => "source_access_no_permission" ,
                   :message => "linking an unprotected package #{package_name}/#{project_name} to a protected package #{tpackage_name}/#{tproject_name}"
                   return
@@ -1377,7 +1377,7 @@ class SourceController < ApplicationController
 
       # ACL(index_branch): check that user does not branch an unprotected project to a protected project
       if ((pac.disabled_for?('access', nil, nil) or pac.disabled_for?('sourceaccess', nil, nil)) and
-          (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('souceaccess', nil, nil)))
+          (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('sourceaccess', nil, nil)))
         render_error :status => 403, :errorcode => "source_access_no_permission" ,
         :message => "branch of an protected package #{pac.db_project.name}/#{pac.name} to an unprotected package #{tpkg.db_project.name}/#{tpkg.name} "
         return
