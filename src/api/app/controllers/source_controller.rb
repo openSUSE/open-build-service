@@ -1034,8 +1034,12 @@ class SourceController < ApplicationController
 
               # ACL(file): check that user does not link an unprotected package to a protected package
               if pack and tpkg
-                if ((tpkg.disabled_for?('access', nil, nil) or tpkg.disabled_for?('sourceaccess', nil, nil)) and
-                    (pack.enabled_for?('access', nil, nil) or pack.enabled_for?('sourceaccess', nil, nil)))
+                if (tpkg.disabled_for?('access', nil, nil) and pack.enabled_for?('access', nil, nil))
+                  render_error :status => 403, :errorcode => "access_no_permission" ,
+                  :message => "linking an unprotected package #{package_name}/#{project_name} to a protected package #{tpackage_name}/#{tproject_name}"
+                  return
+                end
+                if (tpkg.disabled_for?('sourceaccess', nil, nil) and pack.enabled_for?('sourceaccess', nil, nil))
                   render_error :status => 403, :errorcode => "source_access_no_permission" ,
                   :message => "linking an unprotected package #{package_name}/#{project_name} to a protected package #{tpackage_name}/#{tproject_name}"
                   return
