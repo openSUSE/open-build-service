@@ -1891,44 +1891,6 @@ class SourceController < ApplicationController
     oproject_name = params[:oproject]
     opackage_name = params[:opackage]
  
-    prj = DbProject.find_by_name(project_name)
-    pkg = prj.find_package(package_name)
-    oprj = DbProject.find_by_name(oproject_name)
-    
-    if oprj
-      opackage_name = package_name if opackage_name.nil?
-      opkg = oprj.find_package(opackage_name)
-      
-      # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
-      if opkg and opkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(opkg)
-        render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
-        return
-      end
-
-      # ACL(index_package_diff): sourceaccess gives permisson denied
-      if opkg and opkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(opkg)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{params[:user]} has no read access to package #{params[:opackage]}, project #{params[:oproject]}"
-        return
-      end
-    end
-
-    # ACL(index_package_diff): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
-
-    # ACL(index_package_diff): sourceaccess gives permisson denied
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{params[:package]}, project #{params[:project]}"
-      return
-    end
-
-    # ACL(index_package_diff): lookup via :rev* / :linkrev* is prevented now by backend if $nosharedtrees is set
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok])
     pass_to_backend path
@@ -1940,23 +1902,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-    prj = DbProject.find_by_name(project_name)
-    pkg = prj.find_package(package_name)
-    # ACL(index_package_linkdiff): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
-
-    # ACL(index_package_linkdiff): sourceaccess gives permisson denied
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{params[:package]}, project #{params[:project]}"
-      return
-    end
-
-    # ACL(index_package_linkdiff): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     path = request.path
     path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     pass_to_backend path
@@ -1969,35 +1914,6 @@ class SourceController < ApplicationController
 
     tprj = DbProject.find_by_name(params[:project])
     tpkg = tprj.find_package(params[:package]) if tprj
-
-    # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
-    # FIXME: this is not working for projects linking to remote project
-    if tpkg and not DbProject.find_remote_project(params[:project])
-      # ACL(index_package_copy): project link to project with access behaves like target project not existing
-      if tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
-        render_error :status => 404, :errorcode => 'not_found',
-        :message => "The copypack target project #{params[:project]} does not exist"
-        return
-      end
-
-      # ACL(index_package_copy): project link to project with sourceaccess gives permisson denied
-      if tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "No permission on target project #{params[:project]}"
-        return
-      end
-
-      # ACL(index_package_copy): check that user does not link an unprotected project to a protected project
-      sprj = DbProject.find_by_name(params[:oproject])
-      spkg = sprj.find_package(params[:opackage]) if sprj
-      # FIXME:this will break when copying from remote linked project
-      if (spkg and (spkg.disabled_for?('access', nil, nil) or spkg.disabled_for?('sourceaccess', nil, nil)) and
-          (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('souceaccess', nil, nil)))
-        render_error :status => 403, :errorcode => "source_access_no_permission" ,
-        :message => "copypack of an protected package #{params[:oproject]}/#{params[:opackage]} to an unprotected package #{params[:project]}/#{params[:package]}"
-        return
-      end
-    end
 
     # create target package, if it does not exist
     tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
@@ -2030,15 +1946,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-    prj = DbProject.find_by_name(project_name)
-    pkg = prj.find_package(package_name)
-    # ACL(index_package_runservice): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
-
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment])
     pass_to_backend path
@@ -2050,15 +1957,6 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login
     project_name = params[:project]
     package_name = params[:package]
-
-    prj = DbProject.find_by_name(project_name)
-    pkg = prj.find_package(package_name)
-    # ACL(index_package_deleteuploadrev): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd])
@@ -2079,20 +1977,6 @@ class SourceController < ApplicationController
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj_name}"
-      return
-    end
-
-    # ACL(index_package_linktobranch): acces behaves like package / project not existing
-    if pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{pkg_name} in project #{prj_name}"
-      return
-    end
-
-    # ACL(index_package_linktobranch): source access gives permisson denied
-    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
       return
     end
 
@@ -2314,27 +2198,6 @@ class SourceController < ApplicationController
     if pkg.nil?
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
-      return
-    end
-
-    # ACL(index_package_set_flag): acces behaves like project not existing
-    if pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => "unknown_package",
-      :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
-      return
-    end
-    # ACL(index_package_set_flag): you are not allowed to protect an unprotected package with access
-    if params[:flag] == "access" and params[:status] == "disable" and pkg.enabled_for?('access', params[:repository], params[:arch]) and not
-            @http_user.is_admin?
-      render_error :status => 403, :errorcode => "change_package_protection_level",
-      :message => "admin rights are required to raise the protection level of a package"
-      return
-    end
-    # ACL(index_package_set_flag): you are not allowed to protect an unprotected package with sourceaccess
-    if params[:flag] == "sourceaccess" and params[:status] == "disable" and pkg.enabled_for?('sourceaccess', params[:repository], params[:arch]) and not
-        @http_user.is_admin? 
-      render_error :status => 403, :errorcode => "change_package_protection_level",
-      :message => "admin rights are required to raise the protection level of a package"
       return
     end
 
