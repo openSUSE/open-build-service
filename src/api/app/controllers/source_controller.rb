@@ -1873,20 +1873,6 @@ class SourceController < ApplicationController
       end
     end
 
-    # ACL(index_package_branch): acces behaves like project not existing
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{pkg_name} in project #{prj.name}"
-      return
-    end
-
-    # ACL(index_package_branch): source access gives permisson denied
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj.name}"
-      return
-    end
-
     # is a update project defined and a package there ?
     aname = params[:update_project_attribute]
     name_parts = aname.split(/:/)
