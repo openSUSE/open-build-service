@@ -2269,10 +2269,10 @@ end
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
     # flag not inherited
-    resp=403
+    resp=:success
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
+    # admin has special permission
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     #
@@ -2300,7 +2300,7 @@ end
     resp=:success
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
+    # admin
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
   end
@@ -2354,7 +2354,7 @@ end
     resp=:success
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
+    # admin
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
   end
@@ -2378,11 +2378,10 @@ end
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
-    # flag not inherited
-    resp=403
+    resp=:success
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
+    # admin
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     #
