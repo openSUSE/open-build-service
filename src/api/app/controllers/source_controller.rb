@@ -379,33 +379,6 @@ class SourceController < ApplicationController
     end
   end
 
-  # updates packages automatically generated in the backend after submitting a product file
-  def update_product_autopackages
-    # ACL(update_product_autopackages) TODO: check if this needs to be instrumented
-    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-    frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-
-    all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
-
-    wt_state = ActiveXML::Config.global_write_through
-    begin
-      ActiveXML::Config.global_write_through = false
-      all_pkgs.each do |pkg|
-        if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
-          # new autopackage, import in database
-          Package.new(b_pkg_index[pkg].dump_xml, :project => params[:project]).save
-        elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
-          # autopackage was removed, remove from database
-          f_pkg_index[pkg].destroy
-        end
-      end
-    ensure
-      ActiveXML::Config.global_write_through = wt_state
-    end
-  end
-
   # /source/:project/_attribute/:attribute
   # /source/:project/:package/_attribute/:attribute
   # /source/:project/:package/:binary/_attribute/:attribute
@@ -893,95 +866,6 @@ class SourceController < ApplicationController
     end
   end
 
-  def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
-    allowed = false
-
-    # ACL(update_package_meta): save old permissions to check for illegal raise of protection level later
-    flag_access = false
-    flag_sourceaccess = false
-    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
-    if pkg
-      flag_access       = pkg.disabled_for?('access', nil, nil)
-      flag_sourceaccess = pkg.disabled_for?('sourceaccess', nil, nil)
-    end
-
-    # Try to fetch the package to see if it already exists
-    @package = Package.find( package_name, :project => project_name )
-
-    if @package
-      # Being here means that the package already exists
-      allowed = permissions.package_change? @package
-      if allowed
-        @package = Package.new( request_data, :project => project_name, :name => package_name )
-      else
-        logger.debug "user #{user} has no permission to change package #{@package}"
-        render_error :status => 403, :errorcode => "change_package_no_permission",
-          :message => "no permission to change package"
-        return
-      end
-    else
-      # Ok, the package is new
-      allowed = permissions.package_create?( project_name )
-
-      if allowed
-        #FIXME: parameters that get substituted into the url must be specified here... should happen
-        #somehow automagically... no idea how this might work
-        @package = Package.new( request_data, :project => project_name, :name => package_name )
-      else
-        # User is not allowed by global permission.
-        logger.debug "Not allowed to create new packages"
-        render_error :status => 403, :errorcode => "create_package_no_permission",
-          :message => "no permission to create package for project #{project_name}"
-        return
-      end
-    end
-
-    if allowed
-      if( @package.name != package_name )
-        render_error :status => 400, :errorcode => 'package_name_mismatch',
-          :message => "package name in xml data does not match resource path component"
-        return
-      end
-
-      begin
-        @package.save
-      rescue DbPackage::CycleError => e
-        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
-        return
-      end
-
-
-      # ACL(update_package_meta): raising the protection level of a project from open to source protected is forbidden for security reasons
-      tpkg = DbPackage.find_by_project_and_name(project_name, package_name)
-      if pkg
-        if (not flag_access and tpkg.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and tpkg.disabled_for?('sourceaccess', nil, nil)) and not
-            @http_user.is_admin?
-
-          #FIXME2.1: this makes not really sense, all _product:* package meta should just follow _product itself.
-          #          if _product can't get raised, the _product:* can't either.
-          DbPackage.transaction do
-            if not flag_access
-              tpkg.remove_flag('access', nil, nil)
-            end
-            if not flag_sourceaccess
-              tpkg.remove_flag('sourceaccess', nil, nil)
-            end
-            tpkg.store
-          end
-
-          render_error :status => 403, :errorcode => "change_package_protection_level",
-          :message => "admin rights are required to raise the protection level of a package"
-          return
-        end
-      end
-
-      render_ok
-    else
-      logger.debug "user #{user} has no permission to write package meta for package #{@package}"
-    end
-  end
-  private :update_package_meta
-
   def package_meta
     valid_http_methods :put, :get
     required_parameters :project, :package
@@ -1191,6 +1075,120 @@ class SourceController < ApplicationController
   end
 
   private
+
+  def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
+    allowed = false
+
+    # ACL(update_package_meta): save old permissions to check for illegal raise of protection level later
+    flag_access = false
+    flag_sourceaccess = false
+    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+    if pkg
+      flag_access       = pkg.disabled_for?('access', nil, nil)
+      flag_sourceaccess = pkg.disabled_for?('sourceaccess', nil, nil)
+    end
+
+    # Try to fetch the package to see if it already exists
+    @package = Package.find( package_name, :project => project_name )
+
+    if @package
+      # Being here means that the package already exists
+      allowed = permissions.package_change? @package
+      if allowed
+        @package = Package.new( request_data, :project => project_name, :name => package_name )
+      else
+        logger.debug "user #{user} has no permission to change package #{@package}"
+        render_error :status => 403, :errorcode => "change_package_no_permission",
+          :message => "no permission to change package"
+        return
+      end
+    else
+      # Ok, the package is new
+      allowed = permissions.package_create?( project_name )
+
+      if allowed
+        #FIXME: parameters that get substituted into the url must be specified here... should happen
+        #somehow automagically... no idea how this might work
+        @package = Package.new( request_data, :project => project_name, :name => package_name )
+      else
+        # User is not allowed by global permission.
+        logger.debug "Not allowed to create new packages"
+        render_error :status => 403, :errorcode => "create_package_no_permission",
+          :message => "no permission to create package for project #{project_name}"
+        return
+      end
+    end
+
+    if allowed
+      if( @package.name != package_name )
+        render_error :status => 400, :errorcode => 'package_name_mismatch',
+          :message => "package name in xml data does not match resource path component"
+        return
+      end
+
+      begin
+        @package.save
+      rescue DbPackage::CycleError => e
+        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+        return
+      end
+
+
+      # ACL(update_package_meta): raising the protection level of a project from open to source protected is forbidden for security reasons
+      tpkg = DbPackage.find_by_project_and_name(project_name, package_name)
+      if pkg
+        if (not flag_access and tpkg.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and tpkg.disabled_for?('sourceaccess', nil, nil)) and not
+            @http_user.is_admin?
+
+          #FIXME2.1: this makes not really sense, all _product:* package meta should just follow _product itself.
+          #          if _product can't get raised, the _product:* can't either.
+          DbPackage.transaction do
+            if not flag_access
+              tpkg.remove_flag('access', nil, nil)
+            end
+            if not flag_sourceaccess
+              tpkg.remove_flag('sourceaccess', nil, nil)
+            end
+            tpkg.store
+          end
+
+          render_error :status => 403, :errorcode => "change_package_protection_level",
+          :message => "admin rights are required to raise the protection level of a package"
+          return
+        end
+      end
+
+      render_ok
+    else
+      logger.debug "user #{user} has no permission to write package meta for package #{@package}"
+    end
+  end
+
+  # updates packages automatically generated in the backend after submitting a product file
+  def update_product_autopackages
+    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
+    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+    frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "name LIKE '_product:%'")
+    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+
+    all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
+
+    wt_state = ActiveXML::Config.global_write_through
+    begin
+      ActiveXML::Config.global_write_through = false
+      all_pkgs.each do |pkg|
+        if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
+          # new autopackage, import in database
+          Package.new(b_pkg_index[pkg].dump_xml, :project => params[:project]).save
+        elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
+          # autopackage was removed, remove from database
+          f_pkg_index[pkg].destroy
+        end
+      end
+    ensure
+      ActiveXML::Config.global_write_through = wt_state
+    end
+  end
 
   # POST /source?cmd=branch
   def index_branch
