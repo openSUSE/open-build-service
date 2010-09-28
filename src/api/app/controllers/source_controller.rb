@@ -672,6 +672,8 @@ class SourceController < ApplicationController
           end
 
           # ACL(project_meta): project link to project with sourceaccess gives permisson denied
+          # TBD: this may make sense for user convinience, but this is should actually not be needed, since 
+          #      the check must happen anyway per package on each command.
           if tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
             render_error :status => 403, :errorcode => "source_access_no_permission",
             :message => "No permission for link target project #{tproject_name}"
@@ -785,7 +787,7 @@ class SourceController < ApplicationController
     valid_http_methods :get, :put
 
     #check if project exists
-    unless (@project = DbProject.find_by_name(params[:project]))
+    unless (prj = DbProject.find_by_name(params[:project]))
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
       return
@@ -795,7 +797,7 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login
 
     # ACL(project_config): in case of access, project is really hidden, accessing says project is not existing
-    if @project and (@project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project))
+    if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
       return
@@ -813,7 +815,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:user, :comment])
 
     if request.put?
-      unless @http_user.can_modify_project?(@project)
+      unless @http_user.can_modify_project?(prj)
         render_error :status => 403, :errorcode => 'put_project_config_no_permission',
           :message => "No permission to write build configuration for project '#{params[:project]}'"
         return
