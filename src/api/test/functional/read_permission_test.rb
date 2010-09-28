@@ -6,11 +6,34 @@ class ReadPermissionTest < ActionController::IntegrationTest
   fixtures :all
   
   def test_basic_read_tests
+    # anonymous access
     ActionController::IntegrationTest::reset_auth 
+    get "/source/SourceprotectedProject"
+    assert_response 401
+    get "/source/SourceprotectedProject/_meta"
+    assert_response 401
+    get "/source/SourceprotectedProject/pack"
+    assert_response 401
+
+    # user access
     prepare_request_with_user "tom", "thunder"
-    get "/source"
+    get "/source/SourceprotectedProject"
+    assert_response :success
+    get "/source/SourceprotectedProject/_meta"
+    assert_response :success
+    get "/source/SourceprotectedProject/pack"
+    assert_response 403
+
+    # reader access
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/source/SourceprotectedProject"
+    assert_response :success
+    get "/source/SourceprotectedProject/_meta"
+    assert_response :success
+    get "/source/SourceprotectedProject/pack"
     assert_response :success
   end
+
   def test_deleted_projectlist
     prepare_request_valid_user
     get "/source?deleted"
@@ -24,7 +47,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_tag( :tag => "directory" )
   end 
 
-  # ACL
   def do_read_access_all_pathes(user, response)
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user user, "so_alone" #adrian users have all the same password
@@ -555,6 +577,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "ProtectedPackage"), 
         '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response :success
+    put "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file", "dummy"
 
     # try to access it directly with a user not permitted
     prepare_request_with_user "tom", "thunder"
@@ -573,6 +596,25 @@ class ReadPermissionTest < ActionController::IntegrationTest
     end
     post "/source/home:tom:temp/ProtectedPackage", :cmd => :copy, :oproject => "home:tom:temp", :opackage => "ProtectedPackage"
     assert_response 403
+
+    # check access to deleted package
+    prepare_request_with_user "adrian", "so_alone"
+    delete "/source/home:adrian:PublicProject/ProtectedPackage"
+    assert_response :success
+    get "/source/home:adrian:PublicProject?deleted=1"
+    assert_response :success
+    assert_tag( :tag => "directory" )
+    assert_tag( :tag => "entry", :attributes => { :name => "ProtectedPackage" } )
+# regression in 2.1
+#    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
+#    assert_response :success
+    # must not see package content
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:adrian:PublicProject/ProtectedPackage?deleted=1"
+    assert_response 404
+# belongs to the regression above
+#    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
+#    assert_response 403
 
     # cleanup
     delete "/source/home:tom:temp"
