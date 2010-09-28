@@ -2626,8 +2626,10 @@ sub publishedfile {
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {
     return fileinfo($cgi, "$extrepodir/$prp_ext/$filename", $filename);
   }
-  my $type = 'application/x-rpm';
+  my $type = 'application/octet-stream';
+  $type = 'application/x-rpm' if $filename=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $filename=~ /\.deb$/;
+  $type = 'text/xml' if $filename=~ /\.xml$/;
   BSServer::reply_file("$extrepodir/$prp_ext/$filename", "Content-Type: $type");
   return undef;
 }
