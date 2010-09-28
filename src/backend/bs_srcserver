@@ -485,10 +485,19 @@ sub getrev {
 	};
 	die($@) if $@ && $@ !~ /^404/;
 	if ($lrev) {
+	  # make sure that we may access the sources of this package
+	  my $lproj = readproj($lprojid, 1);
+	  if ($lproj) {
+	    my $lpack = readpack($lprojid, $packid, 1);
+	    my $sourceaccess = 1;
+	    $sourceaccess = BSUtil::enabled('', $lproj->{'sourceaccess'}, $sourceaccess, '');
+	    $sourceaccess = BSUtil::enabled('', $lpack->{'sourceaccess'}, $sourceaccess, '') if $lpack;
+	    die("source access denied\n") unless $sourceaccess;
+	  }
 	  my $files = lsrev($lrev);
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
 	  addmeta($projid, $packid, $files) if $BSConfig::nosharedtrees;
-	  $lrev->{'originproject'} = $lprojid;
+	  $lrev->{'originproject'} ||= $lprojid;
 	  return $lrev;
 	}
       }
