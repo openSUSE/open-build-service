@@ -856,7 +856,7 @@ sub dispatch {
     return $stdreply->($f->($conf, $req)) if $stdreply;
     return $f->($conf, $req);
   }
-  die("500 unknown request: $path\n");
+  die("400 unknown request: $path\n");
 }
 
 1;
