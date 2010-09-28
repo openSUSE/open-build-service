@@ -641,6 +641,15 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # try to access it via own project link
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp"),
         '<project name="home:tom:temp"> <title/> <description/> <link project="home:adrian:ProtectedProject"/> </project>'
+    assert_response :success
+    get "/source/home:tom:temp/Package"
+    assert_response 403
+    [ :branch, :diff, :linkdiff ].each do |c|
+      # would not work, but needs to return with 403 in any case
+      post "/source/home:tom:temp/Package", :cmd => c
+      assert_response 403
+    end
+    post "/source/home:tom:temp/Package", :cmd => :copy, :oproject => "home:tom:temp", :opackage => "Package"
     assert_response 403
 
     # cleanup

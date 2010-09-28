@@ -671,15 +671,6 @@ class SourceController < ApplicationController
             return
           end
 
-          # ACL(project_meta): project link to project with sourceaccess gives permisson denied
-          # TBD: this may make sense for user convinience, but this is should actually not be needed, since 
-          #      the check must happen anyway per package on each command.
-          if tprj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tprj)
-            render_error :status => 403, :errorcode => "source_access_no_permission",
-            :message => "No permission for link target project #{tproject_name}"
-            return
-          end
-
           # ACL(project_meta): check that user does not link an unprotected project to a protected project
           if @project
             if ((tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('sourceaccess', nil, nil)) and
