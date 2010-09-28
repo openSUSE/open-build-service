@@ -232,7 +232,7 @@ class SourceController < ApplicationController
       # ACL(index_package): source access gives permisson denied
       if spkg and spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
         render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{params[:user]} has no read access to package #{origin_package_name} in project #{origin_project_name}"
+        :message => "no read access to package #{origin_package_name} in project #{origin_project_name}"
         return
       end
 
@@ -282,7 +282,7 @@ class SourceController < ApplicationController
     # ACL(index_package): source access gives permisson denied
     if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{pkg.name} in project #{pkg.db_project.name}"
+      :message => "no read access to package #{pkg.name} in project #{pkg.db_project.name}"
       return
     end
 
@@ -964,7 +964,7 @@ class SourceController < ApplicationController
     # ACL(file): source access gives permisson denied
     if pack and pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
       render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
+      :message => "no read access to package #{package_name}, project #{project_name}"
       return
     end
 
