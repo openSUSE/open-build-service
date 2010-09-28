@@ -728,17 +728,39 @@ class ReadPermissionTest < ActionController::IntegrationTest
   def test_project_links_to_access_protected_projects
     # Create public project with protected package
     prepare_request_with_user "adrian", "so_alone"
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
-        '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
+
+
+    # try to link to an access protected hidden project from sourceaccess project
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     #STDERR.puts(@response.body)
     assert_response 403
 
-    # try to link to an access protected hidden project from unprotected project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
-        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> </project>'
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </project>'
+    assert_response 200
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 403
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+        '<project name="home:adrian:ProtectedProject1"> <title/> <description/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 403
+
+    # FIXME 2.1 change of Adrians project linking code now allows to link from an open to a sourceaccess protected project
+    # can this give somehow access to the source via build process or .src.rpm? Is that handled now in the backend?
+    #
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+     '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    # try to link to an access protected hidden project from access hidden project
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+        '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
     #STDERR.puts(@response.body)
     assert_response 403
 
@@ -752,6 +774,16 @@ class ReadPermissionTest < ActionController::IntegrationTest
     #STDERR.puts(@response.body)
     assert_response 200
 
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject4"),
+        '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject4"),
+        '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
     # try to access it directly with a user not permitted
     prepare_request_with_user "tom", "thunder"
 
@@ -761,11 +793,13 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response 404
 
     # cleanup
-    prepare_request_with_user "adrian", "so_alone"
-   
-    #delete "/source/home:adrian:ProtectedProject3"
-    #STDERR.puts(@response.body)
-    #assert_response :success
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/home:adrian:ProtectedProject2"
+    assert_response :success
+    delete "/source/home:adrian:ProtectedProject3"
+    assert_response :success
+    delete "/source/home:adrian:ProtectedProject4"
+    assert_response :success
   end
 
   def test_project_paths_to_download_protected_projects
@@ -836,6 +870,18 @@ class ReadPermissionTest < ActionController::IntegrationTest
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     #STDERR.puts(@response.body)
     assert_response 403
+
+    # check if access protected project has access binarydownload protected project
+    prepare_request_with_user "binary_homer", "homer"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject3"),
+        '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject3"),
+        '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
 
   end
 
