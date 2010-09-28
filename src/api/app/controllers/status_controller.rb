@@ -88,15 +88,23 @@ class StatusController < ApplicationController
 
   def history
     required_parameters :hours, :key
+    samples = begin Integer(params[:samples] || '100') rescue 0 end
+    samples = [samples, 1].max
 
     # ACL(history): This is used by the history plotter. leaks no ACL relevant project or package information. This call is not used in config/routes.
-    hours = params[:hours] || "24"
+    hours = begin Integer(params[:hours] || '24') rescue 24 end
+    logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
-    @data = Hash.new
-    lines = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ])
-    lines.each do |l|
-      @data[l.time] = l.value
+    data = Array.new
+    values = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    xml = builder.history do
+      StatusHelper.resample(values, samples).each do |time,val|
+	builder.value( :time => time,
+		      :value => val ) # for debug, :timestring => Time.at(time)  )
+      end
     end
+    render :text => xml.target!, :content_type => "text/xml"
   end
 
   def update_workerstatus_cache
