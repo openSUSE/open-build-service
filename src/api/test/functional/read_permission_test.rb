@@ -729,7 +729,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # Create public project with protected package
     prepare_request_with_user "adrian", "so_alone"
 
-
     # try to link to an access protected hidden project from sourceaccess project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
@@ -748,7 +747,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> </project>'
     #STDERR.puts(@response.body)
-    assert_response 403
+    assert_response 200
 
     # FIXME 2.1 change of Adrians project linking code now allows to link from an open to a sourceaccess protected project
     # can this give somehow access to the source via build process or .src.rpm? Is that handled now in the backend?
