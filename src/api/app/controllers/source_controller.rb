@@ -674,12 +674,12 @@ class SourceController < ApplicationController
           # ACL(project_meta): check that user does not link an unprotected project to a protected project
           if @project
             if tprj.disabled_for?('access', nil, nil) and @project.enabled_for?('access', nil, nil)
-              render_error :status => 403, :errorcode => "access_no_permission" ,
-              :message => "linking with an unprotected project  #{project_name} to a protected project #{tproject_name}"
+              render_error :status => 403, :errorcode => "source_access_no_permission" ,
+              :message => "linking with an unsufficiently protected project  #{project_name} to a protected project #{tproject_name}"
               return
             end
           elsif @project.nil? and tprj.disabled_for?('access', nil, nil)
-            render_error :status => 403, :errorcode => "access_no_permission" ,
+            render_error :status => 403, :errorcode => "source_access_no_permission" ,
             :message => "cannot check permission of project #{project_name} which must preexist"
             return
           end
