@@ -2,10 +2,10 @@ class AddArchs4 < ActiveRecord::Migration
 
 
   def self.up
-    Architecture.create :name => "athlon"
-    Architecture.create :name => "i386"
-    Architecture.create :name => "i486"
-    Architecture.create :name => "sh4"
+    Architecture.find_or_create_by_name "athlon"
+    Architecture.find_or_create_by_name "i386"
+    Architecture.find_or_create_by_name "i486"
+    Architecture.find_or_create_by_name "sh4"
   end
 
 

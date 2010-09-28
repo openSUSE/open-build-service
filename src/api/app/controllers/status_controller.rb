@@ -87,84 +87,85 @@ class StatusController < ApplicationController
   end
 
   def history
-      # ACL(history): This is used by the history plotter. leaks no ACL relevant project or package information. This call is not used in config/routes.
-     hours = params[:hours] || "24"
-     starttime = Time.now.to_i - hours.to_i * 3600
-     @data = Hash.new
-     lines = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ])
-     lines.each do |l|
-	@data[l.time] = l.value
-     end
+    required_parameters :hours, :key
+
+    # ACL(history): This is used by the history plotter. leaks no ACL relevant project or package information. This call is not used in config/routes.
+    hours = params[:hours] || "24"
+    starttime = Time.now.to_i - hours.to_i * 3600
+    @data = Hash.new
+    lines = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ])
+    lines.each do |l|
+      @data[l.time] = l.value
+    end
   end
 
   def update_workerstatus_cache
-      ret = backend_get('/build/_workerstatus')
+    ret = backend_get('/build/_workerstatus')
 
-      data=REXML::Document.new(ret)
-      # ACL(update_workerstatus_cache): filter out all packages / projects that are hidden by access
-      accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
-      accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
-      data.root.each_element('building') do |b|
-        prj = DbProject.find_by_name(b.attributes['project'])
-        pkg = prj.find_package(b.attributes['package']) if prj
-        b.remove if (prj and accessprjs and accessprjs.include?(prj) and not @http_user.can_access?(prj)) or (pkg and accesspkgs and accesspkgs.include?(pkg) and not @http_user.can_access?(pkg))
-      end
-      ret=data.to_s
+    data=REXML::Document.new(ret)
+    # ACL(update_workerstatus_cache): filter out all packages / projects that are hidden by access
+    # THIS WON'T WORK AS IT'S READ FROM CACHE ANYWAY
+    accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
+    accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
+    data.root.each_element('building') do |b|
+      prj = DbProject.find_by_name(b.attributes['project'])
+      pkg = prj.find_package(b.attributes['package']) if prj
+      b.remove if (prj and accessprjs and accessprjs.include?(prj) and not @http_user.can_access?(prj)) or (pkg and accesspkgs and accesspkgs.include?(pkg) and not @http_user.can_access?(pkg))
+    end
+    ret=data.to_s
 
-      mytime = Time.now.to_i
-      Rails.cache.write('workerstatus', ret)
-      data.root.each_element('blocked') do |e|
-        line = StatusHistory.new
-        line.time = mytime
-        line.key = 'blocked_%s' % [ e.attributes['arch'] ]
-        line.value = e.attributes['jobs']
-        line.save
+    mytime = Time.now.to_i
+    Rails.cache.write('workerstatus', ret)
+    data.root.each_element('blocked') do |e|
+      line = StatusHistory.new
+      line.time = mytime
+      line.key = 'blocked_%s' % [ e.attributes['arch'] ]
+      line.value = e.attributes['jobs']
+      line.save
+    end
+    data.root.each_element('waiting') do |e|
+      line = StatusHistory.new
+      line.time = mytime
+      line.key = "waiting_#{e.attributes['arch']}"
+      line.value = e.attributes['jobs']
+      line.save
+    end
+    data.root.each_element('scheduler') do |s|
+      queue = s.elements['queue']
+      next unless queue
+      arch = s.attributes['arch']
+      StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
+      StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
+      StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}",  :value => queue.attributes['med']
+      StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}",  :value => queue.attributes['low']
+    end
+    
+    allworkers = Hash.new
+    workers = Hash.new
+    %w{building idle}.each do |state|
+      data.root.each_element(state) do |e|
+	id=e.attributes['workerid']
+	if workers.has_key? id
+	  logger.debug 'building+idle worker'
+	  next
+	end
+	workers[id] = 1
+	key = state + '_' + e.attributes['hostarch']
+	allworkers["building_#{e.attributes['hostarch']}"] ||= 0
+	allworkers["idle_#{e.attributes['hostarch']}"] ||= 0
+	allworkers[key] = allworkers[key] + 1
       end
-      data.root.each_element('waiting') do |e|
-        line = StatusHistory.new
-        line.time = mytime
-        line.key = "waiting_#{e.attributes['arch']}"
-        line.value = e.attributes['jobs']
-        line.save
-      end
-      data.root.each_element('scheduler') do |s|
-        queue = s.elements['queue']
-        next unless queue
-        arch = s.attributes['arch']
-        StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
-        StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
-        StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}",  :value => queue.attributes['med']
-        StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}",  :value => queue.attributes['low']
-      end
-
-      allworkers = Hash.new
-      workers = Hash.new
-      %w{building idle}.each do |state|
-        data.root.each_element(state) do |e|
-          id=e.attributes['workerid']
-          if workers.has_key? id
-             logger.debug 'building+idle worker'
-             next
-          end
-          workers[id] = 1
-          key = state + '_' + e.attributes['hostarch']
-          begin
-            allworkers[key] = allworkers[key] + 1
-          rescue
-            allworkers[key] = 1
-          end
-        end
-      end
-
-      allworkers.each do |key,value|
-        line = StatusHistory.new
-        line.time = mytime
-        line.key = key
-        line.value = value
-        line.save
-      end
-
-      ret
+    end
+    
+    allworkers.each do |key,value|
+      line = StatusHistory.new
+      line.time = mytime
+      line.key = key
+      line.value = value
+      line.save
+    end
+    
+    ret
   end
   # not an action, but called from delayed job
   # private :update_workerstatus_cache
