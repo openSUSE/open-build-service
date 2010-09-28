@@ -1751,6 +1751,12 @@ class SourceController < ApplicationController
     valid_http_methods :post
     params[:user] = @http_user.login
 
+    unless params[:oproject] and params[:opackage]
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => "Not specified origin package via oproject and opackage parameter"
+        return
+    end
+
     tprj = DbProject.find_by_name(params[:project])
     tpkg = tprj.find_package(params[:package]) if tprj
 
@@ -1760,12 +1766,12 @@ class SourceController < ApplicationController
       answer = Suse::Backend.get("/source/#{CGI.escape(params[:oproject])}/#{CGI.escape(params[:opackage])}/_meta")
       if answer
         p = Package.new(answer.body, :project => params[:project])
-        p.name    = params[:package]
+        p.name = params[:package]
         p.save
         tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
       else
         render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
+          :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
         return
       end
     end
