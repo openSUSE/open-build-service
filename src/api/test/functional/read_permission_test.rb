@@ -725,6 +725,105 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_project_links_to_access_protected_projects
+    # Create public project with protected package
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+        '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 403
+
+    # try to link to an access protected hidden project from unprotected project
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> </project>'
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 403
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+        '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+        '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    # try to access it directly with a user not permitted
+    prepare_request_with_user "tom", "thunder"
+
+    # try to link to an access protected hidden project
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp2"),
+        '<project name="home:tom:temp2"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    assert_response 404
+
+    # cleanup
+    prepare_request_with_user "adrian", "so_alone"
+   
+    #delete "/source/home:adrian:ProtectedProject3"
+    #STDERR.puts(@response.body)
+    #assert_response :success
+  end
+
+  def test_project_paths_to_download_protected_projects
+    # try to access it with a user not permitted
+    prepare_request_with_user "tom", "thunder"
+
+    # check if unsufficiently permitted users tries to access protected projects
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject1"),
+        '<project name="home:tom:ProtectedProject1"> <title/> <description/>  <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+    assert_response 403
+
+    # try to access it with a user permitted for binarydownload
+    prepare_request_with_user "binary_homer", "homer"
+
+    # check if sufficiently protected projects can access protected projects
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject1"),
+        '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
+    assert_response 200
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject1"),
+        '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    # check if sufficiently protected projects can access protected projects
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject2"),
+        '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
+    assert_response 200
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject2"),
+        '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 403
+  end
+
+  def test_project_paths_to_access_protected_projects
+    # try to access it with a user not permitted
+    prepare_request_with_user "tom", "thunder"
+
+    # check if unsufficiently permitted users tries to access protected projects
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
+        '<project name="home:tom:ProtectedProject2"> <title/> <description/>  <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    assert_response 404
+
+    # try to access it with a user permitted for access
+    prepare_request_with_user "adrian", "so_alone"
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+        '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <access><disable/></access> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    #STDERR.puts(@response.body)
+    assert_response 403
+
+    # check if unsufficiently protected projects try to access protected projects
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    assert_response 403
+  end
+
   # FIXME: to be implemented:
   # For source access:
   # * test write operations on a project or package
