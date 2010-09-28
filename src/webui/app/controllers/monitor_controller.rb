@@ -163,6 +163,23 @@ class MonitorController < ApplicationController
     end
   end
 
+  def events
+    @data = Hash.new
+    arch = params[:arch]
+    range = params[:range]
+    %w{waiting blocked idle building squeue_high squeue_med}.each do |prefix|
+      @data[prefix + "_" + arch] = gethistory(prefix + "_" + arch, range)
+    end
+    low = Hash.new
+    gethistory("squeue_low_#{arch}", range).each do |time,value|
+      low[time] = value
+    end
+    comb = Array.new
+    gethistory("squeue_next_#{arch}", range).each do |time,value|
+      comb << [time, low[time] + value] 
+    end
+    @data["squeue_low_" + arch] = comb
+  end
 
 private
 
@@ -210,13 +227,15 @@ private
   end
 
   def gethistory(key, range)
-    hash = Hash.new
-    data = frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d' % [key, range]))
-    d = XML::Parser.string(data).parse
-    d.root.each_element do |v|
-      hash[Integer(v.attributes['time'])] = v.attributes['value'].to_f
+    return Rails.cache.fetch(key + "-5-#{range}") do
+      hash = Hash.new
+      data = frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d&samples=400' % [key, range]))
+      d = XML::Parser.string(data).parse
+      d.root.each_element do |v|
+        hash[Integer(v.attributes['time'])] = v.attributes['value'].to_f
+      end
+      hash.sort {|a,b| a[0] <=> b[0]}
     end
-    hash.sort {|a,b| a[0] <=> b[0]}
   end
 
   def resample(values)
@@ -224,6 +243,7 @@ private
     max_x = 0
     result = Array.new
     
+    lastvalue = 0
     # assume arrays are sorted
     values.each do |a|
       next if a.length == 0
@@ -267,4 +287,5 @@ private
     end
     return result
   end
+
 end
