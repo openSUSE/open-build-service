@@ -1465,9 +1465,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     # test not permitted commands
     post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "rebuild"
     assert_response 403
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "wipe"
+    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "wipe"
     assert_response 403
-    assert_match(/no permission to execute command 'wipe'/, @response.body)
+    assert_match(/permission to execute command on project BaseDistro2:LinkedUpdateProject/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
     assert_response 404
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
@@ -1490,7 +1490,10 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # read-write user, binary operations must be allowed
     prepare_request_with_user "king", "sunflower"
+    # obsolete with OBS 3.0, rebuild only via /build/
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "rebuild"
+    assert_response :success
+    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "rebuild", :package => "pack2"
     assert_response :success
     post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "wipe"
     assert_response :success

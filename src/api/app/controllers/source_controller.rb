@@ -193,7 +193,6 @@ class SourceController < ApplicationController
 
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['diff', 'branch', 'linkdiff', 'showlinked']
-    binary_commands = ['wipe', 'rebuild']
 
     # find out about source and target dependening on command
     if cmd == 'branch'
@@ -202,10 +201,10 @@ class SourceController < ApplicationController
       target_project_name = params[:target_project] if params[:target_project]
       target_package_name = params[:target_package] if params[:target_package]
     else
-      target_project_name = params[:project]
-      target_package_name = params[:package]
-      origin_project_name = params[:oproject]
-      origin_package_name = params[:opackage]
+      origin_project_name = target_project_name = params[:project]
+      origin_package_name = target_package_name = params[:package]
+      origin_project_name = params[:oproject] if params[:oproject]
+      origin_package_name = params[:opackage] if params[:opackage]
     end
     if origin_package_name and not origin_project_name
         render_error :status => 404, :errorcode => "missing_argument",
@@ -240,7 +239,8 @@ class SourceController < ApplicationController
 
     prj = DbProject.find_by_name(target_project_name)
     if prj
-      if request.get? or ( request.post? and read_commands.include?(cmd) ) or ( request.post? and binary_commands.include?(cmd) )
+      # FIXME3.0: disallow the "rebuild" via /source/
+      if request.get? or ( request.post? and read_commands.include?(cmd) ) or ( request.post? and cmd == "rebuild" )
         # include project links on get or for diff and branch command
         pkg = prj.find_package(target_package_name)
       else
@@ -1627,6 +1627,7 @@ class SourceController < ApplicationController
     render_ok
   end
 
+  # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
   def index_package_rebuild
     project_name = params[:project]
@@ -1740,13 +1741,15 @@ class SourceController < ApplicationController
     valid_http_methods :post
     params[:user] = @http_user.login
 
-    tprj = DbProject.find_by_name(params[:project])
-    tpkg = tprj.find_package(params[:package]) if tprj
+    sproject = params[:project]
+    sproject = params[:oproject] if params[:oproject]
+    spackage = params[:package]
+    spackage = params[:opackage] if params[:opackage]
 
     # create target package, if it does not exist
     tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
-    if tpkg.nil? and params[:oproject] and params[:opackage]
-      answer = Suse::Backend.get("/source/#{CGI.escape(params[:oproject])}/#{CGI.escape(params[:opackage])}/_meta")
+    if tpkg.nil?
+      answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
       if answer
         p = Package.new(answer.body, :project => params[:project])
         p.name = params[:package]
@@ -1754,14 +1757,14 @@ class SourceController < ApplicationController
         tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
       else
         render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "Unknown package #{params[:opackage]} in project #{params[:oproject]}"
+          :message => "Unknown package #{spackage} in project #{sproject}"
         return
       end
     end
 
     # ACL(index_package_copy): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
     # We need to use the project name of package object, since it might come via a project linked project
-    path = "/source/#{tpkg.db_project.name}/#{tpkg.name}"
+    path = "/source/#{CGI.escape(tpkg.db_project.name)}/#{CGI.escape(tpkg.name)}"
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
     pass_to_backend path
