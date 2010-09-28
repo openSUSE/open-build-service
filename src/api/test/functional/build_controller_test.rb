@@ -118,7 +118,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/build/home:Iggy/10.2/i586/notthere/_log"
     assert_response 404
-    assert_match(/package 'notthere' does not exist/, @response.body)
+    assert_match(/Unknown package/, @response.body)
   end
 
   #FIXME2.1: add test case for buildlog of source access protected content (needs to be 403)
@@ -126,7 +126,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_hidden_logfile
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response 404
-    assert_match /Unknown package/, @response.body
+    assert_match /Unknown project 'HiddenProject/, @response.body
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -158,7 +158,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/HiddenProject/_result"
     assert_response 404
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/_result"
     assert_response :success
