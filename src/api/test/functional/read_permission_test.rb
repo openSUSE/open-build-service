@@ -679,13 +679,11 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:temp/Package"
     assert_response 403
-    [ :branch, :diff, :linkdiff ].each do |c|
+    [ :branch, :diff, :linkdiff, :copy ].each do |c|
       # would not work, but needs to return with 403 in any case
       post "/source/home:tom:temp/Package", :cmd => c
       assert_response 403
     end
-    post "/source/home:tom:temp/Package", :cmd => :copy, :oproject => "home:tom:temp", :opackage => "Package"
-    assert_response 403
 
     # cleanup
     prepare_request_with_user "adrian", "so_alone"
