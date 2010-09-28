@@ -27,7 +27,7 @@ class PublishedControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/published"
     assert_response :success
-    assert_no_match /entry name="HiddenProject"/, @response.body
+    assert_no_match(/entry name="HiddenProject"/, @response.body)
 
     get "/published/HiddenProject"
     assert_response 404

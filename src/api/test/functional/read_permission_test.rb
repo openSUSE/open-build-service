@@ -237,13 +237,13 @@ class ReadPermissionTest < ActionController::IntegrationTest
     post "/source/#{sprj}/#{spkg}", :cmd => :branch, :target_project => "#{tprj}"
     print @response.body if debug
     assert_response resp if resp
-    assert_match match, @response.body if match
+    assert_match(match, @response.body) if match
     get "/source/#{tprj}" if debug
     print @response.body if debug
     get "/source/#{tprj}/_meta"
     print @response.body if debug
     # FIXME: implementation is not done, change to assert_tag or assert_select
-    assert_match testflag, @response.body if testflag
+    assert_match(testflag, @response.body) if testflag
     delete "/source/#{tprj}/#{spkg}"
     print @response.body if debug
     assert_response delresp if delresp
@@ -309,7 +309,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     get "/source/#{destprj}/#{destpkg}/_meta"
     print @response.body if debug
     # Fixme do assert_tag or assert_select if implementation is fixed
-    assert_match flag, @response.body if flag
+    assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
     print @response.body if debug
     assert_response delresp if delresp
@@ -497,10 +497,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match /The given project notexisting does not exist/, @response.body
+    assert_match(/The given project notexisting does not exist/, @response.body)
     put url, '<link project="HiddenProject" package="notexisting" />'
     assert_response 404
-    assert_match /package 'notexisting' does not exist in project 'HiddenProject'/, @response.body
+    assert_match(/package 'notexisting' does not exist in project 'HiddenProject'/, @response.body)
 
     # working local link from hidden package to hidden package
     put url, '<link project="HiddenProject" package="pack" />'
@@ -518,10 +518,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match /The given project notexisting does not exist/, @response.body
+    assert_match(/The given project notexisting does not exist/, @response.body)
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
+    assert_match(/package 'notexiting' does not exist in project 'kde4'/, @response.body)
 
     # special user cannot link unprotected to protected package
     put url, '<link project="HiddenProject" package="target" />'
@@ -555,10 +555,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match /The given project notexisting does not exist/, @response.body
+    assert_match(/The given project notexisting does not exist/, @response.body)
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
+    assert_match(/package 'notexiting' does not exist in project 'kde4'/, @response.body)
 
     # normal user cannot access hidden project
     put url, '<link project="HiddenProject" package="pack1" />'
@@ -599,15 +599,15 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response 403
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response 403
-    assert_no_match /<summary>source access denied<\/summary>/, @response.body  # api is talking
+    assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
-    assert_no_match /<summary>source access denied<\/summary>/, @response.body  # api is talking
+    assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     # Admin can bypass api, but backend would still not build it
     prepare_request_with_user "king", "sunflower"
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
-    assert_match /<summary>source access denied<\/summary>/, @response.body  # backend is talking
+    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
 
     # check access to deleted package
     prepare_request_with_user "adrian", "so_alone"
