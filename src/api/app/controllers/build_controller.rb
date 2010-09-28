@@ -228,62 +228,48 @@ class BuildController < ApplicationController
 
   def logfile
     valid_http_methods :get
-    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+    prj = DbProject.find_by_name params[:project]
+    if prj.nil?  or ( prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj) )
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project '#{params[:project]}'"
+      return
+    end
 
-    # ACL(logfile): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if pkg and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
-      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-        :status => 404, :errorcode => "unknown_package"
+    pkg = prj.find_package params[:package]
+    if pkg.nil? or ( pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg) )
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package '#{params[:project]}'/'#{params[:package]}'"
       return
     end
 
     # ACL(logfile): binarydownload denies logfile access
-    if pkg and pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
+    if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
         :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
       return
     end
 
     # ACL(logfile): sourceaccess denies logfile access
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
       render_error :status => 403, :errorcode => "source_access_no_permission",
         :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
       return
     end
+
     pass_to_backend
   end
 
   def result
     valid_http_methods :get
     prj = DbProject.find_by_name params[:project]
-    if prj.nil?
-      pass_to_backend
-      return
-    end
-    pkg = prj.find_package params[:package]
-
-    # ACL(result): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+    if prj.nil?  or ( prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj) )
       render_error :status => 404, :errorcode => 'unknown_project',
-      :message => "Unknown project '#{params[:project]}'"
+        :message => "Unknown project '#{params[:project]}'"
       return
     end
 
     # ACL(result): privacy on for prj means behave like a binary only project
-    if prj and prj.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
-      render_ok
-      return
-    end
-
-    # ACL(result): in case of access, package is really hidden, e.g. does not get listed, accessing says package is not existing
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-      :status => 404, :errorcode => "unknown_package"
-      return
-    end
-
-    # ACL(result): privacy on means not listing files
-    if pkg and pkg.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
+    if prj.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
       render_ok
       return
     end
