@@ -728,6 +728,21 @@ class SourceController < ApplicationController
       end
 
       p = Project.new(request_data, :name => project_name)
+      if @project and not @project.disabled_for?('sourceaccess', nil, nil)
+        if p.disabled_for? :sourceaccess
+           render_error :status => 403, :errorcode => "change_project_protection_level",
+             :message => "admin rights are required to raise the source protection level of a project"
+           return
+        end
+      end
+
+      if @project and not @project.disabled_for?('access', nil, nil)
+        if p.disabled_for? :access
+           render_error :status => 403, :errorcode => "change_project_protection_level",
+             :message => "admin rights are required to raise the protection level of a project"
+           return
+        end
+      end
 
       if p.name != project_name
         render_error :status => 400, :errorcode => 'project_name_mismatch',
@@ -743,29 +758,6 @@ class SourceController < ApplicationController
 
       p.add_person(:userid => @http_user.login) unless @project
       p.save
-
-      # ACL(project_meta): raising the protection level of a project from open to source protected is forbidden for security reasons
-      prj = DbProject.find_by_name( project_name )
-
-      if @project
-        if (not flag_access and prj.disabled_for?('access', nil, nil)) or (not flag_sourceaccess and prj.disabled_for?('sourceaccess', nil, nil)) and not
-            @http_user.is_admin?
-          
-          DbProject.transaction do
-            if not flag_access
-              prj.remove_flag('access', nil, nil)
-            end
-            if not flag_sourceaccess
-              prj.remove_flag('sourceaccess', nil, nil)
-            end
-            prj.store
-          end
-
-          render_error :status => 403, :errorcode => "change_project_protection_level",
-          :message => "admin rights are required to raise the protection level of a project"
-          return
-        end
-      end
 
       render_ok
     else
@@ -1077,40 +1069,19 @@ class SourceController < ApplicationController
   private
 
   def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
-    allowed = false
-
-    # ACL(update_package_meta): save old permissions to check for illegal raise of protection level later
-    flag_access = false
-    flag_sourceaccess = false
     pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+
     if pkg
-      flag_access       = pkg.disabled_for?('access', nil, nil)
-      flag_sourceaccess = pkg.disabled_for?('sourceaccess', nil, nil)
-    end
-
-    # Try to fetch the package to see if it already exists
-    @package = Package.find( package_name, :project => project_name )
-
-    if @package
       # Being here means that the package already exists
-      allowed = permissions.package_change? @package
-      if allowed
-        @package = Package.new( request_data, :project => project_name, :name => package_name )
-      else
-        logger.debug "user #{user} has no permission to change package #{@package}"
+      unless permissions.package_change? pkg
+        logger.debug "user #{user} has no permission to change package #{package_name}"
         render_error :status => 403, :errorcode => "change_package_no_permission",
           :message => "no permission to change package"
         return
       end
     else
       # Ok, the package is new
-      allowed = permissions.package_create?( project_name )
-
-      if allowed
-        #FIXME: parameters that get substituted into the url must be specified here... should happen
-        #somehow automagically... no idea how this might work
-        @package = Package.new( request_data, :project => project_name, :name => package_name )
-      else
+      unless permissions.package_create?( project_name )
         # User is not allowed by global permission.
         logger.debug "Not allowed to create new packages"
         render_error :status => 403, :errorcode => "create_package_no_permission",
@@ -1119,24 +1090,38 @@ class SourceController < ApplicationController
       end
     end
 
-    if allowed
-      if( @package.name != package_name )
-        render_error :status => 400, :errorcode => 'package_name_mismatch',
-          :message => "package name in xml data does not match resource path component"
-        return
-      end
+    @package = Package.new( request_data, :project => project_name, :name => package_name )
 
-      begin
-        @package.save
-      rescue DbPackage::CycleError => e
-        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
-        return
+    if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
+      if @package.disabled_for? :sourceaccess
+	 render_error :status => 403, :errorcode => "change_package_protection_level",
+	   :message => "admin rights are required to raise the protection level of a package"
+	 return
       end
-
-      render_ok
-    else
-      logger.debug "user #{user} has no permission to write package meta for package #{@package}"
     end
+
+    if pkg and not pkg.disabled_for?('access', nil, nil)
+      if @package.disabled_for? :access
+	 render_error :status => 403, :errorcode => "change_package_protection_level",
+	   :message => "admin rights are required to raise the protection level of a package"
+	 return
+      end
+    end
+
+    if( @package.name != package_name )
+      render_error :status => 400, :errorcode => 'package_name_mismatch',
+        :message => "package name in xml data does not match resource path component"
+      return
+    end
+
+    begin
+      @package.save
+    rescue DbPackage::CycleError => e
+      render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+      return
+    end
+
+    render_ok
   end
 
   # updates packages automatically generated in the backend after submitting a product file
