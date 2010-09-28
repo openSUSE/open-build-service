@@ -686,8 +686,8 @@ sub sourceaccess {
   if ($projpacks->{$projid}) {
     my $pdata;
     $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} if defined $packid;
-    $sourceaccess = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $sourceaccess);
-    $sourceaccess = enabled($repoid, $pdata->{'useforbuild'}, $sourceaccess) if $pdata;
+    $sourceaccess = enabled($repoid, $projpacks->{$projid}->{'sourceaccess'}, $sourceaccess);
+    $sourceaccess = enabled($repoid, $pdata->{'sourceaccess'}, $sourceaccess) if $pdata;
   } else {
     $sourceaccess = 0;
   }
