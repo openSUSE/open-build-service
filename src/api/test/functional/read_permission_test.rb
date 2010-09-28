@@ -568,6 +568,28 @@ class ReadPermissionTest < ActionController::IntegrationTest
     delete url
   end
 
+  def test_alter_source_access_flags
+    # Create public project with protected package
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </project>'
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:PublicProject"),
+        '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
+    assert_response :success
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "pack"), 
+        '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/> </package>'
+    assert_response :success
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "pack"), 
+        '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "change_package_protection_level" }
+  end
+
   def test_project_links_to_sourceaccess_protected_package
     # Create public project with protected package
     prepare_request_with_user "adrian", "so_alone"
@@ -578,7 +600,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
         '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response :success
     put "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file", "dummy"
-
 
     # try to access it directly with a user not permitted
     prepare_request_with_user "tom", "thunder"
@@ -639,6 +660,8 @@ class ReadPermissionTest < ActionController::IntegrationTest
   def test_project_links_to_sourceaccess_protected_project
     # Create public project with protected package
     prepare_request_with_user "adrian", "so_alone"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
         '<project name="home:adrian:ProtectedProject"> <title/> <description/> <sourceaccess><disable/></sourceaccess>  </project>'
     assert_response :success

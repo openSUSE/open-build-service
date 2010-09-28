@@ -62,4 +62,16 @@ class Package < ActiveXML::Base
     end
   end
 
+  def disabled_for?(flag_type)
+    # very simple method, just for sourceaccess usable
+    disabled = false
+    if self.has_element? flag_type
+      self.send(flag_type).each do |f|
+        disabled = true if f.element_name == "disable"
+        return false if f.element_name == "enable"
+      end
+    end
+    return disabled
+  end
+
 end

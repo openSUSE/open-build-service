@@ -33,4 +33,16 @@ class Project < ActiveXML::Base
     self.description.data.text = new_desc.to_s
   end
 
+  def disabled_for?(flag_type)
+    # very simple method, just for sourceaccess and access usable
+    disabled = false
+    if self.has_element? flag_type
+      self.send(flag_type).each do |f|
+        disabled = true if f.element_name == "disable"
+        return false if f.element_name == "enable"
+      end
+    end
+    return disabled
+  end
+
 end
