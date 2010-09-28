@@ -360,9 +360,10 @@ CREATE TABLE `status_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` int(11) DEFAULT NULL,
   `key` varchar(255) DEFAULT NULL,
-  `value` int(11) DEFAULT NULL,
+  `value` float NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_status_histories_on_time_and_key` (`time`,`key`)
+  KEY `index_status_histories_on_time_and_key` (`time`,`key`),
+  KEY `index_status_histories_on_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `status_messages` (
@@ -572,6 +573,14 @@ INSERT INTO schema_migrations (version) VALUES ('20100812100000');
 INSERT INTO schema_migrations (version) VALUES ('20100827100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20100903100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20100927110821');
+
+INSERT INTO schema_migrations (version) VALUES ('20100927132716');
+
+INSERT INTO schema_migrations (version) VALUES ('20100927133955');
+
+INSERT INTO schema_migrations (version) VALUES ('20100928081344');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
