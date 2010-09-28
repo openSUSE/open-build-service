@@ -788,6 +788,16 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 403
+
+    # check if download protected project has to access protected project, which reveals Hidden project existence to others and is and error
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
+    assert_response 200
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    assert_response 403
+
   end
 
   # FIXME: to be implemented:
