@@ -673,7 +673,7 @@ class SourceController < ApplicationController
 
           # ACL(project_meta): check that user does not link an unprotected project to a protected project
           if @project
-                        if tprj.disabled_for?('access', nil, nil) and @project.enabled_for?('access', nil, nil)
+            if tprj.disabled_for?('access', nil, nil) and @project.enabled_for?('access', nil, nil)
               render_error :status => 403, :errorcode => "access_no_permission" ,
               :message => "linking with an unprotected project  #{project_name} to a protected project #{tproject_name}"
               return
@@ -722,7 +722,7 @@ class SourceController < ApplicationController
                 (tprj.disabled_for?('binarydownload', nil, nil) and @project.enabled_for?('access', nil, nil) and
                  @project.enabled_for?('binarydownload', nil, nil))
               render_error :status => 403, :errorcode => "binary_download_no_permission" ,
-              :message => "repository path from an unprotected project #{project_name} to a protected project #{tproject_name}"
+              :message => "repository path from a insufficiently protected project #{project_name} to a protected project #{tproject_name}"
               return
             end
           elsif @project.nil? and (tprj.disabled_for?('access', nil, nil) or tprj.disabled_for?('binarydownload', nil, nil))
