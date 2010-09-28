@@ -493,7 +493,7 @@ sub getrev {
 	    my $sourceaccess = 1;
 	    $sourceaccess = BSUtil::enabled('', $lproj->{'sourceaccess'}, $sourceaccess, '');
 	    $sourceaccess = BSUtil::enabled('', $lpack->{'sourceaccess'}, $sourceaccess, '') if $lpack;
-	    die("source access denied\n") unless $sourceaccess;
+	    die("403 source access denied\n") unless $sourceaccess;
 	  }
 	  my $files = lsrev($lrev);
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
