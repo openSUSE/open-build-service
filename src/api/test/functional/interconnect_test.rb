@@ -128,7 +128,7 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     get "/source/RemoteInstance:kde4/_pubkey"
     assert_response 404
-    assert_match /no pubkey available/, @response.body
+    assert_match(/no pubkey available/, @response.body)
 
     # access to local project with project link to remote
     get "/source/UseRemoteInstance"

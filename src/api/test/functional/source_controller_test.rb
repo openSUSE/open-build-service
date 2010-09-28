@@ -17,26 +17,26 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
-    assert_no_match /entry name="HiddenProject"/, @response.body
+    assert_no_match(/entry name="HiddenProject"/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
-    assert_match /entry name="HiddenProject"/, @response.body
+    assert_match(/entry name="HiddenProject"/, @response.body)
   end
 
   def test_get_projectlist_with_sourceaccess_protected_project
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
-    assert_match /entry name="SourceprotectedProject"/, @response.body
+    assert_match(/entry name="SourceprotectedProject"/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
-    assert_match /entry name="SourceprotectedProject"/, @response.body
+    assert_match(/entry name="SourceprotectedProject"/, @response.body)
   end
 
 
@@ -45,13 +45,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
-    assert_match /entry name="ViewprotectedProject"/, @response.body
+    assert_match(/entry name="ViewprotectedProject"/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
-    assert_match /entry name="ViewprotectedProject"/, @response.body
+    assert_match(/entry name="ViewprotectedProject"/, @response.body)
   end
 
   def test_get_packagelist
@@ -107,7 +107,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject"
     assert_response 404
-    assert_match /unknown_project/, @response.body
+    assert_match(/unknown_project/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -116,8 +116,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
       :children => { :count => 2, :only => { :tag => "entry" } }
-    assert_match /entry name="pack"/, @response.body
-    assert_match /entry name="target"/, @response.body
+    assert_match(/entry name="pack"/, @response.body)
+    assert_match(/entry name="target"/, @response.body)
   end
 
   def test_get_packagelist_with_sourceprotected_project
@@ -127,7 +127,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
       :children => { :count => 2 }
-    assert_match /entry name="target"/, @response.body
+    assert_match(/entry name="target"/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -136,8 +136,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
       :children => { :count => 2, :only => { :tag => "entry" } }
-    assert_match /entry name="pack"/, @response.body
-    assert_match /entry name="target"/, @response.body
+    assert_match(/entry name="pack"/, @response.body)
+    assert_match(/entry name="target"/, @response.body)
   end
 
   # non-existing project should return 404
@@ -167,7 +167,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/_meta"
     assert_response 404
-    assert_match /unknown_project/, @response.body
+    assert_match(/unknown_project/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -239,7 +239,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/ViewprotectedProject/pack"
     assert_response :success
     assert_tag :tag => "status", :attributes => { :code => "ok" }
-    assert_match /<details><\/details>/, @response.body
+    assert_match(/<details><\/details>/, @response.body)
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -490,7 +490,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       #dummy write to check blocking
       put url_for(:action => :project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 404
-      assert_match /unknown_project/, @response.body
+      assert_match(/unknown_project/, @response.body)
       return
     end
 
@@ -630,7 +630,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       #dummy write to check blocking
       put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
-      assert_match /unknown_package/, @response.body
+      assert_match(/unknown_package/, @response.body)
       return
     end
     # Change description
@@ -774,7 +774,7 @@ class SourceControllerTest < ActionController::IntegrationTest
       #dummy write to check blocking
       put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
-      assert_match /unknown_package/, @response.body
+      assert_match(/unknown_package/, @response.body)
       return
     end
     xml = @response.body
@@ -1298,21 +1298,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "hidden_homer", "homer"
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Minimal rpm package for testing the build controller/, @response.body
+    assert_match(/Minimal rpm package for testing the build controller/, @response.body)
     # reverse
     post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
     assert_response :success
-    assert_match /argl/, @response.body
+    assert_match(/argl/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Minimal rpm package for testing the build controller/, @response.body
+    assert_match(/Minimal rpm package for testing the build controller/, @response.body)
     # reverse
     prepare_request_with_user "king", "sunflower"
     post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
     assert_response :success
-    assert_match /argl/, @response.body
+    assert_match(/argl/, @response.body)
   end
 
   def test_diff_package_viewprotected_project
@@ -1326,21 +1326,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "view_homer", "homer"
     post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Protected Content/, @response.body
+    assert_match(/Protected Content/, @response.body)
     # reverse
     post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
     assert_response :success
-    assert_match /argl/, @response.body
+    assert_match(/argl/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Protected Content/, @response.body
+    assert_match(/Protected Content/, @response.body)
     # reverse
     prepare_request_with_user "king", "sunflower"
     post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
     assert_response :success
-    assert_match /argl/, @response.body
+    assert_match(/argl/, @response.body)
   end
 
   def test_diff_package_sourceaccess_protected_project
@@ -1356,21 +1356,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "sourceaccess_homer", "homer"
     post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Protected Content/, @response.body
+    assert_match(/Protected Content/, @response.body)
     # reverse
     post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
     assert_response :success
-    assert_match /argl/, @response.body
+    assert_match(/argl/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
-    assert_match /Protected Content/, @response.body
+    assert_match(/Protected Content/, @response.body)
     # reverse
     prepare_request_with_user "king", "sunflower"
     post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
     assert_response :success
-    assert_match /argl/, @response.body
+    assert_match(/argl/, @response.body)
   end
 
 
@@ -1557,10 +1557,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match /The given project notexisting does not exist/, @response.body
+    assert_match(/The given project notexisting does not exist/, @response.body)
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match /package 'notexiting' does not exist in project 'kde4'/, @response.body
+    assert_match(%r{package 'notexiting' does not exist in project 'kde4'}, @response.body)
 
     # working local link
     put url, '<link project="BaseDistro" package="pack1" />'

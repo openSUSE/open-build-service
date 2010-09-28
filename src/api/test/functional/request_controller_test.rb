@@ -253,7 +253,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 403
     post "/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked"
     assert_response 404
-    assert_match /Request ID is not a number/, @response.body
+    assert_match(/Request ID is not a number/, @response.body)
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -450,7 +450,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id2}?cmd=changestate&newstate=accepted"
     assert_response 400
-    assert_match /Unable to delete package/, @response.body
+    assert_match(/Unable to delete package/, @response.body)
 
     # decline the request
     prepare_request_with_user "king", "sunflower"
