@@ -95,6 +95,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack1.BaseDistro"
     assert_response :success
 
+    # test branching another package set into same project from same project
+    post "/source", :cmd => "branch", :package => "pack3", :target_project => "home:tom:branches:OBS_Maintained:pack2"
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro"
+    assert_response :success
+
     # validate created project meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
