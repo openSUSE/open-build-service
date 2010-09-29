@@ -34,6 +34,33 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_basic_repository_tests
+    # anonymous access
+    ActionController::IntegrationTest::reset_auth 
+    get "/build/SourceprotectedProject/repo/i586/pack"
+    assert_response 401
+
+    srcrpm="package-1.0-1.src.rpm"
+
+    # user access
+    prepare_request_with_user "tom", "thunder"
+    get "/build/SourceprotectedProject/repo/i586/pack"
+    assert_response :success
+    assert_tag( :tag => "binarylist" )
+    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+
+    get "/build/SourceprotectedProject/repo/i586/pack/#{srcrpm}"
+    assert_response 404
+
+    # test aggregated package
+    get "/build/home:adrian:ProtectionTest/repo/i586/aggregate"
+    assert_response :success
+    assert_tag( :tag => "binarylist" )
+    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+  end
+
   def test_deleted_projectlist
     prepare_request_valid_user
     get "/source?deleted"
@@ -623,10 +650,17 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
+    assert_match(/<summary>no read access to package/, @response.body)  # api is talking
     assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     # Admin can bypass api, but backend would still not build it
     prepare_request_with_user "king", "sunflower"
-    get "/source/home:tom:temp/ProtectedPackage/_result"
+    get "/source/home:tom:temp/ProtectedPackage"
+    assert_response 403
+    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    get "/source/home:tom:temp/ProtectedPackage/dummy_file"
+    assert_response 403
+    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    get "/source/home:tom:temp/ProtectedPackage/non_existing_file"
     assert_response 403
     assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
 

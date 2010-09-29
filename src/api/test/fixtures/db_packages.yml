@@ -256,6 +256,17 @@ sourceaccess_pack2:
   description: ""
   update_counter: 1
   created_at: 2007-05-16 14:19:18
+homeadrianProtectionTest:
+  name: aggregate
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: For stealing source binary packages
+  db_project_id: 3005
+  url: ""
+  id: 11200
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
 
 # copytest test pack
 copytest_pack:

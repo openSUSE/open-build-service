@@ -146,8 +146,16 @@ CopyTestProject:
   id: 3004
   description: "for testing access/sourceacces/privacy"
   created_at: 2005-01-01 00:00:01
-# For testing remote project handling (we are our own remote instance)
 
+homeadrianProtectionTest:
+  name: home:adrian:ProtectionTest
+  updated_at: 2005-01-01 00:00:01
+  title: This is used to try to get source rpm binaries from SourceprotectedProject
+  id: 3005
+  description: ""
+  created_at: 2005-01-01 00:00:01
+
+# For testing remote project handling (we are our own remote instance)
 RemoteInstance:
   name: RemoteInstance
   updated_at: 2005-01-01 00:00:01

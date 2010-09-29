@@ -27,3 +27,9 @@ BaseDistro:
 BaseDistro2:
   repository_id: 92
   architecture_id: 1
+SourceprotectedProject:
+  repository_id: 93
+  architecture_id: 1
+homeadrianProtectionTest:
+  repository_id: 94
+  architecture_id: 1
