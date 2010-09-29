@@ -81,19 +81,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.project, "BaseDistro2:LinkedUpdateProject"
-    assert_equal ret.package, "pack2"
+    assert_tag :tag => "link", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.project, "BaseDistro:Update"
-    assert_equal ret.package, "pack2"
+    assert_tag :tag => "link", :attributes => { :project => "BaseDistro:Update", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.project, "BaseDistro3"
-    assert_equal ret.package, "pack2"
+    assert_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
 
     # test branching another package set into same project
     post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
@@ -101,7 +95,17 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack1.BaseDistro"
     assert_response :success
 
-    # FIXME: create and validate repos
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
+               :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro2" }
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
+               :tag => "arch", :content => "i586"
+
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistro_repo" } }, 
+               :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro" }
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistro_repo" } }, 
+               :tag => "arch", :content => "i586"
 
     # create patchinfo
     post "/source/BaseDistro?cmd=createpatchinfo"

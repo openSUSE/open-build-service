@@ -21,6 +21,9 @@
 7:
   repository_id: 90
   architecture_id: 1
-8:
+BaseDistro:
   repository_id: 91
+  architecture_id: 1
+BaseDistro2:
+  repository_id: 92
   architecture_id: 1
