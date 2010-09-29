@@ -1325,9 +1325,12 @@ class SourceController < ApplicationController
 
       # create repositories, if missing
       pac.db_project.repositories.each do |repo|
-        trepo = tprj.repositories.create :name => proj_name+"_"+repo.name
-        trepo.architectures = repo.architectures
-        trepo.path_elements.create(:link => repo, :position => 1)
+        repoName = proj_name+"_"+repo.name
+        unless tprj.repositories.find_by_name(repoName)
+          trepo = tprj.repositories.create :name => repoName
+          trepo.architectures = repo.architectures
+          trepo.path_elements.create(:link => repo, :position => 1)
+        end
       end
       tpkg.store
 
