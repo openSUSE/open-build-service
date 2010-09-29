@@ -1316,7 +1316,7 @@ class SourceController < ApplicationController
       # no find_package call here to check really this project only
       if tpkg = tprj.db_packages.find_by_name(pack_name)
         render_error :status => 400, :errorcode => "double_branch_package",
-          :message => "branch target package already exists: #{oprj.name}/#{opkg.name}"
+          :message => "branch target package already exists: #{tprj.name}/#{tpkg.name}"
         return
       else
         tpkg = tprj.db_packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
