@@ -751,6 +751,18 @@ sub set_repo_state {
 #         $bconf      - the config for this prp
 #
 
+sub compile_publishfilter {
+  my ($filter) = @_;
+  return undef unless $filter;
+  my @res;
+  for (@$filter) {
+    eval {
+      push @res, qr/$_/;
+    };
+  }
+  return \@res;
+}
+
 #my $default_publishfilter = [
 #  '-debuginfo-.*\.rpm$',
 #  '-debugsource-.*\.rpm$',
@@ -804,6 +816,7 @@ sub prpfinished {
   $filter = $bconf->{'publishfilter'} if $bconf;
   undef $filter if $filter && !@$filter;
   $filter ||= $default_publishfilter;
+  $filter = compile_publishfilter($filter);
 
   for my $packid (@$packs) {
     if ($pubenabled && !$pubenabled->{$packid}) {
@@ -1012,6 +1025,18 @@ my %default_exportfilters = (
   },
 );
 
+sub compile_exportfilter {
+  my ($filter) = @_;
+  return undef unless $filter;
+  my @res;
+  for (@$filter) {
+    eval {
+      push @res, [ qr/$_->[0]/, $_->[1] ];
+    };
+  }
+  return \@res;
+}
+
 #
 # moves binary packages from jobrepo to dst and updates full repository
 #
@@ -1109,6 +1134,8 @@ sub update_dst_full {
   $filter = $bconf->{'exportfilter'} if $bconf;
   undef $filter if $filter && !%$filter;
   $filter ||= $default_exportfilters{$myarch};
+  $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
+  $filter = compile_exportfilter($filter);
 
   # link new ones into full, delete old ones no longer in use
   my %exports;
@@ -1128,9 +1155,9 @@ sub update_dst_full {
 
     if ($filter) {
       my $skip;
-      for (reverse sort keys %$filter) {
-	if ($rp =~ /$_/) {
-	  $skip = $filter->{$_};
+      for (@$filter) {
+	if ($rp =~ /$_->[0]/) {
+	  $skip = $_->[1];
 	  last;
 	}
       }
@@ -1157,9 +1184,9 @@ sub update_dst_full {
       my $rn = $rp;
       $rn =~ s/.*\///;
       my $skip;
-      for (sort keys %$filter) {
-	if ($rn =~ /$_/) {
-	  $skip = $filter->{$_};
+      for (@$filter) {
+	if ($rn =~ /$_->[0]/) {
+	  $skip = $_->[1];
 	  last;
 	}
       }
