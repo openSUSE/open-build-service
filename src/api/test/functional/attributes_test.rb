@@ -211,6 +211,11 @@ class AttributeControllerTest < ActionController::IntegrationTest
     post "/source/home:tom/_attribute", data
     assert_response :success
 
+    # as admin
+    prepare_request_with_user "king", "sunflower"
+    post "/source/home:tom/_attribute", data
+    assert_response :success
+
     # not allowed
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/home:tom/_attribute", data
