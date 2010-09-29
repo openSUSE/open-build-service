@@ -43,3 +43,12 @@ BinaryprotectedProjectRepo:
   name: nada
   db_project_id: 3002
   id: 90
+BaseDistro:
+  name: BaseDistro_repo
+  db_project_id: 2042
+  id: 91
+BaseDistro2:
+  name: BaseDistro_repo
+  db_project_id: 2045
+  id: 92
+
