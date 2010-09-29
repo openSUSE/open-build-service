@@ -1168,22 +1168,6 @@ class SourceController < ApplicationController
       end
     end
 
-    tprj = DbProject.find_by_name(params[:target_project]) if params[:target_project]
-    
-    # ACL(index_branch): in case of access, project is really hidden and shown as non existing to users without access
-    if tprj and tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
-      render_error :status => 404, :errorcode => 'not_found',
-      :message => "Unknown project #{params[:target_project]}"
-      return
-    end
-
-    # permission check
-    unless @http_user.can_create_project?(params[:target_project])
-      render_error :status => 403, :errorcode => "create_project_no_permission",
-        :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
-      return
-    end
-
     # find packages to be branched
     if params[:request]
       # find packages from request
@@ -1253,6 +1237,13 @@ class SourceController < ApplicationController
     #create branch project
     tprj = DbProject.find_by_name params[:target_project]
     if tprj.nil?
+       # permission check
+       unless @http_user.can_create_project?(params[:target_project])
+         render_error :status => 403, :errorcode => "create_project_no_permission",
+           :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
+         return
+       end
+
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{params[:attribute]}"
       if params[:request]
@@ -1274,9 +1265,10 @@ class SourceController < ApplicationController
         a.save
       end
     else
-      unless @http_user.can_modify_project?(tprj)
+      # ACL(index_branch): in case of access, project is really hidden and shown as non existing to users without access
+      if not @http_user.can_modify_project?(tprj) or (tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj))
         render_error :status => 403, :errorcode => "modify_project_no_permission",
-          :message => "no permission to modify project '#{params[:target_project]}' while executing branch by attribute command"
+          :message => "no permission to modify project '#{params[:target_project]}' while executing branch project command"
         return
       end
     end
