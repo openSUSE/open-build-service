@@ -51,4 +51,13 @@ BaseDistro2:
   name: BaseDistro_repo
   db_project_id: 2045
   id: 92
+SourceprotectedProject:
+  name: repo
+  db_project_id: 3001
+  id: 93
+homeadrianProtectionTest:
+  name: repo
+  db_project_id: 3005
+  id: 94
+
 
