@@ -620,15 +620,15 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response 403
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response 403
-    assert_no_match /<summary>source access denied<\/summary>/, @response.body  # api is talking
+    assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
-    assert_no_match /<summary>source access denied<\/summary>/, @response.body  # api is talking
+    assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     # Admin can bypass api, but backend would still not build it
     prepare_request_with_user "king", "sunflower"
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
-    assert_match /<summary>source access denied<\/summary>/, @response.body  # backend is talking
+    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
 
     # check access to deleted package
     prepare_request_with_user "adrian", "so_alone"
