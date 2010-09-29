@@ -1205,21 +1205,7 @@ class SourceController < ApplicationController
         if action.has_element? 'source'
           if action.source.has_attribute? 'project'
             prj = DbProject.find_by_name action.source.project
-            if prj
-              # ACL(index_branch): access behaves like project not existing
-              if prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
-                render_error :status => 404, :errorcode => 'not_found',
-                :message => "The given project #{action.source.project} does not exist "
-                return
-              end
-
-              # ACL(index_branch): source access gives permisson denied
-              if prj.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(prj)
-                render_error :status => 403, :errorcode => "source_access_no_permission",
-                :message => "user #{@http_user.login} has no read access to project #{action.source.project}"
-                return
-              end
-            else
+            unless prj
               render_error :status => 404, :errorcode => 'unknown_project',
               :message => "Unknown source project #{action.source.project} in request #{params[:request]}"
               return
@@ -1227,26 +1213,12 @@ class SourceController < ApplicationController
           end
           if action.source.has_attribute? 'package'
             pkg = prj.db_packages.find_by_name action.source.package
-
-            # ACL(index_branch): access behaves like project not existing
-            if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given package #{package_name} does not exist in project #{project_name}"
-              return
-            end
-
-            # ACL(index_branch): source access gives permisson denied
-            if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-              render_error :status => 403, :errorcode => "source_access_no_permission",
-              :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project}"
-              return
-            end
-
             unless pkg
               render_error :status => 404, :errorcode => 'unknown_package',
                 :message => "Unknown source package #{action.source.package} in project #{action.source.project} in request #{params[:request]}"
               return
             end
+
           end
         end
 
@@ -1265,6 +1237,19 @@ class SourceController < ApplicationController
       else
         @packages = DbPackage.find_by_attribute_type( at, params[:package] )
       end
+    end
+
+    #ACL permission check of source packages
+    @packages.each do |p|
+      # ACL(index_branch): source access gives permisson denied
+      if p.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(p)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+          :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project}"
+        return
+      end
+
+      # ACL(index_branch): skip access protected packages
+      @packages.delete(p) if p.disabled_for?('access', nil, nil) and not @http_user.can_access?(p)
     end
 
     unless @packages.length > 0
@@ -1335,13 +1320,6 @@ class SourceController < ApplicationController
       proj_name = pac.db_project.name.gsub(':', '_')
       pack_name = pac.name.gsub(':', '_')+"."+proj_name
 
-      # ACL(index_branch): source access gives permisson denied
-      if pac and pac.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pac)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "user #{@http_user.login} has no read access to package #{pac.name}, project #{pac.db_project.name}"
-        return
-      end
-
       # create branch package
       # no find_package call here to check really this project only
       if tpkg = tprj.db_packages.find_by_name(pack_name)
@@ -1360,21 +1338,6 @@ class SourceController < ApplicationController
         trepo.path_elements.create(:link => repo, :position => 1)
       end
       tpkg.store
-
-      # ACL(index_branch): access behaves like project not existing
-      if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
-        render_error :status => 404, :errorcode => 'not_found',
-        :message => "The given package #{branch_target_package} does not exist in project #{branch_target_project}"
-        return
-      end
-
-      # ACL(index_branch): check that user does not branch an unprotected project to a protected project
-      if ((pac.disabled_for?('access', nil, nil) or pac.disabled_for?('sourceaccess', nil, nil)) and
-          (tpkg.enabled_for?('access', nil, nil) or tpkg.enabled_for?('sourceaccess', nil, nil)))
-        render_error :status => 403, :errorcode => "source_access_no_permission" ,
-        :message => "branch of an protected package #{pac.db_project.name}/#{pac.name} to an unprotected package #{tpkg.db_project.name}/#{tpkg.name} "
-        return
-      end
 
       # branch sources in backend
       Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
