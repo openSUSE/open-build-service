@@ -237,6 +237,9 @@ class User < ActiveRecord::Base
     if ( not atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name]) or atype.blank? )
       raise ActiveRecord::RecordNotFound, "unknown attribute type '#{opts[:namespace]}:#{opts[:name]}'"
     end
+
+    return true if is_admin?
+
     # check modifiable_by rules
     if atype.attrib_type_modifiable_bies.length > 0
       atype.attrib_type_modifiable_bies.each do |mod_rule|
