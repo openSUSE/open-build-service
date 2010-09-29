@@ -15,7 +15,7 @@
   <% end %>
 
   <div id="historyTable" style="margin-left: 1em">
-    <% (c-1).times do |i| %>
+    <% c.times do |i| %>
       <div id="commit_item_<%=(@browserrevision - i)%>" style="margin: 0.2em">
         <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i) } %>
 	<%= link_to image_tag( 'icons/folder_go.png'), :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i) %> 
