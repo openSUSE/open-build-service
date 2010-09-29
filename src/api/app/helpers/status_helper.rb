@@ -4,7 +4,8 @@ module StatusHelper
     values.sort! {|a,b| a[0] <=> b[0]}
 
     result = Array.new
-    
+    return result unless values
+
     lastvalue = 0
     now = values[0][0]
     samplerate = (values[-1][0] - now) / samples
