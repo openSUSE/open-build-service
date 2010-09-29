@@ -95,6 +95,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack1.BaseDistro"
     assert_response :success
 
+    # validate created project meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
     assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
@@ -106,6 +107,12 @@ class MaintenanceTests < ActionController::IntegrationTest
                :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro" }
     assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistro_repo" } }, 
                :tag => "arch", :content => "i586"
+
+    # and branch same package again and expect error
+    post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "double_branch_package" }
+    assert_match(/branch target package already exists:/, @response.body)
 
     # create patchinfo
     post "/source/BaseDistro?cmd=createpatchinfo"
