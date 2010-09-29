@@ -1933,6 +1933,10 @@ class SourceControllerTest < ActionController::IntegrationTest
         '<project name="home:adrian:ProjectA"> <title/> <description/> </project>'
     assert_response 200
 
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProjectB"),
+        '<project name="home:adrian:ProjectB"> <title/> <description/> </project>'
+    assert_response 200
+
     get url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA", :package => "aggregate")
     assert_response 404
 
@@ -1948,6 +1952,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> </aggregatelist>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> <aggregate project="home:adrian:ProjectB"> </aggregate> </aggregatelist>'
+    #STDERR.puts(@response.body)
+    assert_response 200
+
+    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> <aggregate project="RemoteInstance:BaseDistro"> </aggregate> </aggregatelist>'
     #STDERR.puts(@response.body)
     assert_response 200
 
