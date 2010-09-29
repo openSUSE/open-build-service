@@ -95,6 +95,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal ret.project, "BaseDistro3"
     assert_equal ret.package, "pack2"
 
+    # test branching another package set into same project
+    post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack1.BaseDistro"
+    assert_response :success
+
     # FIXME: create and validate repos
 
     # create patchinfo
