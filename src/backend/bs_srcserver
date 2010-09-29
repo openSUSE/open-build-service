@@ -140,12 +140,15 @@ sub runservice {
 
   # Run the source update in own process (do not wait for it)
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
-  my $pid;
-  if (!($pid = xfork())) {
-    my $odir = "$srcrep/:service/$$";
-    BSUtil::cleandir($odir) if -d $odir;
-    mkdir_p($odir);
-    my $receive = BSRPC::rpc({
+  # run update as background job
+  my $pid = xfork();
+  return $BSStdServer::return_ok if $pid;
+  my $odir = "$srcrep/:service/$$";
+  BSUtil::cleandir($odir) if -d $odir;
+  mkdir_p($odir);
+  my $receive;
+  eval {
+    $receive = BSRPC::rpc({
       'uri'       => "$BSConfig::serviceserver/sourceupdate/$projid/$packid",
       'request'   => 'POST',
       'headers'   => [ 'Content-Type: application/x-cpio' ],
@@ -157,30 +160,41 @@ sub runservice {
       'withmd5'   => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
     }, undef);
+  };
 
-    # and update source repository with the result
-    if ($receive) {
-      my $files = lsrev($rev);
-      # drop all existing service files
-      for my $pfile (keys %$files) {
-        delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
-      }
-      # add new service files
-      for my $pfile (ls($odir)) {
-        die("ERROR: bs_service returned a non-_service file\n") unless $pfile =~ /^_service[_:]/;
-        $files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
-      }
-      addrev($projid, $packid, $files, "_service", "generated via source service", undef);
-      rmdir($odir);
-      unlink($lockfile);
-      notify_repservers('package', $projid, $packid);
-    } else {
-      rmdir($odir);
-      unlink($lockfile);
-      die("ERROR: empty source result from service, not even a _service_error\n");
+  my $error = $@;
+  
+  # make sure that there was no other commit in the meantime
+  my $newrev = getrev($projid, $packid);
+  exit(1) if $newrev->{'rev'} ne $rev->{'rev'};
+
+  # and update source repository with the result
+  if ($receive) {
+    # drop all existing service files
+    for my $pfile (keys %$files) {
+      delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
     }
+    # add new service files
+    for my $pfile (ls($odir)) {
+      unless ($pfile =~ /^_service[_:]/) {
+	unlink($lockfile);
+	die("ERROR: bs_service returned a non-_service file\n");
+      }
+      $files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
+    }
+  } else {
+    $error ||= 'error';
+    $error =~ s/\n$//s;
+    $error = "service daemon error: $error";
+    writestr("$odir/_service_error", $error);
+    $files->{'_service_error'} = addfile($projid, $packid, "$odir/_service_error", '_service_error');
   }
-  return $BSStdServer::return_ok;
+  addrev($projid, $packid, $files, "_service", "generated via source service", undef);
+  BSUtil::cleandir($odir);
+  rmdir($odir);
+  unlink($lockfile);
+  notify_repservers('package', $projid, $packid);
+  exit(0);
 }
 
 
