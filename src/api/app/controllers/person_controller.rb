@@ -115,7 +115,15 @@ class PersonController < ApplicationController
     note = xml.elements["/unregisteredperson/note"].text
 
     if auth_method == :ichain
-      email = request.env['HTTP_X_EMAIL']
+      if request.env['HTTP_X_USERNAME'].blank?
+        render_error :message => "Missing iChain header",
+                     :errorcode => "err_register_save",
+                     :details => details, :status => 400
+        return
+      end
+      login = request.env['HTTP_X_USERNAME']
+      email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
+      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
     end
 
     newuser = User.create( 
