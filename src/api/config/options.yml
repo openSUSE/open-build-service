@@ -11,3 +11,9 @@ webui_url: http://localhost:3000
 # note that you need to enable the proxy-core option to allow this
 #x_rewrite_host: localhost
 
+# Are new users allowed to register themself ? Valid options are:
+# allow: Everybody who can connect to api or webui can create an account and use the service
+# confirmation: Everybody who can connect to api or webui can create an account, but admin needs to approve the usage
+# deny: Only admin user can create new users
+new_user_registration: allow
+
