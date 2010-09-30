@@ -105,13 +105,28 @@ class PersonController < ApplicationController
     logger.debug("Found login #{login}")
     realname = xml.elements["/unregisteredperson/realname"].text
     email = xml.elements["/unregisteredperson/email"].text
-    status = xml.elements["/unregisteredperson/state"].text
     password = xml.elements["/unregisteredperson/password"].text
     note = xml.elements["/unregisteredperson/note"].text
+    status = "confirmed"
 
     unless @http_user and @http_user.is_admin?
       note = ""
     end
+
+    if CONFIG['new_user_registration'] == "deny"
+      unless @http_user and @http_user.is_admin?
+        render_error :message => "User registration is disabled",
+                     :errorcode => "err_register_save", :status => 400
+        return
+      end
+    elsif CONFIG['new_user_registration'] == "confirmation"
+      status = "unconfirmed"
+    elsif CONFIG['new_user_registration'] and not CONFIG['new_user_registration'] == "allow"
+      render_error :message => "Admin configured an unknown config option for new_user_registration",
+                   :errorcode => "server_setup_error", :status => 500
+      return
+    end
+    status = xml.elements["/unregisteredperson/state"].text if @http_user and @http_user.is_admin?
 
     if auth_method == :ichain
       if request.env['HTTP_X_USERNAME'].blank?
