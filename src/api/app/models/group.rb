@@ -21,7 +21,9 @@ class Group < ActiveRecord::Base
        xml = ""
    
        if user
-         list = User.find_by_login(user).groups
+         user = User.find_by_login(user)
+         return nil if user.nil?
+         list = user.groups
        else
          list = Group.find(:all)
        end
