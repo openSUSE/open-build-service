@@ -75,6 +75,11 @@ class PersonController < ApplicationController
   end
 
   def register
+    if defined?( LDAP_MODE ) && LDAP_MODE == :on
+      render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
+      return
+    end
+
     xml = REXML::Document.new( request.raw_post )
     
     logger.debug( "register XML: #{request.raw_post}" )
@@ -89,9 +94,7 @@ class PersonController < ApplicationController
 
     if auth_method == :ichain
       if request.env['HTTP_X_USERNAME'].blank?
-        render_error :message => "Missing iChain header",
-                     :errorcode => "err_register_save",
-                     :details => details, :status => 400
+        render_error :message => "Missing iChain header", :errorcode => "err_register_save", :status => 400
         return
       end
       login = request.env['HTTP_X_USERNAME']
