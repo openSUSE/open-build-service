@@ -7,6 +7,7 @@ tom:
   password: <%= Digest::MD5.hexdigest("thunder") %>
   password_salt: ""
   password_hash_type: md5
+  state: 2
 
 # standard User: ("maintainer" of kde4)
 fred:
@@ -17,6 +18,7 @@ fred:
   password: <%= Digest::MD5.hexdigest("geröllheimer") %>
   password_salt: ""
   password_hash_type: md5
+  state: 2
 
 # standard User: ("maintainer" of kdelibs)
 fredlibs:
@@ -27,6 +29,7 @@ fredlibs:
   password: <%= Digest::MD5.hexdigest("geröllheimer") %>
   password_salt: ""
   password_hash_type: md5
+  state: 2
 
 # Admin User (has static "change project" permission): 
 king:
@@ -37,6 +40,7 @@ king:
   password: <%= Digest::MD5.hexdigest("sunflower") %>
   password_salt: ""
   password_hash_type: md5
+  state: 2
 
 # standard User for tagging tests
 tscholz:
@@ -46,6 +50,7 @@ tscholz:
   password: <%= Digest::MD5.hexdigest("asdfasdf") %>
   password_salt: ""
   password_hash_type: md5
+  state: 2
   
   
 # standard User: (part of "gruppe" group)
@@ -57,4 +62,5 @@ adrian:
   password: <%= Digest::MD5.hexdigest("so_alone") %>
   password_salt: ""
   password_hash_type: md5
+  state: 2
 
