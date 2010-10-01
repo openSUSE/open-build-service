@@ -39,9 +39,7 @@ class PersonController < ApplicationController
           login = URI.unescape( params[:login] )
           user = User.find_by_login( login )
           if user and user.login != @http_user.login 
-            if @http_user.is_admin?
-              # ok, may update user info
-            else
+            unless @http_user.is_admin?
               logger.debug "User has no permission to change userinfo"
               render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
                 :message => "no permission to change userinfo for user #{user.login}"
@@ -54,7 +52,7 @@ class PersonController < ApplicationController
                    :password => "notset",
                    :password_confirmation => "notset",
                    :email => "TEMP" )
-            user.state = "locked"
+            user.state = User.states["locked"]
           end
         end
       
