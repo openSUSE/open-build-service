@@ -1,0 +1,22 @@
+<% @pagetitle = "Welcome" %>
+
+<h2>Welcome to the openSUSE Build Service, </h2>
+
+  <p>Have fun building software.</p>
+  <p>Your Build Service Team</p>
+ 
+  <p>You need to register an account to work with OBS first, please fill the following data:</p>
+ 
+  <% form_tag :controller => 'user', :action => 'register', :method => :post do %>
+   <div>
+    <p> Login: <%= text_field_tag 'login'  %> </p>
+    <p> Email: <%= text_field_tag 'email'  %> </p>
+    <p> Real Name: <%= text_field_tag 'realname'  %> </p>
+    <p> User Description: <%= text_area_tag 'description', nil, :rows => 3, :cols => 20 %> </p>
+    <p> Password: <%= password_field_tag 'password_first', :min => 6  %> </p>
+    <p> Password Confirmation: <%= password_field_tag 'password_second', :min => 6  %> </p>
+    <%= hidden_field_tag 'register', 'true' %>
+    <%= submit_tag "Register this new user" %>
+   </div>
+  <% end %>
+
