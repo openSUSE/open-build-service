@@ -154,7 +154,7 @@ class ApplicationController < ActionController::Base
           @user_permissions = Suse::Permission.new( @http_user )
           return true
         else
-          if @http_user.nil?
+          if @http_user.nil? and login
             render_error :message => "User not yet registered", :status => 403,
               :errorcode => "unregistered_user",
               :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
@@ -241,7 +241,7 @@ class ApplicationController < ActionController::Base
     else
       if @http_user.state == 5 or @http_user.state == 1
         render_error :message => "User is registered but not yet approved.", :status => 403,
-          :errorcode => "registered_user_but_unapproved",
+          :errorcode => "unconfirmed_user",
           :details => "<p>Your account is a registered account, but it is not yet approved for the buildservice by admin.</p>"
         return false
       end
