@@ -237,3 +237,18 @@ table.patchinfo td { vertical-align: middle; }
     background:url("../images/unfold-indicator-single.png") no-repeat scroll 4em 0.4em transparent;
     padding-right:1.2em;
 }
+
+.flot_legend table { 
+  display: inline;
+}
+
+.y1Axis .tickLabel { 
+  min-width: 15px;
+}
+
+.plotspinner { 
+  position: absolute;
+  right: 40px;
+  top: 20px;
+  z-index: 3;
+}

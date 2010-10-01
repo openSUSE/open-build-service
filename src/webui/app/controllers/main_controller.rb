@@ -17,6 +17,19 @@ class MainController < ApplicationController
         @waiting_packages += waiting.jobs.to_i
       end
 
+      @busy = nil
+      VISIBLE_ARCHITECTURES.map {|arch| map_to_workers(arch) }.uniq.each do |arch|
+	archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
+	if archret.length > 0
+	  if @busy
+	    @busy = MonitorController.addarrays(@busy, archret) 
+	  else
+	    @busy = archret
+	  end
+	end
+      end
+      logger.debug @busy.inspect
+
       @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes) do
         GlobalCounters.find( :all )
       end

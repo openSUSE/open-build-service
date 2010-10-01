@@ -108,6 +108,20 @@ class FrontendCompat
     return Integer(xml.find_first('//entry')['size'])
   end
 
+  def gethistory(key, range, cache=1)
+    cachekey = key + "-#{range}"
+    Rails.cache.delete(cachekey) if !cache
+    return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150) do
+      hash = Hash.new
+      data = transport.direct_http(URI('/public/status/history?key=%s&hours=%d&samples=400' % [key, range]))
+      d = XML::Parser.string(data).parse
+      d.root.each_element do |v|
+        hash[Integer(v.attributes['time'])] = v.attributes['value'].to_f
+      end
+      hash.sort {|a,b| a[0] <=> b[0]}
+    end
+  end
+
   def transport
     @transport ||= ActiveXML::Config::transport_for( :project )
   end

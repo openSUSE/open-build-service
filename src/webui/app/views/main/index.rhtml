@@ -73,20 +73,12 @@
         System Status
       </div>
       <div class="clear"></div>
-      <div class="aligncenter">
-        <%- VISIBLE_ARCHITECTURES.each do |arch|
-              if MONITOR_IMAGEMAP["#{arch}_waiting"] %>
-               <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => "#{arch}_waiting",
-                  :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-                  :alt => 'i586/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
-               <%end
-            end
-         %>
-      </div>
+      <div class="aligncenter" id="overallgraph" style="height:250px; margin: 0px 20px 20px 20px"></div>
       <p class="description">
-        The above graphs show the amount of packages that are waiting to be build (<%= @waiting_packages %> at the moment) on the different architectures.
-        Currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
-      </p>
+        The above graphs show the number of active build jobs last week, 
+         currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
+         At the moment <%= @waiting_packages %> packages are waiting on the different architectures.
+       </p>
 
       <p class="description">
         The openSUSE Build Service hosts <strong><%= number_with_delimiter @global_counters.projects -%></strong> projects, with
@@ -106,3 +98,19 @@
   <%= render :partial => "sponsors" %>
   <%= render :partial => "feeds" %>
 </div>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.flot.js' %>
+<% end %>
+
+<% content_for :ready_function do %>
+    $.plot($("#overallgraph"), [ { data: <%= MonitorHelper.print_statistics_array(@busy) %>, label: "Busy workers", color: 3} ],
+      {
+            series: {
+                stack: true,
+                lines: { show: true, steps: false, fill: true }
+            }, 
+            xaxis: { mode: 'time' }, 
+            yaxis: { min: 0, position: "left" },
+      });
+<% end %>

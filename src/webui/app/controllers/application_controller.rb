@@ -263,6 +263,15 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+
+  def map_to_workers(arch)
+    case arch
+    when 'i586' then 'x86_64'
+    when 'ppc' then 'ppc64'
+    when 's390' then 's390x'
+    else arch
+    end
+  end
  
   private
 
