@@ -145,7 +145,7 @@ class PersonController < ApplicationController
               :email => email )
 
     newuser.realname = realname
-    newuser.state = status
+    newuser.state = User.states[status]
     newuser.adminnote = note
     logger.debug("Saving...")
     newuser.save
