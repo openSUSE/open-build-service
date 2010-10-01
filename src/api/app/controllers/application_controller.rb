@@ -153,6 +153,13 @@ class ApplicationController < ActionController::Base
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return true
+        else
+          if @http_user.nil?
+            render_error :message => "User not yet registered", :status => 403,
+              :errorcode => "unregistered_user",
+              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
+            return false
+          end
         end
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
