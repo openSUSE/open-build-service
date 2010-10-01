@@ -53,7 +53,7 @@ class PersonController < ApplicationController
                      :password => "notset",
                      :password_confirmation => "notset",
                      :email => "TEMP" )
-              user.state = "locked"
+              user.state = User.states["locked"]
             end
           end
         
