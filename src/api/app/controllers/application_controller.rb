@@ -242,15 +242,20 @@ class ApplicationController < ActionController::Base
       if @http_user.state == 5 or @http_user.state == 1
         render_error :message => "User is registered but not yet approved.", :status => 403,
           :errorcode => "unconfirmed_user",
-          :details => "<p>Your account is a registered account, but it is not yet approved for the buildservice by admin.</p>"
+          :details => "<p>Your account is a registered account, but it is not yet approved for the OBS by admin.</p>"
         return false
       end
 
-      logger.debug "USER found: #{@http_user.login}"
-      @user_permissions = Suse::Permission.new( @http_user )
-      return true
+      if @http_user.state == 2
+        logger.debug "USER found: #{@http_user.login}"
+        @user_permissions = Suse::Permission.new( @http_user )
+        return true
+      end
     end
 
+    render_error :message => "User is registered but not in confirmed state.", :status => 403,
+      :errorcode => "inactive_user",
+      :details => "<p>Your account is a registered account, but it is in a not active state.</p>"
     return false
   end
 
