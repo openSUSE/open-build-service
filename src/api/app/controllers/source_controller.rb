@@ -247,13 +247,16 @@ class SourceController < ApplicationController
         return
       end
 
-      if pkg.nil?
+      if ['branch'].include?(cmd) 
+        dispatch_command
+        return
+      elsif pkg.nil?
         unless @http_user.can_modify_project?(prj)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{cmd}' for not existing package"
           return
         end
-      elsif not ['diff', 'branch'].include?(cmd) and not @http_user.can_modify_package?(pkg)
+      elsif not ['diff'].include?(cmd) and not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
