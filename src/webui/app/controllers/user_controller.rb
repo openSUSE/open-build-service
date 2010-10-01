@@ -1,6 +1,6 @@
 class UserController < ApplicationController
 
-  before_filter :require_login, :only => [:edit, :save, :register]
+  before_filter :require_login, :only => [:edit, :save]
   before_filter :check_user, :only => [:edit, :save, :change_password]
 
   def logout
@@ -62,17 +62,47 @@ class UserController < ApplicationController
       return
     rescue
     end
-    logger.debug "Creating new person #{session[:login]}"
+    login = ""
+    realname = ""
+    explanation = ""
+
+    # User entered data
+    login       = params[:login]       if params[:login]
+    email       = params[:email]       if params[:email]
+    realname    = params[:realname]    if params[:realname]
+    explanation = params[:explanation] if params[:explanation]
+
+    # session data, when login via iChain for example
+    login = session[:login] if session[:login]
+    email = session[:email] || 'nomail@nomail.com'
+
+    if params[:password] != params[:password_confirmation]
+      logger.info "Password did not match"
+      flash[:error] = "Given passwords are not the same"
+      redirect_to :controller => :project, :action => :show
+      return
+    end
+
+    if login.blank?
+      logger.info "No login name found"
+      flash[:error] = "Illegal login name"
+      redirect_to :controller => :project, :action => :show
+      return
+    end
+
+    logger.debug "Creating new person #{login}"
     unreg_person_opts = {
-      :login => session[:login],
-      :email => session[:email] || 'nomail@nomail.com',
-      :realname => "",
-      :explanation => ""
+      :login => login,
+      :email => email,
+      :realname => realname,
+      :explanation => explanation
     }
+    unreg_person_opts[:password] = params[:password]    if params[:password]
+
     person = Unregisteredperson.new(unreg_person_opts)
     person.save
     flash[:success] = "Your buildservice account is now active."
-    redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
+    redirect_to :controller => :project, :action => :new, :project => "home:#{login}"
   end
 
   def change_password

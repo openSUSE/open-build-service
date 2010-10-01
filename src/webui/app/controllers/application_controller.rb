@@ -161,6 +161,8 @@ class ApplicationController < ActionController::Base
       # switch to registration on first access
       if code == "unregistered_ichain_user"
         render :template => "user/request_ichain" and return
+      elsif code == "unregistered_user"
+        render :template => "user/register" and return
       else
         #ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
         if @user
