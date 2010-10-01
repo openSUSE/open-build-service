@@ -1316,6 +1316,7 @@ sub handlelinks {
     if ($@) {
       my $error = $@;
       $error =~ s/\n$//s;
+      $error = $2 if $error =~ /^(\d+) +(.*?)$/s;
       return "$projid $packid: $error";
     }
     return "linked package '$packid' does not exist in project '$projid'" unless $lrev;
