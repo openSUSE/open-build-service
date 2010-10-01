@@ -205,6 +205,11 @@ class PersonController < ApplicationController
               :message => "Failed to change password: missing parameter"
         return
       end
+      unless @http_user.is_admin? or params[:login] == @http_user.login
+        render_error :status => 403, :errorcode => 'failed to change password',
+              :message => "No sufficiend permissions to change password for others"
+        return
+      end
     end
 
     login = URI.unescape( params[:login] )
