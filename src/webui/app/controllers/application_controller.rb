@@ -162,7 +162,9 @@ class ApplicationController < ActionController::Base
       if code == "unregistered_ichain_user"
         render :template => "user/request_ichain" and return
       elsif code == "unregistered_user"
-        render :template => "user/register" and return
+        render :template => "user/login" and return
+      elsif code == "unconfirmed_user"
+        render :template => "user/unconfirmed" and return
       else
         #ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
         if @user

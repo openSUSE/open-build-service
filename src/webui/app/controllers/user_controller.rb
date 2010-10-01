@@ -76,7 +76,7 @@ class UserController < ApplicationController
     login = session[:login] if session[:login]
     email = session[:email] || 'nomail@nomail.com'
 
-    if params[:password] != params[:password_confirmation]
+    if params[:password_first] != params[:password_second]
       logger.info "Password did not match"
       flash[:error] = "Given passwords are not the same"
       redirect_to :controller => :project, :action => :show
@@ -97,10 +97,15 @@ class UserController < ApplicationController
       :realname => realname,
       :explanation => explanation
     }
-    unreg_person_opts[:password] = params[:password]    if params[:password]
+    unreg_person_opts[:password] = params[:password_first]    if params[:password_first]
 
     person = Unregisteredperson.new(unreg_person_opts)
     person.save
+
+    session[:login] = login
+    session[:passwd] = unreg_person_opts[:password]
+    authenticate_form_auth
+
     flash[:success] = "Your buildservice account is now active."
     redirect_to :controller => :project, :action => :new, :project => "home:#{login}"
   end
