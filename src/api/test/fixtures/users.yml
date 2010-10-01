@@ -3,6 +3,7 @@ tom:
   id: 3
   login: tom
   email: tschmidt@suse.de
+  state: 2
   realname: Thor
   password: <%= Digest::MD5.hexdigest("thunder") %>
   password_salt: ""
@@ -13,6 +14,7 @@ fred:
   id: 1
   login: fred
   email: fred@feuerstein.de
+  state: 2
   realname: Frederic Feuerstone
   password: <%= Digest::MD5.hexdigest("geröllheimer") %>
   password_salt: ""
@@ -23,6 +25,7 @@ fredlibs:
   id: 4
   login: fredlibs
   email: fred@feuerstein.de
+  state: 2
   realname: Frederic Feuerstone
   password: <%= Digest::MD5.hexdigest("geröllheimer") %>
   password_salt: ""
@@ -33,6 +36,7 @@ king:
   id: 2
   login: king
   email: king@all-the-kings.org
+  state: 2
   realname: The King
   password: <%= Digest::MD5.hexdigest("sunflower") %>
   password_salt: ""
@@ -54,6 +58,7 @@ Iggy:
   id: 267
   login: Iggy
   email: Iggy@pop.org
+  state: 2
   realname: Iggy Pop
   password: <%= Digest::MD5.hexdigest("asdfasdf") %>
   password_salt: ""
@@ -65,6 +70,7 @@ maintenance_coord:
   id: 172
   login: maintenance_coord
   email: dirkmueller@suse.de
+  state: 2
   realname: our hero
   password: <%= Digest::MD5.hexdigest("power") %>
   password_salt: ""
@@ -75,6 +81,7 @@ adrian:
   id: 42
   login: adrian
   email: adrian@suse.de
+  state: 2
   realname: Johnny Thunders
   password: <%= Digest::MD5.hexdigest("so_alone") %>
   password_salt: ""
@@ -85,6 +92,7 @@ adrian_reader:
   id: 43
   login: adrian_reader
   email: adrian@suse.de
+  state: 2
   realname: user has access to sources (and binaries ?)
   password: <%= Digest::MD5.hexdigest("so_alone") %>
   password_salt: ""
@@ -93,6 +101,7 @@ adrian_downloader:
   id: 44
   login: adrian_downloader
   email: adrian@suse.de
+  state: 2
   realname: user has access to binary files only
   password: <%= Digest::MD5.hexdigest("so_alone") %>
   password_salt: ""
@@ -101,6 +110,7 @@ adrian_nobody:
   id: 45
   login: adrian_nobody
   email: adrian@suse.de
+  state: 2
   realname: user exists, but has no permissions
   password: <%= Digest::MD5.hexdigest("so_alone") %>
   password_salt: ""
@@ -110,6 +120,7 @@ user_of_hidden_project:
   id: 46
   login: hidden_homer
   email: homer@nospam.net
+  state: 2
   realname: user is maintainer in hidden project
   password: <%= Digest::MD5.hexdigest("homer") %>
   password_salt: ""
@@ -119,6 +130,7 @@ user_of_binary_protected_project:
   id: 47
   login: binary_homer
   email: homer@nospam.net
+  state: 2
   realname: user is maintainer in binary protected project (binarydownload)
   password: <%= Digest::MD5.hexdigest("homer") %>
   password_salt: ""
@@ -128,6 +140,7 @@ user_of_view_protected_project:
   id: 48
   login: view_homer
   email: homer@nospam.net
+  state: 2
   realname: user is maintainer in view protected project (privacy)
   password: <%= Digest::MD5.hexdigest("homer") %>
   password_salt: ""
@@ -137,6 +150,7 @@ user_of_sourceaccess_protected_project:
   id: 49
   login: sourceaccess_homer
   email: homer@nospam.net
+  state: 2
   realname: user is maintainer in sourceaccess protected project (sourceaccess)
   password: <%= Digest::MD5.hexdigest("homer") %>
   password_salt: ""

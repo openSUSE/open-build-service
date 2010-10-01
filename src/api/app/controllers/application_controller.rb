@@ -102,7 +102,7 @@ class ApplicationController < ActionController::Base
               :errorcode => "unregistered_ichain_user",
               :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
           else
-            if @http_user.state == 5
+            if @http_user.state == 5 or @http_user.state == 1
               render_error :message => "iChain user #{ichain_user} is registered but not yet approved.", :status => 403,
                 :errorcode => "registered_ichain_but_unapproved",
                 :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
@@ -232,10 +232,19 @@ class ApplicationController < ActionController::Base
     if @http_user.nil?
       render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
     else
+      if @http_user.state == 5 or @http_user.state == 1
+        render_error :message => "User is registered but not yet approved.", :status => 403,
+          :errorcode => "registered_user_but_unapproved",
+          :details => "<p>Your account is a registered account, but it is not yet approved for the buildservice by admin.</p>"
+        return false
+      end
+
       logger.debug "USER found: #{@http_user.login}"
       @user_permissions = Suse::Permission.new( @http_user )
       return true
     end
+
+    return false
   end
 
   hide_action :setup_backend  
