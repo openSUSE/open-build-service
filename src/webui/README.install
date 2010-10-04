@@ -5,9 +5,9 @@ buildservice. A tutorial for setting up your local development instance and how 
 can be found in the wiki: http://en.opensuse.org/openSUSE:Build_Service_Installation_Tutorial
 
 
-= Required packages can be installed from the devel:/languages:/ruby:/extensions repo: 
+= Required packages can be installed from the openSUSE:/Tools repo: 
 
-sudo zypper ar http://download.opensuse.org/repositories/devel%3a/languages%3a/ruby%3a/extensions/openSUSE_11.3 "ruby extensions"
+sudo zypper ar http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_11.3/ opensuse-tools
 sudo zypper in rubygem-daemons rubygem-delayed_job rubygem-gruff rubygem-libxml-ruby rubygem-sqlite3 rubygem-exception_notification 
 
 
