@@ -2,7 +2,7 @@
 
 The webclient can be run and developed locally without having to setup a complete 
 buildservice. A tutorial for setting up your local development instance and how to contribute 
-can be found in the wiki: http://en.opensuse.org/Build_Service/Build_Service_Installation_Tutorial/Easy_OBS_Web_Client_Development
+can be found in the wiki: http://en.opensuse.org/openSUSE:Build_Service_Installation_Tutorial
 
 
 = Required packages can be installed from the devel:/languages:/ruby:/extensions repo: 
