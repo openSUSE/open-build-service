@@ -99,17 +99,12 @@ our $relsync_pool = {
  "sparc64" => "sparcv9",
 };
 
-# This is for prefer a project in scheduler, if it has high or medium
-# prio events, but was not processed after $timeout minutes.
-#our %max_project_timeout = (
-# "openSUSE:Factory/standard" => { timeout => "30", last => "0" },
-#);
+# List of power hosts that can handle power jobs for the sake of
+# building critical packages fast.
+#our $powerhosts  = ["build20"];
 
-# Build priority, dispatcher prefers or deprefers jobs according to this:
-#our $dispatch_prio = [
-# '!^home:resourcewaster',   # de-prefer jobs (take it only, when no other jobs)
-# '^openSUSE:Factory',       # prefer (if there is a job for this project, take it)
-#];
+# List of power packages that can be built on power hosts 
+#our $powerpkgs = [ "glibc", "qt" ]
 
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
