@@ -138,7 +138,7 @@ sub end_handler {
     $name =~ s/rpm://;
     $self->{'pack'}->{$name} = $self->{'reqprov'};
     $self->{'reqprov'} = ();
-  } elsif ($name =~ /rpm:(obsoletes|supplements|conflicts|recommends|suggests)/) {
+  } elsif ($name =~ /rpm:(obsoletes|supplements|conflicts|recommends|suggests|enhances)/) {
     $self->{'reqprov'} = ();
   }
   $self->{'repodata'}->{$self->{'pack'}->{'name'}} = $self->{'pack'} if $name eq 'package' && grep { $self->{'pack'}->{'arch'} eq $_ } @{$self->{'arch'}}, @{$cando{@{$self->{'arch'}}[0]}};
