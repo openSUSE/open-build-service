@@ -285,7 +285,9 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/public/source/:prj/_meta',
     :controller => 'public', :action => 'project_meta', :prj => /[^\/]*/
   map.connect '/public/source/:prj/_config',
-    :controller => 'public', :action => 'project_config', :prj => /[^\/]*/
+    :controller => 'public', :action => 'project_file', :prj => /[^\/]*/
+  map.connect '/public/source/:prj/_pubkey',
+    :controller => 'public', :action => 'project_file', :prj => /[^\/]*/
   map.connect '/public/source/:prj/:pkg',
     :controller => 'public', :action => 'package_index', :prj => /[^\/]*/, :pkg => /[^\/]*/
   map.connect '/public/source/:prj/:pkg/_meta',
@@ -296,8 +298,8 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'lastevents'
   map.connect '/public/distributions',
     :controller => 'public', :action => 'distributions'
-  map.connect '/public/binary_packages/:project/:package',
-    :controller => 'public', :action => 'binary_packages', :project => /[^\/]*/, :package => /[^\/]*/
+  map.connect '/public/binary_packages/:prj/:pkg',
+    :controller => 'public', :action => 'binary_packages', :prj => /[^\/]*/, :pkg => /[^\/]*/
   map.connect 'public/status/:action',
     :controller => 'status'
 
