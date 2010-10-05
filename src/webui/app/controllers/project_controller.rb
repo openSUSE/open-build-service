@@ -947,7 +947,7 @@ class ProjectController < ApplicationController
     @current_develproject = params[:filter_devel] || all_packages
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
-    @limit_to_old = !(!params[:limit_to_old].nil? && params[:limit_to_old] == 'false')
+    @limit_to_old = !(params[:limit_to_old].nil? || params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
     
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
