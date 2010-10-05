@@ -5,6 +5,37 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   fixtures :all
   
+  def test_basic_read_tests_public
+    # anonymous access only, it is anyway mapped to nobody in public controller
+    ActionController::IntegrationTest::reset_auth 
+    get "/public/source/SourceprotectedProject/pack"
+    assert_response 403
+    get "/public/source/SourceprotectedProject/pack/my_file"
+    assert_response 403
+  end
+
+  def test_basic_repository_tests_public
+    # anonymous access only, it is anyway mapped to nobody in public controller
+    ActionController::IntegrationTest::reset_auth 
+    get "/public/build/SourceprotectedProject/repo/i586/pack"
+    assert_response 200
+
+    srcrpm="package-1.0-1.src.rpm"
+
+    get "/public/build/SourceprotectedProject/repo/i586/pack"
+    assert_response :success
+    assert_tag( :tag => "binarylist" )
+    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+
+    # test aggregated package
+    get "/public/build/home:adrian:ProtectionTest/repo/i586/aggregate"
+    assert_response :success
+    assert_tag( :tag => "binarylist" )
+    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+  end
+
   def test_basic_read_tests
     # anonymous access
     ActionController::IntegrationTest::reset_auth 
@@ -52,6 +83,8 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
     get "/build/SourceprotectedProject/repo/i586/pack/#{srcrpm}"
     assert_response 404
+
+    # FIXME: add view=cpio test
 
     # test aggregated package
     get "/build/home:adrian:ProtectionTest/repo/i586/aggregate"
@@ -652,6 +685,11 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response 403
     assert_match(/<summary>no read access to package/, @response.body)  # api is talking
     assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
+    # public controller
+    get "/public/source/home:tom:temp/ProtectedPackage/dummy_file"
+    assert_response 403
+    get "/public/source/home:tom:temp/ProtectedPackage"
+    assert_response 403
     # Admin can bypass api, but backend would still not build it
     prepare_request_with_user "king", "sunflower"
     get "/source/home:tom:temp/ProtectedPackage"
@@ -713,11 +751,18 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:temp/Package"
     assert_response 403
+    get "/source/home:tom:temp/Package/my_file"
+    assert_response 403
     [ :branch, :diff, :linkdiff, :copy ].each do |c|
       # would not work, but needs to return with 403 in any case
       post "/source/home:tom:temp/Package", :cmd => c
       assert_response 403
     end
+    # public controller
+    get "/public/source/home:tom:temp/Package"
+    assert_response 403
+    get "/public/source/home:tom:temp/Package/my_file"
+    assert_response 403
 
     # cleanup
     prepare_request_with_user "adrian", "so_alone"
