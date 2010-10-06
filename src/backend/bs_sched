@@ -1054,7 +1054,7 @@ sub update_dst_full {
       $cache = BSUtil::retrieve("$jobdir/.bininfo", 1);
       unlink("$jobdir/.bininfo");
     }
-    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ], $cache);
+    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
   } else {
     $jobrepo = {};
   }
@@ -1074,7 +1074,7 @@ sub update_dst_full {
     # get old state
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @oldfiles;
-    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/} @oldfiles ]);
+    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/ && !/\.delta\.rpm$/} @oldfiles ]);
 
     # move files over
     mkdir_p($dst);
