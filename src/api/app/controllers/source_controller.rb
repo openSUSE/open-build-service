@@ -292,7 +292,31 @@ class SourceController < ApplicationController
     end
 
     # package may not exist currently here, but can we work anyway with it ?
-    unless deleted.blank? and not request.delete?
+    dpkg = nil
+    if deleted and request.get? and prj and not prj.disabled_for?('sourceaccess', nil, nil) and not pkg
+      # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
+      begin
+        r = Suse::Backend.get("/source/#{CGI.escape(target_project_name)}/#{target_package_name}/_history?deleted=1&meta=1")
+      rescue
+        r = nil
+      end
+      if r
+        data = ActiveXML::XMLNode.new(r.body.to_s)
+        lastrev = nil
+        data.each_revision {|rev| lastrev = rev}
+        srcmd5 = lastrev.value("srcmd5")
+        metapath = "/source/#{CGI.escape(target_project_name)}/#{target_package_name}/_meta?rev=#{srcmd5}"
+        r = Suse::Backend.get(metapath)
+        if r
+          dpkg = Package.new(r.body)
+          if dpkg and dpkg.disabled_for? 'sourceaccess'
+             dpkg = nil
+          end
+        end
+      end
+    end
+    # validate if package exists in db, except when working on deleted package sources
+    unless deleted.blank? and not request.delete? and not dpkg
       unless target_package_name == "_project" or pkg or DbProject.find_remote_project(target_project_name)
         render_error :status => 404, :errorcode => "unknown_package",
           :message => unknownTargetPackageError
