@@ -54,11 +54,15 @@ use strict;
 my $testprojid;
 my $testmode;
 
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
 
 !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
 !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+
+BSUtil::mkdir_p_chown($bsdir, $user, $group) || die("unable to create $bsdir with owner $user:$group\n");
+
 if (defined $group) {
   ($), $() = ($group, $group);
   die "setgid: $!\n" if ($) != $group);
@@ -72,15 +76,15 @@ if (defined $user) {
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-my $reporoot = "$BSConfig::bsdir/build";
-my $jobsdir = "$BSConfig::bsdir/jobs";
-my $eventdir = "$BSConfig::bsdir/events";
-my $extrepodir = "$BSConfig::bsdir/repos";
-my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
-my $extrepodb = "$BSConfig::bsdir/db/published";
-my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
-my $infodir = "$BSConfig::bsdir/info";
+my $reporoot = "$bsdir/build";
+my $jobsdir = "$bsdir/jobs";
+my $eventdir = "$bsdir/events";
+my $extrepodir = "$bsdir/repos";
+my $extrepodir_sync = "$bsdir/repos_sync";
+my $extrepodb = "$bsdir/db/published";
+my $uploaddir = "$bsdir/upload";
+my $rundir = $BSConfig::rundir || "$bsdir/run";
+my $infodir = "$bsdir/info";
 
 if ($ARGV[0] eq '--testmode') {
   $testmode = 1;

@@ -34,6 +34,8 @@ use BSUtil;
 use BSConfig;
 use XML::Structured;
 
+use strict;
+
 our $isajax;	# is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
@@ -134,7 +136,15 @@ sub server {
   my ($name, $args, $conf, $aconf) = @_;
 
   exit 0 if $args && @$args && $args->[0] eq '--test';
-  mkdir_p($rundir);
+
+  my $user = $BSConfig::bsuser;
+  my $group = $BSConfig::bsgroup;
+
+  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+
+  BSUtil::mkdir_p_chown($rundir, $user, $group) || die("unable to create $BSConfig::bsdir with owner $user:$group\n");
+
   if ($conf) {
     $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
     $conf->{'dispatch'} ||= \&dispatch;

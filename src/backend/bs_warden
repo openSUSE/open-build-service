@@ -41,11 +41,15 @@ use BSXML;
 
 use strict;
 
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
 
 !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
 !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+
+BSUtil::mkdir_p_chown($bsdir, $user, $group) || die("unable to create $bsdir with owner $user:$group\n");
+
 if (defined $group) {
   ($), $() = ($group, $group);
   die "setgid: $!\n" if ($) != $group);

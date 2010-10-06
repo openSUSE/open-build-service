@@ -137,6 +137,28 @@ sub mkdir_p {
   return 1;
 }
 
+# calls mkdir_p and changes ownership of the created directory to the
+# supplied user and group if provided.
+sub mkdir_p_chown {
+  my ($dir, $user, $group) = @_;
+
+  mkdir_p($dir) || return undef;
+
+  if (!defined($user)) { $user = -1; } # dont change with chown
+  if (!defined($group)) { $group = -1; }
+
+  if ($user  !~ /^-?\d+$/ && !($user = getpwnam($user))) {
+    warn "user $user unknown\n"; return undef
+  }
+  if ($group !~ /^-?\d+$/ && !($group = getgrnam($group))) {
+    warn "group $group unknown\n"; return undef
+  }
+  if (!chown $user, $group, $dir) {
+    warn "failed to chown $dir to $user:$group\n"; return undef;
+  }
+  return 1;
+}
+
 sub cleandir {
   my ($dir) = @_;
 
