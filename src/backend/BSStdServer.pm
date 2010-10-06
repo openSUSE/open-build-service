@@ -34,6 +34,8 @@ use BSUtil;
 use BSConfig;
 use XML::Structured;
 
+use strict;
+
 our $isajax;	# is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
@@ -134,7 +136,7 @@ sub server {
   my ($name, $args, $conf, $aconf) = @_;
 
   exit 0 if $args && @$args && $args->[0] eq '--test';
-  mkdir_p($rundir);
+  BSUtil::init_bsdir($rundir) || die("unable to init $BSConfig::bsdir\n");
   if ($conf) {
     $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
     $conf->{'dispatch'} ||= \&dispatch;

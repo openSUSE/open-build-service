@@ -32,6 +32,8 @@ use Fcntl qw(:DEFAULT :flock);
 use Encode;
 use Storable ();
 
+use BSConfig;
+
 use strict;
 
 sub writexml {
@@ -135,6 +137,20 @@ sub mkdir_p {
     return undef;
   }
   return 1;
+}
+
+sub init_bsdir {
+    my ($subdir) = @_;
+    my $bsuser_uid = getpwnam($BSConfig::bsuser);
+    my $bsuser_gid = getgrnam($BSConfig::bsuser);
+
+    mkdir_p($BSConfig::bsdir) || return undef;
+    chown $bsuser_uid, $bsuser_gid, $BSConfig::bsdir || return undef;
+    if (defined($subdir)) {
+        mkdir_p($subdir);
+        chown $bsuser_uid, $bsuser_gid, $subdir || return undef;
+    }
+    return 1;
 }
 
 sub cleandir {

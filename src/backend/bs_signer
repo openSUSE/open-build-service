@@ -47,6 +47,8 @@ use strict;
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
 
+BSUtil::init_bsdir() || die("unable to init $BSConfig::bsdir\n");
+
 !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
 !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
 if (defined $group) {
