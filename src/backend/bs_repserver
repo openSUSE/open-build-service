@@ -1396,9 +1396,11 @@ sub fixpackstatus {
       $job = $buildingjobs->{$arch}->{$job};
       if ($job) {
         my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-	$packstatus->{$packid} = $js->{'code'};
-        $ps->{'packerror'}->{$packid} = $js->{'details'} if $js->{'details'};
-        $ps->{'packerror'}->{$packid} = "building on $js->{'workerid'}" if $js->{'code'} eq 'building';
+	if ($js) {
+	  $packstatus->{$packid} = $js->{'code'};
+          $ps->{'packerror'}->{$packid} = $js->{'details'} if $js->{'details'};
+          $ps->{'packerror'}->{$packid} = "building on $js->{'workerid'}" if $js->{'code'} eq 'building';
+	}
       }
     }
   }
