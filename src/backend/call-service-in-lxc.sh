@@ -1,6 +1,7 @@
 #!/bin/bash
 
-FSDIR="/opt/obs/Source-Service.System"
+#FSDIR="/opt/obs/Source-Service.System"
+FSDIR="/"
 MOUNTDIR="/opt/obs/Source-Service-System.mounts"
 TEMPDIR="/lxc.tmp"
 
@@ -87,6 +88,11 @@ lxc-destroy -n obs.service.jail.$$
 # move out the result
 if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f | wc -l` -gt 0 ]; then
   mv "$MOUNTDIR/$INNEROUTDIR"/* "$OUTDIR/"
+  for i in * ; do
+    if [ ! -f "$MOUNTDIR/$INNEROUTDIR/$i" ]; then
+      rm -f "$i"
+    fi
+  done
 fi
 
 # cleanup
