@@ -142,7 +142,9 @@ sub mkdir_p {
 sub mkdir_p_chown {
   my ($dir, $user, $group) = @_;
 
-  mkdir_p($dir) || return undef;
+  if (!(-d $dir)) {
+    mkdir_p($dir) || return undef;
+  }
 
   if (!defined($user)) { $user = -1; } # dont change with chown
   if (!defined($group)) { $group = -1; }
@@ -153,8 +155,13 @@ sub mkdir_p_chown {
   if ($group !~ /^-?\d+$/ && !($group = getgrnam($group))) {
     warn "group $group unknown\n"; return undef
   }
-  if (!chown $user, $group, $dir) {
-    warn "failed to chown $dir to $user:$group\n"; return undef;
+
+  my $dir_uid = (stat($dir))[4];
+  my $dir_gid = (stat($dir))[5];
+  if ($dir_uid != $user || $dir_gid != $group) {
+    if (!chown $user, $group, $dir) {
+      warn "failed to chown $dir to $user:$group\n"; return undef;
+    }
   }
   return 1;
 }
