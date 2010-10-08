@@ -87,8 +87,6 @@ sub serveropen {
   #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($port, $user, $group) = @_;
   # check if $user and $group exist on this system
-  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
   my $tcpproto = getprotobyname('tcp');
   if (!ref($port) && $port =~ /^&/) {
     open(MS, "<$port") || die("socket open: $!\n");
@@ -102,14 +100,7 @@ sub serveropen {
       bind(MS, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
     }
   }
-  if (defined $group) {
-    ($), $() = ($group, $group);
-    die "setgid: $!\n" if ($) != $group);
-  }
-  if (defined $user) {
-    ($>, $<) = ($user, $user);
-    die "setuid: $!\n" if ($> != $user);
-  }
+  BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
   if (ref($port) || $port !~ /^&/) {
     listen(MS , 512) || die "listen: $!\n";
   }
@@ -123,16 +114,8 @@ sub serveropen_unix {
   # $user, $group:
   #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($filename, $user, $group) = @_;
-  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-  if (defined $group) {
-    ($), $() = ($group, $group);
-    die "setgid: $!\n" if ($) != $group);
-  }
-  if (defined $user) {
-    ($>, $<) = ($user, $user);
-    die "setuid: $!\n" if ($> != $user);
-  }
+  BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+
   # we need a lock for exclusive socket access
   open(LCK, '>', "$filename.lock") || die("$filename.lock: $!\n");
   flock(LCK, LOCK_EX | LOCK_NB) || die("$filename: already in use\n");

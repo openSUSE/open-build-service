@@ -333,22 +333,6 @@ sub clone_repository {
   print "finished. Have a nice day.\n";
 }
 
-sub switch_to_obs_user {
-  my $user = $BSConfig::bsuser;
-  my $group = $BSConfig::bsgroup;
-  
-  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-  if (defined $group) {
-    ($), $() = ($group, $group);
-    die "setgid: $!\n" if ($) != $group);
-  }
-  if (defined $user) {
-    ($>, $<) = ($user, $user);
-    die "setuid: $!\n" if ($> != $user);
-  }
-}
-
 sub update_request_db {
   my $requestdb  = "$BSConfig::bsdir/db/request";
   my $requestdir = "$BSConfig::bsdir/requests";
@@ -515,10 +499,10 @@ while (@ARGV) {
     my $file = shift @ARGV;
     check_xml_file($file, $BSXML::request);
   } elsif ($arg eq "--update-request-db") {
-    switch_to_obs_user();
+    BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
     update_request_db();
   } elsif ($arg eq "--update-source-db") {
-    switch_to_obs_user();
+    BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
     for my $projid (findprojects()) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";

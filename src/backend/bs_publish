@@ -49,18 +49,7 @@ use strict;
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
 
-!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-if (defined $group) {
-  ($), $() = ($group, $group);
-  die "setgid: $!\n" if ($) != $group);
-}
-if (defined $user) {
-  ($>, $<) = ($user, $user);
-  die "setuid: $!\n" if ($> != $user);
-}
-
-
+BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $eventdir = "$BSConfig::bsdir/events";

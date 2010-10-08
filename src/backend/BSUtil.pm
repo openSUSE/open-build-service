@@ -166,6 +166,31 @@ sub mkdir_p_chown {
   return 1;
 }
 
+sub drop_privs_to {
+  my ($user, $group) = @_;
+
+  if (!defined($group) || !($group = getgrnam($group))) {
+    warn("unknown group\n"); return undef;
+  }
+  if (!defined($user) || !($user = getpwnam($user))) {
+    warn("unknown user\n"); return undef;
+  }
+
+  if (defined $group && ($) != $group || $( != $group)) {
+    ($), $() = ($group, $group);
+    if ($)!= $group) {
+      warn "setgid: $!\n"; return undef;
+    }
+  }
+  if (defined $user && ($> != $user || $< != $user)) {
+    ($>, $<) = ($user, $user);
+    if ($> != $user) {
+      warn "setuid: $!\n"; return undef;
+    }
+  }
+  return 1;
+}
+
 sub cleandir {
   my ($dir) = @_;
 
