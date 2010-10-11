@@ -164,7 +164,8 @@ class MonitorController < ApplicationController
     end
     comb = Array.new
     frontend.gethistory("squeue_next_#{arch}", range).each do |time,value|
-      comb << [1000*time, low[time] + value]
+      clow = low[time] || 0
+      comb << [1000*time, clow + value]
     end
     data["squeue_low"] = comb
     data["events_max"] = MonitorController.addarrays(data["squeue_high"], data["squeue_med"]).map{|time,value| value}.max * 2
