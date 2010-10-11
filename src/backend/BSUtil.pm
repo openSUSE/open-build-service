@@ -169,20 +169,17 @@ sub mkdir_p_chown {
 sub drop_privs_to {
   my ($user, $group) = @_;
 
-  if (!defined($group) || !($group = getgrnam($group))) {
-    warn("unknown group\n"); return undef;
-  }
-  if (!defined($user) || !($user = getpwnam($user))) {
-    warn("unknown user\n"); return undef;
-  }
+  # do nothing if no parameters are provided
+  if (!defined($user)) { warn("unknown user\n"); return 1; }
+  if (!defined($group)) { warn("unknown group\n"); return 1; }
 
-  if (defined $group && ($) != $group || $( != $group)) {
+  if (($group = getgrnam($group)) && ($) != $group || $( != $group)) {
     ($), $() = ($group, $group);
     if ($)!= $group) {
       warn "setgid: $!\n"; return undef;
     }
   }
-  if (defined $user && ($> != $user || $< != $user)) {
+  if (($user = getpwnam($user)) && ($> != $user || $< != $user)) {
     ($>, $<) = ($user, $user);
     if ($> != $user) {
       warn "setuid: $!\n"; return undef;
