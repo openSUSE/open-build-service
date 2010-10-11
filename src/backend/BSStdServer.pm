@@ -139,10 +139,6 @@ sub server {
 
   my $user = $BSConfig::bsuser;
   my $group = $BSConfig::bsgroup;
-
-  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-
   BSUtil::mkdir_p_chown($rundir, $user, $group) || die("unable to create $BSConfig::bsdir with owner $user:$group\n");
 
   if ($conf) {
