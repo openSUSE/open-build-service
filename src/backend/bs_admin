@@ -499,10 +499,14 @@ while (@ARGV) {
     my $file = shift @ARGV;
     check_xml_file($file, $BSXML::request);
   } elsif ($arg eq "--update-request-db") {
-    BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+    my $user = $BSConfig::bsuser;
+    my $group = $BSConfig::bsgroup;
+    BSUtil::drop_privs_to($user, $group) || die("unable to drop privileges to $user:$group\n");
     update_request_db();
   } elsif ($arg eq "--update-source-db") {
-    BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+    my $user = $BSConfig::bsuser;
+    my $group = $BSConfig::bsgroup;
+    BSUtil::drop_privs_to($user, $group) || die("unable to drop privileges to $user:$group\n");
     for my $projid (findprojects()) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";
