@@ -15,7 +15,10 @@ class AddRepoTest < ActionController::IntegrationTest
    def test_add_default
      click_link 'Iggy'
      assert_response :success
-  
+
+     click_link 'Home project'
+     assert_response :success
+
      click_link 'Repositories'
      assert_contain("Repository Configuration")
      assert_contain(/i586, x86_64/)
