@@ -745,6 +745,11 @@ sub output
     next if exists $longestpaths{$p};
     my $path = [];
     while(1) {
+      if ($longestpaths{$p}) {
+	      print STDERR "BUG: $p caused a loop!\n";
+	      print STDERR Dumper(\%longestpaths, $path);
+	      last;
+      }
       push @$path, $p;
       $longestpaths{$p} = 1;
       last unless @{$pdeps{$p}};
