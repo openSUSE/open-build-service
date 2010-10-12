@@ -960,20 +960,20 @@ class SourceController < ApplicationController
         return
       end
       allowed = permissions.package_change? pack
-    end
 
-    # ACL(file): access behaves like project not existing
-    if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
-      render_error :status => 404, :errorcode => 'not_found',
-      :message => "The given package #{package_name} does not exist in project #{project_name}"
-      return
-    end
+      # ACL(file): access behaves like project not existing
+      if pack.disabled_for?('access', nil, nil) and not @http_user.can_access?(pack)
+        render_error :status => 404, :errorcode => 'not_found',
+        :message => "The given package #{package_name} does not exist in project #{project_name}"
+        return
+      end
 
-    # ACL(file): source access gives permisson denied
-    if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "no read access to package #{package_name}, project #{project_name}"
-      return
+      # ACL(file): source access gives permisson denied
+      if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
+        render_error :status => 403, :errorcode => "source_access_no_permission",
+        :message => "no read access to package #{package_name}, project #{project_name}"
+        return
+      end
     end
 
     if request.get?

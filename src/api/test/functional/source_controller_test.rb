@@ -1190,6 +1190,19 @@ end
     assert_response :success
   end
   
+  def test_get_project_meta_history
+    ActionController::IntegrationTest::reset_auth 
+    get "/source/kde4/_project/_history"
+    assert_response 401
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    get "/source/kde4/_project/_history"
+    assert_response :success
+    assert_tag( :tag => "revisionlist" )
+    get "/source/kde4/_project/_history?meta=1"
+    assert_response :success
+    assert_tag( :tag => "revisionlist" )
+  end
+
   def test_remove_and_undelete_operations
     ActionController::IntegrationTest::reset_auth 
     delete "/source/kde4/kdelibs"
