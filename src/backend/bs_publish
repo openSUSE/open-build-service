@@ -46,10 +46,7 @@ use BSNotify;
 
 use strict;
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
-
-BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $eventdir = "$BSConfig::bsdir/events";

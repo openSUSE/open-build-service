@@ -145,10 +145,11 @@ sub mkdir_p_chown {
   if (!(-d $dir)) {
     mkdir_p($dir) || return undef;
   }
+  return unless defined($user) || defined($group);
 
-  if (!defined($user)) { $user = -1; } # dont change with chown
-  if (!defined($group)) { $group = -1; }
-
+  $user = -1 unless defined $user;
+  $group = -1 unless defined $group;
+  
   if ($user  !~ /^-?\d+$/ && !($user = getpwnam($user))) {
     warn "user $user unknown\n"; return undef
   }
@@ -156,9 +157,8 @@ sub mkdir_p_chown {
     warn "group $group unknown\n"; return undef
   }
 
-  my $dir_uid = (stat($dir))[4];
-  my $dir_gid = (stat($dir))[5];
-  if ($dir_uid != $user || $dir_gid != $group) {
+  my @s = stat($dir);
+  if ($s[4] != $user || $s[5] != $group) {
     if (!chown $user, $group, $dir) {
       warn "failed to chown $dir to $user:$group\n"; return undef;
     }
@@ -169,23 +169,22 @@ sub mkdir_p_chown {
 sub drop_privs_to {
   my ($user, $group) = @_;
 
-  # do nothing if no parameters are provided
-  if (!defined($user)) { warn("unknown user\n"); return 1; }
-  if (!defined($group)) { warn("unknown group\n"); return 1; }
-
-  if (($group = getgrnam($group)) && ($) != $group || $( != $group)) {
-    ($), $() = ($group, $group);
-    if ($)!= $group) {
-      warn "setgid: $!\n"; return undef;
+  if (defined($group)) {
+    $group = getgrnam($group) unless $group =~ /^\d+$/;
+    die("unknown group\n") unless defined $group;
+    if ($) != $group || $( != $group) {
+      ($), $() = ($group, $group);
+      die("setgid: $!\n") if $) != $group;
     }
   }
-  if (($user = getpwnam($user)) && ($> != $user || $< != $user)) {
-    ($>, $<) = ($user, $user);
-    if ($> != $user) {
-      warn "setuid: $!\n"; return undef;
+  if (defined($user)) {
+    $user = getpwnam($user) unless $user =~ /^\d+$/;
+    die("unknown user\n") unless defined $user;
+    if ($> != $user || $< != $user) {
+      ($>, $<) = ($user, $user);
+      die("setuid: $!\n") if $> != $user;
     }
   }
-  return 1;
 }
 
 sub cleandir {

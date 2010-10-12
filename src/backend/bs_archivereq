@@ -19,10 +19,7 @@ use BSXML;
 
 use strict;
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
-
-BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
 
 my $requestsdir = "$BSConfig::bsdir/requests";
 my $oldrequestsdir = "$BSConfig::bsdir/requests.old";

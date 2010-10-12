@@ -51,9 +51,8 @@ our $slot;
 our $forwardedfor;
 our $replying;	# we're sending the answer (2 == in chunked mode)
 
+# fork that retries when there are too many processes
 sub xfork {
-  # behaves as blocking fork, but uses non-blocking fork
-  # tries to fork every 5 seconds, until fork succeeds without blocking
   my $pid;
   while (1) {
     $pid = fork();
@@ -78,7 +77,7 @@ sub deamonize {
 
 sub serveropen {
   # creates MS (=master socket) socket
-  # 512 connections maximum
+  # 512 connections in the queue maximum
   # $port:  
   #     reference              - port is assigned by system and is returned using this reference
   #     string starting with & - named socket according to the string (&STDOUT, &1)
@@ -100,7 +99,7 @@ sub serveropen {
       bind(MS, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
     }
   }
-  BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+  BSUtil::drop_privs_to($user, $group);
   if (ref($port) || $port !~ /^&/) {
     listen(MS , 512) || die "listen: $!\n";
   }
@@ -108,13 +107,13 @@ sub serveropen {
 
 sub serveropen_unix {
   # creates MS (=master socket) socket
-  # 512 connections maximum
+  # 512 connections in the queue maximum
   # creates named socket according to $filename
   # race-condition safe (locks)
   # $user, $group:
   #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($filename, $user, $group) = @_;
-  BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+  BSUtil::drop_privs_to($user, $group);
 
   # we need a lock for exclusive socket access
   open(LCK, '>', "$filename.lock") || die("$filename.lock: $!\n");

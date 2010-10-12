@@ -45,11 +45,9 @@ use BSVerify;
 use strict;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
 
-BSUtil::mkdir_p_chown($bsdir, $user, $group) || die("unable to create $bsdir with owner $user:$group\n");
-BSUtil::drop_privs_to($user, $group) || die ("unable to drop privileges to $user:$group\n");
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::user, $BSConfig::group);
+BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobsdir = "$BSConfig::bsdir/jobs";
