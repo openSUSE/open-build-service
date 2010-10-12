@@ -34,7 +34,7 @@ class ValidatorTest < ActiveSupport::TestCase
      exception = assert_raise Suse::ValidationError do
        validator.validate( request )
      end
-     assert_match(/The attribute 'test' is not allowed/, exception.message)
+     assert_match(/Invalid attribute test for element link/, exception.message)
 
      # projects can be anything
      request.env['RAW_POST_DATA'] = '<link project="invalid"/>'
