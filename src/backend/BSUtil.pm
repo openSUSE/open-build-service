@@ -145,7 +145,7 @@ sub mkdir_p_chown {
   if (!(-d $dir)) {
     mkdir_p($dir) || return undef;
   }
-  return unless defined($user) || defined($group);
+  return 1 unless defined($user) || defined($group);
 
   $user = -1 unless defined $user;
   $group = -1 unless defined $group;
