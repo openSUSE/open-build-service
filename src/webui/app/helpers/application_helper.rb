@@ -34,7 +34,7 @@ module ActionView
     def compute_asset_host(source)
       if CONFIG['use_static'] 
         if ActionController::Base.relative_url_root
-           source = source.slice(ActionController::Base.relative_url_root.length..-1)
+          source = source.slice(ActionController::Base.relative_url_root.length..-1)
         end
         if source =~ %r{^/themes}
           return "https://static.opensuse.org"
@@ -205,8 +205,7 @@ module ApplicationHelper
   def package_link(project, package, opts = {})
     opts = { :hide_package => false, :hide_project => false, :length => 1000 }.merge(opts)
     if package_exists? project, package
-      out = "<span class='build_result_trigger'>"
-      out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
+      out = link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
       if opts[:hide_package]
         out += tlink_to(project, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
       elsif opts[:hide_project]
@@ -214,9 +213,8 @@ module ApplicationHelper
       else
         out += tlink_to project, (opts[:length] - 3) / 2 , :controller => :project, :action => "show", :project => project
         out += " / " +  tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, 
-                                 :action => "show", :project => project, :package => package)
+          :action => "show", :project => project, :package => package)
       end
-      out += "</span>"
     else
       if opts[:hide_package]
         out = "<span title='#{project}'>#{truncate(project, :length => opts[:length])}</span>"
@@ -289,8 +287,8 @@ module ApplicationHelper
 
     outdated = nil
     if status =~ /^outdated_/
-       status.gsub!( %r{^outdated_}, '' )
-       outdated = true
+      status.gsub!( %r{^outdated_}, '' )
+      outdated = true
     end
     description = case status
     when "published" then "Repository has been published"

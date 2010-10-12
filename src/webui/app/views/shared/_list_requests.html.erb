@@ -1,12 +1,14 @@
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= javascript_include_tag 'jquery.tooltip.min'  %>
+  <%= stylesheet_link_tag "jquery.tooltip" %>
 <% end %>
 
 
 <% content_for :ready_function do %>
   $("#request_table").tablesorter( {
-    widgets: ['zebra'],
-    sortList: [[0,1]]
+  widgets: ['zebra'],
+  sortList: [[0,1]]
   } );
 <% end %>
 
@@ -33,26 +35,34 @@
         <tr>
           <td class="nowrap"><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
           <td>
-            <%= if action_elem.has_element? :source
-              "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
-                package_link(action_elem.source.project, action_elem.source.package, :length => 70)
-            elsif reqtype(req) == "delete"
-              if action_elem.target.has_attribute? :package and hide_package
-                 "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
-                   package_link(action_elem.target.project, action_elem.target.package, :hide_package => true, :length => 70)
-              end
+
+            <% if action_elem.has_element? :source %>
+              <div id="req_<%= req.value(:id) %>"><%= image_tag 'icons/information.png' %>
+                <%= "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
+                  package_link(action_elem.source.project, action_elem.source.package, :length => 70) %>
+              </div>
+              <script type="text/javascript">
+                setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
+        :project => action_elem.source.project, :package => action_elem.source.package %>' )
+              </script>
+
+            <% elsif reqtype(req) == "delete"
+              if action_elem.target.has_attribute? :package and hide_package %>
+                <%= "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
+                  package_link(action_elem.target.project, action_elem.target.package, :hide_package => true, :length => 70) %>
+              <% end
             end -%>
           </td>
           <td>
             <%= if action_elem.has_element?(:target) && action_elem.target.has_attribute?(:package)
               out = "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->"
               if reqtype(req) != "delete" or !hide_package
-                 out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 )
+                out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 )
               else
-                 out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 )
+                out += package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 )
               end
               out
-             end %>
+            end %>
           </td>
           <td class="nowrap">
             <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
@@ -60,7 +70,7 @@
           <td class="nowrap">
             <!-- <%= reqtype(req)  %> -->
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'),
-                :controller => :request, :action => "diff", :id => req.value(:id)) -%>
+              :controller => :request, :action => "diff", :id => req.value(:id)) -%>
             <%= link_to reqtype(req), :controller => :request, :action => :show, :id => req.value(:id) -%>
           </td>
         </tr>
