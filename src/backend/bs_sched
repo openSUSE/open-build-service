@@ -4399,11 +4399,11 @@ while(1) {
     my $pname = $info->{'name'} || $packid;
 
     if ($info->{'error'}) {
-      print "      - $packid ($info->{'error'})\n";
       if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $info->{'error'};
 	next;
       }
+      print "      - $packid ($info->{'error'})\n";
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $info->{'error'};
       next;
