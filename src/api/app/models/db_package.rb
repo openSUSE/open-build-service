@@ -92,6 +92,7 @@ class DbPackage < ActiveRecord::Base
         sql += " AND pack.name = BINARY ?"
         return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
       end
+      sql += " GROUP by pack.id"
       return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
     end
 

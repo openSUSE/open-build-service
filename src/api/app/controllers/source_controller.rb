@@ -1242,12 +1242,12 @@ class SourceController < ApplicationController
     end
 
     # find packages to be branched
+    @packages = []
     if params[:request]
       # find packages from request
       data = Suse::Backend.get("/request/#{params[:request]}").body
       req = BsRequest.new(data)
 
-      @packages = []
       req.each_action do |action|
         prj=nil
         pkg=nil
@@ -1271,7 +1271,7 @@ class SourceController < ApplicationController
           end
         end
 
-        @packages.push(pkg)
+        @packages.push({ :target_project => pkg.db_project, :package => pkg })
       end
     else
       # find packages via attributes
@@ -1282,28 +1282,49 @@ class SourceController < ApplicationController
         return
       end
       if params[:value]
-        @packages = DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] )
+        DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |pkg|
+          @packages.push({ :target_project => pkg.db_project, :package => pkg })
+        end
+        # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
-        @packages = DbPackage.find_by_attribute_type( at, params[:package] )
+        # Find all direct instances of a package
+        DbPackage.find_by_attribute_type( at, params[:package] ).each do |pkg|
+          @packages.push({ :target_project => pkg.db_project, :package => pkg })
+        end
+        # Find all indirect instance via project links, a new package will get created on submit accept
+        if params[:package]
+          projects = DbProject.find_by_attribute_type( at )
+          projects.each do |prj|
+            prj.linkedprojects.each do |lprj|
+              if lprj.linked_db_project
+                if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
+                  @packages.push({ :target_project => prj, :package => pkg })
+                else
+                  # FIXME: add support for branching from remote projects
+                end
+              end
+            end
+          end
+        end
       end
     end
 
     #ACL permission check of source packages
     @packages.each do |p|
       # ACL(index_branch): source access gives permisson denied
-      if p.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(p)
+      if p[:package].disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(p[:package])
         render_error :status => 403, :errorcode => "source_access_no_permission",
           :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project}"
         return
       end
 
       # ACL(index_branch): skip access protected packages
-      @packages.delete(p) if p.disabled_for?('access', nil, nil) and not @http_user.can_access?(p)
+      @packages.delete(p) if p[:package].disabled_for?('access', nil, nil) and not @http_user.can_access?(p[:package])
     end
 
     unless @packages.length > 0
       render_error :status => 403, :errorcode => "not_found",
-        :message => "no packages could get found"
+        :message => "no packages found by search criteria"
       return
     end
 
@@ -1350,7 +1371,7 @@ class SourceController < ApplicationController
     # collect also the needed repositories here
     @packages.each do |p|
       # is a update project defined and a package there ?
-      pac = p
+      pac = p[:package]
       aname = params[:update_project_attribute]
       name_parts = aname.split(/:/)
       if name_parts.length != 2
@@ -1358,24 +1379,24 @@ class SourceController < ApplicationController
       end
 
       # find origin package to be branched
-      branch_target_project = pac.db_project.name
+      branch_target_project = p[:target_project].name
       branch_target_package = pac.name
+      proj_name = branch_target_project.gsub(':', '_')
+      pack_name = branch_target_package.gsub(':', '_') + "." + proj_name
 
-      if not params[:request] and a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
-        if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
-          pac = pa
-          branch_target_project = pac.db_project.name
-          branch_target_package = pac.name
+      # check for update project
+      if not params[:request] and a = p[:target_project].find_attribute(name_parts[0], name_parts[1]) and a.values[0]
+        if pa = DbPackage.find_by_project_and_name( a.values[0].value, p[:package].name )
+          branch_target_project = pa.db_project.name
+          branch_target_package = pa.name
         else
           # package exists not yet in update project, but it may have a project link ?
-    	  p = DbProject.find_by_name(a.values[0].value)
-    	  if p and p.find_package( pac.name )
+    	  uprj = DbProject.find_by_name(a.values[0].value)
+    	  if uprj and uprj.find_package( pac.name )
             branch_target_project = a.values[0].value
           end
         end
       end
-      proj_name = pac.db_project.name.gsub(':', '_')
-      pack_name = pac.name.gsub(':', '_')+"."+proj_name
 
       # create branch package
       # no find_package call here to check really this project only
@@ -1396,6 +1417,7 @@ class SourceController < ApplicationController
           trepo.architectures = repo.architectures
           trepo.path_elements.create(:link => repo, :position => 1)
         end
+        tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
       end
       tpkg.store
 

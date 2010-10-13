@@ -47,10 +47,12 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_mbranch
-    ActionController::IntegrationTest::reset_auth 
-    prepare_request_with_user "maintenance_coord", "power"
+    prepare_request_with_user "king", "sunflower"
+    put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
+    assert_response :success
 
     # setup maintained attributes
+    prepare_request_with_user "maintenance_coord", "power"
     # an entire project
     post "/source/BaseDistro/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
@@ -58,6 +60,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source/BaseDistro2/pack2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     post "/source/BaseDistro3/pack2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+    post "/source/ServicePack/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
     # search for maintained packages like osc is doing
@@ -75,14 +79,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate result
     get "/source/home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
-    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2"
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_meta"
     assert_response :success
-    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update"
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro/_meta"
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" }
-    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_link"
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro:Update", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
@@ -100,10 +104,20 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro"
     assert_response :success
+    # test branching another package only reachable via project link into same project
+    post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2"
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack"
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack/_link"
+    assert_response :success
+    assert_tag :tag => "link", :attributes => { :project => "ServicePack", :package => "kdelibs" }
 
     # validate created project meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
+    assert_tag :parent => { :tag => "build" }, :tag => "disable"
+
     assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
                :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro2" }
     assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
@@ -113,6 +127,12 @@ class MaintenanceTests < ActionController::IntegrationTest
                :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro" }
     assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistro_repo" } }, 
                :tag => "arch", :content => "i586"
+
+    # validate created package meta
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_meta"
+    assert_response :success
+    assert_tag :tag => "package", :attributes => { :name => "pack2.BaseDistro2", :project => "home:tom:branches:OBS_Maintained:pack2" }
+    assert_tag :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2_BaseDistro_repo" }
 
     # and branch same package again and expect error
     post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"

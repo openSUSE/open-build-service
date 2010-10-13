@@ -34,6 +34,20 @@ class DbProject < ActiveRecord::Base
       find :first, :conditions => ["name = BINARY ?", name]
     end
 
+    def find_by_attribute_type( attrib_type )
+      # One sql statement is faster than a ruby loop
+      # attribute match in project
+      sql =<<-END_SQL
+      SELECT prj.*
+      FROM db_projects prj
+      LEFT OUTER JOIN attribs attrprj ON prj.id = attrprj.db_project_id
+      WHERE attrprj.attrib_type_id = BINARY ?
+      END_SQL
+
+      sql += " GROUP by prj.id"
+      return DbProject.find_by_sql [sql, attrib_type.id.to_s]
+    end
+
     def store_axml( project )
       dbp = nil
       DbProject.transaction do
