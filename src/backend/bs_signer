@@ -46,8 +46,8 @@ use strict;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::user, $BSConfig::group);
-BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobsdir = "$BSConfig::bsdir/jobs";

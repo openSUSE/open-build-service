@@ -60,8 +60,8 @@ if ($BSConfig::powerpkgs) {
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::user, $BSConfig::group) || die("unable to create $bsdir\n");
-BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;

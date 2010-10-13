@@ -19,7 +19,7 @@ use BSXML;
 
 use strict;
 
-BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $requestsdir = "$BSConfig::bsdir/requests";
 my $oldrequestsdir = "$BSConfig::bsdir/requests.old";

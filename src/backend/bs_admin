@@ -499,10 +499,10 @@ while (@ARGV) {
     my $file = shift @ARGV;
     check_xml_file($file, $BSXML::request);
   } elsif ($arg eq "--update-request-db") {
-    BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
     update_request_db();
   } elsif ($arg eq "--update-source-db") {
-    BSUtil::drop_privs_to($BSConfig::user, $BSConfig::group);
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
     for my $projid (findprojects()) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";
