@@ -1,7 +1,7 @@
 <% @pagetitle = "New Patchinfo" %>
 <% project_bread_crumb 'Create Patchinfo' -%>
 
-
+<%= render :partial => "project/tabs" %>
 
 <% form_tag :controller => :patchinfo, :action => "save_new" do %>
   <div class="section">
