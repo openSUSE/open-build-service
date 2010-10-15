@@ -32,19 +32,13 @@ Note that the three parts each also have their own documentation found in their
 respective subdirectories.
 
 
-Installation
-============
+Licensing
+=========
 
-Please refer to the INSTALL file.
-
-
-License
-=======
-
-The OBS source code is released under the terms of the GPL, except where noted.
-Additionally, 3rd-party content (like, but not exclusively, the webui icon
-theme) may be released under a different license. Please check the respective
-files for details.
+The openSUSE Build Service is Free Software and is released under the terms of
+the GPL, except where noted. Additionally, 3rd-party content (like, but not
+exclusively, the webui icon theme) may be released under a different license.
+Please check the respective files for details.
 
 
 Miscelaneous
