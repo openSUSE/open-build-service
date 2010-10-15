@@ -15,7 +15,7 @@ The /public directory contains a subdirectory vendor/ which is used for overwrit
 Each file in the public directory can be exchanged by putting a file with the same path into /public/vendor/<theme_name/>.
 This works for all static files that get referenced by AssetTagHelper tags in the views like "image_tag", "stylesheet_link_tag", ...
 
-See the included "example" theme for an example.
+See the included "neutral" theme for an example.
 
 
 
