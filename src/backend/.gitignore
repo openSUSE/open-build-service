@@ -1,9 +1,0 @@
-BSConfig.pm
-BSSolv.bs
-BSSolv.c
-BSSolv.o
-BSSolv.so
-blib
-pm_to_blib
-sat-solver
-Makefile

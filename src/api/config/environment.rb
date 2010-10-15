@@ -15,6 +15,14 @@ SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 require "common/libxmlactivexml"
 require 'custom_logger'
 
+# create important directories that are needed at runtime
+FileUtils.mkdir_p("#{RAILS_ROOT}/log")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/cache")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/pids")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
+
 # define our current api version
 api_version = '2.1.0'
 
