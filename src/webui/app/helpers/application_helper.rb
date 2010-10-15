@@ -165,9 +165,10 @@ module ApplicationHelper
     abs_path
   end
 
-  def gravatar_image(email)
+  def gravatar_image(email, size=20)
     hash = MD5::md5(email.downcase)
-    return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 20, :height => 20
+    return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=#{size}&d=" + image_url('local/default_face.png'), 
+      :alt => "Gravatar for #{email}", :width => size, :height => size
   end
 
   def fuzzy_time_string(time)
