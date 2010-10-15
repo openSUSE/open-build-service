@@ -45,6 +45,59 @@ class Project < ActiveXML::Base
       set_archs new_archs
     end
 
+    def paths
+      @paths ||= each_path.map { |p| p.project + '/' + p.repository }
+      return @paths
+    end
+
+    def add_path (path)
+      return nil if paths.include? path
+      project, repository = path.split("/")
+      @paths.push path
+      e = add_element('path')
+      e.data.attributes['repository'] = repository
+      e.data.attributes['project'] = project
+    end
+
+    def remove_path (path)
+      return nil unless paths.include? path
+      project, repository = path.split("/")
+      each_path do |p|
+        delete_element p if p.data.attributes['project'] == project and p.data.attributes['repository'] == repository
+      end
+      @paths.delete path
+    end
+
+    def set_paths (new_paths)
+      paths.clone.each{ |path| remove_path path }
+      new_paths.each{ |path| add_path path }
+    end
+    def paths= (new_paths)
+      set_paths new_paths
+    end
+
+    # directions are :up and :down
+    def move_path (path, direction=:up)
+      return nil unless (path and not paths.empty?)
+      new_paths = paths.clone
+      for i in 0..new_paths.length
+        if new_paths[i] == path           # found the path to move?
+          if direction == :up and i != 0  # move up and is not the first?
+            tmp = new_paths[i - 1]
+            new_paths[i - 1] = new_paths[i]
+            new_paths[i] = tmp
+            break
+          elsif direction == :down and i != new_paths.length - 1
+            tmp = new_paths[i + 1]
+            new_paths[i + 1] = new_paths[i]
+            new_paths[i] = tmp
+            break
+          end
+        end
+      end
+      set_paths new_paths
+    end
+
     #    def name= (name)
     #      data.attributes['name'] = name
     #    end
@@ -161,7 +214,6 @@ class Project < ActiveXML::Base
 
     delete_element "repository[@name='#{repository}']"
   end
-
 
   #get all architectures used in this project
   #TODO could/should be optimized... somehow...here are many possibilities

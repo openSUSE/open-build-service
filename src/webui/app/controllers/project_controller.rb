@@ -573,10 +573,24 @@ class ProjectController < ApplicationController
   end
 
   def remove_path_from_target
-   @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
-   @project.save
-   redirect_to :action => :repositories, :project => @project
-   return
+    @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
+    @project.save
+    redirect_to :action => :repositories, :project => @project
+    return
+  end
+
+  def move_path_up
+    @project.repository[params['repository']].move_path(params['path_project'] + '/' + params['path_repository'], :up)
+    @project.save
+    redirect_to :action => :repositories, :project => @project
+    return
+  end
+
+  def move_path_down
+    @project.repository[params['repository']].move_path(params['path_project'] + '/' + params['path_repository'], :down)
+    @project.save
+    redirect_to :action => :repositories, :project => @project
+    return
   end
 
   def save_person

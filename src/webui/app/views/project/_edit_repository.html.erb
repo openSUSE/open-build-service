@@ -23,9 +23,17 @@
             <% if path.project == 'deleted' %>
               <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
             <% else %>
-              <span><%=  h path.project + "/" + path.repository %></span>
-              <%=  link_to(image_tag('icons/drive_delete.png'), {:action => :remove_path_from_target, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository},
-                {:confirm => "Really remove #{path.project} / #{path.repository} path from repository  '#{repository.name}'?", :class => 'x', :method => :post}) -%>
+              <span><%= h path.project + "/" + path.repository %></span>
+              <% if repository.each_path.length > 1 %>
+                <% if path.data != repository.each_path.first.data %>
+                    <%= link_to(image_tag('icons/arrow_up.png'), {:action => :move_path_up, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>
+                <% end %>
+                <% if path.data != repository.each_path.last.data %>
+                    <%= link_to(image_tag('icons/arrow_down.png'), {:action => :move_path_down, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>
+                <% end %>
+              <% end %>
+              <%= link_to(image_tag('icons/drive_delete.png'), {:action => :remove_path_from_target, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository},
+                           {:confirm => "Really remove #{path.project} / #{path.repository} path from repository  '#{repository.name}'?", :class => 'x', :method => :post}) -%>
               <br/>
             <% end %>
           <% end -%>
