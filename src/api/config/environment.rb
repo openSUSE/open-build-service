@@ -14,6 +14,7 @@ SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 require "common/libxmlactivexml"
 require 'custom_logger'
+require 'fileutils'
 
 # create important directories that are needed at runtime
 FileUtils.mkdir_p("#{RAILS_ROOT}/log")

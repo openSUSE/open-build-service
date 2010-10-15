@@ -10,6 +10,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 require "common/libxmlactivexml"
 require 'custom_logger'
+require 'fileutils'
 
 # create important directories that are needed at runtime
 FileUtils.mkdir_p("#{RAILS_ROOT}/log")
