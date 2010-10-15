@@ -1,4 +1,4 @@
-# the web ui only uses the database to store jobs to do (render plots)
+# the web ui only uses the database to store jobs to do
 
 production:
   adapter: mysql
