@@ -1,0 +1,65 @@
+============================
+Installation and development
+============================
+
+This document explains how to setup the Build Service for development or
+deployment.
+
+
+Prerequisites
+=============
+
+Before you can start developing for the openSUSE Build Service or deploying
+it, you have to fetch some additional dependencies in the repository. Please
+issue the following commands in your shell/terminal:
+
+ $ git submodule init
+ $ git submodule update
+ $ git pull origin master
+
+For simplicity, you can also use the script 'git-update', that is supplied
+in the 'dist' folder.
+
+
+Software dependencies
+=====================
+
+For the backend:
+
+- MySQL version FOO
+- Perl version FOO
+
+For the api and webui:
+
+- Ruby version FOO
+- Sqlite3 version FOO
+- Ruby on Rails version 2.3.8
+
+
+Deployment
+==========
+
+TODO
+
+Option 1: Only use the webui
+----------------------------
+
+TODO
+
+
+Option 2: Use the webui and api
+-------------------------------
+
+TODO
+
+
+Option 2: Setup a complete Build Service
+----------------------------------------
+
+TODO
+
+
+Development
+===========
+
+

@@ -8,7 +8,16 @@ multiple Linux distributions including openSUSE, Red Hat, Mandriva, Ubuntu,
 Fedora and Debian. It typically simplifies the packaging process, so developers
 can more easily package a single program for many distributions, and many
 openSUSE releases, making more packages available to users regardless of what
-distribution they use.
+distribution they use. 
+
+Further documentation for the Build Service can be found at the openSUSE wiki
+on the Build Service portal page:
+
+  http://en.opensuse.org/Portal:Build_Service
+
+The running Build Service web interface can be accessed here:
+
+  http://build.opensuse.org/
 
 
 Organization
@@ -21,15 +30,26 @@ forms the glue between those components and also serves as the integration
 point to other external tools (hence it's name). Therefore the source code is
 organized like this:
 
- dist/          - Helpful scripts and utilities
- docs/          - Documentation and examples
- src/api/       - Api code (Ruby / Ruby on Rails)
- src/backend/   - Backend code (Perl)
- src/webui/     - Webui code (Ruby / Ruby on Rails)
- shared/        - Stuff shared across the different parts
+============  =======================================
+Directory     Description
+============  =======================================
+dist          Helpful scripts and utilities
+docs          Documentation and examples
+src/api       Api code (Ruby / Ruby on Rails)
+src/backend   Backend code (Perl)
+src/webui     Webui code (Ruby / Ruby on Rails)
+shared        Stuff shared across the different parts
+============  =======================================
 
 Note that the three parts each also have their own documentation found in their
 respective subdirectories.
+
+
+Installation, deployment and development
+========================================
+
+These topics are covered in the file INSTALL and on the openSUSE wiki (see
+above).
 
 
 Licensing
@@ -41,17 +61,20 @@ exclusively, the webui icon theme) may be released under a different license.
 Please check the respective files for details.
 
 
-Miscelaneous
-============
+Contact
+=======
 
-Further documentation for the Build Service can be found at the openSUSE wiki
-on the Build Service portal page:
+The Build Service project is hosted on Gitorious and can be found here:
 
- http://en.opensuse.org/Portal:Build_Service
+    http://gitorious.org/opensuse/build-service
 
-The running Build Service web interface can be accessed here:
+You can discuss with the Build Service Team via IRC (FreeNode) on this channel:
 
- http://build.opensuse.org/
+    #opensuse-buildservice
+
+Or you can use the official mailing list:
+
+    opensuse-buildservice@opensuse.org
 
 
     Your openSUSE Build Service Team
