@@ -8,12 +8,12 @@ production:
 
 development:
   adapter: sqlite3
-  database: db/database.db
+  database: db/database-devel.db
 
 stage:
   adapter: sqlite3
-  database: db/database.db
+  database: db/database-stage.db
 
 test:
   adapter: sqlite3
-  database: db/database.db
+  database: db/database-test.db
