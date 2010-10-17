@@ -491,7 +491,11 @@ module UserMixins
               return nil
             end
 
-            user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            if defined?( LDAP_USER_FILTER )
+              user_filter = "(&(#{LDAP_SEARCH_ATTR}=#{login})#{LDAP_USER_FILTER})"
+            else
+              user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            end
             logger.debug( "Search for #{user_filter}" )
             dn = String.new
             ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
