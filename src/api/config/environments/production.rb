@@ -47,6 +47,21 @@ LDAP_MAIL_ATTR="mail"
 # Credentials to use to search ldap for the username
 LDAP_SEARCH_USER=""
 LDAP_SEARCH_AUTH=""
+
+# By default any LDAP user can be used to authenticate to the OBS
+# In some deployments this may be too broad and certain criteria should
+# be met; eg group membership
+#
+# To allow only users in a specific group uncomment this line:
+#LDAP_USER_FILTER="(memberof=CN=group,OU=Groups,DC=Domain Component)"
+#
+# Note this is joined to the normal selection like so:
+# (&(#{LDAP_SEARCH_ATTR}=#{login})#{LDAP_USER_FILTER})
+# giving an ldap search of:
+#  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
+#
+# Also note that openLDAP must be configured to use the memberOf overlay
+
 # How to verify:
 #   :ldap = attempt to bind to ldap as user using supplied credentials
 #   :local = compare the credentials supplied with those in 
