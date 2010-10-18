@@ -1,7 +1,7 @@
 <div class="box" style="margin: 1em" id="<%= valid_xml_id(repository.name) %>">
 
   <div class="box-header aligncenter"><strong>Edit <%= h(repository.name) %></strong></div>
-  <% if error %>
+  <% if local_assigns[:error] %>
     <div class="message error"><%= error %></div>
   <% end %>
 
@@ -9,7 +9,7 @@
     <p>
       <strong>Architectures: </strong>
       <% VISIBLE_ARCHITECTURES.each do |arch| %>
-        <%= check_box_tag "arch[#{arch}]", "", @arch_list.include?(arch.to_s) %><%=arch%>
+        <%= check_box_tag "arch[#{arch}]", "", @arch_list[repository.name].include?(arch.to_s) %><%=arch%>
         <%= observe_field "arch_#{arch}", :function => "document.getElementById('save_button').disabled = false" %>
       <% end %>
       <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>

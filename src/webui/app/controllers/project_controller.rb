@@ -259,15 +259,13 @@ class ProjectController < ApplicationController
   end
 
   def arch_list
-    if @arch_list.nil?
-      tmp = []
-      @project.each_repository do |repo|
-        tmp += repo.archs
-      end
-      @arch_list = tmp.sort.uniq
+    @arch_list = Hash.new
+    @project.each_repository do |repo|
+      @arch_list[repo.name] = repo.archs.sort.uniq
     end
     return @arch_list
   end
+  private :arch_list
 
   def edit_repository
     repo = @project.repository[params[:repository]]
@@ -516,6 +514,7 @@ class ProjectController < ApplicationController
       repo_path = "#{params['target_project']}/#{params['target_repo']}"
       @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
       @project.save
+      flash[:success] = "Repository #{params['target_project']}/#{params['target_repo']} added successfully"
       redirect_to :action => :repositories, :project => @project
       return
     elsif params.has_key? :repo
@@ -546,7 +545,7 @@ class ProjectController < ApplicationController
 
     begin
       if @project.save
-        flash[:note] = "Build targets were added successfully"
+        flash[:success] = "Build targets were added successfully"
       else
         flash[:error] = "Failed to add build targets"
       end
@@ -565,7 +564,6 @@ class ProjectController < ApplicationController
       redirect_to :action => :show, :project => params[:project]
     end
     @project.remove_repository params[:target]
-
     begin
       if @project.save
         flash[:note] = "Target '#{params[:target]}' was removed"
@@ -576,15 +574,15 @@ class ProjectController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = "Failed to remove target '#{params[:target]}' " + message
     end
-
     redirect_to :action => :repositories, :project => @project
   end
 
   def remove_path_from_target
-   @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
-   @project.save
-   redirect_to :action => :repositories, :project => @project
-   return
+    @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
+    @project.save
+    flash[:success] = "Removed path #{params['path_project']}/#{params['path_repository']} from #{params['repository']}"
+    redirect_to :action => :repositories, :project => @project
+    return
   end
 
   def save_person
