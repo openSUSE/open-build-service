@@ -30,16 +30,16 @@ forms the glue between those components and also serves as the integration
 point to other external tools (hence it's name). Therefore the source code is
 organized like this:
 
-============  =======================================
+============  ==================================================
 Directory     Description
-============  =======================================
-dist          Helpful scripts and utilities
-docs          Documentation and examples
+============  ==================================================
+dist          Files relevant for (distro) packaging
+docs          Documentation, examples and the Build Service book
 src/api       Api code (Ruby / Ruby on Rails)
 src/backend   Backend code (Perl)
 src/webui     Webui code (Ruby / Ruby on Rails)
 shared        Stuff shared across the different parts
-============  =======================================
+============  ==================================================
 
 Note that the three parts each also have their own documentation found in their
 respective subdirectories.

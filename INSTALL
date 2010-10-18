@@ -17,9 +17,6 @@ issue the following commands in your shell:
  $ git submodule update
  $ git pull origin master
 
-For simplicity, you can also use the script 'git-update', that is supplied
-in the 'dist' folder.
-
 
 Software dependencies
 =====================
