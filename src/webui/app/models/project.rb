@@ -72,6 +72,7 @@ class Project < ActiveXML::Base
       paths.clone.each{ |path| remove_path path }
       new_paths.each{ |path| add_path path }
     end
+    
     def paths= (new_paths)
       set_paths new_paths
     end
