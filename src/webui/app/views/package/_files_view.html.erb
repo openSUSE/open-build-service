@@ -71,6 +71,13 @@
 -->
   <% else %>
     <p><i>This package has no files yet</i></p>
+ 
+    <% if @package.can_edit?( session[:login] ) %>
+      <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
+         :action => :add_file, :project => @project, :package => @package %>
+        <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
+      </p>
+    <% end %>
   <% end %>
 
 </div>
