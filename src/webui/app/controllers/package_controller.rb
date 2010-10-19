@@ -264,26 +264,25 @@ class PackageController < ApplicationController
       @rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
+      flash.now[:error] = message
       return
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:warn] = message
+      flash.now[:warn] = message
       begin
         @rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
       rescue ActiveXML::Transport::Error => e
         message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        flash[:error] = message
+        flash.now[:warn] = nil
+        flash.now[:error] = "Error getting diff: " + message
         return
       end
     end
-
     @lastreq = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage,
       :sourceproject => params[:project], :sourcepackage => params[:package])
     if @lastreq and @lastreq.state.name != "declined"
       @lastreq = nil # ignore all !declined
     end
-
   end
 
   def wizard_new
