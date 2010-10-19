@@ -28,9 +28,8 @@
 
   $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
   matchCase: true, max: 50, minChars: 0,
-  data: {project: $("#target_package_repo").val()},
   extraParams: {
-  project: function(){ return $("#target_package_repo").val(); }
+  project: function(){ return get_package_project(); }
   }
   });
 
@@ -39,6 +38,16 @@
   $("#add_repo_toggle").hide();
   return false;
   });
+
+
+  get_package_project = function() {
+  return $("#target_package_repo").val().split('/')[0].replace(/\s*/g, "");
+  }
+
+  get_package_repo = function() {
+  return $("#target_package_repo").val().split('/')[1].replace(/\s*/g, "");
+  }
+
 
   remove_element = function(key) {
   $("#" + key).remove();
@@ -58,7 +67,7 @@
   $("#add_repo").click(function () {
   $("#no_inst_repos").hide();
   $("#inst_repos").append( create_repo_line() );
-  $('#target_package_repo').append( new Option( $("#target_project").attr('value') ) );
+  $('#target_package_repo').append( new Option( $("#target_project").attr('value') + ' / ' + $("#target_repo").attr('value') ) );
   $("#add_repository").hide();
   $("#add_repo_toggle").show();
   return false;
@@ -73,10 +82,28 @@
   return html;
   }
 
+  create_binary_packages_line = function() {
+  var package = $("#target_package").val();
+  var project = get_package_project();
+  var repo = get_package_repo();
+
+  $.ajax({ url: '<%= url_for :controller => :package, :action => :binaries %>?package=' + package + '&project=' + project + '&repository=' + repo,
+    data: {},
+    success: function(data){
+      //alert(data);
+    }
+  });
+
+  var key = ('pack_' + package).replace(/[:\.]/g,'_');
+  var html = '';
+  return html;
+  }
+
   $("#add_package").click(function () {
   if ($("#target_package").val() != '') {
   $("#no_inst_packs").hide();
   $("#inst_packs").append( create_package_line() );
+  $("#inst_packs").append( create_binary_packages_line() );
   }
   return false;
   });
@@ -168,7 +195,7 @@
   </div>
 
   <p><strong>Add package: </strong><br/>
-    <% default_projects = @repositories.map{|repo| "<option value='#{repo[:project]}'>#{repo[:project]}</option>"}.uniq %>
+    <% default_projects = @repositories.map{|repo| "<option value='#{repo[:project]} / #{repo[:repo]}'>#{repo[:project]} / #{repo[:repo]}</option>"}.uniq %>
     <%= select_tag "target_package_repo", "<option value=''>Select Project</option>" + default_projects.join(''), :id => 'target_package_repo' %>
     Name:
     <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
