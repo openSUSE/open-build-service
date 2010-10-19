@@ -6,7 +6,7 @@
 
   <% unless @files.empty? %>
     <table cellspacing='1' id="file_table" class="tablesorter">
-      
+
       <!-- table header -->
       <thead>
         <tr>
@@ -48,33 +48,34 @@
       </tbody>
     </table>
 
-<% if @package.can_edit?( session[:login] ) %>
-  <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
-     :action => :add_file, :project => @project, :package => @package %>
-    <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
-  </p>
-<% end %>
- 
-<% if @revision %>
- <h3>Revision <%= @revision %></h3>
-<% else %>
- <h3>Current Revision</h3>
-<% end %>
+    <% if @package.can_edit?( session[:login] ) %>
+      <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
+          :action => :add_file, :project => @project, :package => @package %>
+        <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
+      </p>
+    <% end %>
+
+    <% if @revision && !(@revision == @current_rev)%>
+      <h3>Showing revision <%= @revision %> (current revision is <%=  @current_rev %>)</h3>
+    <% else %>
+      <h3>Showing current revision</h3>
+    <% end %>
     <div style="margin-left: 1em">
+      Last commit: <br/>
       <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
     </div>
 
-<!-- Simplified for now.
-    <p>
-    Source MD5: <%= text_field_tag :srcmd5, @files[0][:srcmd5], { :size => 33, :disabled => true } %> 
-    </p>
--->
+    <!-- Simplified for now.
+        <p>
+        Source MD5: <%= text_field_tag :srcmd5, @files[0][:srcmd5], { :size => 33, :disabled => true } %>
+        </p>
+    -->
   <% else %>
     <p><i>This package has no files yet</i></p>
- 
+
     <% if @package.can_edit?( session[:login] ) %>
       <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add File"),
-         :action => :add_file, :project => @project, :package => @package %>
+          :action => :add_file, :project => @project, :package => @package %>
         <%= link_to 'Add File', :action => :add_file, :project => @project, :package => @package %>
       </p>
     <% end %>

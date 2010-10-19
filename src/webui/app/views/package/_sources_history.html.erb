@@ -2,29 +2,30 @@
 #   currentRevision: current selected revision by the user
 -%>
 
-  <%= hidden_field_tag(:history_browser_revision, @browserrevision) %>
+<%= hidden_field_tag(:history_browser_revision, @browserrevision) %>
 
-  <% c = @visible_commits 
-     c = @maxrevision if @maxrevision <= @visible_commits
-  %>
+<% c = @visible_commits 
+c = @maxrevision if @maxrevision <= @visible_commits
+%>
 
-  <h1>The <%= @visible_commits %> last commits for <%= h @package %><%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %></h1>
+<h2>Commit history for <%= h @package %><%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %></h2>
 
-  <% if @maxrevision > @browserrevision %>
-    <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>
+<% if @maxrevision > @browserrevision %>
+  <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>
+<% end %>
+
+<div id="historyTable" style="margin-left: 1em">
+  <% c.times do |i| %>
+    <div id="commit_item_<%=(@browserrevision - i)%>" style="margin: 0.2em">
+      <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i) } %>
+      <%= link_to image_tag( 'icons/folder_go.png'), :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i) %>
+      <%= link_to "Show sources of this revision",
+        :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i) %>
+    </div>
   <% end %>
+</div>
 
-  <div id="historyTable" style="margin-left: 1em">
-    <% c.times do |i| %>
-      <div id="commit_item_<%=(@browserrevision - i)%>" style="margin: 0.2em">
-        <%= render :partial => 'commit_item', :locals => {:rev => (@browserrevision - i) } %>
-	<%= link_to image_tag( 'icons/folder_go.png'), :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i) %> 
-        <%= link_to "Go to sources",
-              :controller => 'package', :action  => 'files', :project => @project, :package => @package, :rev => (@browserrevision - i) %> 
-      </div>
-    <% end %>
-  </div>
-
+<p>
   <% if @maxrevision > @visible_commits %>
     <%= button_to_function 'Go Down', 'slide_history_down()', :id => "go_down_button" %>
   <% end %>
@@ -32,5 +33,6 @@
   <% if @maxrevision > @visible_commits %>
     <%= link_to 'Show all commits', :controller => 'package', :action  => 'source_history', :project => @project, :package => @package, :showall => 1 %>
   <% end %>
+</p>
 
 
