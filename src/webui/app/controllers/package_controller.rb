@@ -610,7 +610,7 @@ class PackageController < ApplicationController
     id = params[:id].gsub( %r{^service_}, '' )
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services
-      flash[:error] = "ERROR: Service \##{id} not found"
+      flash[:error] = "Service \##{id} not found"
       redirect_to :action => :files, :project => @project, :package => @package 
       return
     end
