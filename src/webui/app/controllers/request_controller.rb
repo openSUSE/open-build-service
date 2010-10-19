@@ -122,9 +122,7 @@ class RequestController < ApplicationController
 
 
   def changerequest
-    if params[:id]
-      @therequest = find_cached(BsRequest, params[:id] )
-    end
+    @therequest = find_cached(BsRequest, params[:id] ) if params[:id]
     unless @therequest
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_to :action => :index and return
@@ -163,9 +161,7 @@ class RequestController < ApplicationController
     end
 
     change_request(changestate, params)
-
     Directory.free_cache( :project => @therequest.action.target.project, :package => @therequest.action.target.value('package') )
-
     redirect_to :action => :show, :id => params[:id]
   end
 

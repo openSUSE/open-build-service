@@ -11,7 +11,7 @@
           <% Service.available.each do |service| %>
             <% object_id = "new_service_#{service[:name]}" %>
             <div class="service" id="<%= object_id %>" onclick="window.location = '<%= url_for :action => :add_or_move_service, :id => object_id, :position => -1, :package => @package, :project => @project %>'" >
-              <%= service[:summary] %>
+              <a name="<%= service[:name] %>"><%= service[:summary] %></a>
               <div style="color: #999; font-size: 8pt">
                  <%= service[:name] %>
               </div>
