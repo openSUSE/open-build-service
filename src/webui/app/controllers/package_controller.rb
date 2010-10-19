@@ -121,11 +121,9 @@ class PackageController < ApplicationController
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
     @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
-    if params.has_key? :expand
-      @expand = begin Integer(params[:expand]) rescue 1 end
-    else
-      @expand = 1
-    end
+    @current_rev = Package.current_rev(@project, @package.name)
+    @expand = 1
+    @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     set_file_details
   end
 

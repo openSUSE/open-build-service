@@ -1,4 +1,6 @@
-
+<% if @services || @package.can_edit?( session[:login] )%>
+<h3>Source Services</h3>
+<% end %>
 
 <% if @package.can_edit?( session[:login] ) %>
   <% if @services %>
@@ -13,7 +15,9 @@
       </span>
     </span>
   <% else %>
-    <p><%= link_to_remote '<i>Add a service for source processing.</i>', :url => { :action => :add_service, :project => @project, :package => @package} %></p>
+    <p>
+    <%= link_to_remote image_tag('icons/cog_add.png'), :url => { :action => :add_service, :project => @project, :package => @package} %>
+    <%= link_to_remote '<i>Add a service for source processing</i>', :url => { :action => :add_service, :project => @project, :package => @package} %></p>
   <% end %>
 <% end %>
 
