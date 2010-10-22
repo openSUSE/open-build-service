@@ -56,7 +56,19 @@ Option 1: Only use the webui
 ----------------------------
 
 If you want to work only on the Rails web frontend (webui) or running your own
-webui instance, there is no need to have an own backend server running.
+webui instance, there is no need to have an own backend server running. It is
+sufficient to start the webui with its default values. For that to work you
+have to change into its subdirectory and create the initial config like this:
+
+ $ cd src/webui
+ $ cp config/database.yml.example config/database.yml
+
+Afterwards you can simply start the webui like this:
+
+ $ ./scripts/server
+
+Open up your favorite browser and enter the address http://127.0.0.1:3000/
+and you should see your own Build Service webui instance.
 
 
 Option 2: Use the webui and api
