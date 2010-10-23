@@ -473,8 +473,8 @@ class RequestController < ApplicationController
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
 
     # do not allow direct switches from accept to decline or vice versa or double actions
-    if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded"
-       if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded"
+    if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded" or params[:newstate] == "revoked"
+       if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded" or req.state.name == "revoked"
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "set state to #{params[:newstate]} from accepted, superseded or declined is not allowed."
           return
