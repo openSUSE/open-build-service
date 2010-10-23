@@ -1,5 +1,3 @@
-require 'gruff'
-
 class MonitorController < ApplicationController
 
   skip_before_filter :check_user, :only => [ :plothistory ]
