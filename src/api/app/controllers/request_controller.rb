@@ -472,14 +472,17 @@ class RequestController < ApplicationController
     end
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
 
-    # do not allow direct switches from accept to decline or vice versa or double actions
-    if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded" or params[:newstate] == "revoked"
-       if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded" or req.state.name == "revoked"
+    # do not allow direct switches from a final state to another one to avoid races and double actions.
+    # request needs to get reopened first.
+    finalStates = [ "accepted", "declined", "superseded", "revoked" ]
+    if finalStates.include? params[:newstate]
+       if finalStates.include? req.state.name
           render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "set state to #{params[:newstate]} from accepted, superseded or declined is not allowed."
+            :message => "set state to #{params[:newstate]} from a final state is not allowed."
           return
        end
     end
+
     # Do not accept to skip the review, except force argument is given
     if params[:newstate] == "accepted"
        if params[:cmd] == "changestate" and req.state.name == "review" and not params[:force]
