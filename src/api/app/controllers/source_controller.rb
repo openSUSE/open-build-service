@@ -130,17 +130,18 @@ class SourceController < ApplicationController
         end
       end
 
-      #destroy all packages
-      pro.db_packages.each do |pack|
-        DbPackage.transaction do
-          logger.info "destroying package #{pack.name}"
-          pack.destroy
-        end
-      end
-
       DbProject.transaction do
-        logger.info "destroying project #{pro.name}"
+        #destroy all packages, should get moved to db_project actually
+        pro.db_packages.each do |pack|
+          DbPackage.transaction do
+            logger.info "destroying package object #{pack.name}"
+            pack.destroy
+          end
+        end
+
+        logger.info "destroying project object #{pro.name}"
         pro.destroy
+
         logger.debug "delete request to backend: /source/#{pro.name}"
         Suse::Backend.delete "/source/#{pro.name}"
       end
