@@ -18,12 +18,11 @@ RUNUSER="nobody"
 # prepare unique FS layer
 MOUNTDIR="$MOUNTDIR/$$"
 mkdir -p "$MOUNTDIR" || exit 1
+
 mount --bind "$FSDIR" "$MOUNTDIR" || exit 1
 
-mkdir -p "$MOUNTDIR$INNEROUTDIR" || exit 1
-mount -t tmpfs /dev/tmp "$MOUNTDIR$INNEROUTDIR" || exit 1
-mkdir -p "$MOUNTDIR/$INNEROUTDIR" "$MOUNTDIR/$INNERSRCDIR" || exit 1
-chown $RUNUSER "$MOUNTDIR/$INNEROUTDIR"
+mkdir -p "$MOUNTDIR/$INNERSRCDIR" || exit 1
+chown -R $RUNUSER "$MOUNTDIR/$INNERSRCDIR" .
 
 # copy sources inside lxc root
 #cp -a * "$MOUNTDIR/$INNERSRCDIR/" || exit 1
@@ -52,6 +51,14 @@ while [ $# -gt 0 ]; do
   fi
   shift
 done
+
+if [ -z "$OUTDIR" ] ; then
+  echo "ERROR: no outdir given"
+  exit 1
+fi
+mkdir -p "$MOUNTDIR$INNEROUTDIR" || exit 1
+mount --bind "$OUTDIR" "$MOUNTDIR$INNEROUTDIR" || exit 1
+chown -R $RUNUSER "$MOUNTDIR/$INNEROUTDIR"
 
 #if [ "$WITH_NET" == "1" ] ; then
 #  echo "rcnscd start" >> "$MOUNTDIR/$INNERSCRIPT"
@@ -87,12 +94,12 @@ lxc-destroy -n obs.service.jail.$$
 
 # move out the result
 if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f | wc -l` -gt 0 ]; then
-  mv "$MOUNTDIR/$INNEROUTDIR"/* "$OUTDIR/"
-  for i in * ; do
-    if [ ! -f "$MOUNTDIR/$INNEROUTDIR/$i" ]; then
+  for i in _service:* ; do
+    if [ ! -f "$MOUNTDIR/$INNERSRCDIR/$i" ]; then
       rm -f "$i"
     fi
   done
+  mv "$MOUNTDIR/$INNEROUTDIR"/* "$OUTDIR"/
 fi
 
 # cleanup
