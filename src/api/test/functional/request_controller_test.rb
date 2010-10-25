@@ -262,6 +262,14 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+
+    # reopen with new, but state should become review due to open review
+    get "/request/#{id}"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
   end
 
   def test_all_action_types

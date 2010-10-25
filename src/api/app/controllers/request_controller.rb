@@ -470,16 +470,29 @@ class RequestController < ApplicationController
       node.data.attributes['type'] = 'submit'
       req.delete_attribute('type')
     end
-    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
+
+    # We do not support to revert changes from accepted requests (yet)
+    if req.state.name == "accepted"
+       render_error :status => 403, :errorcode => "post_request_no_permission",
+         :message => "change state from an accepted state is not allowed."
+       return
+    end
 
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
     finalStates = [ "accepted", "declined", "superseded", "revoked" ]
-    if finalStates.include? params[:newstate]
-       if finalStates.include? req.state.name
+    if finalStates.include? req.state.name
+       if finalStates.include? params[:newstate]
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "set state to #{params[:newstate]} from a final state is not allowed."
           return
+       end
+    end
+
+    # enforce state to "review" if going to "new", but review tasks are open
+    if params[:newstate] == "new" and req.has_element? 'review'
+       req.each_review do |r|
+         params[:newstate] = "review" if r.data.attributes['state'] == "new"
        end
     end
 
@@ -525,6 +538,12 @@ class RequestController < ApplicationController
       permission_granted = true
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
+      permission_granted = true
+    elsif (req.state.name == "revoked" or req.state.name == "declined") and (params[:newstate] == "new" or params[:newstate] == "review") and req.creator == @http_user.login
+      # request creator can reopen a request which was declined or revoked
+      permission_granted = true
+    elsif req.state.name == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == @http_user.login
+      # people who declined a request shall also be able to reopen it
       permission_granted = true
     end
 
@@ -631,6 +650,7 @@ class RequestController < ApplicationController
     end
 
     # All commands are process by the backend. Just the request accept is controlled by the api.
+    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
     unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
       pass_to_backend path
       return
