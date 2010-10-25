@@ -12,43 +12,39 @@
       <div id="local-actions-items">
         <a href="#" class="dropdown-menu"><strong>Actions</strong></a>
         <ul class="dropdown-menu-content">
-          <% if @project.bugowner and defined? BUGZILLA_HOST -%>
+
+          <% if @bugowner_mail and defined? BUGZILLA_HOST %>
             <li>
-              <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}: Bug") -%>
-              <%= link_to 'Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}: Bug") -%>
+              <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
+              <%= link_to 'Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
             </li>
-          <% end -%>
-          <% if @project.can_edit?( session[:login] ) %>
+          <% end %>
+
+          <% if @package.can_edit?( session[:login] ) %>
             <li>
               <%= link_to image_tag('icons/package_delete.png', :title => 'Delete Package'), { :action => :remove, :package => @package, :project => @project },
-                                 {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+                {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
               <%= link_to 'Delete Package', { :action => :remove, :package => @package, :project => @project },
-                                 {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+                {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
             </li>
             <li>
               <%= link_to image_tag('icons/package_edit.png', :title => "Edit Package Information"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
               <%= link_to "Edit Package Information", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
             </li>
-            <% if @package.can_edit?( session[:login] ) %>
-              <li>
-                <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Submit Package', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
-              </li>
-            <% end %>
-            <% if session[:login] %>
-              <li>
-                <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch Package'), {:action => :branch, :project => @project, :package => @package},
-                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
-                <%= link_to 'Branch Package', {:action => :branch, :project => @project, :package => @package},
-                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
-              </li>
-              <% if @bugowner_mail and defined? BUGZILLA_HOST %>
-                <li>
-                  <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
-                  <%= link_to 'Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
-                </li>
-              <% end %>
-            <% end %>
+            <li>
+              <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+              <%= link_to_remote 'Submit Package', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+            </li>
+          <% end %>
+
+          <% if session[:login] %>
+            <li>
+              <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch Package'), {:action => :branch, :project => @project, :package => @package},
+                {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+              <%= link_to 'Branch Package', {:action => :branch, :project => @project, :package => @package},
+                {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+            </li>
+
           <% end %>
         </ul>
       </div>
@@ -92,10 +88,10 @@
       <% unless @current_requests.blank? %>
         <p>
           <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
-	  <% if @current_requests.size == 1 -%>
-             1 open <%= link_to "request", :action => :show, :controller => :request, :id => @current_requests[0].value(:id) %>
-	  <% else -%>
-   	     <%= @current_requests.size %> open <%= link_to "requests", :action => :list_requests, :project => @project, :package => @package %>	
+          <% if @current_requests.size == 1 -%>
+            1 open <%= link_to "request", :action => :show, :controller => :request, :id => @current_requests[0].value(:id) %>
+          <% else -%>
+            <%= @current_requests.size %> open <%= link_to "requests", :action => :list_requests, :project => @project, :package => @package %>
           <% end -%>
         </p>
       <% end %>
