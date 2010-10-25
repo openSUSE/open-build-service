@@ -721,11 +721,11 @@ class SourceController < ApplicationController
           # FIXME2.1: or to be discussed. This is currently a regression. It was wanted so far that it is still
           #           possible to build against a path, where binary download was not possible.
           # ACL(project_meta): project link to project with binarydownload gives permisson denied
-          if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
-            render_error :status => 403, :errorcode => "binary_download_no_permission",
-            :message => "No permission for a repository path to project #{tproject_name}"
-            return
-          end
+#          if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
+#            render_error :status => 403, :errorcode => "binary_download_no_permission",
+#            :message => "No permission for a repository path to project #{tproject_name}"
+#            return
+#          end
 
           # ACL(project_meta): check that user does not link an unprotected project to a protected project
           if @project
