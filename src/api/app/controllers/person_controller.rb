@@ -3,6 +3,8 @@
 class PersonController < ApplicationController
 
   def userinfo
+    valid_http_methods :get, :put
+
     if !@http_user
       logger.debug "No user logged in, permission to userinfo denied"
       @errorcode = 401
@@ -73,6 +75,8 @@ class PersonController < ApplicationController
   end
 
   def grouplist
+    valid_http_methods :get
+
     if !@http_user
       logger.debug "No user logged in, permission to grouplist denied"
       @summary = "No user logged in, permission to grouplist denied"
@@ -90,6 +94,8 @@ class PersonController < ApplicationController
   end
 
   def register
+    valid_http_methods :post
+
     if defined?( LDAP_MODE ) && LDAP_MODE == :on
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
@@ -190,8 +196,11 @@ class PersonController < ApplicationController
     end
     true
   end
+  private :update_watchlist
 
   def change_my_password
+    valid_http_methods :post
+
     if !@http_user
       logger.debug "No user logged in, permission to changing password denied"
       @errorcode = 401
@@ -211,7 +220,7 @@ class PersonController < ApplicationController
     end
 
     login = URI.unescape( params[:login] )
-    newpassword = Base64.decode64(URI.unescape( params[:password]))
+    newpassword = Base64.decode64(URI.unescape(params[:password]))
 
     #change password to LDAP if LDAP is enabled    
     if defined?( LDAP_MODE ) && LDAP_MODE == :on
