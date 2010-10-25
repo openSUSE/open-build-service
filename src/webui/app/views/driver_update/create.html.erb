@@ -73,37 +73,35 @@
   return false;
   });
 
-  create_package_line = function() {
-  var package = $("#target_package").val();
-  var key = ('pack_' + package).replace(/[:\.]/g,'_');
+  create_package_line = function(key, package) {
   var html = '<div id="' + key +'"><p><%= image_tag("package.png", :title => "Package") %> ' + package;
       var html = html + '<input type="hidden" name="packages[]" value="' + package + '" />';
       var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>';
   return html;
   }
 
-  create_binary_packages_line = function() {
+  create_binary_packages_line = function(key) {
   var package = $("#target_package").val();
   var project = get_package_project();
   var repo = get_package_repo();
+  $("#" + key).append( '<div id="' + key + '_binaries" style="margin-left: 15px;"><p><%= image_tag("ajax-loader.gif", :title => "Loading") %> Loading binary packages for <i>' + package + '</i></p></div>' );
 
-  $.ajax({ url: '<%= url_for :controller => :package, :action => :binaries %>?package=' + package + '&project=' + project + '&repository=' + repo,
+  $.ajax({ url: '<%= url_for :controller => :driver_update, :action => :binaries %>?package=' + package +
+    '&project=' + project + '&repository=' + repo,
     data: {},
     success: function(data){
-      //alert(data);
+      $("#" + key + '_binaries').html(data);
     }
   });
-
-  var key = ('pack_' + package).replace(/[:\.]/g,'_');
-  var html = '';
-  return html;
   }
 
   $("#add_package").click(function () {
-  if ($("#target_package").val() != '') {
-  $("#no_inst_packs").hide();
-  $("#inst_packs").append( create_package_line() );
-  $("#inst_packs").append( create_binary_packages_line() );
+  var package = $("#target_package").val();
+  var key = ('pack_' + package).replace(/[:\.]/g,'_');
+  if (package != '' && $("#" + key).length == 0 ) {
+    $("#no_inst_packs").hide();
+    $("#inst_packs").append( create_package_line(key, package) );
+    create_binary_packages_line(key);
   }
   return false;
   });
