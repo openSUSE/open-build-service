@@ -157,7 +157,7 @@ sub runservice {
       'data'      => \&BSHTTP::cpio_sender,
       'cpiofiles' => \@send,
       'directory' => $odir,
-      'timeout'   => 60,
+      'timeout'   => 3600,
       'withmd5'   => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
     }, undef);
@@ -186,8 +186,8 @@ sub runservice {
   } else {
     $error ||= 'error';
     $error =~ s/\n$//s;
-    $error = "service daemon error: $error";
-    writestr("$odir/_service_error", $error);
+    $error = "service daemon error: $error\n";
+    writestr("$odir/_service_error", undef, $error);
     $files->{'_service_error'} = addfile($projid, $packid, "$odir/_service_error", '_service_error');
   }
   addrev($projid, $packid, $files, "_service", "generated via source service", undef);
