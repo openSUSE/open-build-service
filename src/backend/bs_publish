@@ -192,6 +192,7 @@ sub db_sync {
   };
   if ($@) {
     warn($@);
+    mkdir_p($1) if $extrepodb =~ /^(.*)\//;
     Storable::nstore(\@db_sync, "$extrepodb.sync.new");
     rename("$extrepodb.sync.new", "$extrepodb.sync") || die("rename $extrepodb.sync.new $extrepodb.sync: $!\n");
   } else {
