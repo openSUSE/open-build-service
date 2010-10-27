@@ -99,7 +99,6 @@ if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f | wc -l` -gt 0 ]; then
       rm -f "$i"
     fi
   done
-  mv "$MOUNTDIR/$INNEROUTDIR"/* "$OUTDIR"/
 fi
 
 # cleanup
