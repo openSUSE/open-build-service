@@ -141,7 +141,12 @@ class ProjectController < ApplicationController
   protected :load_packages_mainpage
 
   def show
-    @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s if @project.bugowner
+    @bugowners_mail = []
+    @project.bugowners.each do |bugowner|
+      mail = find_cached(Person, bugowner).email.to_s
+      @bugowners_mail.push mail if mail
+    end
+
     load_packages_mainpage
 
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?

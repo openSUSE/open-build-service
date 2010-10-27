@@ -33,10 +33,17 @@ class PackageController < ApplicationController
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
-    if @package.bugowner
-      @bugowner_mail = find_cached(Person, @package.bugowner ).email.to_s
-    elsif @project.bugowner
-      @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s
+    @bugowners_mail = []
+    if @package.bugowners
+      @package.bugowners.each do |bugowner|
+        mail = find_cached(Person, bugowner).email.to_s
+        @bugowners_mail.push mail if mail
+      end
+    elsif @project.bugowners
+      @project.bugowners.each do |bugowner|
+        mail = find_cached(Person, bugowner).email.to_s
+        @bugowners_mail.push mail if mail
+      end
     end
     fill_status_cache unless @buildresult.blank?
     linking_packages

@@ -124,11 +124,14 @@ module ApplicationHelper
     return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
   end
 
-  def bugzilla_url(email, desc="")
-    URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{email}&short_desc=#{desc}")
+  def bugzilla_url(email_list="", desc="")
+    assignee = email_list.first if email_list
+    if email_list.length > 1
+      cc = ("&cc=" + email_list[1..-1].join("&cc=")) if email_list
+    end
+    URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
-  
   def hinted_text_field_tag(name, value = nil, hint = "Click and enter text", options={})
     value = value.nil? ? hint : value
     text_field_tag name, value, {:onfocus => "if($(this).value == '#{hint}'){$(this).value = ''}",

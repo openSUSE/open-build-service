@@ -13,10 +13,10 @@
         <a href="#" class="dropdown-menu"><strong>Actions</strong></a>
         <ul class="dropdown-menu-content">
 
-          <% if @bugowner_mail and defined? BUGZILLA_HOST %>
+          <% if @bugowners_mail and defined? BUGZILLA_HOST %>
             <li>
-              <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
-              <%= link_to 'Report Bug', bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
+              <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+              <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
             </li>
           <% end %>
 

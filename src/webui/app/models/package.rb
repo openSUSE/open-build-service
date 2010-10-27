@@ -75,7 +75,6 @@ class Package < ActiveXML::Base
     data.find(xpath).each {|e| e.remove! }
   end
 
-
   def set_url( new_url )
     logger.debug "set url #{new_url} for package #{self.name} (project #{self.project})"
     add_element 'url' unless has_element? :url
@@ -83,17 +82,16 @@ class Package < ActiveXML::Base
     save
   end
 
-
   def remove_url
     logger.debug "remove url from package #{self.name} (project #{self.project})"
     data.find('//url').each { |e| e.remove! }
     save
   end
 
-  def bugowner
+  def bugowners
     b = all_persons("bugowner")
-    return b.first if b
-    return nil
+    return nil if b.empty?
+    return b
   end
 
   def linking_packages
