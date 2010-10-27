@@ -137,9 +137,8 @@ sub server {
 
   exit 0 if $args && @$args && $args->[0] eq '--test';
 
-  my $user = $BSConfig::bsuser;
-  my $group = $BSConfig::bsgroup;
-  BSUtil::mkdir_p_chown($rundir, $user, $group) || die("unable to create $BSConfig::bsdir with owner $user:$group\n");
+  my $bsdir = $BSConfig::bsdir || "/srv/obs";
+  BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
     $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
@@ -184,6 +183,7 @@ sub server {
       die("AJAX: died\n");
     }
   }
+  mkdir_p($rundir);
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
