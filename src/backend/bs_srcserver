@@ -1482,7 +1482,9 @@ sub identical {
 
 sub findprojects {
   local *D;
-  mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
+  my $user = $BSConfig::bsuser;
+  my $group = $BSConfig::bsgroup;
+  mkdir_p_chown($projectsdir, $user, $group) || die("unable to create $projectsdir with owner $user:$group\n");
   opendir(D, $projectsdir) || die("$projectsdir: $!\n");
   my @projids = grep {s/\.xml$//} readdir(D);
   closedir(D);
