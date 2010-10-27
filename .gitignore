@@ -44,6 +44,7 @@
 /src/webui/app/views/maintenance/qa_*
 /src/webui/app/views/maintenance/released_*
 /src/webui/config/database.yml
+/src/webui/config/environments/development.*.rb
 /src/webui/config/repositories.rb
 /src/webui/config/secret.key
 /src/webui/coverage
