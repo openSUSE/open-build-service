@@ -40,6 +40,7 @@ BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 use Symbol;
 
 use BSHTTP;
+use BSUtil;
 
 use strict;
 
@@ -50,18 +51,6 @@ our $peerport;
 our $slot;
 our $forwardedfor;
 our $replying;	# we're sending the answer (2 == in chunked mode)
-
-# fork that retries when there are too many processes
-sub xfork {
-  my $pid;
-  while (1) {
-    $pid = fork();
-    last if defined $pid;
-    die("fork: $!\n") if $! != POSIX::EAGAIN;
-    sleep(5);
-  }
-  return $pid;
-}
 
 sub deamonize {
   my (@args) = @_;
@@ -116,6 +105,7 @@ sub serveropen_unix {
   BSUtil::drop_privs_to($user, $group);
 
   # we need a lock for exclusive socket access
+  mkdir_p($1) if $filename =~ /^(.*)\//;
   open(LCK, '>', "$filename.lock") || die("$filename.lock: $!\n");
   flock(LCK, LOCK_EX | LOCK_NB) || die("$filename: already in use\n");
   socket(MS, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
