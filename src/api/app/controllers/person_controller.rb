@@ -231,14 +231,20 @@ class PersonController < ApplicationController
     
     #change password to LDAP if LDAP is enabled    
     if defined?( LDAP_MODE ) && LDAP_MODE == :on
-      require 'base64'
-      begin
-        logger.debug( "Using LDAP to change password for #{login}" )
-        result = User.change_password_ldap(login, newpassword)
-      rescue Exception
-        logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."       end
-      if result
-        render_error :status => 404, :errorcode => 'change_passwd_failure', :message => "Failed to change password to ldap: #{result}"
+      if defined?( LDAP_SSL ) && LDAP_SSL == :on
+        require 'base64'
+        begin
+          logger.debug( "Using LDAP to change password for #{login}" )
+          result = User.change_password_ldap(login, newpassword)
+        rescue Exception
+          logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+        end
+        if result
+          render_error :status => 404, :errorcode => 'change_passwd_failure', :message => "Failed to change password to ldap: #{result}"
+          return
+        end
+      else
+        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with LDAP_SSL enabling."
         return
       end
     end
