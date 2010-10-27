@@ -1382,6 +1382,7 @@ sub get_projpacks {
         get_projpacks();
         return;
       }
+      die("could not get project/package information, aborting due to testmode\n") if $testmode;
       printf("could not get project/package information, sleeping 1 minute\n");
       sleep(60);
       print "retrying...\n";
