@@ -131,6 +131,7 @@ ActiveXML::Base.config do |conf|
 
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
+    map.connect :userchangepasswd, "rest:///person/changepasswd"
 
     map.connect :architecture, "rest:///architecture"
 
