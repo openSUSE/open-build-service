@@ -27,15 +27,6 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.2-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
- <distribution vendor="openSUSE" version="11.1" id="opensuse-11.1">
-  <name>openSUSE 11.1</name>
-  <project>openSUSE.org:openSUSE:11.1</project>
-  <reponame>openSUSE_11.1</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.1-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.1-16.png"/>
-  <link>http://www.opensuse.org/</link>
- </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11">
   <name>SUSE SLE-11</name>
   <project>openSUSE.org:SUSE:SLE-11</project>
@@ -160,15 +151,6 @@
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-9.10-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-9.10-16.png"/>
-  <link>http://www.ubuntu.com/</link>
- </distribution>
- <distribution vendor="Ubuntu" version="9.04" id="ubuntu-9.04">
-  <name>Ubuntu 9.04</name>
-  <project>openSUSE.org:Ubuntu:9.04</project>
-  <reponame>xUbuntu_9.04</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-9.04-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-9.04-16.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="8.04" id="ubuntu-8.04">
