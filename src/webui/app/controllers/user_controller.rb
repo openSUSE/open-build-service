@@ -100,7 +100,7 @@ class UserController < ApplicationController
     unreg_person_opts[:password] = params[:password_first]    if params[:password_first]
 
     person = Unregisteredperson.new(unreg_person_opts)
-    person.save
+    person.save({:create => true})
 
     session[:login] = login
     session[:passwd] = unreg_person_opts[:password]
