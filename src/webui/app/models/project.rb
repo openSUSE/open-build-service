@@ -216,10 +216,10 @@ class Project < ActiveXML::Base
     return result
   end
 
-  def bugowner
+  def bugowners
     b = all_persons("bugowner")
-    return b.first if b
-    return nil
+    return nil if b.empty?
+    return b
   end
 
   def all_persons( role )
