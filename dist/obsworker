@@ -21,6 +21,7 @@
 . /etc/rc.status
 
 . /etc/sysconfig/obs-worker
+. /etc/sysconfig/proxy
 
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
