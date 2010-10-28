@@ -142,9 +142,11 @@ class ProjectController < ApplicationController
 
   def show
     @bugowners_mail = []
-    @project.bugowners.each do |bugowner|
-      mail = find_cached(Person, bugowner).email.to_s
-      @bugowners_mail.push mail if mail
+    if @project.bugowners
+      @project.bugowners.each do |bugowner|
+        mail = find_cached(Person, bugowner).email.to_s
+        @bugowners_mail.push mail if mail
+      end
     end
 
     load_packages_mainpage
