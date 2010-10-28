@@ -111,6 +111,7 @@ class UserController < ApplicationController
   end
 
   def change_password
+    valid_http_methods(:post)
     # check the valid of the params  
     if not params[:current_password] == session[:passwd]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."
@@ -127,21 +128,26 @@ class UserController < ApplicationController
       return
     end
 
-    login = session[:login]
-    require 'base64'     
-    new_password = Base64.encode64(params[:new_password])
+    require 'base64' 
+    new_password = Base64.encode64(params[:new_password]).chomp    
+    changepwd = Userchangepasswd.new(:login => session[:login], :password => new_password)
+    
     begin
-      path = "/person/#{login}/passwd/#{new_password}"
-      result = frontend.transport.direct_http( URI(path) )
+      if changepwd.save(:create => true)
+        session[:passwd] = params[:new_password]
+        flash[:success] = "Your password has been changed successfully."
+        redirect_to :controller => :home, :action => :index
+        return
+      else
+        flash[:error] = "Failed to change your password."
+      end
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      redirect_to :controller => :user, :action => :change_my_password
-      return
     end
-    session[:passwd] = params[:new_password]
-    flash[:success] = "Your password has been changed successfully."
-    redirect_to :controller => :home, :action => :index
+
+    redirect_to :controller => :user, :action => :change_my_password
+
   end 
 
 end
