@@ -200,6 +200,13 @@ class PersonController < ApplicationController
 
   def change_my_password
     valid_http_methods :post
+    
+    xml = REXML::Document.new( request.raw_post )
+
+    logger.debug( "changepasswd XML: #{request.raw_post}" )
+
+    login = xml.elements["/userchangepasswd/login"].text
+    password = xml.elements["/userchangepasswd/password"].text
 
     if !@http_user
       logger.debug "No user logged in, permission to changing password denied"
@@ -207,21 +214,21 @@ class PersonController < ApplicationController
       @summary = "No user logged in, permission to changing password denied"
       render :template => 'error', :status => 401
     else
-      if not params[:login] or not params[:password]
+      if not login or not password
         render_error :status => 404, :errorcode => 'failed to change password',
               :message => "Failed to change password: missing parameter"
         return
       end
-      unless @http_user.is_admin? or params[:login] == @http_user.login
+      unless @http_user.is_admin? or login == @http_user.login
         render_error :status => 403, :errorcode => 'failed to change password',
               :message => "No sufficiend permissions to change password for others"
         return
       end
     end
 
-    login = URI.unescape( params[:login] )
-    newpassword = Base64.decode64(URI.unescape(params[:password]))
-
+    login = URI.unescape(login)
+    newpassword = Base64.decode64(URI.unescape(password))
+    
     #change password to LDAP if LDAP is enabled    
     if defined?( LDAP_MODE ) && LDAP_MODE == :on
       require 'base64'
@@ -229,10 +236,9 @@ class PersonController < ApplicationController
         logger.debug( "Using LDAP to change password for #{login}" )
         result = User.change_password_ldap(login, newpassword)
       rescue Exception
-          logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
-      end
+        logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."       end
       if result
-        render_error :status => 404, :errorcode => 'failed to change password to ldap', :message => "Failed to change password to ldap: #{result}"
+        render_error :status => 404, :errorcode => 'change_passwd_failure', :message => "Failed to change password to ldap: #{result}"
         return
       end
     end

@@ -21,9 +21,9 @@ ActionController::Routing::Routes.draw do |map|
   # FIXME: this is no clean namespace, a person "register" could exist ...
   #        suggested solution is POST person/:login?cmd=register
   map.connect 'person/register', :controller => 'person', :action => 'register'
+  map.connect 'person/changepasswd', :controller => 'person', :action => 'change_my_password'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
   map.connect 'person/:login/group', :controller => 'person', :action => 'grouplist', :login => /[^\/]*/
-  map.connect 'person/:login/passwd/:password', :controller => 'person', :action => 'change_my_password', :login => /[^\/]*/,:password => /[^\/]*/
 
 
   ### /group
