@@ -1,0 +1,28 @@
+#
+# openSUSE Build Service 2.1.1
+#
+
+Updaters from OBS 2.1.0 can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Special thanks go to Vivian Zhang from Intel and David Greaves for their contributions
+to this release.
+
+Changes:
+========
+
+* Default build target list got updated
+* Support for filtering user base when using LDAP database for authentification
+* LDAP support enforces the usage of SSL for authentification now for security reasons
+
+Bugfixes:
+=========
+
+* api got fixes which allowed a cross side scripting attack to change a users password,
+  if he is logged in and clicked on a crafted URL elsewhere. (Affected only OBS 2.1.0)
+* api handles request state "revoked" also as final state now
+* webui received multiple layout fixes and improvements esp. when handling sources.
+* webui is CC'ng now all bugowners if multiple are defined (#513167)
+* source service daemon has been fixed to support long running processes
+* worker code download is honoring proxy settings now (#630994)
