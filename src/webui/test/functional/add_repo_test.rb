@@ -22,13 +22,14 @@ class AddRepoTest < ActionController::IntegrationTest
 
      click_link 'Add'
      assert_contain("Add Repositories to Project home:Iggy")
-     assert_contain("openSUSE Factory")
+     # requires javascript interaction
+     #assert_contain("openSUSE Factory")
      
      assert_raise(Webrat::DisabledFieldError) do
        click_button "Add selected repositories"
      end
-     check 'repo_openSUSE_Factory'
      # requires javascript interaction
+     #check 'repo_openSUSE_Factory'
      #click_button "Add selected repositories"
      #assert_response :success
    end
