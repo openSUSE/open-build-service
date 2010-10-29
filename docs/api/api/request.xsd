@@ -133,6 +133,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="sourceupdate" minOccurs="0" maxOccurs="1" />
+        <xs:element name="updatelink"   minOccurs="0" maxOccurs="1" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

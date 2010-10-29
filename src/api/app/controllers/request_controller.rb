@@ -692,6 +692,10 @@ class RequestController < ApplicationController
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
+          unless action.has_element? 'options' and action.options.has_element? 'updatelink' and action.options.updatelink == "true"
+            cp_params[:expand] = 1
+            cp_params[:keeplink] = 1
+          end
 
           #create package unless it exists already
           target_project = DbProject.find_by_name(action.target.project)
@@ -719,7 +723,7 @@ class RequestController < ApplicationController
           end
 
           cp_path = "/source/#{action.target.project}/#{action.target.package}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :comment, :requestid, :dontupdatesource])
+          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource])
           Suse::Backend.post cp_path, nil
 
           # cleanup source project
