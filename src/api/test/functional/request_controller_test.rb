@@ -394,6 +394,7 @@ class RequestControllerTest < ActionController::IntegrationTest
               <source project='home:tom:branches:BaseDistro2:LinkedUpdateProject' package='pack2' rev='1' />
               <options>
                 <sourceupdate>cleanup</sourceupdate>
+                <updatelink>true</updatelink>
               </options>
             </action>
             <description/>

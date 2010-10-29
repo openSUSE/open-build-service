@@ -938,6 +938,7 @@ our $request = [
           [ 'options' =>
 		[],
 		'sourceupdate', # can be cleanup, update or noupdate
+		'updatelink',   # can be true or false
           ],
 	  [ 'acceptinfo' =>
 	        'rev',
