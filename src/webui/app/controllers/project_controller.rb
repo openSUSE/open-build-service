@@ -148,6 +148,7 @@ class ProjectController < ApplicationController
         @bugowners_mail.push mail if mail
       end
     end
+    @bugowners_mail = nil if @bugowners_mail.empty?
 
     load_packages_mainpage
 
