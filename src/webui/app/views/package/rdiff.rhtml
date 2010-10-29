@@ -23,7 +23,9 @@
 <% if params[:commit] %>
   <h2>Changes of commit <%=params[:commit]%></h2>
 <% else %>
+<!-- this is causing a test suite failure when pointing to remote projects.
   <h2>Diff between <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %> and <%=h @project.name + "/" + @package.name %></h2>
+-->
 <% end %>
 
 <% if @rdiff.empty? %>
