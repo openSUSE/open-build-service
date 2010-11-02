@@ -14,7 +14,7 @@
       <strong>Filter projects:</strong>
 
       <%= text_field_tag "searchtext", @filterstring -%>
-      <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%> exclude users home projects
+      <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%>Exclude user home projects
 
       <span style="float: right">
         <% if session[:login] %>
