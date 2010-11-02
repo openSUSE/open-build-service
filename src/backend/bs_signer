@@ -57,6 +57,183 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $maxchild = 4;
 
+
+sub readblk {
+  my ($fd, $blk, $num, $blksize) = @_;
+  $blksize ||= 2048;
+  sysseek($fd, $blk * $blksize, SEEK_SET) || die("sysseek: $!\n");
+  $num ||= 1;
+  $num *= $blksize;
+  my $ret = '';
+  (sysread($fd, $ret, $num) || 0) == $num || die("sysread: $!\n");
+  return $ret;
+}
+
+sub writeblk {
+  my ($fd, $blk, $cnt) = @_;
+  my $blksize = 2048;
+  sysseek($fd, $blk * $blksize, SEEK_SET) || die("sysseek: $!\n");
+  (syswrite($fd, $cnt) || 0) == length($cnt) || die("syswrite: $!\n");
+}
+
+sub signfilter {
+  my ($content, @signargs) = @_;
+  local (*RH, *WH);
+  local *P;
+  pipe(RH, WH) || die("pipe: $!\n");
+  my $pid;
+  $pid = open(P, '-|');
+  die("fork: $!\n") unless defined $pid;
+  if (!$pid) {
+    close WH;
+    open(STDIN, "<&RH");
+    exec('sign', '-d', @signargs);
+    die("sign: $!\n");
+  }
+  close RH;
+  print WH $content;
+  close WH;
+  my $ret = '';
+  $ret .= $_ while <P>;
+  close(P) || die("sign: $?\n");
+  return $ret;
+}
+
+sub readisodir {
+  my ($fd, $dirpos) = @_;
+
+  my $dirblk = readblk($fd, $dirpos);
+  my $dirlen = unpack('@10V', $dirblk);
+  die("bad directory len\n") if $dirlen & 0x7ff;
+  my $sp_bytes_skip = 0;
+  my @contents;
+  my $entryoff = 0;
+  while ($dirlen) {
+    if ($dirblk eq '' || unpack('C', $dirblk) == 0) {
+      $dirlen -= 0x800;
+      $dirblk = readblk($fd, ++$dirpos) if $dirlen;
+      $entryoff = 0;
+      next;
+    }
+    my ($l, $fpos, $flen, $f, $inter, $nl) = unpack('C@2V@10V@25Cv@32C', $dirblk);
+    die("bad dir entry\n") if $l > length($dirblk);
+    if ($f & 2) {
+      $dirblk = substr($dirblk, $l);
+      $entryoff += $l;
+      next;
+    }
+    die("associated file\n") if $f & 4;
+    die("interleaved file\n") if $inter;
+    die("bad dir entry\n") if !$nl || $nl + 33 > length($dirblk);
+    $nl++ unless $nl & 1;
+    my $e = substr($dirblk, $nl + 33, $l - $nl - 33);
+    if (length($e) >= 7 && substr($e, 0, 2) eq 'SP') {
+      ($sp_bytes_skip) = unpack('@6C', $e);
+    } else {
+      $e = substr($e, $sp_bytes_skip) if $sp_bytes_skip;
+    }
+    my ($ce_len, $ce_blk, $ce_off) = (0, 0, 0);
+    my $fname = '';
+    my $nmf = 0;
+    while ($e ne '') {
+      if (length($e) <= 2) {
+        last unless $ce_len;
+	$e = readblk($fd, $ce_blk);
+        $e = substr($e, $ce_off, $ce_len);
+        $ce_len = 0;
+	next;
+      }
+      if (substr($e, 0, 2) eq 'CE') {
+	($ce_blk, $ce_off, $ce_len) = unpack('@4V@12V@20V', $e);
+      } elsif (substr($e, 0, 2) eq 'NM') {
+	my $nml = (unpack('@2C', $e))[0] - 5;
+	$fname = '' unless $nmf & 1;
+	($nmf) = unpack('@4C', $e);
+        $fname .= substr($e, 5, $nml) if $nml > 0;
+      }
+      $e = substr($e, (unpack('@2C', $e))[0]);
+    }
+    push @contents, [$fname, $fpos, $flen, $dirpos, $entryoff];
+    $dirblk = substr($dirblk, $l);
+    $entryoff += $l;
+  }
+  return @contents;
+}
+
+sub signisofiles {
+  my ($fd, @signargs) = @_;
+
+  my $signed = 0;
+  my $vol = readblk($fd, 16);
+  die("primary volume descriptor missing\n") if substr($vol, 0, 6) ne "\001CD001";
+  my ($path_table_size, $path_table_pos) = unpack('@132V@140V', $vol);
+  my $path_table = readblk($fd, $path_table_pos * 2048, $path_table_size, 1);
+  while ($path_table ne '') {
+    my ($l, $dirpos) = unpack('C@2V', $path_table);
+    die("empty dir in path table\n") unless $l;
+    $path_table = substr($path_table, 8 + $l + ($l & 1));
+    my @c = readisodir($fd, $dirpos);
+    for my $e (@c) {
+      #print "$e->[0] $e->[1] $e->[2] $e->[3] $e->[4]\n";
+      if ($e->[0] =~ /^(.*).asc$/i && $e->[2] == 2048) {
+	my $n = $1;
+	my $signfile = readblk($fd, $e->[1]);
+	next if substr($signfile, 0, 8) ne "sIGnMe!\n";
+	my $len = hex(substr($signfile, 8, 8));
+	my $sum = hex(substr($signfile, 16, 8));
+	my @se = grep {$_->[0] =~ /^\Q$n\E$/i && $_->[2] == $len} @c;
+	die("don't know which file to sign: $e->[0]\n") unless @se == 1;
+	my $sf = readblk($fd, $se[0]->[1], ($len + 0x7ff) >> 11);
+	$sf = substr($sf, 0, $len);
+        die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
+	my $sig = signfilter($sf);
+	die("returned signature is too big\n") if length($sig) > 2048;
+	# replace old content
+	writeblk($fd, $e->[1], $sig . ("\0" x (2048 - length($sig))));
+	my $dirblk = readblk($fd, $e->[3]);
+	# patch in new content len
+	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($sig));
+	writeblk($fd, $e->[3], $dirblk);
+	$signed++;
+      }
+    }
+  }
+  return $signed;
+}
+
+sub retagmd5iso {
+  my ($fd) = @_;
+  my $blk = readblk($fd, 0, 17);
+  die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  my $tags = ';'.substr($blk, 0x8373, 0x200);
+  return unless $tags =~ /;md5sum=[0-9a-fA-F]{32}/;
+  print "updating md5sum tag\n";
+  substr($blk, 0x8373, 0x200) = ' ' x 0x200;
+  my $numblks = unpack("V", substr($blk, 0x8050, 4));
+  die("bad block number\n") if $numblks < 17;
+  my $md5 = Digest::MD5->new;
+  $md5->add($blk);
+  $numblks -= 17;
+  my $blkno = 16;
+  while ($numblks-- > 0) {
+    my $b = readblk($fd, ++$blkno);
+    $md5->add($b);
+  }
+  $md5 = $md5->hexdigest;
+  $tags =~ s/;md5sum=[0-9a-fA-F]{32}/;md5sum=$md5/;
+  substr($blk, 0x8373, 0x200) = substr($tags, 1);
+  writeblk($fd, 16, substr($blk, 0x8000, 0x800));
+}
+
+sub signiso {
+  my ($file, @signargs) = @_;
+  local *ISO;
+  open(ISO, '+<', $file) || die("$file: $!\n");
+  my $signed = signisofiles(\*ISO);
+  retagmd5iso(\*ISO) if $signed;
+  close(ISO) || die("close $file: $!\n");
+}
+
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -82,7 +259,7 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:rpm|sha256)$/} @files;
+  my @signfiles = grep {/\.(?:rpm|sha256|iso)$/} @files;
   if (@signfiles) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
@@ -93,9 +270,13 @@ sub signjob {
       push @signargs, '-P', "$uploaddir/signer.$$";
     }
     for my $signfile (@signfiles) {
-      if ($info->{'file'} eq '_aggregate') {
+      if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.rpm$/)) {
 	# special aggregate handling: remove old sigs
         system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
+      }
+      if ($signfile =~ /\.iso$/) {
+	signiso("$jobdir/$signfile", @signargs);
+	next;
       }
       if (system($BSConfig::sign, @signargs, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
