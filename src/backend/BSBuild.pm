@@ -41,8 +41,8 @@ sub gen_meta {
   for (@deps) {
     $helper1{$_} = tr/\///;     # count '/'
     /^([^ ]+  )((?:.*\/)?([^\/]*))$/ or die("bad dependency line: $_\n");
-    $helper2{$_} = $2;		# path
-    $helper3{$_} = "$1$3";	# md5  lastpkg
+    $helper2{$_} = $2;          # path
+    $helper3{$_} = "$1$3";      # md5  lastpkg
     if ($subpackre && "/$2/" =~ /$subpackre/) {
       /  ([^\/]+)/ or die("bad dependency line: $_\n");
       $cycle{$1} = 1; # detected a cycle!
@@ -62,7 +62,7 @@ sub gen_meta {
   my @meta;
   push @meta, $myself if defined($myself) && $myself ne '';
   for my $d (@deps) {
-    next if $depseen{$helper3{$d}};	# skip if we already have this pkg with this md5
+    next if $depseen{$helper3{$d}}; # skip if we already have this pkg with this md5
     next if $subpackre && "/$helper2{$d}/" =~ /$subpackre/;
     $depseen{$helper3{$d}} = 1;
     push @meta, $d;

@@ -50,7 +50,7 @@ our $peer;
 our $peerport;
 our $slot;
 our $forwardedfor;
-our $replying;	# we're sending the answer (2 == in chunked mode)
+our $replying;        # we're sending the answer (2 == in chunked mode)
 
 sub deamonize {
   my (@args) = @_;
@@ -203,10 +203,10 @@ sub server {
     if ($conf->{'periodic'}) {
       my $due = $periodic_next - time();
       if ($due <= 0) {
-	$conf->{'periodic'}->($conf);
+        $conf->{'periodic'}->($conf);
         my $periodic_interval = $conf->{'periodic_interval'} || 3;
-	$periodic_next += $periodic_interval - $due;
-	$due = $periodic_interval;
+        $periodic_next += $periodic_interval - $due;
+        $due = $periodic_interval;
       }
       $tout = $due if $tout > $due;
     }
@@ -227,10 +227,10 @@ sub server {
       $pid = fork();
       if (defined($pid)) {
         if ($pid == 0) {
-	  # child
-	  $BSServer::slot = $slot if $conf->{'serverstatus'};
-	  last;
-	}
+          # child
+          $BSServer::slot = $slot if $conf->{'serverstatus'};
+          last;
+        }
         $chld{$pid} = $slot;
       }
       close CLNT;
@@ -241,13 +241,13 @@ sub server {
       my $slot = $chld{$pid};
       if (defined($slot)) {
         if ($conf->{'serverstatus'} && defined(sysseek(STA, $slot * 256, Fcntl::SEEK_SET))) {
-	  syswrite(STA, "\0" x 256, 256);
-	}
+          syswrite(STA, "\0" x 256, 256);
+        }
         if ($slot == $idle_next - 1) {
-	  $idle_next--;
-	} else {
-	  push @idle, $slot;
-	}
+          $idle_next--;
+        } else {
+          push @idle, $slot;
+        }
       }
       delete $chld{$pid};
     }
@@ -435,12 +435,12 @@ sub parse_cgi {
       $value =~ tr/+/ /;
       $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     } else {
-      $value = 1;	# assume boolean
+      $value = 1;        # assume boolean
     }
     if ($multis && exists($multis->{$name})) {
       if (defined($multis->{$name})) {
         if (exists($cgi{$name})) {
-	  $cgi{$name} .= "$multis->{$name}$value";
+          $cgi{$name} .= "$multis->{$name}$value";
         } else {
           $cgi{$name} = $value;
         }
@@ -450,7 +450,7 @@ sub parse_cgi {
     } elsif ($singles && $multis && !exists($singles->{$name}) && exists($multis->{'*'})) {
       if (defined($multis->{'*'})) {
         if (exists($cgi{$name})) {
-	  $cgi{$name} .= "$multis->{'*'}$value";
+          $cgi{$name} .= "$multis->{'*'}$value";
         } else {
           $cgi{$name} = $value;
         }
@@ -721,13 +721,13 @@ sub compile_dispatches {
       if ($pp =~ /^\$(.*)$/) {
         my $var = $1;
         my $vartype = $var;
-	($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
+        ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
         die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
         $pp = "([^\\/]*)";
         $code .= "\$cgi->{'$var'} = \$$num;\n";
         $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
-	push @args, $var;
-	$known .= ", '$var'";
+        push @args, $var;
+        $known .= ", '$var'";
         $num++;
       } else {
         $pp = "\Q$pp\E";
@@ -745,12 +745,12 @@ sub compile_dispatches {
       $qual = $1 if $pp =~ s/([+*?])$//;
       my $var = $pp;
       if ($var =~ /^(.*)=(.*)$/) {
-	$cgisingles ||= {};
-	$cgisingles->{$1} = $2;
-	$singles .= ', ' if $singles ne '';
-	$singles .= "'$1' => undef";
-	$known .= ", '$1'";
-	next;
+        $cgisingles ||= {};
+        $cgisingles->{$1} = $2;
+        $singles .= ', ' if $singles ne '';
+        $singles .= "'$1' => undef";
+        $known .= ", '$1'";
+        next;
       }
       my $vartype = $var;
       ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
@@ -758,12 +758,12 @@ sub compile_dispatches {
       $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $qual ne '*' && $qual ne '?';
       $hasstar = 1 if $var eq '*';
       if ($qual eq '+' || $qual eq '*') {
-	$multis .= ', ' if $multis ne '';
-	$multis .= "'$var' => undef";
+        $multis .= ', ' if $multis ne '';
+        $multis .= "'$var' => undef";
         $code2 .= "\$verifyers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
       } else {
-	$singles .= ', ' if $singles ne '';
-	$singles .= "'$var' => undef";
+        $singles .= ', ' if $singles ne '';
+        $singles .= "'$var' => undef";
         $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'}) if exists \$cgi->{'$var'};\n" if $vartype ne '';
       }
       push @args, $var if $arg;
@@ -815,14 +815,14 @@ sub dispatch {
       $cgisingles ||= parse_cgi_singles($req);
       next if grep {($cgisingles->{$_} || '') ne $p->[1]->{$_}} keys %{$p->[1]};
     }
-    $auth = $p->[2] if @$p > 2;	# optional auth overwrite
+    $auth = $p->[2] if @$p > 2;        # optional auth overwrite
     next unless $f;
     if ($auth) {
       die("500 no authenticate method defined\n") unless $conf->{'authenticate'};
       my @r = $conf->{'authenticate'}->($conf, $req, $auth);
       if (@r) {
         return $stdreply->(@r) if $stdreply;
-	return @r;
+        return @r;
       }
     }
     return $stdreply->($f->($conf, $req)) if $stdreply;

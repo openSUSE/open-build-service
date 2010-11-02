@@ -68,30 +68,30 @@ sub read_data {
     my $qu = $hdr->{'__data'};
     while(1) {
       if (defined($maxl) && $maxl <= $cl) {
-	while(length($qu) < $maxl) {
+        while(length($qu) < $maxl) {
           my $r = sysread(S, $qu, 8192, length($qu));
           die("unexpected EOF\n") unless $r;
-	}
-	$ret .= substr($qu, 0, $maxl);
+        }
+        $ret .= substr($qu, 0, $maxl);
         $hdr->{'__cl'} = $cl - $maxl;
         $hdr->{'__data'} = substr($qu, $maxl);
-	return $ret;
+        return $ret;
       }
       if ($cl) {
-	# no maxl or maxl > cl, read full cl
-	while(length($qu) < $cl) {
+        # no maxl or maxl > cl, read full cl
+        while(length($qu) < $cl) {
           my $r = sysread(S, $qu, 8192, length($qu));
           die("unexpected EOF\n") unless $r;
-	}
-	$ret .= substr($qu, 0, $cl);
-	$qu = substr($qu, $cl);
-	$maxl -= $cl if defined $maxl;
+        }
+        $ret .= substr($qu, 0, $cl);
+        $qu = substr($qu, $cl);
+        $maxl -= $cl if defined $maxl;
         $cl = 0;
-	if (!defined($maxl) && !$exact) { # no maxl, return every chunk
-	  $hdr->{'__cl'} = $cl;
-	  $hdr->{'__data'} = $qu;
-	  return $ret;
-	}
+        if (!defined($maxl) && !$exact) { # no maxl, return every chunk
+          $hdr->{'__cl'} = $cl;
+          $hdr->{'__data'} = $qu;
+          return $ret;
+        }
       }
       while ($qu !~ /\r?\n/s) {
         my $r = sysread(S, $qu, 8192, length($qu));
@@ -99,28 +99,28 @@ sub read_data {
       }
       if (substr($qu, 0, 1) eq "\n") {
         $qu = substr($qu, 1);
-	next;
+        next;
       }
       if (substr($qu, 0, 2) eq "\r\n") {
         $qu = substr($qu, 2);
-	next;
+        next;
       }
       die("bad CHUNK data: $qu\n") unless $qu =~ /^([0-9a-fA-F]+)/;
       $cl = hex($1);
       die if $cl < 0;
       $qu =~ s/^.*?\r?\n//s;
       if ($cl == 0) {
-        $hdr->{'__cl'} = -1;	# mark EOF
+        $hdr->{'__cl'} = -1;        # mark EOF
         die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
-	# read trailer
-	$qu = "\r\n$qu";
-	while ($qu !~ /\n\r?\n/s) {
+        # read trailer
+        $qu = "\r\n$qu";
+        while ($qu !~ /\n\r?\n/s) {
           my $r = sysread(S, $qu, 8192, length($qu));
           die("unexpected EOF\n") unless $r;
-	}
-	$qu =~ /^(.*?)\n\r?\n/;
-	gethead($hdr, length($1) >= 2 ? substr($1, 2) : '');
-	return $ret;
+        }
+        $qu =~ /^(.*?)\n\r?\n/;
+        gethead($hdr, length($1) >= 2 ? substr($1, 2) : '');
+        return $ret;
       }
     }
   } else {
@@ -227,16 +227,16 @@ sub cpio_receiver {
     die("cpio filename is '.' or '..'\n") if $name eq '.' || $name eq '..';
     if ($param->{'accept'}) {
       if (ref($param->{'accept'})) {
-	die("illegal file in cpio archive: $name\n") unless $param->{'accept'}->($param, $name);
+        die("illegal file in cpio archive: $name\n") unless $param->{'accept'}->($param, $name);
       } else {
-	die("illegal file in cpio archive: $name\n") unless $name =~ /$param->{'accept'}/;
+        die("illegal file in cpio archive: $name\n") unless $name =~ /$param->{'accept'}/;
       }
     }
     if ($param->{'map'}) {
       if (ref($param->{'map'})) {
-	$name = $param->{'map'}->($param, $name);
+        $name = $param->{'map'}->($param, $name);
       } else {
-	$name = "$param->{'map'}$name";
+        $name = "$param->{'map'}$name";
       }
     }
     if (!defined($name)) {
@@ -297,20 +297,20 @@ sub cpio_sender {
   for my $file (@{$param->{'cpiofiles'} || []}, {'__errors' => 1}) {
     my @s;
     if ($file->{'error'}) {
-	$errors .= "$file->{'name'}: $file->{'error'}\n";
-	next;
+        $errors .= "$file->{'name'}: $file->{'error'}\n";
+        next;
     }
     if (exists $file->{'filename'}) {
       if (ref($file->{'filename'})) {
-	*F = $file->{'filename'};
+        *F = $file->{'filename'};
       } elsif (!open(F, '<', $file->{'filename'})) {
-	$errors .= "$file->{'name'}: $file->{'filename'}: $!\n";
-	next;
+        $errors .= "$file->{'name'}: $file->{'filename'}: $!\n";
+        next;
       }
       @s = stat(F);
     } else {
       if ($file->{'__errors'}) {
-	next if $errors eq '';
+        next if $errors eq '';
         $file->{'data'} = $errors;
         $file->{'name'} = ".errors";
       }
@@ -336,8 +336,8 @@ sub cpio_sender {
       while(1) {
         $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
         $data .= substr("\0\0\0\0", ($s[7] % 4)) if $r == $l && ($s[7] % 4) != 0;
-	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-	swrite($sock, $data);
+        $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
+        swrite($sock, $data);
         $data = '';
         $l -= $r;
         last unless $l;

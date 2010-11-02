@@ -53,15 +53,15 @@ sub boolop {
     }
     if (ref($e1) eq 'HASH') {
       if (!exists($e1->{'_content'})) {
-	push @vr, '';
-	next;
+        push @vr, '';
+        next;
       }
       $e1 = $e1->{'_content'};
     }
     if (ref($e2) eq 'HASH') {
       if (!exists($e2->{'_content'})) {
-	push @vr, '';
-	next;
+        push @vr, '';
+        next;
       }
       $e2 = $e2->{'_content'};
     }
@@ -182,12 +182,12 @@ sub pathstep {
       if ($c eq '*') {
         $vv = [ map {ref($vv->{$_}) eq 'ARRAY' ? @{$vv->{$_}} : $vv->{$_}} grep {$_ ne '_content'} sort keys %$vv ];
       } else {
-	$vv = exists($vv->{$c}) ? $vv->{$c} : [];
+        $vv = exists($vv->{$c}) ? $vv->{$c} : [];
       }
     } elsif (ref($vv) eq 'ARRAY') {
       if ($c eq '*') {
-	my @nvv;
-	for my $d (@$vv) {
+        my @nvv;
+        for my $d (@$vv) {
           next unless ref($d) eq 'HASH';
           push @nvv, map {ref($d->{$_}) eq 'ARRAY' ? @{$d->{$_}} : $d->{$_}} grep {$_ ne '_content'} sort keys %$d;
         }
@@ -217,8 +217,8 @@ sub limit {
       if ($vv2 != $vv) {
         push @ncwd, [ @$r ];
         $ncwd[-1]->[1] = $vv2;
-	$changed = 1;
-	next;
+        $changed = 1;
+        next;
       }
     }
     push @ncwd, $r;
@@ -298,12 +298,12 @@ sub expr {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: at least two arguments required\n") unless @args >= 2;
       if (@args > 2) {
-	my $arg1 = shift @args;
-	for my $a (@args) {
-	  die("multi arg contains only works with strings\n") if grep {ref($_) || $_ ne $a->[0]} @$a;
+        my $arg1 = shift @args;
+        for my $a (@args) {
+          die("multi arg contains only works with strings\n") if grep {ref($_) || $_ ne $a->[0]} @$a;
         }
-	my $arg2 = $args[0];
-	@args = map {$_->[0]} @args;
+        my $arg2 = $args[0];
+        @args = map {$_->[0]} @args;
         $v = boolop($cwd, $arg1, $arg2, sub {!grep {index($_[0], $_) == -1} @args}, $negpol);
       } else {
         $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1}, $negpol);
@@ -332,12 +332,12 @@ sub expr {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: at least two arguments required\n") unless @args >= 2;
       if (@args > 2) {
-	my $arg1 = shift @args;
-	for my $a (@args) {
-	  die("multi arg contains-ic only works with strings\n") if grep {ref($_) || $_ ne $a->[0]} @$a;
+        my $arg1 = shift @args;
+        for my $a (@args) {
+          die("multi arg contains-ic only works with strings\n") if grep {ref($_) || $_ ne $a->[0]} @$a;
         }
-	my $arg2 = $args[0];
-	@args = map {lc($_->[0])} @args;
+        my $arg2 = $args[0];
+        @args = map {lc($_->[0])} @args;
         $v = boolop($cwd, $arg1, $arg2, sub {!grep {index(lc($_[0]), $_) == -1} @args}, $negpol);
       } else {
         $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol);

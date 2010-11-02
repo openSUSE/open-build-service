@@ -29,16 +29,16 @@ use strict;
 #
 #our $pack = [             creates <package name="" project=""> space
 #    'package' =>          
-#	'name',
-#	'project',
-#	[],                before the [] all strings become attributes to <package>
+#       'name',
+#       'project',
+#       [],                before the [] all strings become attributes to <package>
 #       'title',           from here on all strings become children like <title> </title>
 #       'description',
 #       [[ 'person' =>     creates <person> children, the [[ ]] syntax allows any number of them including zero
 #           'role',        again role and userid attributes, both are required
 #           'userid',    
 #       ]],                this block describes a <person role="defeatist" userid="statler" /> construct
-# 	@flags,            copies in the block of possible flag definitions
+#       @flags,            copies in the block of possible flag definitions
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
 #];                        closes the <package> child with </package>
 
@@ -131,7 +131,7 @@ our $kiwidesc = [
                'name',
                '_content'
             ]],
-	    [[ 'productoption' =>
+            [[ 'productoption' =>
                'name',
                '_content'
             ]]
@@ -143,10 +143,10 @@ our $kiwidesc = [
              'pwd',
              'local',
              [],
-	     [ 'source' => 'path' ],
+             [ 'source' => 'path' ],
           ]],
           [ 'metadata' =>
-	     [[ 'repopackage' =>
+             [[ 'repopackage' =>
                 'name',
                 'medium',
                 'arch',
@@ -156,7 +156,7 @@ our $kiwidesc = [
              ]],
           ],
           [[ 'repopackages' =>
-	     [[ 'repopackage' =>
+             [[ 'repopackage' =>
                 'name',
                 'addarch', 'arch', 'baselibs_arch', 
                 'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
@@ -203,12 +203,12 @@ our $kiwidesc = [
              [],
              [[ 'file' => 'name' ]],
         ]],
-	[[ 'repository' =>
-	       'type',
-	       'status',
-	       'priority',
+        [[ 'repository' =>
+               'type',
+               'status',
+               'priority',
                [],
-	       [ 'source' => 'path' ],
+               [ 'source' => 'path' ],
         ]],
         [[ 'deploy' =>
                'server',
@@ -230,7 +230,7 @@ our $kiwidesc = [
                     'dest',
                ]],
           ]],
-	[[ 'packages' =>
+        [[ 'packages' =>
                'type',
                'profiles',
                'patternType',
@@ -238,17 +238,17 @@ our $kiwidesc = [
                'memory',
                'disk',
                [],
-	       [['package' =>
+               [['package' =>
                      'name',
                      'arch',
                      'bootinclude',
                      'bootdelete',
                ]],
-	       [['opensusePattern' =>
+               [['opensusePattern' =>
                      'name',
                      'arch',
                ]],
-	       [['ignore' =>
+               [['ignore' =>
                      'name',
                      'arch',
                ]],

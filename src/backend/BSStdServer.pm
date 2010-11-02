@@ -36,7 +36,7 @@ use XML::Structured;
 
 use strict;
 
-our $isajax;	# is this the ajax process?
+our $isajax;        # is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
 
@@ -174,7 +174,7 @@ sub server {
       $isajax = 1;
       BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
       my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
-      $aconf->{'server_ev'} = $sev;	# for periodic_ajax
+      $aconf->{'server_ev'} = $sev;        # for periodic_ajax
       BSServer::msg("AJAX: $name started");
       eval {
         BSEvents::schedule();

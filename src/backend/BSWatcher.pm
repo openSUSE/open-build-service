@@ -298,7 +298,7 @@ sub rpc_recv_stream_handler {
   my $rev = $ev->{'readev'};
 
   #print "rpc_recv_stream_handler\n";
-  $ev->{'paused'} = 1;	# always need more bytes!
+  $ev->{'paused'} = 1;        # always need more bytes!
 nextchunk:
   $ev->{'replbuf'} =~ s/^\r?\n//s;
   if ($ev->{'replbuf'} !~ /\r?\n/s) {
@@ -329,8 +329,8 @@ nextchunk:
     }
     #print "rpc_recv_stream_handler: chunk EOF\n";
     my $trailer = $ev->{'replbuf'};
-    $trailer =~ s/^(.*?\r?\n)/\r\n/s;	# delete chunk header
-    $trailer =~ s/\n\r?\n.*//s;		# delete stuff after trailer
+    $trailer =~ s/^(.*?\r?\n)/\r\n/s;        # delete chunk header
+    $trailer =~ s/\n\r?\n.*//s;                # delete stuff after trailer
     $trailer =~ s/\r$//s;
     $trailer = substr($trailer, 2) if $trailer ne '';
     $trailer .= "\r\n" if $trailer ne '';
@@ -368,7 +368,7 @@ sub rpc_recv_unchunked_stream_handler {
 
   #print "rpc_recv_unchunked_stream_handler\n";
   my $cl = $rev->{'contentlength'};
-  $ev->{'paused'} = 1;	# always need more bytes!
+  $ev->{'paused'} = 1;        # always need more bytes!
   my $data = $ev->{'replbuf'};
   if (length($data) && $cl) {
     $data = substr($data, 0, $cl) if $cl < length($data);
@@ -505,9 +505,9 @@ sub rpc_recv_forward_data_handler {
     eval {
       local $BSServerEvents::gev = $stay[0];
       my $param = {
-	'uri' => $olduri,
-	'verbatim_uri' => 1,
-	'joinable' => 1,
+        'uri' => $olduri,
+        'verbatim_uri' => 1,
+        'joinable' => 1,
       };
       $param->{'receiver'} = $rev->{'param'}->{'receiver'} if $rev->{'param'}->{'receiver'};
       rpc($param);
@@ -519,16 +519,16 @@ sub rpc_recv_forward_data_handler {
       $err =~ s/\n$//s;
       warn("$err\n");
       for my $jev (@stay) {
-	if ($jev->{'streaming'}) {
-	  # can't do much here, sorry
-	  BSServerEvents::reply_error($jev->{'conf'}, $err);
-	  next;
-	}
-	$jev->{'rpcdone'} = $olduri;
-	$jev->{'rpcerror'} = $err;
-	redo_request($jev);
-	delete $jev->{'rpcdone'};
-	delete $jev->{'rpcerror'};
+        if ($jev->{'streaming'}) {
+          # can't do much here, sorry
+          BSServerEvents::reply_error($jev->{'conf'}, $err);
+          next;
+        }
+        $jev->{'rpcdone'} = $olduri;
+        $jev->{'rpcerror'} = $err;
+        redo_request($jev);
+        delete $jev->{'rpcdone'};
+        delete $jev->{'rpcerror'};
       }
     } else {
       my $nev = $rpcs{$olduri};
@@ -596,7 +596,7 @@ sub rpc_recv_forward {
   $wev->{'closehandler'} = \&rpc_recv_forward_close_handler;
   $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
   BSEvents::add($ev);
-  BSEvents::add($wev);	# do this last
+  BSEvents::add($wev);        # do this last
 }
 
 ###########################################################################
@@ -659,7 +659,7 @@ sub rpc_recv_file {
   $wev->{'closehandler'} = \&rpc_recv_file_close_handler;
   $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
   BSEvents::add($ev);
-  BSEvents::add($wev);	# do this last
+  BSEvents::add($wev);        # do this last
 }
 
 
@@ -954,7 +954,7 @@ sub rpc {
     if ($! == POSIX::EINPROGRESS) {
       $ev->{'handler'} = \&rpc_connect_handler;
       $ev->{'timeouthandler'} = \&rpc_connect_timeout;
-      BSEvents::add($ev, 60);	# 60s connect timeout
+      BSEvents::add($ev, 60);        # 60s connect timeout
       return undef;
     }
     close $ev->{'fd'};

@@ -31,7 +31,7 @@ use Data::Dumper;
 
 use strict;
 
-our $gev;	# our event
+our $gev;        # our event
 
 sub gethead {
   # parses http header and fills hash
@@ -136,7 +136,7 @@ sub reply {
   my $data = join("\r\n", @hi)."\r\n\r\n";
   $data .= $str if defined $str;
   my $dummy = '';
-  sysread($ev->{'fd'}, $dummy, 1024, 0);	# clear extra input
+  sysread($ev->{'fd'}, $dummy, 1024, 0);        # clear extra input
   $ev->{'replbuf'} = $data;
   $ev->{'type'} = 'write';
   $ev->{'handler'} = \&replrequest_write;
@@ -180,7 +180,7 @@ sub reply_stream {
   $rev->{'writeev'} = $ev;
   $rev->{'handler'} = \&stream_read_handler unless $rev->{'handler'};
   BSEvents::add($ev, 0);
-  BSEvents::add($rev);	# do this last (because of "always" type)
+  BSEvents::add($rev);        # do this last (because of "always" type)
 }
 
 sub reply_file {
@@ -223,11 +223,11 @@ sub cpio_nextfile {
     my $file;
     if ($filesno >= @$files) {
       if ($ev->{'cpioerrors'} ne '') {
-	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
-	$ev->{'cpioerrors'} = '';
+        $file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
+        $ev->{'cpioerrors'} = '';
       } else {
-	$data .= makecpiohead();
-	return $data;
+        $data .= makecpiohead();
+        return $data;
       }
     } else {
       $ev->{'filesno'} = $filesno;
@@ -241,11 +241,11 @@ sub cpio_nextfile {
     if (exists $file->{'filename'}) {
       my $fd = $file->{'filename'};
       if (!ref($fd)) {
-	$fd = gensym;
-	if (!open($fd, '<', $file->{'filename'})) {
-	  $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
-	  next;
-	}
+        $fd = gensym;
+        if (!open($fd, '<', $file->{'filename'})) {
+          $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
+          next;
+        }
       }
       $ev->{'fd'} = $fd;
       @s = stat($ev->{'fd'});
@@ -295,11 +295,11 @@ sub getrequest {
       my $newfd = gensym;
       $r = $ev->{'conf'}->{'getrequest_recvfd'}->($ev->{'fd'}, $newfd, 1024);
       if (defined($r)) {
-	if (-c $newfd) {
-	  close $newfd;	# /dev/null case, no handoff requested
-	} else {
+        if (-c $newfd) {
+          close $newfd;        # /dev/null case, no handoff requested
+        } else {
           $ev->{'nfd'} = $newfd;
-	}
+        }
         $ev->{'reqbuf'} = $r;
         $r = length($r);
       }
@@ -334,8 +334,8 @@ sub getrequest {
     if ($vers) {
       die("501 Bad method: $act\n") if $act ne 'GET';
       if ($ev->{'reqbuf'} !~ /^(.*?)\r?\n\r?\n(.*)$/s) {
-	BSEvents::add($ev);
-	return;
+        BSEvents::add($ev);
+        return;
       }
       gethead($headers, "Request: $1");
     } elsif ($act ne 'get') {
@@ -403,7 +403,7 @@ sub cloneconnect {
   };
   $nev->{'peer'} = $peer;
   BSServerEvents::reply(@reply) if @reply;
-  $gev = $nev;	# switch to new event
+  $gev = $nev;        # switch to new event
   if ($nev->{'conf'}->{'setkeepalive'}) {
     setsockopt($nev->{'fd'}, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   }
@@ -466,19 +466,19 @@ sub stream_read_handler {
       my $data = $ev->{'eofhandler'}->($ev);
       if (defined($data) && $data ne '') {
         if ($ev->{'makechunks'}) {
-	  # keep those chunks small, otherwise our receiver will choke
+          # keep those chunks small, otherwise our receiver will choke
           while (length($data) > 4096) {
-	    my $d = substr($data, 0, 4096);
+            my $d = substr($data, 0, 4096);
             $wev->{'replbuf'} .= sprintf("%X\r\n", length($d)).$d."\r\n";
-	    $data = substr($data, 4096);
+            $data = substr($data, 4096);
           }
           $wev->{'replbuf'} .= sprintf("%X\r\n", length($data)).$data."\r\n";
-	} else {
+        } else {
           $wev->{'replbuf'} .= $data;
-	}
+        }
       }
       if ($ev->{'fd'}) {
-        stream_read_handler($ev);	# redo with new fd
+        stream_read_handler($ev);        # redo with new fd
         return;
       }
     }
@@ -547,9 +547,9 @@ sub stream_write_handler {
     if ($rev->{'writeev'} != $ev) {
       my $wev = $rev->{'writeev'};
       if ($wev->{'paused'} && length($wev->{'replbuf'})) {
-	#print "pushing old data\n";
-	delete $wev->{'paused'};
-	BSEvents::add($wev);
+        #print "pushing old data\n";
+        delete $wev->{'paused'};
+        BSEvents::add($wev);
       }
     }
   }

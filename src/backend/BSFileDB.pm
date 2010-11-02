@@ -63,9 +63,9 @@ sub fdb_getlast {
     return undef unless length $d;
     if (chop($d) ne "\n") {
       if (!($d =~ s/\n[^\n]*$//s)) {
-	return undef unless $pos;
-	$off += 1024;
-	next;
+        return undef unless $pos;
+        $off += 1024;
+        next;
       }
     }
     if ($d =~ /\n([^\n]*)$/s) {
@@ -96,20 +96,20 @@ sub fdb_getmatch {
   if (seek(F, -4096, 2) && defined(<F>)) {
     while (defined($d = <F>)) {
       if (chop($d) ne "\n") {
-	undef $d;
-	undef $lastd;
-	last;
+        undef $d;
+        undef $lastd;
+        last;
       }
       $lastd = $d;
       if ($isfirst) {
         if ($d eq $edata || substr($d, 0, length($edata) + 1) eq "$edata|") {
-	  $found = decode_line($d, $lay);
-	  last unless $retlast;
-	}
+          $found = decode_line($d, $lay);
+          last unless $retlast;
+        }
       } elsif ($d =~ /\|\Q$edata\E/) {
-	my $f = decode_line($d, $lay);
-	next if $f->{$field} ne $data;
-	$found = $f;
+        my $f = decode_line($d, $lay);
+        next if $f->{$field} ne $data;
+        $found = $f;
         last unless $retlast;
       }
     }
@@ -118,20 +118,20 @@ sub fdb_getmatch {
     seek(F, 0, 0) || die("$fn: seek error\n");
     while (defined($d = <F>)) {
       if (chop($d) ne "\n") {
-	undef $d;
-	undef $lastd;
-	last;
+        undef $d;
+        undef $lastd;
+        last;
       }
       $lastd = $d;
       if ($isfirst) {
         if ($d eq $edata || substr($d, 0, length($edata) + 1) eq "$edata|") {
-	  $found = decode_line($d, $lay);
-	  last unless $retlast;
-	}
+          $found = decode_line($d, $lay);
+          last unless $retlast;
+        }
       } elsif ($d =~ /\|\Q$edata\E/) {
-	my $f = decode_line($d, $lay);
-	next if $f->{$field} ne $data;
-	$found = $f;
+        my $f = decode_line($d, $lay);
+        next if $f->{$field} ne $data;
+        $found = $f;
         last unless $retlast;
       }
     }
@@ -154,8 +154,8 @@ sub fdb_getall {
       my $f = $filter->($r);
       next unless $f;
       if ($f < 0) {
-	push @res, $r if $f == -1;
-	last;
+        push @res, $r if $f == -1;
+        last;
       }
     }
     push @res, $r;
@@ -192,11 +192,11 @@ sub fdb_getall_reverse {
     $buf .= $tail;
     if ($pos) {
       if ($buf =~ /^(.*?\n)/s) {
-	$tail = $1; 
-	$buf = substr($buf, length($tail));
+        $tail = $1; 
+        $buf = substr($buf, length($tail));
       } else {
-	$tail = $buf;
-	$buf = ''; 
+        $tail = $buf;
+        $buf = ''; 
       }   
       $pos -= 0x8000;
       $len = 0x8000;
@@ -215,12 +215,12 @@ sub fdb_getall_reverse {
       my $r = decode_line($_, $lay);
       if ($filter) {
         my $f = $filter->($r);
-	next unless $f;
-	if ($f < 0) {
-	  push @res, $r if $f == -1;
-	  $len = 0;
-	  last;
-	}
+        next unless $f;
+        if ($f < 0) {
+          push @res, $r if $f == -1;
+          $len = 0;
+          last;
+        }
       }
       push @res, $r;
       $len = 0, last if defined($limit) && @res >= $limit;
@@ -252,8 +252,8 @@ sub fdb_add_i {
       (sysread(F, $d, $end - $pos + 1) || 0) == $end - $pos || die("$fn: read error\n");
       chop($d) eq "\n" || die("$fn: bad last line");
       if ($d =~ /\n([^\n]*)$/s) {
-	$d = $1;
-	last;
+        $d = $1;
+        last;
       }
       last unless $pos;
       $pos -= 1024;
