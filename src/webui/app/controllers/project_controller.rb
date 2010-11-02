@@ -86,6 +86,22 @@ class ProjectController < ApplicationController
   end
   private :get_filtered_projectlist
 
+  def get_filtered_packagelist(filterstring)
+    # remove illegal xpath characters
+    filterstring.gsub!(/[\[\]\n]/, '')
+    filterstring.gsub!(/[']/, '&apos;')
+    filterstring.gsub!(/["]/, '&quot;')
+    predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
+    predicate += " and " if !predicate.empty?
+    predicate += "@project = '#{@project}'"
+    result = find_cached Collection, :id, :what => "package", :predicate => predicate, :expires_in => 2.minutes
+    @packages = Array.new
+    result.each { |p| @packages << p }
+    @packages =  @packages.sort_by { |a| a.name }
+  end
+  private :get_filtered_packagelist
+
+
   def users
     @email_hash = Hash.new
     @project.each_person do |person|
@@ -425,6 +441,11 @@ class ProjectController < ApplicationController
       @packages.each do |p|
         @patchinfo << p.name if p.name =~ %r{^_patchinfo}
       end
+    end
+    @filterstring = params[:searchtext] || ''
+    get_filtered_packagelist @filterstring
+    if request.xhr?
+      render :partial => 'search_packages' and return
     end
   end
 

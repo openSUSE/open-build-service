@@ -1,53 +1,42 @@
-<% @pagetitle = "Packages of #{@project}" %>
-<% project_bread_crumb( 'Packages' ) -%>
+<% @pagetitle = "Packages of #{@project}"
+   project_bread_crumb 'Packages' -%>
 
 <%= render :partial => "tabs" %>
 
-<h3><%= @pagetitle %> <%= "(#{@packages.each.size})" if @packages.each.size > 0 %></h3>
+<h3><%= @pagetitle %> <%= "(#{@packages.length})" if @packages.length > 0 %></h3>
 
-<% if @project.can_edit?( session[:login] ) %>
-  <p>
-    <%= link_to image_tag( 'icons/package_add.png', :title => 'Add Package' ),
-      :controller => 'project', :action => :new_package, :project => @project %>
-    <%= link_to 'Add', :controller => 'project', :action => :new_package, :project => @project %> a new package &nbsp;
-    <%= link_to image_tag( 'icons/package_link.png', :title => 'Branch Package from other Project' ),
-      :controller => 'project', :action => :new_package_branch, :project => @project %>
-    <%= link_to 'Create new package based on existing package (link)',
-      :controller => 'project', :action => :new_package_branch, :project => @project %>&nbsp;
-  <%= image_tag( 'icons/plugin_add.png', :title => 'Create patchinfo' )  %>
-  <%= link_to 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %>
-  </p>
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
 <% end %>
 
-<% if @packages.each.blank? %>
-  <p><i>This project does not contain any packages yet.</i></p>
-<% end %>
-
-<div id="pkg_container">
-  <% if @packages.each.select{|p| /^_product/.match( p.name ) }.size > 0 %>
-    <h3>Products</h3><p>
-      <% @packages.each.select{|p| /^_product/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
-        <%= link_to h(package.sub(/_product:/, '')), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %> |
-      <% end %></p>
-  <% end %>
-
-  <% unless @patchinfo.empty? %>
-    <h3>
-      Patchinfos
-    </h3>
-
-    <p><% @patchinfo.each do |info| -%>
-        <%= link_to h(info), { :controller => 'patchinfo', :action => :show, :project => @project, :package => info}, :class => 'nowrap' %> |
-      <%end%></p>
-  <%end%>
-  <p>
-    <% @packages.each.select{|p| !/^_product/.match( p.name ) and !/^_patchinfo/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
-      <% if @current_char.blank? || @current_char != package.downcase[0,1]
-        @current_char = package.downcase[0,1] %>
-      </p><p><b><%= @current_char %></b>
+<div style="display: inline">
+  <% form_tag({:action => :list}, {:method => :get, :id => 'filter_packages_form' }) do -%>
+    <p>
+      <% if @packages.length > 0 %>
+        <strong>Filter packages:</strong>
+        <%= text_field_tag "searchtext", @filterstring -%>
       <% end %>
-      <%= link_to h(package), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %> |
-    <% end%>
-  </p>
+
+      <% if @project.can_edit?( session[:login] ) %>
+        <span style="float: right">
+          <%= link_to image_tag( 'icons/package_add.png', :title => 'Add Package' ),
+            :controller => 'project', :action => :new_package, :project => @project %>
+          <%= link_to 'Add', :controller => 'project', :action => :new_package, :project => @project %> a new package&nbsp;
+          <%= link_to image_tag( 'icons/package_link.png', :title => 'Branch Package' ),
+            :controller => 'project', :action => :new_package_branch, :project => @project %>
+          <%= link_to 'Branch package',
+            :controller => 'project', :action => :new_package_branch, :project => @project %> from other project&nbsp;
+          <%= image_tag( 'icons/plugin_add.png', :title => 'Create patchinfo' ) %>
+          <%= link_to 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %>
+        </span>
+      <% end %>
+    </p>
+  <% end-%>
 </div>
 
+<%= observe_field :searchtext, :frequency => 0.8, :update => :package_list,
+  :url => { :controller => 'project', :action  => 'packages' },
+  :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
+  :with => "'project=' + escape('" + @project.name + "') + '&searchtext=' + escape($('#searchtext').attr('value'))" %>
+
+<%= render :partial => 'search_packages' %>
