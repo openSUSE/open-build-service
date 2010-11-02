@@ -20,7 +20,7 @@ class AddRepoTest < ActionController::IntegrationTest
      assert_response :success
 
      click_link 'Repositories'
-     assert_contain("Repository Configuration")
+     assert_contain("Repositories of home:Iggy")
      assert_contain(/i586, x86_64/)
 
      click_link 'Add'
