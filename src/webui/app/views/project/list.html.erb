@@ -3,6 +3,8 @@
 @crumb_list = [ 'Projects' ]
 -%>
 
+<h3><%= @pagetitle %></h3>
+
 <%= render :partial => 'filter_projects' %>
 
 <%= render :partial => 'search_project', :locals => {:project_list => @projects} %>
