@@ -1372,9 +1372,16 @@ sub get_projpacks {
   my $projpacksin;
   while (1) {
     push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
-    eval {
-      $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
-    };
+    for my $tries (4, 3, 2, 1, 0) {
+      eval {
+        $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
+      };
+      last unless $@ || !$projpacksin;
+      last unless $tries && defined($projid);
+      print $@ if $@;
+      print "retrying...\n";
+      sleep(60);
+    }
     if ($@ || !$projpacksin) {
       print $@ if $@;
       if (@args) {
@@ -1833,7 +1840,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    addretryevent({'type' => 'project', 'project' => $projid}) if $error !~ /^remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if $error !~ /remote error:/;
   }
   return undef unless $rproj;
   for (qw{name root remoteroot remoteurl remoteproject}) {
@@ -1863,7 +1870,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    addretryevent({'type' => 'project', 'project' => $projid}) if $proj->{'error'} !~ /^remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if $proj->{'error'} !~ /remote error:/;
     return undef;
   }
   $proj->{'config'} = $c;
@@ -1896,7 +1903,7 @@ sub addrepo_remote {
     warn($@);
     my $error = $@;
     $error =~ s/\n$//s;
-    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /remote error:/;
     return undef;
   }
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
@@ -2887,7 +2894,7 @@ sub checkaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /remote error:/;
 	    last;
 	  }
 	  for my $binary (@{$binarylist->{'binary'} || []}) {
@@ -2997,7 +3004,7 @@ sub rebuildaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /remote error:/;
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
