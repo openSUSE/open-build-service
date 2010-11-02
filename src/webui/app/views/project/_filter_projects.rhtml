@@ -16,13 +16,12 @@
       <%= text_field_tag "searchtext", @filterstring -%>
       <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%>Exclude user home projects
 
-      <span style="float: right">
-        <% if session[:login] %>
+      <% if session[:login] %>
+        <span style="float: right">
           <%= link_to image_tag('icons/brick_add.png', :title => 'Create project'), :controller => :project, :action => :new %>
           <%= link_to 'Create a new project', :controller => :project, :action => :new %>
-        <% end %>
-      </span>
-
+        </span>
+      <% end %>
     </p>
   <% end-%>
 </div>
