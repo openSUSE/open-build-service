@@ -111,23 +111,23 @@ sub start_handler {
 
 sub end_handler {
     my %cando = (
-        'armv4l'  => ['arm', 'armel',                                                 'noarch'],
-        'armv5el' => ['arm', 'armel', 'armv5el', 'armv5tel', 'armv5tevl' ,            'noarch'],
-        'armv7el' => ['arm', 'armel', 'armv5el', 'armv5tel', 'armv5tevl' , 'armv7el', 'noarch'],
-        'ppc'     => ['ppc',                                                          'noarch'],
-        'ppc64'   => ['ppc', 'ppc64',                                                 'noarch'],
-        'sh4'     => ['sh4',                                                          'noarch'],
-        'ia64'    => ['ia64',                                                         'noarch'],
-        's390'    => ['s390',                                                         'noarch'],
-        's390x'   => ['s390', 's390x',                                                'noarch'],
-        'sparc'   => ['sparc',                                                        'noarch'],
-        'sparc64' => ['sparc', 'sparc64',                                             'noarch'],
-        'mips'    => ['mips',                                                         'noarch'],
-        'mips64'  => ['mips', 'mips64',                                               'noarch'],
-        'i586'    => [          'i386', 'i486', 'i586', 'i686',                       'noarch'],
-        'i686'    => [          'i386', 'i486', 'i586', 'i686',                       'noarch'],
-        'x86_64'  => ['x86_64',                                                       'noarch'],
-        );
+	'armv4l'  => ['arm', 'armel',                                                 'noarch'],
+	'armv5el' => ['arm', 'armel', 'armv5el', 'armv5tel', 'armv5tevl' ,            'noarch'],
+	'armv7el' => ['arm', 'armel', 'armv5el', 'armv5tel', 'armv5tevl' , 'armv7el', 'noarch'],
+	'ppc'     => ['ppc',                                                          'noarch'],
+	'ppc64'   => ['ppc', 'ppc64',                                                 'noarch'],
+	'sh4'     => ['sh4',                                                          'noarch'],
+	'ia64'    => ['ia64',                                                         'noarch'],
+	's390'    => ['s390',                                                         'noarch'],
+	's390x'   => ['s390', 's390x',                                                'noarch'],
+	'sparc'   => ['sparc',                                                        'noarch'],
+	'sparc64' => ['sparc', 'sparc64',                                             'noarch'],
+	'mips'    => ['mips',                                                         'noarch'],
+	'mips64'  => ['mips', 'mips64',                                               'noarch'],
+	'i586'    => [          'i386', 'i486', 'i586', 'i686',                       'noarch'],
+	'i686'    => [          'i386', 'i486', 'i586', 'i686',                       'noarch'],
+	'x86_64'  => ['x86_64',                                                       'noarch'],
+	);
   my ($self, $e, $name) = @_;
   if (grep { $name eq $_ } @{$self->{'chars'}}) {
     $name = 'source' if $name eq 'rpm:sourcerpm';

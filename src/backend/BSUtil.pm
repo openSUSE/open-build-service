@@ -284,7 +284,7 @@ sub str2utf8 {
       $oct = encode('utf-8', $oct, Encode::FB_XMLCREF);
     }
   }
-  Encode::_utf8_off($oct);        # just in case...
+  Encode::_utf8_off($oct);	# just in case...
   return $oct;
 }
 

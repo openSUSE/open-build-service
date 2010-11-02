@@ -109,9 +109,9 @@ sub modify {
     $fn = substr($fn, 2);
     while (1) {
       if (!sysopen($usedfiles{$file}, "$dbdir/$dn/$fn", POSIX::O_RDWR|POSIX::O_CREAT, 0666)) {
-        die("$dbdir/$dn/$fn: $!\n") if $! != POSIX::ENOENT;
+	die("$dbdir/$dn/$fn: $!\n") if $! != POSIX::ENOENT;
         next if mkdir("$dbdir/$dn") || $! == POSIX::EEXIST;
-        die("mkdir $dbdir/$dn: $!\n");
+	die("mkdir $dbdir/$dn: $!\n");
       }
       die("flock $dbdir/$dn/$fn: $!\n") unless flock($usedfiles{$file}, LOCK_EX);
       last if (stat($usedfiles{$file}))[3];
@@ -137,9 +137,9 @@ sub modify {
     for my $rel (@{$rembyfile{$file} || []}) {
       if (ref($rel->[2]) eq 'CODE') {
         @data = sort keys %data if $changes;
-        $changes += $rel->[2]->($db, $rel, \@data);
-        %data = map {$_ => $_} @data;
-        next;
+	$changes += $rel->[2]->($db, $rel, \@data);
+	%data = map {$_ => $_} @data;
+	next;
       }
       next unless exists $data{$rel->[2]};
       delete $data{$rel->[2]};
@@ -162,15 +162,15 @@ sub modify {
     if (@data) {
       if (!$oldcnt) {
         # add to next level
-        my $rel;
+	my $rel;
         $rel ||= $addbyfile{$file}->[0] if $addbyfile{$file};
         $rel ||= $rembyfile{$file}->[0] if $rembyfile{$file};
         if ($rel) {
           if (defined($rel->[1])) {
-            modify($db, undef, [[ $rel->[0], undef, $rel->[1]]]);
-          } elsif (defined($rel->[0])) {
-            modify($db, undef, [[ undef, undef, $rel->[0]]]);
-          }
+	    modify($db, undef, [[ $rel->[0], undef, $rel->[1]]]);
+	  } elsif (defined($rel->[0])) {
+	    modify($db, undef, [[ undef, undef, $rel->[0]]]);
+	  }
         }
       }
       local *F;
@@ -187,11 +187,11 @@ sub modify {
       $rel ||= $addbyfile{$file}->[0] if $addbyfile{$file};
       $rel ||= $rembyfile{$file}->[0] if $rembyfile{$file};
       if ($rel) {
-        if (defined($rel->[1])) {
-          modify($db, [[ $rel->[0], undef, $rel->[1]]], undef);
-        } elsif (defined($rel->[0])) {
-          modify($db, [[ undef, undef, $rel->[0]]], undef);
-        }
+	if (defined($rel->[1])) {
+	  modify($db, [[ $rel->[0], undef, $rel->[1]]], undef);
+	} elsif (defined($rel->[0])) {
+	  modify($db, [[ undef, undef, $rel->[0]]], undef);
+	}
       }
       
       # this will free the lock

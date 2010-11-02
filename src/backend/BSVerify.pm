@@ -122,7 +122,7 @@ sub verify_rev {
   my $rev = $_[0];
   die("revision is empty\n") unless defined($rev) && $rev ne '';
   return if $rev =~ /^[0-9a-f]{32}$/s;
-  return if $rev =~ /^[0-9a-f]{40}$/s;        # git id
+  return if $rev =~ /^[0-9a-f]{40}$/s;	# git id
   return if $rev eq 'upload' || $rev eq 'build' || $rev eq 'latest' || $rev eq 'repository';
   die("bad revision '$rev'\n") unless $rev =~ /^\d+$/s;
 }
@@ -226,7 +226,7 @@ sub verify_pack {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
   verify_packid($pack->{'name'});
-  verify_disableenable($pack);        # obsolete
+  verify_disableenable($pack);	# obsolete
   for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
   }

@@ -75,8 +75,8 @@ sub _workin {
       push @{$out->{$e}}, $v->[2];
     } else {
       if (@$ke == 1) {
-        push @{$out->{$e}}, {};
-        _workin($ke->[0], $out->{$e}->[-1], @$v);
+	push @{$out->{$e}}, {};
+	_workin($ke->[0], $out->{$e}->[-1], @$v);
       } else {
         die("element '$e' must be singleton\n") if exists $out->{$e};
         $out->{$e} = {};
@@ -120,14 +120,14 @@ sub _workout {
       next;
     }
     $inelem = 1;
-    next if ref($e) && !@$e;        # magic inelem marker
+    next if ref($e) && !@$e;	# magic inelem marker
     my $en = $e;
     $en = $en->[0] if ref($en);
     $en = $en->[0] if ref($en);
     next unless exists $d2{$en};
     my $ee = _escape($en);
     if (!ref($e) && $e eq '_content' && !$gotel) {
-      $gotel = 2;        # special marker to strip indent
+      $gotel = 2;	# special marker to strip indent
       $ret .= ">"._escape($d2{$e})."\n";
       delete $d2{$e};
       next;
@@ -137,7 +137,7 @@ sub _workout {
     if (!ref($e)) {
       die("'$e' must be scalar\n") if ref($d2{$e});
       if ($e eq '_content') {
-        my $c = $d2{$e};
+	my $c = $d2{$e};
         $ret .= "$indent  "._escape("$c\n");
         delete $d2{$e};
         next;
@@ -159,7 +159,7 @@ sub _workout {
       die("'$en' must be array\n") unless UNIVERSAL::isa($d2{$en}, 'ARRAY');
       for my $se (@{$d2{$en}}) {
         die("'$en' must be array of hashes\n") unless UNIVERSAL::isa($se, 'HASH');
-        $ret .= _workout($e->[0], $se, "$indent  ");
+	$ret .= _workout($e->[0], $se, "$indent  ");
       }
       delete $d2{$en};
     } else {

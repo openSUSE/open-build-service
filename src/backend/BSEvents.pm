@@ -118,11 +118,11 @@ sub schedule {
     my $now = time();
     if (defined($timeout) && $timeout <= $now) {
       for my $id (sort keys %events) {
-        my $ev = $events{$id};
-        next unless $ev && $ev->{'timeout'} && $ev->{'timeout'} <= $now;
+	my $ev = $events{$id};
+	next unless $ev && $ev->{'timeout'} && $ev->{'timeout'} <= $now;
         #print "timeout for event #$ev->{'id'}\n" if $ev->{'fd'};
-        rem($ev);
-        $ev->{'timeouthandler'}->($ev) if $ev->{'timeouthandler'};
+	rem($ev);
+	$ev->{'timeouthandler'}->($ev) if $ev->{'timeouthandler'};
       }
       next;
     }

@@ -51,9 +51,9 @@ sub listtar {
       $name =~ s/\/$//;
     } elsif ($type eq '-') {
       if ($size == 0) {
-        $info = 'd41d8cd98f00b204e9800998ecf8427e';
+	$info = 'd41d8cd98f00b204e9800998ecf8427e';
       } else {
-        $fc++;
+	$fc++;
       }
     }
     push @c, {'type' => $type, 'name' => $name, 'size' => $size, 'mode' => $mode};
@@ -163,10 +163,10 @@ sub filediff {
     while(<F>) {
       ++$lcnt;
       if (!$bintest) {
-        if (tr/\000-\037// > 3) {
-          close F;
-          return '';
-        }
+	if (tr/\000-\037// > 3) {
+	  close F;
+	  return '';
+	}
         $bintest = 1;
       }
       $d .= "$fx$_" if !defined($max) || $lcnt <= $max;
@@ -284,7 +284,7 @@ sub tardiff {
     next unless $l1 && !$l2{$l1->{'sname'}};
     $ren{$l1->{'sname'}} = $f;
     $ren{$f} = $l1->{'sname'};
-    delete $l1md5{$l2->{'info'}};        # used up
+    delete $l1md5{$l2->{'info'}};	# used up
   }
 
   my $e1cnt = 0;
@@ -324,9 +324,9 @@ sub tardiff {
       $d .= "--- $f\n";
       $d .= "+++ $f\n";
       if ($l1{$f}) {
-        $d .= "(renamed to $ren{$f})\n";
+	$d .= "(renamed to $ren{$f})\n";
       } else {
-        $d .= "(renamed from $ren{$f})\n";
+	$d .= "(renamed from $ren{$f})\n";
       }
       $lcnt += 3;
       next;
@@ -380,7 +380,7 @@ sub findsim {
   }
 
   for my $f (@f, @$s) {
-    next if $sim{$f};        # trivial mapped
+    next if $sim{$f};	# trivial mapped
     next unless $f =~ /\./;
     next if exists $fc{$f};
     for my $sc (@simclasses) {
@@ -388,11 +388,11 @@ sub findsim {
       if ($fc =~ s/\.$sc$//) {
         $fc{$f} = $fc;
         $ft{$f} = $sc;
-        last;
+	last;
       }
       $fc =~ s/\.bz2$//;
       $fc =~ s/\.gz$//;
-      next if $fc =~ /\.(?:spec|dsc|changes)$/;        # no compression here!
+      next if $fc =~ /\.(?:spec|dsc|changes)$/;	# no compression here!
       if ($fc =~ /^(.*)\.([^\/]+)$/) {
         $fc{$f} = $1;
         $ft{$f} = $2;
@@ -476,8 +476,8 @@ sub srcdiff {
         my $of = $f;
         delete $xold{$of};
         next if $old->{$of} eq $new->{$f};
-        my $arg = '-ub';
-        $arg = '-U0' if $extra eq 'changes';
+	my $arg = '-ub';
+	$arg = '-U0' if $extra eq 'changes';
         $d .= filediff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", $of, $f, undef, $arg);
       } else {
         $d .= "\n++++++ new $extra file:\n";
@@ -513,7 +513,7 @@ sub srcdiff {
         $d .= tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", $of, $f, $tmax, $edir);
         next;
       } else {
-        $d .= "\n++++++ $f (new)\n";
+	$d .= "\n++++++ $f (new)\n";
         next;
       }
     }

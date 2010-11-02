@@ -86,7 +86,7 @@ sub value {
   my ($self) = @_;
   my @v;
   if (exists($self->{'value'})) {
-    return [ $self->{'value'} ];        # hmm, what about other?
+    return [ $self->{'value'} ];	# hmm, what about other?
   }
   my $db = $self->{'db'};
   my $path = $self->{'path'};
@@ -110,7 +110,7 @@ sub value {
 
 sub step {
   my ($self, $c) = @_;
-  return [] if exists $self->{'value'};        # can't step concrete value
+  return [] if exists $self->{'value'};	# can't step concrete value
   my $v = bless {};
   $v->{'db'} = $self->{'db'};
   $v->{'keys'} = $self->{'keys'} if $self->{'keys'};
@@ -195,30 +195,30 @@ sub boolop {
     } else {
       my @values = $db->values($v1->{'path'}, $v1->{'keys'});
       if ($v1->{'keys'} && @values > @{$v1->{'keys'}}) {
-        for my $k (@{$v1->{'keys'}}) {
-          my $vv = $db->fetch($k);
-          next unless defined $vv;
-          if (!$negpol) {
-            next unless grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
-          } else {
-            next if grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
-          }
-          push @k, $k;
-        }
+	for my $k (@{$v1->{'keys'}}) {
+	  my $vv = $db->fetch($k);
+	  next unless defined $vv;
+	  if (!$negpol) {
+	    next unless grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
+	  } else {
+	    next if grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
+	  }
+	  push @k, $k;
+	}
       } else {
-        for my $vv (@values) {
-          if (!$negpol) {
-            next unless $op->($vv, $v2);
-          } else {
-            next if $op->($vv, $v2);
-          }
-          if ($v1->{'keys'}) {
-            push @k, grep {$k{$_}} $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
-          } else {
-            push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
-          }
-          die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
-        }
+	for my $vv (@values) {
+	  if (!$negpol) {
+	    next unless $op->($vv, $v2);
+	  } else {
+	    next if $op->($vv, $v2);
+	  }
+	  if ($v1->{'keys'}) {
+	    push @k, grep {$k{$_}} $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
+	  } else {
+	    push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
+	  }
+	  die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+	}
       }
     }
     $v->{'keys'} = \@k;
@@ -250,29 +250,29 @@ sub boolop {
     } else {
       my @values = $db->values($v2->{'path'}, $v2->{'keys'});
       if ($v2->{'keys'} && @values > @{$v2->{'keys'}}) {
-        for my $k (@{$v2->{'keys'}}) {
-          my $vv = $db->fetch($k);
-          next unless defined $vv;
-          if (!$negpol) {
-            next unless grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
-          } else {
-            next if grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
-          }
-          push @k, $k;
-        }
+	for my $k (@{$v2->{'keys'}}) {
+	  my $vv = $db->fetch($k);
+	  next unless defined $vv;
+	  if (!$negpol) {
+	    next unless grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
+	  } else {
+	    next if grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
+	  }
+	  push @k, $k;
+	}
       } else {
-        for my $vv (@values) {
-          if (!$negpol) {
-            next unless $op->($v1, $vv);
-          } else {
-            next if $op->($v1, $vv);
-          }
-          if ($v2->{'keys'}) {
-            push @k, grep {$k{$_}} $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
-          } else {
-            push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
-          }
-        }
+	for my $vv (@values) {
+	  if (!$negpol) {
+	    next unless $op->($v1, $vv);
+	  } else {
+	    next if $op->($v1, $vv);
+	  }
+	  if ($v2->{'keys'}) {
+	    push @k, grep {$k{$_}} $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
+	  } else {
+	    push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
+	  }
+	}
       }
     }
     $v->{'keys'} = \@k;
