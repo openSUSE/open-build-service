@@ -8,7 +8,7 @@
 c = @maxrevision if @maxrevision <= @visible_commits
 %>
 
-<h2>Commit history for <%= h @package %><%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %></h2>
+<h3><%= @pagetitle %><%= image_tag('ajax-loader.gif', :id => 'spinner_history', :class => 'hidden') %></h3>
 
 <% if @maxrevision > @browserrevision %>
   <%= button_to_function 'Go Up', 'slide_history_up()', :id => "go_up_button" if @maxrevision > @visible_commits %>

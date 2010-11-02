@@ -1,5 +1,6 @@
-<% @pagetitle = "Project Config for %s" % @project 
-   project_bread_crumb( 'Project Config' )
+<% @pagetitle = "Project Configuration of %s" % @project 
+   @metarobots = 'noindex'
+   project_bread_crumb 'Project Configuration'
 -%>
 
 <% content_for :content_for_head do %>
@@ -18,7 +19,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h2>Project Config for <%=h @project %></h2>
+<h3><%= @pagetitle %></h3>
 
 <% if @config.blank? %>
 

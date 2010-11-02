@@ -1,5 +1,6 @@
-<% @pagetitle = "Attributes for Project #{@project}" %>
-<% project_bread_crumb( 'Attributes' ) -%>
+<% @pagetitle = "Attributes of #{@project}"
+   project_bread_crumb 'Attributes' 
+-%>
 
 <%= render :partial => "tabs" %>
 
@@ -8,7 +9,7 @@
 <p><%= @project.remoteurl %></p>
 <% end -%>
 
-<h3>Attributes for Project <%= @project %>: </h3>
+<h3><%= @pagetitle %></h3>
 
 <!-- Attributes -->
 <%= render :partial => "attribute/attributes" %>

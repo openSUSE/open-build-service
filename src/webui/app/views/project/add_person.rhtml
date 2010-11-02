@@ -1,17 +1,6 @@
-<% @pagetitle = "Add Person" %>
-<% project_bread_crumb( 'Add User' ) -%>
+<% @pagetitle = "Add New User to #{@project}"
+   project_bread_crumb 'Add New User'
+-%>
 
 <%= render :partial => "tabs" %>
-
-<h2>Add new User to Project <%=h @project.name%></h2>
-
-<% form_tag :action => :save_person do %>
-  <p>
-    <strong>User ID:</strong>
-    <%= text_field_tag 'userid', params[:userid] %>
-    <strong>Role:</strong>
-    <%= select_tag 'role', options_for_select(@roles, params[:role]) %>
-    <%= hidden_field_tag 'project', @project %>
-  </p>
-  <p><%= submit_tag %></p>
-<% end %>
+<%= render :partial => "shared/add_user" %>

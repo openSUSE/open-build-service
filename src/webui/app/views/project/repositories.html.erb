@@ -1,12 +1,12 @@
-<%
-project_bread_crumb( 'Repositories' )
-@pagetitle = "Repositories for #{@project.name}"
-@metarobots = 'noindex'
+<% @pagetitle = "Repositories of #{@project.name}"
+   @metarobots = 'noindex'
+   project_bread_crumb 'Repositories'
 -%>
 
 <%= render :partial => "tabs" %>
 
-<h2>Repository Configuration</h2>
+<h3><%= @pagetitle %></h3>
+<p>You can configure individual flags for this project here.</p>
 
 <% if @project.has_element? :repository %>
 
@@ -49,6 +49,5 @@ project_bread_crumb( 'Repositories' )
 
 <div class="clear" style="margin-bottom: 2em"></div>
 
-<h2>Repository Flags</h2>
 <%= render :partial => 'shared/repositories', :locals => { :obj => @project } %>
 

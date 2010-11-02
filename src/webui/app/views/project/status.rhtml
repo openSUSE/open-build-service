@@ -1,6 +1,6 @@
-<% @pagetitle = "Status #{@project}"
+<% @pagetitle = "Status of #{@project}"
    metarobots = "noindex"
-   project_bread_crumb( 'Status' ) 
+   project_bread_crumb 'Status'
 -%>
 
 <% content_for :content_for_head do %>
@@ -13,7 +13,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h2>Status of project <%=h @project %></h2>
+<h3><%= @pagetitle %></h3>
 
 <% comments_to_clear = [] %>
 

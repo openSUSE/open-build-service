@@ -1,6 +1,7 @@
-<% @pagetitle = "Subprojects of Project #{@project}"
+<% @pagetitle = "Subprojects of #{@project}"
    @metarobots = 'noindex'
-   project_bread_crumb( 'Subprojects' ) -%>
+   project_bread_crumb 'Subprojects'
+-%>
 
 <%= render :partial => "tabs" %>
 
@@ -22,7 +23,7 @@
 <% end %>
 
 <div class="section">
-  <h3>Subprojects of <%= @project %>:</h3>
+  <h3><%= @pagetitle %></h3>
   <% if @project.can_edit?( session[:login] ) %>
     <p>
       <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new %>

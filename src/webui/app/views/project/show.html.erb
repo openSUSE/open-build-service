@@ -13,7 +13,7 @@
 <div class="grid_9 alpha">
 
   <div class="show_left box">
-    <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
+    <h3 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
     
     <% if (@bugowners_mail and defined? BUGZILLA_HOST) or
            @project.can_edit?( session[:login] ) %>

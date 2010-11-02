@@ -1,11 +1,9 @@
-<% @pagetitle = "Packages of Project #{@project}" %>
+<% @pagetitle = "Packages of #{@project}" %>
 <% project_bread_crumb( 'Packages' ) -%>
 
 <%= render :partial => "tabs" %>
 
-<h3>
-  Packages for project <%= @project %> <%= "(#{@packages.each.size})" if @packages.each.size > 0 %>
-</h3>
+<h3><%= @pagetitle %> <%= "(#{@packages.each.size})" if @packages.each.size > 0 %></h3>
 
 <% if @project.can_edit?( session[:login] ) %>
   <p>

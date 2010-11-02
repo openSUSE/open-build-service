@@ -2,7 +2,7 @@
 
 <% # used for projects and packages. As such @package can be nil -%>
 <div id="involved_users">
-  <h3>Involved Users</h3>
+  <h3><%= @pagetitle %></h3>
 
   <% if @user and @user.is_maintainer?( @project, @package ) %>
     <p>

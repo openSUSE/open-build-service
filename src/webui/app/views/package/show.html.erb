@@ -6,7 +6,7 @@
 <div class="grid_9 alpha">
 
   <div class="box show_left">
-    <h2 style="display: inline"><%=h @package %></h2>
+    <h3 style="display: inline"><%=h @package %></h3>
 
     <% if (@bugowners_mail and defined? BUGZILLA_HOST) or
            @package.can_edit?( session[:login] ) or
