@@ -670,17 +670,67 @@ sub set_building {
 ## Repository management functions
 ##
 
-sub sourceaccess {
-  my ($projid, $packid, $repoid) = @_;
-  my $sourceaccess = 1;
+sub checkaccess {
+  my ($type, $projid, $packid, $repoid) = @_;
+  my $access = 1;
   if ($projpacks->{$projid}) {
     my $pdata;
     $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} if defined $packid;
-    $sourceaccess = enabled($repoid, $projpacks->{$projid}->{'sourceaccess'}, $sourceaccess);
-    $sourceaccess = enabled($repoid, $pdata->{'sourceaccess'}, $sourceaccess) if $pdata;
+    $access = enabled($repoid, $projpacks->{$projid}->{$type}, $access);
+    $access = enabled($repoid, $pdata->{$type}, $access) if $pdata;
   } else {
-    $sourceaccess = 0;
+    $access = 0;
   }
+  return $access;
+}
+
+# check if every user from oprojid may access projid
+sub checkroles {
+  my ($type, $projid, $packid, $oprojid, $opackid) = @_;
+  my $proj = $projpacks->{$projid};
+  return 1 unless $proj;	# remote API will check for us
+  my $oproj = $projpacks->{$oprojid};
+  return 0 unless $oproj;
+  if ($projid eq $oprojid) {
+    return 1 if !defined $opackid;
+    return 1 if ($packid || '') eq ($opackid || '');
+  }
+  my @roles;
+  if (defined($packid)) {
+    my $pdata = ($proj->{'package'} || {})->{$packid} || {};
+    push @roles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
+  }
+  push @roles, @{$proj->{'person'} || []}, @{$proj->{'group'} || []};
+  while ($projid =~ /^(.+):/) {
+    $projid = $1;
+    $proj = $projpacks->{$projid} || {};
+    push @roles, @{$proj->{'person'} || []}, @{$proj->{'group'} || []};
+  }
+  my @oroles;
+  if (defined($opackid)) {
+    my $pdata = ($oproj->{'package'} || {})->{$opackid} || {};
+    push @roles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
+  }
+  push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+  while ($oprojid =~ /^(.+):/) {
+    $oprojid = $1;
+    $oproj = $projpacks->{$oprojid} || {};
+    push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+  }
+  # make sure every user from oprojid can also access projid
+  # XXX: check type and roles
+  for my $r (@oroles) {
+    next if $r->{'role'} eq 'bugowner';
+    my @rx; 
+    if (exists $r->{'userid'}) {
+      push @rx, grep {exists($_->{'userid'}) && $_->{'userid'} eq $r->{'userid'}} @roles;
+    }    
+    if (exists $r->{'groupid'}) {
+      push @rx, grep {exists($_->{'groupid'}) && $_->{'groupid'} eq $r->{'groupid'}} @roles;
+    }    
+    return 0  unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
+  }
+  return 1;
 }
 
 #
@@ -1088,7 +1138,7 @@ sub update_dst_full {
     my ($projid, $repoid) = split('/', $prp, 2);
     my $packid = $dst;
     $packid =~ s/^.*\///s;
-    BSUtil::touch("$dst/.nosourceaccess") unless sourceaccess($projid, $packid, $repoid);
+    BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
   } else {
     # dst = undef is true for importevents
     $isimport = 1;
@@ -2264,6 +2314,14 @@ sub checkkiwiimage {
   $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
   for my $aprp (@aprps) {
+    if ($aprp ne $prp) {
+      my ($aprojid, $arepoid) = split('/', $aprp);
+      if (!checkaccess('access', $aprojid, undef, $arepoid) && !checkroles('access', $aprojid, undef, $projid, undef)) {
+        print "      - $packid (kiwi-image)\n";
+        print "        repository $aprp is unavailable";
+        return ('broken', "repository $aprp is unavailable");
+      }
+    }
     my $r = addrepo($pool, $aprp);
     if (!$r) {
       print "      - $packid (kiwi-image)\n";
@@ -2364,9 +2422,23 @@ sub rebuildkiwiimage {
     # setup pool again for kiwi system expansion
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    my $prp = "$projid/$repoid";
     my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     for my $aprp (@aprps) {
-      addrepo($pool, $aprp);
+      if ($aprp ne $prp) {
+	my ($aprojid, $arepoid) = split('/', $aprp);
+	if (!checkaccess('access', $aprojid, undef, $arepoid) && !checkroles('access', $aprojid, undef, $projid, undef)) {
+	  print "      - $packid (kiwi-image)\n";
+	  print "        repository $aprp is unavailable";
+	  return ('broken', "repository $aprp is unavailable");
+	}
+      }
+      my $r = addrepo($pool, $aprp);
+      if (!$r) {
+        print "      - $packid (kiwi-image)\n";
+        print "        repository $aprp is unavailable";
+        return ('broken', "repository $aprp is unavailable");
+      }
     }
     $pool->createwhatprovides();
     my $xp = BSSolv::expander->new($pool, $bconf);
@@ -2448,6 +2520,14 @@ sub checkkiwiproduct {
 
     my $savemyarch = $myarch;
     for my $aprp (@bprps) {
+      if ($aprp ne $prp) {
+	my ($aprojid, $arepoid) = split('/', $aprp);
+	if (!checkaccess('access', $aprojid, undef, $arepoid) && !checkroles('access', $aprojid, undef, $projid, undef)) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        repository $aprp is unavailable";
+	  return ('broken', "repository $aprp is unavailable");
+	}
+      }
       $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;
       my $r = addrepo($pool, $aprp);
@@ -2478,6 +2558,17 @@ sub checkkiwiproduct {
     my %dep2pkg;
     for my $p ($pool->consideredpackages()) {
       $dep2pkg{$pool->pkg2name($p)} = $p;
+    }
+    # check access
+    for my $aprp (@aprps) {
+      if ($aprp ne $prp) {
+	my ($aprojid, $arepoid) = split('/', $aprp);
+	if (!checkaccess('access', $aprojid, undef, $arepoid) && !checkroles('access', $aprojid, undef, $projid, undef)) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        repository $aprp is unavailable";
+	  return ('broken', "repository $aprp is unavailable");
+	}
+      }
     }
     # check if we are blocked
     if ($myarch eq 'local' && $BSConfig::localarch) {
@@ -2809,6 +2900,10 @@ sub checkaggregate {
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs{$aprojid} || $projpacks->{$aprojid};
     if (!$proj) {
+      push @broken, $aprojid;
+      next;
+    }
+    if (!checkaccess('access', $aprojid, undef, undef) && !checkroles('access', $aprojid, undef, $projid, undef)) {
       push @broken, $aprojid;
       next;
     }
@@ -4127,6 +4222,13 @@ while(1) {
   my %notready;		# unfinished and will modify :full
 
   for my $rprp (@{$prpsearchpath{$prp}}) {
+    if ($rprp ne $prp) {
+      my ($rprojid, $rrepoid) = split('/', $rprp);
+      if (!checkaccess('access', $rprojid, undef, $rrepoid) && !checkroles('access', $rprojid, undef, $projid, undef)) {
+        $error = "repository '$rprp' is unavailable";
+        last;
+      }
+    }
     my $r = addrepo($pool, $rprp);
     if (!$r) {
       $error = "repository '$rprp' is unavailable";
