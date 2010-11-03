@@ -2149,7 +2149,7 @@ sub getbuildinfo_post {
   unless (defined $d->{'name'}) {
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
-    die("parse error\n");
+    die("could not parse build description (spec/dsc/kiwi)\n");
   }
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
