@@ -2,6 +2,7 @@ class DbPackage < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
+  class PkgAccessError < Exception; end
   belongs_to :db_project
 
   belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
@@ -27,6 +28,21 @@ class DbPackage < ActiveRecord::Base
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
     false
+  end
+
+  def before_validation
+    if self.disabled_for?('access', nil, nil)  or self.db_project.disabled_for?('access', nil, nil)
+      unless User.current and User.current.can_access?(self)
+        logger.debug "PkgAccessException: #{self.name}"
+        raise PkgAccessError.new "Unknown package '#{self.db_project.name}/#{self.name}'"
+      end
+    end
+    if self.disabled_for?('sourceaccess', nil, nil)
+      logger.debug "PkgSourceAccessException: to be implemented"
+    end
+    if self.disabled_for?('binarydownload', nil, nil)
+      logger.debug "PkgBinaryDownloadException: to be implemented"
+    end
   end
 
   class << self

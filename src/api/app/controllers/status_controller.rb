@@ -1,8 +1,7 @@
 require 'project_status_helper'
 
 class StatusController < ApplicationController
-
-  skip_before_filter :extract_user, :only => [ :history, :project ]
+  
 
   def messages
     # ACL(messages) this displays the status messages the Admin can enter for users.

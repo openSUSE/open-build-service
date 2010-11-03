@@ -3,8 +3,7 @@ require "rexml/document"
 class SourceController < ApplicationController
   validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
   validate_action :project_meta => :project, :package_meta => :package, :pattern_meta => :pattern
- 
-  skip_before_filter :extract_user, :only => [:file, :project_meta] 
+  
 
   def index
     # ACL(index): projects with flag 'access' are not listed

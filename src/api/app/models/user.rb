@@ -15,6 +15,13 @@ class User < ActiveRecord::Base
   has_many :status_messages
   has_many :messages
 
+  def self.current
+    Thread.current[:user]
+  end
+
+  def self.current=(user)
+    Thread.current[:user] = user
+  end
 
   def encrypt_password
     if errors.count == 0 and @new_password and not password.nil?

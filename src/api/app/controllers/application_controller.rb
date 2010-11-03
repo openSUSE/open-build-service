@@ -31,6 +31,7 @@ class ApplicationController < ActionController::Base
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
   before_filter :shutup_rails
+  before_filter :set_current_user
 
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
@@ -59,6 +60,10 @@ class ApplicationController < ActionController::Base
   end
   hide_action :start_test_backend
 
+  def set_current_user
+    User.current = @http_user
+  end
+
   protected
   def restrict_admin_pages
      if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
@@ -73,6 +78,13 @@ class ApplicationController < ActionController::Base
       render :template => 'permerror'
       return false
     end
+    return true
+  end
+
+  def extract_user_public
+    # to become _public_ special user 
+    @http_user = User.find_by_login( "_nobody_" )
+    @user_permissions = Suse::Permission.new( @http_user )
     return true
   end
 
@@ -373,6 +385,15 @@ class ApplicationController < ActionController::Base
       render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
+    when DbProject::PrjAccessError
+      logger.error "PrjAccessError: #{exception.message}"
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => exception.message
+    when DbPackage::PkgAccessError
+      logger.error "PkgAccessError: #{exception.message}"
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => exception.message
+
     when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActionController::UnknownAction

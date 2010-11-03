@@ -4,6 +4,7 @@ class DbProject < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
+  class PrjAccessError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :project_group_role_relationships, :dependent => :destroy
@@ -26,6 +27,21 @@ class DbProject < ActiveRecord::Base
 
   def download_name
     self.name.gsub(/:/, ':/')
+  end
+  
+  def before_validation
+    if self.disabled_for?('access', nil, nil) 
+      unless User.current and User.current.can_access?(self)
+        logger.debug "PrjAccessException: #{self.name}"
+        raise PrjAccessError.new "Unknown project '#{self.name}'"
+      end
+    end
+    if self.disabled_for?('sourceaccess', nil, nil)
+      logger.debug "PrjSourceAccessException: to be implemented"
+    end
+    if self.disabled_for?('binarydownload', nil, nil)
+      logger.debug "PrjBinaryDownloadException: to be implemented"
+    end
   end
 
   class << self

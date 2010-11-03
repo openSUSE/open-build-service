@@ -1,6 +1,8 @@
 class PublicController < ApplicationController
   include PublicHelper
   skip_before_filter :extract_user
+  # we need to fall back to _nobody_ (_public_)
+  before_filter :extract_user_public
 
   def index
     redirect_to :controller => 'main'
