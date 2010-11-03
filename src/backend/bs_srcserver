@@ -1758,6 +1758,14 @@ sub kiwibootcallback {
   my ($projid, $packid) = @_;
   BSVerify::verify_projid($projid);
   BSVerify::verify_packid($packid);
+  my $proj = readproj($projid, 1);
+  if ($proj) {
+    my $pack = readpack($projid, $packid, 1);
+    my $sourceaccess = 1;
+    $sourceaccess = BSUtil::enabled('', $proj->{'sourceaccess'}, $sourceaccess, '');
+    $sourceaccess = BSUtil::enabled('', $pack->{'sourceaccess'}, $sourceaccess, '') if $pack;
+    die("403 source access denied\n") unless $sourceaccess;
+  }
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);
   my ($md5, $file) = findfile($rev, undef, 'kiwi', $files);
