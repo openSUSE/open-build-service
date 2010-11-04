@@ -94,7 +94,7 @@ class PersonController < ApplicationController
   end
 
   def register
-    valid_http_methods :post
+    valid_http_methods :post, :put
 
     if defined?( LDAP_MODE ) && LDAP_MODE == :on
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
@@ -199,7 +199,7 @@ class PersonController < ApplicationController
   private :update_watchlist
 
   def change_my_password
-    valid_http_methods :post
+    valid_http_methods :post, :put
     
     xml = REXML::Document.new( request.raw_post )
 
