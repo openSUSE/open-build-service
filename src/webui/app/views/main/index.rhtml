@@ -28,7 +28,13 @@
   </p>
 
   <p class="description">
-    Go <%= link_to "here", :controller => :user, :action => :register_user %> to register a new user.
+    Go
+    <% if ICHAIN_MODE == 'on' %>
+      <%= link_to "here", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
+    <% else %>
+      <%= link_to "here", :controller => :user, :action => :register_user %>
+    <% end %>
+    to register a new user.
   </p>
 
 <!-- Place holder for important/urgent note
