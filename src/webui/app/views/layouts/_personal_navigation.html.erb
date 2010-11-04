@@ -15,8 +15,8 @@
 
     <% if ICHAIN_MODE == 'on' %>
 
-      <%= link_to("Sign up", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %>
-      | <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
+      <%= link_to("Register", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %> |
+      <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
 
       <div id="login-form">
         <form action="https://build.opensuse.org/ICSLogin/auth-up"
@@ -39,6 +39,7 @@
 
     <% else %>
 
+      <%= link_to "Register", :controller => :user, :action => :register_user %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
         <% form_tag( :controller => :user, :action => :do_login ) do %>
