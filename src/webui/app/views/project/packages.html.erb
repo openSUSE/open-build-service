@@ -21,11 +21,11 @@
         <span style="float: right">
           <%= link_to image_tag( 'icons/package_add.png', :title => 'Add Package' ),
             :controller => 'project', :action => :new_package, :project => @project %>
-          <%= link_to 'Add', :controller => 'project', :action => :new_package, :project => @project %> a new package&nbsp;
+          <%= link_to 'Create new package', :controller => 'project', :action => :new_package, :project => @project %>
           <%= link_to image_tag( 'icons/package_link.png', :title => 'Branch Package' ),
             :controller => 'project', :action => :new_package_branch, :project => @project %>
-          <%= link_to 'Branch package',
-            :controller => 'project', :action => :new_package_branch, :project => @project %> from other project&nbsp;
+          <%= link_to 'Branch package from other project',
+            :controller => 'project', :action => :new_package_branch, :project => @project %>
           <%= image_tag( 'icons/plugin_add.png', :title => 'Create patchinfo' ) %>
           <%= link_to 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %>
         </span>
