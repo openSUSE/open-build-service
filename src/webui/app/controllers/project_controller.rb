@@ -101,6 +101,9 @@ class ProjectController < ApplicationController
   end
   private :get_filtered_packagelist
 
+  def is_advanced_tab?
+    ["prjconf", "users", "subprojects", "attributes", "meta", "status"].include? @action_name
+  end
 
   def users
     @email_hash = Hash.new
