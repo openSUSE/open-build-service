@@ -1,50 +1,38 @@
-<% # locals:
-#   project_list: list of projects to show
--%>
-
 <div id="project_list">
 
-  <% unless @important_projects.each.blank? %>
-    <div class="box-header aligncenter">
-      Main Projects
-    </div>
+  <% if @projects.blank? %>
+    <p><i>No projects found</i></p>
+  <% else %>
+    <div>
+      <% unless @important_projects.each.blank? %>
+        <h3>Main Projects</h3>
+        <p>
+          <% for project in @important_projects -%>
+            <%= link_to project.name, :action => :show, :project => project %>
+          <% end -%>
+        </p>
+    <% end %>
+
+    <h3>
+      All <%= 'Public' if !@excludefilter.blank? %> Projects
+      <%= "which include '#{@filterstring}'" if !@filterstring.blank? %>
+      <%= " (#{@projects.size})" %>
+    </h3>
     <p>
-      <% for project in @important_projects -%>
-        <%= link_to project.name, :action => :show, :project => project %>
-      <% end -%>
+      <% @projects.each do |project| -%>
+        <%- next if project == 'deleted' -%>
+        <%- if @current_char.blank? || @current_char != project.downcase[0,1]
+          @current_char = project.downcase[0,1] %>
+          </p><p><b><%= @current_char %></b>
+        <%- end -%>
+        <%- if !@prj_head.blank? and !project.index @prj_head -%>
+          <% @prj_head = '' -%>
+          <% @current_prj = '' -%>
+        <%- end -%>
+        | <%= link_to highlight( h(project), @filterstring ), {:action => :show, :project => project }, :class => 'nowrap' -%>
+      <% end %>
     </p>
-  <% end %>
-
-
-  <div class="box-header aligncenter">
-    All <%= 'Public' if !@excludefilter.blank? %> Projects
-    <%= "which include '#{@filterstring}'" if !@filterstring.blank? %>
-    <%= " (#{project_list.size})" %>
   </div>
-
-  <p>
-    <% project_list.each do |project| -%>
-      <%- next if project == 'deleted' -%>
-      <%- if @current_char.blank? || @current_char != project.downcase[0,1]
-        @current_char = project.downcase[0,1] %>
-      </p><h3><%= @current_char %></h3><p>
-      <%- end -%>
-      <%- @current_prj = project[0..project.index( ':' ) - 1] if project.index( ':' )
-      if !@current_prj.blank? and @prj_head != @current_prj and project_list.each.select{|p| p.index @current_prj + ':' }.size >= 3
-        @prj_head = @current_prj -%>
-      </p><p><b><%= h @prj_head -%></b>:
-      <%- end -%>
-      <%- if !@prj_head.blank? and !project.index @prj_head -%>
-        <% @prj_head = '' -%>
-        <% @current_prj = '' -%>
-      </p><p>
-      <%- end -%>
-      <%= link_to highlight( h(project), @filterstring ), {:action => :show, :project => project }, :class => 'nowrap' -%> |
-    <% end %>
-
-    <% if project_list.blank? -%>
-      <i>No projects found</i>
-    <% end %>
-  </p>
+  <% end %>
 
 </div>

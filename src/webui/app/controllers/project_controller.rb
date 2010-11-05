@@ -45,7 +45,7 @@ class ProjectController < ApplicationController
     @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
     get_filtered_projectlist @filterstring, @excludefilter
     if request.xhr?
-      render :partial => 'search_project', :locals => {:project_list => @projects} and return
+      render :partial => 'search_project' and return
     end
     render :list, :status => params[:nextstatus]
   end
