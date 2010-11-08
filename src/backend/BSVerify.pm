@@ -64,16 +64,6 @@ sub verify_packid_repository {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_repository';
 }
 
-sub verify_packid_pattern {
-  return if $_[0] && ($_[0] eq '_pattern' || $_[0] eq '_project');
-  verify_packid($_[0]);
-}
-
-sub verify_packid_product {
-  return if $_[0] && ($_[0] eq '_product' || $_[0] eq '_project');
-  verify_packid($_[0]);
-}
-
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
@@ -366,8 +356,6 @@ our $verifyers = {
   'arch' => \&verify_arch,
   'job' => \&verify_jobid,
   'package_repository' => \&verify_packid_repository,
-  'package_pattern' => \&verify_packid_pattern,
-  'package_product' => \&verify_packid_product,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
   'rev' => \&verify_rev,

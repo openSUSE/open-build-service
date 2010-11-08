@@ -484,7 +484,6 @@ sub getrev_git {
 sub getrev {
   my ($projid, $packid, $rev, $linked, $missingok) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
-  return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if ($packid ne '_project' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     my $proj = readproj($projid, 1);
@@ -555,14 +554,6 @@ sub addmeta {
     mkdir_p($uploaddir);
     mkdir_p("$projectsdir/$projid.pkg");
     writestr("$uploaddir/addmeta$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
-  } elsif ($rev && $rev eq 'pattern') {
-    if ($meta ne '') {
-      mkdir_p($uploaddir);
-      mkdir_p("$projectsdir/$projid.pkg");
-      writestr("$uploaddir/addmeta$$", "$projectsdir/$projid.pkg/pattern-MD5SUMS", $meta);
-    } else {
-      unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS");
-    }
   } else {
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
     if (! -e "$treedir/$srcmd5-MD5SUMS") {
@@ -616,12 +607,20 @@ sub updatelinkinfodb {
 sub addrev {
   my ($projid, $packid, $files, $user, $comment, $target, $requestid) = @_;
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
-  if ($packid eq '_pattern') {
-    my $srcmd5 = addmeta($projid, $packid, $files, 'pattern');
-    notify_repservers('project', $projid);
-    return {'project' => $projid, 'package' => $packid, 'rev' => 'pattern', 'srcmd5' => $srcmd5};
-  }
   die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
+  if ($packid eq '_pattern' || ! -e "$projectsdir/$projid.pkg/$packid.xml") {
+    # upgrade pseudo _pattern package to real package
+    my $pack = {
+      'name' => $packid,
+      'project' => $projid,
+      'title' => 'pseudo package to store pattern information',
+      'description' => "pseudo package to store pattern information\n",
+    };
+    mkdir_p($uploaddir);
+    writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
+    mkdir_p("$projectsdir/$projid.pkg");
+    addrev_meta({'user' => $user}, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+  }
   die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
@@ -659,7 +658,7 @@ sub addrev {
   $user = str2utf8xml($user);
   $comment = str2utf8xml($comment);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $requestid};
-  if ($packid ne '_project') {
+  if ($packid ne '_project' && $packid ne '_pattern') {
     my ($version, $release) = getcommitinfo($projid, $packid, $srcmd5, $files);
     $rev->{'version'} = $version;
     $rev->{'vrev'} = $release;
@@ -710,7 +709,11 @@ sub addrev {
     }
   }
 
-  $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $rev->{'version'});
+  if (defined($rev->{'version'})) {
+    $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $rev->{'version'});
+  } else {
+    $rev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev);
+  }
 
   # add missing data to complete the revision object
   $rev->{'project'} = $projid;
@@ -739,10 +742,12 @@ sub addrev {
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
                                              oldversion => $rev_old->{'version'}, newversion => $rev->{'version'}, user => $user, comment => $comment})
-    if $rev->{'version'} ne $rev_old->{'version'};
+    if $rev->{'version'} && $rev_old->{'version'} && $rev->{'version'} ne $rev_old->{'version'};
 
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+  # kill obsolete _pattern file
+  unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS") if $packid eq '_pattern';
 
   notify_repservers('package', $projid, $packid);
   return $rev;
@@ -1839,6 +1844,13 @@ sub getprojpack {
     if ($cgi->{'withsrcmd5'} && -s "$projectsdir/$projid.pkg/pattern-MD5SUMS") {
       my $patterns = readstr("$projectsdir/$projid.pkg/pattern-MD5SUMS", 1);
       $jinfo->{'patternmd5'} = Digest::MD5::md5_hex($patterns) if $patterns;
+    } elsif ($cgi->{'withsrcmd5'} && $cgi->{'nopackages'}) {
+      # used by publisher to get patternmd5
+      eval {
+	my $rev = getrev($projid, '_pattern');
+	my $files = lsrev_expanded($rev);
+	$jinfo->{'patternmd5'} = $rev->{'srcmd5'};
+      };
     }
     my @packages;
     @packages = findpackages($projid, $proj, 1) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
@@ -1965,7 +1977,7 @@ sub getprojpack {
 	}
 	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
 	$pinfo->{'rev'} = $rev->{'rev'};
-	$pinfo->{'revtime'} = $rev->{'time'};
+	$pinfo->{'revtime'} = $rev->{'time'} if $rev->{'time'};
 	my $files;
 	eval {
           $files = lsrev($rev);
@@ -2002,7 +2014,11 @@ sub getprojpack {
 	  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
 	  $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
 	}
-
+	if ($packid eq '_pattern') {
+	  $jinfo->{'patternmd5'} = $pinfo->{'srcmd5'};
+	  $pinfo->{'error'} = 'excluded';
+	  next;
+	}
 	if ($files->{'_aggregate'}) {
 	  my $aggregatelist = repreadxml($rev, '_aggregate', $files->{'_aggregate'}, $BSXML::aggregatelist, 1);
 	  if (!$aggregatelist) {
@@ -2675,6 +2691,7 @@ sub remote_getrev {
   my ($projid, $packid, $rev, $linked, $missingok) = @_;
   my $proj = remoteprojid($projid);
   if (!$proj) {
+    return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
     return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok;
     die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
     die("404 project '$projid' does not exist\n");
@@ -4087,6 +4104,7 @@ sub delbinary {
 
 sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  die("illageal package '$packid'\n") if $packid =~ /^_/;
   checkprojrepoarch($projid, $repoid, $arch);
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
@@ -5339,14 +5357,14 @@ my $dispatches = [
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
-  '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
-  '/source/$project/$package:package_product/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
+  '/source/$project/$package rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
+  '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:?' => \&delpackage,
-  '/source/$project/$package:package_pattern/$filename rev?' => \&getfile,
-  'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
-  'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
+  '/source/$project/$package/$filename rev?' => \&getfile,
+  'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
+  'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
 
   # /published name spec: access published binaries
   '/published' => \&published,
@@ -5436,7 +5454,7 @@ my $dispatches_ajax = [
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   '/source/$project/$package rev' => \&getfilelist_ajax,
-  '/source/$project/$package:package_pattern/$filename rev?' => \&getfile,
+  '/source/$project/$package:package/$filename rev?' => \&getfile,
 ];
 
 ####################################################################
