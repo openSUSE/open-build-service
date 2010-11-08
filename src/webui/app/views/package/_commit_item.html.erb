@@ -8,7 +8,7 @@
     image_tag( 'icons/cog.png' ) + " automatic update by service "
   else
     user = commit[:user] || '-'
-    user = gravatar_image(Person.email_for_login(user)) + " <b>#{user}</b>"
+    user = gravatar_image(Person.email_for_login(user)) + " #{user}"
     if commit[:requestid]
       user + " accepted " + link_to("request #{commit[:requestid]}", { :controller => 'request', :action => 'show', :id => commit[:requestid] })
     else
