@@ -3221,7 +3221,7 @@ sub sourcediff {
     }
   }
   $cacheid = Digest::MD5::md5_hex($cacheid);
-  return ('', 'Content-Type: text/plain') if !%$ofiles && !%$files;
+  return ('', 'Content-Type: text/plain') unless grep {($ofiles->{$_} || '') ne ($files->{$_} || '')} (keys %$ofiles, keys %$files);
   local *F;
   my $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
   if (open(F, '<', $cn)) {
