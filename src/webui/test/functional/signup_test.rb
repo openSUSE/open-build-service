@@ -10,7 +10,7 @@ class WebratTest < ActionController::IntegrationTest
       fill_in "Password", :with => "thunderz"
       click_button "Login"
       assert_response :success
-      assert_contain("Please login:")
+      assert_contain("Please Login")
       assert_contain("Authentication failed")
  
       fill_in "Username", :with => "tom"
