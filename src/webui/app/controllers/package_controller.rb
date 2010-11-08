@@ -564,19 +564,6 @@ class PackageController < ApplicationController
       return
     end
 
-    if params[:addAsPatch]
-      link = Link.find( :project => @project, :package => @package )
-      if link
-        link.add_patch filename
-        link.save
-      end
-    elsif params[:applyAsPatch]
-      link = Link.find( :project => @project, :package => @package )
-      if link
-        link.apply_patch filename
-        link.save
-      end
-    end
     flash[:success] = "The file #{filename} has been added."
     @package.free_directory
     redirect_to :action => :files, :project => @project, :package => @package
