@@ -2,18 +2,18 @@
 
 production:
   adapter: mysql
-  database: webui_production
+  database: obs_webui_production
   username: root
   password: opensuse
 
 development:
   adapter: sqlite3
-  database: db/database-devel.db
+  database: db/obs_webui_development.db
 
 stage:
   adapter: sqlite3
-  database: db/database-stage.db
+  database: db/obs_webui_stage.db
 
 test:
   adapter: sqlite3
-  database: db/database-test.db
+  database: db/obs_webui_test.db
