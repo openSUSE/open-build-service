@@ -2,23 +2,18 @@
 <div class="grid_6 omega" style="text-align: right;">
 
   <% if session[:login] -%>
-
     <%= link_to session[:login], :controller => 'home', :action => :index %>
     <%=
-    if @nr_involved_requests and @nr_involved_requests > 0
-      "(" + link_to(pluralize(@nr_involved_requests, 'request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"}) + ")"
-    end
-    -%>
-    | <%= link_to "Home project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
-    | <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
-
+      if @nr_involved_requests and @nr_involved_requests > 0
+        "(" + link_to(pluralize(@nr_involved_requests, 'request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"}) + ")"
+      end
+    -%> |
+    <%= link_to "Home project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
+    <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
   <% else %>
-
     <% if ICHAIN_MODE == 'on' %>
-
-      <%= link_to("Register", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %> |
+      <%= link_to "Register", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
-
       <div id="login-form">
         <form action="<%= ICHAIN_HOST + "/ICSLogin/auth-up" %>"
           method="post" enctype="application/x-www-form-urlencoded" id="login_form">
@@ -37,9 +32,7 @@
           <p class="slim-footer"><a id="close-login" href="#">Cancel</a></p>
         </form>
       </div>
-
     <% else %>
-
       <%= link_to "Register", :controller => :user, :action => :register_user %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
@@ -54,7 +47,6 @@
           <p class="slim-footer"><a id="close-login" href="#cancel">Cancel</a></p>
         <% end %>
       </div>
-
     <% end %>
   <% end %>
 

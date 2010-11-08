@@ -1,4 +1,4 @@
-<% @pagetitle = "Login" %>
+<% @pagetitle = "Please Login" %>
 
 <% if ICHAIN_MODE == 'on' %>
   <form action="<%= ICHAIN_HOST + "/ICSLogin/auth-up" %>"
@@ -14,7 +14,7 @@
 <% end %>
 
   <div title="Account login" id="loginform" class="form">
-    <h1>Please login:</h1>
+    <h1><%= h @pagetitle %></h1>
     <p>
       <label for="user_login">Username:</label>
       <input type="text" name="username" id="user_login" size="30" value=""/><br/><br/>
@@ -27,11 +27,13 @@
     </p>
   </div>
 
-  <div>
+  <p>
+    Or
     <% if ICHAIN_MODE == 'on' %>
-      <%= link_to "Register new user", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
+      <%= link_to "register", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
     <% else %>
-      <%= link_to "Register new user", :controller => :user, :action => :register_user %>
+      <%= link_to "register", :controller => :user, :action => :register_user %>
     <% end %>
-  </div>
+    as a new user.
+  </p>
 </form>
