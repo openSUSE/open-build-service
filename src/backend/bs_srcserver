@@ -3155,8 +3155,13 @@ sub sourcediff {
 
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+
   my $fmax = 200;
   my $tmax = 16000;
+  $fmax = $cgi->{'filelimit'} if defined $cgi->{'filelimit'};
+  $tmax = $cgi->{'tarlimit'} if defined $cgi->{'tarlimit'};
+  undef $fmax unless $fmax;
+  undef $tmax unless $tmax;
 
   my $rev;
   if ($cgi->{'meta'}) {
@@ -3167,6 +3172,7 @@ sub sourcediff {
   my $files = lsrev($rev);
   my $orev = $cgi->{'orev'};
   if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
+    die("revision is not a simple commit\n") unless $rev->{'rev'} =~ /^\d+$/s;
     $orev = $rev->{'rev'} - 1;
   }
   if ($cgi->{'meta'}) {
@@ -3204,6 +3210,16 @@ sub sourcediff {
   $cacheid .= "/unified:$cgi->{'unified'}" if $cgi->{'unified'};
   $cacheid .= "/fmax:$fmax" if defined $fmax;
   $cacheid .= "/tmax:$tmax" if defined $tmax;
+  if ($cgi->{'file'}) {
+    my %file = map {$_ => 1} @{$cgi->{'file'}};
+    $cacheid .= "/file:$_" for sort keys %file;
+    for (keys %$ofiles) {
+      delete $ofiles->{$_} unless $file{$_};
+    }
+    for (keys %$files) {
+      delete $files->{$_} unless $file{$_};
+    }
+  }
   $cacheid = Digest::MD5::md5_hex($cacheid);
   local *F;
   my $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
@@ -5343,8 +5359,8 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool? meta:bool?' => \&sourcediff,
-  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? requestid:num?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,

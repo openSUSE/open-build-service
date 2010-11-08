@@ -27,6 +27,12 @@ use Fcntl;
 
 use strict;
 
+
+#
+# fmax: maximum number of lines in a diff
+# tmax: maximum number of lines in a tardiff
+#
+
 sub listtar {
   my ($tar) = @_;
   local *F;
@@ -495,7 +501,7 @@ sub srcdiff {
   }
 
   my %oold = map {$_ => 1} @old;
-  if (@new || @old) {
+  if ($d ne '' && (@new || @old)) {
     $d .= "\n";
     $d .= "other changes:\n";
     $d .= "--------------\n";
