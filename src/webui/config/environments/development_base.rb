@@ -34,6 +34,7 @@ FRONTEND_PROTOCOL = 'https'
 # in the frontend otherwise funny things happen.
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
+ICHAIN_HOST = "https://build.opensuse.org"
 ICHAIN_MODE = "off"
 #ICHAIN_TEST_USER = "adrianSuSE"
-
+#ICHAIN_TEST_EMAIL = "foo@bar.com

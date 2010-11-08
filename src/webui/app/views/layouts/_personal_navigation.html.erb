@@ -16,12 +16,12 @@
 
     <% if ICHAIN_MODE == 'on' %>
 
-      <%= link_to("Register", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %> |
+      <%= link_to("Register", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
 
       <div id="login-form">
-        <form action="https://build.opensuse.org/ICSLogin/auth-up"
-              method="post" enctype="application/x-www-form-urlencoded" id="login_form">
+        <form action="<%= ICHAIN_HOST + "/ICSLogin/auth-up" %>"
+          method="post" enctype="application/x-www-form-urlencoded" id="login_form">
           <div class="hidden">
             <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
             <input name="context" value="default" type="hidden" />

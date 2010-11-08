@@ -1,7 +1,7 @@
 <% @pagetitle = "Login" %>
 
 <% if ICHAIN_MODE == 'on' %>
-  <form action="https://build.opensuse.org/ICSLogin/auth-up"
+  <form action="<%= ICHAIN_HOST + "/ICSLogin/auth-up" %>"
         method="post" enctype="application/x-www-form-urlencoded">
     <div>
       <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
@@ -29,7 +29,7 @@
 
   <div>
     <% if ICHAIN_MODE == 'on' %>
-      <%= link_to "Register new user", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
+      <%= link_to "Register new user", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
     <% else %>
       <%= link_to "Register new user", :controller => :user, :action => :register_user %>
     <% end %>

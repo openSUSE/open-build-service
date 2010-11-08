@@ -36,6 +36,7 @@ FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
 
+ICHAIN_HOST = "https://build.opensuse.org"
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "off"
 
