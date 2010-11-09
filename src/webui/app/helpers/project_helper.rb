@@ -76,7 +76,11 @@ module ProjectHelper
 
   def project_bread_crumb( *args )
     @crumb_list = [link_to('Projects', :controller => 'project', :action => :list_public)]
-    parts = @project.name.split(":")
+    if @project.class == String
+      parts = @project.split(":")
+    else
+      parts = @project.name.split(":")
+    end
     for x in 1 .. parts.length - 1 do
       prj = parts[0..x].join(":")
       name = ":" + parts[x]
