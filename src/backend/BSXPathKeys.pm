@@ -300,7 +300,7 @@ sub predicate {
       return $v ? $self : [];
     }
   }
-  $v = toconcrete($self, $v) unless exists $v->{'value'};
+  $v = toconcrete($v) unless exists $v->{'value'};
   my $vv = bless {};
   $vv->{'db'} = $self->{'db'};
   $vv->{'path'} = $self->{'path'};
