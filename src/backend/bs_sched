@@ -1149,6 +1149,9 @@ sub update_dst_full {
     my ($projid, $repoid) = split('/', $prp, 2);
     my $packid = $dst;
     $packid =~ s/^.*\///s;
+    # we only check 'sourceaccess', not 'access' here. 'access' has
+    # to be handled anyway, so we don't gain anything by limiting
+    # source access.
     BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
   } else {
     # dst = undef is true for importevents
