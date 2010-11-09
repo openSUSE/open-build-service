@@ -10,37 +10,39 @@
 
 <% else %>
 
-  <table>
-    <tr>
-      <th class="header">Attribute</th>
-      <th class="header">Values</th>
-      <th>Options</th>
-    </tr>
-    <% i = 0 %>
-    <% @attributes.each do |a| %>
-      <tr class="<%= "odd" if (i%2==1) %>">
-        <td><%=h a.namespace %>:<%=h a.name %></td>
-        <td class="tablelines">
-          <%   if a.has_element? :value %>
-            <ul class="attr_values">
-              <%     a.each do |f| %>
-                <li><%= f.to_s %></li>
-              <%     end %>
-            </ul>
-          <%   else %>
-            <em>no values set</em>
-          <%   end %>
-        </td>
-        <td>
-          <%=  link_to image_tag('icons/note_edit.png', :alt => "Edit values", :title => "Edit values"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
-          <%=  link_to( image_tag('icons/note_delete.png', :alt => "Delete attribute", :title => "Delete attribute"), 
-            {:controller => "attribute", :action => "delete", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name },
-            {:confirm => "Really remove attribute '#{a.namespace}:#{a.name}'?", :method => :post } ) %>
-        </td>
+  <div>
+    <table>
+      <tr>
+        <th class="header">Attribute</th>
+        <th class="header">Values</th>
+        <th>Options</th>
       </tr>
-      <% i+=1 %>
-    <% end %>
+      <% i = 0 %>
+      <% @attributes.each do |a| %>
+        <tr class="<%= "odd" if (i%2==1) %>">
+          <td><%=h a.namespace %>:<%=h a.name %></td>
+          <td class="tablelines">
+            <%   if a.has_element? :value %>
+              <ul class="attr_values">
+                <%     a.each do |f| %>
+                  <li><%= f.to_s %></li>
+                <%     end %>
+              </ul>
+            <%   else %>
+              <em>no values set</em>
+            <%   end %>
+          </td>
+          <td>
+            <%=  link_to image_tag('icons/note_edit.png', :alt => "Edit values", :title => "Edit values"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
+            <%=  link_to( image_tag('icons/note_delete.png', :alt => "Delete attribute", :title => "Delete attribute"), 
+              {:controller => "attribute", :action => "delete", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name },
+              {:confirm => "Really remove attribute '#{a.namespace}:#{a.name}'?", :method => :post } ) %>
+          </td>
+        </tr>
+        <% i+=1 %>
+      <% end %>
 
-  </table>
+    </table>
+  </div>
 
 <% end %>
