@@ -7,7 +7,7 @@
   else
     @crumb_list << link_to('Attributes', :controller => :project, :action => :attributes, :project => @project.name)
   end
-  @crumb_list << @pagetitle
+  @crumb_list << (@selected_attribute_name ? "Edit" : "Add New")
 -%>
 
 <%= if @package
@@ -17,7 +17,7 @@ else
   render :partial => "project/tabs"
 end -%>
 
-<h2><%= @pagetitle %></h2>
+<h2><%= h @pagetitle %> <%= h @selected_attribute_name %></h2>
 
 <% form_tag :action => "save" do %>
   <p>
