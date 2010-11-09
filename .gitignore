@@ -27,6 +27,7 @@
 /src/api/config/secret.key
 /src/api/coverage
 /src/api/coverage.data
+/src/api/db/schema.rb
 /src/api/files/distributions.xml
 /src/api/log
 /src/api/mkmf.log
