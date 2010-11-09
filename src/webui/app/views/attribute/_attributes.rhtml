@@ -1,21 +1,12 @@
-<% if session[:login] %>
-  <p>
-    <%= link_to image_tag('icons/note_add.png'), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package  %> 
-    <%= link_to "Add a new attribute", :controller => "attribute", :action => "edit", :project => @project.name, :package => @package  %>
-  </p>
-<% end %>
 <% if @attributes.nil? || !@attributes.has_elements?  %>
-
   <p><em>No attributes set</em></p>
-
 <% else %>
-
   <div>
     <table>
       <tr>
         <th class="header">Attribute</th>
         <th class="header">Values</th>
-        <th>Options</th>
+        <th>Actions</th>
       </tr>
       <% i = 0 %>
       <% @attributes.each do |a| %>
@@ -44,5 +35,11 @@
 
     </table>
   </div>
+<% end %>
 
+<% if session[:login] %>
+  <p>
+    <%= link_to image_tag('icons/note_add.png'), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package %>
+    <%= link_to "Add a new attribute", :controller => "attribute", :action => "edit", :project => @project.name, :package => @package %>
+  </p>
 <% end %>
