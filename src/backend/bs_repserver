@@ -823,7 +823,7 @@ sub getbinary_repository {
     my $dodurl = $repo->dodurl();
     my %rnames = $repo ? $repo->pkgnames() : ();
     my $p = $rnames{$bin};
-    die("no such binary '$bin'\n") unless $p;
+    die("404 no such binary '$bin'\n") unless $p;
     $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
       my @handoff = ("/build/$projid/$repoid/$arch/_repository/$bin", undef, $view ? ("view=$view") : ());
@@ -833,7 +833,7 @@ sub getbinary_repository {
     }
     undef $repo;
     undef $pool;
-    die("$bin: $!\n") unless -f $path;
+    die("404 $bin: $!\n") unless -f $path;
   }
   BSWatcher::serialize_end($serial) if defined $serial;
   forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
@@ -948,7 +948,7 @@ sub delbinary {
   my ($cgi, $projid, $repoid, $arch, $bin) = @_;
 
   my $tdir = "$reporoot/$projid/$repoid/$arch/:full";
-  unlink("$tdir/$bin") || die("$projid/$repoid/$arch/$bin: $!\n");
+  unlink("$tdir/$bin") || die("404 $projid/$repoid/$arch/$bin: $!\n");
   if ($bin =~ s/\.(?:rpm|deb)$//) {
     unlink("$tdir/$bin.meta");
   }
