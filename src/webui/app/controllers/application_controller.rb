@@ -36,6 +36,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def is_advanced_tab?
+    ["prjconf", "users", "subprojects", "attributes", "meta", "status"].include? @action_name
+  end
+
   protected
 
   def set_return_to
