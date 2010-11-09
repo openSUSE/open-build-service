@@ -36,7 +36,11 @@ class AttributeController < ApplicationController
     @attributes.set(namespace, name, values)
     result = @attributes.save
     Attribute.free_cache( @attribute_opts )
-    opt = {:controller => "attribute", :action => "show", :project => @project.name }
+    if params[:package]
+      opt = {:controller => :package, :action => :attributes, :project => @project.name }
+    elsif params[:project]
+      opt = {:controller => :project, :action => :attributes, :project => @project.name }
+    end
     opt.store( :package, params[:package] ) if params[:package]
     flash[result[:type]] = result[:msg]
     redirect_to opt
@@ -47,7 +51,11 @@ class AttributeController < ApplicationController
     result = @attributes.delete(params[:namespace], params[:name])
     flash[result[:type]] = result[:msg]
     Attribute.free_cache( @attribute_opts )
-    opt = {:controller => "attribute", :action => "show", :project => @project.name }
+    if params[:package]
+      opt = {:controller => :package, :action => :attributes, :project => @project.name }
+    elsif params[:project]
+      opt = {:controller => :project, :action => :attributes, :project => @project.name }
+    end
     opt.store( :package, params[:package] ) if params[:package]
     redirect_to opt
   end
