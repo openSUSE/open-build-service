@@ -37,6 +37,33 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_delete_from_repository
+    ActionController::IntegrationTest::reset_auth
+    delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
+    assert_response 401
+
+    prepare_request_with_user "adrian", "so_alone"
+    delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
+    assert_response 403
+    delete "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
+    assert_response 403
+    get "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
+    assert_response :success
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
+    assert_response :success
+    delete "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
+    assert_response 404
+    get "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
+    assert_response 404
+
+    delete "/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
+    assert_response 400
+    assert_match(/invalid_operation/, @response.body)
+    assert_match(/Delete operation of build results is not allowed/, @response.body)
+  end
+
   def test_read_access_hidden_project_index
     # ACL(project_index)
     # testing build_controller project_index 
@@ -45,7 +72,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_no_match(/entry name="HiddenProject"/, @response.body)
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build"
     assert_response :success

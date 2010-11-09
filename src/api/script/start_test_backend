@@ -251,7 +251,7 @@ IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched 
    io.each {|line| logger.debug line.strip unless line.blank? }
 end
 # upload a binary file to repository directly
-#Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/package.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
+Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
 
 puts "DONE NOW"
 $stdout.flush

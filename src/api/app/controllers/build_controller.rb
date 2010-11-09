@@ -159,7 +159,7 @@ class BuildController < ApplicationController
 
   # /build/:project/:repository/:arch/:package/:filename
   def file
-    valid_http_methods :get
+    valid_http_methods :get, :delete
     required_parameters :project, :repository, :arch, :package, :filename
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
@@ -180,6 +180,23 @@ class BuildController < ApplicationController
     end
 
     path = request.path+"?"+request.query_string
+
+    if request.delete?
+      unless permissions.project_change? params[:project]
+        render_error :status => 403, :errorcode => "delete_binary_no_permission",
+          :message => "No permission to delete binaries from project #{params[:project]}"
+        return
+      end
+
+      if params[:package] == "_repository"
+        pass_to_backend
+      else
+        render_error :status => 400, :errorcode => "invalid_operation",
+          :message => "Delete operation of build results is not allowed"
+      end
+
+      return
+    end
 
     regexp = nil
     # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
