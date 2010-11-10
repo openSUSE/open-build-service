@@ -23,7 +23,8 @@
       <b>Create submit request</b>
     </div>
 
-    <% tprj = tpkg = ""
+    <% tprj = ""
+       tpkg = @package.name
        if @package.linkinfo
          tprj = @package.linkinfo.project
          tpkg = @package.linkinfo.package
