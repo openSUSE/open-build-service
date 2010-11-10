@@ -82,3 +82,5 @@
     at.attrib_type_modifiable_bies.create(pm)
     at=AttribType.create( :attrib_namespace => ans, :name => "ProjectStatusPackageFailComment", :value_count=>1 )
     at.attrib_type_modifiable_bies.create(pm)
+    at=AttribType.create( :attrib_namespace => ans, :name => "InitializeDevelPackage", :value_count=>0 )
+    at.attrib_type_modifiable_bies.create(pm)

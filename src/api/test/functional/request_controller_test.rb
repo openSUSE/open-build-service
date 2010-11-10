@@ -373,6 +373,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "request" )
     assert_tag( :tag => "request", :child => { :tag => 'state' } )
     assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
+
+    # approve accepted and check initialized devel package
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get "/source/kde4/Testing/_meta"
+    assert_response :success
+    assert_tag( :tag => "devel", :attributes => { :project => 'home:Iggy', :package => 'TestPack' } )
   end
 
   def test_branch_and_submit_request_to_linked_project_and_delete_it_again

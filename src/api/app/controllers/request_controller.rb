@@ -727,7 +727,10 @@ class RequestController < ApplicationController
           else
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
+
           unless target_package
+            # check for target project attributes
+            initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
             # create package in database
             linked_package = target_project.find_package(action.target.package)
             source_project = DbProject.find_by_name(action.source.project)
@@ -737,6 +740,7 @@ class RequestController < ApplicationController
             target_package.remove_all_persons
             target_package.remove_all_flags
             target_package.remove_devel_project
+            target_package.set_devel( :project => source_project.name, :package => source_package.name ) if initialize_devel_package
             target_package.save
 
             # check if package was available via project link and create a branch from it in that case

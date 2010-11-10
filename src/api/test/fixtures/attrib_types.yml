@@ -22,3 +22,8 @@ RequestCloned:
   name: RequestCloned
   value_count: 1
   attrib_namespace_id: 9
+InitializeDevelPackage:
+  id: 61
+  name: InitializeDevelPackage
+  value_count: 0
+  attrib_namespace_id: 9
