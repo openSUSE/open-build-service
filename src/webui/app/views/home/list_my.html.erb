@@ -6,46 +6,50 @@
 <h2>Watched Projects</h2>
 <%= render :partial => 'watch_list' %>
 
-<h2>Involved Projects</h2>
-<% unless @iprojects.blank? -%>
-  <table id='involved_prj-table' class='grid' title="Involved Projects">
+<br/>
+<div style="min-width: 50%; float: left">
+  <h2>Involved Projects</h2>
+  <% unless @iprojects.blank? -%>
+    <table id='involved_prj-table' class='grid' title="Involved Projects">
+      <tr>
+        <th>Project</th>
+        <th>Monitor</th>
+      </tr>
+      <% @iprojects.each do |project| -%>
+        <tr>
+          <td><%= link_to project, :controller => :project, :action => :show, :project => project %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, 
+                          :action => :monitor, :project => project %></td>
+        </tr>
+      <% end -%>
+    </table>
+  <% else %>
+    <p><em>Not involved in any project.</em></p>
+  <% end -%>
+</div>
+
+<div style="min-width: 50%; float: left">
+  <h2>Involved Packages</h2>
+  <% unless @ipackages.blank? -%>
+  <table id='involved_pkg-table' class='grid' title="Involved Packages">
     <tr>
+      <th>Package</th>
       <th>Project</th>
       <th>Monitor</th>
     </tr>
-    <% @iprojects.each do |project| -%>
-      <tr>
-        <td><%= link_to project, :controller => :project, :action => :show, :project => project %></td>
-        <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, 
-                        :action => :monitor, :project => project %></td>
-      </tr>
+    <% @ipackages.each do |prj, packs| -%>
+      <% packs.each do |pkg| -%>
+        <tr>
+          <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
+          <td><%= link_to prj, :controller => :project, :action => :show, :project => prj %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
+                  :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
+        </tr>
+      <% end -%>
     <% end -%>
   </table>
-<% else %>
-  <p><em>Not involved in any project.</em></p>
-<% end -%>
-
-
-<h2>Involved Packages</h2>
-<% unless @ipackages.blank? -%>
-<table id='involved_pkg-table' class='grid' title="Involved Packages">
-  <tr>
-    <th>Package</th>
-    <th>Project</th>
-    <th>Monitor</th>
-  </tr>
-  <% @ipackages.each do |prj, packs| -%>
-    <% packs.each do |pkg| -%>
-      <tr>
-        <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
-        <td><%= link_to prj, :controller => :project, :action => :show, :project => prj %></td>
-        <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
-                :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
-      </tr>
-    <% end -%>
+  <% else %>
+    <p><em>Not involved in any package.</em></p>
   <% end -%>
-</table>
-<% else %>
-  <p><em>Not involved in any package.</em></p>
-<% end -%>
-
+</div>
+<div class="clear" style="margin-bottom: 2em"></div>
