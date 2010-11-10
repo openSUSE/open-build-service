@@ -195,7 +195,7 @@ module ApplicationHelper
   end
 
   def tlink_to(text, length, *url_opts)
-    "<span title='#{text}'>" + link_to( truncate(text, :length => length), *url_opts) + "</span>"
+    "<span title='#{text}'>".html_safe + link_to( truncate(text, :length => length), *url_opts) + "</span>".html_safe
   end
 
   def package_exists?(project, package)
@@ -215,18 +215,18 @@ module ApplicationHelper
       elsif opts[:hide_project]
         out += tlink_to(package, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
       else
-        out += tlink_to project, (opts[:length] - 3) / 2 , :controller => :project, :action => "show", :project => project
-        out += " / " +  tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, 
-          :action => "show", :project => project, :package => package)
+        out += tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
+        out += " / "
+        out += tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, :action => "show", :project => project, :package => package)
       end
     else
       if opts[:hide_package]
-        out = "<span title='#{project}'>#{truncate(project, :length => opts[:length])}</span>"
+        out = "<span title='#{project}'>".html_safe + truncate(project, :length => opts[:length]) + "</span>".html_safe
       elsif opts[:hide_project]
-        out = "<span title='#{package}'>#{truncate(package, :length => opts[:length])}</span>"
+        out = "<span title='#{package}'>".html_safe + truncate(package, :length => opts[:length]) + "</span>".html_safe
       else
         out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
-        out += " / " + "<span title='#{package}'>#{truncate(package, :length => (opts[:length] - 3) / 2)}</span>"
+        out += " / " + "<span title='#{package}'>".html_safe + truncate(package, :length => (opts[:length] - 3) / 2) + "</span>".html_safe
       end
     end
   end
