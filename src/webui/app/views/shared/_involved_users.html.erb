@@ -4,7 +4,7 @@
 <div id="involved_users">
   <h3><%= @pagetitle %></h3>
 
-  <% if @user and (@user.is_maintainer?( @project, @package ) or @user.is_admin?) %>
+  <% if @user and @user.is_maintainer?( @project, @package ) %>
     <p>
       <%= link_to image_tag('icons/user_add.png', :alt => "Add User", :title => "Add User"),
         :action => :add_person, :package => @package, :project => @project %>
