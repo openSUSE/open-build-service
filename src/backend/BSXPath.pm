@@ -147,14 +147,13 @@ sub predicate {
       #push @ncwd, [$rr->[0], $_, $i++, $s] for @$vv2;
     }
   }
-  my $v2;
-  ($v2, $expr) = expr(\@ncwd, $expr, 0);
+  my ($v2, $nexpr) = expr(\@ncwd, $expr, 0);
   die("internal error!\n") if @$v2 != @ncwd;
   #print Dumper($v2);
   for my $vv (@$v) {
     if ($ncwd[0]->[4]) {
       my $r = shift @ncwd;
-      $vv = $r->[4]->predicate(shift @$v2);
+      $vv = $r->[4]->predicate(shift @$v2, $expr);
       next;
     }
     my @nvv;
@@ -171,7 +170,7 @@ sub predicate {
     }
     $vv = \@nvv;
   }
-  return ($v, $expr);
+  return ($v, $nexpr);
 }
 
 sub pathstep {

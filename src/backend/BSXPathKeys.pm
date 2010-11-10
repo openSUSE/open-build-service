@@ -291,7 +291,7 @@ sub op {
 }
 
 sub predicate {
-  my ($self, $v) = @_;
+  my ($self, $v, $expr) = @_;
   if (ref($v) ne ref($self)) {
     $v = @$v ? 'true' : '' if ref($v) eq 'ARRAY';
     if ($v =~ /^-?\d+$/) {
@@ -315,6 +315,18 @@ sub predicate {
   if (@k && $self->{'keys'}) {
     my %k = map {$_ => 1} @{$self->{'keys'}};
     @k = grep {$k{$_}} @k;
+  }
+  if ($self->{'path'}) {
+    # postprocess matched keys
+    for my $k (splice(@k)) {
+      my $db = $self->{'db'};
+      my $kv = $db->fetch($k);
+      next unless $kv;
+      $kv = [ selectpath($kv, $self->{'path'}) ];
+      next unless @$kv;
+      ($kv, undef) = BSXPath::predicate([[$kv, $kv, 1, 1]], $expr, [$kv]);
+      push @k, $k if @{$kv->[0]};
+    }
   }
   $vv->{'keys'} = \@k;
   return $vv;
