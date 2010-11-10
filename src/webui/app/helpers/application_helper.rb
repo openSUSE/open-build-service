@@ -195,7 +195,8 @@ module ApplicationHelper
   end
 
   def tlink_to(text, length, *url_opts)
-    "<span title='#{text}'>".html_safe + link_to( truncate(text, :length => length), *url_opts) + "</span>".html_safe
+    out = "<span title='#{text}'>" + link_to( truncate( h(text), :length => length), *url_opts) + "</span>"
+    return out.html_safe
   end
 
   def package_exists?(project, package)
@@ -221,13 +222,14 @@ module ApplicationHelper
       end
     else
       if opts[:hide_package]
-        out = "<span title='#{project}'>".html_safe + truncate(project, :length => opts[:length]) + "</span>".html_safe
+        out = "<span title='#{project}'>" + truncate(project, :length => opts[:length]) + "</span>"
       elsif opts[:hide_project]
-        out = "<span title='#{package}'>".html_safe + truncate(package, :length => opts[:length]) + "</span>".html_safe
+        out = "<span title='#{package}'>" + truncate(package, :length => opts[:length]) + "</span>"
       else
-        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
-        out += " / " + "<span title='#{package}'>".html_safe + truncate(package, :length => (opts[:length] - 3) / 2) + "</span>".html_safe
+        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project +
+              " / " + "<span title='#{package}'>" + truncate(package, :length => (opts[:length] - 3) / 2) + "</span>"
       end
+      out.html_safe
     end
   end
 
@@ -264,7 +266,8 @@ module ApplicationHelper
         :package => packname, :project => @project.to_s, :arch => arch,
         :controller => "package", :repository => repo}, {:title => link_title, :rel => 'nofollow'}
     end 
-    return out + "</td>"
+    out += "</td>"
+    return out.html_safe
   end
 
   
@@ -333,9 +336,7 @@ module ApplicationHelper
       break
     end
 
-
     if flag
-
       if flag.has_attribute? :explicit
         if flag.element_name == 'disable'
           image = "#{flags.element_name}_disabled_blue.png"
@@ -384,6 +385,7 @@ module ApplicationHelper
       else
         image_tag(image)
       end
+      return out.html_safe
     else
       ""
     end
@@ -404,7 +406,21 @@ module ApplicationHelper
     comment = '<br/>' + comment
     comment = comment.gsub('(<br/> *) ', '\1&nbsp;')
     comment = comment.gsub(%r{^<br/>}, '')
-    return "<code>" + comment + "</code>"
+    comment = "<code>" + comment + "</code>"
+    return comment.html_safe
+  end
+
+  def tab(text, opts)
+    opts[:package] = @package.to_s
+    opts[:project] = @project.to_s
+    if @current_action.to_s == opts[:action].to_s
+      link = "<li class='selected'>"
+    else
+      link = "<li>"
+    end
+    link += link_to(h(text), opts)
+    link += "</li>"
+    return link.html_safe
   end
 
 end

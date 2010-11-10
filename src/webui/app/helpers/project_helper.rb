@@ -10,16 +10,6 @@ module ProjectHelper
     user.watches?(@project.name) ? "magnifier_zoom_out.png" : "magnifier_zoom_in.png"
   end
 
-  def project_tab(text, opts)
-    opts[:project] = @project.to_s
-    if @current_action.to_s == opts[:action].to_s
-      link = "<li class='selected'>"
-    else
-      link = "<li>"
-    end
-    link + link_to(text, opts) + "</li>"
-  end
-
   def show_status_comment( comment, package, firstfail, comments_to_clear )
     status_comment_html = ""
     if comment

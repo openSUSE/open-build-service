@@ -26,12 +26,7 @@ end -%>
       <%= hidden_field_tag( :attribute, @selected_attribute_name) %>
     <% else -%>
       <strong>Attribute name:</strong><br/>
-      <%=
-      options = ""
-      values = ""
-      @attribute_list.each {|d| options += "<option>#{d.to_s}</option>"}
-      opt = { :options => options }
-      select_tag :attribute, options %><br/>
+      <%= select_tag :attribute, options_for_select(@attribute_list) %><br/>
     <% end %>
     <strong>Values (e.g. "bar,foo,..."):</strong><br/>
     <%= text_area_tag :values, values, :rows => 5, :cols => 50 %><br/>

@@ -203,10 +203,10 @@ req = @therequest
             <% if !@diff_error && (req.state.name == "review" || req.state.name == "new") %>
               <% if @is_maintainer || @is_reviewer || @is_author %>
                 <tr class="add_reviewer">
-                  <td><%=select_tag "add_review_type", "<option>User</option> <option>Group</option>" %></td>
-                  <td><%=text_field_tag "add_review_name" %></td>
-                  <td><%=text_area_tag "add_review_comment", nil, :size => "50x2" %></td>
-                  <td><%=button_to_function "Add Reviewer" do |r|
+                  <td><%= select_tag "add_review_type", options_for_select(["User", "Group"]) %></td>
+                  <td><%= text_field_tag "add_review_name" %></td>
+                  <td><%= text_area_tag "add_review_comment", nil, :size => "50x2" %></td>
+                  <td><%= button_to_function "Add Reviewer" do |r|
                       r.call :insertRow
                     end %></td>
                 </tr>

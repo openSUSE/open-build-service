@@ -11,8 +11,8 @@
   <table title="Repositories" class="repostatus">
     <% @buildresult.each do |repo, archarray| %>
       <% index = 0
-      srepo = truncate(repo, :length => 19)
-      archarray.each do |arch, counts| -%>
+         srepo = truncate(repo, :length => 19)
+         archarray.each do |arch, counts| -%>
         <tr class="target">
           <% if index == 0 %>
             <td class="repo" valign="top" rowspan="<%= archarray.length %>">
@@ -27,13 +27,12 @@
           </td>
           <td class="codes"><% counts.each do |code, count| -%>
               <div class="nowrap">
-                <%= link_to("#{code}:&nbsp;#{count}", { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
+                <%= link_to("#{code}:&nbsp;#{count}".html_safe, { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
                             'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow') -%>
               </div>
           <% end -%></td>
         </tr>
       <% end %>
-
     <% end %>
   </table>
 

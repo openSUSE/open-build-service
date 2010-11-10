@@ -44,7 +44,7 @@
     <strong>Project: </strong><br/>
     <%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %><i>(gets auto-completed)</i><br/>
     <strong>Repository: </strong><br/>
-    <%= select_tag "target_repo", "<option value=''></option>", :id => 'target_repo', :disabled => true %><br/>
+    <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %><br/>
 
     <!-- Don't offer new name if we add this repo to an existing one as path -->
     <% if @torepository %>

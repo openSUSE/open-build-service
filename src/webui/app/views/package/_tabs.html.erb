@@ -4,16 +4,16 @@
 
 <div class="box-header header-tabs">
   <ul id="package_tabs">
-    <%= package_tab 'Overview', :controller => :package, :action => :show %>
-    <%= package_tab 'Sources', :controller => :package, :action => :files %>
-    <%= package_tab 'Repositories', :controller => :package, :action => :repositories %>
-    <%= package_tab 'Revisions', :controller => :package, :action => :source_history %>
-    <%= package_tab 'Attributes', :controller => :package, :action => :attributes %>
-    <%= package_tab 'Users', :controller => :package, :action => :users %>
+    <%= tab 'Overview', :controller => :package, :action => :show %>
+    <%= tab 'Sources', :controller => :package, :action => :files %>
+    <%= tab 'Repositories', :controller => :package, :action => :repositories %>
+    <%= tab 'Revisions', :controller => :package, :action => :source_history %>
+    <%= tab 'Attributes', :controller => :package, :action => :attributes %>
+    <%= tab 'Users', :controller => :package, :action => :users %>
     <% if @package_has_requests %>
-      <%= package_tab "Requests", :controller => :package, :action => 'list_requests'%>
+      <%= tab "Requests", :controller => :package, :action => 'list_requests'%>
     <% end -%>
-    <%= package_tab 'Raw Config', :controller => :package, :action => :meta %>
+    <%= tab 'Raw Config', :controller => :package, :action => :meta %>
   </ul>
 
 </div>

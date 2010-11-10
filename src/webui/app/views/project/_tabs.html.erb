@@ -13,14 +13,14 @@
 <div class="box-header header-tabs">
 
 <ul>
-  <%= project_tab 'Overview', :controller => :project, :action => :show %>
-  <%= project_tab( 'Packages', :controller => :project, :action => :packages ) unless @project.is_remote? %>
-  <%= project_tab( "Repositories", :controller => :project, :action => :repositories ) unless @project.is_remote? %>
+  <%= tab 'Overview', :controller => :project, :action => :show %>
+  <%= tab( 'Packages', :controller => :project, :action => :packages ) unless @project.is_remote? %>
+  <%= tab( "Repositories", :controller => :project, :action => :repositories ) unless @project.is_remote? %>
   <% if @project.has_element?(:repository) -%>
-    <%= project_tab "Monitor", :controller => :project, :action => :monitor %>
+    <%= tab "Monitor", :controller => :project, :action => :monitor %>
   <% end -%>
   <% if @project_has_requests %>
-    <%= project_tab "Requests", :controller => :project, :action => 'list_requests'%>
+    <%= tab "Requests", :controller => :project, :action => 'list_requests'%>
   <% end -%>
 
   <% if @controller.is_advanced_tab? %>
@@ -34,12 +34,12 @@
 
 <div id="advanced_tabs">
   <ul>
-    <%= project_tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? %>
-    <%= project_tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-    <%= project_tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? %>
-    <%= project_tab 'Attributes', :controller => :project, :action => :attributes %>
-    <%= project_tab "Raw Config", :controller => :project, :action => :meta %>
-    <%= project_tab( 'Status', :controller => :project, :action => :status ) unless @project.is_remote? %>
+    <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? %>
+    <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
+    <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? %>
+    <%= tab 'Attributes', :controller => :project, :action => :attributes %>
+    <%= tab "Raw Config", :controller => :project, :action => :meta %>
+    <%= tab( 'Status', :controller => :project, :action => :status ) unless @project.is_remote? %>
   </ul>
 </div>
 

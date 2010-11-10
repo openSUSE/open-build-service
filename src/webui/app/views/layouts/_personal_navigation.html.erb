@@ -3,11 +3,9 @@
 
   <% if session[:login] -%>
     <%= link_to session[:login], :controller => 'home', :action => :index %>
-    <%=
-      if @nr_involved_requests and @nr_involved_requests > 0
-        "(" + link_to(pluralize(@nr_involved_requests, 'request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"}) + ")"
-      end
-    -%> |
+    <% if @nr_involved_requests and @nr_involved_requests > 0 %>
+      (<%= link_to pluralize(@nr_involved_requests, 'request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"} %>)
+    <% end %> |
     <%= link_to "Home project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
     <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
   <% else %>
