@@ -55,6 +55,8 @@ Rails::Initializer.run do |config|
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'exception_notification'
+  config.gem 'erubis'
+  config.gem 'rails_xss'
 
   # default secret
   secret = "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"

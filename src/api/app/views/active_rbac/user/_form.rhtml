@@ -19,9 +19,9 @@
   <dt><label>Global Roles</label></dt>
   <dd>
     <%= node_tree(Role.find(:all, :conditions => "global=true")) do |role|
-          result = "<input id=\"user_roles_#{role.id}\" type=\"checkbox\" name=\"user[roles][]\" value=\"#{role.id}\" checked=\"checked\" /> " if @user.roles.include? role
-          result = "<input id=\"user_roles_#{role.id}\" type=\"checkbox\" name=\"user[roles][]\" value=\"#{role.id}\" /> " unless @user.roles.include? role
-          result += "<label for=\"user_roles_#{role.id}\">#{role.title}</label> "
+          result = "<input id=\"user_roles_#{role.id}\" type=\"checkbox\" name=\"user[roles][]\" value=\"#{role.id}\" checked=\"checked\" /> ".html_safe if @user.roles.include? role
+          result = "<input id=\"user_roles_#{role.id}\" type=\"checkbox\" name=\"user[roles][]\" value=\"#{role.id}\" /> ".html_safe unless @user.roles.include? role
+          result += "<label for=\"user_roles_#{role.id}\">#{role.title}</label> ".html_safe
           result
         end %>
   </dd>
@@ -29,9 +29,9 @@
   <dt><label>Groups</label></dt>
   <dd>
     <%= node_tree(Group.find(:all)) do |group|
-          result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" checked=\"checked\" /> " if @user.groups.include? group
-          result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" /> " unless @user.groups.include? group
-          result += "<label for=\"user_groups_#{group.id}\">#{group.title}</label> "
+          result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" checked=\"checked\" /> ".html_safe if @user.groups.include? group
+          result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" /> ".html_safe unless @user.groups.include? group
+          result += "<label for=\"user_groups_#{group.id}\">#{group.title}</label> ".html_safe
           result
         end %>
   </dd>

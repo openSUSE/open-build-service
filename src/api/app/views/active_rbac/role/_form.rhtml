@@ -19,10 +19,10 @@
         <%= roles = Role.find(:all)
             roles.delete_if { |r| @role.descendants_and_self.include?(r) }
             node_tree(roles) do |role|
-              result = "<input id=\"role_parent_#{role.id}\" type=\"radio\" name=\"role[parent]\" value=\"#{role.id}\" checked=\"checked\" /> " if @role.parent == role
-              result = "<input id=\"role_parent_#{role.id}\" type=\"radio\" name=\"role[parent]\" value=\"#{role.id}\" /> " if @role.parent != role
+              result = "<input id=\"role_parent_#{role.id}\" type=\"radio\" name=\"role[parent]\" value=\"#{role.id}\" checked=\"checked\" /> ".html_safe if @role.parent == role
+              result = "<input id=\"role_parent_#{role.id}\" type=\"radio\" name=\"role[parent]\" value=\"#{role.id}\" /> ".html_safe if @role.parent != role
 
-              result += "<label for=\"role_parent_#{role.id}\">#{role.title}</label> "
+              result += "<label for=\"role_parent_#{role.id}\">#{role.title}</label> ".html_safe
               result
             end %>
       </li>
