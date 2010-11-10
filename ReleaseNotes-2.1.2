@@ -1,0 +1,32 @@
+#
+# openSUSE Build Service 2.1.2
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backport:
+=================
+
+* api: Support deletion of binaries in _repository (FATE #310489)
+
+Changes:
+========
+
+* backend: Make OBS interconnect more reliable by retrying multiple times on
+  not reachable remote instances
+* api: XML schema of _link files is not enforcing the element order anymore
+* api: submit requests do not modify link target definitions anymore.
+* webui: Removed "Add as patch" functionality as it can not work with branched
+         links.
+
+Bugfixes:
+=========
+
+* backend: Security bugfix which allowed access to "sourceaccess" protected sources
+* backend: XPATH query fix
+* api: layout fixes
+* webui: fixing new user registration when using iChain (regression introduced in 2.1.1)
+* webui: layout fixes
+
