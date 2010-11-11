@@ -63,6 +63,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-5.0-16.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
+ <distribution vendor="Fedora" version="14" id="fedora-14">
+  <name>Fedora 14</name>
+  <project>openSUSE.org:Fedora:14</project>
+  <reponame>Fedora_14</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-14-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-14-16.png"/>
+  <link>http://fedoraproject.org/</link>
+ </distribution>
  <distribution vendor="Fedora" version="13" id="fedora-13">
   <name>Fedora 13</name>
   <project>openSUSE.org:Fedora:13</project>
@@ -80,6 +89,15 @@
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-12-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-12-16.png"/>
   <link>http://fedoraproject.org/</link>
+ </distribution>
+ <distribution vendor="RedHat" version="RHEL-6" id="redhat-RHEL-6">
+  <name>RedHat RHEL-6</name>
+  <project>openSUSE.org:RedHat:RHEL-6</project>
+  <reponame>RedHat_RHEL-6</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-16.png"/>
+  <link>http://www.redhat.com/</link>
  </distribution>
  <distribution vendor="RedHat" version="RHEL-5" id="redhat-RHEL-5">
   <name>RedHat RHEL-5</name>
@@ -134,6 +152,15 @@
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-16.png"/>
   <link>http://www.mandriva.com/</link>
+ </distribution>
+ <distribution vendor="Ubuntu" version="10.10" id="ubuntu-10.10">
+  <name>Ubuntu 10.10</name>
+  <project>openSUSE.org:Ubuntu:10.10</project>
+  <reponame>xUbuntu_10.10</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
+  <link>http://www.ubuntu.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="10.04" id="ubuntu-10.04">
   <name>Ubuntu 10.04</name>
