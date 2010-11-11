@@ -155,9 +155,8 @@ class Person < ActiveXML::Base
 
   # if package is nil, returns project maintainership
   def is_maintainer?(project, package=nil)
-    if package and package.is_maintainer?(login)
-      return true
-    end
+    return true if is_admin?
+    return true if package and package.is_maintainer?(login)
     return project.is_maintainer?(login)
   end
 
