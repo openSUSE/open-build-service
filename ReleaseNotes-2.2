@@ -1,0 +1,49 @@
+#
+# openSUSE Build Service 2.2
+#
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://en.opensuse.org/Build_Service/OBS-Appliance
+
+There is also an install medium with installs OBS on hard disc now.
+
+README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace 
+their appliance image without data loss. The migration will 
+happen automatically.
+
+
+Known Regressions to 2.1:
+=========================
+
+
+Features:
+=========
+
+* web interface improvements:
+
+* api
+  - review of requests by project or package maintainers is possible now (FATE #310806)
+
+* backend:
+
+
+Changes:
+========
+
+* api
+  - It was not possible so far to create submit requests from packages where no write access exists.
+    This is possible now, but the source package maintainer will get asked for review the request.
+
+
+Requirements:
+=============
+
+* The OBS server should not run on a system with less than 2GB memory. 
+  4GB is recommended, esp. when the same system is also building packages.
+
+* Use osc 0.130 or later to get access to the new features.
+

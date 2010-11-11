@@ -69,6 +69,8 @@
       <xs:attribute name="state"  type="states" use="required"/>
       <xs:attribute name="by_user"  type="xs:string" />
       <xs:attribute name="by_group"  type="xs:string" />
+      <xs:attribute name="by_project"  type="xs:string" />
+      <xs:attribute name="by_package"  type="xs:string" />
       <xs:attribute name="who"   type="xs:string"/>
       <xs:attribute name="when"  type="xs:dateTime"/>
     </xs:complexType>

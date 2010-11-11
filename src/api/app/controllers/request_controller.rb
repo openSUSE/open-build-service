@@ -253,22 +253,6 @@ class RequestController < ApplicationController
           end
         end
 
-        # We only allow submit/change_devel requests from projects where people have write access
-        # to avoid that random people can submit versions without talking to the maintainers 
-        if spkg
-          unless @http_user.can_modify_package? spkg
-            render_error :status => 403, :errorcode => "create_request_no_permission",
-              :message => "No permission to create request for package '#{spkg.name}' in project '#{sprj.name}', only maintainers can create requests."
-            return
-          end
-        else
-          unless @http_user.can_modify_project? sprj
-            render_error :status => 403, :errorcode => "create_request_no_permission",
-              :message => "No permission to create request based on project '#{sprj.name}', only maintainers can create requests."
-            return
-          end
-        end
-
       else
         render_error :status => 403, :errorcode => "create_unknown_request",
           :message => "Request type is unknown '#{action.data.attributes["type"]}'"
@@ -282,10 +266,12 @@ class RequestController < ApplicationController
     # check targets for defined default reviewers
     reviewers = []
     review_groups = []
+    review_packages = []
 
     req.each_action do |action|
       tprj = nil
       tpkg = nil
+
       if action.has_element? 'target'
         tprj = DbProject.find_by_name action.target.project
         if action.target.has_attribute? 'package'
@@ -299,6 +285,22 @@ class RequestController < ApplicationController
         data.elements.each("directory/linkinfo") do |e|
           tprj = DbProject.find_by_name e.attributes["project"]
           tpkg = tprj.db_packages.find_by_name e.attributes["package"]
+        end
+      end
+
+      if action.has_element? 'source'
+        # Creating submit request from packages where no maintainer right exists will enforce a maintainer review
+        # to avoid that random people can submit versions without talking to the maintainers 
+        if action.source.has_attribute? 'package'
+          spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
+          if spkg and not @http_user.can_modify_package? spkg
+            review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
+          end
+        else
+          sprj = DbPackage.find_by_name action.source.project
+          if sprj and not @http_user.can_modify_project? sprj
+            review_packages.push({ :by_project => action.source.project })
+          end
         end
       end
 
@@ -328,6 +330,15 @@ class RequestController < ApplicationController
       review_groups.each do |g|
         e = req.add_element "review"
         e.data.attributes["by_group"] = g.title
+        e.data.attributes["state"] = "new"
+      end
+    end
+    review_packages.uniq!
+    if review_packages.length > 0
+      review_packages.each do |p|
+        e = req.add_element "review"
+        e.data.attributes["by_project"] = p[:by_project]
+        e.data.attributes["by_package"] = p[:by_package]
         e.data.attributes["state"] = "new"
       end
     end
@@ -516,6 +527,16 @@ class RequestController < ApplicationController
                 :message => "Group #{params[:by_group]} is unkown"
        return
     end
+    if params[:by_project] and DbProject.find_by_name(params[:by_project]).nil?
+       render_error :status => 404, :errorcode => "unknown_project",
+                :message => "Project #{params[:by_project]} is unkown"
+       return
+    end
+    if params[:by_package] and DbPackage.find_by_project_and_name(params[:by_project], params[:by_package]).nil?
+       render_error :status => 404, :errorcode => "unknown_package",
+                :message => "Package params[:by_project] / #{params[:by_package]} is unkown"
+       return
+    end
 
     # generic permission check
     permission_granted = false
@@ -532,10 +553,23 @@ class RequestController < ApplicationController
     elsif params[:cmd] == "addreview" and (req.creator == @http_user.login or req.is_reviewer? @http_user)
       # allow request creator to add further reviewers
       permission_granted = true
-    elsif (params[:cmd] == "changereviewstate" and @http_user.is_in_group?(params[:by_group]))
-      permission_granted = true
-    elsif (params[:cmd] == "changereviewstate" and params[:by_user] == @http_user.login)
-      permission_granted = true
+    elsif (params[:cmd] == "changereviewstate")
+      permission_granted = true if @http_user.is_in_group?(params[:by_group])
+      permission_granted = true if params[:by_user] == @http_user.login
+      if params[:by_project] 
+        if params[:by_package]
+          spkg = DbPackage.find_by_project_and_name params[:by_project], params[:by_package]
+          permission_granted = true if spkg and @http_user.can_modify_package? spkg
+        else
+          sprj = DbProject.find_by_name params[:by_project]
+          permission_granted = true if prj and @http_user.can_modify_project? prj
+        end
+      end
+      unless permission_granted
+        render_error :status => 403, :errorcode => "review_change_state_no_permission",
+              :message => "Changing review state for request #{req.id} not permitted"
+        return
+      end
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true
@@ -650,7 +684,7 @@ class RequestController < ApplicationController
     end
 
     # All commands are process by the backend. Just the request accept is controlled by the api.
-    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
+    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :by_project, :by_package, :superseded_by, :comment])
     unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
       pass_to_backend path
       return

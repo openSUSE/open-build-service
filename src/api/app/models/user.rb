@@ -174,7 +174,6 @@ class User < ActiveRecord::Base
     unless package.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
-
     return true if is_admin?
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package

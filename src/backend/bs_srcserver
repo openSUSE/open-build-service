@@ -4825,7 +4825,7 @@ sub postrequest {
   my @lt = localtime(time());
   my $mytime = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   if ($cmd eq 'addreview'){
-    die("request review is not specified via by_user or by_group\n") if !$cgi->{'by_user'} && !$cgi->{'by_group'};
+    die("request review is not specified via by_user, by_group or by_project\n") if !$cgi->{'by_user'} && !$cgi->{'by_group'} && !$cgi->{'by_project'};
     push @{$req->{'history'}}, $oldstate;
     $req->{'state'} = {'name' => 'review'};
     $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
@@ -4834,12 +4834,18 @@ sub postrequest {
     $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
     if ($cgi->{'by_user'}) {
       push @{$req->{'review'}}, { 'state' => 'new', 'by_user' => $cgi->{'by_user'}, 'comment' => $cgi->{'comment'} };
-    } else {
+    } elsif ($cgi->{'by_group'}) {
       push @{$req->{'review'}}, { 'state' => 'new', 'by_group' => $cgi->{'by_group'}, 'comment' => $cgi->{'comment'} };
+    } else {
+      if ($cgi->{'by_package'}) {
+        push @{$req->{'review'}}, { 'state' => 'new', 'by_project' => $cgi->{'by_project'}, 'by_package' => $cgi->{'by_package'}, 'comment' => $cgi->{'comment'} };
+      } else {
+        push @{$req->{'review'}}, { 'state' => 'new', 'by_project' => $cgi->{'by_project'}, 'comment' => $cgi->{'comment'} };
+      }
     }
   } elsif ($cmd eq 'changereviewstate') {
     die("request is not in review state\n") unless $req->{'state'} and $req->{'state'}->{'name'} eq "review";
-    die("request review item is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'};
+    die("request review item is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'} and not $cgi->{'by_project'};
     die("review state must be accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
         $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
 
@@ -4847,15 +4853,20 @@ sub postrequest {
     $go_new_state = $cgi->{'newstate'} if $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
     my $found = 0;
     for my $r (@{$req->{'review'} || []}) {
-      if (defined($r->{'by_user'}) and defined($cgi->{'by_user'}) and $r->{'by_user'} eq $cgi->{'by_user'}){
-        $r->{'state'} = $cgi->{'newstate'};
-        $r->{'when'} = $mytime;
-        $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
-        $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
-        $found = 1;
-        $go_new_state = 'new' if $go_new_state eq "review" and $r->{'state'} eq 'accepted';
-        $go_new_state = $r->{'state'} if $go_new_state eq "review"; # take decline
-      } elsif (defined($r->{'by_group'}) and defined($cgi->{'by_group'}) and $r->{'by_group'} eq $cgi->{'by_group'}) {
+      my $matching;
+      $matching = 1 if defined($r->{'by_user'}) and defined($cgi->{'by_user'}) and $r->{'by_user'} eq $cgi->{'by_user'};
+      $matching = 1 if defined($r->{'by_group'}) and defined($cgi->{'by_group'}) and $r->{'by_group'} eq $cgi->{'by_group'};
+      if (defined($r->{'by_project'}) and defined($cgi->{'by_project'}) and $r->{'by_project'} eq $cgi->{'by_project'}) {
+        if (defined($r->{'by_package'}) or defined($cgi->{'by_package'})) {
+          # by_package review
+          $matching = 1 if $r->{'by_package'} eq $cgi->{'by_package'};
+        } else {
+          # by_project review
+          $matching = 1;
+        }
+      }
+
+      if ($matching) {
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
@@ -4905,7 +4916,7 @@ sub postrequest {
     if ($cgi->{'by_user'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
       $notification->{'newreviewer'} = $cgi->{'by_user'};
-    } else {
+    } elsif ($cgi->{'by_group'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
       $notification->{'newreviewer'} = $cgi->{'by_group'};
     }
@@ -5452,7 +5463,7 @@ my $dispatches = [
 
   'POST:/request cmd: user:?' => \&createrequest,
   '/request' => \&getrequestlist,
-  'POST:/request/$id:num cmd: newstate:? user:? comment:? by_user:? by_group:? superseded_by:?' => \&postrequest,
+  'POST:/request/$id:num cmd: newstate:? user:? comment:? by_user:? by_group:? by_project:? by_package:? superseded_by:?' => \&postrequest,
   '/request/$id:num' => \&getrequest,
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,

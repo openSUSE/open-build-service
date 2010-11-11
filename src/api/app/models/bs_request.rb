@@ -31,6 +31,14 @@ class BsRequest < ActiveXML::Base
         return true if user.login == r.data.attributes["by_user"]
       elsif r.has_attribute? 'by_group'
         return true if user.is_in_group? r.data.attributes["by_group"]
+      elsif r.has_attribute? 'by_project'
+        if r.has_attribute? 'by_package'
+           pkg = DbPackage.find_by_project_and_name r.data.attributes["by_project"], r.data.attributes["by_package"]
+           return true if pkg and user.can_modify_package? pkg
+        else
+           prj = DbProject.find_by_name r.data.attributes["by_project"]
+           return true if prj and user.can_modify_project? prj
+        end
       end
     end
 
