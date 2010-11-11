@@ -24,15 +24,21 @@ Features:
 =========
 
 * web interface improvements:
+  - package filtering
+  - IChain host configurable
 
 * api
   - review of requests by project or package maintainers is possible now (FATE #310806)
+  - better Cross-Site Scripting (XSS) protection
 
 * backend:
 
 
 Changes:
 ========
+
+* web interface
+  - bug reporting for projects/packages is only possible if a bugowner is set
 
 * api
   - It was not possible so far to create submit requests from packages where no write access exists.
@@ -47,3 +53,4 @@ Requirements:
 
 * Use osc 0.130 or later to get access to the new features.
 
+* Usage of Ruby on Rails version 2.3.8 is mandatory.
