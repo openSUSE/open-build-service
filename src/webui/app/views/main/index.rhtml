@@ -30,7 +30,7 @@
   <p class="description">
     Go
     <% if ICHAIN_MODE == 'on' %>
-      <%= link_to "here", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
+      <%= link_to "here", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
     <% else %>
       <%= link_to "here", :controller => :user, :action => :register_user %>
     <% end %>
