@@ -875,25 +875,39 @@ XmlResult: buildinfo
 
 === Repository Information
 
-GET /build/<project>/<repository>/<arch>/_all/
+GET /build/<project>/<repository>/<arch>/_repository
 
   Returns list of binaries contained in the specified repository
 
 XmlResult: binarylist
 
 
-GET /build/<project>/<repository>/<arch>/_all/<binaryname>
+GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
 
   Returns binary
 
 Result: binary file
 
 
-GET /build/<project>/<repository>/<arch>/_binarylist
+GET /build/<project>/<repository>/<arch>/<package>
 
   Returns list of binaries contained in the specified repository
 
 XmlResult: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Build info according to the committed sources
+
+XmlResult: buildinfo
+
+
+POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Build info according to the uploaded sources
+
+XmlResult: buildinfo
 
 
 GET /build/<project>/<repository>/<arch>/_builddepinfo
@@ -905,14 +919,9 @@ GET /build/<project>/<repository>/<arch>/_builddepinfo
 XmlResult: builddepinfo
 
 
-GET /build/<project>/<repository>/<arch>/_buildinfo
-
-  ???
-
-
 GET /build/<project>/<repository>/_buildconfig
 
-  ???
+  Build configuration for this repository, all base package requirements, mappings and macros.
 
 
 == Search
