@@ -1442,6 +1442,7 @@ sub dobuild {
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
+  push @args, '--signdummy' if $kiwimode && !$localkiwi && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
   my $ret = $?;
@@ -1452,7 +1453,7 @@ sub dobuild {
       print "build succeeded, but old build had same result !\n";
       return 2;
     }
-  }elsif ($ret == 768) {
+  } elsif ($ret == 768) {
     return 3;
   }
   if ($ret) {
