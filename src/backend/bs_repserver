@@ -1271,7 +1271,7 @@ sub putjob {
 
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
-  if ($BSConfig::sign && grep {$_->{'name'} =~ /\.rpm$/} (@$uploaded)) {
+  if ($BSConfig::sign && grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso)$/} (@$uploaded)) {
     # write now jobstatus and free lock
     $jobstatus->{'code'} = 'signing';
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);

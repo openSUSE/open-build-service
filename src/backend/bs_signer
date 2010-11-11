@@ -259,7 +259,7 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:rpm|sha256|iso)$/} @files;
+  my @signfiles = grep {/\.(?:d?rpm|sha256|iso)$/} @files;
   if (@signfiles) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
@@ -270,7 +270,7 @@ sub signjob {
       push @signargs, '-P', "$uploaddir/signer.$$";
     }
     for my $signfile (@signfiles) {
-      if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.rpm$/)) {
+      if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
 	# special aggregate handling: remove old sigs
         system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
       }
