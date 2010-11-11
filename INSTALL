@@ -103,4 +103,7 @@ to contribute can be found in the openSUSE wiki:
 Option 2: Setup a complete Build Service
 ----------------------------------------
 
-TODO
+In addition to the steps described above, please refer to the file
+src/backend/README. Afterwards, you have to configure your webui instance to
+use your local api instance. Have a look at the documentation in the respective
+files under src/webui/config/environments.
