@@ -90,6 +90,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-12-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
+ <distribution vendor="RedHat" version="RHEL-6" id="redhat-RHEL-6">
+  <name>RedHat RHEL-6</name>
+  <project>openSUSE.org:RedHat:RHEL-6</project>
+  <reponame>RedHat_RHEL-6</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-16.png"/>
+  <link>http://www.redhat.com/</link>
+ </distribution>
  <distribution vendor="RedHat" version="RHEL-5" id="redhat-RHEL-5">
   <name>RedHat RHEL-5</name>
   <project>openSUSE.org:RedHat:RHEL-5</project>
