@@ -333,10 +333,15 @@ taskdone;
 
 if ($debug) {
   open(FOO, '>', "$ddir/dep1");
-  print FOO Data::Dumper->Dump(
-    [\%pdeps],
-    [qw/*pdeps/]);
+  while (my ($p, $d) = each %pdeps) {
+    print FOO "b $p ", $buildtime{$p}, ' ', join(' ', @$d), "\n";
+  }
   close FOO;
+#  open(FOO, '>', "$ddir/dep1");
+#  print FOO Data::Dumper->Dump(
+#    [\%pdeps],
+#    [qw/*pdeps/]);
+#  close FOO;
 
   open(FOO, '>', "$ddir/dep2");
   print FOO Data::Dumper->Dump(
@@ -368,6 +373,7 @@ my %cycles = $dfs->findcycles();
 # calculate cycle build time
 for my $c (keys %cycles) {
   my $cn = join(',', sort(@{$cycles{$c}}));
+  print "CYCLE $cn\n";
 #  $cycles{$cn} = $cycles{$c};
   my $eti = 0;
   for my $p (@{$cycles{$c}}) {
@@ -469,6 +475,7 @@ if ($depsprecomputed) {
 
 # walk the now cycle free graph again
 $dfs = new Dfs(\%pdeps);
+$dfs->{'cyclefree'} = 1;
 $dfs->startrdfs(@todo);
 #print Dumper(\@todo);
 #print Dumper($dfs->{'reversedgraph'});
@@ -745,11 +752,6 @@ sub output
     next if exists $longestpaths{$p};
     my $path = [];
     while(1) {
-      if ($longestpaths{$p}) {
-	      print STDERR "BUG: $p caused a loop!\n";
-	      print STDERR Dumper(\%longestpaths, $path);
-	      last;
-      }
       push @$path, $p;
       $longestpaths{$p} = 1;
       last unless @{$pdeps{$p}};
