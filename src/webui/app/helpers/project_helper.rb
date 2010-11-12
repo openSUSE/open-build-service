@@ -10,32 +10,6 @@ module ProjectHelper
     user.watches?(@project.name) ? "magnifier_zoom_out.png" : "magnifier_zoom_in.png"
   end
 
-  def format_packstatus_for( repo, arch )
-    return if @buildresult.nil?
-    return unless @buildresult.has_element? :result
-    ret = String.new
-    
-    result = @buildresult.result("@repository='#{repo}' and @arch='#{arch}'")
-    if result.nil?
-      ret << "n/a<br>"
-    else
-      if result.has_attribute? "state"
-        if result.has_attribute? "dirty"
-          ret << "State: outdated(" << result.state << ")"
-        else
-          ret << "State: " << result.state
-        end
-        ret << "<br>"
-      end
-      result.summary.each_statuscount do |scnt|
-        ret << link_to("#{scnt.code}:&nbsp;#{scnt.count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], scnt.code => 1, :defaults => 0)
-        ret << "<br>\n"
-      end
-    end
-
-    return ret
-  end
-
   def project_tab(text, opts)
     opts[:project] = @project.to_s
     if @current_action.to_s == opts[:action].to_s
