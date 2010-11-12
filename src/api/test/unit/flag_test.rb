@@ -16,22 +16,22 @@ class FlagTest < ActiveSupport::TestCase
   end
   
   
-  def test_before_create
-    
-  end
-  
-  
   def test_to_xml_error
     #if no flagstatus set, an error should be raised!
-    f = Flag.new(:db_project_id => 502, :architecture_id => 1, :repo => '999.999', :position => 0)
+    f = Flag.new(:db_project_id => 502, :architecture_id => 1, :repo => '999.999')
+    # no flag
+    assert_equal false, f.save
+    f.flag = 'build'
+    assert_equal false, f.save
+    f.status = 'enabled'
+    assert_equal false, f.save 
+    f.status = 'enable'
     assert_equal true, f.save
-    
+
     f = Flag.find_by_repo("999.999")
     assert_kind_of Flag, f
     
-    assert_raise RuntimeError do
-      f.to_xml(Builder::XmlMarkup.new)
-    end
+    assert_equal '<enable repository="999.999" arch="i586"/>', f.to_xml(Builder::XmlMarkup.new)
     
   end
   

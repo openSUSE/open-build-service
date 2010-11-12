@@ -44,19 +44,34 @@ case "$1" in
 			mkdir -p /obs/MySQL
 		fi
                 if [ ! -e /obs/MySQL/api_production ]; then
-			echo -n "Initialize OBS database (first time only)"
+			echo -n "Initialize OBS api database (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
+        		cd $apidir
+			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
+                        ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
+			chown lighttpd.lighttpd config/secret.key
+		else
+			echo
+			echo -n "Migrate OBS api database"
+			cd $apidir
+			RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+			echo
 		fi
-		echo
-		echo -n "Migrate OBS webui database"
-        	cd $webuidir
-		RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
-		echo
-		echo -n "Migrate OBS api database"
-        	cd $apidir
-		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
-		echo
+                if [ ! -e /obs/MySQL/webui_production ]; then
+			echo -n "Initialize OBS webui database (first time only)"
+			mysqladmin -u root create webui_production
+        		cd $webuidir
+			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
+                        ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
+			chown lighttpd.lighttpd config/secret.key
+		else
+			echo
+			echo -n "Migrate OBS webui database"
+			cd $webuidir
+			RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+			echo
+		fi
 
                 cd $webuidir
 		chown -R lighttpd.lighttpd $webuidir/log
@@ -74,7 +89,7 @@ case "$1" in
 		    /srv/www/obs/api/config/options.yml
                 echo "# the following lines are always written by obsapisetup!" >> /srv/www/obs/api/config/options.yml
                 echo "allow_anonymous: true" >> /srv/www/obs/api/config/options.yml
-                echo "webui_host: $FQHOSTNAME" >> /srv/www/obs/api/config/options.yml
+                echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
                 echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
 		echo
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
@@ -84,6 +99,14 @@ Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
 based on $OS
 
 EOF
+		if ! grep -q "^our \$sign =" /usr/lib/obs/server/BSConfig.pm ; then
+			cat >> /etc/issue <<EOF
+
+  WARNING: **** Package signing is disabled, maybe due to lack of hardware number generator ****
+
+EOF
+		fi
+
 		if [ -n "$FQHOSTNAME" ]; then
 			cat >> /etc/issue <<EOF
 

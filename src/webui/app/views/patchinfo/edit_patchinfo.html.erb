@@ -1,5 +1,6 @@
 <% @pagetitle = "Patchinfo-Editor" %>
 <% patchinfo_bread_crumb 'Patchinfo' -%>
+<%= render :partial => "package/tabs" %>
 
 
 <% content_for :content_for_head do %>
@@ -13,7 +14,6 @@
   widgets: ['zebra'],
   } );
 <% end %>
-
 <% form_tag :action => "save"  do %>
   <div class="section">
     <div class="box show_left show_right">
@@ -24,6 +24,7 @@
         <th>Packager: </th>
         <td>
           <%=@packager%>
+          <%= hidden_field_tag "packager", @packager %>
         </td>
         <td></td>
       </tr>
@@ -33,7 +34,7 @@
           <% options = Array.new
           @binarylist.each {|d| options << "#{d.to_s}"}
           opt = {:options => options}%>
-          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true %>
+          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5%>
         </td>
         <td>Please select the binaries (ctrl+left) which your patch includes</td>
       </tr>
@@ -42,14 +43,11 @@
         <td>
 
           <div id="buglist">
-            <% i=0 %>
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
-            <div id="bug_<%= bug %>">
-              <%= hidden_field_tag "bug[]", bug %><%= bug.to_s %>
-              <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>,
-              <% i=i+1 %>
-              <%= "<br/>" if i.modulo(3) == 0 %>
-            </div>
+              <div id="bug_<%= bug %>">
+                <%= hidden_field_tag "bug[]", bug, :id => "bugvalue_#{bug}" %><%= bug.to_s %>
+                <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>
+              </div>
             <%end%>
           </div>
         </td>
@@ -60,10 +58,59 @@
         <td>
           <%= text_field_tag 'bugid', @bugid %>
 
-          <%= link_to 'Add Bug', '#', :onclick => '$("#buglist").append("<input type=\"hidden\" name=\"bug[]\" value=\"" + $("#bugid").val() + "\"/>" + $("#bugid").val() + ", "); $("#bugid").val(""); return false;' %>
+          <% content_for :head_javascript do %>
+            function append_bug(bugid) {
+              var bugs = new Array();
+              bugs = bugid.split(", ");
+              for(var i = 0; i < bugs.length; i++) {
+                $("#buglist").append("<div id='bug_" + bugs[i] + "'><input type='hidden' name='bug[]' value='" + bugs[i] + "'/>" + bugs[i] + " " + "<a onclick='$(\"#bug_" + bugs[i] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
+              }
+              return false;
+            }
+
+            function append_cve(cveid) {
+              var cves = new Array();
+              cves = cveid.split(", ");
+              for(var i = 0; i < cves.length; i++) {
+                $("#cvelist").append("<div id='cve_" + cves[i] + "'><input type='hidden' name='cve[]' value='" + cves[i] + "'/>" + cves[i] + " " + "<a onclick='$(\"#cve_" + cves[i] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + "</div>");
+              }
+              return false;
+            }
+
+            $(document).ready(function(){
+
+            var selected_start = $("#category option:selected");
+            if(selected_start.val() != "security"){
+            $("#CVE").hide();
+            $("#CVEID").hide();
+            }
+            else
+            {    $("#CVE").show();
+                 $("#CVEID").show();}
+
+
+            $("#category").change(onSelectChange);
+
+            });
+            
+            function onSelectChange(){
+            var selected = $("#category option:selected");
+            if(selected.val() != "security"){
+            $("#CVE").hide();
+            $("#CVEID").hide();
+            }
+            else
+            {    $("#CVE").show();
+                 $("#CVEID").show();}
+            }
+          <% end %>
+
+          <%= link_to image_tag('icons/bug_add.png', :alt => "Add Bug", :title => "Add Bug"), '#', :onclick => 'append_bug($("#bugid").val()); return false;' %>
 
         </td>
-        <td>Add an additional bug here (must have 6 numbers)</td>
+        <td>Add an additional bug here (must have 6 numbers)<br/>
+            single or a comma-separated list eg: <br/>
+            "123456, 654321"</td>
       </tr>
       <tr>
         <th>Swamp-ID: </th>
@@ -79,13 +126,34 @@
         </td>
         <td>Choose the category of your patch</td>
       </tr>
+      <tr id="CVE">
+        <th>CVE</th>
+        <td>
+          <div id="cvelist">
+            <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
+              <div id="cve_<%= cve %>">
+                <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
+                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>
+              </div>
+            <%end%>
+          </div>
+        </td>
+      </tr>
+      <tr id="CVEID">
+        <th/>
+        <td><%= text_field_tag "cveid", @cveid %>
+            <%= link_to image_tag('icons/bug_add.png', :alt => "Add CVE", :title => "Add CVE"), '#', :onclick => 'append_cve($("#cveid").val()); return false;' %></td>
+        <td>Enter a CVE-number (only for security fixes)<br/>
+            single or a comma-separated list eg: <br/>
+            "cve-2010-1234, cve-2010-4321"</td>
+     </tr>
       <tr>
         <th>Summary: </th>
         <td>
           <%=  text_area_tag 'summary', @summary, :rows => 5, :cols => 30 %>
         </td>
         <td>Enter a summary. It should have the following format:<br />
-          Mainpackage: ca. 50 signs long short-explanation what the patch fixes
+          Mainpackage: ca. 10 signs long short-explanation what the patch fixes
         </td>
       </tr>
       <tr>
@@ -95,12 +163,27 @@
         </td>
         <td>Enter a full description what your patch fixes</td>
       </tr>
+      <tr>
+        <th>Relogin needed?</th>
+        <td>
+          <%= check_box_tag("relogin", true, @relogin) %>
+        </td>
+        <td>Set when a relog for the patch is needed.</td>
+      </tr>
+      <tr>
+        <th>Reboot needed?</th>
+        <td>
+          <%= check_box_tag("reboot", true, @reboot) %>
+        </td>
+        <td>Set when a reboot for the patch is needed.</td>
+      </tr>
       <tr><td></td><td></td><td align="right">
           <%= submit_tag "Save Patchinfo" %>
-        </td></tr>
+      </td></tr>
     </table>
     <%= hidden_field_tag("project", @project.name)%>
     <%= hidden_field_tag("package", @package)%>
+    <%= observe_field( :category, :frequency => 0.5, :on => :selected,
+      :update => :cve )%>
   </div>
 <% end %>
-

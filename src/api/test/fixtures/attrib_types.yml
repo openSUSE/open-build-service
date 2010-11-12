@@ -1,9 +1,29 @@
+veryimportantproject:
+  id: 56
+  name: VeryImportantProject
+  value_count: 0
+  attrib_namespace_id: 9
 maintained:
   id: 58
   name: Maintained
   value_count: 0
   attrib_namespace_id: 9
+update:
+  id: 57
+  name: UpdateProject
+  value_count: 1
+  attrib_namespace_id: 9
 status:
   id: 59
   name: status
+  attrib_namespace_id: 8
+RequestCloned:
+  id: 60
+  name: RequestCloned
+  value_count: 1
+  attrib_namespace_id: 9
+InitializeDevelPackage:
+  id: 61
+  name: InitializeDevelPackage
+  value_count: 0
   attrib_namespace_id: 9

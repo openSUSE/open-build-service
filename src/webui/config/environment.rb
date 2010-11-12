@@ -4,12 +4,21 @@
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '>=2.3.8' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
 require "common/libxmlactivexml"
 require 'custom_logger'
+require 'fileutils'
+
+# create important directories that are needed at runtime
+FileUtils.mkdir_p("#{RAILS_ROOT}/log")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/cache")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/pids")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
 
 init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -27,21 +36,28 @@ init = Rails::Initializer.run do |config|
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake create_sessions_table')
   config.action_controller.session_store = :active_record_store
+  # default secret
+  secret = "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+  if File.exist? "#{RAILS_ROOT}/config/secret.key"
+    file = File.open( "#{RAILS_ROOT}/config/secret.key", "r" )
+    secret = file.readline
+  end
   config.action_controller.session = {
     :prefix => "ruby_webclient_session",
-    :session_key => "opensuse_webclient_session",
-    :secret => "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+    :key => "opensuse_webclient_session",
+    :secret => secret
   }
 
   # Enable page/fragment caching by setting a file-based store
   # (remember to create the caching directory and make it readable to the application)
   # config.action_controller.fragment_cache_store = :file_store, "#{RAILS_ROOT}/cache"
 
-  config.gem 'gruff'
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'libxml-ruby'
-  config.gem 'exception_notification'
+  config.gem 'exception_notification', :version => '<= 1.1'
+  config.gem 'erubis'
+  config.gem 'rails_xss'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
@@ -71,33 +87,6 @@ ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
 ExceptionNotifier.email_prefix = "[OBS web error] "
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
-MONITOR_IMAGEMAP = { 
-      'pc_waiting' => [
-        ["i586", 'waiting_i586'],
-        ["x86_64", 'waiting_x86_64'] ],
-      'pc_blocked' => [
-        ["i586", 'blocked_i586' ],
-        ["x86_64", 'blocked_x86_64'] ],
-      'pc_workers' => [
-        ["idle", 'idle_x86_64' ],
-        ['building', 'building_x86_64' ] ],
-      'ppc_waiting' => [
-        ["ppc", 'waiting_ppc'],
-        ["ppc64", 'waiting_ppc64'] ],
-      'ppc_blocked' => [
-        ["ppc", 'blocked_ppc' ],
-        ["ppc64", 'blocked_ppc64'] ],
-      'ppc_workers' => [
-        ["idle", 'idle_ppc64' ],
-        ['building', 'building_ppc64' ] ],
-      'arm_waiting' => [
-        ["armv5", 'waiting_armv5el'],
-        ["armv7", 'waiting_armv7el'] ],
-      'arm_blocked' => [
-        ["armv5", 'blocked_armv5el' ],
-        ["armv7", 'blocked_armv7el'] ]
-    }
-
 if CONFIG['visible_architectures']
    VISIBLE_ARCHITECTURES=CONFIG['visible_architectures']
 else
@@ -108,12 +97,20 @@ if CONFIG['default_enabled_architectures']
 else
    DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
 end
+if CONFIG['hide_private_options'] == true
+   HIDE_PRIVATE_OPTIONS = true
+else
+   HIDE_PRIVATE_OPTIONS = false
+end
 
 SOURCEREVISION = 'master'
 begin
   SOURCEREVISION = File.open("#{RAILS_ROOT}/REVISION").read
 rescue Errno::ENOENT
 end
+
+#DOWNLOAD_URL = "http://download.opensuse.org/repositories"
+#BUGZILLA_HOST = nil
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
@@ -135,14 +132,16 @@ ActiveXML::Base.config do |conf|
 
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
+    map.connect :userchangepasswd, "rest:///person/changepasswd"
 
     map.connect :architecture, "rest:///architecture"
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
-    map.connect :directory, "rest:///source/:project/:package?:expand"
+    map.connect :directory, "rest:///source/:project/:package?:expand&:rev"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service"
+    map.connect :file, "rest:///source/:project/:package/:filename?:expand&:rev"
     map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository"
@@ -157,7 +156,7 @@ ActiveXML::Base.config do |conf|
       :tags_by_user => "rest:///user/:user/tags/:type",
       :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
-    map.connect :request, "rest:///request/:id", :create => "rest:///request?cmd=create"
+    map.connect :bsrequest, "rest:///request/:id", :create => "rest:///request?cmd=create"
 
     map.connect :packageattribute, "rest:///search/attribute?:namespace&:name&:project"
  
@@ -199,7 +198,7 @@ ActiveXML::Base.config do |conf|
     map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
 
   end
-  ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/#{CONFIG['version']}" )
+  ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
 
 
 end

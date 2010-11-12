@@ -10,13 +10,15 @@
 
 <div>
     <table>
+      <tr>
         <th><h3>Summary:</h3></th>
         <th style="width: 15em;"><h3>Number of tags: <%=@number_of_tags%></h3></th> 
         <th style="width: 10em;"><h3>Tags not used: <%=@unused_tags-%></h3></th>
-         <th><h3><%=link_to image_tag("list-remove", :alt => "Delete", :title => 'Delete', :border => 0),
+         <th><h3><%=link_to image_tag("list-remove.png", :alt => "Delete", :title => 'Delete', :border => 0),
                                 { :action => 'delete_unused_tags'},
                                   :confirm => "Are you sure?",
                                   :post    => true -%></h3></th>
+      </tr>
     </table>
 </div>
 

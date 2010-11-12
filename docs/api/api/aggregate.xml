@@ -5,6 +5,7 @@
     <package>libz</package>
     <binary>gcc</binary>
     <binary>gcc-c++</binary>
+    <nosources/>
     <repository target="my_sle_11_repo" source="SLE_11" />
   </aggregate>
   <aggregate project="anotherproject" >

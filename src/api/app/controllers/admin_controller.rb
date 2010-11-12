@@ -1,32 +1,6 @@
 class AdminController < ApplicationController
   layout "rbac"
    
-  def list_sources
-    @files = []
-    read_dir( "data" )
-  end
-  
-  hide_action :read_dir
-  def read_dir( dir )
-    d = Dir.new( dir )
-    d.each { |entry|
-      if ( entry == "." || entry == ".." )
-        next
-      end
-      path = dir + "/" + entry
-      @files.push path
-      if File.directory?( path )
-        read_dir( path )
-      end
-    }
-  end
-  
-  
-  def say_hello
-    render( :layout => false )
-  end
-  
-  
   def list_blacklist_tags
     
     @tags = BlacklistTag.find(:all)  
@@ -36,7 +10,7 @@ class AdminController < ApplicationController
     
   end
   
-  def list_tags()
+  def list_tags
     
     logger.debug "[TAG:] admin list_params order_by: #{session[:column]}"
     
@@ -197,15 +171,17 @@ class AdminController < ApplicationController
   
   
   def move_tag
-    tag = Tag.find(params[:id])
-    blacklist_tag = BlacklistTag.find_or_create_by_name(tag.name)
-    if blacklist_tag
-      tag.destroy
-      flash[:note] = 'Tag was successfully moved.'
-    else
-      flash[:note] = 'Something went wrong!'
+    begin
+      tag = Tag.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      flash[:note] = "No such tag #{params[:id]}"
+      redirect_to :action => 'list_tags'
+      return 
     end
-      redirect_to :action => 'list_blacklist_tags'
+    blacklist_tag = BlacklistTag.find_or_create_by_name(tag.name)
+    tag.destroy
+    flash[:note] = 'Tag was successfully moved.'
+    redirect_to :action => 'list_blacklist_tags'
   end
   
   
@@ -227,7 +203,7 @@ class AdminController < ApplicationController
   
   def invalid_tag
     logger.error("Attempt to access invalid tag #{params[:id]}")
-    flash[:note] = 'Invalid tag'
+    flash[:error] = "Invalid tag #{params[:id]}"
     redirect_to :action => 'list_tags'
   end
   

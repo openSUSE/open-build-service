@@ -8,6 +8,7 @@ require 'xpath_engine'
 require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
+class MissingParameterError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -22,18 +23,52 @@ class ApplicationController < ActionController::Base
 
   before_filter :validate_incoming_xml, :add_api_version
 
+  if Rails.env.test?
+    before_filter :start_test_backend
+  end
+
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
   before_filter :shutup_rails
+  before_filter :set_current_user
 
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
+  
+  hide_action :auth_method
+  hide_action 'auth_method='
 
-  def restrict_admin_pages
-    if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
-      return require_admin
+  @@backend = nil
+  def start_test_backend
+    return if @@backend
+    logger.debug "Starting test backend..."
+    @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
+    logger.debug "Test backend started with pid: #{@@backend.pid}"
+    while true do
+      line = @@backend.gets
+      raise RuntimeError.new('Backend died') unless line
+      break if line =~ /DONE NOW/
+      logger.debug line.strip
     end
+    ActiveXML::Config.global_write_through = true
+    at_exit do
+      logger.debug "kill #{@@backend.pid}"
+      Process.kill "INT", @@backend.pid
+      @@backend = nil
+    end
+  end
+  hide_action :start_test_backend
+
+  def set_current_user
+    User.current = @http_user
+  end
+
+  protected
+  def restrict_admin_pages
+     if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
+        return require_admin
+     end
   end
 
   def require_admin
@@ -43,6 +78,13 @@ class ApplicationController < ActionController::Base
       render :template => 'permerror'
       return false
     end
+    return true
+  end
+
+  def extract_user_public
+    # to become _public_ special user 
+    @http_user = User.find_by_login( "_nobody_" )
+    @user_permissions = Suse::Permission.new( @http_user )
     return true
   end
 
@@ -72,7 +114,7 @@ class ApplicationController < ActionController::Base
               :errorcode => "unregistered_ichain_user",
               :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
           else
-            if @http_user.state == 5
+            if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
               render_error :message => "iChain user #{ichain_user} is registered but not yet approved.", :status => 403,
                 :errorcode => "registered_ichain_but_unapproved",
                 :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
@@ -119,10 +161,17 @@ class ApplicationController < ActionController::Base
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and [ request.env['REMOTE_HOST'], request.env['REMOTE_ADDR'] ].include?( CONFIG['webui_host'] )
+        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and [ request.env['REMOTE_HOST'], request.env['REMOTE_ADDR'] ].include?( CONFIG['webui_host'] ) and request.env['HTTP_USER_AGENT'].match(/^obs-webui/)
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return true
+        else
+          if @http_user.nil? and login
+            render_error :message => "User not yet registered", :status => 403,
+              :errorcode => "unregistered_user",
+              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
+            return false
+          end
         end
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
@@ -138,9 +187,12 @@ class ApplicationController < ActionController::Base
           require 'ldap'
           logger.debug( "Using LDAP to find #{login}" )
           ldap_info = User.find_with_ldap( login, passwd )
-        rescue Exception
+        rescue LoadError
           logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
           ldap_info = nil # now fall through as if we'd not found a user
+        rescue Exception
+          logger.debug "#{login} not found in LDAP."
+          ldap_info = nil # now fall through as if we'd not found a user          
         end
 
         if not ldap_info.nil?
@@ -202,23 +254,39 @@ class ApplicationController < ActionController::Base
     if @http_user.nil?
       render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
     else
-      logger.debug "USER found: #{@http_user.login}"
-      @user_permissions = Suse::Permission.new( @http_user )
-      return true
+      if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
+        render_error :message => "User is registered but not yet approved.", :status => 403,
+          :errorcode => "unconfirmed_user",
+          :details => "<p>Your account is a registered account, but it is not yet approved for the OBS by admin.</p>"
+        return false
+      end
+
+      if @http_user.state == User.states['confirmed']
+        logger.debug "USER found: #{@http_user.login}"
+        @user_permissions = Suse::Permission.new( @http_user )
+        return true
+      end
     end
+
+    render_error :message => "User is registered but not in confirmed state.", :status => 403,
+      :errorcode => "inactive_user",
+      :details => "<p>Your account is a registered account, but it is in a not active state.</p>"
+    return false
   end
 
-
+  hide_action :setup_backend  
   def setup_backend
     # initialize backend on every request
     Suse::Backend.source_host = SOURCE_HOST
     Suse::Backend.source_port = SOURCE_PORT
   end
 
+  hide_action :add_api_version
   def add_api_version
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
+  hide_action :forward_from_backend
   def forward_from_backend(path)
 
     if CONFIG['x_rewrite_host']
@@ -252,6 +320,7 @@ class ApplicationController < ActionController::Base
     file.close
   end
 
+  hide_action :download_request
   def download_request
     file = Tempfile.new 'volley'
     b = request.body
@@ -288,6 +357,7 @@ class ApplicationController < ActionController::Base
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
+  public :pass_to_backend
 
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
@@ -315,12 +385,25 @@ class ApplicationController < ActionController::Base
       render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
-    when ActionController::RoutingError
+    when DbProject::PrjAccessError
+      logger.error "PrjAccessError: #{exception.message}"
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => exception.message
+    when DbPackage::PkgAccessError
+      logger.error "PkgAccessError: #{exception.message}"
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => exception.message
+
+    when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActionController::UnknownAction
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     when ActionView::MissingTemplate
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
+    when MissingParameterError
+      render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
+    when DbProject::CycleError
+      render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
     else
       if send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
@@ -340,6 +423,14 @@ class ApplicationController < ActionController::Base
 
   def user
     return @http_user
+  end
+
+  def required_parameters(*parameters)
+    parameters.each do |parameter|
+      unless params.include? parameter.to_s
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
+      end
+    end
   end
 
   def valid_http_methods(*methods)
@@ -459,6 +550,8 @@ class ApplicationController < ActionController::Base
 
     __send__ cmd_handler
   end
+  public :dispatch_command
+  hide_action :dispatch_command
 
   def build_query_from_hash(hash, key_list=nil)
     key_list ||= hash.keys

@@ -30,6 +30,7 @@
        $(".tablesorter").trigger("sorton",[sorting]); 
 <% end %>
 
+<% if @workerstatus.has_element? :building %>
 <table class="building tablesorter">
   <thead>
     <tr>
@@ -42,8 +43,7 @@
      </tr>
   </thead>
   <tbody>
-      <% if @workerstatus.has_element? :building
-         @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b|
+      <% @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b|
           next if (!@project_filter.nil? && b.project !~ /#{Regexp.quote(@project_filter)}/i )
       %>
     <tr>
@@ -91,7 +91,9 @@
         </td>
     </tr>
     <% end %>
-    <% end %>
   </tbody>
 </table>
+<% else %>
+	<p><i>No build jobs</i></p>
+<% end %>
 </div>

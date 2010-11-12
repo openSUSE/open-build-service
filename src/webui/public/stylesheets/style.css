@@ -8,45 +8,45 @@
 @import url(dialog.css); /* style for dialog boxes */
 
 .nowrap {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
 textarea {
-  width: 95%;
+    width: 95%;
 }
 
 .build_result_trigger {
-  position: relative;
+    position: relative;
 }
 
 .ajax_large_loader { 
-  width: 32px;
-  height: 32px;
-  background-image: url(../images/large-loader.gif);
+    width: 32px;
+    height: 32px;
+    background-image: url(../images/large-loader.gif);
 }
 
 #build_result_popup { 
-  position: absolute; 
-  background: white; 
-  border: 1px solid black; 
-  margin: 5px; 
-  display: none; 
-  z-index: 50;
+    position: absolute;
+    background: white;
+    border: 1px solid black;
+    margin: 5px;
+    display: none;
+    z-index: 50;
 }
 
 span.build_result_title { 
-  font-size: 110%;
+    font-size: 110%;
 }
 
 
 /* build status monitor for projects */
 .buildstatus tr:hover {
-  background:#e4f4dc;
-  border: 0;
+    background:#e4f4dc;
+    border: 0;
 }
- 
+
 .grey-medium {
-  color: #666;
+    color: #666;
 }
 
 /* used in package and project build status */
@@ -54,99 +54,99 @@ span.build_result_title {
 .status_blocked a:visited,
 .status_blocked a:hover
 {
-  color: #fff;
-  background-color: #bbb;
+    color: #fff;
+    background-color: #bbb;
 }
 .status_scheduled a,
 .status_scheduled a:visited,
 .status_scheduled a:hover
 {
-  color: #11d;
-  background-color: #bbb;
+    color: #11d;
+    background-color: #bbb;
 }
 .status_building a,
 .status_building a:visited,
 .status_building a:hover
 {
-  color: #00f;
-  background-color: #bbb;
+    color: #00f;
+    background-color: #bbb;
 }
 .status_signing a,
 .status_signing a:visited,
 .status_signing a:hover
 {
-  color: #666;
-  background-color: #bbb;
+    color: #666;
+    background-color: #bbb;
 }
 .status_finished a,
 .status_finished a:visited,
 .status_finished a:hover
 {
-  color: #222;
-  background-color: #bbb;
+    color: #222;
+    background-color: #bbb;
 }
 .status_disabled a,
 .status_disabled a:hover,
 .status_disabled a:visited {
-  color: #bbb;
+    color: #bbb;
 }
 .status_succeeded a,
 .status_succeeded a:hover,
 .status_succeeded a:visited {
-  color: #6EB927;
+    color: #6EB927;
 }
 .status_broken a,
 .status_broken a:hover,
 .status_broken a:visited {
-  color: #e00;
+    color: #e00;
 }
 .status_failed a,
 .status_failed a:hover,
 .status_failed a:visited {
-  color: #f00;
+    color: #f00;
 }
 .status_unresolvable a,
 .status_unresolvable a:hover,
 .status_unresolvable a:visited {
-  color: #c00;
+    color: #c00;
 }
 .status_unknown a,
 .status_unknown a:hover,
 .status_unknown a:visited {
-  color: #e55;
+    color: #e55;
 }
 
 .centered {
-  text-align: center;
+    text-align: center;
 }
 
 /* live build log */
 div#log_space_wrapper p {
-  background-color: #eee;
+    background-color: #eee;
 }
 
 /* main page (/) */
 #proceed_list { height: 2em; margin-bottom: 40px;  }
 #proceed_list li {
-  float: left;
-  text-align: center;
-  list-style: none;
-  margin: 0;
-  width: 115px;
+    float: left;
+    text-align: center;
+    list-style: none;
+    margin: 0;
+    width: 115px;
 }
 #proceed_list li a:hover img {
-  text-decoration: none;
+    text-decoration: none;
 }
 #proceed_list li img {
-   margin-bottom: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 .feedbox li {
-   list-style: none;
+    list-style: none;
 }
 
 #involved_users li {
-  list-style: none;
+    list-style: none;
 }
 
 /* repositories */
@@ -173,12 +173,12 @@ div#log_space_wrapper p {
 }
 
 .flagerror {
-   text-align: right;
-   color: red;
+    text-align: right;
+    color: red;
 }
 
 .global-navigation-menu-favorites li a {
-  min-height: 0px;
+    min-height: 0px;
 }
 
 
@@ -186,34 +186,34 @@ div#log_space_wrapper p {
 table.tablesorter {
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-	background-color: #DDDDDD;
-	border: 1px solid #FFF;
-	font-size: 8pt;
-	padding: 4px;
+    background-color: #DDDDDD;
+    border: 1px solid #FFF;
+    font-size: 8pt;
+    padding: 4px;
 }
 table.tablesorter thead tr .header {
-	background-image: url(../images/bg.gif);
-	background-repeat: no-repeat;
-	background-position: center right;
-	cursor: pointer;
+    background-image: url(../images/bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
 }
 table.tablesorter tbody td {
-	color: #3D3D3D;
-	padding: 4px;
-	background-color: #FFF;
-	vertical-align: top;
+    color: #3D3D3D;
+    padding: 4px;
+    background-color: #FFF;
+    vertical-align: top;
 }
 table.tablesorter tbody tr.odd td, tr.odd td {
-	background-color: #F6F6F6;
+    background-color: #F6F6F6;
 }
 table.tablesorter thead tr .headerSortUp {
-	background-image: url(../images/asc.gif);
+    background-image: url(../images/asc.gif);
 }
 table.tablesorter thead tr .headerSortDown {
-	background-image: url(../images/desc.gif);
+    background-image: url(../images/desc.gif);
 }
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
-background-color: #3399CC;
+    background-color: #3399CC;
 }
 
 /* package and project view */
@@ -222,3 +222,33 @@ background-color: #3399CC;
 
 table.patchinfo td { vertical-align: middle; }
 
+
+#local-actions { /* Action for single project or package */
+                 width: 15em;
+                 float: right;
+}
+
+#local-actions span {
+    float: left;
+    margin-right: 0.5em;
+}
+
+.dropdown-menu {
+    background:url("../images/unfold-indicator-single.png") no-repeat scroll 4em 0.4em transparent;
+    padding-right:1.2em;
+}
+
+.flot_legend table { 
+  display: inline;
+}
+
+.y1Axis .tickLabel { 
+  min-width: 15px;
+}
+
+.plotspinner { 
+  position: absolute;
+  right: 40px;
+  top: 20px;
+  z-index: 3;
+}

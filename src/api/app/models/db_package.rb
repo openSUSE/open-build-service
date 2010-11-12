@@ -2,6 +2,7 @@ class DbPackage < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
+  class PkgAccessError < Exception; end
   belongs_to :db_project
 
   belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
@@ -16,15 +17,7 @@ class DbPackage < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :object, :dependent => :destroy
 
-  has_many :flags
-  has_many :publish_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :build_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :sourceaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-  has_many :access_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :flags, :order => :position, :dependent => :destroy
 
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
@@ -35,6 +28,21 @@ class DbPackage < ActiveRecord::Base
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
     false
+  end
+
+  def before_validation
+    if self.disabled_for?('access', nil, nil)  or self.db_project.disabled_for?('access', nil, nil)
+      unless User.current and User.current.can_access?(self)
+        logger.debug "PkgAccessException: #{self.name}"
+        raise PkgAccessError.new "Unknown package '#{self.db_project.name}/#{self.name}'"
+      end
+    end
+    if self.disabled_for?('sourceaccess', nil, nil)
+      logger.debug "PkgSourceAccessException: to be implemented"
+    end
+    if self.disabled_for?('binarydownload', nil, nil)
+      logger.debug "PkgBinaryDownloadException: to be implemented"
+    end
   end
 
   class << self
@@ -100,6 +108,7 @@ class DbPackage < ActiveRecord::Base
         sql += " AND pack.name = BINARY ?"
         return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
       end
+      sql += " GROUP by pack.id"
       return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
     end
 
@@ -115,6 +124,24 @@ class DbPackage < ActiveRecord::Base
       find :first, :conditions => ["name = BINARY ?", name]
     end
 
+  end
+
+  def find_linking_packages
+    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\")"
+    answer = Suse::Backend.post path, nil
+    data = REXML::Document.new(answer.body)
+    result = []
+
+    data.elements.each("collection/package") do |e|
+      p = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
+      if p.nil?
+        logger.error "Data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
+      else
+        result.push( p )
+      end
+    end
+
+    return result
   end
 
   def resolve_devel_package
@@ -408,8 +435,9 @@ class DbPackage < ActiveRecord::Base
 
   def add_user( user, role )
     unless role.kind_of? Role
-       role = Role.rolecache[role]
+      role = Role.find_by_title(role)
     end
+
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in package '#{self.name}'"
@@ -425,15 +453,18 @@ class DbPackage < ActiveRecord::Base
       :role => role )
   end
 
-  def add_group( group, role_title )
-    role = Role.rolecache[role_title]
+  def add_group( group, role )
+    unless role.kind_of? Role
+      role = Role.find_by_title(role)
+    end
+
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in package '#{self.name}'"
     end
 
     unless group.kind_of? Group
-      user = Group.find_by_title(user.to_s)
+      group = Group.find_by_title(group.to_s)
     end
 
     PackageGroupRoleRelationship.create(
@@ -441,64 +472,6 @@ class DbPackage < ActiveRecord::Base
       :group => group,
       :role => role )
   end
-
-  # returns true if the specified user is associated with that package. possible
-  # options are :login and :role
-  # example:
-  #
-  # proj.has_user? :login => "abauer", :role => "maintainer"
-  def has_user?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["purr"]
-
-    if opt.has_key? :login
-      cond_fragments << "bs_user_id = u.id"
-      cond_fragments << "u.login = ?"
-      cond_params << opt[:login]
-      join_fragments << "users u"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if PackageUserRoleRelationship.find :first,
-      :select => "purr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
-  end
-
-  def has_group?( opt={} )
-    cond_fragments = ["db_project_id = ?"]
-    cond_params = [self.id]
-    join_fragments = ["pgrr"]
-
-    if opt.has_key? :name
-      cond_fragments << "bs_group_id = g.id"
-      cond_fragments << "g.title = ?"
-      cond_params << opt[:name]
-      join_fragments << "group g"
-    end
-
-    if opt.has_key? :role
-      cond_fragments << "role_id = r.id"
-      cond_fragments << "r.title = ?"
-      cond_params << opt[:role]
-      join_fragments << "roles r"
-    end
-
-    return true if PackageGroupRoleRelationship.find :first,
-      :select => "pgrr.id",
-      :joins => join_fragments.join(", "),
-      :conditions => [cond_fragments.join(" and "), cond_params].flatten
-    return false
-  end
-
 
   def each_user( opt={}, &block )
     users = User.find :all,
@@ -619,8 +592,8 @@ class DbPackage < ActiveRecord::Base
         package.group( :groupid => g.title, :role => g.role_name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload sourceaccess privacy access).each do |flag_name|
-        flaglist = __send__(flag_name+"_flags")
+      FlagHelper.flag_types.each do |flag_name|
+        flaglist = type_flags(flag_name)
         if view == 'flagdetails'
           db_project.expand_flags(builder, flag_name, flaglist)
         else

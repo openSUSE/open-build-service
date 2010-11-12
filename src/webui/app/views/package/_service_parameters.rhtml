@@ -8,55 +8,93 @@
 <div class="dialog darkgrey_box" id="service_paramaters">
   <div class="box box-shadow">
     <div class="box-header aligncenter">
-      Service Parameters
+      Service Parameters <%= image_tag('ajax-loader.gif', :id => 'spinner_parameter_editor', :class => 'hidden') %>
     </div>
 
+    Source Service: <%= @servicename %><br>
+    <i><%= @servicedescription %></i>
 
     <p><div class="aligncenter buttons">
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <% if @package.can_edit?( session[:login] ) %>
         <%= form_tag({:controller => "package", :action => "update_parameters"}, :method => "post") %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
         <%= hidden_field_tag(:serviceid, @serviceid) %>
+        <%= hidden_field_tag(:servicename, @servicename) %>
         <!-- FIXME: send source revision, so in-between changes can be detected -->
       <% end %>
        <table id="pTable">
        <tr><td valign="top">Parameter</td><td>Value</td>
-       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+       <% if @package.can_edit?( session[:login] ) %>
           <td>Remove</td>
        <% end %>
        </tr>
          <% number = 0 %>
+         <% used_parameter = {} %>
          <% @parameters.each do |p|%>
             <% number = number + 1 %>
-            <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+            <% used_parameter[p[:name]] = 1 %>
+            <% if @package.can_edit?( session[:login] ) %>
                <tr class="row_<%=number%>">
-                  <td><%=p[:name]%></td> 
-                  <td><input type="text" name="parameter_<%=number%>_<%=p[:name]%>" value="<%=p[:value]%>"></td>
-                  <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+                  <td 
+                    <%= if desc = Service.parameterDescription(@servicename, p[:name])
+                          ' title="' + CGI::escapeHTML(desc) + '"'
+                        end %>
+                  ><%=p[:name]%>
+                  </td>
+                  <% @values=Service.findAvailableParameterValues(@servicename, p[:name])  %>
+                  <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => p[:name], :number => number, :value => p[:value] }) %></td>
+                  <% unless definition = Service.findAvailableParameters(@servicename) and definition[p[:name]][:required] %>
+                    <td><%= link_to_function 'X', "$('tr.row_#{number}').remove()"%></td>
+                  <% end %>
                </tr>
             <% else %>
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
             <% end %>
          <% end %>
-         <%= hidden_field_tag(:parameter_count, number) %>
+         <% if @package.can_edit?( session[:login] ) %>
+            <% Service.findAvailableParameters(@servicename).each do |parameter|%>
+              <% name=parameter[0] %>
+              <% p=parameter[1] %>
+              <% if p[:required] and not used_parameter[name] %>
+                <% number = number + 1 %>
+                <tr class="row_<%=number%>">
+                   <td 
+                     <%= if desc = Service.parameterDescription(@servicename, name)
+                           'title="' + CGI::escapeHTML(desc) + '"'
+                         end %>
+                   ><%=name%>
+                   <% @values=Service.findAvailableParameterValues(@servicename, name)  %>
+                   <td><%= render(:partial => 'service_parameter_value_selector', :locals => { :servicename => @servicename, :parameter => name, :number => number, :value => ""}) %></td>
+                   <!-- not removable -->
+                </tr>
+              <% end %>
+              <% used_parameter[name] = 1 %>
+            <% end %>
+         <% end %>
+         <%= hidden_field_tag(:count_parameters, number) %>
 
-         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-           <tr class="addrow"><td><select name="add_parameter_name" id="add_new_parameter">
-                      <!-- FIXME: read these options via model from installed config files -->
-                      <option value="protocol" selected>Protocol</option>
-                      <option value="host" selected>Host</option>
-                      <option value="port" selected>Port</option>
-                      <option value="path" selected>Path</option>
-               </select></td>
-               <td><input type="text" id="add_new_value" name="add_parameter_value"></td>
-               <td><a href="#" id="add_new_row">+</a></td>
-           </tr>
+         <% if @package.can_edit?( session[:login] ) %>
+           <% str=""
+              Service.findAvailableParameters(@servicename).keys.each do |p|
+              unless used_parameter[p[:name]] and not ( d = Service.findAvailableParameters(@servicename) and d[p[:name]][:allowmultiple] )
+               str += "<option value=\"#{p}\" selected>#{p}</option>"
+              end
+           end %>
+           <% unless str.blank? %>
+             <tr class="addrow"><td>
+                 <select name="add_parameter_name" id="add_new_parameter">
+                   <%= str %>
+                 </select></td>
+                 <td id="value_input_field"><input type="text" id="add_new_value" name="add_new_value"></td>
+                 <td><a href="#" id="add_new_row">+</a></td>
+             </tr>
+           <% end %>
          <% end %>
 
        </table>
 
-     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+     <% if @package.can_edit?( session[:login] ) %>
        <input type="submit" />
      </form>
      <% end %>
@@ -70,3 +108,9 @@
   </div>
 
 </div></div>
+
+<%= observe_field( :add_new_parameter, :frequency => 0.5, :update => :value_input_field, 
+      :url => { :controller => 'package', :action  => 'service_parameter_value', :project => @project, :package => @package, :servicename => @servicename}, 
+      :loading => "$('#spinner_parameter_editor').show();", :complete => "$('#spinner_parameter_editor').hide();", 
+      :with => "'parameter=' + escape($('#add_new_parameter').attr('value')) + '&setid=add_new_value'") %> 
+

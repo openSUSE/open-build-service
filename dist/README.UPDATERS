@@ -1,3 +1,53 @@
+For Updaters to OBS 2.1 from OBS 2.0
+====================================
+
+1) Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R lighttpd.lighttpd log
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R lighttpd.lighttpd log
+
+2) Build backend source database
+
+   On the system, where bs_srcserver is running you need to build the
+   source database to get an index of existing linked packages.
+
+    # su -c "bs_admin --update-source-db"
+
+3) OPTIONAL step
+
+   It is recommended to use a MySQL database for OBS webui from now on.
+   The default has changed away from sqlite, but it does still work, except from
+   occasional connect errors between lighttpd/ruby and sqlite.
+
+   To setup the MySQL webui database instead of a sqlite one do the following
+   steps:
+
+   * Create the database:
+      # mysql -u root -p
+      mysql> create database webui_production;
+      mysql> GRANT all privileges ON webui_production.* TO 'obs'@'%', 'obs'@'localhost';
+      mysql> FLUSH PRIVILEGES;
+      mysql> quit
+
+   * Configure your MySQL user and password in the "production:" section
+     of the webui config: 
+
+        /srv/www/obs/webui/config/database.yml
+    
+     A template for this file can be found in same directory as "database.yml.example".
+
+   * populate the database
+      # cd /srv/www/obs/webui/
+      # sudo RAILS_ENV="production" rake db:setup
+      # sudo chown lighttpd.lighttpd log/*
+
+
+
 For Updaters to OBS 2.0 from OBS 1.7
 ====================================
 

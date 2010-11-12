@@ -32,6 +32,7 @@ our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
 our $serviceserver = "http://$hostname:5152";
 our $servicedir = "/usr/lib/obs/service/";
+#our $serviceroot = "/opt/obs/MyServiceSystem";
 
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # public download service:
@@ -39,13 +40,16 @@ our $repodownload = "http://$hostname/repositories";
 # optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
+#
+# Notification Plugin
+#our $notification_plugin = "notify_hermes";
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.
 our @reposervers = ("http://$hostname:5252");
 
 # proxy support:
-#our $proxy = "http(s)://<user:pass>\@<host>:<port>"
+#our $proxy = "http(s)://<user:pass>\@<host>:<port>";
 
 # Package defaults
 our $bsdir = '/srv/obs';
@@ -59,6 +63,13 @@ our $enable_download_on_demand = 1;
 # Package rc script / backend communication + log files
 our $rundir = "$bsdir/run";
 our $logdir = "$bsdir/log";
+
+# optional for non-acl systems, should be set for access control
+# 0: trees are shared between projects (built-in default)
+# 1: trees are not shared (only usable for new installations)
+# 2: new trees are not shared, in case of a missing tree the shared
+#    location is also tried (package default)
+our $nosharedtrees = 2;
 
 # optional: limit visibility of projects for some architectures
 #our $limit_projects = {
@@ -85,20 +96,15 @@ our $relsync_pool = {
  "armv7el" => "armv7el",
  "armv8el" => "armv8el",
  "sparcv9" => "sparcv9",
- "sparc64" => "sparc64",
+ "sparc64" => "sparcv9",
 };
 
-# This is for prefer a project in scheduler, if it has high or medium
-# prio events, but was not processed after $timeout minutes.
-#our %max_project_timeout = (
-# "openSUSE:Factory/standard" => { timeout => "30", last => "0" },
-#);
+# List of power hosts that can handle power jobs for the sake of
+# building critical packages fast.
+#our $powerhosts  = ["build20"];
 
-# Build priority, dispatcher prefers or deprefers jobs according to this:
-#our $dispatch_prio = [
-# '!^home:resourcewaster',   # de-prefer jobs (take it only, when no other jobs)
-# '^openSUSE:Factory',       # prefer (if there is a job for this project, take it)
-#];
+# List of power packages that can be built on power hosts 
+#our $powerpkgs = [ "glibc", "qt" ]
 
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';

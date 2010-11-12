@@ -1,50 +1,48 @@
-<% @pagetitle = "New Project" %>
 <%
 if @namespace
+  @pagetitle = "Create New Subproject"
   @crumb_list = [
     link_to( 'Projects', :action => :list_public),
-    link_to( @namespace, :action => :show, :project => @namespace), 'Create Subproject'
+    link_to( @namespace, :action => :show, :project => @namespace), @pagetitle
   ]
 else
+  @pagetitle = "Create New Project"
   @crumb_list = [
-    link_to( 'Projects', :action => :list_public),
-    'Create New Project'
+    link_to( 'Projects', :action => :list_public), @pagetitle
   ]
 end
 -%>
-<h2>Create New Project</h2>
+<h2><%= @pagetitle %></h2>
 
 <div class="description">
-  <p>All users have a home:&lt;login&gt; project by default, and can also create new sub projects. </p>
-  <p>New project outside of your home namespace can get requested via <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&amp;product=openSUSE.org&amp;submit=Use+This+Product&amp;component=OBS%20Request">bugzilla</a>.
-    To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a>
-  mailing list.</p>
+  <p>
+  All users have a <strong>home:&lt;login&gt;</strong> project by default, and can also create new sub projects. New project outside of your home namespace can get requested via
+  <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&amp;product=openSUSE.org&amp;submit=Use+This+Product&amp;component=OBS%20Request">bugzilla</a>.
+  To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing list.</p>
 </div>
 
-<% form_tag 'save_new' do -%>
-  <div>
-    <p><strong>Project Name:</strong></p>
-    <p>
-      <% if @project_name %>
-        <%= @project_name %>
-        <%= hidden_field_tag( "name", @project_name ) %>
-      <% else %>
-        <%if @namespace-%>
-          <%= hidden_field_tag('ns',@namespace)%>
-          <strong><%=@namespace%>:</strong>
-        <%end-%>
-        <%= text_field_tag 'name', @new_project_name, :size => 80 %>
-
-      <% end %>
-    </p>
-  </div>
-  <div>
-    <p><label for="title"><strong>Title: </strong></label><%= text_field_tag 'title', @project_title, :size => 80 %></p>
-  </div>
-  <div>
-    <p><label for="description"><strong>Description:</strong></label></p>
-    <p><%= text_area_tag 'description', @project_description, :cols => 80,
-      :rows => 10 %></p>
-    <p><%= submit_tag "Create Project" %></p>
-  </div>
+<% form_tag :action => 'save_new' do -%>
+  <p>
+    <strong>Project Name:</strong><br/>
+    <% if @project_name %>
+      <%= @project_name %>
+      <%= hidden_field_tag( "name", @project_name ) %>
+    <% else %>
+      <%if @namespace-%>
+        <%= hidden_field_tag('ns',@namespace) %>
+        <%= @namespace %>:
+      <%end-%>
+      <%= text_field_tag 'name', @new_project_name, :size => 50 %>
+    <% end %><br/>
+    <label for="title"><strong>Title: </strong></label><br/>
+    <%= text_field_tag 'title', @project_title, :size => 80 %><br/>
+    <label for="description"><strong>Description:</strong></label><br/>
+    <%= text_area_tag 'description', @project_description, :cols => 80, :rows => 10 %><br/>
+    <% unless HIDE_PRIVATE_OPTIONS == true %>
+      <%= check_box_tag :access_protection, false %>Hide the entire project.<br/>
+      <%= check_box_tag :source_protection, false %>Deny access to sources of project.<br/>
+    <% end %>
+    <%= check_box_tag :disable_publishing, false %>Disable build results publishing.
+  </p>
+  <p><%= submit_tag "Create Project" %></p>
 <% end -%>

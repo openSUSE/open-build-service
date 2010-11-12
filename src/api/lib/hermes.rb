@@ -78,6 +78,14 @@ class Hermes
       logger.info "[hermes] !! skipped OBS_SRCSRV_REQUEST_STATECHANGE sub for user #{username}"
     end
 
+    subscr_id = add_subscription(username, "OBS_SRCSRV_REQUEST_REVIEWER_ADDED", "Mail", "NO_DELAY")
+    if subscr_id
+      add_filter(subscr_id, 'newreviewer', 'oneof', username)
+      logger.info "[hermes] added OBS_SRCSRV_REQUEST_REVIEWER_ADDED sub for user #{username}"
+    else
+      logger.info "[hermes] !! skipped OBS_SRCSRV_REQUEST_REVIEWER_ADDED sub for user #{username}"
+    end
+    
     return true
   end
 

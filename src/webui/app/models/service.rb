@@ -1,7 +1,5 @@
 class Service < ActiveXML::Base
 
-  belongs_to :package
-
   class << self
     def make_stub( opt )
       logger.debug "make stub params: #{opt.inspect}"
@@ -9,20 +7,114 @@ class Service < ActiveXML::Base
       doc.root = XML::Node.new 'services'
     end
 
+    def updateServiceList
+       # cache service list
+       @serviceList = []
+       @serviceParameterList = {}
+
+       path = "/service"
+       frontend = ActiveXML::Config::transport_for( :service )
+       answer = frontend.direct_http URI("/service"), :method => "GET"
+
+       doc = XML::Parser.string(answer).parse.root
+       doc.find("/servicelist/service").each do |s|
+         serviceName = s.attributes["name"]
+         hash = {}
+         hash[:name]        = serviceName
+         hash[:summary]     = s.find_first("summary").content
+         hash[:description] = s.find_first("description").content
+         @serviceList.push( hash )
+
+         @serviceParameterList[serviceName] = {}
+         s.find("parameter").each do |p|
+           hash = {}
+           hash[:description] = p.find_first("description").content
+           hash[:required] = true if p.find_first("required")
+
+           allowedvalues = []
+           p.find("allowedvalue").each do |a|
+             allowedvalues.push(a.content)
+           end
+           hash[:allowedvalues] = allowedvalues
+
+           @serviceParameterList[serviceName][p.attributes["name"]] = hash
+         end
+       end
+    end
+
+    def findAvailableParameterValues(serviceName, parameter)
+      if @serviceList.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+
+      if @serviceParameterList[serviceName] and @serviceParameterList[serviceName][parameter] \
+         and @serviceParameterList[serviceName][parameter][:allowedvalues]
+        return @serviceParameterList[serviceName][parameter][:allowedvalues]
+      end
+      return nil
+    end
+
+    def findAvailableParameters(serviceName)
+      if @serviceList.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+
+      return [] unless @serviceParameterList[serviceName]
+      @serviceParameterList[serviceName]
+    end
+
     def available
-      # hardcoded for now, this should get checked via installed services
-      [
-             { "icon" => "download",  "name" => "download_url",    "summary" => "Download File" },
-             { "icon" => "download",  "name" => "download_src_package",    "summary" => "Download src rpm and extract" },
-             { "icon" => "verify",    "name" => "verify_file",     "summary" => "Verify a file" },
-#             { "icon" => "generator", "name" => "generator_qmake", "summary" => "Generator for qmake" },
-#             { "icon" => "generator", "name" => "generator_kde",   "summary" => "Generator for KDE" },
-      ]
+      if @serviceList.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+
+      @serviceList
+    end
+
+    def findService(name)
+      # would be nicer if we store it as hash, but it makes us impossible to order it
+      if @serviceList.nil?
+         # FIXME: do some more clever cacheing
+         updateServiceList
+      end
+   
+      @serviceList.each do |s|
+        return s if s[:name] == name
+      end
+
+      return nil
+    end
+
+    def summary(name)
+      return nil unless s = findService(name)
+      return "" unless s[:summary]
+      s[:summary]
+    end
+
+    def description(name)
+      return nil unless s = findService(name)
+      return "" unless s[:description]
+      s[:description]
+    end
+
+    def parameterDescription(serviceName, name)
+      return nil unless s = findService(serviceName)
+      return nil unless @serviceParameterList[serviceName]
+      return nil unless @serviceParameterList[serviceName][name]
+      return ""  unless @serviceParameterList[serviceName][name][:description]
+      @serviceParameterList[serviceName][name][:description]
     end
   end
 
   def addDownloadURL( url )
-     uri = URI.parse( url )
+     begin
+       uri = URI.parse( url )
+     rescue
+       return false
+     end
 
      p = []
      p << { :name => "host", :value => uri.host }
@@ -40,6 +132,7 @@ class Service < ActiveXML::Base
         # just download
         addService( "download_url", -1, p )
      end
+     return true
   end
 
   def removeService( serviceid )
@@ -73,7 +166,7 @@ class Service < ActiveXML::Base
 
   def getParameters(serviceid)
      parameters = data.find("/services/service[#{serviceid}]/param")
-     return nil if not parameters or parameters.count <= 0
+     return [] if not parameters or parameters.count <= 0
 
      ret = []
      parameters.each do |p|
@@ -108,10 +201,26 @@ class Service < ActiveXML::Base
      service_elements[to-1].prev = service_elements[from-1]
   end
 
+  def error
+    opt = Hash.new
+    opt[:project]  = self.init_options[:project]
+    opt[:package]  = self.init_options[:package]
+    opt[:expand]   = self.init_options[:expand]
+    opt[:rev]      = self.init_options[:revision]
+    opt[:filename] = "_service_error"
+    begin
+      fc = FrontendCompat.new
+      return fc.get_source opt
+    rescue
+      return nil
+    end
+  end
+
   def execute()
     opt = Hash.new
     opt[:project] = self.init_options[:project]
     opt[:package] = self.init_options[:package]
+    opt[:expand]   = self.init_options[:expand]
     opt[:cmd] = "runservice"
     logger.debug "execute services"
     fc = FrontendCompat.new

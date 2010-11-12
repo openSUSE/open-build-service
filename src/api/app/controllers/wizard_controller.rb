@@ -18,6 +18,20 @@ class WizardController < ApplicationController
       return
     end
 
+    # ACL(package_wizard): access behaves like package / project not existing
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
+      return
+    end
+
+    # ACL(package_wizard): source access gives permisson denied
+    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
+      render_error :status => 403, :errorcode => "source_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj_name}"
+      return
+    end
+
     logger.debug("package_wizard, #{params.inspect}")
 
     @wizard_xml = "/source/#{prj_name}/#{pkg_name}/wizard.xml"

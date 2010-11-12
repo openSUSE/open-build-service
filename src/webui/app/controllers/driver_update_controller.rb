@@ -52,9 +52,21 @@ class DriverUpdateController < PackageController
     services.removeService( 'generator_driver_update_disk' )
     services.addService( 'generator_driver_update_disk', -1, dud_params )
     services.save
+    Directory.free_cache( :project => @project, :package => @package )
 
     flash[:success] = "Saved Driver update disk service."
     redirect_to :controller => :package, :action => :show, :project => @project, :package => @package
+  end
+
+
+  #TODO: select architecture of binary packages
+  def binaries
+    required_parameters :repository
+    @repository = params[:repository]
+    @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
+      :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    @binaries = @buildresult.data.find('//binary').map{|binary| binary['filename']}
+    render :partial => 'binary_packages'
   end
 
 end

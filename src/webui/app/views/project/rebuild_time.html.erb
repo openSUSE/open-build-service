@@ -12,7 +12,6 @@ case). To see what happens with less or more build hosts, play with these number
 
 <% form_tag(:action => :rebuild_time, :project => @project.name, :arch => @arch, :repository => @repository) do -%>
    <p>Jobs: <%= select_tag("hosts", options_for_select((2..100).to_a, @hosts)) %>
-   Strategy: <%= select_tag("scheduler", options_for_select(%w{fifo lifo random needed neededb longest btime}, @scheduler)) %>
    <%= submit_tag "Check" %>
    </p>
 

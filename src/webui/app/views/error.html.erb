@@ -1,11 +1,11 @@
 <% if local_assigns[:api_exception] -%>
-  <h1>openSUSE Frontend Error:</h1>
+  <h1>OBS API Error:</h1>
 <% else -%>
-  <h1>openSUSE Webclient Error:</h1>
+  <h1>OBS Web Interface Error:</h1>
 <% end -%>
 
 <% case status
-when 401 -%>
+   when 401 -%>
   <h2>Unauthorized Access</h2>
   <p>You need to log in to perform the operation.<br/>
   Please contact the openSUSE admin to get an account.</p>
@@ -21,31 +21,27 @@ when 401 -%>
 
 <h3>Error Details:</h3>
 <p>
-  <%= "<strong>Errorcode: </strong>#{h code}<br/>" if local_assigns[:code] %>
-  <%= "<strong>Message: </strong>#{h message}<br/>" if local_assigns[:message] %>
+  <% if local_assigns[:code] %>
+    <strong>Errorcode: </strong><%= h code %><br/>
+  <% end %>
+  <% if local_assigns[:message] %>
+    <strong>Message: </strong><%= h message %><br/>
+  <% end %>
 </p>
 
-
 <% if local_assigns[:api_exception] -%>
-
   <h3>Exception from API:</h3>
-
-  <p><strong><%=h api_exception.get_text 'type' %></strong>: <%=h api_exception.get_text 'message' %></p>
+  <p><strong><%=h api_exception.get_text 'type' %>: </strong><%=h api_exception.get_text 'message' %></p>
   <h4>Stack Trace:</h4>
   <pre>
   <%=h api_exception.get_elements( '//backtrace/line' ).map {|e| e.text }.join("\n") %>
   </pre>
-
 <% end -%>
 
 <% if  local_assigns[:exception] -%>
-
   <h3>Exception from Webclient:</h3>
-  <p><strong><%=h exception.class.name %></strong>: <%=h exception.message %></p>
+  <p><strong><%=h exception.class.name %>: </strong><%=h exception.message %></p>
   <h4>Stack Trace:</h4>
-  <pre>
-  <%=h(exception.backtrace.join("\n")) %>
-  </pre>
-
+  <pre><%=h(exception.backtrace.join("\n")) %></pre>
 <% end -%>
 

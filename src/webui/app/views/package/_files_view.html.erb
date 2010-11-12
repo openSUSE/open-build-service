@@ -1,0 +1,69 @@
+<% # locals:
+#   file_list: list of source files in package
+-%>
+
+<div id="files_view">
+
+  <% unless @files.empty? %>
+    <table cellspacing='1' id="files_table" class="tablesorter">
+      <thead>
+        <tr>
+          <th class="header" style="min-width: 100px;">Filename</th>
+          <th class="header">Size</th>
+          <th class="header" style="min-width: 90px;">Changed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @files.each do |file| %>
+          <tr><td>
+              <% if file[:viewable] %>
+                <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :srcmd5 => file[:srcmd5], :expand => params[:expand] ) %>
+              <% else %>
+                <%= h file[:name] %>
+              <% end %>
+              <% if @link && @link.has_add_patch?( file[:name] ) %>
+                (Added Patch)
+              <% elsif @link && @link.has_patch?( file[:name] ) %>
+                (Global Patch)
+              <% end %>
+            </td>
+            <td><!-- <%= file[:size].rjust(10, '0') %> --><%=h human_readable_fsize( file[:size] )%></td>
+            <td><!-- <%= file[:mtime] %> --><%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %></td>
+            <td><%= link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name], file[:srcmd5] ) %>
+              <% unless file[:name].match(/^_service:/) %>
+                <% if @package.can_edit?( session[:login] ) %>
+                  <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
+                    :package => @package, :filename => file[:name]},
+                    {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p><i>This package has no files yet</i></p>
+  <% end %>
+
+  <% if @package.can_edit?( session[:login] ) %>
+    <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add file"),
+        :action => :add_file, :project => @project, :package => @package %>
+      <%= link_to 'Add file', :action => :add_file, :project => @project, :package => @package %>
+    </p>
+  <% end %>
+
+  <% unless @files.empty? %>
+    <% if @revision && !(@revision == @current_rev)%>
+      <h3>Revision <%= @revision %> (latest revision is <%=  @current_rev %>)</h3>
+    <% else %>
+      <h3>Latest Revision</h3>
+    <% end %>
+    <p>
+      <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
+    </p>
+  <% end %>
+
+</div>
+

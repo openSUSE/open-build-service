@@ -1,5 +1,3 @@
-require 'gruff'
-
 class MonitorController < ApplicationController
 
   skip_before_filter :check_user, :only => [ :plothistory ]
@@ -43,8 +41,7 @@ class MonitorController < ApplicationController
 	workers[hostname]['_arch'] = barch
 	workers[hostname][subid] = id
       end
-      @workers_sorted = workers.sort {|a,b| a[1].size == b[1].size ? a[0] <=> b[0] : b[1].size <=> a[1].size }
-      logger.debug @workers_sorted.inspect
+      @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] }
     end
   end
 
@@ -127,7 +124,7 @@ class MonitorController < ApplicationController
       workers[id] = Hash.new
     end
 
-    workerstatus.each_building do |b| 
+    workerstatus.each_building do |b|
       id=b.workerid.gsub(%r{[:./]}, '_')
       delta = (Time.now - Time.at(b.starttime.to_i)).round
       if delta < 5
@@ -147,125 +144,50 @@ class MonitorController < ApplicationController
     render :json => workers
   end
 
+  def events
+    data = Hash.new
+    required_parameters :arch, :range
 
-  # :range = range in hours
-  def plothistory
-    set = params[:set]
+    arch = params[:arch]
     range = params[:range]
-    cache_key = "monitor_plot_#{set}_#{range}"
-    data = Rails.cache.fetch(cache_key, :expires_in => (range.to_i * 3600) / 150, :raw => true) do
-      plothistory_data(set, range.to_i)
+    %w{waiting blocked squeue_high squeue_med}.each do |prefix|
+      data[prefix] = frontend.gethistory(prefix + "_" + arch, range, !discard_cache?).map {|time,value| [time*1000,value]}
     end
-    if data && data.respond_to?( 'bytesize' )
-      headers['Content-Type'] = 'image/png'
-      send_data(data, :type => 'image/png', :disposition => 'inline')
-    else
-      render_error :code => 404, :message => "No plot data found for range=#{range} and set=#{set}", :status => 404
+    %w{idle building}.each do |prefix|
+      data[prefix] = frontend.gethistory(prefix + "_" + map_to_workers(arch), range, !discard_cache?).map {|time,value| [time*1000,value]}
     end
+    low = Hash.new
+    frontend.gethistory("squeue_low_#{arch}", range).each do |time,value|
+      low[time] = value
+    end
+    comb = Array.new
+    frontend.gethistory("squeue_next_#{arch}", range).each do |time,value|
+      clow = low[time] || 0
+      comb << [1000*time, clow + value]
+    end
+    data["squeue_low"] = comb
+    data["events_max"] = MonitorController.addarrays(data["squeue_high"], data["squeue_med"]).map{|time,value| value}.max * 2
+    data["jobs_max"] =  maximumvalue(data["waiting"]) * 2
+    render :json => data
   end
-
 
 private
-
-  def plothistory_data(set, range)
-    return unless [1, 24, 72, 168].include? range
-
-    g = Gruff::StackedArea.new(400)
-    g.title = nil
-    g.theme = {
-      :colors => [
-        '#a9a9da', # blue
-        '#aedaa9', # green
-        '#daaea9', # peach
-        '#dadaa9', # yellow
-        '#a9a9da', # dk purple
-        '#daaeda', # purple
-        '#dadada' # grey
-      ], 
-      :marker_color => '#aea9a9', # Grey
-      :font_color => 'black',
-      :background_colors => ['#d1edf5', 'white']
-    }
-
-    if MONITOR_IMAGEMAP.has_key?(set)
-      array = Array.new
-      MONITOR_IMAGEMAP[set].each do |f|
-        array << gethistory(f[1], range)
-      end
-      array = resample(array)
-      g.labels = array[0]
-      g.bottom_margin = 0
-      g.center_labels_over_point = true
-      g.last_series_goes_on_bottom = true
-
-      index = 1
-      MONITOR_IMAGEMAP[set].each do |f|
-        g.data(f[0], array[index])
-        index += 1
-      end
-      g.minimum_value = 0
-    else
-      g.data('no data', [])
-    end
-    return g.to_blob()
+  
+  def maximumvalue(arr)
+    arr.map { |time,value| value }.max || 0
   end
 
-  def gethistory(key, range)
-    hash = Hash.new
-    data = frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d' % [key, range]))
-    d = XML::Parser.string(data).parse
-    d.root.each_element do |v|
-      hash[Integer(v.attributes['time'])] = Integer(v.attributes['value'])
-    end
-    hash.sort {|a,b| a[0] <=> b[0]}
+  def self.addarrays(arr1, arr2)
+    logger.debug "1: #{arr1.length} 2: #{arr2.length}"
+    # we assert that both have the same size
+    ret = Array.new
+    arr1.length.times do |i|
+      time1, value1 = arr1[i]
+      time2, value2 = arr2[i]
+      ret << [(time1+time2)/2, value1 + value2]
+    end if arr1
+    ret << 0 if ret.length == 0
+    return ret
   end
 
-  def resample(values)
-    min_x = Time.now.to_i + 80000 # really really huge
-    max_x = 0
-    result = Array.new
-    
-    # assume arrays are sorted
-    values.each do |a|
-      next if a.length == 0
-      min_x = [min_x, a[0][0]].min
-      max_x = [max_x, a[-1][0]].max
-    end
-
-    samples = 200
-    samplerate = (max_x - min_x) / samples
-
-    labels = Hash.new
-    0.upto(6) do |i|
-       index = Integer(samples * i / 6) - 1
-       labels[index] = Time.at(min_x + index * samplerate).strftime("%H:%M")
-    end
-
-    result << labels
-    values.each do |a|
-      now = min_x
-      till = min_x + samplerate
-      index = 0
-      array = []
-
-      1.upto(samples) do |i|
-	value = 0
-	count = 0
-	while index < a.length && a[index][0] < till
-	  value += a[index][1]
-	  index += 1
-	  count += 1
-	end
-	till += samplerate
-	if count > 0
-	  array << Float(value) / count
-	else
-	  array << Float(0)
-	end
-      end
-
-      result << array
-    end
-    return result
-  end
 end

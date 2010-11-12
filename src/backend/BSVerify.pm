@@ -64,25 +64,11 @@ sub verify_packid_repository {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_repository';
 }
 
-sub verify_packid_pattern {
-  return if $_[0] && ($_[0] eq '_pattern' || $_[0] eq '_project');
-  verify_packid($_[0]);
-}
-
-sub verify_packid_product {
-  return if $_[0] && ($_[0] eq '_product' || $_[0] eq '_project');
-  verify_packid($_[0]);
-}
-
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
   die("No patch name defined in _patchinfo") unless defined($p->{'name'}) and $p->{'name'} ne "";
   verify_filename($p->{'name'});
-  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
-  for my $binary (@{$p->{'binary'}}) {
-    verify_filename($binary);
-  }
   die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
                                                     || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature'
                                                     || $p->{'category'} eq ''; # empty is allowed here
@@ -102,6 +88,10 @@ sub verify_patchinfo_complete {
   die("No category defined in _patchinfo") unless $p->{'category'};
   die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
                                                     || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature';
+  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
+  for my $binary (@{$p->{'binary'}}) {
+    verify_filename($binary);
+  }
 
   # checks of optional content to be added here
 }
@@ -217,6 +207,7 @@ sub verify_proj {
   for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
+  die('project must not have mountproject\n') if exists $proj->{'mountproject'};
 }
 
 sub verify_pack {
@@ -224,6 +215,7 @@ sub verify_pack {
   if (defined($packid)) {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
+  verify_packid($pack->{'name'});
   verify_disableenable($pack);	# obsolete
   for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
@@ -267,6 +259,9 @@ sub verify_aggregatelist {
   my ($al) = @_;
   for my $a (@{$al->{'aggregate'} || []}) {
     verify_projid($a->{'project'});
+    if (defined($a->{'nosources'})) {
+      die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
+    }
     for my $p (@{$a->{'package'} || []}) {
       verify_packid($p);
     }
@@ -301,6 +296,7 @@ sub verify_request {
     $actions = $req->{'action'};
   }
   die("request must contain an action\n") unless $actions && @$actions;
+  my %pkgchange;
   for my $r (@$actions) {
     die("request action has no type\n") unless $r->{'type'};
     if ($r->{'type'} eq 'delete') {
@@ -336,6 +332,10 @@ sub verify_request {
     } else {
       die("unknown request action type '$r->{'type'}'\n");
     }
+    if ($r->{'type'} eq 'submit' || ($r->{'type'} eq 'delete' && exists($r->{'target'}->{'package'}))) {
+      die("request contains multiple source changes for package \"$r->{'target'}->{'package'}\"\n") if $pkgchange{"$r->{'target'}->{'project'}/$r->{'target'}->{'package'}"};
+      $pkgchange{"$r->{'target'}->{'project'}/$r->{'target'}->{'package'}"} = 1;
+    }
   }
 }
 
@@ -356,8 +356,6 @@ our $verifyers = {
   'arch' => \&verify_arch,
   'job' => \&verify_jobid,
   'package_repository' => \&verify_packid_repository,
-  'package_pattern' => \&verify_packid_pattern,
-  'package_product' => \&verify_packid_product,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
   'rev' => \&verify_rev,

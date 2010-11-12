@@ -137,6 +137,56 @@ sub mkdir_p {
   return 1;
 }
 
+# calls mkdir_p and changes ownership of the created directory to the
+# supplied user and group if provided.
+sub mkdir_p_chown {
+  my ($dir, $user, $group) = @_;
+
+  if (!(-d $dir)) {
+    mkdir_p($dir) || return undef;
+  }
+  return 1 unless defined($user) || defined($group);
+
+  $user = -1 unless defined $user;
+  $group = -1 unless defined $group;
+  
+  if ($user  !~ /^-?\d+$/ && !($user = getpwnam($user))) {
+    warn "user $user unknown\n"; return undef
+  }
+  if ($group !~ /^-?\d+$/ && !($group = getgrnam($group))) {
+    warn "group $group unknown\n"; return undef
+  }
+
+  my @s = stat($dir);
+  if ($s[4] != $user || $s[5] != $group) {
+    if (!chown $user, $group, $dir) {
+      warn "failed to chown $dir to $user:$group\n"; return undef;
+    }
+  }
+  return 1;
+}
+
+sub drop_privs_to {
+  my ($user, $group) = @_;
+
+  if (defined($group)) {
+    $group = getgrnam($group) unless $group =~ /^\d+$/;
+    die("unknown group\n") unless defined $group;
+    if ($) != $group || $( != $group) {
+      ($), $() = ($group, $group);
+      die("setgid: $!\n") if $) != $group;
+    }
+  }
+  if (defined($user)) {
+    $user = getpwnam($user) unless $user =~ /^\d+$/;
+    die("unknown user\n") unless defined $user;
+    if ($> != $user || $< != $user) {
+      ($>, $<) = ($user, $user);
+      die("setuid: $!\n") if $> != $user;
+    }
+  }
+}
+
 sub cleandir {
   my ($dir) = @_;
 

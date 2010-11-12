@@ -60,15 +60,23 @@ class SearchController < ApplicationController
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<collection>\n"
 
+    accessprjs = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
+
     collection.uniq!
     collection.each do |item|
       if item.kind_of? DbPackage
-       p = item.db_project
+       prj = item.db_project
+      elsif item.kind_of? DbProject
+       prj = item
+      elsif item.kind_of? Repository
+       prj = item.db_project
       else
-       p = item
+       render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
+       return
       end
 
-      if p.access_flags.enabled_for?(:nil, :nil) or @http_user.can_access?(item)
+      # ACL(search): 'access' hides a project/package
+      if !accessprjs.include?(prj) or prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj)
         str = (render_all ? item.to_axml : item.to_axml_id)
         output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
       end

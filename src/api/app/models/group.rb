@@ -15,4 +15,27 @@ class Group < ActiveRecord::Base
   has_many :project_group_role_relationships, :foreign_key => 'bs_group_id'
   has_many :package_group_role_relationships, :foreign_key => 'bs_group_id'
 
+  class << self
+    def render_group_list(user=nil)
+       builder = Builder::XmlMarkup.new( :indent => 2 )
+       xml = ""
+   
+       if user
+         user = User.find_by_login(user)
+         return nil if user.nil?
+         list = user.groups
+       else
+         list = Group.find(:all)
+       end
+   
+       xml = builder.directory( :count => list.length ) do |dir|
+         list.each do |g|
+           dir.entry( :name => g.title )
+         end
+       end
+   
+       return xml
+    end
+  end
+
 end

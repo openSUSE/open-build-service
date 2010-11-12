@@ -3,7 +3,10 @@
  <action type="submit">
    <source project="home:kfreitag" package="kraft" rev="23" />
    <target project="openSUSE:10.3" package="kraft" />
-   <options sourceupdate="noupdate" />
+   <options>
+     <sourceupdate>noupdate</sourceupdate>
+     <updatelink>true</updatelink>
+   </options>
  </action>
  <action type="delete">
    <target project="openSUSE:10.3" package="kraft.old" />
@@ -20,7 +23,7 @@
    <target project="openSUSE:10.3" package="kraft" />
    <person name="karl-heinz"  />
  </action>
- <action type="devel_change">
+ <action type="change_devel">
    <source project="home:kfreitag" package="kraft" />
    <target project="openSUSE:10.3" package="kraft" />
  </action>

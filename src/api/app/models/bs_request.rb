@@ -12,10 +12,37 @@ class BsRequest < ActiveXML::Base
   end
 
   def creator
-    e = self.has_element?(:history) ? self.history('@name="new"') : state
-    raise RuntimeError, 'broken request: no state/history named "new"' if e.nil?
+    if self.has_element?(:history)
+      e = self.history('@name="new"') 
+      e = self.history('@name="review"') if e.nil?
+    else
+      e = state
+    end
+    raise RuntimeError, 'broken request: no state/history named "new" or "review"' if e.nil?
     raise RuntimeError, 'broken request: no attribute named "who"' unless e.has_attribute?(:who)
     return e.who
+  end
+
+  def is_reviewer? (user)
+    return false unless self.has_element?(:review)
+
+    self.each_review do |r|
+      if r.has_attribute? 'by_user'
+        return true if user.login == r.data.attributes["by_user"]
+      elsif r.has_attribute? 'by_group'
+        return true if user.is_in_group? r.data.attributes["by_group"]
+      elsif r.has_attribute? 'by_project'
+        if r.has_attribute? 'by_package'
+           pkg = DbPackage.find_by_project_and_name r.data.attributes["by_project"], r.data.attributes["by_package"]
+           return true if pkg and user.can_modify_package? pkg
+        else
+           prj = DbProject.find_by_name r.data.attributes["by_project"]
+           return true if prj and user.can_modify_project? prj
+        end
+      end
+    end
+
+    return false
   end
 
   def initialize( _data )

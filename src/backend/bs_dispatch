@@ -58,19 +58,10 @@ if ($BSConfig::powerpkgs) {
   %powerpkgs = map {$_ => 1} @{$BSConfig::powerpkgs || []};
 }
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-if (defined $group) {
-  ($), $() = ($group, $group);
-  die "setgid: $!\n" if ($) != $group);
-}
-if (defined $user) {
-  ($>, $<) = ($user, $user);
-  die "setuid: $!\n" if ($> != $user);
-}
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
@@ -82,9 +73,9 @@ my %cando = (
 #  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
 #  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
 # switch on next 3 lines if you want only arm qemu emulated builds on a x86 worker
-  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el'                               ],
-  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el'                               ],
-  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el'                               ],
+  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel',       'sh4'],
+  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel',       'sh4'],
+  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel',       'sh4'],
 #
   'ppc'     => [                                                                                        'ppc'                ],
   'ppc64'   => [                                                                                        'ppc', 'ppc64',      ],
@@ -241,6 +232,7 @@ sub sendeventtosrcserver {
   }
   my $param = {
     'uri' => "$BSConfig::srcserver/event",
+    'request' => 'POST',
     'timeout' => 10,
   };
   BSRPC::rpc($param, undef, @args);
@@ -379,8 +371,14 @@ while (1) {
       my $prpa = "$info->{'project'}/$info->{'repository'}/$info->{'arch'}";
       push @{$jobs{$prpa}}, $job;
       $info = $ic->{$job};
-      if (!$info || ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change'))) {
+      if (!$info) {
 	$maybesrcchange{$prpa} = 1;
+      } elsif ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
+	# only count direct changes as source change, not changes because of
+	# a change in a linked package
+	if ($info->{'reason'} eq 'new build' || !$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
+	  $maybesrcchange{$prpa} = 1;
+	}
       }
     }
   }
@@ -462,11 +460,15 @@ while (1) {
 	$info->{'readytime'} = $s[9];
       }
       if ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
-	push @srcchange, $job;
+	# only count direct changes as source change, not changes because of
+	# a change in a linked package
+	if ($info->{'reason'} eq 'new build' || !$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
+	  push @srcchange, $job;
+	}
       }
     }
     @b = List::Util::shuffle(@b);
-    @b = sort {($ic->{$a}->{'readytime'} || 0) <=> ($ic->{$b}->{'readytime'} || 0)} @b;
+    @b = sort {($ic->{$b}->{'needed'} || 0) <=> ($ic->{$a}->{'needed'} || 0) || ($ic->{$a}->{'readytime'} || 0) <=> ($ic->{$b}->{'readytime'} || 0)} @b;
     my %powerjobs;
     if (%powerpkgs && $BSConfig::powerhosts) {
       for my $job (@b) {
@@ -508,8 +510,10 @@ while (1) {
       }
       my $tries = 0;
       my $haveassigned;
+      my ($project, $repository, $arch) = split('/', $prpa, 3);
       for my $idle (@idle) {
 	last unless -e "$jobsdir/$arch/$job";
+        next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/@{[(split(':', $idle, 2))[1]]}"};
 	last if $assigned && $tries >= 5;
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
@@ -549,7 +553,7 @@ while (1) {
       unshift @jobprpas, $prpa;
       @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
     }
-    last if $assigned > 20;
+    last if $assigned >= 50;
   }
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;

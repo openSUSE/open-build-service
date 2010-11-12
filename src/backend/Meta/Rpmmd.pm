@@ -66,6 +66,7 @@ sub addversrel {
   my ($self, $attrs) = @_;
   $self->{'pack'}->{'version'} = $attrs->{'ver'};
   $self->{'pack'}->{'release'} = $attrs->{'rel'};
+  $self->{'pack'}->{'epoch'} = $attrs->{'epoch'} if exists $attrs->{'epoch'} && $attrs->{'epoch'} != 0;
 }
 
 sub addreqprov {
@@ -74,7 +75,7 @@ sub addreqprov {
   my $name = $attrs->{'name'};
   unless ($name =~ /^(rpmlib\(|\/)/) {
     $name .= exists $attrs->{'flags'} ? " $flags{$attrs->{'flags'}} " : "";
-    $name .= exists $attrs->{'epoch'} ? "$attrs->{'epoch'}:" : "";
+    $name .= exists $attrs->{'epoch'} && $attrs->{'epoch'} != 0 ? "$attrs->{'epoch'}:" : "";
     $name .= exists $attrs->{'ver'} ? $attrs->{'ver'} : "";
     $name .= exists $attrs->{'rel'} ? "-$attrs->{'rel'}" : "";
     push @{$self->{'reqprov'}}, $name;
@@ -137,7 +138,7 @@ sub end_handler {
     $name =~ s/rpm://;
     $self->{'pack'}->{$name} = $self->{'reqprov'};
     $self->{'reqprov'} = ();
-  } elsif ($name =~ /rpm:(obsoletes|supplements|conflicts)/) {
+  } elsif ($name =~ /rpm:(obsoletes|supplements|conflicts|recommends|suggests|enhances)/) {
     $self->{'reqprov'} = ();
   }
   $self->{'repodata'}->{$self->{'pack'}->{'name'}} = $self->{'pack'} if $name eq 'package' && grep { $self->{'pack'}->{'arch'} eq $_ } @{$self->{'arch'}}, @{$cando{@{$self->{'arch'}}[0]}};

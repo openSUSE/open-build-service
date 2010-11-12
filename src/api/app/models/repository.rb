@@ -31,6 +31,15 @@ class Repository < ActiveRecord::Base
     end
   end
 
+  def links_to_project?(prj)
+    path_elements.each do |p|
+      if p.link.db_project_id == prj.id
+	return true
+      end
+    end
+    return false
+  end
+
   #returns a list of repositories that include path_elements linking to this one
   #or empty list
   def linking_repositories

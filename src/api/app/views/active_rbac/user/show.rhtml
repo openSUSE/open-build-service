@@ -12,8 +12,10 @@
   <dt>Updated At</dt>
   <dd><%= @user.updated_at.to_formatted_s(:long) %></dd>
 
-  <dt>Last Login</dt>
-  <dd><%= @user.last_logged_in_at.to_formatted_s(:long) %></dd>
+  <% if @user.last_logged_in_at %>
+    <dt>Last Login</dt>
+    <dd><%= @user.last_logged_in_at.to_formatted_s(:long) %></dd>
+  <% end %>
 
   <dt>Login/User Name</dt>
   <dd><%=h @user.login %></dd>

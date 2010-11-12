@@ -69,6 +69,8 @@
       <xs:attribute name="state"  type="states" use="required"/>
       <xs:attribute name="by_user"  type="xs:string" />
       <xs:attribute name="by_group"  type="xs:string" />
+      <xs:attribute name="by_project"  type="xs:string" />
+      <xs:attribute name="by_package"  type="xs:string" />
       <xs:attribute name="who"   type="xs:string"/>
       <xs:attribute name="when"  type="xs:dateTime"/>
     </xs:complexType>
@@ -93,7 +95,8 @@
         <xs:element ref="target" minOccurs="0" maxOccurs="1" />
         <xs:element ref="person" minOccurs="0" maxOccurs="1" />
         <xs:element ref="group"  minOccurs="0" maxOccurs="1" />
-        <xs:element ref="options" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="options"    minOccurs="0" maxOccurs="1" />
+        <xs:element ref="acceptinfo" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="type" type="types" use="required"/>
     </xs:complexType>
@@ -130,7 +133,20 @@
 
   <xs:element name="options" >
     <xs:complexType>
-      <xs:attribute name="sourceupdate" type="xs:string" use="optional" />
+      <xs:sequence>
+        <xs:element name="sourceupdate" minOccurs="0" maxOccurs="1" />
+        <xs:element name="updatelink"   minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="acceptinfo" >
+    <xs:complexType>
+      <xs:attribute name="rev"      type="xs:string" />
+      <xs:attribute name="srcmd5"   type="xs:string" />
+      <xs:attribute name="osrcmd5"  type="xs:string" use="optional" />
+      <xs:attribute name="xsrcmd5"  type="xs:string" use="optional" />
+      <xs:attribute name="oxsrcmd5" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 

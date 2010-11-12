@@ -1,7 +1,7 @@
 <% @pagetitle = "File #{@filename} of package #{@package}" %>
 
 <% package_bread_crumb(
-  link_to( 'Files', :action => :files, :project => @project, :package => @package ),
+  link_to( 'Files', :action => :files, :project => @project, :package => @package, :rev => @srcmd5 ),
   h(@filename)) -%>
 
 <%= render :partial => "tabs" %>
@@ -18,7 +18,7 @@
   <% if @addeditlink %>
     $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
     $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
-      :package => @package, :file => @filename ) %>");
+      :package => @package, :file => @filename, :srcmd5 => @srcmd5, :expand => @expand ) %>");
   <% end %>
 <% end %>
 

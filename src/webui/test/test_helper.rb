@@ -3,6 +3,12 @@ require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 require 'action_controller/integration'
 
+require "webrat"
+
+Webrat.configure do |config|
+   config.mode = :rails
+end
+
 module ActionController
   class IntegrationTest
 
@@ -13,6 +19,10 @@ module ActionController
     assert_equal "You are logged in now", @response.flash[:success]
   end
   
+  def logout
+    post '/user/logout'
+  end
+
   end
 end
 

@@ -1,3 +1,6 @@
+<% if @workerstatus.each_waiting.size == 0 %>
+	<p><i>No scheduler statistics</i></p>
+<% else %>
 <table class="building">
   <thead>
     <tr>
@@ -42,3 +45,4 @@
     <% end %>
   </tbody>
 </table>
+<% end -%>

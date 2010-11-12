@@ -1,6 +1,7 @@
-<% @pagetitle = "Raw Config for %s" % @project 
+<% @pagetitle = "Raw Configuration of %s" % @project
    @metarobots = 'noindex'
-%>
+   project_bread_crumb 'Raw Config'
+-%>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
@@ -16,13 +17,12 @@
 <% end %>
 <% end %>
 
-<% project_bread_crumb( 'Raw Config' ) -%>
 
 <%= render :partial => "tabs" %>
 
-<h2>Raw Config for <%=h @project %></h2>
+<h3><%= @pagetitle %></h3>
 
 <pre id="code" class="xml">
-<%=h @meta%>
+  <%=h @meta%>
 </pre>
 

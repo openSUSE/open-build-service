@@ -6,33 +6,49 @@
 <div class="grid_9 alpha">
 
   <div class="box show_left">
-    <h2 style="display: inline"><%=h @package %></h2>
+    <h3 style="display: inline"><%=h @package %></h3>
 
-    <span style="float: right; margin-right: 0.5em" >
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <span>
-          <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
-        </span>
-        <span>
-          <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
-            {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
-        </span>
-      <% end %>
-
-      <% if session[:login] %>
-        <span>
-          <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch, :project => @project, :package => @package},
-            {:confirm => "Branch package '#{@package}'?", :method => :post } %>
-        </span>
-      <% end %>
-
-      <% if @bugowner_mail and BUGZILLA_HOST %>
-        <span>
-          <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "#{@project.name}/#{@package.name}: Bug") %>
-        </span>
-      <% end %>
-
-    </span>
+    <% if (@bugowners_mail and defined? BUGZILLA_HOST) or
+           @package.can_edit?( session[:login] ) or
+           session[:login] %>
+      <div id="local-actions">
+        <div id="local-actions-items">
+          <a href="#" class="dropdown-menu"><strong>Actions</strong></a>
+          <ul class="dropdown-menu-content">
+            <% if @bugowners_mail and defined? BUGZILLA_HOST %>
+              <li>
+                <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+                <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+              </li>
+            <% end %>
+            <% if @package.can_edit?( session[:login] ) %>
+              <li>
+                <%= link_to image_tag('icons/package_delete.png', :title => 'Delete Package'), { :action => :remove, :package => @package, :project => @project },
+                  {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+                <%= link_to 'Delete Package', { :action => :remove, :package => @package, :project => @project },
+                  {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+              </li>
+              <li>
+                <%= link_to image_tag('icons/package_edit.png', :title => "Edit Package Information"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+                <%= link_to "Edit Package Information", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+              </li>
+              <li>
+                <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+                <%= link_to_remote 'Submit Package', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+              </li>
+            <% end %>
+            <% if session[:login] %>
+              <li>
+                <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch Package'), {:action => :branch, :project => @project, :package => @package},
+                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+                <%= link_to 'Branch Package', {:action => :branch, :project => @project, :package => @package},
+                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
 
     <!-- Package meta -->
     <div id="package_meta">
@@ -68,25 +84,40 @@
         </p>
       <%- end -%>
 
-      <div>
-        <% unless @current_requests.blank? %>
-          <div>
-            <p>
-              <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
-              <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project, :package => @package %>
-            </p>
-          </div>
-        <% end %>
 
-        <% if @failures and @failures > 0 %>
-          <div>
-            <p>
-              <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
-              <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
-            </p>
-          </div>
-        <% end %>
-      </div>
+      <% unless @current_requests.blank? %>
+        <p>
+          <%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
+          <% if @current_requests.size == 1 -%>
+            1 open <%= link_to "request", :action => :show, :controller => :request, :id => @current_requests[0].value(:id) %>
+          <% else -%>
+            <%= @current_requests.size %> open <%= link_to "requests", :action => :list_requests, :project => @project, :package => @package %>
+          <% end -%>
+        </p>
+      <% end %>
+
+      <% if @failures and @failures > 0 %>
+        <p>
+          <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
+          <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+        </p>
+      <% end %>
+
+      <% if @package.name =~ %r{^_patchinfo} %>
+        <p>
+          <%= image_tag 'icons/information.png' %> This package creates a patchinfo used for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>.
+          Please use the <%= link_to 'wizard', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %> to edit it.
+        </p>
+      <% end %>
+
+      <% if @linking_packages and @linking_packages.size > 0 %>
+        <p>
+          <%= image_tag 'icons/information.png' %> There <%= plural(@linking_packages.size, "is", "are") %>
+          <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+          from this package.
+        </p>
+      <% end %>
+
 
     </div>
   </div>

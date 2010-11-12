@@ -40,6 +40,7 @@ BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 use Symbol;
 
 use BSHTTP;
+use BSUtil;
 
 use strict;
 
@@ -50,19 +51,6 @@ our $peerport;
 our $slot;
 our $forwardedfor;
 our $replying;	# we're sending the answer (2 == in chunked mode)
-
-sub xfork {
-  # behaves as blocking fork, but uses non-blocking fork
-  # tries to fork every 5 seconds, until fork succeeds without blocking
-  my $pid;
-  while (1) {
-    $pid = fork();
-    last if defined $pid;
-    die("fork: $!\n") if $! != POSIX::EAGAIN;
-    sleep(5);
-  }
-  return $pid;
-}
 
 sub deamonize {
   my (@args) = @_;
@@ -78,7 +66,7 @@ sub deamonize {
 
 sub serveropen {
   # creates MS (=master socket) socket
-  # 512 connections maximum
+  # 512 connections in the queue maximum
   # $port:  
   #     reference              - port is assigned by system and is returned using this reference
   #     string starting with & - named socket according to the string (&STDOUT, &1)
@@ -87,8 +75,6 @@ sub serveropen {
   #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($port, $user, $group) = @_;
   # check if $user and $group exist on this system
-  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
   my $tcpproto = getprotobyname('tcp');
   if (!ref($port) && $port =~ /^&/) {
     open(MS, "<$port") || die("socket open: $!\n");
@@ -102,14 +88,7 @@ sub serveropen {
       bind(MS, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
     }
   }
-  if (defined $group) {
-    ($), $() = ($group, $group);
-    die "setgid: $!\n" if ($) != $group);
-  }
-  if (defined $user) {
-    ($>, $<) = ($user, $user);
-    die "setuid: $!\n" if ($> != $user);
-  }
+  BSUtil::drop_privs_to($user, $group);
   if (ref($port) || $port !~ /^&/) {
     listen(MS , 512) || die "listen: $!\n";
   }
@@ -117,23 +96,16 @@ sub serveropen {
 
 sub serveropen_unix {
   # creates MS (=master socket) socket
-  # 512 connections maximum
+  # 512 connections in the queue maximum
   # creates named socket according to $filename
   # race-condition safe (locks)
   # $user, $group:
   #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($filename, $user, $group) = @_;
-  !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-  !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-  if (defined $group) {
-    ($), $() = ($group, $group);
-    die "setgid: $!\n" if ($) != $group);
-  }
-  if (defined $user) {
-    ($>, $<) = ($user, $user);
-    die "setuid: $!\n" if ($> != $user);
-  }
+  BSUtil::drop_privs_to($user, $group);
+
   # we need a lock for exclusive socket access
+  mkdir_p($1) if $filename =~ /^(.*)\//;
   open(LCK, '>', "$filename.lock") || die("$filename.lock: $!\n");
   flock(LCK, LOCK_EX | LOCK_NB) || die("$filename: already in use\n");
   socket(MS, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
@@ -856,7 +828,7 @@ sub dispatch {
     return $stdreply->($f->($conf, $req)) if $stdreply;
     return $f->($conf, $req);
   }
-  die("500 unknown request: $path\n");
+  die("400 unknown request: $path\n");
 }
 
 1;

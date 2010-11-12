@@ -27,6 +27,22 @@
     The openSUSE Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <%= link_to 'this wiki page', 'http://wiki.opensuse.org/openSUSE:Build_Service_installations' -%>. Have fun and fast build times!
   </p>
 
+  <p class="description">
+    Go
+    <% if ICHAIN_MODE == 'on' %>
+      <%= link_to "here", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
+    <% else %>
+      <%= link_to "here", :controller => :user, :action => :register_user %>
+    <% end %>
+    to register a new user.
+  </p>
+
+<!-- Place holder for important/urgent note
+  <p class="description">
+    <%= image_tag('security.png', :title => "Attention", :id => "imgwatch") %> The OBS development team at SUSE is looking for a new colleague. Find details on <a href='http://careers.novell.com/psp/css89prd/EMPLOYEE/HRMS/c/HRS_HRAM.HRS_CE.GBL?Page=HRS_CE_JOB_DTL&amp;Action=A&amp;JobOpeningId=2719&amp;SiteId=1'>this job description page</a>.
+  </p>
+-->
+
   <% if @anonymous_forbidden.nil? %>
     <p>Proceed to:</p>
     <ul id="proceed_list">
@@ -53,7 +69,7 @@
 
       <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => "monitor", :action => :index %>
     </ul>
-    <% end %>
+  <% end %>
 
 </div>
 
@@ -63,21 +79,12 @@
         System Status
       </div>
       <div class="clear"></div>
-      <div class="aligncenter">
-        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting',
-              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-            :alt => 'i585/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
-        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'ppc_waiting',
-              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-            :alt => 'ppc waiting packages' ), :controller => "monitor", :action => :index ) %>
-        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'arm_waiting',
-              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-            :alt => 'arm waiting packages' ), :controller => "monitor", :action => :index ) %>
-      </div>
+      <div class="aligncenter" id="overallgraph" style="height:250px; margin: 0px 20px 20px 20px"></div>
       <p class="description">
-        The above graphs show the amount of packages that are waiting to be build (<%= @waiting_packages %> at the moment) on the different architectures (ix86, ppc, arm).
-        Currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
-      </p>
+        The above graphs show the number of active build jobs last week, 
+         currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
+         At the moment <%= @waiting_packages %> packages are waiting on the different architectures.
+       </p>
 
       <p class="description">
         The openSUSE Build Service hosts <strong><%= number_with_delimiter @global_counters.projects -%></strong> projects, with
@@ -97,3 +104,19 @@
   <%= render :partial => "sponsors" %>
   <%= render :partial => "feeds" %>
 </div>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.flot.js' %>
+<% end %>
+
+<% content_for :ready_function do %>
+    $.plot($("#overallgraph"), [ { data: <%= MonitorHelper.print_statistics_array(@busy) %>, label: "Busy workers", color: 3} ],
+      {
+            series: {
+                stack: true,
+                lines: { show: true, steps: false, fill: true }
+            }, 
+            xaxis: { mode: 'time' }, 
+            yaxis: { min: 0, position: "left" },
+      });
+<% end %>

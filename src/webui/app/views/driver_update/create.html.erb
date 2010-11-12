@@ -28,9 +28,8 @@
 
   $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
   matchCase: true, max: 50, minChars: 0,
-  data: {project: $("#target_package_repo").val()},
   extraParams: {
-  project: function(){ return $("#target_package_repo").val(); }
+  project: function(){ return get_package_project(); }
   }
   });
 
@@ -39,6 +38,16 @@
   $("#add_repo_toggle").hide();
   return false;
   });
+
+
+  get_package_project = function() {
+  return $("#target_package_repo").val().split('/')[0].replace(/\s*/g, "");
+  }
+
+  get_package_repo = function() {
+  return $("#target_package_repo").val().split('/')[1].replace(/\s*/g, "");
+  }
+
 
   remove_element = function(key) {
   $("#" + key).remove();
@@ -58,24 +67,42 @@
   $("#add_repo").click(function () {
   $("#no_inst_repos").hide();
   $("#inst_repos").append( create_repo_line() );
-  $('#target_package_repo').append( new Option( $("#target_project").attr('value') ) );
+  $('#target_package_repo').append( new Option( $("#target_project").attr('value') + ' / ' + $("#target_repo").attr('value') ) );
   $("#add_repository").hide();
   $("#add_repo_toggle").show();
   return false;
   });
 
-  create_package_line = function() {
-  var package = $("#target_package").val();
-  var key = ('pack_' + package).replace(/[:\.]/g,'_');
+  create_package_line = function(key, package) {
   var html = '<div id="' + key +'"><p><%= image_tag("package.png", :title => "Package") %> ' + package;
       var html = html + '<input type="hidden" name="packages[]" value="' + package + '" />';
       var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>';
   return html;
   }
 
+  create_binary_packages_line = function(key) {
+  var package = $("#target_package").val();
+  var project = get_package_project();
+  var repo = get_package_repo();
+  $("#" + key).append( '<div id="' + key + '_binaries" style="margin-left: 15px;"><p><%= image_tag("ajax-loader.gif", :title => "Loading") %> Loading binary packages for <i>' + package + '</i></p></div>' );
+
+  $.ajax({ url: '<%= url_for :controller => :driver_update, :action => :binaries %>?package=' + package +
+    '&project=' + project + '&repository=' + repo,
+    data: {},
+    success: function(data){
+      $("#" + key + '_binaries').html(data);
+    }
+  });
+  }
+
   $("#add_package").click(function () {
-  $("#no_inst_packs").hide();
-  $("#inst_packs").append( create_package_line() );
+  var package = $("#target_package").val();
+  var key = ('pack_' + package).replace(/[:\.]/g,'_');
+  if (package != '' && $("#" + key).length == 0 ) {
+    $("#no_inst_packs").hide();
+    $("#inst_packs").append( create_package_line(key, package) );
+    create_binary_packages_line(key);
+  }
   return false;
   });
 
@@ -94,28 +121,29 @@
 
   <h2>General Configuration:</h2>
 
-  <p>
-    <strong>Name: </strong>
-    <%= text_field_tag 'name', @name, :size => 50 %>
-  </p>
+  <table>
+  <tr>
+    <td><strong>Name: </strong></td>
+   <td><%= text_field_tag 'name', @name, :size => 50 %></td>
+  </tr>
 
-  <p>
-    <strong>Distname: </strong>
-    <%= text_field_tag 'distname', @distname, :size => 50 %>
-  </p>
+  <tr>
+    <td><strong>Distname: </strong></td>
+    <td><%= text_field_tag 'distname', @distname, :size => 50 %></td>
+  </tr>
 
-  <p>
-    <strong>Flavour: </strong>
-    <%= text_field_tag 'flavour', @flavour, :size => 50 %>
-  </p>
+  <tr>
+    <td><strong>Flavour: </strong></td>
+    <td><%= text_field_tag 'flavour', @flavour, :size => 50 %></td>
+  </tr>
 
-  <p>
-    <strong>Architectures: </strong>
-    <% VISIBLE_ARCHITECTURES.each do |arch| %>
+  <tr>
+    <td><strong>Architectures: </strong></td>
+    <td><% VISIBLE_ARCHITECTURES.each do |arch| %>
       <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
-    <% end %>
-  </p>
-
+    <% end %></td>
+  </tr>
+  </table>
 
   <h2>Installation repositories:</h2>
 
@@ -165,7 +193,7 @@
   </div>
 
   <p><strong>Add package: </strong><br/>
-    <% default_projects = @repositories.map{|repo| "<option value='#{repo[:project]}'>#{repo[:project]}</option>"}.uniq %>
+    <% default_projects = @repositories.map{|repo| "<option value='#{repo[:project]} / #{repo[:repo]}'>#{repo[:project]} / #{repo[:repo]}</option>"}.uniq %>
     <%= select_tag "target_package_repo", "<option value=''>Select Project</option>" + default_projects.join(''), :id => 'target_package_repo' %>
     Name:
     <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>

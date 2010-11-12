@@ -19,6 +19,9 @@ exception_recipients: []
 # Use static.opensuse.org for static style content
 #use_static: build.o.o
 
+# Hide private options in webui, like source or binary protection 
+# hide_private_options: true
+
 # List or architectures, which are visible by default in the webui
 visible_architectures: [ "i586", "x86_64", "ppc", "ppc64", "armv4l", "armv5el", "armv7el", "sh4", "sparcv9", "sparc64", "ia64", "s390", "s390x", "hppa" ]
 default_enabled_architectures: [ "i586", "x86_64" ]

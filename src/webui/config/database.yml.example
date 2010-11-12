@@ -1,0 +1,19 @@
+# the web ui only uses the database to store jobs to do
+
+production:
+  adapter: mysql
+  database: obs_webui_production
+  username: root
+  password: opensuse
+
+development:
+  adapter: sqlite3
+  database: db/obs_webui_development.db
+
+stage:
+  adapter: sqlite3
+  database: db/obs_webui_stage.db
+
+test:
+  adapter: sqlite3
+  database: db/obs_webui_test.db

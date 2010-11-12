@@ -26,5 +26,10 @@ FRONTEND_HOST = "localhost"
 FRONTEND_PORT = 3203
 FRONTEND_PROTOCOL = 'http'
 
+ICHAIN_HOST = "https://build.opensuse.org"
 ICHAIN_MODE = "off"
+
+DOWNLOAD_URL = 'http://thedownloadhost/'
+
+config.gem 'webrat', :version => ">=0.4.3"
 

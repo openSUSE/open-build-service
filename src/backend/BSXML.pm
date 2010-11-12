@@ -98,6 +98,7 @@ our $proj = [
      ]],
 	'remoteurl',
 	'remoteproject',
+	'mountproject',
      [[ 'person' =>
             'role',
             'userid',
@@ -172,6 +173,7 @@ our $packinfo = [
 	  [ 'dep' ],
 	  [ 'prereq' ],
 	  [ 'imagetype' ],
+	  [ 'imagearch' ],
 	 [[ 'path' =>
 		'project',
 		'repository',
@@ -194,6 +196,8 @@ our $aggregatelist = [
     'aggregatelist' =>
      [[ 'aggregate' =>
 	    'project',
+	    [],
+            'nosources',
 	  [ 'package' ],
 	  [ 'binary' ],
 	 [[ 'repository' =>
@@ -248,6 +252,7 @@ our $projpack = [
 		'versrel',
 		'verifymd5',	# tree id
 		'originproject',
+		'revtime',
 		[ $linked ],
 		'error',
 		[ $packinfo ],
@@ -370,6 +375,8 @@ our $buildinfo = [
 	'verifymd5',
 	'rev',
 	'reason',       # just for the explain string of a build reason
+	'needed',       # number of blocked
+	'revtime',	# time of last commit
 	'readytime',
 	'specfile',	# obsolete
 	'file',
@@ -405,7 +412,12 @@ our $buildinfo = [
 	    'project',
 	    'repository',
 	    'server',
-     ]]
+     ]],
+     [[ 'syspath' =>
+	    'project',
+	    'repository',
+	    'server',
+     ]],
 ];
 
 our $jobstatus = [
@@ -704,6 +716,16 @@ our $ajaxstatus = [
 		'request',
 	 ]],
      ]],
+     [[ 'serialize' =>
+	    'filename',
+	 [[ 'job' =>
+		'id',
+		'ev',
+		'fd',
+		'peer',
+		'request',
+	 ]],
+     ]],
 ];
 
 our $serverstatus = [
@@ -893,30 +915,38 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
-	'type',             # obsolete in future, type will be defined per action
+	'type',		# obsolete in future, type will be defined per action
      [[ 'action' =>
-	   'type',          # currently submit, delete, change_devel, add_role
-	   [ 'source' =>
-	         'project',
-	         'package',
-	         'rev',
-	   ],
-	   [ 'target' =>
-	         'project',
-	         'package',
-	   ],
-	   [ 'person' =>
-	         'name',
-	         'role',
-	   ],
-	   [ 'group' =>
-	         'name',
-	         'role',
-	   ],
-           [ 'options' =>
-                 [],
-	         'sourceupdate', # can be cleanup, update or noupdate
-           ],
+	    'type',	# currently submit, delete, change_devel, add_role
+	  [ 'source' =>
+	        'project',
+	        'package',
+	        'rev',
+	  ],
+	  [ 'target' =>
+		'project',
+		'package',
+	  ],
+	  [ 'person' =>
+		'name',
+		'role',
+	  ],
+	  [ 'group' =>
+		'name',
+		'role',
+	  ],
+          [ 'options' =>
+		[],
+		'sourceupdate', # can be cleanup, update or noupdate
+		'updatelink',   # can be true or false
+          ],
+	  [ 'acceptinfo' =>
+	        'rev',
+	        'srcmd5',
+	        'osrcmd5',
+	        'xsrcmd5',
+	        'oxsrcmd5',
+          ],
      ]],
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
@@ -942,6 +972,8 @@ our $request = [
             'by_user',       # this user shall review it
             'by_group',      # one of this groupd shall review it
                              # either user or group must be used, never both
+            'by_project',    # any maintainer of this project can review it
+            'by_package',    # any maintainer of this package can review it (requires by_project)
             'who',           # this user has reviewed it
 	    'when',
 	    [],
@@ -1064,6 +1096,27 @@ our $dispatchprios = [
 	    'arch',
 	    'adjust',
      ]],
+];
+
+our $service = [
+    'service' =>
+        'name',
+        [],
+        'summary',
+        'description',
+        [[ 'parameter' =>
+                     'name',
+                     [],
+                     'description',
+                     'required', # don't run without this parameter
+                     'allowmultiple', # This parameter can be used multiple times
+                     [[ 'allowedvalue' => '_content' ]], # list of possible values
+        ]],
+];
+
+our $servicelist = [
+    'servicelist' =>
+        [ $service ],
 ];
 
 1;

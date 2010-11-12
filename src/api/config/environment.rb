@@ -7,14 +7,25 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '>=2.3.8' unless defined? RAILS_GEM_VERSION
+
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 require "common/libxmlactivexml"
 require 'custom_logger'
-require 'rexml-expansion-fix'
+require 'fileutils'
+
+# create important directories that are needed at runtime
+FileUtils.mkdir_p("#{RAILS_ROOT}/log")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/cache")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/pids")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
+FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
 
 # define our current api version
-api_version = '1.9'
+api_version = '2.1.0'
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -44,10 +55,18 @@ Rails::Initializer.run do |config|
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'exception_notification'
+  config.gem 'erubis'
+  config.gem 'rails_xss'
 
+  # default secret
+  secret = "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+  if File.exist? "#{RAILS_ROOT}/config/secret.key"
+    file = File.open( "#{RAILS_ROOT}/config/secret.key", "r" )
+    secret = file.readline
+  end
   config.action_controller.session = {
-    :session_key => "_frontend_session",
-    :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+    :key => "_frontend_session",
+    :secret => secret
   }
 
   # Enable page/fragment caching by setting a file-based store
@@ -60,9 +79,7 @@ Rails::Initializer.run do |config|
   # Make Active Record use UTC-base instead of local time
   # config.active_record.default_timezone = :utc
   
-  # Use Active Record's schema dumper instead of SQL when creating the test database
-  # (enables use of different database adapters for development and test environments)
-  # config.active_record.schema_format = :ruby
+  config.active_record.schema_format = :sql
 
   config.logger = NiceLogger.new(config.log_path)
   # See Rails::Configuration for more options
@@ -88,6 +105,9 @@ ActiveXML::Base.config do |conf|
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
 
+    map.connect :directory, "rest:///source/:project/:package?:expand&:rev&:meta&:linkrev&:emptylink&:view&:extension&:lastworking&:withlinked&:deleted"
+    map.connect :jobhistory, "rest:///build/:project/:repository/:arch/_jobhistory?:package&:limit&:code"
+
     #map.connect :project, "rest:///source/:name/_meta",
     #    :all    => "rest:///source/"
     #map.connect :package, "rest:///source/:project/:name/_meta",
@@ -112,3 +132,6 @@ if defined? API_DATE
 else
   CONFIG['version'] = api_version
 end
+
+LibXML::XML::Error.set_handler(&LibXML::XML::Error::QUIET_HANDLER)
+

@@ -21,6 +21,7 @@
 . /etc/rc.status
 
 . /etc/sysconfig/obs-worker
+. /etc/sysconfig/proxy
 
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
@@ -145,6 +146,8 @@ case "$1" in
         # find SLP announced OBS servers
         if [ "$OBS_USE_SLP" == "yes" ]; then
             for i in `slptool findsrvs service:obs.repo_server | sed -n 's/service:obs.repo_server:\([^,]*\),.*/\1/p'`; do
+                [ "${i#http://localhost}" != "$i" ] && continue
+                [ "${i#http://127.}" != "$i" ] && continue
                 OBS_REPO_PARM="$OBS_REPO_PARM --reposerver $i"
                 # any of them should be okay
                 WORKER_CODE="$i"

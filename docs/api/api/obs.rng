@@ -23,6 +23,7 @@
       <value>ia64</value>
       <value>mips</value>
       <value>mipsel</value>
+      <value>mips32</value>
       <value>mips64</value>
       <value>mips64el</value>
       <value>ppc</value>
@@ -155,21 +156,23 @@
           <ref name="linkedbuild-modes" />
         </attribute>
       </optional>
-      <zeroOrMore>
-          <element name="path">
-            <attribute name="repository">
-              <data type="string" />
-            </attribute>
-            <attribute name="project">
-              <data type="string" />
-            </attribute>
+      <interleave>
+        <zeroOrMore>
+            <element name="path">
+              <attribute name="repository">
+                <data type="string" />
+              </attribute>
+              <attribute name="project">
+                <data type="string" />
+              </attribute>
+            </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <element name="arch">
+            <ref name="build-arch" />
           </element>
-      </zeroOrMore>
-      <zeroOrMore>
-        <element name="arch">
-          <ref name="build-arch" />
-        </element>
-      </zeroOrMore>
+        </zeroOrMore>
+      </interleave>
       <empty/>
     </element>
   </define>

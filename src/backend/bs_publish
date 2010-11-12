@@ -42,24 +42,11 @@ use BSDBIndex;
 use Build;
 use BSDB;
 use BSXML;
+use BSNotify;
 
 use strict;
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
-
-!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-if (defined $group) {
-  ($), $() = ($group, $group);
-  die "setgid: $!\n" if ($) != $group);
-}
-if (defined $user) {
-  ($>, $<) = ($user, $user);
-  die "setuid: $!\n" if ($> != $user);
-}
-
-
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $eventdir = "$BSConfig::bsdir/events";
@@ -205,6 +192,7 @@ sub db_sync {
   };
   if ($@) {
     warn($@);
+    mkdir_p($1) if $extrepodb =~ /^(.*)\//;
     Storable::nstore(\@db_sync, "$extrepodb.sync.new");
     rename("$extrepodb.sync.new", "$extrepodb.sync") || die("rename $extrepodb.sync.new $extrepodb.sync: $!\n");
   } else {
@@ -284,7 +272,7 @@ sub getpatterns {
 ##########################################################################
 
 sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $legacy) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $repotag = "obsrepository://$obsname/$projid/$repoid";
@@ -306,7 +294,7 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, '--repo', $repotag;
   my @legacyargs;
-  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if $legacy;
+  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if grep {$_ eq 'legacy'} @{$options || []};
   my @updateargs;
   if (-f "$extrep/repodata/repomd.xml") {
     push @updateargs, '--update';
@@ -545,8 +533,7 @@ sub createpatterns_comps {
   my @grps;
   for my $pattern (@$patterns) {
     my $pat = XMLin($BSXML::pattern, $pattern->{'data'});
-    next unless $pattern->{'name'} =~ /^(.*)\.xml$/s;
-    my $grp = { 'id' => $1 };
+    my $grp = { 'id' => $pattern->{'name'} };
     for (@{$pat->{'summary'}}) {
       my $el = { '_content' => $_->{'_content'} };
       $el->{'xml:lang'} = $_->{lang} if $_->{'lang'};
@@ -586,7 +573,7 @@ sub createpatterns_comps {
 sub deletepatterns_comps {
   my ($extrep) = @_;
   for my $pat (ls("$extrep/repodata")) {
-    next unless $pat =~ /^group/;
+    next unless $pat =~ /group.xml/;
     unlink("$extrep/repodata/$pat");
   }
 }
@@ -1045,7 +1032,11 @@ sub publish {
 	$pubkey = undef;
       }
     } elsif ($BSConfig::keyfile) {
-      $pubkey = readstr($BSConfig::keyfile);
+      if (-e $BSConfig::keyfile) {
+        $pubkey = readstr($BSConfig::keyfile);
+      } else {
+        print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
+      }
     }
   }
 
@@ -1110,9 +1101,27 @@ sub publish {
   }
 
   # create repositories and patterns
-  my %repotype = map {$_ => 1} @{$config->{'repotype'} || []};
-  my %patterntype = map {$_ => 1} @{$config->{'patterntype'} || []};
-
+  my %repotype;
+  for (@{$config->{'repotype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $repotype{$1} = [ split(':', $2) ];
+    } else {
+      $repotype{$_} = [];
+    }
+  }
+  my %patterntype;
+  for (@{$config->{'patterntype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $patterntype{$1} = [ split(':', $2) ];
+    } else {
+      $patterntype{$_} = [];
+    }
+  }
+  if ($repotype{'rpm-md-legacy'}) {
+    $repotype{'rpm-md'} = $repotype{'rpm-md-legacy'};
+    unshift @{$repotype{'rpm-md'}}, 'legacy';
+    delete $repotype{'rpm-md-legacy'};
+  }
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     local *PPLOCK;
     open(PPLOCK, '>', "$reporoot/$prp/.pplock") || die("$reporoot/$prp/.pplock: $!\n");
@@ -1128,9 +1137,7 @@ sub publish {
   }
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
-  } elsif ($repotype{'rpm-md-legacy'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, 1);
+    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'});
   } else {
     deleterepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }
@@ -1199,6 +1206,8 @@ publishprog_done:
     qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook failed: $?");
   }
 
+  
+  BSNotify::notify("REPO_PUBLISHED", { project => $projid , 'repo' => $repoid });
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
@@ -1262,6 +1271,7 @@ while(1) {
       }
     }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+    BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
       publish($ev->{'project'}, $ev->{'repository'});
     };
@@ -1270,6 +1280,7 @@ while(1) {
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
     } else {
+      BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
       unlink("$myeventdir/${event}::inprogress");
     }
     db_sync();

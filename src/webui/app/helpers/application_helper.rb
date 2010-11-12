@@ -34,7 +34,7 @@ module ActionView
     def compute_asset_host(source)
       if CONFIG['use_static'] 
         if ActionController::Base.relative_url_root
-           source = source.slice(ActionController::Base.relative_url_root.length..-1)
+          source = source.slice(ActionController::Base.relative_url_root.length..-1)
         end
         if source =~ %r{^/themes}
           return "https://static.opensuse.org"
@@ -82,7 +82,7 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    if DOWNLOAD_URL
+    if defined? DOWNLOAD_URL
       "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
     else
       nil
@@ -124,11 +124,14 @@ module ApplicationHelper
     return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
   end
 
-  def bugzilla_url(email, desc="")
-    URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{email}&short_desc=#{desc}")
+  def bugzilla_url(email_list="", desc="")
+    assignee = email_list.first if email_list
+    if email_list.length > 1
+      cc = ("&cc=" + email_list[1..-1].join("&cc=")) if email_list
+    end
+    URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
-  
   def hinted_text_field_tag(name, value = nil, hint = "Click and enter text", options={})
     value = value.nil? ? hint : value
     text_field_tag name, value, {:onfocus => "if($(this).value == '#{hint}'){$(this).value = ''}",
@@ -165,9 +168,10 @@ module ApplicationHelper
     abs_path
   end
 
-  def gravatar_image(email)
+  def gravatar_image(email, size=20)
     hash = MD5::md5(email.downcase)
-    return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 20, :height => 20
+    return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=#{size}&d=" + image_url('local/default_face.png'), 
+      :alt => "Gravatar for #{email}", :width => size, :height => size
   end
 
   def fuzzy_time_string(time)
@@ -191,7 +195,8 @@ module ApplicationHelper
   end
 
   def tlink_to(text, length, *url_opts)
-    "<span title='#{text}'>" + link_to( truncate(text, :length => length), *url_opts) + "</span>"
+    out = "<span title='#{text}'>" + link_to( truncate( h(text), :length => length), *url_opts) + "</span>"
+    return out.html_safe
   end
 
   def package_exists?(project, package)
@@ -205,27 +210,26 @@ module ApplicationHelper
   def package_link(project, package, opts = {})
     opts = { :hide_package => false, :hide_project => false, :length => 1000 }.merge(opts)
     if package_exists? project, package
-      out = "<span class='build_result_trigger'>"
-      out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
+      out = link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
       if opts[:hide_package]
         out += tlink_to(project, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
       elsif opts[:hide_project]
         out += tlink_to(package, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
       else
-        out += tlink_to project, (opts[:length] - 3) / 2 , :controller => :project, :action => "show", :project => project
-        out += " / " +  tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, 
-                                 :action => "show", :project => project, :package => package)
+        out += tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
+        out += " / "
+        out += tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, :action => "show", :project => project, :package => package)
       end
-      out += "</span>"
     else
       if opts[:hide_package]
-        out = "<span title='#{project}'>#{truncate(project, :length => opts[:length])}</span>"
+        out = "<span title='#{project}'>" + truncate(project, :length => opts[:length]) + "</span>"
       elsif opts[:hide_project]
-        out = "<span title='#{package}'>#{truncate(package, :length => opts[:length])}</span>"
+        out = "<span title='#{package}'>" + truncate(package, :length => opts[:length]) + "</span>"
       else
-        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
-        out += " / " + "<span title='#{package}'>#{truncate(package, :length => (opts[:length] - 3) / 2)}</span>"
+        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project +
+              " / " + "<span title='#{package}'>" + truncate(package, :length => (opts[:length] - 3) / 2) + "</span>"
       end
+      out.html_safe
     end
   end
 
@@ -262,7 +266,8 @@ module ApplicationHelper
         :package => packname, :project => @project.to_s, :arch => arch,
         :controller => "package", :repository => repo}, {:title => link_title, :rel => 'nofollow'}
     end 
-    return out + "</td>"
+    out += "</td>"
+    return out.html_safe
   end
 
   
@@ -270,30 +275,31 @@ module ApplicationHelper
     icon = case status
     when "published" then "icons/lorry.png"
     when "publishing" then "icons/cog_go.png"
-    when "outdated_published" then "icons/lorry_delete.png"
-    when "outdated_publishing" then "icons/cog_delete.png"
+    when "outdated_published" then "icons/lorry_error.png"
+    when "outdated_publishing" then "icons/cog_error.png"
     when "unpublished" then "icons/lorry_flatbed.png"
-    when "outdated_unpublished" then "icons/lorry_delete.png"
+    when "outdated_unpublished" then "icons/lorry_error.png"
     when "building" then "icons/cog.png"
-    when "outdated_building" then "icons/cog_delete.png"
+    when "outdated_building" then "icons/cog_error.png"
     when "finished" then "icons/time.png"
-    when "outdated_finished" then "icons/time_delete.png"
+    when "outdated_finished" then "icons/time_error.png"
     when "blocked" then "icons/time.png"
-    when "outdated_blocked" then "icons/time_delete.png"
+    when "outdated_blocked" then "icons/time_error.png"
     when "broken" then "icons/exclamation.png"
+    when "outdated_broken" then "icons/exclamation.png"
     when "scheduling" then "icons/cog.png"
-    when "outdated_scheduling" then "icons/cog_delete.png"
+    when "outdated_scheduling" then "icons/cog_error.png"
     else "icons/eye.png"
     end
 
     outdated = nil
     if status =~ /^outdated_/
-       status.gsub!( %r{^outdated_}, '' )
-       outdated = true
+      status.gsub!( %r{^outdated_}, '' )
+      outdated = true
     end
     description = case status
     when "published" then "Repository has been published"
-    when "publishing" then "Repository is getting created right now"
+    when "publishing" then "Repository is created right now"
     when "unpublished" then "Build finished, but repository publishing is disabled"
     when "building" then "Build jobs exists"
     when "finished" then "Build jobs have been processed, new repository is not yet created"
@@ -305,7 +311,7 @@ module ApplicationHelper
 
     description = "State needs recalculations, former state was: " + description if outdated
 
-    image_tag icon, :size => "16x16", :title => description
+    image_tag icon, :size => "16x16", :title => description, :alt => description
   end
 
 
@@ -330,9 +336,7 @@ module ApplicationHelper
       break
     end
 
-
     if flag
-
       if flag.has_attribute? :explicit
         if flag.element_name == 'disable'
           image = "#{flags.element_name}_disabled_blue.png"
@@ -381,6 +385,7 @@ module ApplicationHelper
       else
         image_tag(image)
       end
+      return out.html_safe
     else
       ""
     end
@@ -392,6 +397,30 @@ module ApplicationHelper
 
   def valid_xml_id(rawid)
     ERB::Util::h(rawid.gsub(/[+&: .]/, '_'))
+  end
+
+  def format_comment(comment)
+    comment ||= '-'
+    comment = ERB::Util::h(comment).gsub(%r{[\n\r]}, '<br/>')
+    # always prepend a newline so the following code can eat up leading spaces over all lines
+    comment = '<br/>' + comment
+    comment = comment.gsub('(<br/> *) ', '\1&nbsp;')
+    comment = comment.gsub(%r{^<br/>}, '')
+    comment = "<code>" + comment + "</code>"
+    return comment.html_safe
+  end
+
+  def tab(text, opts)
+    opts[:package] = @package.to_s
+    opts[:project] = @project.to_s
+    if @current_action.to_s == opts[:action].to_s
+      link = "<li class='selected'>"
+    else
+      link = "<li>"
+    end
+    link += link_to(h(text), opts)
+    link += "</li>"
+    return link.html_safe
   end
 
 end

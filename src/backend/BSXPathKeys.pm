@@ -184,26 +184,42 @@ sub boolop {
       return $v;
     }
     my @k;
-    if ($op == \&BSXPath::boolop_eq) {
+    my %k = map {$_ => 1} @{$v1->{'keys'} || []};
+    if ($v1->{'keys'} && !@{$v1->{'keys'}}) {
+      @k = ();
+    } elsif ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
+      @k = grep {$k{$_}} @k if $v1->{'keys'};
       #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       $negpol = 0;
-    } elsif (!$negpol) {
-      for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
-	next unless $op->($vv, $v2);
-	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
-	die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
-      }
     } else {
-      for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
-	next if $op->($vv, $v2);
-	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
-	die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+      my @values = $db->values($v1->{'path'}, $v1->{'keys'});
+      if ($v1->{'keys'} && @values > @{$v1->{'keys'}}) {
+	for my $k (@{$v1->{'keys'}}) {
+	  my $vv = $db->fetch($k);
+	  next unless defined $vv;
+	  if (!$negpol) {
+	    next unless grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
+	  } else {
+	    next if grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
+	  }
+	  push @k, $k;
+	}
+      } else {
+	for my $vv (@values) {
+	  if (!$negpol) {
+	    next unless $op->($vv, $v2);
+	  } else {
+	    next if $op->($vv, $v2);
+	  }
+	  if ($v1->{'keys'}) {
+	    push @k, grep {$k{$_}} $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
+	  } else {
+	    push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
+	  }
+	  die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+	}
       }
-    }
-    if ($v1->{'keys'}) {
-      my %k = map {$_ => 1} @{$v1->{'keys'}};
-      @k = grep {$k{$_}} @k;
     }
     $v->{'keys'} = \@k;
     $v->{'value'} = $negpol ? '' : 'true';
@@ -223,26 +239,41 @@ sub boolop {
       return $v;
     }
     my @k;
-    if ($op == \&BSXPath::boolop_eq) {
+    my %k = map {$_ => 1} @{$v2->{'keys'} || []};
+    if ($v2->{'keys'} && !@{$v2->{'keys'}}) {
+      @k = ();
+    } elsif ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v2->{'path'}, $v1, $v2->{'keys'});
+      @k = grep {$k{$_}} @k if $v2->{'keys'};
       #die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       $negpol = 0;
-    } elsif (!$negpol) {
-      for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
-	next unless $op->($v1, $vv);
-	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
-	die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
-      }
     } else {
-      for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
-	next if $op->($v1, $vv);
-	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
-	die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
+      my @values = $db->values($v2->{'path'}, $v2->{'keys'});
+      if ($v2->{'keys'} && @values > @{$v2->{'keys'}}) {
+	for my $k (@{$v2->{'keys'}}) {
+	  my $vv = $db->fetch($k);
+	  next unless defined $vv;
+	  if (!$negpol) {
+	    next unless grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
+	  } else {
+	    next if grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
+	  }
+	  push @k, $k;
+	}
+      } else {
+	for my $vv (@values) {
+	  if (!$negpol) {
+	    next unless $op->($v1, $vv);
+	  } else {
+	    next if $op->($v1, $vv);
+	  }
+	  if ($v2->{'keys'}) {
+	    push @k, grep {$k{$_}} $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
+	  } else {
+	    push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
+	  }
+	}
       }
-    }
-    if ($v2->{'keys'}) {
-      my %k = map {$_ => 1} @{$v2->{'keys'}};
-      @k = grep {$k{$_}} @k;
     }
     $v->{'keys'} = \@k;
     $v->{'value'} = $negpol ? '' : 'true';
@@ -260,7 +291,7 @@ sub op {
 }
 
 sub predicate {
-  my ($self, $v) = @_;
+  my ($self, $v, $expr) = @_;
   if (ref($v) ne ref($self)) {
     $v = @$v ? 'true' : '' if ref($v) eq 'ARRAY';
     if ($v =~ /^-?\d+$/) {
@@ -269,7 +300,7 @@ sub predicate {
       return $v ? $self : [];
     }
   }
-  $v = toconcrete($self, $v) unless exists $v->{'value'};
+  $v = toconcrete($v) unless exists $v->{'value'};
   my $vv = bless {};
   $vv->{'db'} = $self->{'db'};
   $vv->{'path'} = $self->{'path'};
@@ -285,8 +316,28 @@ sub predicate {
     my %k = map {$_ => 1} @{$self->{'keys'}};
     @k = grep {$k{$_}} @k;
   }
+  if ($self->{'path'}) {
+    # postprocess matched keys
+    for my $k (splice(@k)) {
+      my $db = $self->{'db'};
+      my $kv = $db->fetch($k);
+      next unless $kv;
+      $kv = [ selectpath($kv, $self->{'path'}) ];
+      next unless @$kv;
+      ($kv, undef) = BSXPath::predicate([[$kv, $kv, 1, 1]], $expr, [$kv]);
+      push @k, $k if @{$kv->[0]};
+    }
+  }
   $vv->{'keys'} = \@k;
   return $vv;
+}
+
+sub keymatch {
+  my ($self, $expr) = @_;
+  my $v;
+  ($v, $expr) = BSXPath::predicate([[$self, $self, 1, 1]], $expr, [$self]);
+  die("junk at and of expr: $expr\n") if $expr ne '';
+  return $v->[0]->{'keys'} || [];
 }
 
 sub limit {

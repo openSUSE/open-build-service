@@ -47,22 +47,47 @@ LDAP_MAIL_ATTR="mail"
 # Credentials to use to search ldap for the username
 LDAP_SEARCH_USER=""
 LDAP_SEARCH_AUTH=""
+
+# By default any LDAP user can be used to authenticate to the OBS
+# In some deployments this may be too broad and certain criteria should
+# be met; eg group membership
+#
+# To allow only users in a specific group uncomment this line:
+#LDAP_USER_FILTER="(memberof=CN=group,OU=Groups,DC=Domain Component)"
+#
+# Note this is joined to the normal selection like so:
+# (&(#{LDAP_SEARCH_ATTR}=#{login})#{LDAP_USER_FILTER})
+# giving an ldap search of:
+#  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
+#
+# Also note that openLDAP must be configured to use the memberOf overlay
+
 # How to verify:
 #   :ldap = attempt to bind to ldap as user using supplied credentials
 #   :local = compare the credentials supplied with those in 
 #            LDAP using LDAP_AUTH_ATTR & LDAP_AUTH_MECH
 #       LDAP_AUTH_MECH can be
 #       : md5
-#       : plaintext
+#       : cleartext
 LDAP_AUTHENTICATE=:ldap
 LDAP_AUTH_ATTR="userPassword"
 LDAP_AUTH_MECH=:md5
 
+# Whether to update the user info to LDAP server, it does not take effect 
+# when LDAP_MODE is not set.
+# Since adding new entry operation are more depend on your slapd db define, it might not 
+# compatiable with all LDAP server settings, you can use other LDAP client tools for your specific usage
+LDAP_UPDATE_SUPPORT = :off
+# ObjectClass, used for adding new entry
+LDAP_OBJECT_CLASS = ['inetOrgPerson']
+# Base dn for the new added entry
+LDAP_ENTRY_BASE = "ou=OBSUSERS,dc=EXAMPLE,dc=COM"
+# Does sn attribute required, it is a necessary attribute for most of people objectclass,
+# used for adding new entry
+LDAP_SN_ATTR_REQUIRED = :on
+
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 5352
-
-APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 EXTENDED_BACKEND_LOG = false
 

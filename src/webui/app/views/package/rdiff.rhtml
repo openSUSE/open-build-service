@@ -19,28 +19,48 @@
 
 <%= render :partial => "tabs" %>
 
-<% if @rdiff.empty? %>
-  <em>No difference</em>
+
+<% if params[:commit] %>
+  <h2>Changes of commit <%=params[:commit]%></h2>
 <% else %>
+<!-- this is causing a test suite failure when pointing to remote projects.
   <h2>Diff between <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %> and <%=h @project.name + "/" + @package.name %></h2>
+-->
+<% end %>
+
+<% if @rdiff.empty? %>
+  <p><em>No difference</em></p>
+<% else %>
 
   <pre id="code" class="patch">
-  <%=h @rdiff %>
+    <%=h @rdiff %>
   </pre>
 
   <% if @lastreq %>
     <div><span class="strong">Careful!</span> The last request (<%= @lastreq.data[:id] %>) was declined
-    <%= "%s by %s:" % [fuzzy_time_string(@lastreq.state.when), @lastreq.state.who ] %></div>
+      <%= "%s by %s:" % [fuzzy_time_string(@lastreq.state.when), @lastreq.state.who ] %></div>
     <div><%= @lastreq.state.comment %></div>
   <% end %>
 
-  <% if @project.is_maintainer?( session[:login] ) %>
-    <% form_tag({:controller => 'package', :action => 'create_submit', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage}, {:method => :post}) do -%>
+  <% if @package.can_edit?( session[:login] )%>
+    <h2>Create Submit request</h2>
+    <% form_tag({:controller => 'package', :action => 'create_submit_request', :project => @project, :package => @package, :target_project => @oproject, :target_package => @opackage}, {:method => :post}) do -%>
+      <% if params[:commit] %>
+        <p>Revert <%=h @project.name + "/" + @package.name %> to this revision</p>
+      <% else %>
+        <p>Submit these changes to <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %></p>
+      <% end %>
+
+      <p>
+        Comment: <%= text_field_tag 'description', "", :size => "80" -%>
+      </p>
       <div>
-        <%= text_field_tag 'description', "Update from web client", :size => "80" -%>
-      </div>
-      <div>
-        <%= submit_tag "Submit" %>
+        <% if params[:commit] %>
+          <!-- FIXME: Add an option to just revert this single commit -->
+          <p><%= submit_tag "Revert to this revision" %></p>
+        <% else %>
+          <p><%= submit_tag "Submit" %></p>
+        <% end %>
       </div>
     <% end %>
   <% end %>

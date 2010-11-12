@@ -8,13 +8,13 @@ module RbacHelper
     nodes = nodes.dup
     printed_nodes = []
     
-    result = "<ul>"
+    result = "<ul>".html_safe
     
     # top level nodes first, then others
     for node in nodes
       next unless node.parent == nil
       printed_nodes << node
-      result += "<li>"
+      result += "<li>".html_safe
 
       if block_given?
         result += yield node
@@ -28,7 +28,7 @@ module RbacHelper
         result += node_tree_help(children, nodes, printed_nodes, &block)
       end
       
-      result += "</li>"
+      result += "</li>".html_safe
     end
     
     # TODO: Add depth counting here to get a minimum of trees
@@ -36,7 +36,7 @@ module RbacHelper
       next if printed_nodes.include? node
       printed_nodes << node
       
-      result += "<li>"
+      result += "<li>".html_safe
 
       if block_given?
         result += yield node
@@ -51,10 +51,10 @@ module RbacHelper
         result += node_tree_help(children, nodes, printed_nodes, &block)
       end
       
-      result += "</li>"
+      result += "</li>".html_safe
     end
 
-    result += '</ul>'
+    result += '</ul>'.html_safe
 
     return result
   end
@@ -76,12 +76,12 @@ module RbacHelper
   
   protected
     def node_tree_help(children, nodes, printed_nodes, &block) # :nodoc:
-      result = '<ul>'
+      result = '<ul>'.html_safe
       for child in children
         next if printed_nodes.include?(child)
         printed_nodes << child
       
-        result += '<li>'
+        result += '<li>'.html_safe
 
         if block_given?
           result += yield child
@@ -95,10 +95,10 @@ module RbacHelper
           result += node_tree_help(children2, nodes, printed_nodes, &block)
         end
 
-        result += '</li>'
+        result += '</li>'.html_safe
       end
 
-      result += '</ul>'
+      result += '</ul>'.html_safe
     end
 
     def level_count(node) # :nodoc:

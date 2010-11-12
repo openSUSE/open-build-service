@@ -6,13 +6,11 @@ class Unregisteredperson < ActiveXML::Base
   class << self
     def make_stub( opt )
       realname = ""
-      if opt.has_key? :realname
-        realname = opt[:realname]
-      end
+      realname = opt[:realname] if opt.has_key? :realname
       email = ""
-      if opt.has_key? :email
-        email = opt[:email]
-      end
+      email = opt[:email] if opt.has_key? :email
+      password = "opensuse"
+      password = opt[:password] if opt.has_key? :password
 
       # This is the place where we decide in which state users are created.
       # Change the following line to 
@@ -22,7 +20,7 @@ class Unregisteredperson < ActiveXML::Base
       # team has acknowledged the user.
       state = 2
       
-      explain = opt[:explanation]
+      note = opt[:explanation]
       
       reply = <<-ENDE
         <unregisteredperson>
@@ -30,8 +28,8 @@ class Unregisteredperson < ActiveXML::Base
            <realname>#{realname}</realname>
            <email>#{email}</email>
            <state>#{state}</state>
-           <password>opensuse</password>
-           <note>#{explain}</note>
+           <password>#{password}</password>
+           <note>#{note}</note>
         </unregisteredperson>
       ENDE
 

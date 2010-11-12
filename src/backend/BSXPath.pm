@@ -147,14 +147,13 @@ sub predicate {
       #push @ncwd, [$rr->[0], $_, $i++, $s] for @$vv2;
     }
   }
-  my $v2;
-  ($v2, $expr) = expr(\@ncwd, $expr, 0);
+  my ($v2, $nexpr) = expr(\@ncwd, $expr, 0);
   die("internal error!\n") if @$v2 != @ncwd;
   #print Dumper($v2);
   for my $vv (@$v) {
     if ($ncwd[0]->[4]) {
       my $r = shift @ncwd;
-      $vv = $r->[4]->predicate(shift @$v2);
+      $vv = $r->[4]->predicate(shift @$v2, $expr);
       next;
     }
     my @nvv;
@@ -171,7 +170,7 @@ sub predicate {
     }
     $vv = \@nvv;
   }
-  return ($v, $expr);
+  return ($v, $nexpr);
 }
 
 sub pathstep {
@@ -276,7 +275,7 @@ sub expr {
       $v = [ map {$_->[1]} @$cwd ];
       $expr = substr($expr, 1);
     }
-  } elsif ($expr =~ /^([-a-zA-Z0-9]+)\s*\((.*?)$/s) {
+  } elsif ($expr =~ /^([-_a-zA-Z0-9]+)\s*\((.*?)$/s) {
     my $f = $1;
     $expr = $2;
     my @args;
@@ -350,7 +349,7 @@ sub expr {
     } else {
       die("unknown function: $f\n");
     }
-  } elsif ($expr =~ /^(\@?(?:[-a-zA-Z0-9]+|\*))(.*?)$/s) {
+  } elsif ($expr =~ /^(\@?(?:[-_a-zA-Z0-9]+|\*))(.*?)$/s) {
     # path component
     my $c = $1;
     $expr = $2;
@@ -418,7 +417,7 @@ sub expr {
       $v = op($cwd, $v, $v2, sub {$_[0] % $_[1]});
     } elsif ($expr =~ /^\|/) {
       die("union op not implemented yet\n");
-    } elsif ($expr =~ /^\/(\@?(?:[-a-zA-Z0-9]+|\*))(.*?)$/s) {
+    } elsif ($expr =~ /^\/(\@?(?:[-_a-zA-Z0-9]+|\*))(.*?)$/s) {
       my $c = $1;
       $expr = $2;
       $c =~ s/^\@//;

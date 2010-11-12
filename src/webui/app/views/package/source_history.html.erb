@@ -1,0 +1,55 @@
+<% @pagetitle = "Revision Log of #{@package} (Project #{@project})"
+   package_bread_crumb 'Revisions'
+-%>
+
+<%= render :partial => "tabs" %>
+
+<% content_for :head_javascript do %>
+
+  function slide_history_up() {
+    var number = parseInt(document.getElementById('history_browser_revision').value);
+    number = number + 1;
+    document.getElementById('history_browser_revision').value = number;
+    $('#go_down_button').show();
+    if (number == <%=@maxrevision%>) {
+      $('#go_up_button').hide();
+    }
+
+    $('#historyTable tr:last').remove();
+    $('#historyTable tr:first').before('<tr>'+
+      '<td id=\"commit_item_'+number+'\">...</td>'+
+      '</tr>');
+
+    var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
+    $("#historyTable td#commit_item_"+number).load(path);
+  }
+
+  function slide_history_down() {
+    var number = parseInt(document.getElementById('history_browser_revision').value);
+    number = number - 1;
+    document.getElementById('history_browser_revision').value = number;
+
+    number = number - parseInt(<%=@visible_commits%>) + 1;
+    $('#go_up_button').show();
+    if (number == 1) {
+      $('#go_down_button').hide();
+    }
+    $('#historyTable tr:first').remove();
+    $('#historyTable tr:last').after('<tr>'+
+      '<td id=\"commit_item_'+number+'\">...</td>'+
+      '</tr>');
+
+    var path = "/package/commit?revision="+number+"&package=<%=@package%>&project=<%=@project%>";
+    $("#historyTable td#commit_item_"+number).load(path);
+  }
+
+<% end %>
+
+<%= render :partial => 'links' if @link %>
+
+<!-- Source history -->
+<%= if @maxrevision
+   render :partial => 'sources_history', :locals => {:currentRevision => @revision, :history => @history}
+else
+  "<i>No commits exists yet.</i>"
+end %>

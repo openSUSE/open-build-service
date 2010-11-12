@@ -1,81 +1,97 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first_build_flag_for_project_home_tscholz:
-  id: 1
+first_build_flag_for_project_home_Iggy:
   status: "disable"
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: BuildFlag
+  flag: build
   position: 1
   
-second_build_flag_for_project_home_tscholz:
-  id: 2
+second_build_flag_for_project_home_Iggy:
   status: "disable"
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: BuildFlag	
+  flag: build
   position: 2
   
 first_build_flag_for_package_TestPack:
-  id: 3
   status: "enable"
   repo: "10.2"
   architecture_id: 1
   db_package_id: 10095
-  type: BuildFlag	
+  flag: build
   position: 1
 
-first_publish_flag_for_project_home_tscholz:
-  id: 4
+first_publish_flag_for_project_home_Iggy:
   status: "disable"
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: "PublishFlag"
+  flag: publish
   position: 1	
   
-second_publish_flag_for_project_home_tscholz:
-  id: 5
+second_publish_flag_for_project_home_Iggy:
   status: "enable"
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: "PublishFlag"
+  flag: publish
   position: 2	
 		
 first_publish_flag_for_package_TestPack:
-  id: 6
   status: "enable"
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095
-  type: "PublishFlag"
+  flag: publish
   position: 1
   
-first_debug_flag_for_project_home_tscholz:
-  id: 7
+first_debug_flag_for_project_home_Iggy:
   status: "disable"
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: "DebuginfoFlag"
+  flag: debuginfo
   position: 1	
   
-second_debug_flag_for_project_home_tscholz:
-  id: 8
+second_debug_flag_for_project_home_Iggy:
   status: "enable"
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: "DebuginfoFlag"
+  flag: debuginfo
   position: 2	
 		
 first_debug_flag_for_package_TestPack:
-  id: 9
   status: "enable"
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095
-  type: "DebuginfoFlag"
+  flag: debuginfo
   position: 1
+
+hide_project:
+  status: "disable"
+  db_project_id: 3000
+  flag: access
+  position: 1
+
+source_protected_project:
+  status: "disable"
+  db_project_id: 3001
+  flag: sourceaccess
+  position: 1
+
+binary_protected_project:
+  status: "disable"
+  db_project_id: 3002
+  flag: binarydownload
+  position: 1
+
+privacy_protected_project:
+  status: "enable"
+  db_project_id: 3003
+  flag: privacy
+  position: 1
+

@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class TagcloudTest < ActiveSupport::TestCase
-  fixtures :users, :db_projects, :db_packages, :tags, :taggings
+  fixtures :all
   
   def test_max_min
     opt = Hash.new
@@ -120,9 +120,9 @@ class TagcloudTest < ActiveSupport::TestCase
   
   def test_user_tagcloud
     
-    #tag-cloud test for user 'tscholz'
+    #tag-cloud test for user 'Iggy'
     opt = Hash.new
-    opt = {:scope => 'user', :user => User.find_by_login('tscholz')}
+    opt = {:scope => 'user', :user => User.find_by_login('Iggy')}
     
     cloud = Tagcloud.new(opt)
     assert_kind_of Tagcloud, cloud

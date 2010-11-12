@@ -17,7 +17,7 @@
 #
 #######################################################
 #
-# Tiny file-based relational database based on perl's Stoarge module.
+# Tiny file-based relational database based on perl's Storage module.
 
 package BSDBIndex;
 

@@ -10,7 +10,7 @@
     <value>B</value>
     <value>C</value>
   </allowed>
-  <modifiable_by name="demouser"/>
+  <modifiable_by user="demouser"/>
   <modifiable_by group="attribute_maintainers"/>
   <modifiable_by role="demorole"/>
 </definition>

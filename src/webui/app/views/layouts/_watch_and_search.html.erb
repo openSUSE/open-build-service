@@ -4,14 +4,30 @@
     <li>
       <a href="<%= url_for :controller => "home", :action => :list_my %>">
       <span>Watchlist ...</span>
-      <span class="desc">Your watched and involved projects</span></a></li>
-    <% if user && user.has_element?( 'watchlist' ) -%>
-      <% user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
-        <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
-          <%= image_tag 'project.png', :style => 'height: 16px; width: 16px;' %>
-          <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
-          <span><%= shorten_text( project, 32 ) %></span></a>
-        </li>
+      <span class="desc">Your watched and involved projects</span></a>
+    </li>
+    <% if user -%>
+      <% if params[:project] -%>
+         <li>
+           <a href="<%= url_for :controller => "project", :action => :toggle_watch, :project => params[:project] %>">
+           <% if user.watches? params[:project] -%>
+             <span>Remove this project from Watchlist</span>
+             <span class="desc">Do not watch this project anymore</span>
+           <% else -%>
+             <span>Add this project to Watchlist</span>
+             <span class="desc">Watch this project</span>
+           <% end -%>
+           </a>
+         </li>
+      <% end -%>
+      <% if user.has_element?( 'watchlist' ) -%>
+        <% user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
+          <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
+            <%= image_tag 'project.png', :style => 'height: 16px; width: 16px;' %>
+            <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
+            <span><%= shorten_text( project, 32 ) %></span></a>
+          </li>
+        <% end -%>
       <% end -%>
     <% end -%>
   </ul>

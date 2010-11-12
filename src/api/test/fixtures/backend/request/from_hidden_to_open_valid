@@ -1,0 +1,12 @@
+  <request>
+  <action type='submit'>
+    <source project='HiddenProject' package='pack' rev='1' />
+    <target project='home:Iggy' package='TestPack' />
+    <options>
+      <sourceupdate>cleanup</sourceupdate>
+    </options>
+  </action>
+  <description/>
+  <state who="adrian" name="new"/>
+  </request>
+

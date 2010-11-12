@@ -4,33 +4,37 @@ class Person < ActiveXML::Base
   handles_xml_element 'person'
   
   # redefine make_stub so that Person.new( :login => 'login_name' ) works
-  class << self
-    def make_stub( opt )
+  def self.make_stub( opt )
       
-      # stay backwards compatible to old arguments (:name instead of :login)
-      if not opt.has_key? :login
-        opt[:login] = opt[:name]
-      end
-      realname = ""
-      if opt.has_key? :realname
-        realname = opt[:realname]
-      end
-      email = ""
-      if opt.has_key? :email
-        email = opt[:email]
-      end
-      doc = XML::Document.new
-      doc.root = XML::Node.new 'person'
-      element = doc.root << 'login'
-      element.content = opt[:login]
-      element = doc.root << 'realname'
-      element.content = realname
-      element = doc.root << 'email'
-      element.content = email
-      element = doc.root << 'state'
-      element.content = 5
-      doc.root
+    # stay backwards compatible to old arguments (:name instead of :login)
+    if not opt.has_key? :login
+      opt[:login] = opt[:name]
     end
+    realname = ""
+    if opt.has_key? :realname
+      realname = opt[:realname]
+    end
+    email = ""
+    if opt.has_key? :email
+      email = opt[:email]
+    end
+    doc = XML::Document.new
+    doc.root = XML::Node.new 'person'
+    element = doc.root << 'login'
+    element.content = opt[:login]
+    element = doc.root << 'realname'
+    element.content = realname
+    element = doc.root << 'email'
+    element.content = email
+    element = doc.root << 'state'
+    element.content = 5
+    doc.root
+  end
+  
+  def self.email_for_login(person)
+    p = Person.find_cached(person)
+    return p.value(:email) if p
+    return ''
   end
   
   def to_s
@@ -77,42 +81,83 @@ class Person < ActiveXML::Base
     Rails.cache.delete cachekey unless opts[:cache]
 
     requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      # we assume that the user is involved in all his subprojects (home:#{login}:...)
+      # FIXME: we assume that the user is involved in all his subprojects (home:#{login}:...)
+      #        that should not be needed ... verify ...
       iprojects = involved_projects.each.map {|x| x.name}.reject {|x| /^home:#{login}:/.match(x) }.sort
       requests = Array.new
+      request_ids = Array.new
 
+      myrequests = Hash.new
       unless iprojects.empty?
         predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
         predicate = "#{predicate} or starts-with(action/target/@project, 'home:#{login}:')"
         predicate = "state/@name='new' and (#{predicate})"
         collection = Collection.find :what => :request, :predicate => predicate
-        myrequests = Hash.new
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{login}'"
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         keys = myrequests.keys().sort {|x,y| y <=> x}
-        keys.each {|id| requests << myrequests[id] }
+        keys.each do |id| 
+          unless request_ids.include? id
+            requests << myrequests[id]
+            request_ids << id
+          end
+        end
       end
+
+      # check for all open review tasks
+      collection = BsRequest.find_open_review_requests(login)
+      collection.each do |req| myrequests[Integer(req.value :id)] = req end
+      keys = myrequests.keys().sort {|x,y| y <=> x}
+      keys.each do |id| 
+        unless request_ids.include? id
+          requests << myrequests[id]
+          request_ids << id
+        end
+      end
+
       requests
     end
     return requests
+  end
+
+  def groups
+    cachekey = "#{login}_groups"
+    mygroups = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      groups=[]
+
+      path = "/person/#{login}/group"
+      frontend = ActiveXML::Config::transport_for( :person )
+      answer = frontend.direct_http URI(path), :method => "GET"
+
+      doc = XML::Parser.string(answer).parse.root
+      doc.find("/directory/entry").each do |e|
+        groups.push e.attributes["name"]
+      end
+
+      groups
+    end
+
+    return mygroups
   end
 
   def packagesorter(a, b)
     a.project == b.project ? a.name <=> b.name : a.project <=> b.project
   end
 
+  def is_in_group? (group)
+    return groups.include? group
+  end
+
   def is_admin?
-    # FIXME: we should actually ask the backend here
-    return true if login.to_s == "Admin"
-    return false
+    has_element?( "globalrole[text() = \"Admin\"]" )
   end
 
   # if package is nil, returns project maintainership
   def is_maintainer?(project, package=nil)
-    if package and package.is_maintainer?(login)
-      return true
-    end
+    return true if is_admin?
+    return true if package and package.is_maintainer?(login)
     return project.is_maintainer?(login)
   end
+
 end

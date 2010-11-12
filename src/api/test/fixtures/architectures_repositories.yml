@@ -1,7 +1,35 @@
 1:
   repository_id: 85
   architecture_id: 1
+  position: 0
 2:
   repository_id: 85
   architecture_id: 2
-
+  position: 1
+3:
+  repository_id: 86
+  architecture_id: 2
+4:
+  repository_id: 87
+  architecture_id: 1
+5:
+  repository_id: 88
+  architecture_id: 1
+6:
+  repository_id: 89
+  architecture_id: 1
+7:
+  repository_id: 90
+  architecture_id: 1
+BaseDistro:
+  repository_id: 91
+  architecture_id: 1
+BaseDistro2:
+  repository_id: 92
+  architecture_id: 1
+SourceprotectedProject:
+  repository_id: 93
+  architecture_id: 1
+homeadrianProtectionTest:
+  repository_id: 94
+  architecture_id: 1

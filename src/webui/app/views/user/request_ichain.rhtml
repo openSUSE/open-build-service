@@ -15,7 +15,7 @@
 
   <p>
   Also make sure you have read
-  <a href="http://en.opensuse.org/Application_Black_List">http://en.opensuse.org/Application_Black_List</a>
+  <a href="http://en.opensuse.org/openSUSE:Build_Service_application_blacklist">http://en.opensuse.org/openSUSE:Build_Service_application_blacklist</a>
   and understood why you can't build some packages in the openSUSE Build Service.</p>
   
   <p>
@@ -27,7 +27,7 @@
   <p>Have fun building software.</p>
   <p>Your Build Service Team</p>
   
-  <% form_tag :controller => 'user', :action => 'register' do %>
+  <% form_tag :controller => 'user', :action => 'register', :method => :post do %>
     <%= hidden_field_tag 'register', 'true' %>
     <%= submit_tag "Let me build my packages!" %>
   <% end %>

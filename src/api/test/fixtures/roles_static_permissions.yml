@@ -44,18 +44,66 @@ admin_10:
   role_id:              1
   static_permission_id: 10
 
-maintainer_7:
+User_static_project_create:
   role_id:              2
+  static_permission_id: 2
+
+maintainer_7:
+  role_id:              3
   static_permission_id: 7
 
 maintainer_8:
-  role_id:              2
+  role_id:              3
   static_permission_id: 8
 
 maintainer_9:
-  role_id:              2
+  role_id:              3
   static_permission_id: 9
 
 maintainer_10:
-  role_id:              2
+  role_id:              3
   static_permission_id: 10
+
+maintainer_download:
+  role_id:              3
+  static_permission_id: 11
+
+maintainer_source:
+  role_id:              3
+  static_permission_id: 12
+
+maintainer_private:
+  role_id:              3
+  static_permission_id: 13
+
+admin_private:
+  role_id:              1
+  static_permission_id: 13
+
+maintainer_access:
+  role_id:              3
+  static_permission_id: 14
+
+admin_access:
+  role_id:              1
+  static_permission_id: 14
+
+admin_sourceaccess:
+  role_id:              1
+  static_permission_id: 12
+
+downloader:
+  role_id:              5
+  static_permission_id: 11
+
+downloader_privacy:
+  role_id:              5
+  static_permission_id: 13
+
+reader:
+  role_id:              7
+  static_permission_id: 12
+
+reader_privacy:
+  role_id:              7
+  static_permission_id: 13

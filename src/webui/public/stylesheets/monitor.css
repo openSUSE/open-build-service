@@ -1,33 +1,30 @@
 .builderbox { 
-  width: 19%;
+  width: 168px;
+  margin-top: 3px;
   margin: 3px;
   border: 8px transparent;
   list-style: none;
   float: left;
 }
 
-.builderboxtitle { 
+.builderboxtitle {
+  font-weight: bold;
   padding: 0;
-  margin: 0;
-  border: 1px solid gray;
-  background-color: #eee;
+  margin: 0 0 0.2em;
 }
 
 .monitorboxrow {
   list-style: none;
   clear: both;
+  margin-bottom: 1em;
+  overflow:hidden;
 }
+  .monitorboxrow li {
+    margin-top: 3px !important;
+  }
 
-.monitorpb_green { 
-  background-image: url("../images/progressbar_green.png");
-}
-
-.monitorpb_orange { 
-  background-image: url("../images/progressbar_orange.png");
-}
-
-.monitorpb_red { 
-  background-image: url("../images/progressbar_red.png");
+.monitorpb_bar { 
+  background-image: url("../images/progressbar_bar.png");
 }
 
 .monitorpb_track {
@@ -87,7 +84,7 @@
   background-color: transparent;
   background-repeat: repeat-x;
   background-attachment: scroll;
-  background-position: left top;
+  background-position: left -1px;
   width: 100%; 
   height: 100%;
   moz-background-clip: border; 
@@ -96,13 +93,14 @@
 }
 
 .monitorpb {
-  padding: 0pt 3px; 
+  padding: 0; 
   height: 22px;
   position: relative;
   left: 0; 
   top: 0;
   max-height: 22px;
   overflow: hidden;
+  margin-top: 1px;
 }
 
 .monitorpb a {

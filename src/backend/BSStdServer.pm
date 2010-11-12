@@ -34,6 +34,8 @@ use BSUtil;
 use BSConfig;
 use XML::Structured;
 
+use strict;
+
 our $isajax;	# is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
@@ -134,7 +136,10 @@ sub server {
   my ($name, $args, $conf, $aconf) = @_;
 
   exit 0 if $args && @$args && $args->[0] eq '--test';
-  mkdir_p($rundir);
+
+  my $bsdir = $BSConfig::bsdir || "/srv/obs";
+  BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+
   if ($conf) {
     $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
     $conf->{'dispatch'} ||= \&dispatch;
@@ -178,6 +183,7 @@ sub server {
       die("AJAX: died\n");
     }
   }
+  mkdir_p($rundir);
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 

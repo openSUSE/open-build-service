@@ -5,13 +5,13 @@ set :application, "obs-api"
 # git settings
 set :scm, :git
 set :repository,  "git://gitorious.org/opensuse/build-service.git"
-set :branch, "2.0"
+set :branch, "2.1"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/api'
 set :migrate_target, :current
 
-set :deploy_notification_to, ['tschmidt@suse.de', 'coolo@suse.de', 'adrian@suse.de']
+set :deploy_notification_to, ['tschmidt@suse.de', 'coolo@suse.de', 'adrian@suse.de', 'speilicke@suse.de']
 server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
 
 # If you aren't deploying to /u/apps/#{application} on the target
@@ -56,6 +56,7 @@ namespace :config do
   task :symlink_shared_config do
     run "rm #{release_path}#{git_subdir}/config/options.yml"
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
+    run "ln -s #{shared_path}/secret.key #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/distributions.xml #{release_path}#{git_subdir}/files"
     run "rm #{release_path}#{git_subdir}/config/environments/production.rb"

@@ -1,0 +1,48 @@
+<% @pagetitle = "Add New Package Branch" %>
+<% project_bread_crumb @pagetitle %>
+
+<%= render :partial => "tabs" %>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+
+<% content_for :ready_function do %>
+  $("#linked_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+    { minChars: 2, matchCase: true, max: 50 } );
+
+  $("#linked_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+    minChars: 0, matchCase: true, max: 50,
+    extraParams: {
+       project: function() { return $("#linked_project").val(); }
+    }
+  });
+<% end -%>
+
+<h2><%= @pagetitle %> to <%= @project.name %></h2>
+
+<p>By branching a package from another project you add the package and its files
+to your project in a transparent way. Changes of the files in the original
+project will also change the files in the branched package in your project.</p>
+<p>You can add patches to the branched package without affecting the original
+package.</p>
+
+<% form_tag :controller => "package", :action => "save_new_link" do %>
+<p>
+  <strong>Name of original project:</strong><br/>
+  <%= text_field_tag 'linked_project', @linked_project, :size => 80, :id => 'linked_project' %><br/>
+  <strong>Name of package in original project:</strong><br/>
+  <%= text_field_tag 'linked_package', @linked_package, :size => 80, :id => 'linked_package' %><br/>
+  <strong>Name of branched package in target project:</strong> (Leave blank to use the
+  same name as in the original project) <br/>
+  <%= text_field_tag 'target_package', @target_package, :size => 80 %><br/>
+  <%= check_box_tag 'current_revision', false %>Stay on current revision, don't merge future upstream changes automatically
+  <%= hidden_field_tag 'branch', true %>
+  <%= hidden_field_tag 'project', @project.name %>
+</p>
+<p><%= submit_tag "Create Branch" %></p>
+<% end %>
+
+
+

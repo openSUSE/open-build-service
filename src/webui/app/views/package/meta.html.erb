@@ -1,4 +1,6 @@
-<% @pagetitle = "Raw Config for %s" % @package %>
+<% @pagetitle = "Raw Configuration of %s" % @package
+   package_bread_crumb('Raw Config')
+-%>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
@@ -14,11 +16,9 @@
 <% end %>
 <% end %>
 
-<% package_bread_crumb('Raw Config') -%>
-
 <%= render :partial => "tabs" %>
 
-<h2>Raw Config for <%=h @package %></h2>
+<h3><%= @pagetitle %></h3>
 
 <pre id="code" class="xml">
 <%=h @meta%>

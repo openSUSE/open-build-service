@@ -42,13 +42,13 @@ class MessageController < ApplicationController
         elsif @project
           @project.messages += [msg]
         else
-          throw
+          raise ArgumentError, "must give either project or package"
         end
         msg.save
         render_ok
-      rescue
+      rescue ArgumentError => e
         render_error :status => 400, :errorcode => "error creating message",
-          :message => "message cannot be created"
+          :message => e.message
       end
 
     elsif request.delete?
@@ -71,6 +71,7 @@ class MessageController < ApplicationController
   end
 
 
+private
   def check_permissions
     if ( @package and not permissions.package_change? @package.name, @project.name ) or
        ( @project and not permissions.project_change? @project.name )
@@ -80,6 +81,5 @@ class MessageController < ApplicationController
     end
     return true
   end
-
 
 end

@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
     :rebuild_time_png]
 
   before_filter :load_current_requests, :only => [:delete, :view,
-    :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
+    :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
@@ -45,7 +45,7 @@ class ProjectController < ApplicationController
     @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
     get_filtered_projectlist @filterstring, @excludefilter
     if request.xhr?
-      render :partial => 'search_project', :locals => {:project_list => @projects} and return
+      render :partial => 'search_project' and return
     end
     render :list, :status => params[:nextstatus]
   end
@@ -73,9 +73,9 @@ class ProjectController < ApplicationController
 
   def get_filtered_projectlist(filterstring, excludefilter='')
     # remove illegal xpath characters
-    filterstring.sub!(/[\[\]\n]/, '')
-    filterstring.sub!(/[']/, '&apos;')
-    filterstring.sub!(/["]/, '&quot;')
+    filterstring.gsub!(/[\[\]\n]/, '')
+    filterstring.gsub!(/[']/, '&apos;')
+    filterstring.gsub!(/["]/, '&quot;')
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
@@ -85,6 +85,21 @@ class ProjectController < ApplicationController
     @projects =  @projects.sort_by { |a| project_key a }
   end
   private :get_filtered_projectlist
+
+  def get_filtered_packagelist(filterstring)
+    # remove illegal xpath characters
+    filterstring.gsub!(/[\[\]\n]/, '')
+    filterstring.gsub!(/[']/, '&apos;')
+    filterstring.gsub!(/["]/, '&quot;')
+    predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
+    predicate += " and " if !predicate.empty?
+    predicate += "@project = '#{@project}'"
+    result = find_cached Collection, :id, :what => "package", :predicate => predicate, :expires_in => 2.minutes
+    @packages = Array.new
+    result.each { |p| @packages << p }
+    @packages =  @packages.sort_by { |a| a.name }
+  end
+  private :get_filtered_packagelist
 
   def users
     @email_hash = Hash.new
@@ -141,11 +156,19 @@ class ProjectController < ApplicationController
   protected :load_packages_mainpage
 
   def show
-    @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s if @project.bugowner
+    @bugowners_mail = []
+    if @project.bugowners
+      @project.bugowners.each do |bugowner|
+        mail = find_cached(Person, bugowner).email.to_s
+        @bugowners_mail.push mail if mail
+      end
+    end
+    @bugowners_mail = nil if @bugowners_mail.empty?
+
     load_packages_mainpage
 
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
-    @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
+    @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       if buildresult
         results = buildresult.data.find( 'result/status' )
@@ -155,13 +178,22 @@ class ProjectController < ApplicationController
       end
     end
 
+    linking_projects
+
     load_buildresult
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
+  def linking_projects
+    Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
+    @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
+       @project.linking_projects
+    end
+  end
+
   # TODO we need the architectures in api/distributions
-  def add_target_simple
+  def add_repository_from_default_list
     Rails.cache.delete("distributions") if discard_cache?
     dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
       frontend = ActiveXML::Config::transport_for( :package )
@@ -169,6 +201,11 @@ class ProjectController < ApplicationController
     end
     @distributions = XML::Document.string dist_xml
   end
+
+  def add_repository
+    @torepository = params[:torepository]
+  end
+
 
   def add_person
     @roles = Role.local_roles
@@ -237,15 +274,13 @@ class ProjectController < ApplicationController
   end
 
   def arch_list
-    if @arch_list.nil?
-      tmp = []
-      @project.each_repository do |repo|
-        tmp += repo.archs
-      end
-      @arch_list = tmp.sort.uniq
+    @arch_list = Hash.new
+    @project.each_repository do |repo|
+      @arch_list[repo.name] = repo.archs.sort.uniq
     end
     return @arch_list
   end
+  private :arch_list
 
   def edit_repository
     repo = @project.repository[params[:repository]]
@@ -256,16 +291,13 @@ class ProjectController < ApplicationController
   def update_target
     valid_http_methods :post
     repo = @project.repository[params[:repo]]
-    repo.name = params[:name]
     repo.archs = params[:arch].to_a
     @arch_list = arch_list
     begin
       @project.save
-      render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
+      render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
     rescue => e
-      repo.name = params[:original_name]
-      render :partial => 'repository_edit_form', :locals => { :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}",
-        :repo => repo } and return
+      render :partial => 'edit_repository', :locals => { :repository => repo, :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}" }
     end
   end
 
@@ -293,22 +325,42 @@ class ProjectController < ApplicationController
       repository.each_arch do |arch|
 
         cycles = Array.new
-        begin
-          # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-          deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
-          if deps.has_element? :cycle
-            cycles = Array.new
-            deps.each_cycle do |cycle|
-              cycles.push( cycle.each_package.collect{ |p| p.text } )
-            end
-          end
-        rescue ActiveXML::Transport::NotFoundError
-          # builddepinfo not yet calculated by scheduler
-          cycles.push( [ 'unknown' ] )
-        end
-        if cycles.length > 0
-          @repocycles[repository.name][arch.text] = cycles
-        end
+	# skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+	deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
+	nr_cycles = 0
+	if deps and deps.has_element? :cycle
+	  packages = Hash.new
+	  deps.each_cycle do |cycle|
+	    current_cycles = Array.new
+	    cycle.each_package do |p|
+	      p = p.text
+	      if packages.has_key? p
+		current_cycles << packages[p]
+	      end
+	    end
+	    current_cycles.uniq!
+	    if current_cycles.empty?
+	      nr_cycles += 1
+	      nr_cycle = nr_cycles
+	    elsif current_cycles.length == 1
+	      nr_cycle = current_cycles[0]
+	    else
+	      logger.debug "HELP! #{current_cycles.inspect}"
+	    end
+	    cycle.each_package do |p|
+	      packages[p.text] = nr_cycle
+	    end
+	  end
+	end
+	cycles = Array.new
+	1.upto(nr_cycles) do |i|
+	  list = Array.new
+	  packages.each do |package,cycle|
+	    list.push(package) if cycle == i
+	  end
+	  cycles << list.sort
+	end
+	@repocycles[repository.name][arch.text] = cycles unless cycles.empty?
       end
     end
   end
@@ -319,7 +371,7 @@ class ProjectController < ApplicationController
     @repository = params[:repository]
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
-    @scheduler = params[:scheduler] || 'fifo'
+    @scheduler = params[:scheduler] || 'needed'
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
             :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
@@ -360,6 +412,9 @@ class ProjectController < ApplicationController
       end
       @longestpaths << currentpath
     end
+    # we append 4 empty paths, so there are always at least 4 in the array
+    # to simplify the view code
+    4.times { @longestpaths << Array.new }
     FileUtils.rm_rf indir
     FileUtils.rm_rf outdir
   end
@@ -381,14 +436,25 @@ class ProjectController < ApplicationController
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
     @patchinfo = []
-    @packages.each do |p|
-      @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+    unless @packages.blank?
+      @packages.each do |p|
+        @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+      end
+    end
+    @filterstring = params[:searchtext] || ''
+    get_filtered_packagelist @filterstring
+    if request.xhr?
+      render :partial => 'search_packages' and return
     end
   end
 
   def autocomplete_packages
     packages
-    render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    if valid_package_name_read?( params[:q] ) or params[:q] == ""
+      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    else
+      render :text => ""
+    end
   end
 
   def list_requests
@@ -418,6 +484,18 @@ class ProjectController < ApplicationController
     @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
     @project.add_person :userid => session[:login], :role => 'maintainer'
     @project.add_person :userid => session[:login], :role => 'bugowner'
+    if params[:access_protection]
+      @project.add_element "access"
+      @project.access.add_element "disable"
+    end
+    if params[:source_protection]
+      @project.add_element "sourceaccess"
+      @project.sourceaccess.add_element "disable"
+    end
+    if params[:disable_publishing]
+      @project.add_element "publish"
+      @project.publish.add_element "disable"
+    end
     begin
       if @project.save
         flash[:note] = "Project '#{@project}' was created successfully"
@@ -452,37 +530,46 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => @project
   end
 
-
   def save_targets
     valid_http_methods :post
-    if (params['repo'].blank?)
-      flash[:error] = "Please select a repository."
-      redirect_to :action => :add_target_simple, :project => @project and return
-    end
 
-    params['repo'].each do |repo|
-      if !valid_target_name? repo
-        flash[:error] = "Illegal target name #{repo}."
-        redirect_to :action => :add_target_simple, :project => @project and return
-      end
-      repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
-      repo_archs = params[repo + '_arch'] || params['arch']
-      logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
-      @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
+    # extend an existing repository with a path
+    if (params['torepository'])
+      repo_path = "#{params['target_project']}/#{params['target_repo']}"
+      @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
+      @project.save
+      flash[:success] = "Repository #{params['target_project']}/#{params['target_repo']} added successfully"
+      redirect_to :action => :repositories, :project => @project
+      return
+    elsif params.has_key? :repo
+      # add new repositories
+      params['repo'].each do |repo|
+        if !valid_target_name? repo
+          flash[:error] = "Illegal target name #{repo}."
+          redirect_to :action => :add_repository_from_default_list, :project => @project and return
+        end
+        repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
+        repo_archs = params[repo + '_arch'] || params['arch']
+        logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
+        @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
 
-      # FIXME: will be cleaned up after implementing FATE #308899
-      if repo == "images"
-        prjconf = frontend.get_source(:project => @project, :filename => '_config')
-        unless prjconf =~ /^Type:/
-          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-          frontend.put_file(prjconf, :project => @project, :filename => '_config')
+        # FIXME: will be cleaned up after implementing FATE #308899
+        if repo == "images"
+          prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
+          unless prjconf =~ /^Type:/
+            prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+            frontend.put_file(prjconf, :project => @project, :filename => '_config')
+          end
         end
       end
+    else
+      render :text => 'Missing argument, either torepository or repo', :status => 400
+      return
     end
 
     begin
       if @project.save
-        flash[:note] = "Build targets were added successfully"
+        flash[:success] = "Build targets were added successfully"
       else
         flash[:error] = "Failed to add build targets"
       end
@@ -501,7 +588,6 @@ class ProjectController < ApplicationController
       redirect_to :action => :show, :project => params[:project]
     end
     @project.remove_repository params[:target]
-
     begin
       if @project.save
         flash[:note] = "Target '#{params[:target]}' was removed"
@@ -512,10 +598,30 @@ class ProjectController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = "Failed to remove target '#{params[:target]}' " + message
     end
-
     redirect_to :action => :repositories, :project => @project
   end
 
+  def remove_path_from_target
+    @project.remove_path_from_target( params['repository'], params['path_project'], params['path_repository'] )
+    @project.save
+    flash[:success] = "Removed path #{params['path_project']}/#{params['path_repository']} from #{params['repository']}"
+    redirect_to :action => :repositories, :project => @project
+    return
+  end
+
+  def move_path_up
+    @project.repository[params['repository']].move_path(params['path_project'] + '/' + params['path_repository'], :up)
+    @project.save
+    redirect_to :action => :repositories, :project => @project
+    return
+  end
+
+  def move_path_down
+    @project.repository[params['repository']].move_path(params['path_project'] + '/' + params['path_repository'], :down)
+    @project.save
+    redirect_to :action => :repositories, :project => @project
+    return
+  end
 
   def save_person
     valid_http_methods(:post)
@@ -729,23 +835,21 @@ class ProjectController < ApplicationController
   end
 
   def toggle_watch
-    render :update do |page|
-      if @user.watches? @project.name
-        logger.debug "Remove #{@project} from watchlist for #{@user}"
-        @user.remove_watched_project @project.name
-        page << "$('#imgwatch').attr('src', '../images/magnifier_zoom_in.png');"
-        page << "$('#imgwatch').attr('title', 'Watch this project');"
-        page << "$('#watchlist_#{Digest::MD5.hexdigest @project.name}').remove(); "
-      else
-        logger.debug "Add #{@project} to watchlist for #{@user}"
-        @user.add_watched_project @project.name
-        page << "$('#imgwatch').attr('src', '../images/magnifier_zoom_out.png');"
-        page << "$('#imgwatch').attr('title', \"Don't watch this project\");"
-        page << "$('#menu-favorites').append('<li id=\"watchlist_#{ Digest::MD5.hexdigest @project.name }\">#{link_to @project, {:controller => 'project', :action => :show, :project => @project}}</li>'); "
-      end
+    if @user.watches? @project.name
+      logger.debug "Remove #{@project} from watchlist for #{@user}"
+      @user.remove_watched_project @project.name
+    else
+      logger.debug "Add #{@project} to watchlist for #{@user}"
+      @user.add_watched_project @project.name
     end
     @user.save
     Person.free_cache( :login => session[:login] )
+
+    if request.env["HTTP_REFERER"]
+      redirect_to :back
+    else
+      redirect_to :action => :show, :project => @project
+    end
   end
 
   def edit_meta
@@ -881,21 +985,15 @@ class ProjectController < ApplicationController
     status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
       ProjectStatus.find(:project => @project)
     end
-    unless status
-      # a project without package and repos will not do
-      # should be handled more graceful in API, but this is WIP and google
-      # crawls a lot of these links (TODO)
-      render_error :message => "No status for this project", :status => 400
-      return
-    end
 
     all_packages = "All Packages"
     no_project = "No Project"
     @current_develproject = params[:filter_devel] || all_packages
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
+    @limit_to_old = !(params[:limit_to_old].nil? || params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
-
+    
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
@@ -904,12 +1002,12 @@ class ProjectController < ApplicationController
       p.each_element do |v|
         comments[p.parent['name']] = v.content
       end
-    end
+    end if attributes
 
     upstream_versions = Hash.new
     upstream_urls = Hash.new
 
-    if @include_versions
+    if @include_versions || @limit_to_old
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
       attributes.data.find('//package//values').each do |p|
@@ -917,7 +1015,7 @@ class ProjectController < ApplicationController
         p.each_element do |v|
           upstream_versions[p.parent['name']] = v.content
         end
-      end
+      end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
@@ -926,7 +1024,7 @@ class ProjectController < ApplicationController
         p.each_element do |v|
           upstream_urls[p.parent['name']] = v.content
         end
-      end
+      end if attributes
     end
 
     raw_requests = Rails.cache.fetch("requests_new", :expires_in => 5.minutes) do
@@ -957,7 +1055,6 @@ class ProjectController < ApplicationController
       newest = 0
 
       p.each_failure do |f|
-        next if f.repo =~ /ppc/
         next if f.repo =~ /snapshot/
         next if newest > (Integer(f.time) rescue 0)
         next if f.srcmd5 != p.srcmd5
@@ -979,10 +1076,17 @@ class ProjectController < ApplicationController
       currentpack['version'] = p.version
       if upstream_versions.has_key? p.name
         upstream_version = upstream_versions[p.name]
-        if p.version < upstream_version
+	begin
+	  gup = Gem::Version.new(p.version)
+	  guv = Gem::Version.new(upstream_version)
+	rescue ArgumentError
+	  # if one of the versions can't be parsed we simply can't say
+	end
+
+        if gup && guv && gup < guv
           currentpack['upstream_version'] = upstream_version
           currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
-        end
+	end
       end
 
       currentpack['md5'] = p.value 'verifymd5'
@@ -999,8 +1103,14 @@ class ProjectController < ApplicationController
         if submits.has_key? key
           currentpack['requests_to'].concat(submits[key])
         end
-        currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
-        currentpack['develmd5'] ||= p.develpack.package.srcmd5
+        if p.develpack.has_element? 'package'
+          currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
+          currentpack['develmd5'] ||= p.develpack.package.srcmd5
+      
+          if p.develpack.package.has_element? :error
+             currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
+          end
+        end
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
           currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
@@ -1015,9 +1125,6 @@ class ProjectController < ApplicationController
             end
           end
         end
-        if p.develpack.package.has_element? :error
-          currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
-        end
       elsif @current_develproject != no_project
         next if @current_develproject != all_packages
       end
@@ -1029,13 +1136,17 @@ class ProjectController < ApplicationController
           currentpack['lpackage'] = p.link.package
         end
       end
-
-      next if !currentpack['requests_from'].empty? and @ignore_pending
+      
+      next if !currentpack['requests_from'].empty? && @ignore_pending
       if @limit_to_fails
         next if !currentpack['firstfail']
       else
         next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
             !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+	if @limit_to_old
+	  next if (currentpack['firstfail'] or currentpack['failedcomment'] or
+		       !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+	end
       end
       @packages << currentpack
     end

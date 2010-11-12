@@ -2,6 +2,9 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 require 'action_controller/integration'
+# uncomment to enable tests which currently are known to fail, but where either the test
+# or the code has to be fixed
+#$ENABLE_BROKEN_TEST=true
 
 module ActionController
   module Integration #:nodoc:
@@ -62,70 +65,3 @@ module ActionController
 
   end 
 end
-
-module Test
-  module Unit
-    class AutoRunner
-      alias :old_run :run
-
-      def run
-	Thread.abort_on_exception = true
-
-        srcsrv_out = nil
-	logger = RAILS_DEFAULT_LOGGER
-	FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
-        FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
-	
-	FileUtils.mkdir "#{RAILS_ROOT}/tmp/backend_config"
-	file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
-	File.open("../backend/BSConfig.pm.template") do |template|
-	  template.readlines.each do |line|
-	    line.gsub!(/(our \$bsuser)/, '#\1')
-	    line.gsub!(/(our \$bsgroup)/, '#\1')
-	    line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
-	    line.gsub!(/:5352/, ":#{SOURCE_PORT}")
-	    line.gsub!(/:5252/, ":3201") # not yet used
-	    file.print line
-	  end
-	end
-	file.close
-
-        srcsrv = Thread.new do
-	  FileUtils.symlink("#{RAILS_ROOT}/../backend/bs_srcserver", "#{RAILS_ROOT}/tmp/backend_config/bs_srcserver")
-          Dir.chdir("#{RAILS_ROOT}/tmp/backend_config")
-          srcsrv_out = IO.popen("exec perl -I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build ./bs_srcserver 2>&1")
-          Process.setpgid srcsrv_out.pid, 0
-          while srcsrv_out
-            begin
-              line = srcsrv_out.gets
-              logger.debug line.strip unless line.blank?
-            rescue IOError
-              break
-            end
-          end
-        end
-
-        while true
-          begin
-            Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
-          rescue Errno::ECONNREFUSED
-	    #puts "waiting"
-            sleep 1
-            next
-          end
-          break
-        end
-
-        ret = old_run
-        Process.kill "INT", -srcsrv_out.pid
-        srcsrv_out.close
-        srcsrv_out = nil
-        srcsrv.join
-        FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
-        FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
-        return ret
-      end
-    end
-  end
-end
-

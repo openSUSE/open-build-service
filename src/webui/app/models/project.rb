@@ -2,9 +2,6 @@ class Project < ActiveXML::Base
   
   default_find_parameter :name
 
-  has_many :package
-  has_many :repository
-  
   attr_accessor :bf_updated
   attr_accessor :pf_updated
   attr_accessor :df_updated
@@ -48,6 +45,60 @@ class Project < ActiveXML::Base
       set_archs new_archs
     end
 
+    def paths
+      @paths ||= each_path.map { |p| p.project + '/' + p.repository }
+      return @paths
+    end
+
+    def add_path (path)
+      return nil if paths.include? path
+      project, repository = path.split("/")
+      @paths.push path
+      e = add_element('path')
+      e.data.attributes['repository'] = repository
+      e.data.attributes['project'] = project
+    end
+
+    def remove_path (path)
+      return nil unless paths.include? path
+      project, repository = path.split("/")
+      each_path do |p|
+        delete_element p if p.data.attributes['project'] == project and p.data.attributes['repository'] == repository
+      end
+      @paths.delete path
+    end
+
+    def set_paths (new_paths)
+      paths.clone.each{ |path| remove_path path }
+      new_paths.each{ |path| add_path path }
+    end
+    
+    def paths= (new_paths)
+      set_paths new_paths
+    end
+
+    # directions are :up and :down
+    def move_path (path, direction=:up)
+      return nil unless (path and not paths.empty?)
+      new_paths = paths.clone
+      for i in 0..new_paths.length
+        if new_paths[i] == path           # found the path to move?
+          if direction == :up and i != 0  # move up and is not the first?
+            tmp = new_paths[i - 1]
+            new_paths[i - 1] = new_paths[i]
+            new_paths[i] = tmp
+            break
+          elsif direction == :down and i != new_paths.length - 1
+            tmp = new_paths[i + 1]
+            new_paths[i + 1] = new_paths[i]
+            new_paths[i] = tmp
+            break
+          end
+        end
+      end
+      set_paths new_paths
+    end
+
     #    def name= (name)
     #      data.attributes['name'] = name
     #    end
@@ -56,11 +107,15 @@ class Project < ActiveXML::Base
 
   #check if named project exists
   def self.exists?(pro_name)
-    if Project.find pro_name
-      return true
-    else
-      return false
-    end
+    return true if Project.find pro_name
+    return false
+  end
+  
+  #check if named project comes from a remote OBS instance
+  def self.is_remote?(pro_name)
+    p = Project.find pro_name
+    return true if p && p.has_element?(:mountproject)
+    return false
   end
   
   def to_s
@@ -113,6 +168,24 @@ class Project < ActiveXML::Base
     end
   end
 
+  def add_path_to_repository( opt={} )
+    return nil if opt == {}
+    repository = data.find("//repository[@name='#{opt[:reponame]}']").first
+
+    unless opt[:repo_path].blank?
+      opt[:repo_path] =~ /(.*)\/(.*)/;
+      param = XML::Node.new 'path'
+      param['project'] = $1
+      param['repository'] = $2
+      # put it on top
+      if repository.children?
+        repository.children.first.prev = param
+      else
+        repository << param
+      end
+    end
+  end
+
   def add_repository( opt={} )
     return nil if opt == {}
     repository = add_element 'repository', 'name' => opt[:reponame]
@@ -128,13 +201,20 @@ class Project < ActiveXML::Base
     end
   end
 
+  def remove_path_from_target( repository, path_project, path_repository )
+    return nil if not repository
+    return nil if not path_project
+    return nil if not path_repository
+
+    delete_element "//repository[@name='#{repository}']/path[@project='#{path_project}'][@repository='#{path_repository}']"
+  end
+
   def remove_repository( repository )
     return nil if not repository
     return nil if not self.has_element? :repository
 
     delete_element "repository[@name='#{repository}']"
   end
-
 
   #get all architectures used in this project
   #TODO could/should be optimized... somehow...here are many possibilities
@@ -173,10 +253,26 @@ class Project < ActiveXML::Base
     return repo_hash
   end
     
-  def bugowner
+  def linking_projects
+    opt = Hash.new
+    opt[:project] = self.name
+    opt[:cmd] = "showlinked"
+    fc = FrontendCompat.new
+    answer = fc.do_post nil, opt
+
+    doc = XML::Parser.string(answer).parse
+    result = []
+    doc.find("/collection/project").each do |e|
+      result.push( e.attributes["name"] )
+    end
+
+    return result
+  end
+
+  def bugowners
     b = all_persons("bugowner")
-    return b.first if b
-    return nil
+    return nil if b.empty?
+    return b
   end
 
   def all_persons( role )
@@ -205,6 +301,12 @@ class Project < ActiveXML::Base
 
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+  end
+
+  def can_edit? userid
+    return false unless userid
+    return true if is_maintainer? userid
+    Person.find_cached(userid).is_admin?
   end
 
   def name

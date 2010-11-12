@@ -1,6 +1,6 @@
-<% @pagetitle = "Status #{@project}"
+<% @pagetitle = "Status of #{@project}"
    metarobots = "noindex"
-   project_bread_crumb( 'Status' ) 
+   project_bread_crumb 'Status'
 -%>
 
 <% content_for :content_for_head do %>
@@ -13,7 +13,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h2>Status of project <%=h @project %></h2>
+<h3><%= h @pagetitle %></h3>
 
 <% comments_to_clear = [] %>
 
@@ -27,14 +27,10 @@
     </p>
     <p>
       <%= check_box_tag("ignore_pending", true, @ignore_pending) %>
-      <%= label_tag 'ignore_pending', 'Ignore packages with pending requests to %s' % @project %>
-    </p>
-    <p>
+      <%= label_tag 'ignore_pending', 'Ignore packages with pending requests to %s' % @project %><br/>
       <%= hidden_field_tag('limit_to_fails', 'false', :id => 'fails_hidden') %>
       <%= check_box_tag("limit_to_fails", true, @limit_to_fails) %>
-      <%= label_tag 'limit_to_fails', 'Limit to currently failing packages' %>
-    </p>
-    <p>
+      <%= label_tag 'limit_to_fails', 'Limit to currently failing packages' %><br/>
       <%= hidden_field_tag('include_versions', 'false', :id => 'versions_hidden') %>
       <%= check_box_tag("include_versions", true, @include_versions) %>
       <%= label_tag 'include_versions', 'Include Version Updates' %>
@@ -55,112 +51,117 @@
 
   <% show_devel_project = !(@packages.select {|p| !p['develproject'].blank? }.empty?)  %>
 
-  <table class='tablesorter' cellspacing='1'>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <%= "<th class='nowrap'>Devel Project</th>" if show_devel_project %>
-        <th style="width: 99%">Summary</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @packages.each do |p| %>
-        <%-
-        outs = []
-        icon = "ok"
-        sortkey = nil
+  <div>
+    <table class='tablesorter' cellspacing='1'>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <% if show_devel_project %>
+              <th class="nowrap">Devel Project</th>
+          <% end %>
+          <th style="width: 99%">Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @packages.each do |p| %>
+          <%-
+          outs = []
+          icon = "ok"
+          sortkey = nil
 
-        if p['requests_from'].empty?
-          p['problems'].sort.each do |c|
-            if c == 'different_changes'
-              outs << link_to("Different changes in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-                :action => :rdiff, :oproject => @project, :opackage => p['name'])
-              sortkey = "5-changes" + p['name']
-              icon = "changes"
-            elsif c == 'different_sources'
-              outs << link_to("Different sources in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-                :action => :rdiff, :oproject => @project, :opackage => p['name'])
-              sortkey = "6-changes" + p['name']
-              icon = "changes"
-            elsif c == 'diff_against_link'
-              outs << link_to("Linked package is different", :controller => :package, :oproject => p['lproject'], :opackage => p['lpackage'],
-                :action => :rdiff, :project => @project, :package => p['name'])
-              sortkey = "7-changes" + p['name']
-              icon = "changes"
-            elsif c.match(/^error-/)
-              outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-                :action => :show)
-              sortkey = "1-problem-" + p['name']
-              icon = "error"
-            else
-              outs << link_to(c, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-                :action => :show)
-              sortkey = "1-changes" + p['name']
-              icon = "error"
+          if p['requests_from'].empty?
+            p['problems'].sort.each do |c|
+              if c == 'different_changes'
+                outs << link_to("Different changes in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                  :action => :rdiff, :oproject => @project, :opackage => p['name'])
+                sortkey = "5-changes" + p['name']
+                icon = "changes"
+              elsif c == 'different_sources'
+                outs << link_to("Different sources in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                  :action => :rdiff, :oproject => @project, :opackage => p['name'])
+                sortkey = "6-changes" + p['name']
+                icon = "changes"
+              elsif c == 'diff_against_link'
+                outs << link_to("Linked package is different", :controller => :package, :oproject => p['lproject'], :opackage => p['lpackage'],
+                  :action => :rdiff, :project => @project, :package => p['name'])
+                sortkey = "7-changes" + p['name']
+                icon = "changes"
+              elsif c.match(/^error-/)
+                outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                  :action => :show)
+                sortkey = "1-problem-" + p['name']
+                icon = "error"
+              else
+                outs << link_to(c, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                  :action => :show)
+                sortkey = "1-changes" + p['name']
+                icon = "error"
+              end
             end
           end
-        end
-        p['requests_to'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), p['develproject']])
-          icon = "changes"
-          sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
-        end
-        p['requests_from'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), @project])
-          icon = "changes"
-          sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
-        end
-        # ignore the upstream version if there are already changes pending
-        if p['upstream_version'] and sortkey.nil?
-          if p['upstream_url']
-            outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
-          else
-            outs << "New upstream version " + p['upstream_version'] + " available"
+          p['requests_to'].each do |id|
+            outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), p['develproject']])
+            icon = "changes"
+            sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
           end
-          sortkey = "8-outdated-" + p['name']
-        end
-        if p['firstfail']
-          outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
-              :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project, :package => p['name']) +
-              " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days:" +
-              " <span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
-              show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>')
-          icon = "error"
-          sortkey = '1-fails-%010d-%s' % [ Time.now.to_i - p['firstfail'], p['name'] ]
-        else
-          outs << "<span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
-            show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'
-        end
-        if sortkey.nil?
-          sortkey = "9-ok-" + p['name']
-        end
-        -%>
-        <tr>
-          <% shortname = p['name']
-          if shortname.length > 19
-            shortname = shortname[0..17] + "..."
-          end -%>
-          <td class="nowrap">
-            <% if icon == "error"  -%>
-              <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
-            <% elsif icon == "ok" -%>
-              <%= image_tag("icons/accept.png", :size => "16x16", :title => "Ok" ) %>
-            <% else -%>
-              <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
-            <% end -%>
-            <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
-          </td>
-          <%if show_devel_project  %>
-            <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
-          <% end %>
-          <td class="summary"><%= outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+          p['requests_from'].each do |id|
+            outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), @project])
+            icon = "changes"
+            sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
+          end
+          # ignore the upstream version if there are already changes pending
+          if p['upstream_version'] and sortkey.nil?
+            if p['upstream_url']
+              outs << "New upstream version <a href=\"" + h(p['upstream_url']) + "\">" + h(p['upstream_version']) + "</a> available"
+            else
+              outs << "New upstream version " + p['upstream_version'] + " available"
+            end
+            sortkey = "8-outdated-" + p['name']
+          end
+          if p['firstfail']
+            outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
+                :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project, :package => p['name']) +
+                " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days:" +
+                (" <span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
+                show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>').html_safe)
+            icon = "error"
+            sortkey = '1-fails-%010d-%s' % [ Time.now.to_i - p['firstfail'], p['name'] ]
+          else
+            outs << ("<span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
+              show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>').html_safe
+          end
+          if sortkey.nil?
+            sortkey = "9-ok-" + p['name']
+          end
+          -%>
+          <tr>
+            <% shortname = p['name']
+            if shortname.length > 19
+              shortname = shortname[0..17] + "..."
+            end -%>
+            <td class="nowrap sortable">
+              <% if icon == "error"  -%>
+                <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
+              <% elsif icon == "ok" -%>
+                <%= image_tag("icons/accept.png", :size => "16x16", :title => "Ok" ) %>
+              <% else -%>
+                <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
+              <% end -%>
+              <%= link_to h(shortname), :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
+              <span class="sortkey"><%= h p['name'] %></span>
+            </td>
+            <%if show_devel_project  %>
+              <td class="sortable"><span class="sortkey"><%= h p['develproject'] %></span><%= if p['develproject'] then link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
+            <% end %>
+            <td class="sortable"><%= outs.join('<br/>').html_safe -%><span class="sortkey"><%= sortkey %></span></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 
 <% end %>
 
-<%= if @project.is_maintainer?( session[:login] ) and not comments_to_clear.empty? 
+<%= if @project.can_edit?( session[:login] ) and not comments_to_clear.empty? 
   link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project, "package" => comments_to_clear)
 end -%>

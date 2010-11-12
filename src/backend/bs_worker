@@ -89,16 +89,16 @@ my %cando = (
   'armv6el' => [                                          'armv4l', 'armv5el', 'armv6el'                                                      ],
   'armv7el' => [                                          'armv4l', 'armv5el', 'armv6el', 'armv7el'                                           ],
   'armv8el' => [                                          'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el'                                ],
-  'sh4'     => [                                                                                                                          'sh4' ],
+  'sh4'     => [                                                                                                                        'sh4' ],
 # this code sucks and is on the list to be rewritten
 # switch on next 3 lines if you want arm, mips, ppc and sh4 qemu emulated builds on a x86 worker
 #  'i586'    => [          'i586',                         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4' ],
 #  'i686'    => [          'i586',         'i686',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4' ],
 #  'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4' ],
 # switch on next 3 lines if you want only arm qemu emulated builds on a x86 worker
- 'i586'    => [          'i586',                         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el',                               ],
- 'i686'    => [          'i586',         'i686',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el',                               ],
- 'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el',                               ],
+ 'i586'    => [          'i586',                         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'sh4' ],
+ 'i686'    => [          'i586',         'i686',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'sh4' ],
+ 'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'sh4' ],
 #
   'parisc'  => ['hppa', 'hppa64:linux64'],
   'parisc64'=> ['hppa64', 'hppa:linux32'],
@@ -264,7 +264,7 @@ while (@ARGV) {
   if ($ARGV[0] eq '--reposerver') {
     shift @ARGV;
     my $server = shift @ARGV;
-    push @reposervers, $server;
+    push @reposervers, $server unless grep {$_ eq $server} @reposervers;
     next;
   }
   if ($ARGV[0] eq '--id') {
@@ -467,6 +467,10 @@ sub send_state {
   push @args, "workerid=$workerid" if defined $workerid;
   for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
+    if ($state eq 'idle' && @reposervers > 1) {
+      my $curstate = readxml("$statedir/state", $BSXML::workerstate, 1);
+      last if $curstate && $curstate->{'state'} ne $state;
+    }
     eval {
       BSRPC::rpc({
         'uri' => "$server/worker",
@@ -900,11 +904,12 @@ sub getbinaries_kiwiproduct {
   mkdir_p($dir);
 
   # fetch packages needed for product building
-  for my $repo (@{$buildinfo->{'path'} || []}) {
+  for my $repo (@{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []}) {
     last if !@kdeps;
     my $repoarch = $buildinfo->{'arch'};
     $repoarch = $BSConfig::localarch if $repoarch eq 'local' && $BSConfig::localarch;
-    my $got = getbinaries_cache($dir, $repo->{'server'}, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps);
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps);
     @kdeps = grep {!$got->{$_}} @kdeps;
   }
   die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
@@ -1134,6 +1139,19 @@ sub getbinaries {
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
 
+  if ($kiwimode && $buildinfo->{'syspath'}) {
+    # two path mode: fetch environment
+    @todo = grep {!$bdep_noinstall{$_}} @bdep;
+    for my $repo (@{$buildinfo->{'syspath'} || []}) {
+      last if !@todo;
+      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, 1, \@todo);
+      @todo = grep {!$got->{$_}} @todo;
+    }
+    die("getbinaries: missing packages: @todo\n") if @todo;
+    @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
+  }
+
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo && !$kiwimode;
     my @args;
@@ -1165,7 +1183,7 @@ sub getbinaries {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
 	  push @m, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
 	}
-	if (!$bdep_noinstall{$n}) {
+	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
           if (!-e "$dir/$f->{'name'}") {
 	    link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
 	  }
@@ -1234,7 +1252,7 @@ sub getoldpackages {
     'directory' => $odir,
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::cpio_receiver,
-  }, undef, 'view=cpio');
+  }, undef, 'view=cpio', 'noajax=1');
   rmdir($odir);	# if not needed
 }
 
@@ -1344,7 +1362,7 @@ sub dobuild {
 
   my @configpath;
   if ($kiwimode) {
-    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'path'} || []};
+    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []};
     unshift @configpath, "path=$projid/$repoid" unless @configpath;
   }
   my $server = $buildinfo->{'srcserver'} || $srcserver;
@@ -1424,6 +1442,7 @@ sub dobuild {
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
+  push @args, '--signdummy' if $kiwimode && !$localkiwi && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
   my $ret = $?;
@@ -1434,8 +1453,7 @@ sub dobuild {
       print "build succeeded, but old build had same result !\n";
       return 2;
     }
-  }elsif ($ret == 768) {
-    print "I am a bad build host, fix me!\n";
+  } elsif ($ret == 768) {
     return 3;
   }
   if ($ret) {
@@ -1823,7 +1841,7 @@ if (!$ex) {
   print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
 } elsif ($ex == 3) {
-  print "build failed due to a bad host...\n";
+  print "build failed, marked as bad build host...\n";
   $code = 'badhost';
 } else {
   print "build failed, send back logfile...\n";

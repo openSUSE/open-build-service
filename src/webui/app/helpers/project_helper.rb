@@ -10,59 +10,23 @@ module ProjectHelper
     user.watches?(@project.name) ? "magnifier_zoom_out.png" : "magnifier_zoom_in.png"
   end
 
-  def format_packstatus_for( repo, arch )
-    return if @buildresult.nil?
-    return unless @buildresult.has_element? :result
-    ret = String.new
-    
-    result = @buildresult.result("@repository='#{repo}' and @arch='#{arch}'")
-    if result.nil?
-      ret << "n/a<br>"
-    else
-      if result.has_attribute? "state"
-        if result.has_attribute? "dirty"
-          ret << "State: outdated(" << result.state << ")"
-        else
-          ret << "State: " << result.state
-        end
-        ret << "<br>"
-      end
-      result.summary.each_statuscount do |scnt|
-        ret << link_to("#{scnt.code}:&nbsp;#{scnt.count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], scnt.code => 1, :defaults => 0)
-        ret << "<br>\n"
-      end
-    end
-
-    return ret
-  end
-
-  def project_tab(text, opts)
-    opts[:project] = @project.to_s
-    if @current_action.to_s == opts[:action].to_s
-      link = "<li class='selected'>"
-    else
-      link = "<li>"
-    end
-    link + link_to(text, opts) + "</li>"
-  end
-
   def show_status_comment( comment, package, firstfail, comments_to_clear )
     status_comment_html = ""
     if comment
-      status_comment_html = comment
+      status_comment_html = ERB::Util::h(comment)
       if !firstfail
-        if @project.is_maintainer?( session[:login] )
+        if @project.can_edit?( session[:login] )
           status_comment_html += " " + link_to_remote( image_tag('icons/comment_delete.png', :size => "16x16", :alt => 'Clear'), :update => "comment_#{package.gsub(':', '-')}",
           :url => { :action => :clear_failed_comment, :project => @project, :package => package })
           comments_to_clear << package
         end
-      elsif @project.is_maintainer?( session[:login] )
+      elsif @project.can_edit?( session[:login] )
         status_comment_html += " "
         status_comment_html += link_to_remote image_tag('icons/comment_edit.png', :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
-          :url => { :action => "edit_comment_form", :comment=> comment, :package => package, :project => @project }
+          :url => { :action => "edit_comment_form", :comment=> ERB::Util::h(comment), :package => package, :project => @project }
       end 
     elsif firstfail
-      if @project.is_maintainer?( session[:login] )
+      if @project.can_edit?( session[:login] )
         status_comment_html += " <span class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('icons/comment_edit.png', :size => "16x16", :alt => "Edit"),
           :update => valid_xml_id("comment_edit_#{package}"),
           :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )

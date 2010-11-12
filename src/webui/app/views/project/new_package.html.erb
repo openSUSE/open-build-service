@@ -1,5 +1,7 @@
-<% @pagetitle = "New Package" %>
-<% project_bread_crumb 'Add Package' -%>
+<% @pagetitle = "Create New Package"
+   @metarobots = 'noindex'
+   project_bread_crumb @pagetitle
+-%>
 
 <%= render :partial => "tabs" %>
 
@@ -9,17 +11,21 @@
 (experimental)
 </p>
 -->
-<h2>New Package in project <%= @project.name %></h2>
+<h2><%= @pagetitle %> for <%= @project.name %></h2>
 
 <% form_tag :controller => :package, :action => "save_new" do %>
 <p>
-<strong>Name:</strong><br/>
-<%= text_field_tag 'name', @package_name, :size => 80 %><br/>
-<strong>Title:</strong><br/>
-<%= text_field_tag 'title', @package_title, :size => 80 %><br/>
-<strong>Description:</strong><br/>
-<%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
-<%= submit_tag %>
-<%= hidden_field_tag 'project', @project.name %>
+  <strong>Name:</strong><br/>
+  <%= text_field_tag 'name', @package_name, :size => 80 %><br/>
+  <strong>Title:</strong><br/>
+  <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
+  <strong>Description:</strong><br/>
+  <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
+  <% unless HIDE_PRIVATE_OPTIONS == true %>
+    <%= check_box_tag :source_protection %>Deny access to sources of package.<br/>
+  <% end %>
+  <%= check_box_tag :disable_publishing %>Disable build results publishing.
+  <%= hidden_field_tag 'project', @project.name %>
 </p>
+<p><%= submit_tag %></p>
 <% end %>

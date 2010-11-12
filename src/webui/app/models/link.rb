@@ -28,6 +28,22 @@ class Link < ActiveXML::Base
     patches.add_element "apply", 'name' => filename
   end
 
+  def set_branch branch
+    add_element "patches" if !self.has_element? :patches
+    if branch
+      patches.add_element "branch"
+    else
+      delete_element "patches/branch"
+    end
+  end
+
+  def set_revision rev
+    if rev
+      data.attributes["rev"] = rev
+    else
+      delete_attribute "rev"
+    end
+  end
 
   def has_patch? filename
     if self.has_element? "patches"

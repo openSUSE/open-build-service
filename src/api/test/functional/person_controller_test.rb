@@ -1,14 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'person_controller'
 
 class PersonControllerTest < ActionController::IntegrationTest 
 
-  fixtures :users, :watched_projects
+  fixtures :all
 
   def setup
-    @controller = PersonController.new
-    @controller.request  = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
     prepare_request_valid_user
   end
  
@@ -82,9 +78,55 @@ class PersonControllerTest < ActionController::IntegrationTest
     put "/person/tom", doc.to_s
     assert_response :success
 
+    prepare_request_with_user "adrian", "so_alone"
+    put "/person/tom", doc.to_s
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    put "/person/tom", doc.to_s
+    assert_response :success
+    # create new user
+    put "/person/new_user", doc.to_s
+    assert_response :success
+    get "/person/new_user"
+    assert_response :success
+    put "/person/new_user", doc.to_s
+    assert_response :success
+
+    # check global role
+    get "/person/king"
+    assert_response :success
+    assert_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
+
     # refetch the user info if the name has really change
     prepare_request_valid_user
     get "/person/tom"
     assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
+    assert_no_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
+
+  def test_register
+    ActionController::IntegrationTest::reset_auth
+    data = '<unregisteredperson>
+              <login>adrianSuSE</login>
+              <email>adrian@suse.de</email>
+              <realname>Adrian Schröter</realname>
+              <state>locked</state>
+              <password>so_alone</password>
+              <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
+            </unregisteredperson>"
+           '
+    post "/person/register", data
+    assert_response :success
+
+    u = User.find_by_login "adrianSuSE"
+    assert_not_nil u
+    assert_equal u.login, "adrianSuSE"
+    assert_equal u.email, "adrian@suse.de"
+    assert_equal u.realname, "Adrian Schröter"
+    assert_equal u.adminnote, ""
+    u.destroy
+
+  end
+
 end

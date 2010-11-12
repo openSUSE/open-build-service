@@ -52,34 +52,30 @@ use BSSolv;
 use strict;
 
 my $testprojid;
+my $testmode;
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-if (defined $group) {
-  ($), $() = ($group, $group);
-  die "setgid: $!\n" if ($) != $group);
-}
-if (defined $user) {
-  ($>, $<) = ($user, $user);
-  die "setuid: $!\n" if ($> != $user);
-}
-
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-my $reporoot = "$BSConfig::bsdir/build";
-my $jobsdir = "$BSConfig::bsdir/jobs";
-my $eventdir = "$BSConfig::bsdir/events";
-my $extrepodir = "$BSConfig::bsdir/repos";
-my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
-my $extrepodb = "$BSConfig::bsdir/db/published";
-my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
-my $infodir = "$BSConfig::bsdir/info";
+my $reporoot = "$bsdir/build";
+my $jobsdir = "$bsdir/jobs";
+my $eventdir = "$bsdir/events";
+my $extrepodir = "$bsdir/repos";
+my $extrepodir_sync = "$bsdir/repos_sync";
+my $extrepodb = "$bsdir/db/published";
+my $uploaddir = "$bsdir/upload";
+my $rundir = $BSConfig::rundir || "$bsdir/run";
+my $infodir = "$bsdir/info";
+
+if ($ARGV[0] eq '--testmode') {
+  $testmode = 1;
+  shift;
+};
 
 my $myarch = $ARGV[0] || 'i586';
 
@@ -357,6 +353,9 @@ sub getconfig {
 ## Job management functions
 ##
 
+# scheduled jobs (does not need to be exact)
+my %ourjobs = map {$_ => 1} grep {!/(?::dir|:status)$/} ls($myjobsdir);
+
 #
 # killjob - kill a single build job
 #
@@ -374,6 +373,7 @@ sub killjob {
       unlink("$myjobsdir/$job");
       unlink("$myjobsdir/$job:status");
       close F;
+      delete $ourjobs{$job};
       return;
     }
     # lock failed, dispatcher was faster!
@@ -384,6 +384,7 @@ sub killjob {
     # can't happen actually
     print "        (job was not building)\n";
     unlink("$myjobsdir/$job");
+    delete $ourjobs{$job};
     return;
   }
   if ($js->{'code'} eq 'building') {
@@ -404,6 +405,26 @@ sub killjob {
   unlink("$myjobsdir/$job");
   unlink("$myjobsdir/$job:status");
   close(F);
+  delete $ourjobs{$job};
+}
+
+#
+# killjob - kill a single build job if it is scheduled but not building
+#
+# input: $job - job identificator
+#
+sub killscheduled {
+  my ($job) = @_;
+
+  return if -e "$myjobsdir/$job:status";
+  local *F;
+  my $js = {'code' => 'deleting'};
+  if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+    unlink("$myjobsdir/$job");
+    unlink("$myjobsdir/$job:status");
+    close F;
+    delete $ourjobs{$job};
+  }
 }
 
 #
@@ -462,6 +483,7 @@ sub killbuilding {
 #         $prpsearchpath - build repository search path
 #         $reason        - what triggered the build
 #         $relsyncmax    - bcnt sync data
+#         $needed        - packages blocked by this job
 #
 # output: $job           - the job identifier
 #         $error         - in case we could not start the job
@@ -472,7 +494,7 @@ sub killbuilding {
 # not that hard, was it?
 #
 sub set_building {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax, $needed) = @_;
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -483,7 +505,26 @@ sub set_building {
   $job = "$job-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.
+  my $prptype = $bconf->{'type'};
+  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  my $packtype = $1 || 'spec';
+
   my $searchpath = [];
+  my $syspath;
+  if ($packtype eq 'kiwi') {
+    if ($prpsearchpath) {
+      $syspath = [];
+      for (@$prpsearchpath) {
+	my @pr = split('/', $_, 2);
+	if ($remoteprojs{$pr[0]}) {
+	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+	} else {
+	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+	}
+      }
+    }
+    $prpsearchpath = [ map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []} ];
+  }
   for (@$prpsearchpath) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
@@ -494,10 +535,6 @@ sub set_building {
   }
 
   # calculate packages needed for building
-  my $prptype = $bconf->{'type'};
-  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-  my $packtype = $1 || 'spec';
-
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
   if ($packtype eq 'kiwi') {
@@ -592,7 +629,18 @@ sub set_building {
     'subpack' => ($subpacks || []),
     'bdep' => \@bdeps,
     'path' => $searchpath,
+    'needed' => $needed,
   };
+  $binfo->{'syspath'} = $syspath if $syspath;
+  if ($pdata->{'revtime'}) {
+    $binfo->{'revtime'} = $pdata->{'revtime'};
+    # use max of revtime for interproject links
+    for (@{$pdata->{'linked'} || []}) {
+      last if $_->{'project'} ne $projid || !$projpacks->{$projid}->{'package'};
+      my $lpdata = $projpacks->{$projid}->{'package'}->{$_->{'package'}} || {};
+      $binfo->{'revtime'} = $lpdata->{'revtime'} if ($lpdata->{'revtime'} || 0) > $binfo->{'revtime'};
+    }
+  }
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   my $release = $pdata->{'versrel'};
   $release = '0' unless defined $release;
@@ -611,6 +659,7 @@ sub set_building {
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
+  $ourjobs{$job} = 1;
   return $job;
 }
 
@@ -620,6 +669,80 @@ sub set_building {
 ##
 ## Repository management functions
 ##
+
+sub checkaccess {
+  my ($type, $projid, $packid, $repoid) = @_;
+  my $access = 1;
+  if ($projpacks->{$projid}) {
+    my $pdata;
+    $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} if defined $packid;
+    $access = enabled($repoid, $projpacks->{$projid}->{$type}, $access);
+    $access = enabled($repoid, $pdata->{$type}, $access) if $pdata;
+  } else {
+    $access = 0;
+  }
+  return $access;
+}
+
+# check if every user from oprojid may access projid
+sub checkroles {
+  my ($type, $projid, $packid, $oprojid, $opackid) = @_;
+  my $proj = $projpacks->{$projid};
+  return 1 unless $proj;	# remote API will check for us
+  my $oproj = $projpacks->{$oprojid};
+  return 0 unless $oproj;
+  if ($projid eq $oprojid) {
+    return 1 if !defined $opackid;
+    return 1 if ($packid || '') eq ($opackid || '');
+  }
+  my @roles;
+  if (defined($packid)) {
+    my $pdata = ($proj->{'package'} || {})->{$packid} || {};
+    push @roles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
+  }
+  push @roles, @{$proj->{'person'} || []}, @{$proj->{'group'} || []};
+  while ($projid =~ /^(.+):/) {
+    $projid = $1;
+    $proj = $projpacks->{$projid} || {};
+    push @roles, @{$proj->{'person'} || []}, @{$proj->{'group'} || []};
+  }
+  my @oroles;
+  if (defined($opackid)) {
+    my $pdata = ($oproj->{'package'} || {})->{$opackid} || {};
+    push @roles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
+  }
+  push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+  while ($oprojid =~ /^(.+):/) {
+    $oprojid = $1;
+    $oproj = $projpacks->{$oprojid} || {};
+    push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+  }
+  # make sure every user from oprojid can also access projid
+  # XXX: check type and roles
+  for my $r (@oroles) {
+    next if $r->{'role'} eq 'bugowner';
+    my @rx; 
+    if (exists $r->{'userid'}) {
+      push @rx, grep {exists($_->{'userid'}) && $_->{'userid'} eq $r->{'userid'}} @roles;
+    }    
+    if (exists $r->{'groupid'}) {
+      push @rx, grep {exists($_->{'groupid'}) && $_->{'groupid'} eq $r->{'groupid'}} @roles;
+    }    
+    return 0  unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
+  }
+  return 1;
+}
+
+# check if we may access repo $aprp from repo $prp
+sub checkprpaccess {
+  my ($aprp, $prp) = @_;
+  return 1 if $aprp eq $prp;
+  my ($aprojid, $arepoid) = split('/', $aprp, 2);
+  return 1 if checkaccess('access', $aprojid, undef, $arepoid);
+  my ($projid, $repoid) = split('/', $prp, 2);
+  return 0 unless checkaccess('access', $projid, undef, $repoid);
+  return checkroles('access', $aprojid, undef, $projid, undef);
+}
 
 #
 # sendpublishevent - send a publish event to the publisher
@@ -679,6 +802,18 @@ sub set_repo_state {
 #         $bconf      - the config for this prp
 #
 
+sub compile_publishfilter {
+  my ($filter) = @_;
+  return undef unless $filter;
+  my @res;
+  for (@$filter) {
+    eval {
+      push @res, qr/$_/;
+    };
+  }
+  return \@res;
+}
+
 #my $default_publishfilter = [
 #  '-debuginfo-.*\.rpm$',
 #  '-debugsource-.*\.rpm$',
@@ -691,6 +826,7 @@ sub prpfinished {
 
   print "    prp $prp is finished...\n";
 
+  my ($projid, $repoid) = split('/', $prp, 2);
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
@@ -731,6 +867,7 @@ sub prpfinished {
   $filter = $bconf->{'publishfilter'} if $bconf;
   undef $filter if $filter && !@$filter;
   $filter ||= $default_publishfilter;
+  $filter = compile_publishfilter($filter);
 
   for my $packid (@$packs) {
     if ($pubenabled && !$pubenabled->{$packid}) {
@@ -746,13 +883,19 @@ sub prpfinished {
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
     my $debian = grep {/\.dsc$/} @all;
-    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason'} @all;
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess'} @all;
+    my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
     for my $bin (@all) {
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian;
       next if exists $origin{$rbin};	# first one wins
       $origin{$rbin} = $packid;
+      if ($nosourceaccess) {
+        next if $bin =~ /\.(?:no)?src\.rpm$/;
+	next if $bin =~ /-debug(:?info|source).*\.rpm$/;
+        next if $debian && ($bin !~ /\.deb$/);
+      }
       if ($filter) {
 	my $bad;
 	for (@$filter) {
@@ -933,6 +1076,18 @@ my %default_exportfilters = (
   },
 );
 
+sub compile_exportfilter {
+  my ($filter) = @_;
+  return undef unless $filter;
+  my @res;
+  for (@$filter) {
+    eval {
+      push @res, [ qr/$_->[0]/, $_->[1] ];
+    };
+  }
+  return \@res;
+}
+
 #
 # moves binary packages from jobrepo to dst and updates full repository
 #
@@ -950,7 +1105,7 @@ sub update_dst_full {
       $cache = BSUtil::retrieve("$jobdir/.bininfo", 1);
       unlink("$jobdir/.bininfo");
     }
-    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ], $cache);
+    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
   } else {
     $jobrepo = {};
   }
@@ -970,7 +1125,7 @@ sub update_dst_full {
     # get old state
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @oldfiles;
-    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/} @oldfiles ]);
+    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/ && !/\.delta\.rpm$/} @oldfiles ]);
 
     # move files over
     mkdir_p($dst);
@@ -991,6 +1146,13 @@ sub update_dst_full {
 	unlink("$dst/$f") ;
       }
     }
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my $packid = $dst;
+    $packid =~ s/^.*\///s;
+    # we only check 'sourceaccess', not 'access' here. 'access' has
+    # to be handled anyway, so we don't gain anything by limiting
+    # source access.
+    BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
   } else {
     # dst = undef is true for importevents
     $isimport = 1;
@@ -1026,6 +1188,8 @@ sub update_dst_full {
   $filter = $bconf->{'exportfilter'} if $bconf;
   undef $filter if $filter && !%$filter;
   $filter ||= $default_exportfilters{$myarch};
+  $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
+  $filter = compile_exportfilter($filter);
 
   # link new ones into full, delete old ones no longer in use
   my %exports;
@@ -1045,9 +1209,9 @@ sub update_dst_full {
 
     if ($filter) {
       my $skip;
-      for (reverse sort keys %$filter) {
-	if ($rp =~ /$_/) {
-	  $skip = $filter->{$_};
+      for (@$filter) {
+	if ($rp =~ /$_->[0]/) {
+	  $skip = $_->[1];
 	  last;
 	}
       }
@@ -1074,9 +1238,9 @@ sub update_dst_full {
       my $rn = $rp;
       $rn =~ s/.*\///;
       my $skip;
-      for (sort keys %$filter) {
-	if ($rn =~ /$_/) {
-	  $skip = $filter->{$_};
+      for (@$filter) {
+	if ($rn =~ /$_->[0]/) {
+	  $skip = $_->[1];
 	  last;
 	}
       }
@@ -1272,9 +1436,16 @@ sub get_projpacks {
   my $projpacksin;
   while (1) {
     push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
-    eval {
-      $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
-    };
+    for my $tries (4, 3, 2, 1, 0) {
+      eval {
+        $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
+      };
+      last unless $@ || !$projpacksin;
+      last unless $tries && defined($projid);
+      print $@ if $@;
+      print "retrying...\n";
+      sleep(60);
+    }
     if ($@ || !$projpacksin) {
       print $@ if $@;
       if (@args) {
@@ -1282,6 +1453,7 @@ sub get_projpacks {
         get_projpacks();
         return;
       }
+      die("could not get project/package information, aborting due to testmode\n") if $testmode;
       printf("could not get project/package information, sleeping 1 minute\n");
       sleep(60);
       print "retrying...\n";
@@ -1386,7 +1558,13 @@ sub update_project_meta {
   return 0 unless identical($proj->{'build'}, $oldproj->{'build'});
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
-  # XXX: should really also compare build type and macros section of build config
+
+  # check macro definitions
+  my $cold = Build::read_config($myarch, split("\n", $oldproj->{'config'} || ''));
+  my $cnew = Build::read_config($myarch, split("\n", $proj->{'config'} || ''));
+  return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
+
+  # XXX: should really also compare build type
   $projpacks->{$projid} = $proj;
   return 1;
 }
@@ -1465,7 +1643,7 @@ sub calc_projpacks_linked {
     if ($projpacks->{$projid}->{'link'}) {
       my @li = expandprojlink($projid);
       for my $li (@li) {
-	addwatchremote('project', $li->{'project'}, '');
+	addwatchremote('package', $li->{'project'}, '');	# watch all packages
 	$li->{'package'} = ':*';
 	$li->{'myproject'} = $projid;
       }
@@ -1726,7 +1904,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    addretryevent({'type' => 'project', 'project' => $projid}) if $error !~ /^remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if $error !~ /remote error:/;
   }
   return undef unless $rproj;
   for (qw{name root remoteroot remoteurl remoteproject}) {
@@ -1756,7 +1934,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    addretryevent({'type' => 'project', 'project' => $projid}) if $proj->{'error'} !~ /^remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if $proj->{'error'} !~ /remote error:/;
     return undef;
   }
   $proj->{'config'} = $c;
@@ -1789,7 +1967,7 @@ sub addrepo_remote {
     warn($@);
     my $error = $@;
     $error =~ s/\n$//s;
-    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /remote error:/;
     return undef;
   }
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
@@ -2138,7 +2316,6 @@ sub checkkiwiimage {
   my $prp = "$projid/$repoid";
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
-
   # get config from path
   my $bconf = getconfig($myarch, \@aprps);
   if (!$bconf) {
@@ -2151,6 +2328,11 @@ sub checkkiwiimage {
   $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
   for my $aprp (@aprps) {
+    if (!checkprpaccess($aprp, $prp)) {
+      print "      - $packid (kiwi-image)\n";
+      print "        repository $aprp is unavailable";
+      return ('broken', "repository $aprp is unavailable");
+    }
     my $r = addrepo($pool, $aprp);
     if (!$r) {
       print "      - $packid (kiwi-image)\n";
@@ -2242,25 +2424,43 @@ sub rebuildkiwiimage {
   my $bconf = $data->[0];
   my $edeps = $data->[1];
   my $reason = $data->[2];
-  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
-  # setup pool again
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
-  for my $aprp (@aprps) {
-    addrepo($pool, $aprp);
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  return ('broken', 'missing repo') unless $repo;	# can't happen
+
+  my ($job, $joberror);
+  if (!@{$repo->{'path'} || []}) {
+    # setup pool again for kiwi system expansion
+    my $pool = BSSolv::pool->new();
+    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    my $prp = "$projid/$repoid";
+    my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+    for my $aprp (@aprps) {
+      if (!checkprpaccess($aprp, $prp)) {
+	print "      - $packid (kiwi-image)\n";
+	print "        repository $aprp is unavailable";
+	return ('broken', "repository $aprp is unavailable");
+      }
+      my $r = addrepo($pool, $aprp);
+      if (!$r) {
+        print "      - $packid (kiwi-image)\n";
+        print "        repository $aprp is unavailable";
+        return ('broken', "repository $aprp is unavailable");
+      }
+    }
+    $pool->createwhatprovides();
+    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $ownexpand = sub {
+      $_[0] = $xp; 
+      goto &BSSolv::expander::expand;
+    };   
+    no warnings 'redefine';
+    *Build::expand = $ownexpand;
+    use warnings 'redefine';
+    ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, undef, $reason, $relsyncmax, 0);
+  } else {
+    ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, $prpsearchpath{"$projid/$repoid"} || [], $reason, $relsyncmax, 0);
   }
-  $pool->createwhatprovides();
-  my $xp = BSSolv::expander->new($pool, $bconf);
-  my $ownexpand = sub {
-    $_[0] = $xp; 
-    goto &BSSolv::expander::expand;
-  };   
-  no warnings 'redefine';
-  local *Build::expand = $ownexpand;
-  use warnings 'redefine';
-
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax);
   if ($job) {
     return ('scheduled', $job);
   } else {
@@ -2285,16 +2485,10 @@ sub checkkiwiproduct {
   my $prp = "$projid/$repoid";
 
   # calculate all involved architectures
-  my @archs;
-  my $savemyarch = $myarch;
-  for my $arch (@{$repo->{'arch'} || []}) {
-    my $enabled = 1;
-    $myarch = $arch;
-    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1);
-    $enabled = enabled($repoid, $pdata->{'build'}, $enabled);
-    push @archs, $arch if $enabled;
-  }
-  $myarch = $savemyarch;
+  my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
+  return ('broken', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
+  $imagearch{'local'} = 1 if $BSConfig::localarch;
+  my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   
   if (!grep {$_ eq $myarch} @archs) {
     print "      - $packid (kiwi-product)\n";
@@ -2332,7 +2526,13 @@ sub checkkiwiproduct {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
+    my $savemyarch = $myarch;
     for my $aprp (@bprps) {
+      if (!checkprpaccess($aprp, $prp)) {
+	print "      - $packid (kiwi-product)\n";
+	print "        repository $aprp is unavailable";
+	return ('broken', "repository $aprp is unavailable");
+      }
       $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;
       my $r = addrepo($pool, $aprp);
@@ -2363,6 +2563,14 @@ sub checkkiwiproduct {
     my %dep2pkg;
     for my $p ($pool->consideredpackages()) {
       $dep2pkg{$pool->pkg2name($p)} = $p;
+    }
+    # check access
+    for my $aprp (@aprps) {
+      if (!checkprpaccess($aprp, $prp)) {
+	print "      - $packid (kiwi-product)\n";
+	print "        repository $aprp is unavailable";
+	return ('broken', "repository $aprp is unavailable");
+      }
     }
     # check if we are blocked
     if ($myarch eq 'local' && $BSConfig::localarch) {
@@ -2562,10 +2770,22 @@ sub rebuildkiwiproduct {
 
   my $now = time(); # ensure that we use the same time in all logs
 
+  my $syspath;
+  if (@{$repo->{'path'} || []}) {
+    # images repo has a configured path, use it to set up the kiwi system
+    $syspath = [];
+    for (@{$prpsearchpath{$prp}}) {
+      my @pr = split('/', $_, 2);
+      if ($remoteprojs{$pr[0]}) {
+        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      } else {
+        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+      }
+    }
+  }
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  my @bprps = @{$repo->{'path'} || []} ? @{$prpsearchpath{$prp} || []} : @aprps;
   my $searchpath = [];
-  for (unify(@bprps, @aprps)) {
+  for (@aprps) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
@@ -2641,12 +2861,15 @@ sub rebuildkiwiproduct {
     'reason' => $reason->{'explain'},
     'readytime' => $now,
   };
+  $binfo->{'syspath'} = $syspath if $syspath;
+  $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   mkdir_p("$reporoot/$prp/$myarch/$packid");
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
   $reason->{'time'} = $now;
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+  $ourjobs{$job} = 1;
   return ('scheduled', $job);
 }
 
@@ -2679,6 +2902,10 @@ sub checkaggregate {
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs{$aprojid} || $projpacks->{$aprojid};
     if (!$proj) {
+      push @broken, $aprojid;
+      next;
+    }
+    if (!checkprpaccess($aprojid, $projid)) {
       push @broken, $aprojid;
       next;
     }
@@ -2764,7 +2991,7 @@ sub checkaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /remote error:/;
 	    last;
 	  }
 	  for my $binary (@{$binarylist->{'binary'} || []}) {
@@ -2857,6 +3084,7 @@ sub rebuildaggregate {
       for my $apackid (@apackids) {
         my @d;
 	my $cpio;
+        my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
         if ($remoteprojs{$aprojid}) {
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
@@ -2873,7 +3101,7 @@ sub rebuildaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /remote error:/;
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
@@ -2883,21 +3111,24 @@ sub rebuildaggregate {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  @d = grep {/\.(?:rpm|deb)$/} ls($d);
           @d = map {"$d/$_"} sort(@d);
+          $nosource = 1 if -e "$d/.nosourceaccess";
 	}
 	my $ajobrepo = findbins_dir(\@d);
-	my $copysources = 0;
+	my $copysources;
 	for my $abin (sort keys %$ajobrepo) {
 	  my $r = $ajobrepo->{$abin};
 	  next unless $r->{'source'};
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  next if $jobbins{$r->{'name'}};
+          # FIXME: How is debian handling debug packages ?
+          next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  $jobbins{$r->{'name'}} = 1;
 	  my $basename = $abin;
 	  $basename =~ s/.*\///;
 	  $basename =~ s/^upload:// if $cpio;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
-	  $copysources = 1;
+	  $copysources = 1 unless $nosource;
 	}
 	if ($copysources) {
 	  for my $abin (sort keys %$ajobrepo) {
@@ -2951,6 +3182,7 @@ sub rebuildaggregate {
   } else {
     sendevent($ev, $myarch, "finished:$job");
   }
+  $ourjobs{$job} = 1;
   return ('scheduled', $job);
 }
 
@@ -3074,6 +3306,7 @@ my %changed_high;
 my %changed_dirty;
 my %prpfinished;
 my %lastcheck;
+my %delayedfetchprojpacks;
 
 my %lookat_next;	# not so important, next series
 my @lookat_low;         # not so important
@@ -3145,6 +3378,13 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     for my $prp (@prps) {
       $prpnotready{$prp} = $oldprpnotready->{$prp} if exists $oldprpnotready->{$prp};
     }
+
+    # update delayedfetchprojpacks hash
+    my $olddelayedfetchprojpacks = $schedstate->{'delayedfetchprojpacks'} || {};
+    for my $projid (keys %$projpacks) {
+      $delayedfetchprojpacks{$projid} = $olddelayedfetchprojpacks->{$projid};
+    }
+
     # use old start values
     if ($schedstate->{'watchremote_start'}) {
       %watchremote_start = %{$schedstate->{'watchremote_start'}};
@@ -3180,7 +3420,9 @@ if (@lookat_low) {
 
 my $slept = 0;
 my $notlow = 0;
+my $notmed = 0;
 my $schedulerstart = time();
+my $gotevent = 1;
 
 while(1) {
   if (%changed_low || %changed_med || %changed_high) {
@@ -3239,7 +3481,6 @@ while(1) {
   }
 
   my $dummy;
-  my $gotevent;
   my @remoteevents;
   my $pingsock = {
     'socket' => \*PING,
@@ -3335,6 +3576,10 @@ while(1) {
   }
 
   if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
+    if ($testmode) {
+      print "Test mode, all sources and events processed, exiting...\n";
+      exit(0);
+    }
     my @ltim = localtime(time);
     my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
     print "$msgtm waiting for an event...\n";
@@ -3352,6 +3597,7 @@ while(1) {
     $slept += time() - $sleepstart;
   }
   if ($gotevent) {
+    $gotevent = 0;
     # drain ping pipe
     fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
     1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
@@ -3409,6 +3655,7 @@ while(1) {
 	unlink("$myjobsdir/$job");
 	unlink("$myjobsdir/$job:status");
 	close F;
+	delete $ourjobs{$job};
 	next;
       }
 
@@ -3515,8 +3762,16 @@ while(1) {
 	unlink("$gdst/:logfiles.success/$packid");
 	unlink("$gdst/:logfiles.fail/$packid");
 	unlink("$gdst/:meta/$packid");
-        BSUtil::cleandir("$gdst/$packid");
-	rmdir("$gdst/$packid");
+        for my $f (ls("$gdst/$packid")) {
+	  next if $f eq 'history';
+          if (-d "$gdst/$packid/$f") {
+            BSUtil::cleandir("$gdst/$packid/$f");
+	    rmdir("$gdst/$packid/$f");
+	  } else {
+	    unlink("$gdst/$packid/$f");
+	  }
+	}
+	rmdir("$gdst/$packid");	# in case there is no history
 	for $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_high{$prp} = 2;
@@ -3547,6 +3802,7 @@ while(1) {
 	$schedstate->{'lookat_oobhigh'} = \@lookat_high;
 	$schedstate->{'prpfinished'} = \%prpfinished;
 	$schedstate->{'globalnotready'} = \%prpnotready;
+	$schedstate->{'delayedfetchprojpacks'} = \%delayedfetchprojpacks;
 	$schedstate->{'watchremote_start'} = \%watchremote_start;
 	unlink("$rundir/bs_sched.$myarch.state");
 	BSUtil::store("$rundir/bs_sched.$myarch.state.new", "$rundir/bs_sched.$myarch.state", $schedstate);
@@ -3596,6 +3852,39 @@ while(1) {
     }
 
     if (%fetchprojpacks) {
+      for my $projid (sort keys %fetchprojpacks) {
+	next if grep {!defined($_)} @{$fetchprojpacks{$projid}};
+	# only source updates, delay them
+	push @{$delayedfetchprojpacks{$projid}}, @{$fetchprojpacks{$projid}};
+	for my $prp (@prps) {
+	  if ((split('/', $prp, 2))[0] eq $projid) {
+	    $changed_high{$prp} ||= 1;
+            $changed_dirty{$prp} = 1;
+	  }
+	}
+	my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
+	my %changedproj;
+	for my $packid (sort keys %packids) {
+	    for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
+		my $lprojid = $linfo->{'myproject'};
+		my $lpackid = defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
+		push @{$delayedfetchprojpacks{$lprojid}}, $lpackid;
+		$changedproj{$lprojid} = 1;
+	    }
+	}
+	if (%changedproj) {
+	    for my $lprp (@prps) {
+		if ($changedproj{(split('/', $lprp, 2))[0]}) {
+		    $changed_med{$lprp} ||= 1;
+		    $changed_dirty{$lprp} = 1; 
+		}
+	    }
+	}
+	delete $fetchprojpacks{$projid};
+      }
+    }
+
+    if (%fetchprojpacks) {
       # pass1: fetch all projpacks
       for my $projid (sort keys %fetchprojpacks) {
 	my $fetchedall;
@@ -3621,6 +3910,7 @@ while(1) {
 	  my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
 	  get_projpacks($projid, sort keys %packids) if %packids;
 	}
+	delete $delayedfetchprojpacks{$projid} if $fetchedall;
       }
       get_projpacks_postprocess();
 
@@ -3717,7 +4007,7 @@ while(1) {
     @lookat_med = grep {$_ ne $prp} @lookat_med;
     $notlow = 0;
   }
-  if (!defined($prp) && @lookat_high) {
+  if (!defined($prp) && @lookat_high && (!@lookat_med || $notmed < 3)) {
     $prp = shift @lookat_high;
     if ($nextmed{$prp}) {
       my $now = time();
@@ -3733,8 +4023,10 @@ while(1) {
     }
     print "$msgtm looking at high prio $prp" if defined $prp;
     $notlow++ if defined $prp;
+    $notmed++ if defined $prp;
   }
   if (!defined($prp) && @lookat_med) {
+    $notmed = 0;
     $prp = shift @lookat_med;
     if ($nextmed{$prp}) {
       my $now = time();
@@ -3822,6 +4114,14 @@ while(1) {
     }
     rmdir("$reporoot/$projid");		# in case this was the last repo
     next;
+  }
+
+  # do delayed projpack fetches
+  while ($delayedfetchprojpacks{$projid}) {
+    my %packids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
+    delete $delayedfetchprojpacks{$projid};
+    get_projpacks($projid, sort keys %packids) if %packids;
+    get_projpacks_postprocess();
   }
 
   if (!$prpsearchpath{$prp}) {
@@ -3924,6 +4224,10 @@ while(1) {
   my %notready;		# unfinished and will modify :full
 
   for my $rprp (@{$prpsearchpath{$prp}}) {
+    if (!checkprpaccess($rprp, $prp)) {
+      $error = "repository '$rprp' is unavailable";
+      last;
+    }
     my $r = addrepo($pool, $rprp);
     if (!$r) {
       $error = "repository '$rprp' is unavailable";
@@ -4104,6 +4408,7 @@ while(1) {
   my @cpacks = @packs;
   my %cycpass;
   my $nharder = 0;
+  my $needed;
 
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
@@ -4144,19 +4449,33 @@ while(1) {
 
     my $pdata = $packs->{$packid};
     if ($pdata->{'error'}) {
-      print "      - $packid ($pdata->{'error'})\n";
       if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $pdata->{'error'};
 	next;
       }
+      print "      - $packid ($pdata->{'error'})\n";
       if ($pdata->{'error'} =~ /download in progress/) {
-        $packstatus{$packid} = 'blocked';
-        $packerror{$packid} = $pdata->{'error'};
+	$packstatus{$packid} = 'blocked';
+	$packerror{$packid} = $pdata->{'error'};
+	next;
+      }
+      if ($pdata->{'error'} =~ /source update running/) {
+	$packstatus{$packid} = 'blocked';
+	$packerror{$packid} = $pdata->{'error'};
 	next;
       }
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $pdata->{'error'};
       next;
+    }
+
+    if (exists($pdata->{'originproject'})) {
+      # this is a package from a project link
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+        $packstatus{$packid} = 'excluded';
+        $packerror{$packid} = 'project link';
+        next;
+      }
     }
 
     if ($pdata->{'build'}) {
@@ -4188,21 +4507,12 @@ while(1) {
     # name of src package, needed for block detection
     my $pname = $info->{'name'} || $packid;
 
-    if (-e "$eventdir/service/${projid}::$packid") {
-      my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
-      $notready{$pname} = 1 if $useforbuildenabled;
-      $unfinished{$pname} = 1;
-      $packstatus{$packid} = 'blocked';
-      $packerror{$packid} = 'source update running';
-      next;
-    }
-
     if ($info->{'error'}) {
-      print "      - $packid ($info->{'error'})\n";
       if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $info->{'error'};
 	next;
       }
+      print "      - $packid ($info->{'error'})\n";
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $info->{'error'};
       next;
@@ -4319,10 +4629,6 @@ while(1) {
 	  $packerror{$packid} = 'project link, only depends on non-local packages';
 	  next;
         }
-      } elsif (!($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'all')) {
-	  $packstatus{$packid} = 'excluded';
-	  $packerror{$packid} = 'project link';
-	  next;
       }
     }
 
@@ -4520,7 +4826,13 @@ relsynccheck:
       print "        rebuild counter sync, start build\n";
       $reason = { 'explain' => 'rebuild counter sync' };
     }
-    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax);
+    if (!$needed) {
+      $needed = {};
+      for my $p (keys %pdeps) {
+        $needed->{$_}++ for map { $dep2src{$_} || $_ } @{$pdeps{$p}};
+      }
+    }
+    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax, $needed->{$packid} || 0);
     if (!$job) {
       # could not start job...
       if ($joberror =~ /^unresolvable: (.*)$/) {
@@ -4557,6 +4869,27 @@ relsynccheck:
     writexml("$reporoot/$prp/$myarch/.:repostate", "$reporoot/$prp/$myarch/:repostate", {'blocked' => \@blocked}, $BSXML::repositorystate);
   } else {
     unlink("$reporoot/$prp/$myarch/:repostate");
+  }
+
+  # building jobs may have changed back to excluded, blocked or disabled, remove the jobs
+  my $prpjobs = jobname($prp, '');
+  for my $job (grep {/^\Q$prpjobs\E/} sort keys %ourjobs) {
+    if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
+      my $status = $packstatus{$1} || '';
+      next if $status eq 'scheduled';
+      if (! -e "$myjobsdir/$job") {
+	delete $ourjobs{$job};
+	next;
+      }
+      if ($status eq 'disabled' || $status eq 'excluded') {
+        print "        killing old job $job, now in disabled/excluded state\n";
+        killjob($job);
+      } elsif ($status eq 'blocked' || $status eq 'unresolvable' || $status eq 'broken') {
+        # blocked jobs get removed, if they are currently not building. building jobs
+        # stay since they may become valid again
+        killscheduled($job);
+      }
+    }
   }
 
   # notify remote build services of repository changes or block state

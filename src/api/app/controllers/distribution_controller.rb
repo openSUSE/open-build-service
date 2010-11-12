@@ -1,4 +1,5 @@
 class DistributionController < ApplicationController
+
   DISTFILEPATH = "#{RAILS_ROOT}/files/distributions.xml"
   @@distfile_last_read = Date.new(0).to_time
   @@distfile = "<distributions>\n</distributions>\n"
@@ -30,16 +31,24 @@ class DistributionController < ApplicationController
   end
 
   def index
-    valid_http_methods :get, :put
+    # FIXME: do not add :put, before fixing the storage.
+
+    valid_http_methods :get
     if request.get?
+      # FIXME: do not allow to deliver multiple distributions with same repo name, the webui can't handle it
       render :text => distfile, :content_type => "text/xml"
     elsif request.put?
+      # FIXME: AARGH ! this makes it impossible to test this controller, requires to have
+      #        weak permissions on production server, place it at a possible not backuped place
+      #        Store this either into database or store it to the backend (makes sense, to get 
+      #        a history of the file)
+  
       unless @http_user.is_admin?
         render_error :status => 403, :errorcode => "no_permission", :message => "no permission to modify distributions"
         return
       end
 
-      logger.debug "funz"
+      logger.debug "write distribution file"
       self.class.write_distfile(request.raw_post)
       render_ok
     end

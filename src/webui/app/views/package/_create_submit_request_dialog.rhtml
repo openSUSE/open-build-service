@@ -1,0 +1,66 @@
+
+<%= javascript_include_tag 'jquery.autocomplete.pack' %>
+<%= stylesheet_link_tag 'jquery.autocomplete' %>
+
+<script type="text/javascript">
+  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+    { minChars: 2, matchCase: true, max: 50 } );
+
+  $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+    minChars: 0, matchCase: true, max: 50,
+    extraParams: {
+       project: function() { return $("#target_project").val(); }
+    }
+  });
+  </script>
+
+<div id="dialog_wrapper">
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="create_submit_request">
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">
+      <b>Create submit request</b>
+    </div>
+
+    <% tprj = ""
+       tpkg = @package.name
+       if @package.linkinfo
+         tprj = @package.linkinfo.project
+         tpkg = @package.linkinfo.package
+       end
+     %>
+
+    <div class="aligncenter buttons">
+    <%= form_tag({:controller => "package", :action => "create_submit_request"}, :method => "post") %>
+       <%= hidden_field_tag(:project, @project) %>
+       <%= hidden_field_tag(:package, @package) %>
+       <%= hidden_field_tag(:revision, @revision) %>
+       Submit <%=@project%> / <%=@package%> in revision <%=@revision%> to
+
+    <p>
+       Project: <input type="text" name="target_project" value="<%=tprj%>" id="target_project" /><br/>
+       Package: <input type="text" name="target_package" value="<%=tpkg%>" id="target_package" />
+       </p>
+       <p>
+       <i>Description:</i>
+       <textarea rows="3" cols="40" name="description"></textarea>
+       </p>
+       <i>and with this package do: </i>
+       <% default = "update" %>
+       <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
+       <%= select_tag :source_update, options_for_select([['Remove this package', 'cleanup'], ['Update this package', 'update'], ['Do not touch this package', 'noupdate']], :selected => default) %>
+       <p>
+       <input type="submit" value="Submit" />
+       </p>
+     </form>
+    </div>
+
+    <p><div class="aligncenter buttons">
+        <%= link_to_function 'Close', 'remove_dialog()'%>
+    </div></p>
+
+
+  </div>
+
+</div></div>

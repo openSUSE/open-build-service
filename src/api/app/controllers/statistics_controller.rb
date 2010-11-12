@@ -24,6 +24,8 @@ class StatisticsController < ApplicationController
     attr_accessor :errors
 
     def initialize
+
+      # ACL(initialize) this call grabs all projects/packages/repos/archs. This call is not used in config/routes.
       @errors = []
       # build hashes for caching id-/name- combinations
       projects = DbProject.find :all, :select => 'id, name'
@@ -38,6 +40,8 @@ class StatisticsController < ApplicationController
     end
 
     def tag_start name, attrs
+
+      # ACL(tag_start): only the Admin can do this, so call is protected?
       case name
       when 'project'
         @@project_name = attrs['name']
@@ -70,6 +74,8 @@ class StatisticsController < ApplicationController
     end
 
     def text( text )
+
+      # ACL(text) TODO: potential security hole
       text.strip!
       return if text == ''
       unless @@project_id and @@package_id and @@repo_id and @@arch_id and @@count
@@ -128,6 +134,8 @@ class StatisticsController < ApplicationController
 
 
   def index
+
+    # ACL(index): nothing
     text =  "This is the statistics controller.<br />"
     text += "See the api documentation for details."
     render :text => text
@@ -136,8 +144,9 @@ class StatisticsController < ApplicationController
 
   def highest_rated
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 10.minutes
+    # response.time_to_live = 10.minutes
 
+    # ACL(highest_rated) TODO: need to check if this really needs additional protection
     ratings = Rating.find :all,
       :select => 'object_id, object_type, count(score) as count,' +
         'sum(score)/count(score) as score_calculated',
@@ -147,16 +156,30 @@ class StatisticsController < ApplicationController
     @ratings = ratings[0..@limit-1]
   end
 
-
   def rating
+    prj = DbProject.find_by_name( params[:project])
+    pkg = prj.find_package(params[:package]) if prj
+
+    # ACL(rating): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+    # ACL(rating): protect hidden projects with "access"
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "project_not_found"
+      return
+    end
+
     @package = params[:package]
     @project = params[:project]
-
     begin
       object = DbProject.find_by_name @project
       object = DbPackage.find :first, :conditions =>
         [ 'name=? AND db_project_id=?', @package, object.id ] if @package
-      throw if object.nil?
+      raise RuntimeError.new('nil object') if object.nil?
     rescue
       @package = @project = @rating = object = nil
       return
@@ -204,7 +227,9 @@ class StatisticsController < ApplicationController
 
   def download_counter
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 30.minutes
+    #    response.time_to_live = 30.minutes
+
+    # ACL(download_counter) TODO: this call is not instrumented
 
     # initialize @stats
     @stats = []
@@ -313,6 +338,9 @@ class StatisticsController < ApplicationController
 
     #breakpoint "redirect problem"
     # check permissions
+
+    # ACL(redirect_stats) TODO: check if this needs instrumentation
+
     unless permissions.set_download_counters
       render_error :status => 403, :errorcode => "permission denied",
         :message => "download counters cannot be set, insufficient permissions"
@@ -366,6 +394,7 @@ class StatisticsController < ApplicationController
     # check permissions
     # no permission needed
 
+    # ACL(newest_stats): This currently displays an date of 1970, seens unused or non working. FIXME.
     ds = DownloadStat.find :first, :order => "counted_at DESC", :limit => 1
     @newest_stats = ds.nil? ? Time.at(0).xmlschema : ds.counted_at.xmlschema
   end
@@ -374,7 +403,7 @@ class StatisticsController < ApplicationController
 
   def most_active
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 30.minutes
+    #    response.time_to_live = 30.minutes
 
     @type = params[:type] or @type = 'packages'
 
@@ -389,10 +418,14 @@ class StatisticsController < ApplicationController
       # count packages per project and sum up activity values
       projects = {}
       @packages.each do |package|
-        pro = package.project_name
-        projects[pro] ||= { :count => 0, :sum => 0 }
-        projects[pro][:count] += 1
-        projects[pro][:sum] += package.activity_value.to_f
+        prj = DbProject.find_by_name package.project_name
+        # ACL(most_active): dont put protected packages to the list
+        if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
+          pro = package.project_name
+          projects[pro] ||= { :count => 0, :sum => 0 }
+          projects[pro][:count] += 1
+          projects[pro][:sum] += package.activity_value.to_f
+        end
       end
       # calculate average activity of packages per project
       projects.each_key do |pro|
@@ -407,19 +440,44 @@ class StatisticsController < ApplicationController
 
     elsif @type == 'packages'
       # get all packages including activity values
+      # FIXME: calculate the number of hidden projects instead of using 4xlimit
       @packages = DbPackage.find :all,
         :from => 'db_packages pac, db_projects pro',
         :conditions => 'pac.db_project_id = pro.id',
         :order => 'activity_value DESC',
-        :limit => @limit,
+        :limit => @limit + @limit + @limit + @limit,
         :select => 'pac.*, pro.name AS project_name,' +
           "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
           'IF( @activity<0, 0, @activity ) AS activity_value'
+      list = []
+      @packages.each do |package|
+        # ACL(most_active): dont put protected packages to the list
+        pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
+        if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
+          list << package
+        end
+      end
+      @packages = list[0..@limit-1]
     end
   end
 
-
   def activity
+    prj = DbProject.find_by_name( params[:project])
+    pkg = prj.find_package(params[:package]) if prj
+
+    # ACL(activity): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+    # ACL(activity): protect hidden projects with "access"
+    if prj and prj.disabled_for?('access', nil, nil) and not @http_user.can_access?(prj)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "project_not_found"
+      return
+    end
+
     @project = DbProject.find_by_name params[:project]
     @package = DbPackage.find :first, :conditions => [
       'name=? AND db_project_id=?', params[:package], @project.id ] if @project
@@ -428,20 +486,33 @@ class StatisticsController < ApplicationController
 
   def latest_added
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 5.minutes
+    #    response.time_to_live = 5.minutes
 
+    # FIXME: calculate the number of hidden projects instead of using 4xlimit
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.created_at, pro.name AS project_name',
       :conditions => 'pro.id = pac.db_project_id',
-      :order => 'created_at DESC, name', :limit => @limit
+      :order => 'created_at DESC, name', :limit => @limit + @limit + @limit + @limit
     projects = DbProject.find :all,
       :select => 'name, created_at',
-      :order => 'created_at DESC, name', :limit => @limit
+      :order => 'created_at DESC, name', :limit => @limit + @limit + @limit + @limit
 
     list = []
-    projects.each { |project| list << project }
-    packages.each { |package| list << package }
+    projects.each do |project|
+      prj = DbProject.find_by_name project.name
+      # ACL(latest_added): dont put protected projects to the list
+      if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
+        list << project
+      end
+    end
+    packages.each do |package|
+      # ACL(latest_added): dont put protected packages to the list
+      pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
+      if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
+        list << package
+      end
+    end
     list.sort! { |a,b| b.created_at <=> a.created_at }
 
     @list = list[0..@limit-1]
@@ -450,6 +521,20 @@ class StatisticsController < ApplicationController
 
   def added_timestamp
     @project = DbProject.find_by_name( params[:project] )
+    pkg = @project.find_package(params[:package]) if @project
+
+    # ACL(added_timestamp): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+    # ACL(added_timestamp): protect hidden projects with "access"
+    if @project and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "project_not_found"
+      return
+    end
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
     ) if @project
@@ -458,20 +543,33 @@ class StatisticsController < ApplicationController
 
   def latest_updated
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 5.minutes
+    #    response.time_to_live = 5.minutes
 
+    # FIXME: calculate the number of hidden projects instead of using 4xlimit
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
       :select => 'pac.name, pac.updated_at, pro.name AS project_name',
       :conditions => 'pro.id = pac.db_project_id',
-      :order => 'updated_at DESC, name', :limit => @limit
+      :order => 'updated_at DESC, name', :limit => @limit + @limit + @limit + @limit
     projects = DbProject.find :all,
       :select => 'name, updated_at',
-      :order => 'updated_at DESC, name', :limit => @limit
+      :order => 'updated_at DESC, name', :limit => @limit + @limit + @limit + @limit
 
     list = []
-    projects.each { |project| list << project }
-    packages.each { |package| list << package }
+    projects.each do |project|
+      prj = DbProject.find_by_name project.name
+      # ACL(latest_updated): dont put protected projects to the list
+      if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
+        list << project
+      end
+    end
+    packages.each do |package|
+      # ACL(latest_updated): dont put protected packages to the list
+      pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
+      if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
+        list << package
+      end
+    end
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
     @list = list[0..@limit-1]
@@ -479,7 +577,24 @@ class StatisticsController < ApplicationController
 
 
   def updated_timestamp
+
     @project = DbProject.find_by_name( params[:project] )
+    pkg = @project.find_package(params[:package]) if @project
+
+
+    # ACL(updated_timestamp): in case of access, package is really hidden and shown as non existing to users without access
+    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
+      render_error :status => 404, :errorcode => 'unknown_package',
+      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
+      return
+    end
+
+    # ACL(updated_timestamp): protect hidden projects with "access"
+    if @project and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
+      render_error :message => "Unknown project '#{params[:project]}'",
+      :status => 404, :errorcode => "project_not_found"
+      return
+    end
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
     ) if @project
@@ -487,6 +602,8 @@ class StatisticsController < ApplicationController
 
 
   def global_counters
+
+    # ACL(global_counters) this does indirectly exploit information that hidden projects are present.
     @users = User.count
     @repos = Repository.count
     @projects = DbProject.count
@@ -496,75 +613,15 @@ class StatisticsController < ApplicationController
 
   def latest_built
     # set automatic action_cache expiry time limit
-#    response.time_to_live = 10.minutes
+    #    response.time_to_live = 10.minutes
 
     # TODO: implement or decide to abolish this functionality
   end
 
 
   def get_limit
+
     @limit = 10 if (@limit = params[:limit].to_i) == 0
   end
-
-
-  def randomize_timestamps
-
-    # ONLY enable on test-/development database!
-    # it will randomize created/updated timestamps of ALL packages/projects!
-    # this should NOT be enabled for prodution data!
-    enable = false
-    #
-
-    if enable
-
-      # deactivate automatic timestamps for this action
-      ActiveRecord::Base.record_timestamps = false
-
-      projects = DbProject.find(:all)
-      packages = DbPackage.find(:all)
-
-      projects.each do |project|
-        date_min = Time.utc 2005, 9
-        date_max = Time.now
-        date_diff = ( date_max - date_min ).to_i
-        t = [ (date_min + rand(date_diff)), (date_min + rand(date_diff)) ]
-        t.sort!
-        project.created_at = t[0]
-        project.updated_at = t[1]
-        if project.save
-          logger.debug "Project #{project.name} got new timestamps"
-        else
-          logger.debug "Project #{project.name} : ERROR setting timestamps"
-        end
-      end
-
-      packages.each do |package|
-        date_min = Time.utc 2005, 6
-        date_max = Time.now - 36000
-        date_diff = ( date_max - date_min ).to_i
-        t = [ (date_min + rand(date_diff)), (date_min + rand(date_diff)) ]
-        t.sort!
-        package.created_at = t[0]
-        package.updated_at = t[1]
-        if package.save
-          logger.debug "Package #{package.name} got new timestamps"
-        else
-          logger.debug "Package #{package.name} : ERROR setting timestamps"
-        end
-      end
-
-      # re-activate automatic timestamps
-      ActiveRecord::Base.record_timestamps = true
-
-      render :text => "ok, done randomizing all timestams."
-      return
-    else
-      logger.debug "tried to execute randomize_timestamps, but it's not enabled!"
-      render :text => "this action is deactivated."
-      return
-    end
-
-  end
-
 
 end

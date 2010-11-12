@@ -1,10 +1,10 @@
 require 'project_status_helper'
 
 class StatusController < ApplicationController
-
-  skip_before_filter :extract_user, :only => [ :history, :project ]
+  
 
   def messages
+    # ACL(messages) this displays the status messages the Admin can enter for users.
     if request.get?
 
       @messages = StatusMessage.find :all,
@@ -31,20 +31,21 @@ class StatusController < ApplicationController
           new_messages.each_message do |msg|
             message = StatusMessage.new
             message.message = msg.to_s
-            message.severity = msg.severity
+            message.severity = msg.value :severity
             message.user = @http_user
             message.save
           end
         else
+          raise RuntimeError.new 'no message' if new_messages.element_name != 'message'
           # just one message, NOT wrapped in outer xml tag 'status_messages'
           message = StatusMessage.new
           message.message = new_messages.to_s
-          message.severity = new_messages.severity
+          message.severity = new_messages.value :severity
           message.user = @http_user
           message.save
         end
         render_ok
-      rescue
+      rescue RuntimeError
         render_error :status => 400, :errorcode => "error creating message(s)",
           :message => "message(s) cannot be created"
         return
@@ -77,6 +78,7 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
+    # ACL(workerstatus): update_workerstatus_cache does the job
      data = Rails.cache.fetch('workerstatus') do
        update_workerstatus_cache
      end
@@ -84,77 +86,99 @@ class StatusController < ApplicationController
   end
 
   def history
-     hours = params[:hours] || "24"
-     starttime = Time.now.to_i - hours.to_i * 3600
-     @data = Hash.new
-     lines = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ])
-     lines.each do |l|
-	@data[l.time] = l.value
-     end
+    required_parameters :hours, :key
+    samples = begin Integer(params[:samples] || '100') rescue 0 end
+    samples = [samples, 1].max
+
+    # ACL(history): This is used by the history plotter. leaks no ACL relevant project or package information. This call is not used in config/routes.
+    hours = begin Integer(params[:hours] || '24') rescue 24 end
+    logger.debug "#{Time.now.to_i} to #{hours.to_i}"
+    starttime = Time.now.to_i - hours.to_i * 3600
+    data = Array.new
+    values = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    xml = builder.history do
+      StatusHelper.resample(values, samples).each do |time,val|
+	builder.value( :time => time,
+		      :value => val ) # for debug, :timestring => Time.at(time)  )
+      end
+    end
+    render :text => xml.target!, :content_type => "text/xml"
   end
 
   def update_workerstatus_cache
-      ret = backend_get('/build/_workerstatus')
-      mytime = Time.now.to_i
-      Rails.cache.write('workerstatus', ret)
-      data = REXML::Document.new(ret)
-      data.root.each_element('blocked') do |e|
-        line = StatusHistory.new
-        line.time = mytime
-        line.key = 'blocked_%s' % [ e.attributes['arch'] ]
-        line.value = e.attributes['jobs']
-        line.save
-      end
-      data.root.each_element('waiting') do |e|
-        line = StatusHistory.new
-        line.time = mytime
-        line.key = "waiting_#{e.attributes['arch']}"
-        line.value = e.attributes['jobs']
-        line.save
-      end
-      data.root.each_element('scheduler') do |s|
-        queue = s.elements['queue']
-        next unless queue
-        arch = s.attributes['arch']
-        StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
-        StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
-        StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}",  :value => queue.attributes['med']
-        StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}",  :value => queue.attributes['low']
-      end
+    ret = backend_get('/build/_workerstatus')
 
-      allworkers = Hash.new
-      workers = Hash.new
-      %w{building idle}.each do |state|
-        data.root.each_element(state) do |e|
-          id=e.attributes['workerid']
-          if workers.has_key? id
-             logger.debug 'building+idle worker'
-             next
-          end
-          workers[id] = 1
-          key = state + '_' + e.attributes['hostarch']
-          begin
-            allworkers[key] = allworkers[key] + 1
-          rescue
-            allworkers[key] = 1
-          end
-        end
-      end
+    data=REXML::Document.new(ret)
+    # ACL(update_workerstatus_cache): filter out all packages / projects that are hidden by access
+    # THIS WON'T WORK AS IT'S READ FROM CACHE ANYWAY
+    accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
+    accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
+    data.root.each_element('building') do |b|
+      prj = DbProject.find_by_name(b.attributes['project'])
+      pkg = prj.find_package(b.attributes['package']) if prj
+      b.remove if (prj and accessprjs and accessprjs.include?(prj) and not @http_user.can_access?(prj)) or (pkg and accesspkgs and accesspkgs.include?(pkg) and not @http_user.can_access?(pkg))
+    end
+    ret=data.to_s
 
-      allworkers.each do |key,value|
-        line = StatusHistory.new
-        line.time = mytime
-        line.key = key
-        line.value = value
-        line.save
+    mytime = Time.now.to_i
+    Rails.cache.write('workerstatus', ret)
+    data.root.each_element('blocked') do |e|
+      line = StatusHistory.new
+      line.time = mytime
+      line.key = 'blocked_%s' % [ e.attributes['arch'] ]
+      line.value = e.attributes['jobs']
+      line.save
+    end
+    data.root.each_element('waiting') do |e|
+      line = StatusHistory.new
+      line.time = mytime
+      line.key = "waiting_#{e.attributes['arch']}"
+      line.value = e.attributes['jobs']
+      line.save
+    end
+    data.root.each_element('scheduler') do |s|
+      queue = s.elements['queue']
+      next unless queue
+      arch = s.attributes['arch']
+      StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
+      StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
+      StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}",  :value => queue.attributes['med']
+      StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}",  :value => queue.attributes['low']
+    end
+    
+    allworkers = Hash.new
+    workers = Hash.new
+    %w{building idle}.each do |state|
+      data.root.each_element(state) do |e|
+	id=e.attributes['workerid']
+	if workers.has_key? id
+	  logger.debug 'building+idle worker'
+	  next
+	end
+	workers[id] = 1
+	key = state + '_' + e.attributes['hostarch']
+	allworkers["building_#{e.attributes['hostarch']}"] ||= 0
+	allworkers["idle_#{e.attributes['hostarch']}"] ||= 0
+	allworkers[key] = allworkers[key] + 1
       end
-
-      ret
+    end
+    
+    allworkers.each do |key,value|
+      line = StatusHistory.new
+      line.time = mytime
+      line.key = key
+      line.value = value
+      line.save
+    end
+    
+    ret
   end
   # not an action, but called from delayed job
   # private :update_workerstatus_cache
 
   def project
+    # ACL(project): This call is not used in config/routes. FIXME: delete?
      dbproj = DbProject.find_by_name(params[:id])
      if ! dbproj
         render_error :status => 404, :errorcode => "no such project",
@@ -168,5 +192,67 @@ class StatusController < ApplicationController
      end
      render :text => xml
   end
-end
 
+  def bsrequest
+    # ACL(bsrequest): This call is not used in config/routes. FIXME: delete?
+    required_parameters :id
+    req = BsRequest.find :id => params[:id]
+    if req.action.value('type') != 'submit'
+      render :text => '<status code="unknown">Not submit</status>' and return
+    end
+
+    tproj = DbProject.find_by_name(req.action.target.project)
+    sproj = DbProject.find_by_name(req.action.source.project)
+    
+    unless tproj
+      render :text => '<status code="error">Target project does not exist</status>' and return
+    end
+
+    unless sproj
+      render :text => '<status code="error">Source project does not exist</status>' and return
+    end
+    
+    tocheck_repos = Array.new
+    sproj.repositories.each do |srep| 
+      if srep.links_to_project?(tproj)
+	tocheck_repos << srep
+      end
+    end
+    if tocheck_repos.empty?
+      render :text => '<status code="warning">No repositories build against target</status>'
+      return
+    end
+    dir = Directory.find(:project => req.action.source.project, 
+			 :package => req.action.target.package, 
+			 :expand => 1, :rev => req.action.source.value('rev'))
+    unless dir
+      render :text => '<status code="error">Source package does not exist</status>' and return
+    end
+    srcmd5 = dir.value('srcmd5')
+
+    everbuilt = 0
+    eversucceeded = 0
+
+    tocheck_repos.each do |srep|
+      srep.architectures.each do |arch|
+	hist = Jobhistory.find(:project => sproj.name, 
+			       :repository => srep.name, 
+			       :package => req.action.source.package,
+			       :arch => arch.name, :limit => 20 )
+	next unless hist
+	hist.each_jobhist do |jh|
+	  next if jh.srcmd5 != srcmd5
+	  everbuilt = 1
+	  if jh.code == 'succeeded'
+	    eversucceeded = 1
+	  end
+	end
+	render :text => "<status code='what'>built=#{everbuilt} success=#{eversucceeded}</status>"
+	return
+      end
+    end
+
+    render :text => tocheck_repos.to_xml
+  end
+
+end

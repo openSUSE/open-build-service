@@ -1,16 +1,80 @@
-#
-# The openSUSE Build Service environment
-#
+======================
+openSUSE Build Service
+======================
 
-This source code repository contains the code for the openSUSE build service.
-All files are under the GPL v2 license.
-Further documentation for the build service can be found here:
+The openSUSE Build Service (OBS) is an open and complete distribution
+development platform designed to encourage developers to compile packages for
+multiple Linux distributions including openSUSE, Red Hat, Mandriva, Ubuntu,
+Fedora and Debian. It typically simplifies the packaging process, so developers
+can more easily package a single program for many distributions, and many
+openSUSE releases, making more packages available to users regardless of what
+distribution they use. 
 
-  http://www.opensuse.org/Build_Service
+Further documentation for the Build Service can be found at the openSUSE wiki
+on the Build Service portal page:
 
-The running build service web interface can be accessed here:
+  http://en.opensuse.org/Portal:Build_Service
+
+The running Build Service web interface can be accessed here:
 
   http://build.opensuse.org/
 
-Your openSUSE Build Service Team
 
+Organization
+============
+
+The openSUSE Build Service consists of several parts, namely the backend, the
+api and the webui. The backend implements all the core functionality (i.e. the
+business logic), whereas the webui provides a neat browser interface. The api
+forms the glue between those components and also serves as the integration
+point to other external tools (hence it's name). Therefore the source code is
+organized like this:
+
+============  ==================================================
+Directory     Description
+============  ==================================================
+dist          Files relevant for (distro) packaging
+docs          Documentation, examples and the Build Service book
+src/api       Api code (Ruby / Ruby on Rails)
+src/backend   Backend code (Perl)
+src/webui     Webui code (Ruby / Ruby on Rails)
+shared        Stuff shared across the different parts
+============  ==================================================
+
+Note that the three parts each also have their own documentation found in their
+respective subdirectories.
+
+
+Installation, deployment and development
+========================================
+
+These topics are covered in the file INSTALL and on the openSUSE wiki (see
+above).
+
+
+Licensing
+=========
+
+The openSUSE Build Service is Free Software and is released under the terms of
+the GPL, except where noted. Additionally, 3rd-party content (like, but not
+exclusively, the webui icon theme) may be released under a different license.
+Please check the respective files for details.
+
+
+Contact
+=======
+
+The Build Service project is hosted on Gitorious and can be found here:
+
+    http://gitorious.org/opensuse/build-service
+
+You can discuss with the Build Service Team via IRC (FreeNode) on this channel:
+
+    #opensuse-buildservice
+
+Or you can use the official mailing list:
+
+    opensuse-buildservice@opensuse.org
+
+
+    Your openSUSE Build Service Team

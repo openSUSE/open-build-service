@@ -27,11 +27,25 @@ home:dmayr:
   description: description
   created_at: 2005-01-01 00:00:01
   updated_at: 2007-01-26 12:14:22
-home:tscholz:
-  name: home:tscholz
+home:Iggy:
+  name: home:Iggy
   updated_at: 2005-01-01 00:00:01
-  title: tscholz Home Project
+  title: Iggy Home Project
   id: 502
+  description: ""
+  created_at: 2005-01-01 00:00:01
+home:Iggy:OldProject:
+  name: home:Iggy:OldProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project gets deleted by request test
+  id: 503
+  description: ""
+  created_at: 2005-01-01 00:00:01
+home:Iggy:branches:kde4:
+  name: home:Iggy:branches:kde4
+  updated_at: 2005-01-01 00:00:01
+  title: Iggy Home Project
+  id: 504
   description: ""
   created_at: 2005-01-01 00:00:01
 home:coolo:
@@ -47,3 +61,120 @@ deleted:
 home:tom:
   name: home:tom
   id: 1001
+
+# Used for maintenance tests:
+BaseDistro:
+  name: BaseDistro
+  updated_at: 2005-01-01 00:00:01
+  title: This is a base distro
+  id: 2042
+  description: "This could be openSUSE:11.2 project for example"
+  created_at: 2005-01-01 00:00:01
+BaseDistro:Update:
+  name: BaseDistro:Update
+  updated_at: 2005-01-01 00:00:01
+  title: This is an update project for the base distro
+  id: 2043
+  description: "contains official released updates"
+  created_at: 2005-01-01 00:00:01
+home:adrian:BaseDistro:
+  name: home:adrian:BaseDistro
+  updated_at: 2005-01-01 00:00:01
+  title: This is a project source linked project to BaseDistro
+  id: 2044
+  description: "For testing project linking"
+  created_at: 2005-01-01 00:00:01
+BaseDistro2:
+  name: BaseDistro2
+  updated_at: 2005-01-01 00:00:01
+  title: This is another base distro
+  id: 2045
+  description: "This could be openSUSE:11.3 project for example"
+  created_at: 2005-01-01 00:00:01
+BaseDistro2:LinkedUpdateProject:
+  name: BaseDistro2:LinkedUpdateProject
+  updated_at: 2005-01-01 00:00:01
+  title: This is another update project for the base distro
+  id: 2046
+  description: "contains official released updates, but this one has a project link to the original one"
+  created_at: 2005-01-01 00:00:01
+BaseDistro3:
+  name: BaseDistro3
+  updated_at: 2005-01-01 00:00:01
+  title: This is another base distro, without update project
+  id: 2047
+  description: "Base distro without update project"
+  created_at: 2005-01-01 00:00:01
+
+# For read/view permission checks
+HiddenProject:
+  name: HiddenProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project is not visible and not accessable except for adrian
+  id: 3000
+  description: "for testing read/view permissions = access disabled"
+  created_at: 2005-01-01 00:00:01
+
+SourceprotectedProject:
+  name: SourceprotectedProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project has unaccessable source except for adrian
+  id: 3001
+  description: "for testing read/view permissions = sourceaccess disabled"
+  created_at: 2005-01-01 00:00:01
+
+BinaryprotectedProject:
+  name: BinaryprotectedProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project has unaccessable binaries except for adrian
+  id: 3002
+  description: "for testing read/view permissions = binarydownload disabled"
+  created_at: 2005-01-01 00:00:01
+
+ViewprotectedProject:
+  name: ViewprotectedProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project has behaves like a binary only project except for adrian
+  id: 3003
+  description: "for testing read/view permissions = privacy enabled"
+  created_at: 2005-01-01 00:00:01
+
+CopyTestProject:
+  name: CopyTest
+  updated_at: 2005-01-01 00:00:01
+  title: This project serves as copy target/source
+  id: 3004
+  description: "for testing access/sourceacces/privacy"
+  created_at: 2005-01-01 00:00:01
+
+homeadrianProtectionTest:
+  name: home:adrian:ProtectionTest
+  updated_at: 2005-01-01 00:00:01
+  title: This is used to try to get source rpm binaries from SourceprotectedProject
+  id: 3005
+  description: ""
+  created_at: 2005-01-01 00:00:01
+
+# For testing remote project handling (we are our own remote instance)
+RemoteInstance:
+  name: RemoteInstance
+  updated_at: 2005-01-01 00:00:01
+  title: This project is offering ourself content again via OBS inter-connect
+  id: 5000
+  remoteurl: http://localhost:3200
+  description: "for testing remoteurl support. This is using the source server directly atm, should be change to use an own api instance."
+  created_at: 2005-01-01 00:00:01
+UseRemoteInstance:
+  name: UseRemoteInstance
+  updated_at: 2005-01-01 00:00:01
+  title: This project is project linking to remote instance
+  id: 5001
+  description: "for testing remoteurl support"
+  created_at: 2005-01-01 00:00:01
+LocalProject:
+  name: LocalProject
+  updated_at: 2005-01-01 00:00:01
+  title: This project is a local project
+  id: 5002
+  description: "for testing remoteurl support"
+  created_at: 2005-01-01 00:00:01

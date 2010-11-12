@@ -1,3 +1,6 @@
-obs:
+test:
   name: NSTEST
+  id: 8
+OBS:
+  name: OBS
   id: 9

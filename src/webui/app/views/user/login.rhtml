@@ -1,21 +1,21 @@
-<% @pagetitle = "Login" %>
+<% @pagetitle = "Please Login" %>
 
 <% if ICHAIN_MODE == 'on' %>
-  <form action="https://build.opensuse.org/ICSLogin/auth-up"
-        method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+  <form action="<%= ICHAIN_HOST + "/ICSLogin/auth-up" %>"
+        method="post" enctype="application/x-www-form-urlencoded">
     <div>
       <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
       <input name="context" value="default" type="hidden" />
       <input name="proxypath" value="reverse" type="hidden" />
       <input name="message" value="Please log In" type="hidden" />
     </div>
-  <% else %>
-    <%= form_tag( :controller => :user, :action => :do_login ) %>
-  <% end %>
+<% else %>
+  <%= form_tag :controller => :user, :action => :do_login, :method => :post %>
+<% end %>
 
   <div title="Account login" id="loginform" class="form">
-    <h1>Please login:</h1>
-    <p id="login_form">
+    <h1><%= h @pagetitle %></h1>
+    <p>
       <label for="user_login">Username:</label>
       <input type="text" name="username" id="user_login" size="30" value=""/><br/><br/>
       <label for="user_password">Password:</label>
@@ -25,6 +25,15 @@
     <p>
       <input type="submit" name="login" value="Login &#187;" class="primary" />
     </p>
-
   </div>
+
+  <p>
+    Or
+    <% if ICHAIN_MODE == 'on' %>
+      <%= link_to "register", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %>
+    <% else %>
+      <%= link_to "register", :controller => :user, :action => :register_user %>
+    <% end %>
+    as a new user.
+  </p>
 </form>

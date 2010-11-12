@@ -110,7 +110,8 @@ sub reply {
   # print "reply to event #$ev->{'id'}\n";
   if (!exists($ev->{'fd'})) {
     $ev->{'handler'}->($ev) if $ev->{'handler'};
-    print "$str\n" if defined $str;
+    $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
+    print "$str\n" if defined($str) && $str ne '';
     return;
   }
   if ($ev->{'streaming'}) {

@@ -1,5 +1,9 @@
 <% if not @project.has_element?(:repository) %>
-  <p><i>This project currently has no <%= link_to "build targets", :controller => :project, :action => 'add_target_simple', :project => @project %> defined. </i></p>
+  <% if @project.has_element?(:remoteurl) %>
+    <p><i>This project is just used to get referenced for using remote resources. </i></p>
+  <% else %>
+    <p><i>This project currently has no <%= link_to "build targets", :controller => :project, :action => 'add_repository_from_default_list', :project => @project %> defined. </i></p>
+  <% end %>
 <% elsif @buildresult.blank? %>
   <p><i>No build result available</i></p>
 <% else %>
@@ -7,12 +11,12 @@
   <table title="Repositories" class="repostatus">
     <% @buildresult.each do |repo, archarray| %>
       <% index = 0
-      srepo = truncate(repo, :length => 19)
-      archarray.each do |arch, counts| -%>
+         srepo = truncate(repo, :length => 19)
+         archarray.each do |arch, counts| -%>
         <tr class="target">
           <% if index == 0 %>
             <td class="repo" valign="top" rowspan="<%= archarray.length %>">
-              <strong><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo -%></strong>
+              <strong title="<%= h repo %>"><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo -%></strong>
             </td>
             <% index += 1 %>
           <% end %>
@@ -23,13 +27,12 @@
           </td>
           <td class="codes"><% counts.each do |code, count| -%>
               <div class="nowrap">
-                <%= link_to("#{code}:&nbsp;#{count}", { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
+                <%= link_to("#{code}:&nbsp;#{count}".html_safe, { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
                             'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow') -%>
               </div>
           <% end -%></td>
         </tr>
       <% end %>
-
     <% end %>
   </table>
 

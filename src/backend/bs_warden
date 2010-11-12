@@ -41,19 +41,10 @@ use BSXML;
 
 use strict;
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-if (defined $group) {
-  ($), $() = ($group, $group);
-  die "setgid: $!\n" if ($) != $group);
-}
-if (defined $user) {
-  ($>, $<) = ($user, $user);
-  die "setuid: $!\n" if ($> != $user);
-}
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $workersdir = "$BSConfig::bsdir/workers";
