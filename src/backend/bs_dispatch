@@ -547,7 +547,7 @@ while (1) {
       unshift @jobprpas, $prpa;
       @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
     }
-    last if $assigned > 20;
+    last if $assigned >= 50;
   }
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;
