@@ -219,7 +219,8 @@ case "$1" in
 			fi
 
 			# Create cache partition on remaining space
-			lvcreate -n cache -l 100%FREE OBS || exit
+			#lvcreate -n cache -l 100%FREE OBS || exit
+			lvcreate -n cache -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
 			mkfs -text4 /dev/OBS/cache || exit
 		fi
 
