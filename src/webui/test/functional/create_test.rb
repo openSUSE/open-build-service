@@ -19,7 +19,7 @@ class CreateProjectTest < ActionController::IntegrationTest
       click_link 'Packages'
       assert_contain(/This project does not contain any packages/)
 
-      click_link 'Add'
+      click_link 'Create new package'
       assert_contain 'Create New Package for home:tom'
       fill_in 'name', :with => 'coolstuff'
       click_button 'Save changes'
