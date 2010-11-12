@@ -49,19 +49,10 @@ module ProjectHelper
   end
 
   def project_bread_crumb( *args )
-    @crumb_list = [link_to('Projects', :controller => 'project', :action => :list_public)]
-    if @project.class == String
-      parts = @project.split(":")
-    else
-      parts = @project.name.split(":")
-    end
-    for x in 1 .. parts.length - 1 do
-      prj = parts[0..x].join(":")
-      name = ":" + parts[x]
-      name = parts[0] + name if x == 1
-      @crumb_list += [link_to(name, :controller => 'project', :action => :show, :project => prj)]
-    end
-    @crumb_list += args
+    @crumb_list = [
+      link_to( 'Projects', :controller => 'project', :action => :list_public),
+      link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+    ] + args
   end
 
   def format_seconds( secs ) 
