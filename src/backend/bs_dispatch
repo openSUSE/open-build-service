@@ -371,8 +371,14 @@ while (1) {
       my $prpa = "$info->{'project'}/$info->{'repository'}/$info->{'arch'}";
       push @{$jobs{$prpa}}, $job;
       $info = $ic->{$job};
-      if (!$info || ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change'))) {
+      if (!$info) {
 	$maybesrcchange{$prpa} = 1;
+      } elsif ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
+	# only count direct changes as source change, not changes because of
+	# a change in a linked package
+	if ($info->{'reason'} eq 'new build' || !$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
+	  $maybesrcchange{$prpa} = 1;
+	}
       }
     }
   }
