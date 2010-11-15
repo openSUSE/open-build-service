@@ -36,7 +36,9 @@
        <%= hidden_field_tag(:project, @project) %>
        <%= hidden_field_tag(:package, @package) %>
        <%= hidden_field_tag(:revision, @revision) %>
-       Submit <%=@project%> / <%=@package%> in revision <%=@revision%> to
+       <% prjname = @project.name
+          prjname = prjname[0..40] + "..." if @project.name.length > 40 -%>
+       Submit <%= prjname %> / <%= @package %> in revision <%= @revision %> to
 
     <p>
        Project: <input type="text" name="target_project" value="<%=tprj%>" id="target_project" /><br/>
