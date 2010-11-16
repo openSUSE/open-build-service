@@ -1,0 +1,34 @@
+<revisionlist>
+  <revision rev="1" vrev="1">
+    <srcmd5>3bcf28c526fe93afc1674f2c20333ceb</srcmd5>
+    <version>unknown</version>
+    <time>1270142904</time>
+    <user>saschpe</user>
+  </revision>
+  <revision rev="2" vrev="2">
+    <srcmd5>df58f7222e36caffde066dc5ede1c280</srcmd5>
+    <version>unknown</version>
+    <time>1288709794</time>
+    <user>saschpe</user>
+    <comment>test checkin.</comment>
+  </revision>
+  <revision rev="3" vrev="3">
+    <srcmd5>ab382eb3dfb9a9e82ee3753b7d52689c</srcmd5>
+    <version>unknown</version>
+    <time>1288710782</time>
+    <user>saschpe</user>
+    <comment>Reverted test commit.</comment>
+  </revision>
+  <revision rev="4" vrev="4">
+    <srcmd5>8812fc3965a59a9478c37e7c4d4e089f</srcmd5>
+    <version>unknown</version>
+    <time>1288774993</time>
+    <user>saschpe</user>
+  </revision>
+  <revision rev="5" vrev="5">
+    <srcmd5>ab382eb3dfb9a9e82ee3753b7d52689c</srcmd5>
+    <version>unknown</version>
+    <time>1288857641</time>
+    <user>saschpe</user>
+  </revision>
+</revisionlist>

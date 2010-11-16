@@ -71,7 +71,7 @@ GET /source/
 
   Read list of projects.
   
-XmlResult: projects directory.xsd
+XmlResult: directory
 
 Parameters:
 
@@ -191,7 +191,7 @@ GET /source/<project>/_pattern
 
   Get list of all patterns set up for this project
 
-XmlResult: directory
+XmlResult: pattern
 
 
 GET /source/<project>/_pattern/<patternfile>
@@ -650,7 +650,7 @@ GET /build/_workerstatus
 
   Lists all running jobs, waiting jobs, status of the backend services and general statistics.
 
-XmlResult: worker status and statistics
+XmlResult: workerstatus
 
 
 GET /build/<project>
@@ -780,7 +780,7 @@ GET /build/<project>/<repository>/<arch>/<package>/_reason
   release number sync.
    A user triggered build will show up as source change.
 
-XmlResult: build reason
+XmlResult: buildreason
 
 
 GET /build/<project>/<repository>/<arch>/<package>/_status
