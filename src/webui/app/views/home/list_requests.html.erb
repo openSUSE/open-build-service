@@ -1,9 +1,9 @@
-<% @pagetitle = "List My Requests" 
-   @crumb_list = ['My Requests']
+<% @pagetitle = "Pending Requests" 
+   @crumb_list = [@pagetitle]
    setup_buildresult_trigger
 -%>
 
-<h2>Pending requests concerning me (#<%= @requests.size %>)</h2>
+<h2><%= h @pagetitle %></h2>
 
 <%= render :partial => 'shared/list_requests',
   :locals => { :requests => @requests, :hide_package => true, :hide_project => false } %>
