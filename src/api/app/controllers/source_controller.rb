@@ -2,7 +2,7 @@ require "rexml/document"
 
 class SourceController < ApplicationController
   validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
-  validate_action :project_meta => :project, :package_meta => :package, :pattern_meta => :pattern
+  validate_action :project_meta => :project, :package_meta => :package
   
 
   def index
@@ -538,70 +538,6 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/_pattern/:pattern
-  def pattern_meta
-    valid_http_methods :get, :put, :delete
-
-    params[:user] = @http_user.login if @http_user
-    
-    @project = DbProject.find_by_name params[:project]
-    unless @project
-      render_error :message => "Unknown project '#{params[:project]}'",
-        :status => 404, :errorcode => "unknown_project"
-      return
-    end
-
-    # ACL(pattern_meta): in case of access, project or package is really hidden
-    if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
-      render_error :message => "Unknown project '#{params[:project]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-
-    if request.get?
-      pass_to_backend
-    else
-      # PUT and DELETE
-      permerrormsg = nil
-      if request.put?
-        permerrormsg = "no permission to store pattern"
-      elsif request.delete?
-        permerrormsg = "no permission to delete pattern"
-      end
-
-      unless @http_user.can_modify_project? @project
-        logger.debug "user #{user.login} has no permission to modify project #{@project}"
-        render_error :status => 403, :errorcode => "change_project_no_permission", 
-          :message => permerrormsg
-        return
-      end
-      
-      path = request.path + build_query_from_hash(params, [:rev, :user, :comment])
-      pass_to_backend path
-    end
-  end
-
-  # GET /source/:project/_pattern
-  def index_pattern
-    valid_http_methods :get
-
-    @project = DbProject.find_by_name(params[:project])
-    unless @project
-      render_error :message => "Unknown project '#{params[:project]}'",
-        :status => 404, :errorcode => "unknown_project"
-      return
-    end
-    
-    # ACL(index_pattern): in case of access, project or package is really hidden
-    if  @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
-      render_error :message => "Unknown project '#{params[:project]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-
-    pass_to_backend
-  end
-
   def project_meta
     valid_http_methods :get, :put
     required_parameters :project
@@ -947,7 +883,7 @@ class SourceController < ApplicationController
 
     prj = DbProject.find_by_name(project_name)
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
-    if package_name == "_project"
+    if package_name == "_project" or package_name == "_pattern"
       if prj.nil?
         render_error :status => 403, :errorcode => 'not_found',
           :message => "The given project #{project_name} does not exist"
@@ -1007,51 +943,20 @@ class SourceController < ApplicationController
         elsif params[:file] == "_aggregate"
            validator = Suse::Validator.new( "aggregate" )
            validator.validate(request)
+        elsif params[:package] == "_pattern"
+           validator = Suse::Validator.new( "pattern" )
+           validator.validate(request)
         end
 
-        # ACL(file): the following code checks if link or aggregate
-        if params[:file] == "_aggregate"
-          data = REXML::Document.new(request.raw_post.to_s)
-          data.elements.each("aggregatelist/aggregate") do |e|
-            # ACL(file) TODO: check if the _aggregate check cannot be circumvented somehow
-            tproject_name = e.attributes["project"]
-            tprj = DbProject.find_by_name(tproject_name)
-            if tprj.nil?
-              if not DbProject.find_remote_project(tproject_name)
-                render_error :status => 404, :errorcode => 'not_found',
-                :message => "The given #{tproject_name} does not exist"
-                return
-              end
-            else
-              # ACL(file): _aggregate access behaves like project not existing
-              if tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj)
-                render_error :status => 404, :errorcode => 'not_found',
-                :message => "The project #{tproject_name} does not exist"
-                return
-              end
+        # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
+        # package here implicit to stay api compatible.
+        # FIXME3.0: to be revisited
+        if package_name == "_pattern" and pack.nil?
+          pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
+          prj.db_packages << pack
+        end
 
-              # ACL(file): _aggregate binarydownload denies access to repositories
-              if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
-                render_error :status => 403, :errorcode => "download_binary_no_permission",
-                :message => "No permission to _aggregate binaries from project #{params[:project]}"
-                return
-              end
-
-              # ACL(file): check that user does not aggregate an unprotected project to a protected project
-              if prj
-                if (tprj.disabled_for?('access', nil, nil) and prj.enabled_for?('access', nil, nil)) or
-                    (tprj.disabled_for?('binarydownload', nil, nil) and prj.enabled_for?('access', nil, nil) and
-                     prj.enabled_for?('binarydownload', nil, nil))
-                  render_error :status => 403, :errorcode => "binary_download_no_permission" ,
-                  :message => "aggregate with an unprotected project  #{project_name} to a protected project #{tproject_name}"
-                  return
-                end
-              end
-            end
-
-            logger.debug "_aggregate checked for #{tproject_name} project permission"
-          end
-        elsif params[:file] == "_link"
+        if params[:file] == "_link"
           data = REXML::Document.new(request.raw_post.to_s)
           data.elements.each("link") do |e|
             tproject_name = e.attributes["project"]
@@ -1079,32 +984,11 @@ class SourceController < ApplicationController
                 end
               end
               
-              # ACL(file): _link access behaves like project not existing
-              if tpkg and tpkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(tpkg)
-                render_error :status => 404, :errorcode => 'not_found',
-                :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
-                return
-              end
-
               # ACL(file): _link sourceaccess gives permisson denied
               if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
                 render_error :status => 403, :errorcode => "source_access_no_permission",
                 :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
                 return
-              end
-
-              # ACL(file): check that user does not link an unprotected package to a protected package
-              if pack and tpkg
-                if (tpkg.disabled_for?('access', nil, nil) and pack.enabled_for?('access', nil, nil))
-                  render_error :status => 403, :errorcode => "access_no_permission" ,
-                  :message => "linking an unprotected package #{package_name}/#{project_name} to a protected package #{tpackage_name}/#{tproject_name}"
-                  return
-                end
-                if (tpkg.disabled_for?('sourceaccess', nil, nil) and pack.enabled_for?('sourceaccess', nil, nil))
-                  render_error :status => 403, :errorcode => "source_access_no_permission" ,
-                  :message => "linking an unprotected package #{package_name}/#{project_name} to a protected package #{tpackage_name}/#{tproject_name}"
-                  return
-                end
               end
 
               logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"

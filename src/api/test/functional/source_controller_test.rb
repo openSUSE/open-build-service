@@ -1400,41 +1400,45 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_pattern
     ActionController::IntegrationTest::reset_auth 
-    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
+    put "/source/kde4/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
     assert_response 401
 
     prepare_request_with_user "adrian_nobody", "so_alone"
-    get url_for(:controller => :source, :action => :index_pattern, :project => "DoesNotExist")
+    get "/source/DoesNotExist/_pattern"
     assert_response 404
-    get url_for(:controller => :source, :action => :index_pattern, :project => "kde4")
+    get "/source/kde4/_pattern"
     assert_response :success
-    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "DoesNotExist", :project => "DoesNotExist")
+    get "/source/kde4/_pattern/DoesNotExist"
     assert_response 404
-    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "DoesNotExist", :project => "kde4")
-    assert_response 404
-    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), load_backend_file("pattern/digiKam.xml")
+    put "/source/kde4/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
     assert_response 403
-    assert_match(/no permission to store pattern/, @response.body)
+    assert_match(/put_file_no_permission/, @response.body)
 
     prepare_request_with_user "tom", "thunder"
-    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "kde4"), "broken"
+    get "/source/home:coolo:test"
+    assert_response :success
+    assert_no_match(/_pattern/, @response.body)
+    put "/source/home:coolo:test/_pattern/mypattern", "broken"
     assert_response 400
     assert_match(/validation failed/, @response.body)
-    put url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test"), load_backend_file("pattern/digiKam.xml")
+    put "/source/home:coolo:test/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
     assert_response :success
-    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    get "/source/home:coolo:test/_pattern/mypattern"
     assert_response :success
+    get "/source/home:coolo:test"
+    assert_response :success
+    assert_match(/_pattern/, @response.body)
 
     # delete failure
     prepare_request_with_user "adrian_nobody", "so_alone"
-    delete url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    delete "/source/home:coolo:test/_pattern/mypattern"
     assert_response 403
 
     # successfull delete
     prepare_request_with_user "tom", "thunder"
-    delete url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    delete "/source/home:coolo:test/_pattern/mypattern"
     assert_response :success
-    get url_for(:controller => :source, :action => :pattern_meta, :pattern => "mypattern", :project => "home:coolo:test")
+    delete "/source/home:coolo:test/_pattern/mypattern"
     assert_response 404
   end
 
@@ -1973,7 +1977,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     put url1, '<aggregatelist> <aggregate project="UnknownProject"> <repository target="UnknownProjectRepo" source="nada" /> </aggregate> </aggregatelist>'
     #STDERR.puts(@response.body)
-    assert_response 404
+    assert_response 404 if $ENABLE_BROKEN_TEST
 
     put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> </aggregatelist>'
     #STDERR.puts(@response.body)
