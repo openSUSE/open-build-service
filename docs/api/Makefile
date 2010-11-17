@@ -10,4 +10,5 @@ doc: apidocs
 	xsltproc xs3p.xsl status.xsd >status.html
 
 validate:
-	restility/validate_xml.rb
+	python validate_xml.py api/
+	python validate_xml.py backend/
