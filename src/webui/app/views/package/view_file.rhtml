@@ -1,4 +1,4 @@
-<% @pagetitle = "File #{@filename} of package #{@package}" %>
+<% @pagetitle = "View File #{@filename} of Package #{@package}" %>
 
 <% package_bread_crumb(
   link_to( 'Files', :action => :files, :project => @project, :package => @package, :rev => @srcmd5 ),
@@ -22,7 +22,7 @@
   <% end %>
 <% end %>
 
-<h2>View File <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>
+<h3><%= h @pagetitle %> (Project <%=h @project %>)</h3>
 
 <pre id="code" class="<%= guess_code_class(@filename) %>">
 <%=h @file %>

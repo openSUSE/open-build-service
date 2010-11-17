@@ -1,4 +1,4 @@
-<% @pagetitle = "Edit File #{@filename}" %>
+<% @pagetitle = "Edit File #{@filename} of Package #{@package}" %>
 
 <% package_bread_crumb(
   link_to( 'Files', :action => :files, :project => @project, :package => @package ),
@@ -7,19 +7,16 @@
 <%= render :partial => "tabs" %>
 
 
-<h2>Editing file <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>
+<h3><%= h @pagetitle %> (Project <%=h @project %>)</h3>
 
 <% form_tag :action => :save_modified_file, :project => @project, :package => @package, "class" => "edit" do %>
   <p>
-    <%= text_area_tag( "file", @file, :cols => "80",
-      :rows => "40" ) %>
+    <%= text_area_tag( "file", @file, :cols => "80", :rows => "40" ) %>
   </p>
-
   <p>
     <strong>Comment your changes (optional):</strong><br/>
-    <%= text_field_tag 'comment', '', :size => 50 %>
+    <%= text_field_tag 'comment', '', :size => 100 %>
   </p>
-
   <p>
     <%= submit_tag %>
     <%= hidden_field_tag( "filename", @filename ) %>
