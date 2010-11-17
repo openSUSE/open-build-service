@@ -382,10 +382,10 @@ module ApplicationHelper
             "</div>"
         end
         out += "</div></div>"
+        out.html_safe
       else
         image_tag(image)
       end
-      return out.html_safe
     else
       ""
     end
