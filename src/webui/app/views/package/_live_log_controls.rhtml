@@ -5,7 +5,7 @@
   <a href="#" class="stop_refresh">Stop refresh</a>
   <%= link_to image_tag( 'icons/script.png' ), :controller => :package, :action => :rawlog, :package => @package,
     :project => @project, :arch => @arch, :repository => @repo  %>
-  <%= link_to 'Download raw logfile', :controller => :package, :action => :rawlog, :package => @package,
+  <%= link_to 'Download logfile', :controller => :package, :action => :rawlog, :package => @package,
     :project => @project, :arch => @arch, :repository => @repo  %>
 </p>
 
