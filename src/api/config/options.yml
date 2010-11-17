@@ -17,3 +17,7 @@ webui_url: http://localhost:3000
 # deny: Only admin user can create new users
 new_user_registration: allow
 
+# Allow user to create home projects, which is the default. Disable it here
+# via setting it to "false"
+# allow_user_to_create_home_project: true
+
