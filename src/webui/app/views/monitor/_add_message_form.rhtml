@@ -1,14 +1,7 @@
-
 <% form_remote_tag :url => { :action => 'save_message' },
-  :loading => "$('#message_save_spinner').show()",
-  :complete => "$('#message_save_spinner').hide()" do %>
-
-  <%= text_field_tag 'message', '', { :size => 40 } %>
-  <%= select_tag 'severity', options_for_select(
-    [['informal',0],['green',1],['yellow',2],['red',3]] ) %>
-  <%= image_submit_tag "ok" %>
-  <%= image_tag 'rotating-tail.gif', :id => 'message_save_spinner',
-    :style => "visibility:hidden;" -%>
-
+  :loading => "$('#message_save_spinner').show()", :complete => "$('#message_save_spinner').hide()" do %>
+  <%= text_field_tag 'message', '', { :size => 100 } %>
+  <%= select_tag 'severity', options_for_select([['informal',0],['green',1],['yellow',2],['red',3]] ) %>
+  <%= submit_tag "Add message" %>
+  <%= image_tag 'rotating-tail.gif', :id => 'message_save_spinner', :style => "visibility:hidden;" -%>
 <% end %>
-
