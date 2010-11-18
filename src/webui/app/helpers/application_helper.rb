@@ -188,12 +188,6 @@ module ApplicationHelper
     return diff_m.to_s + " months ago"
   end
 
-  def setup_buildresult_trigger
-    content_for :ready_function do 
-      "setup_buildresult_trigger();"
-    end
-  end
-
   def tlink_to(text, length, *url_opts)
     out = "<span title='#{text}'>" + link_to( truncate( h(text), :length => length), *url_opts) + "</span>"
     return out.html_safe

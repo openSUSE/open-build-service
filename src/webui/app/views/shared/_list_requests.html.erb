@@ -24,7 +24,7 @@
         <th style="width: 1%">Date</th>
         <th>Source</th>
         <th>Target</th>
-        <th style="width: 1%">Requester</th>
+        <th style="width: 5%">Requester</th>
         <th style="width: 1%">Type</th>
       </tr>
     </thead>
@@ -35,7 +35,6 @@
         <tr>
           <td class="nowrap"><%= fuzzy_time_string( req.state.value "when" ) %></td>
           <td>
-
             <% if action_elem.has_element? :source %>
               <div id="req_<%= req.value(:id) %>"><%= image_tag 'icons/information.png' %>
                 <%= package_link(action_elem.source.project, action_elem.source.package, :length => 70) %>
@@ -44,20 +43,20 @@
                 setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
                                           :project => action_elem.source.project, :package => action_elem.source.package %>' )
               </script>
-            <% elsif reqtype(req) == "delete"
-              if action_elem.target.has_attribute? :package and hide_package %>
+            <% elsif reqtype(req) == "delete" %>
+              <% if action_elem.target.has_attribute? :package and hide_package %>
                 <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => true, :length => 70) %>
-              <% end
-            end -%>
+              <% end %>
+            <% end %>
           </td>
           <td>
-            <% if action_elem.has_element?(:target) && action_elem.target.has_attribute?(:package)
-               if reqtype(req) != "delete" or !hide_package %>
-                 <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 ) %>
-               <% else %>
-                 <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 ) %>
-             <% end
-            end %>
+            <% if action_elem.has_element?(:target) && action_elem.target.has_attribute?(:package) %>
+              <% if reqtype(req) != "delete" or !hide_package %>
+                <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 ) %>
+              <% else %>
+                <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 ) %>
+              <% end %>
+            <% end %>
           </td>
           <td class="nowrap">
             <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
