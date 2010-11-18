@@ -1,6 +1,6 @@
 <%
 project_bread_crumb( 'Repository States' )
-@pagetitle = "Repository States for #{@project.name}"
+@pagetitle = "Repository States of #{@project.name}"
 @metarobots = 'noindex'
 -%>
 
@@ -11,7 +11,7 @@ project_bread_crumb( 'Repository States' )
 <% @repositories.each do |repository| %>
   <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository) %>" >
 
-    <h2>Repository state for <%= repository %></h2>
+    <h3>Repository State of <%= repository %></h3>
 
     <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository ) %> Go to download <%= link_to 'repository', repo_url( @project, repository ) %>
     </p>
