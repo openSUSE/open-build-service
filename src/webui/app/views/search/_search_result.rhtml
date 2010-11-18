@@ -19,14 +19,14 @@
           <% if @result[:type] == 'project' %>
 
             <%= image_tag('project.png') %>
-            <%= link_to "<strong>#{@result[:data].name}</strong>", { :controller => 'project',
-              :action => :show, :project => @result[:data] } -%>
+            <strong><%= link_to "#{@result[:data].name}", { :controller => 'project',
+              :action => :show, :project => @result[:data] } -%></strong>
 
           <% elsif @result[:type] == 'package' %>
 
             <%= image_tag('package.png') %>
-            <%= link_to "<strong>#{@result[:data].name}</strong>", { :controller => 'package',
-              :action => :show, :package => @result[:data], :project => @result[:data].project } -%>
+            <strong><%= link_to "#{@result[:data].name}", { :controller => 'package',
+              :action => :show, :package => @result[:data], :project => @result[:data].project } -%></strong>
             (project <%= link_to @result[:data].project, { :controller => 'project',
               :action => :show, :project => @result[:data].project } -%>)
 
