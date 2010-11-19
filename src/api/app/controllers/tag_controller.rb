@@ -14,10 +14,6 @@ class TagController < ApplicationController
   end
   private :list_xml
   
-  def get_tagged_objects_by_user
-    
-  end
-  
   def get_tagged_projects_by_user
     begin
       @user = User.find_by_login(params[:user])
