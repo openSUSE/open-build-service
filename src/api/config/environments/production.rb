@@ -102,3 +102,4 @@ DOWNLOAD_URL='http://localhost:82/'
 #  hermesconf.dbname = 'hermes'
 #end
 
+RESPONSE_SCHEMA_VALIDATION = true

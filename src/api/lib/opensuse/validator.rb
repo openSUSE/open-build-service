@@ -47,8 +47,13 @@ module ActionController
     def validate_incoming_xml
       #only validate PUT requests
       return true unless request.put?
-      Suse::Validator.new(params).validate(request)
+      Suse::Validator.new(params).validate(request.raw_post.to_s)
     end
+
+    def validate_outgoing_xml
+      Suse::Validator.new(params).validate(response.body)
+    end
+
   end
 end
 
@@ -132,21 +137,17 @@ module Suse
       @schema_path = schema_path
     end
 
-    def validate( request )
+    def validate( content )
       if @schema_path.nil?
         logger.debug "schema path not set, skipping validation"
         return true
       end
-
       logger.debug "trying to validate against schema '#{@schema_path}'"
 
-      doc_str = request.raw_post.to_s    
-      
       tmp = Tempfile.new('opensuse_frontend_validator')
-      tmp.print doc_str
+      tmp.print content
       tmp_path = tmp.path
       tmp.close
-
       logger.debug "validation tmpfile: #{tmp_path}"
 
       cmd = "/usr/bin/xmllint --noout #{@xmllint_param} #{@schema_path} #{tmp_path}"
@@ -155,13 +156,13 @@ module Suse
       logger.debug "#{cmd} returned #{exitstatus}"
       if exitstatus != 0
         logger.debug "xmllint return value: #{$?.exitstatus}"
-        logger.debug "XML: #{doc_str} #{out}"
+        logger.debug "XML: #{content} #{out}"
         raise ValidationError, "validation failed, output:\n#{out}"
       end
       logger.debug "validation succeeded"
 
       return true
-
     end
+
   end
 end
