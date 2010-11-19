@@ -19,11 +19,8 @@
 import os, sys
 from subprocess import call
 
-if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
-    print "please provide a directory with XML files to validate!"
-    sys.exit(1)
 
-def validate(arg, dirname, filenames):
+def validate_schema(arg, dirname, filenames):
     """Validates XML files in a directory against their provided schema definition.
 
     Calls 'xmllint' to do the validation when a supported schema definition file is
@@ -44,4 +41,8 @@ def validate(arg, dirname, filenames):
 
 
 if __name__ == "__main__":                              # we're called directly
-    os.path.walk(sys.argv[1], validate, None)           # walk all files in the provided directory recursively
+    if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
+        print "please provide a directory with XML files to validate!"
+        sys.exit(1)
+
+    os.path.walk(sys.argv[1], validate_schema, None)    # walk all files in the provided directory recursively
