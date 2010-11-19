@@ -61,7 +61,7 @@ namespace :config do
     run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/"
     run "ln -s #{shared_path}/database.db #{release_path}#{git_subdir}/db/"
     run "ln -s #{shared_path}/repositories.rb #{release_path}#{git_subdir}/config/"
-    run "rm -r #{release_path}#{git_subdir}/app/views/maintenance"
+    run "rm -fr #{release_path}#{git_subdir}/app/views/maintenance"
     run "ln -s #{shared_path}/maintenance #{release_path}#{git_subdir}/app/views"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/database.yml"
   end
