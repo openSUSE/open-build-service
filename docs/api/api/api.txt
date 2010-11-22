@@ -42,23 +42,45 @@ XmlResult: distributions
 Host: api.opensuse.org
 
 <userid>: Id of user
+<groupid> Id of group
 
 
 GET /person/<userid>
 
   Read user data.
-  
+
 XmlResult: user
-  
+
 
 PUT /person/<userid>
 
   Write user data.
-  
+
 XmlBody: user
-  
 XmlResult: status
 
+
+GET /person/<userid>/<groupid>
+
+  Read user and group data.
+
+XmlResult: TODO
+
+
+POST /person/register
+
+  TODO
+
+Parameters:
+  TODO
+
+
+PUT /person/register
+
+  TODO
+
+XmlBody: TODO
+XmlResult: TODO
 
 == Sources
 
@@ -70,7 +92,7 @@ Host: api.opensuse.org
 GET /source/
 
   Read list of projects.
-  
+
 XmlResult: directory
 
 Parameters:
