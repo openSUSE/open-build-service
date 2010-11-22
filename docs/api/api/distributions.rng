@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="distributions-element"/>
+  </start>
+
+  <define ns="" name="distributions-element">
+    <element name="distributions">
+      <zeroOrMore>
+        <ref name="distribution-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="distribution-element">
+    <element name="distribution">
+      <attribute name="id">
+        <data type="string"/>
+      </attribute>
+      <attribute name="vendor">
+        <data type="string"/>
+      </attribute>
+      <attribute name="version">
+        <data type="string"/>
+      </attribute>
+      <interleave>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="project">
+          <text/>
+        </element>
+        <element name="repository">
+          <text/>
+        </element>
+        <element name="reponame">
+          <text/>
+        </element>
+        <ref name="icon-element"/>
+        <element name="link">
+          <text/>
+        </element>
+      </interleave>
+    </element>
+  </define>
+
+  <define ns="" name="icon-element">
+    <element name="icon">
+      <attribute name="width">
+        <data type="int"/>
+      </attribute>
+      <attribute name="height">
+        <data type="int"/>
+      </attribute>
+      <attribute name="url">
+        <data type="string"/>
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+</grammar>
