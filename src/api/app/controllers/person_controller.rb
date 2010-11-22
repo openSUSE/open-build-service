@@ -2,6 +2,9 @@
 
 class PersonController < ApplicationController
 
+  validate_action :userinfo => {:method => :get, :response => :user}
+  validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
+
   def userinfo
     valid_http_methods :get, :put
 

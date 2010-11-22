@@ -1,8 +1,9 @@
 require "rexml/document"
 
 class AttributeController < ApplicationController
-  validate_action :index => :directory
-  validate_action :attribute => :attribute
+
+  validate_action :index => {:method => :get, :response => :directory}
+  validate_action :attribute => {:method => :get, :response => :attribute}
  
   def index
     if params[:namespace]

@@ -1,11 +1,8 @@
-
-
-class TagController < ApplicationController    
+class TagController < ApplicationController
   
-  validate_action :tags_by_user_and_object => :tags
-  validate_action :project_tags => :tags
-  validate_action :package_tags => :tags
-  
+  validate_action :tags_by_user_and_object => {:method => :get, :response => :tags}
+  validate_action :project_tags => {:method => :get, :response => :tags}
+  validate_action :package_tags => {:method => :get, :response => :tags}
   
   #list all available tags as xml list
   def list_xml

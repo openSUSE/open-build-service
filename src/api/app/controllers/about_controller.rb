@@ -1,6 +1,6 @@
 class AboutController < ApplicationController
 
-  validate_action :index => :about
+  validate_action :index => {:method => :get, :response => :about}
 
   def index
     # ACL(index): nothing to change

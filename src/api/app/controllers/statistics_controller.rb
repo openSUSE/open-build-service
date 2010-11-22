@@ -4,6 +4,7 @@ require "rexml/streamlistener"
 
 class StatisticsController < ApplicationController
 
+  validate_action :redirect_stats => {:method => :get, :response => :redirect_stats}
 
   before_filter :get_limit, :only => [
     :highest_rated, :most_active, :latest_added, :latest_updated,
@@ -13,9 +14,6 @@ class StatisticsController < ApplicationController
   # does not seem to work with newer rails
   #caches_action :highest_rated, :most_active, :latest_added, :latest_updated,
   #  :latest_built, :download_counter
-
-  validate_action :redirect_stats => :redirect_stats
-
 
   # StreamHandler for parsing incoming download_stats / redirect_stats (xml)
   class StreamHandler

@@ -1,9 +1,12 @@
 require "rexml/document"
 
 class SourceController < ApplicationController
-  validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
-  validate_action :project_meta => :project, :package_meta => :package
-  
+
+  validate_action :index => {:method => :get, :response => :directory},
+                  :packagelist => {:method => :get, :response => :directory},
+                  :filelist => {:method => :get, :response => :directory},
+                  :project_meta => {:method => :get, :response => :project},
+                  :package_meta => {:method => :get, :response => :package}
 
   def index
     # ACL(index): projects with flag 'access' are not listed

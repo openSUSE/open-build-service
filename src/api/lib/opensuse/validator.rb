@@ -1,57 +1,57 @@
 require 'tempfile'
 
-# method for mapping actions in a controller to schemas
-# use in controller definition file
-# 
-# Example:
-#
-# class FooController < ActionController::Base
-#
-#   # data received in a put request in action index will be validated
-#   # against schema project.xsd
-#   validate_action :index => :project
-#
-#   def index
-#     if @request.put?
-#       # request data has already been validated here
-#     end
-#   end
-#
-# end
-#
+# This module encapsulates XML schema validation for individual controller actions.
+# It allows to verify incoming and outgoing XML data and to set different schemas based
+# on the request type (GET, PUT, POST, etc.) and direction (in, out). Supported schema
+# types are Schematron, RelaxNG and XML Schema (xsd).
 module ActionController
   class Base
 
     class << self
-      # Tells validator to validate incoming XML (contained in the request body) agains the
-      # specified schema. Takes a hash of <action> => <schema> pairs where both values are symbolified
-      # names. The extension for XML schemas is appended to the stringified <schema> value
+      # Method for mapping actions in a controller to (XML) schemas based on request
+      # method (GET, PUT, POST, etc.). Example:
       #
-      # Example:
-      #   class FooController < ApplicationController
-      #     
-      #     validate_action :bar_action => :bar_schema
+      # class UserController < ActionController::Base
+      #   # Validation on request data is performed based on the request type and the
+      #   # provided schema name. Validation for a GET request only checks the XML response,
+      #   # whereas a POST request may want to check the (user-supplied) request as well as the
+      #   # own response to the request.
       #
-      #     def bar_action
-      #       #
+      #   validate_action :index => {:method => :get, :response => :users}
+      #   validate_action :edit =>  {:method => :put, :request => :user, :response => :status}
+      #
+      #   def index
+      #     # return all users ...
+      #   end
+      #   
+      #   def edit
+      #     if @request.put?
+      #       # request data has already been validated here
       #     end
       #   end
+      # end
       def validate_action( opt )
         controller = self.name.match(/^(.*?)Controller/)[1].downcase
-        opt.each do |action, schema|
-          Suse::Validator.add_schema_mapping( controller, action, schema )
+        opt.each do |action, action_opt|
+          Suse::Validator.add_schema_mapping(controller, action, action_opt)
         end
       end
     end
 
-    def validate_incoming_xml
-      #only validate PUT requests
-      return true unless request.put?
-      Suse::Validator.new(params).validate(request.raw_post.to_s)
+    # This method should be called in the ApplicationController of your Rails app.
+    def validate_xml_request
+      opt = params()
+      opt[:method] = request.method.to_s
+      opt[:type] = "request"
+      Suse::Validator.new(opt).validate(request.raw_post.to_s)
     end
 
-    def validate_outgoing_xml
-      Suse::Validator.new(params).validate(response.body)
+    # This method should be called in the ApplicationController of your Rails app.
+    def validate_xml_response
+      opt = params()
+      opt[:method] = request.method.to_s
+      opt[:type] = "response"
+      Suse::Validator.new(opt).validate(response.body)
     end
 
   end
@@ -70,41 +70,57 @@ module Suse
         RAILS_DEFAULT_LOGGER
       end
 
-      def add_schema_mapping( controller, action, schema )
-        logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{schema.inspect}"
-        controller = controller.to_s
-        action = action.to_s
-        schema = schema.to_s
+      # Adds an action to schema mapping. Internally, the mapping is done like this:
+      #
+      # [controller][action-method-response] = schema
+      # [controller][action-method-request] = schema
+      #
+      # For the above example, the resulting mapping looks like:
+      #
+      # [user][index-get-reponse] = users
+      # [user][edit-put-request] = user
+      # [user][edit-put-response] = status
+      def add_schema_mapping( controller, action, opt )
+        unless opt.has_key?(:method) and (opt.has_key?(:request) or opt.has_key?(:response))
+          raise "missing (or wrong) parameters, #{opt.inspect}"
+        end
+        logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
 
+        controller = controller.to_s
         @schema_map ||= Hash.new
         @schema_map[controller] ||= Hash.new
-        @schema_map[controller][action] = schema
+        key = action.to_s + "-" + opt[:method].to_s
+        if opt[:request]   # have a request validation schema?
+          @schema_map[controller][key + "-request"] = opt[:request].to_s
+        end
+        if opt[:response]  # have a reponse validate schema?
+          @schema_map[controller][key + "-response"] = opt[:response].to_s
+        end
       end
 
+      # Retrieves the schema filename from the action to schema mapping.
       def get_schema( opt )
-        unless opt.has_key?(:controller) and opt.has_key?(:action)
-          raise "Suse::Validation.get_schema: option hash needs keys :controller and :action"
+        unless opt.class == Hash
+          raise "illegal parameter, need Hash, seen #{opt.class.name}"
+        end
+        unless opt.has_key?(:controller) and opt.has_key?(:action) and opt.has_key?(:method) and opt.has_key?(:type)
+          raise "option hash needs keys :controller and :action"
         end
         c = opt[:controller].to_s
-        a = opt[:action].to_s
+        key = opt[:action].to_s + "-" + opt[:method].to_s + "-" + opt[:type].to_s
 
-        logger.debug "checking schema map for controller '#{c}', action '#{a}'"
+        logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
        
         return nil if @schema_map.nil?
-        return nil unless @schema_map.has_key? c and @schema_map[c].has_key? a
-
-        @schema_map[c][a].to_s
-      end
-
-      def dump_map
-        @schema_map.inspect
+        return nil unless @schema_map.has_key? c and @schema_map[c].has_key? key
+        return @schema_map[c][key].to_s
       end
     end
 
     def logger
       RAILS_DEFAULT_LOGGER
     end
-    
+
     def initialize( opt )
       case opt
       when String, Symbol
@@ -129,10 +145,10 @@ module Suse
         @xmllint_param = "--relaxng"
         unless File.exist? schema_path
           # does not exist either ... error ...
-          raise "Suse::Validation: unable to read schema file '#{schema_path}' or .xsd: file not found"
+          raise "Unable to read schema file '#{schema_path}' or .xsd: file not found"
         end
       end
-      
+
       logger.debug "schema_path: #{schema_path}"
       @schema_path = schema_path
     end
