@@ -627,7 +627,7 @@ PUT /attribute/<namespace>/_meta
   
   change attribute namespace meta
 
-XmlBody: attribute namespace meta data
+XmlBody: attribute_namespace_meta_data
 
 XmlResult: status
 
@@ -650,7 +650,7 @@ PUT /attribute/<namespace>/<name>/_meta
   
   change attribute meta
 
-XmlBody: attribute meta data
+XmlBody: attribute_meta_data
 
 XmlResult: status
 
