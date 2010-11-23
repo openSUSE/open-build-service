@@ -2,11 +2,11 @@
 
 class PersonController < ApplicationController
 
-  validate_action :userinfo => {:method => :get, :response => :user},
-                  :userinfo => {:method => :put, :request => :user, :response => :status}
-  #validate_action :grouplist => {:method => :get, :response => :group}
-  #validate_action :register => {:method => :put, :request => :user, :response => :status},
-  #                :register => {:method => :post, :response => :status
+  validate_action :userinfo => {:method => :get, :response => :user}
+  validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
+  validate_action :grouplist => {:method => :get, :response => :group}
+  validate_action :register => {:method => :put, :request => :user, :response => :status}
+  validate_action :register => {:method => :post, :response => :status}
 
   def userinfo
     valid_http_methods :get, :put

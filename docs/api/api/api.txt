@@ -82,6 +82,22 @@ PUT /person/register
 XmlBody: TODO
 XmlResult: TODO
 
+
+PUT /person/changepasswd
+
+  TODO
+
+XmlBody: TODO
+XmlResult: TODO
+
+
+POST /person/changepasswd
+
+  TODO
+
+Parameters:
+  TODO
+
 == Sources
 
 Host: api.opensuse.org
