@@ -100,9 +100,6 @@ module Suse
 
       # Retrieves the schema filename from the action to schema mapping.
       def get_schema( opt )
-        unless opt.class == Hash
-          raise "illegal parameter, need Hash, seen #{opt.class.name}"
-        end
         unless opt.has_key?(:controller) and opt.has_key?(:action) and opt.has_key?(:method) and opt.has_key?(:type)
           raise "option hash needs keys :controller and :action"
         end
