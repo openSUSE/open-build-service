@@ -14,9 +14,6 @@ class ValidatorTest < ActiveSupport::TestCase
      end
      assert_match(/illegal initialization option/, exception.message)
 
-     # just a debug function
-     assert_match(/"packagelist"=>"directory"/, Suse::Validator.dump_map)
-
      exception = assert_raise RuntimeError do 
        # no action, no schema
        Suse::Validator.new :controller => :project
@@ -26,19 +23,19 @@ class ValidatorTest < ActiveSupport::TestCase
      validator = Suse::Validator.new 'link'
      request = ActionController::TestRequest.new
      exception = assert_raise Suse::ValidationError do
-       validator.validate( request )
+       validator.validate( request.raw_post.to_s )
      end
      assert_match(/Document is empty/, exception.message)
   
      request.env['RAW_POST_DATA'] = '<link test="invalid"/>'
      exception = assert_raise Suse::ValidationError do
-       validator.validate( request )
+       validator.validate( request.raw_post.to_s )
      end
      assert_match(/Invalid attribute test for element link/, exception.message)
 
      # projects can be anything
      request.env['RAW_POST_DATA'] = '<link project="invalid"/>'
-     assert_equal true, validator.validate( request )
+     assert_equal true, validator.validate( request.raw_post.to_s )
   end
   
 end

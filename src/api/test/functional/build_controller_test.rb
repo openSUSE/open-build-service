@@ -141,6 +141,7 @@ class BuildControllerTest < ActionController::IntegrationTest
 
   def test_logfile
     get "/build/home:Iggy/10.2/i586/TestPack/_log"
+    debugger
     assert_response :success
     get "/build/home:Iggy/10.2/i586/notthere/_log"
     assert_response 404
