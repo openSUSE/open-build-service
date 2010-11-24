@@ -1859,29 +1859,19 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj_name}"
         oprj.add_user @http_user, "maintainer"
-        oprj.flags.create( :status => "disable", :flag => 'publish')
-        # ACL(index_package_branch): inherit all access flags from branched project
-        if prj 
-          if prj.disabled_for?('access', nil, nil)
-            oprj.flags.create( :status => "disable", :flag => 'access')
-          end
-          if prj.disabled_for?('sourceaccess', nil, nil)
-            oprj.flags.create( :status => "disable", :flag => 'sourceaccess')
-          end
-          if prj.disabled_for?('binarydownload', nil, nil)
-            oprj.flags.create( :status => "disable", :flag => 'binarydownload')
-          end
-          if prj.enabled_for?('privacy', nil, nil)
-            oprj.flags.create( :status => "enable", :flag => 'privacy')
-          end
-        end
         if prj
-          # FIXME: support this also for remote projects
           prj.repositories.each do |repo|
             orepo = oprj.repositories.create :name => repo.name
             orepo.architectures = repo.architectures
             orepo.path_elements << PathElement.new(:link => repo, :position => 1)
           end
+          # take over flags, but explicit disable publishing by default and enable building.
+          prj.flags.each do |f|
+            oprj.flags << f unless f.flag == "publish" or f.flag == "build"
+          end
+          oprj.flags.create( :status => "disable", :flag => 'publish')
+        else
+          # FIXME: support this also for remote projects
         end
         oprj.store
       end
@@ -1913,6 +1903,14 @@ class SourceController < ApplicationController
         opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       else
         opkg = oprj.db_packages.create(:name => opkg_name, :description => params.has_key?(:comment) ? params[:comment] : "" )
+      end
+      if pkg
+        # take over flags, but ignore publish and build flags (when branching from a frozen project)
+        pkg.flags.each do |f|
+          opkg.flags << f unless f.flag == "publish" or f.flag == "build"
+        end
+      else
+        # FIXME: support this also for remote projects
       end
       opkg.add_user @http_user, "maintainer"
       opkg.store

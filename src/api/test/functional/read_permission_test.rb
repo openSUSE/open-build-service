@@ -189,7 +189,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
+
     prepare_request_with_user "hidden_homer", "homer"
+    get "/source/#{tprj}/_meta"
+    assert :success
     resp=:success
     delresp=:success
     match=/>HiddenProject</
