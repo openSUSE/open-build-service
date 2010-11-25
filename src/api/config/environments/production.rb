@@ -91,7 +91,7 @@ LDAP_SN_ATTR_REQUIRED = :on
 # Please also set below LDAP_GROUP_* configs correctly to ensure the operation works properly
 LDAP_GROUP_SUPPORT = :off
 # OVERRIDE with your company's ldap search base for groups
-LDAP_GROUP_SEARCH_BASE = "ou=obsgroups,dc=meego,dc=com"
+LDAP_GROUP_SEARCH_BASE = "ou=OBSGROUPS,dc=EXAMPLE,dc=COM"
 # The attribute the group name is stored in
 LDAP_GROUP_TITLE_ATTR = "cn"
 # The value of the group objectclass attribute, leave it as "" if objectclass attr doesn't exist
