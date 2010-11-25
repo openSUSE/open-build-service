@@ -9,6 +9,9 @@ class SourceController < ApplicationController
   validate_action :project_meta => {:method => :get, :response => :project}
   validate_action :package_meta => {:method => :get, :response => :package}
 
+  validate_action :project_meta => {:method => :put, :request => :project, :response => :status}
+  validate_action :package_meta => {:method => :put, :request => :package, :response => :status}
+
   def index
     # ACL(index): projects with flag 'access' are not listed
     projectlist
