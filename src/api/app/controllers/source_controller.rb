@@ -946,13 +946,13 @@ class SourceController < ApplicationController
         # file validation where possible
         if params[:file] == "_link"
            validator = Suse::Validator.new( "link" )
-           validator.validate(request)
+           validator.validate(request.raw_post)
         elsif params[:file] == "_aggregate"
            validator = Suse::Validator.new( "aggregate" )
-           validator.validate(request)
+           validator.validate(request.raw_post)
         elsif params[:package] == "_pattern"
            validator = Suse::Validator.new( "pattern" )
-           validator.validate(request)
+           validator.validate(request.raw_post)
         end
 
         # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
