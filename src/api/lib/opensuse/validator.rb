@@ -55,7 +55,9 @@ module ActionController
         Suse::Validator.new(opt).validate(response)
       rescue Suse::ValidationError => e
         # TODO: temporary fix until the libxml-based validator gets merged
-        logger.debug "reponse validation error occurred"
+        logger.debug "reponse validation error occurred: #{e}"
+      rescue RuntimeError => e
+        logger.debug "runtime error occured: #{e}"
       end
     end
 
