@@ -4,10 +4,6 @@
 Below is a complete tree of all roles known to the system.
 </p>
 
-<div class="commands">
-<%= link_to 'New role', :action => 'create' %>
-</div>
-
 <%= node_tree @roles do |role|
       result = link_to(role.title, { :action => 'show', :id => role }) + " "
       result += "[" + role.users.length.to_s + "/" + role.all_users.length.to_s + " users, " 
@@ -17,6 +13,3 @@ Below is a complete tree of all roles known to the system.
       result += link_to('D', { :action => 'delete', :id => role }, :title => 'Delete') + ")"
     end %>
 
-<div class="commands">
-<%= link_to 'New role', :action => 'create' %>
-</div>
