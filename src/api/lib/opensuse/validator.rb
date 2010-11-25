@@ -43,7 +43,7 @@ module ActionController
       opt = params()
       opt[:method] = request.method.to_s
       opt[:type] = "request"
-      Suse::Validator.new(opt).validate(request.raw_post.to_s)
+      Suse::Validator.new(opt).validate(request)
     end
 
     # This method should be called in the ApplicationController of your Rails app.
@@ -52,7 +52,7 @@ module ActionController
       opt[:method] = request.method.to_s
       opt[:type] = "response"
       begin
-        Suse::Validator.new(opt).validate(response.body)
+        Suse::Validator.new(opt).validate(response)
       rescue Suse::ValidationError => e
         # TODO: temporary fix until the libxml-based validator gets merged
         logger.debug "reponse validation error occurred"
@@ -161,6 +161,15 @@ module Suse
         return true
       end
       logger.debug "trying to validate against schema '#{@schema_path}'"
+
+      case content
+      when String, Symbol
+        content = content.to_s
+      when ActionController::Request
+        content = content.raw_post.to_s
+      when ActionController::Response
+        content = content.body
+      end
 
       tmp = Tempfile.new('opensuse_frontend_validator')
       tmp.print content
