@@ -1870,7 +1870,7 @@ class SourceController < ApplicationController
           end
           # take over flags, but explicit disable publishing by default and enable building.
           prj.flags.each do |f|
-            oprj.flags << f unless f.flag == "publish" or f.flag == "build"
+            oprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
           end
           oprj.flags.create( :status => "disable", :flag => 'publish')
         else
@@ -1910,7 +1910,7 @@ class SourceController < ApplicationController
       if pkg
         # take over flags, but ignore publish and build flags (when branching from a frozen project)
         pkg.flags.each do |f|
-          opkg.flags << f unless f.flag == "publish" or f.flag == "build"
+          opkg.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
         end
       else
         # FIXME: support this also for remote projects
