@@ -1407,6 +1407,7 @@ XmlResult: messages
 PUT /message/?project=<project>&package=<package>
   Append message to the specified package (or project, if package parameter
   is omitted).
+XmlBody :message
 XmlResult: message
 
 
