@@ -129,11 +129,7 @@ class StatisticsController < ApplicationController
   end
 
 
-
-
   def index
-
-    # ACL(index): nothing
     text =  "This is the statistics controller.<br />"
     text += "See the api documentation for details."
     render :text => text
@@ -144,7 +140,6 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     # response.time_to_live = 10.minutes
 
-    # ACL(highest_rated) TODO: need to check if this really needs additional protection
     ratings = Rating.find :all,
       :select => 'object_id, object_type, count(score) as count,' +
         'sum(score)/count(score) as score_calculated',
@@ -155,26 +150,20 @@ class StatisticsController < ApplicationController
   end
 
   def rating
-    prj = DbProject.find_by_name(params[:project])
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prj)
-    pkg = prj.find_package(params[:package]) if prj
-    raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pkg)
-
-    @package = params[:package]
     @project = params[:project]
-    begin
-      object = DbProject.find_by_name @project
-      object = DbPackage.find :first, :conditions =>
-        [ 'name=? AND db_project_id=?', @package, object.id ] if @package
-      raise RuntimeError.new('nil object') if object.nil?
-    rescue
-      @package = @project = @rating = object = nil
-      return
+    @package = params[:package]
+
+    object = DbProject.find_by_name(@project)
+    raise DbProject::PrjAccessError.new "" unless object
+    if @package
+      object = object.find_package(@package)
+      raise DbPackage::PkgAccessError.new "" unless object
     end
 
     if request.get?
 
       @rating = object.rating( @http_user.id )
+      return
 
     elsif request.put?
 
@@ -204,11 +193,11 @@ class StatisticsController < ApplicationController
         end
       end
       render_ok
-
-    else
-      render_error :status => 400, :errorcode => "invalid_method",
-        :message => "only GET or PUT method allowed for this action"
+      return
     end
+
+    render_error :status => 400, :errorcode => "invalid_method",
+      :message => "only GET or PUT method allowed for this action"
   end
 
 
@@ -453,14 +442,13 @@ class StatisticsController < ApplicationController
   end
 
   def activity
-    prj = DbProject.find_by_name( params[:project])
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prj)
-    pkg = prj.find_package(params[:package]) if prj
-    raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pkg)
+    @project = DbProject.find_by_name(params[:project])
+    raise DbProject::PrjAccessError.new "" unless @project
 
-    @project = DbProject.find_by_name params[:project]
-    @package = DbPackage.find :first, :conditions => [
-      'name=? AND db_project_id=?', params[:package], @project.id ] if @project
+    if @package
+      @package = object.find_package(params[:package])
+      raise DbPackage::PkgAccessError.new "" unless @package
+    end
   end
 
 
