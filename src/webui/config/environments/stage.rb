@@ -36,3 +36,4 @@ DOWNLOAD_URL = "http://download.opensuse.org/repositories"
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "on"
+ICHAIN_HOST = "https://build.opensuse.org"

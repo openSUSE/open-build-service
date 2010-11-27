@@ -74,6 +74,7 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
+    run "mkdir -p #{release_path}#{git_subdir}/public/main"
     run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{release_path}#{git_subdir}/public/main"
   end
 
