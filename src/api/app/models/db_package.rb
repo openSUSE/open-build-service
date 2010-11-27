@@ -30,22 +30,109 @@ class DbPackage < ActiveRecord::Base
     false
   end
 
-  def before_validation
-    if self.disabled_for?('access', nil, nil)  or self.db_project.disabled_for?('access', nil, nil)
-      unless User.current and User.current.can_access?(self)
-        logger.debug "PkgAccessException: #{self.name}"
-        raise PkgAccessError.new "Unknown package '#{self.db_project.name}/#{self.name}'"
-      end
-    end
-    if self.disabled_for?('sourceaccess', nil, nil)
-      logger.debug "PkgSourceAccessException: to be implemented"
-    end
-    if self.disabled_for?('binarydownload', nil, nil)
-      logger.debug "PkgBinaryDownloadException: to be implemented"
-    end
-  end
+  
+#  def after_create
+#    raise PkgAccessError.new "Unknown package" unless DbPackage.check_access?(self)
+#  end
 
   class << self
+
+    def is_hidden?(project, package)
+      sql =<<-END_SQL
+      SELECT pack.*
+      FROM db_packages pack
+      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
+      WHERE pro.name = BINARY ? AND pack.name = BINARY ?
+      END_SQL
+
+      result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
+      dbpkg = nil
+      dbpkg = result[0] if result
+
+      return nil if dbpkg.nil?
+      pkgrels = dbpkg.flags.count :conditions => 
+          ["db_package_id = ? and flag = 'access' and status = 'disable'", dbpkg.id]
+      return true if pkgrels > 0
+      return true if DbProject.is_hidden?(project)
+      return false
+    end
+
+    def check_dbp_access?(dbp)
+      return false unless dbp.class == DbProject
+      return false if dbp.nil?
+      return false unless DbProject.check_access?(dbp)
+      return true
+    end
+    def check_access?(dbpkg=self)
+      return false if dbpkg.nil?
+      return false unless dbpkg.class == DbPackage
+      # check_project
+      dbp = DbProject.find(dbpkg.db_project_id) if dbpkg and dbpkg.db_project_id
+      return false unless check_dbp_access?(dbp)
+
+      # check package flag
+      # check for 'access' flag
+      rels = dbpkg.flags.count :conditions => 
+          ["db_package_id = ? and flag = 'access' and status = 'disable'", dbpkg.id]
+      # rels > 0 --> flag set
+      if rels > 0
+        # simple check for involvement --> involved users can access
+        userrels = dbpkg.package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
+        if userrels == 0 and not User.currentAdmin
+          # no relationship to package -> no access
+          return false
+        end
+      end
+      return true
+    end
+
+    # own custom find
+    def find(*args)
+      options = args.extract_options!
+      validate_find_options(options)
+      set_readonly_option!(options)
+
+      def securedfind_byids(args,options)
+        dbpkg=find_from_ids(args,options)
+        return if dbpkg.nil?
+        return unless DbPackage.check_access?(dbpkg)
+        return dbpkg
+      end
+
+      def securedfind_every(options)
+        ret = find_every(options)
+        return if ret.nil?
+        ret.each do |dbpkg|
+          unless DbPackage.check_access?(dbpkg)
+              ret.delete(dbpkg) unless User.currentAdmin
+          end
+        end
+        return ret
+      end
+
+      def securedfind_last(options)
+        dbpkg = find_last(options)
+        return if dbpkg.nil?
+        return unless DbPackage.check_access?(dbpkg)
+        return dbpkg
+      end
+
+      def securedfind_initial(options)
+        dbpkg = find_initial(options)
+        return if dbpkg.nil?
+        return unless DbPackage.check_access?(dbpkg)
+        return dbpkg
+      end
+
+      case args.first
+        when :first then securedfind_initial(options)
+        when :last  then securedfind_last(options)
+        when :all   then securedfind_every(options)
+        else    securedfind_byids(args, options)
+      end
+    end
+
+
     def store_axml( package )
       dbp = nil
       DbPackage.transaction do
@@ -72,7 +159,9 @@ class DbPackage < ActiveRecord::Base
       END_SQL
 
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
-      result[0]
+      ret = result[0]
+      return unless DbPackage.check_access?(ret)
+      return ret
     end
 
     def find_by_attribute_type( attrib_type, package=nil )
@@ -88,10 +177,18 @@ class DbPackage < ActiveRecord::Base
 
       if package
         sql += " AND pack.name = BINARY ? GROUP by pack.id"
-        return DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
+        ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
+        ret.each do |dbpkg|
+          ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+        end
+        return ret
       end
       sql += " GROUP by pack.id"
-      return DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
+      ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
+      ret.each do |dbpkg|
+        ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+      end
+      return ret
     end
 
     def find_by_attribute_type_and_value( attrib_type, value, package=nil )
@@ -106,10 +203,18 @@ class DbPackage < ActiveRecord::Base
 
       if package
         sql += " AND pack.name = BINARY ?"
-        return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
+        ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
+        ret.each do |dbpkg|
+          ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+        end
+        return ret
       end
       sql += " GROUP by pack.id"
-      return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
+      ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
+      ret.each do |dbpkg|
+        ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+      end
+      return ret
     end
 
     def activity_algorithm
