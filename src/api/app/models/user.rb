@@ -18,9 +18,25 @@ class User < ActiveRecord::Base
   def self.current
     Thread.current[:user]
   end
+  
+  def self.currentID
+    Thread.current[:id]
+  end
+  
+  def self.currentAdmin
+    Thread.current[:admin]
+  end
 
   def self.current=(user)
     Thread.current[:user] = user
+  end
+
+  def self.currentID=(id)
+    Thread.current[:id] = id
+  end
+
+  def self.currentAdmin=(isadmin)
+    Thread.current[:admin] = isadmin
   end
 
   def encrypt_password
