@@ -34,7 +34,7 @@
               </li>
               <li>
                 <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Submit Package', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+                <%= link_to_remote 'Submit Package to ...', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
               </li>
             <% end %>
             <% if session[:login] %>
