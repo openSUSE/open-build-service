@@ -7,7 +7,7 @@ depending on this user (articles, for example).
 <strong>This action cannot be reverted!</strong>
 </p>
 
-<% form_for :group, :url => { :action => :delete, :id => @user } do |form| %>
+<% form_for :group, :url => { :action => :destroy, :id => @user } do |form| %>
   <%= submit_tag 'Yes', :name => 'yes' %>
   <%= submit_tag 'No', :name => 'no' %>
 <% end %>
