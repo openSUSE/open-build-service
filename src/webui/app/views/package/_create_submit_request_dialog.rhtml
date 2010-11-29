@@ -41,17 +41,18 @@
        Submit <%= prjname %> / <%= @package %> in revision <%= @revision %> to
 
     <p>
-       Project: <input type="text" name="target_project" value="<%=tprj%>" id="target_project" /><br/>
+       Target project: <input type="text" name="target_project" value="<%=tprj%>" id="target_project" /><br/>
+<!-- do not confuse the user with target package name
        Package: <input type="text" name="target_package" value="<%=tpkg%>" id="target_package" />
+-->
        </p>
        <p>
-       <i>Description:</i>
+       <i>Request description:</i>
        <textarea rows="3" cols="40" name="description"></textarea>
        </p>
-       <i>and with this package do: </i>
        <% default = "update" %>
        <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
-       <%= select_tag :source_update, options_for_select([['Remove this package', 'cleanup'], ['Update this package', 'update'], ['Do not touch this package', 'noupdate']], :selected => default) %>
+       <%= check_box_tag :source_update, 'cleanup' %> Remove my package on acceptance
        <p>
        <input type="submit" value="Submit" />
        </p>
@@ -59,7 +60,7 @@
     </div>
 
     <p><div class="aligncenter buttons">
-        <%= link_to_function 'Close', 'remove_dialog()'%>
+        <%= link_to_function 'Cancel', 'remove_dialog()'%>
     </div></p>
 
 
