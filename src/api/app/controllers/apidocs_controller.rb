@@ -1,5 +1,8 @@
 class ApidocsController < ApplicationController
 
+  # Apidocs is insensitive static information, no login needed therefore
+  skip_before_filter :extract_user
+
   def index
     logger.debug "PATH: #{request.path}"
     if ( request.path !~ /\/$/ )
