@@ -424,7 +424,7 @@ class SourceController < ApplicationController
     elsif request.post?
       # init
       unless package_creating_commands.include?(command)  # branch/copy
-        if read_commands.include?(command) or command == 'rebuild'
+        if read_commands.include?(command) or command == 'rebuild' 
           # include project links for diff and branch command
           tpkg = tprj.find_package(target_package_name)
         else
@@ -453,7 +453,12 @@ class SourceController < ApplicationController
         end
       end
       unless tpkg
-        unless package_creating_commands.include?(command) or command == 'undelete'
+        # no package object (non-existing or hidden) but
+        # package being created, undeleted and showlink/not hidden
+        unless ( package_creating_commands.include?(command) or
+                 command == 'undelete' or
+                 ( command == 'showlinked' and not tprj_hidden )
+               )
           raise DbPackage::PkgAccessError.new ""
         end
       end
