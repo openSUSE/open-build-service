@@ -334,7 +334,25 @@ class DbProject < ActiveRecord::Base
           end
 
           if not (group=Group.find_by_title(ge.groupid))
-            raise SaveError, "unknown group '#{ge.groupid}'"
+            # check with LDAP
+            if defined?( LDAP_MODE ) && LDAP_MODE == :on
+              if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+                if User.find_group_with_ldap(ge.groupid)
+                  logger.debug "Find and Create group '#{ge.groupid}' from LDAP"
+                  newgroup = Group.create( :title => ge.groupid )
+                  unless newgroup.errors.empty?
+                    raise SaveError, "unknown group '#{ge.groupid}', failed to create the ldap groupid on OBS"
+                  end
+                  group=Group.find_by_title(ge.groupid)
+                else
+                  raise SaveError, "unknown group '#{ge.groupid}' on LDAP server"
+                end
+              end
+            end
+
+            unless group
+              raise SaveError, "unknown group '#{ge.groupid}'"
+            end
           end
 
           begin
