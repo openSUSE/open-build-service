@@ -439,6 +439,34 @@ module UserMixins
             return
           end
 
+          # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
+          def self.find_group_with_ldap(group)
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return false
+            end
+
+            # search group
+            if defined?( LDAP_GROUP_OBJECTCLASS_ATTR )
+              filter = "(&(#{LDAP_GROUP_TITLE_ATTR}=#{group})(objectclass=#{LDAP_GROUP_OBJECTCLASS_ATTR}))"
+            else
+              filter = "(#{LDAP_GROUP_TITLE_ATTR}=#{group})"
+            end
+            logger.debug( "Search group: #{filter}" )
+            group_dn = String.new
+            ldap_con.search( LDAP_GROUP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+              group_dn = entry.dn
+            end
+            if group_dn.empty?
+              logger.debug( "Failed to find #{group} in ldap" )
+              return false
+            end
+            logger.debug( "group dn: #{group_dn}" )
+            ldap_con.unbind()
+            return true
+          end
+
           # This static method performs the search with the given user, group to check whether the user is in the 
           # group.  Return false if any error occured
           def self.perform_user_group_search_ldap(user, group)
