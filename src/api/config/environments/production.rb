@@ -103,6 +103,10 @@ LDAP_GROUP_MEMBER_ATTR = "member"
 # The attribute the user memberof is stored in
 # LDAP_USER_MEMBEROF_ATTR = "memberof"
 
+# Do not allow creating group via API to avoid the conflicts when LDAP_GROUP_SUPPORT is :on
+# If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
+DISALLOW_GROUP_CREATION_WITH_API = :on
+
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 5352
 
