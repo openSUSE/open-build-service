@@ -131,8 +131,6 @@ class BuildController < ApplicationController
   def package_index
     valid_http_methods :get
     required_parameters :project, :repository, :arch, :package
-    valid_http_methods :get
-    required_parameters :project, :repository, :arch, :package
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
     # ACL(package_index): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
