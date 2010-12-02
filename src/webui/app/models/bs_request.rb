@@ -17,12 +17,14 @@ class BsRequest < ActiveXML::Base
       # it should be more generic
       option = ""
       option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+      target_package_option = ""
+      target_package_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt[:targetpackage]
       if opt[:type] == "submit" 
         reply = <<-ENDE
           <request type="submit">
             <submit>
               <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
-              <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+              <target project="#{opt[:targetproject].to_xs}" #{target_package_option}/>
               #{option}
             </submit>
             <state name="new"/>
