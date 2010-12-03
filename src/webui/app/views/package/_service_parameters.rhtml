@@ -75,16 +75,18 @@
          <%= hidden_field_tag(:count_parameters, number) %>
 
          <% if @package.can_edit?( session[:login] ) %>
-           <% str=""
+           <% list=[]
               Service.findAvailableParameters(@servicename).keys.each do |p|
               unless used_parameter[p[:name]] and not ( d = Service.findAvailableParameters(@servicename) and d[p[:name]][:allowmultiple] )
-               str += "<option value=\"#{p}\" selected>#{p}</option>"
+                list += [p]
               end
            end %>
            <% unless str.blank? %>
              <tr class="addrow"><td>
                  <select name="add_parameter_name" id="add_new_parameter">
-                   <%= str %>
+                   <% list.each do |str| %>
+                     <option value="<%= str %>"><%= str %></option>
+                   <% end %>
                  </select></td>
                  <td id="value_input_field"><input type="text" id="add_new_value" name="add_new_value"></td>
                  <td><a href="#" id="add_new_row">+</a></td>
