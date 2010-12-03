@@ -2673,6 +2673,14 @@ sub remote_getrev {
     die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
     die("404 project '$projid' does not exist\n");
   }
+  # check if we already know this srcmd5, if yes don't bother to contact
+  # the remote server
+  if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+    if ( -e "$treedir/$rev-MD5SUMS") {
+      return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
+    }        
+  }
   my @args;
   push @args, 'expand';
   push @args, "rev=$rev" if defined $rev;
