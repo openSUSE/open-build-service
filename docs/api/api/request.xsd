@@ -8,7 +8,7 @@
       specialised forms.
     </xs:documentation>
   </xs:annotation>
-  
+
   <xs:simpleType name="states">
     <xs:restriction base="xs:string">
       <xs:enumeration value="new"/>
@@ -50,22 +50,22 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="state">                                                                
-    <xs:complexType>                                                                     
-      <xs:sequence>                                                                      
+  <xs:element name="state">
+    <xs:complexType>
+      <xs:sequence>
         <xs:element name="comment" type="xs:string"/>
-      </xs:sequence>                                                                     
-      <xs:attribute name="name"  type="states" use="required"/>                          
+      </xs:sequence>
+      <xs:attribute name="name"  type="states" use="required"/>
       <xs:attribute name="who"   type="xs:string" use="required"/>
       <xs:attribute name="when"  type="xs:dateTime" use="required"/>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="review">                                                                
-    <xs:complexType>                                                                     
-      <xs:sequence>                                                                      
+  <xs:element name="review">
+    <xs:complexType>
+      <xs:sequence>
         <xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1"/>
-      </xs:sequence>                                                                     
+      </xs:sequence>
       <xs:attribute name="state"  type="states" use="required"/>
       <xs:attribute name="by_user"  type="xs:string" />
       <xs:attribute name="by_group"  type="xs:string" />
@@ -77,17 +77,17 @@
   </xs:element>
 
   <xs:element name="history">
-    <xs:complexType>                                                                     
-      <xs:sequence>                                                                      
+    <xs:complexType>
+      <xs:sequence>
         <xs:element name="comment" type="xs:string"/>
-      </xs:sequence>                                                                     
-      <xs:attribute name="name"  type="states" use="required"/>                          
+      </xs:sequence>
+      <xs:attribute name="name"  type="states" use="required"/>
       <xs:attribute name="who"   type="xs:string" use="required"/>
       <xs:attribute name="when"  type="xs:dateTime" use="required"/>
       <xs:attribute name="superseded_by"  type="xs:dateTime"/>
     </xs:complexType>
   </xs:element>
-  
+
   <xs:element name="action">
     <xs:complexType>
       <xs:sequence>
@@ -101,7 +101,7 @@
       <xs:attribute name="type" type="types" use="required"/>
     </xs:complexType>
   </xs:element>
-  
+
   <xs:element name="source">
     <xs:complexType>
       <xs:attribute name="project" type="xs:string" use="required" />
@@ -109,7 +109,7 @@
       <xs:attribute name="rev" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
-        
+
   <xs:element name="target" >
     <xs:complexType>
       <xs:attribute name="project" type="xs:string" use="required" />
