@@ -227,7 +227,7 @@ class SourceController < ApplicationController
     admin_user = @http_user.is_admin?
     deleted = params.has_key? :deleted
     # valid post commands
-    valid_commands=['diff', 'branch', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'rebuild', 'undelete', 'wipe']
+    valid_commands=['diff', 'branch', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'rebuild', 'undelete', 'wipe', 'runservice']
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['diff', 'branch', 'linkdiff', 'showlinked']
     # list of cammands which create the target package
@@ -477,6 +477,9 @@ class SourceController < ApplicationController
         dispatch_command
 
       elsif command == 'rebuild'
+        dispatch_command
+
+      elsif command == 'runservice'
         dispatch_command
 
       else
