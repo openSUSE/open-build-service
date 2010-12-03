@@ -113,7 +113,7 @@
   <xs:element name="target" >
     <xs:complexType>
       <xs:attribute name="project" type="xs:string" use="required" />
-      <xs:attribute name="package" type="xs:string" use="optional" />
+      <xs:attribute name="package" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 
