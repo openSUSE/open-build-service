@@ -16,7 +16,7 @@
 
 <div id="dialog_wrapper">
   <div class="dialog" id="disable_mask"></div>
-  <div class="dialog darkgrey_box" id="create_submit_request">
+  <div class="dialog darkgrey_box" id="submit_request">
     <div class="box box-shadow">
       <div class="box-header aligncenter">
         <b>Create Submit Request</b>
@@ -30,7 +30,7 @@
          end %>
 
       <div class="buttons">
-        <% form_tag({:controller => "package", :action => "create_submit_request"}, :method => "post") do %>
+        <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
           <%= hidden_field_tag(:project, @project) %>
           <%= hidden_field_tag(:package, @package) %>
           <%= hidden_field_tag(:revision, @revision) %>
