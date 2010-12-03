@@ -44,7 +44,7 @@
 
   <% if @package.can_edit?( session[:login] )%>
     <h2>Create Submit Request</h2>
-    <% form_tag({:controller => 'package', :action => 'create_submit_request', :project => @project, :package => @package, :target_project => @oproject, :target_package => @opackage}, {:method => :post}) do -%>
+    <% form_tag({:controller => 'package', :action => 'submit_request', :project => @project, :package => @package, :target_project => @oproject, :target_package => @opackage}, {:method => :post}) do -%>
       <% if params[:commit] %>
         <p>Revert <%=h @project.name + "/" + @package.name %> to this revision</p>
       <% else %>

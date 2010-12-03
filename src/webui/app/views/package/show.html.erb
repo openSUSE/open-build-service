@@ -32,8 +32,13 @@
                   <%= link_to "Edit Package Information", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
                 </li>
                 <li>
-                  <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
-                  <%= link_to_remote 'Submit Package to ...', :url => { :action => :create_submit_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Submit Package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+                </li>
+              <% else %>
+                <li>
+                  <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Request Deletion', :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
                 </li>
               <% end %>
               <li>
