@@ -37,7 +37,6 @@ class PatchinfoController < ApplicationController
       flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 100 signs and longer than summary)"
     end
     if params[:category] == "security"
-      debugger
       if params[:cve] != nil
         if !valid_cve_number? params[:cve]
           valid_params = false
