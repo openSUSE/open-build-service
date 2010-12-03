@@ -17,7 +17,7 @@
         <% form_tag({:controller => "package", :action => "delete_request"}, :method => "post") do %>
           <%= hidden_field_tag(:project, @project) %>
           <%= hidden_field_tag(:package, @package) %>
-          <p>Delete <b><%= tpkg %></b></p>
+          <p>Request to delete <b><%= tpkg %></b></p>
           <p>
             <%= label_tag(:target_project, "In target project:") %><br/>
             <%= text_field_tag(:target_project, tprj, :size => 44, :disabled => true) %><br/>
