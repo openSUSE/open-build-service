@@ -183,7 +183,16 @@ class PackageController < ApplicationController
   end
 
   def delete_request
-
+    req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
 
