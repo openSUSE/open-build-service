@@ -50,7 +50,7 @@ use BSXML;
 
 use strict;
 
-my $nosrcchangeload = 3;
+my $nosrcchangescale = 3;	# -4.77
 
 my %powerpkgs;
 
@@ -433,7 +433,7 @@ while (1) {
   for my $prpa (@jobprpas) {
     next if $maybesrcchange{$prpa};
     $didsrcchange{$prpa} = 1;
-    $load->{$prpa} += $nosrcchangeload;
+    $load->{$prpa} *= $nosrcchangescale;
   }
 
   @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
@@ -494,7 +494,7 @@ while (1) {
     for my $job (@b) {
       if (!$srcchange{$job} && !$didsrcchange{$prpa}) {
 	$didsrcchange{$prpa} = 1;
-	$load->{$prpa} += $nosrcchangeload;
+	$load->{$prpa} *= $nosrcchangescale;
 	if (defined($nextload) && $scales{$prpa} * $load->{$prpa} > $nextload) {
 	  $rerun = 1;
 	  last;
