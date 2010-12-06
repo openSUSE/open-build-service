@@ -2320,43 +2320,47 @@ sub delproject {
   addrev_meta($cgi, $projid, undef, undef, undef, undef, 'rev');
   addrev_meta($cgi, $projid, undef, undef, undef, undef);
   if (-d "$projectsdir/$projid.pkg") {
-    # delete those packages and keys
-    mkdir_p("$projectsdir/_deleted/$projid.pkg");
-    # make room in old delete by deleting all old packages
-    for my $f (ls("$projectsdir/_deleted/$projid.pkg")) {
-      if ($f =~ /\.m?rev$/) {
-        my $oldrev = readstr("$projectsdir/_deleted/$projid.pkg/$f", 1);
-        if (defined($oldrev) && $oldrev ne '') {
-	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f.del");
-	  BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f.del", $oldrev);
-	  # XXX: add comment
-	  close F;
-	}
-        unlink("$projectsdir/_deleted/$projid.pkg/$f");
-      }
-    }
-    for my $f (ls("$projectsdir/$projid.pkg")) {
-      if ($f =~ /^(.*)\.xml$/) {
-	my $packid = $1;
-	if (! -f "$projectsdir/$projid.pkg/$1.mrev") {
-	  # create initial meta revision in case it does not exist yet
-	  addrev_meta($cgi, $projid, $packid, undef, undef, undef);
-	}
-      }
-    }
-    for my $f (ls("$projectsdir/$projid.pkg")) {
-      if ($f =~ /\.m?rev(?:\.del)?$/) {
-        updatelinkinfodb($projid, $1) if $f =~ /^(.*)\.rev$/;
-        my $oldrev = readstr("$projectsdir/$projid.pkg/$f", 1);
-        if (defined($oldrev) && $oldrev ne '') {
-	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f");
-	  BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f", $oldrev);
-	  close F;
+    # delete packages in sub process to avoid timeout errors
+    my $pid;
+    if (!($pid = xfork())) {
+      # delete those packages and keys
+      mkdir_p("$projectsdir/_deleted/$projid.pkg");
+      # make room in old delete by deleting all old packages
+      for my $f (ls("$projectsdir/_deleted/$projid.pkg")) {
+        if ($f =~ /\.m?rev$/) {
+          my $oldrev = readstr("$projectsdir/_deleted/$projid.pkg/$f", 1);
+          if (defined($oldrev) && $oldrev ne '') {
+            BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f.del");
+            BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f.del", $oldrev);
+            # XXX: add comment
+            close F;
+          }
+          unlink("$projectsdir/_deleted/$projid.pkg/$f");
         }
       }
-      unlink("$projectsdir/$projid.pkg/$f");
+      for my $f (ls("$projectsdir/$projid.pkg")) {
+        if ($f =~ /^(.*)\.xml$/) {
+          my $packid = $1;
+          if (! -f "$projectsdir/$projid.pkg/$1.mrev") {
+            # create initial meta revision in case it does not exist yet
+            addrev_meta($cgi, $projid, $packid, undef, undef, undef);
+          }
+        }
+      }
+      for my $f (ls("$projectsdir/$projid.pkg")) {
+        if ($f =~ /\.m?rev(?:\.del)?$/) {
+          updatelinkinfodb($projid, $1) if $f =~ /^(.*)\.rev$/;
+          my $oldrev = readstr("$projectsdir/$projid.pkg/$f", 1);
+          if (defined($oldrev) && $oldrev ne '') {
+            BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f");
+            BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f", $oldrev);
+            close F;
+          }
+        }
+        unlink("$projectsdir/$projid.pkg/$f");
+      }
+      rmdir("$projectsdir/$projid.pkg") || die("rmdir $projectsdir/$projid.pkg: $!\n");
     }
-    rmdir("$projectsdir/$projid.pkg") || die("rmdir $projectsdir/$projid.pkg: $!\n");
   }
   unlink("$projectsdir/$projid.conf");
   unlink("$projectsdir/$projid.xml");
