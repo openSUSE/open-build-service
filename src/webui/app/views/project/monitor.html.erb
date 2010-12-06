@@ -98,7 +98,7 @@
         <% @packagenames.each do |packname| -%>
           <tr>
             <td class="nowrap">
-              <%= link_to packname, :controller => "package", :action => "show",
+              <%= link_to elide(packname, 40), :controller => "package", :action => "show",
                 :package => packname, :project => @project.to_s %>
             </td>
             <% @repohash.sort.each do |repo, archlist| -%>

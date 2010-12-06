@@ -219,7 +219,8 @@ case "$1" in
 			fi
 
 			# Create cache partition on remaining space
-			lvcreate -n cache -l 100%FREE OBS || exit
+			#lvcreate -n cache -l 100%FREE OBS || exit
+			lvcreate -n cache -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
 			mkfs -text4 /dev/OBS/cache || exit
 		fi
 
@@ -347,7 +348,7 @@ EOF
 			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
 			# How many parallel jobs make sense ?
 			NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
-			echo "OBS_JOBS=\"$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))\"" >> /etc/buildhost.config
+			echo "OBS_WORKER_JOBS=\"$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))\"" >> /etc/buildhost.config
 			# Memory which can be used
 			TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
 			INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))

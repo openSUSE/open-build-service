@@ -6,11 +6,11 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :except => [:add_person, :create_submit,
+  before_filter :require_project, :except => [:add_person, :submit_request,
     :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
     :remove_url, :save, :save_modified_file, :save_person,
     :set_url, :set_url_form, :update_build_log]
-  before_filter :require_package, :except => [:create_submit, :edit_file, :rawlog,
+  before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
     :save_modified_file, :save_new, :save_new_link, :update_build_log]
 
   before_filter :load_current_requests
@@ -159,11 +159,11 @@ class PackageController < ApplicationController
   def add_service
   end
 
-  def create_submit_request_dialog
+  def submit_request_dialog
     @revision = Package.current_rev(@project, @package)
   end
 
-  def create_submit_request
+  def submit_request
     req = BsRequest.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
       :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:source_update])
     begin
@@ -178,6 +178,23 @@ class PackageController < ApplicationController
     Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
+
+  def delete_request_dialog
+  end
+
+  def delete_request
+    req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+  end
+
 
   def service_parameter
     begin

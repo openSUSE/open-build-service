@@ -5,34 +5,40 @@ class BsRequest < ActiveXML::Base
   default_find_parameter :id
 
   class << self
-    def make_stub( opt )
-      text = ""
-      if opt.has_key? :description
-        text = opt[:description]
-      end
+    def make_stub(opt)
+      opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
       
       ret = nil
-
-      # TODO: this is function is a joke as it requires all options for a submit request
-      # it should be more generic
-      option = ""
-      option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
-      if opt[:type] == "submit" 
-        reply = <<-ENDE
-          <request type="submit">
-            <submit>
-              <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
-              <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
-              #{option}
-            </submit>
-            <state name="new"/>
-            <description>#{text.to_xs}</description>
-          </request>
-        ENDE
-        ret = XML::Parser.string(reply).parse.root
-        ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
+      case opt[:type]
+        when "submit" then
+          option = ""
+          option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+          opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
+          reply = <<-EOF
+            <request>
+              <action type="submit">
+                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
+                <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+                #{option}
+              </action>
+              <state name="new"/>
+              <description>#{opt[:description].to_xs}</description>
+            </request>
+          EOF
+          ret = XML::Parser.string(reply).parse.root
+          ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
+        when "delete" then
+          reply = <<-EOF
+            <request>
+              <action type="delete">
+                <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+              </action>
+              <state name="new"/>
+              <description>#{opt[:description].to_xs}</description>
+            </request>
+          EOF
+          ret = XML::Parser.string(reply).parse.root
       end
-
       return ret
     end
 

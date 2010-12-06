@@ -21,6 +21,7 @@
       </xs:sequence>
       <xs:attribute name="rev" type="xs:string"/>
       <xs:attribute name="srcmd5" type="xs:string"/>
+      <xs:attribute name="count" type="xs:int"/>
     </xs:complexType>
   </xs:element>
 

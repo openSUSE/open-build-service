@@ -1,0 +1,58 @@
+
+<%= javascript_include_tag 'jquery.autocomplete.pack' %>
+<%= stylesheet_link_tag 'jquery.autocomplete' %>
+
+<script type="text/javascript">
+  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+    { minChars: 2, matchCase: true, max: 50 } );
+
+  $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+    minChars: 0, matchCase: true, max: 50,
+    extraParams: {
+       project: function() { return $("#target_project").val(); }
+    }
+  });
+</script>
+
+<div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box" id="submit_request">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Create Submit Request</b>
+      </div>
+
+      <% tprj = ""
+         tpkg = @package.name
+         if @package.linkinfo
+           tprj = @package.linkinfo.project
+           tpkg = @package.linkinfo.package
+         end %>
+
+      <div class="buttons">
+        <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
+          <%= hidden_field_tag(:project, @project) %>
+          <%= hidden_field_tag(:package, @package) %>
+          <%= hidden_field_tag(:revision, @revision) %>
+          <p>Submit <b><%= @package %></b> (revision <%= @revision %>)</p>
+          <p>
+            <%= label_tag(:source_project, "From source project:") %><br/>
+            <%= text_field_tag(:source_project, elide(@project.name, 40), :size => 44, :disabled => true) %><br/>
+            <%= label_tag(:target_project, "To target project:") %><br/>
+            <%= text_field_tag(:target_project, tprj, :size => 44) %><br/>
+            <%= label_tag(:description, "Description:") %><br/>
+            <%= text_area_tag(:description, "", :size => "40x3") %><br/>
+            <% default = "update" %>
+            <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
+            <%= check_box_tag :source_update, 'cleanup' %> Remove local package if request is accepted
+          </p>
+          <p>
+            <%= submit_tag("Submit", :class => "buttons") %>
+            <%= link_to_function("Cancel", 'remove_dialog()') %>
+          </p>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -47,3 +47,4 @@ Hermes::Config.setup do |hermesconf|
   hermesconf.dbname = 'hermes'
 end
 
+RESPONSE_SCHEMA_VALIDATION = true

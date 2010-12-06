@@ -679,7 +679,8 @@ sub checkaccess {
     $access = enabled($repoid, $projpacks->{$projid}->{$type}, $access);
     $access = enabled($repoid, $pdata->{$type}, $access) if $pdata;
   } else {
-    $access = 0;
+    # remote project access checks are handled by the remote server
+    $access = 0 unless $remoteprojs{$projid};
   }
   return $access;
 }
@@ -688,9 +689,8 @@ sub checkaccess {
 sub checkroles {
   my ($type, $projid, $packid, $oprojid, $opackid) = @_;
   my $proj = $projpacks->{$projid};
-  return 1 unless $proj;	# remote API will check for us
   my $oproj = $projpacks->{$oprojid};
-  return 0 unless $oproj;
+  return 0 unless $proj && $oproj;
   if ($projid eq $oprojid) {
     return 1 if !defined $opackid;
     return 1 if ($packid || '') eq ($opackid || '');

@@ -9,6 +9,7 @@ require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
+class IllegalRequestError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -21,7 +22,10 @@ class ApplicationController < ActionController::Base
 
   helper RbacHelper
 
-  before_filter :validate_incoming_xml, :add_api_version
+  before_filter :validate_xml_request, :add_api_version
+  if RESPONSE_SCHEMA_VALIDATION
+    after_filter :validate_xml_response
+  end
 
   if Rails.env.test?
     before_filter :start_test_backend
@@ -61,7 +65,12 @@ class ApplicationController < ActionController::Base
   hide_action :start_test_backend
 
   def set_current_user
-    User.current = @http_user
+    User.current = nil
+    User.currentID = nil
+    User.currentAdmin = false
+    User.current = @http_user if @http_user
+    User.currentID = @http_user.id if @http_user and @http_user.id
+    User.currentAdmin = @http_user.is_admin? if @http_user and @http_user.is_admin?
   end
 
   protected
@@ -85,6 +94,12 @@ class ApplicationController < ActionController::Base
     # to become _public_ special user 
     @http_user = User.find_by_login( "_nobody_" )
     @user_permissions = Suse::Permission.new( @http_user )
+    User.current = nil
+    User.currentID = nil
+    User.currentAdmin = false
+    User.current = @http_user if @http_user
+    User.currentID = @http_user.id if @http_user and @http_user.id
+    User.currentAdmin = @http_user.is_admin? if @http_user and @http_user.is_admin?
     return true
   end
 
@@ -386,14 +401,28 @@ class ApplicationController < ActionController::Base
     when DbProject::SaveError
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
     when DbProject::PrjAccessError
-      logger.error "PrjAccessError: #{exception.message}"
-      render_error :status => 404, :errorcode => 'unknown_project',
-        :message => exception.message
+      logger.error "PrjAccessError: #{exception.message} \n-ACL"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'unknown_project',
+          :message => "Unknown Project"
+      else
+        render_error :status => 404, :errorcode => 'unknown_project',
+          :message => exception.message
+      end
     when DbPackage::PkgAccessError
-      logger.error "PkgAccessError: #{exception.message}"
-      render_error :status => 404, :errorcode => 'unknown_package',
-        :message => exception.message
-
+      logger.error "PkgAccessError: #{exception.message} \n-ACL"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => "Unknown Package"
+      else
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => exception.message
+      end
+    when IllegalRequestError
+      message = "Illegal request"
+      message = exception.message unless exception.message.nil?
+      render_error :status => 404, :errorcode => 'illegal_request',
+                   :message => message
     when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActionController::UnknownAction

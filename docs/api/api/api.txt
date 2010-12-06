@@ -42,23 +42,61 @@ XmlResult: distributions
 Host: api.opensuse.org
 
 <userid>: Id of user
+<groupid> Id of group
 
 
 GET /person/<userid>
 
   Read user data.
-  
+
 XmlResult: user
-  
+
 
 PUT /person/<userid>
 
   Write user data.
-  
+
 XmlBody: user
-  
 XmlResult: status
 
+
+GET /person/<userid>/<groupid>
+
+  Read user and group data.
+
+XmlResult: TODO
+
+
+POST /person/register
+
+  TODO
+
+Parameters:
+  TODO
+
+
+PUT /person/register
+
+  TODO
+
+XmlBody: TODO
+XmlResult: TODO
+
+
+PUT /person/changepasswd
+
+  TODO
+
+XmlBody: TODO
+XmlResult: TODO
+
+
+POST /person/changepasswd
+
+  TODO
+
+Parameters:
+  TODO
 
 == Sources
 
@@ -70,8 +108,8 @@ Host: api.opensuse.org
 GET /source/
 
   Read list of projects.
-  
-XmlResult: projects directory.xsd
+
+XmlResult: directory
 
 Parameters:
 
@@ -191,7 +229,7 @@ GET /source/<project>/_pattern
 
   Get list of all patterns set up for this project
 
-XmlResult: directory
+XmlResult: pattern
 
 
 GET /source/<project>/_pattern/<patternfile>
@@ -605,7 +643,7 @@ PUT /attribute/<namespace>/_meta
   
   change attribute namespace meta
 
-XmlBody: attribute namespace meta data
+XmlBody: attribute_namespace_meta_data
 
 XmlResult: status
 
@@ -628,7 +666,7 @@ PUT /attribute/<namespace>/<name>/_meta
   
   change attribute meta
 
-XmlBody: attribute meta data
+XmlBody: attribute_meta_data
 
 XmlResult: status
 
@@ -650,7 +688,7 @@ GET /build/_workerstatus
 
   Lists all running jobs, waiting jobs, status of the backend services and general statistics.
 
-XmlResult: worker status and statistics
+XmlResult: workerstatus
 
 
 GET /build/<project>
@@ -780,7 +818,7 @@ GET /build/<project>/<repository>/<arch>/<package>/_reason
   release number sync.
    A user triggered build will show up as source change.
 
-XmlResult: build reason
+XmlResult: buildreason
 
 
 GET /build/<project>/<repository>/<arch>/<package>/_status
@@ -1369,6 +1407,7 @@ XmlResult: messages
 PUT /message/?project=<project>&package=<package>
   Append message to the specified package (or project, if package parameter
   is omitted).
+XmlBody :message
 XmlResult: message
 
 

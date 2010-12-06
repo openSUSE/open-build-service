@@ -119,11 +119,11 @@ req = @therequest
             <span id="req_<%= req.value(:id) %>"><%= image_tag 'icons/information.png' %>
               <%= package_link(action.source.project, action.source.value(:package)) %>
             </span>
+            <script type="text/javascript">
+              setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
+      :project => action.source.project, :package => action.source.package %>' )
+            </script>
           <% end -%>
-          <script type="text/javascript">
-            setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
-    :project => action.source.project, :package => action.source.package %>' )
-          </script>
 
         </td>
         <td>

@@ -223,6 +223,7 @@ our $productdesc = [
             'debugmedia',
             'create_pattern',
             'run_media_check',
+            'run_make_listings',
             'use_recommended',
             'use_suggested',
             'use_required',

@@ -41,4 +41,4 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 MAX_LDAP_ATTEMPTS = 10
 
-
+RESPONSE_SCHEMA_VALIDATION = true

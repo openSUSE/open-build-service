@@ -68,6 +68,7 @@ our $kiwidesc = [
               'compressed',
               'flags',
               'filesystem',
+              'fsnocheck',
               'fsreadonly',
               'fsreadwrite',
               'format',
@@ -195,6 +196,16 @@ our $kiwidesc = [
              [],
              [[ 'user' => 'name', 'pwd', 'home', 'realname', 'shell' ]],
         ]],
+        [ 'split' =>
+          [ 'temporary' => 
+             [[ 'except' => 'name' ]],
+             [[ 'file' => 'name' ]],
+          ],
+          [ 'persistent' => 
+             [[ 'except' => 'name' ]],
+             [[ 'file' => 'name' ]],
+          ],
+        ],
         [ 'profiles' =>
              [[ 'profile' => 'name', 'description' ]],
         ],

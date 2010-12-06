@@ -166,7 +166,8 @@ class MonitorController < ApplicationController
       comb << [1000*time, clow + value]
     end
     data["squeue_low"] = comb
-    data["events_max"] = MonitorController.addarrays(data["squeue_high"], data["squeue_med"]).map{|time,value| value}.max * 2
+    max = MonitorController.addarrays(data["squeue_high"], data["squeue_med"]).map{|time,value| value}.max || 0
+    data["events_max"] = max * 2
     data["jobs_max"] =  maximumvalue(data["waiting"]) * 2
     render :json => data
   end

@@ -7,21 +7,13 @@ class WizardController < ApplicationController
     prj_name = params[:project]
     pkg_name = params[:package]
     pkg = DbPackage.find_by_project_and_name(prj_name, pkg_name)
-    unless pkg
-      render_error :status => 404, :errorcode => "unknown_package",
-        :message => "unknown package '#{pkg_name}' in project '#{prj_name}'"
-      return
-    end
+
+    # ACL(package_wizard): access behaves like package / project not existing
+    raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pkg)
+
     if not @http_user.can_modify_package?(pkg)
       render_error :status => 403, :errorcode => "change_package_no_permission",
         :message => "no permission to change package"
-      return
-    end
-
-    # ACL(package_wizard): access behaves like package / project not existing
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
       return
     end
 

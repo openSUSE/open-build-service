@@ -2,6 +2,12 @@
 
 class PersonController < ApplicationController
 
+  validate_action :userinfo => {:method => :get, :response => :user}
+  validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
+  validate_action :grouplist => {:method => :get, :response => :group}
+  validate_action :register => {:method => :put, :request => :user, :response => :status}
+  validate_action :register => {:method => :post, :response => :status}
+
   def userinfo
     valid_http_methods :get, :put
 
@@ -71,7 +77,6 @@ class PersonController < ApplicationController
         render_ok
       end
     end
-  
   end
 
   def grouplist

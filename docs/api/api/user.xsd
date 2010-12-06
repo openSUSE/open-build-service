@@ -7,8 +7,8 @@
         <xs:element ref="login"/>
         <xs:element ref="email"/>
         <xs:element ref="realname"/>
-        <xs:element ref="watchlist" minOccurs="0"/>
         <xs:element ref="globalrole" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="watchlist" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -24,14 +24,14 @@
   <xs:element name="watchlist">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="project"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="project"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="project">
     <xs:complexType>
-      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="name" use="required" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

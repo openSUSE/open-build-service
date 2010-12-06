@@ -43,8 +43,6 @@ ActionController::Routing::Routes.draw do |map|
   # project level
   map.connect 'source/:project', :controller => "source",
     :action => 'index_project', :project => /\w[^\/]*/
-  map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
-    :action => 'pattern_meta', :project => /[^\/]*/, :pattern => /[^\/]*/
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta', :project => /[^\/]*/
   map.connect 'source/:project/_attribute', :controller => 'source',
@@ -75,8 +73,6 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'package_wizard', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/:file', :controller => "source",
     :action => 'file', :project => /[^\/]*/, :package => /[^\/]*/, :file => /[^\/]*/
-  map.connect 'source/:project/_pattern', :controller => 'source',
-    :action => 'index_pattern', :project => /[^\/]*/
   map.connect 'source/:project/:package', :controller => "source",
     :action => 'index_package', :project => /\w[^\/]*/, :package => /\w[^\/]*/
 

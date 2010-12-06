@@ -1,8 +1,7 @@
 class MessageController < ApplicationController
 
-
-  validate_action :index => :message
-
+  validate_action :index => {:method => :get, :response => :message}
+  validate_action :index => {:method => :put, :request => :message, :response => :message}
 
   def index
 

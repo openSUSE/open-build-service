@@ -83,7 +83,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     # just testing routing
     get "/build/buildinfo"
     assert_response 404
-    assert_match(/project 'buildinfo' does not exist/, @response.body)
+    assert_match(/unknown_project/, @response.body)
 
     # get source info to compare with
     get "/source/home:Iggy/TestPack"
@@ -129,7 +129,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_hidden_package_index
     get "/build/HiddenProject/nada/i586/pack"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_project/, @response.body)
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -144,7 +144,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/build/home:Iggy/10.2/i586/notthere/_log"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
   end
 
   #FIXME2.1: add test case for buildlog of source access protected content (needs to be 403)
@@ -152,7 +152,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_hidden_logfile
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response 404
-    assert_match(/Unknown project 'HiddenProject/, @response.body)
+    assert_match(/unknown_project/, @response.body)
     # retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -256,10 +256,10 @@ class BuildControllerTest < ActionController::IntegrationTest
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -303,13 +303,13 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_hidden_file
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
     get "/build/HiddenProject/nada/i586/pack/NOT_EXISTING"
     assert_response 404
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -343,7 +343,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 400
     post "/build/home:NotExisting?cmd=wipe"
     assert_response 404
-    assert_match(/Project does not exist/, @response.body)
+    assert_match(/unknown_project/, @response.body)
     post "/build/home:Iggy?cmd=wipe&package=DoesNotExist"
     assert_response 404
     assert_match(/unknown package: DoesNotExist/, @response.body)
@@ -372,23 +372,23 @@ class BuildControllerTest < ActionController::IntegrationTest
     #invalid
     get "/build/HiddenProject"
     assert_response 404
-    assert_match(/Unknown project/, @response.body)
+    assert_match(/unknown_project/, @response.body)
 
     put "/build/HiddenProject", :cmd => 'say_hallo'
     assert_response 404
-    assert_match(/Unknown project/, @response.body)
+    assert_match(/unknown_project/, @response.body)
 
     post "/build/HiddenProject", :cmd => 'say_hallo'
     assert_response 404
-    assert_match(/Unknown project/, @response.body)
+    assert_match(/unknown_project/, @response.body)
 
     post "/build/HiddenProject?cmd=wipe"
     assert_response 404
-    assert_match(/Unknown project/, @response.body)
+    assert_match(/unknown_project/, @response.body)
 
     post "/build/HiddenProject?cmd=wipe&package=TestPack"
     assert_response 404
-    assert_match(/Unknown project/, @response.body)
+    assert_match(/unknown_project/, @response.body)
 
     #valid
     ActionController::IntegrationTest::reset_auth

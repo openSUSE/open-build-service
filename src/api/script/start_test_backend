@@ -10,6 +10,12 @@ logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
 
+# minimal auth
+@http_user = User.find_by_login( "king" )
+User.current = @http_user
+User.currentID = @http_user.id
+User.currentAdmin = @http_user.is_admin?
+
 puts "Creating backend config at #{RAILS_ROOT}/tmp/backend_config/BSConfig.pm"
 FileUtils.mkdir "#{RAILS_ROOT}/tmp/backend_config"
 file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
@@ -252,6 +258,11 @@ IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched 
 end
 # upload a binary file to repository directly
 Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
+
+@http_user = nil
+User.current = nil
+User.currentID = nil
+User.currentAdmin = false
 
 puts "DONE NOW"
 $stdout.flush

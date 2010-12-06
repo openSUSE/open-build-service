@@ -1113,7 +1113,8 @@ sub getbinaries {
   my ($buildinfo, $dir, $srcdir) = @_;
 
   mkdir_p($dir);
-  my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+  my $kiwimode;
+  $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
   if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
     return getbinaries_kiwiproduct($buildinfo, $dir, $srcdir);
@@ -1326,7 +1327,8 @@ sub dobuild {
   my $packid = $buildinfo->{'package'};
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
-  my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+  my $kiwimode;
+  $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
   my $helper = '';
   /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
@@ -1821,6 +1823,7 @@ if ($ex == 0) {
   push @d, 'SRPMS';
   @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
+  push @d, 'OTHER';
   for my $d ('.', @d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
     @files = grep {$_ ne 'same_result_marker'} @files;

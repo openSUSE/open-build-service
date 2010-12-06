@@ -15,9 +15,30 @@ class WizardControllerTest < ActionController::IntegrationTest
 
     get "/source/kde4/kdelibs-not/_wizard"
     assert_response 404
-    assert_match(/unknown package 'kdelibs-not' in project 'kde4'/, @response.body)
+    assert_match(/unknown_package/, @response.body)
 
     get "/source/kde4/kdelibs/_wizard"
+    assert_response 200
+    assert_tag :tag => 'wizard'
+
+    # ACL 'access' tests
+    #
+    # non-access member should get unknown package (for unknown project)
+    get "/source/HiddenProject/pack/_wizard"
+    assert_response 404
+    assert_match(/unknown_package/, @response.body)
+
+    # hidden project user should be able to access wizard
+    prepare_request_with_user "hidden_homer", "homer"
+
+    get "/source/HiddenProject/pack/_wizard"
+    assert_response 200
+    assert_tag :tag => 'wizard'
+
+    # Admin user should be able to access wizard
+    prepare_request_with_user "king", "sunflower"
+
+    get "/source/HiddenProject/pack/_wizard"
     assert_response 200
     assert_tag :tag => 'wizard'
   end

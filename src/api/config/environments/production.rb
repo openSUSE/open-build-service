@@ -86,6 +86,27 @@ LDAP_ENTRY_BASE = "ou=OBSUSERS,dc=EXAMPLE,dc=COM"
 # used for adding new entry
 LDAP_SN_ATTR_REQUIRED = :on
 
+# Whether to search group info from ldap, it does not take effect
+# when LDAP_GROUP_SUPPOR is not set.
+# Please also set below LDAP_GROUP_* configs correctly to ensure the operation works properly
+LDAP_GROUP_SUPPORT = :off
+# OVERRIDE with your company's ldap search base for groups
+LDAP_GROUP_SEARCH_BASE = "ou=OBSGROUPS,dc=EXAMPLE,dc=COM"
+# The attribute the group name is stored in
+LDAP_GROUP_TITLE_ATTR = "cn"
+# The value of the group objectclass attribute, leave it as "" if objectclass attr doesn't exist
+LDAP_GROUP_OBJECTCLASS_ATTR = "groupOfNames"
+# Perform the group_user search with the member attribute of group entry or memberof attribute of user entry
+# It depends on your ldap define
+# The attribute the group member is stored in
+LDAP_GROUP_MEMBER_ATTR = "member"
+# The attribute the user memberof is stored in
+# LDAP_USER_MEMBEROF_ATTR = "memberof"
+
+# Do not allow creating group via API to avoid the conflicts when LDAP_GROUP_SUPPORT is :on
+# If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
+DISALLOW_GROUP_CREATION_WITH_API = :on
+
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 5352
 
@@ -102,3 +123,4 @@ DOWNLOAD_URL='http://localhost:82/'
 #  hermesconf.dbname = 'hermes'
 #end
 
+RESPONSE_SCHEMA_VALIDATION = true

@@ -205,7 +205,8 @@ sub getbinaryversions {
   my $prp = "$projid/$repoid";
   my @qbins = split(',', $cgi->{'binaries'} || '');
 
-  my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  my $serial;
+  $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
   my $repo = addrepo_scan($pool, $prp, $arch);
@@ -264,7 +265,8 @@ sub getbinaries {
   my $prp = "$projid/$repoid";
   my @qbins = split(',', $cgi->{'binaries'} || '');
 
-  my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  my $serial;
+  $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
   my $repo = addrepo_scan($pool, $prp, $arch);
@@ -406,7 +408,8 @@ sub getbinarylist_repository {
   }
 
   if ($view eq 'cpio') {
-    my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+    my $serial;
+    $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
     return if $BSStdServer::isajax && !defined $serial;
     my @files;
     my $pool = BSSolv::pool->new();
@@ -447,7 +450,8 @@ sub getbinarylist_repository {
 
   # FIXME: nearly a duplicate of getbinaryversions()
   if ($view eq 'binaryversions') {
-    my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+    my $serial;
+    $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
     return if $BSStdServer::isajax && !defined($serial);
     my $pool = BSSolv::pool->new();
     my $repo = addrepo_scan($pool, $prp, $arch);
@@ -811,7 +815,8 @@ sub getbinary_repository {
     my $cfg = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
     return ($cfg, 'Content-Type: text/plain');
   }
-  my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  my $serial;
+  $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $view = $cgi->{'view'} || '';
   my $path = "$reporoot/$projid/$repoid/$arch/:full/$bin";

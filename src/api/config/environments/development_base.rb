@@ -46,3 +46,5 @@ MAX_LDAP_ATTEMPTS = 10
 EXTENDED_BACKEND_LOG = true
 DOWNLOAD_URL='http://download.opensuse.org/repositories'
 YMP_URL='http://software.opensuse.org/ymp'
+
+RESPONSE_SCHEMA_VALIDATION = true

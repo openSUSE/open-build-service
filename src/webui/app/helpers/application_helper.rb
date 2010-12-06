@@ -89,13 +89,6 @@ module ApplicationHelper
     end
   end
 
-
-  def shorten_text( text, length=15 )
-    text = text[0..length-1] + '...' if text.length > length
-    return text
-  end
-
-
   def focus_id( id )
     javascript_tag(
       "document.getElementById('#{id}').focus();"
@@ -186,12 +179,6 @@ module ApplicationHelper
     return diff_w.to_s + (diff_w == 1 ? " week ago" : " weeks ago") if diff < 50
     diff_m = Integer(diff/30.5) # roughly months
     return diff_m.to_s + " months ago"
-  end
-
-  def setup_buildresult_trigger
-    content_for :ready_function do 
-      "setup_buildresult_trigger();"
-    end
   end
 
   def tlink_to(text, length, *url_opts)
@@ -382,10 +369,10 @@ module ApplicationHelper
             "</div>"
         end
         out += "</div></div>"
+        out.html_safe
       else
         image_tag(image)
       end
-      return out.html_safe
     else
       ""
     end
@@ -421,6 +408,29 @@ module ApplicationHelper
     link += link_to(h(text), opts)
     link += "</li>"
     return link.html_safe
+  end
+
+  # Shortens a text if it longer than 'length'. 
+  def elide(text, length = 20, mode = :middle)
+    shortened_text = text.to_s      # make sure it's a String
+
+    return "..." if length <= 3     # corner case
+
+    if text.length > length
+      case mode
+      when :left                    # shorten at the beginning
+        shortened_text = "..." + text[text.length - length + 3 .. text.length]
+      when :middle                  # shorten in the middle
+        pre = text[0 .. length / 2 - 2]
+        offset = 2                  # depends if (shortened) length is even or odd
+        offset = 1 if length.odd?
+        post = text[text.length - length / 2 + offset .. text.length]
+        shortened_text = pre + "..." + post
+      when :right                   # shorten at the end
+        shortened_text = text[0 .. length - 4 ] + "..."
+      end
+    end
+    return shortened_text
   end
 
 end

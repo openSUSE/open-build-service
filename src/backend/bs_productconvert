@@ -263,8 +263,9 @@ sub createProductOptions($$$)
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
-    $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no";
-    $varsH{CREATE_REPOMD} = "true" if (defined($medium->{'create_repomd'})) && $medium->{'create_repomd'} ne "false";
+    $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no" && $medium->{'run_media_check'} eq "false";
+    $varsH{CREATE_REPOMD} = "true" if (defined($medium->{'create_repomd'})) && $medium->{'create_repomd'} ne "no" && $medium->{'create_repomd'} ne "false";
+    $varsH{MAKE_LISTINGS} = 'false' if (defined($medium->{'run_make_listings'})) && $medium->{'run_make_listings'} ne "yes" && $medium->{'run_make_listings'} ne "true";
     $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
     $varsH{SHA1OPT} = "-x";
 
@@ -956,21 +957,22 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
       if (defined($flavor->{'productdependency'})){
 	foreach my $dependency (@{$flavor->{'productdependency'}}){
-	    my $relship=convertRelationship($dependency->{'relationship'});
-            my $version=$dependency->{'version'} if (defined($dependency->{'version'}));
-            my $patchlevel="-SP".$dependency->{'patchlevel'} if (defined($dependency->{'patchlevel'}));
-            my $flavor="-".$dependency->{'flavor'} if (defined($dependency->{'flavor'}));
-            my $release=$dependency->{'release'} if (defined($dependency->{'release'}));
-            my $flag=convertFlags($dependency->{'flag'}) if (defined($dependency->{'flag'}));
-	    if (("$flag" eq "") && ("$version" ne "")){ # avoid something like Requires: sles 11
-                $flag="=";
+	    my ($relship, $version, $patchlevel, $flavor, $release, $flag);
+	    $relship = convertRelationship($dependency->{'relationship'});
+            $version = $dependency->{'version'} if defined($dependency->{'version'});
+            $patchlevel = "-SP".$dependency->{'patchlevel'} if defined($dependency->{'patchlevel'});
+            $flavor = "-".$dependency->{'flavor'} if defined($dependency->{'flavor'});
+            $release = $dependency->{'release'} if defined($dependency->{'release'});
+            $flag = convertFlags($dependency->{'flag'}) if defined($dependency->{'flag'});
+	    if (!$flag && ($version ne "")) { # avoid something like Requires: sles 11
+                $flag = "=";
             }
-            if ((defined($version)) && ("$version" ne "") && (defined($release)) && ("$release" ne "")){ # rpm style for version-release
-                $release="-".$release;
+            if ((defined($version)) && ($version ne "") && (defined($release)) && ($release ne "")){ # rpm style for version-release
+                $release = "-".$release;
             } 
-            $patchlevel="" if (! defined($patchlevel));
-            $release="" if (! defined($release));
-            $flavor="" if (! defined($flavor));
+            $patchlevel = "" unless defined($patchlevel);
+            $release = "" unless defined($release);
+            $flavor = "" unless defined($flavor);
             
             $product_flavors.="$relship:       product(".$dependency->{'name'}."$patchlevel$flavor) $flag $version$release\n";
         }

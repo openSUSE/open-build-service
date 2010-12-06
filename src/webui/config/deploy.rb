@@ -61,7 +61,8 @@ namespace :config do
     run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/"
     run "ln -s #{shared_path}/database.db #{release_path}#{git_subdir}/db/"
     run "ln -s #{shared_path}/repositories.rb #{release_path}#{git_subdir}/config/"
-    run "rm -r #{release_path}#{git_subdir}/app/views/maintenance"
+    #not in git anymore
+    #run "rm -fr #{release_path}#{git_subdir}/app/views/maintenance"
     run "ln -s #{shared_path}/maintenance #{release_path}#{git_subdir}/app/views"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/database.yml"
   end
@@ -73,7 +74,8 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{current_path}/public/main"
+    run "mkdir -p #{release_path}#{git_subdir}/public/main"
+    run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{release_path}#{git_subdir}/public/main"
   end
 
   desc "Sync public to static.o.o"

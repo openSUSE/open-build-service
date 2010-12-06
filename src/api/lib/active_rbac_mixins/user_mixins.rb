@@ -439,6 +439,112 @@ module UserMixins
             return
           end
 
+          # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
+          def self.find_group_with_ldap(group)
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return false
+            end
+
+            # search group
+            if defined?( LDAP_GROUP_OBJECTCLASS_ATTR )
+              filter = "(&(#{LDAP_GROUP_TITLE_ATTR}=#{group})(objectclass=#{LDAP_GROUP_OBJECTCLASS_ATTR}))"
+            else
+              filter = "(#{LDAP_GROUP_TITLE_ATTR}=#{group})"
+            end
+            logger.debug( "Search group: #{filter}" )
+            group_dn = String.new
+            ldap_con.search( LDAP_GROUP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+              group_dn = entry.dn
+            end
+            if group_dn.empty?
+              logger.debug( "Failed to find #{group} in ldap" )
+              return false
+            end
+            logger.debug( "group dn: #{group_dn}" )
+            ldap_con.unbind()
+            return true
+          end
+
+          # This static method performs the search with the given user, group to check whether the user is in the 
+          # group.  Return false if any error occured
+          def self.perform_user_group_search_ldap(user, group)
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return false
+            end
+            # search user
+            if defined?( LDAP_USER_FILTER )
+              filter = "(&(#{LDAP_SEARCH_ATTR}=#{user})#{LDAP_USER_FILTER})"
+            else
+              filter = "(#{LDAP_SEARCH_ATTR}=#{user})"
+            end
+            logger.debug( "Search user: #{filter}" )
+            user_dn = String.new
+            user_attrs = String.new         
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+              user_dn = entry.dn
+              user_attrs = entry.attrs            
+            end
+            if user_dn.empty?
+              logger.debug( "Failed to find #{user} in ldap" )
+              return false
+            end
+
+            logger.debug( "User dn: #{user_dn} attrs: #{user_attrs}" )
+
+            # search group
+            if defined?( LDAP_GROUP_OBJECTCLASS_ATTR )
+              filter = "(&(#{LDAP_GROUP_TITLE_ATTR}=#{group})(objectclass=#{LDAP_GROUP_OBJECTCLASS_ATTR}))" 
+            else
+              filter = "(#{LDAP_GROUP_TITLE_ATTR}=#{group})"
+            end        
+            logger.debug( "Search group: #{filter}" )
+            group_dn = String.new
+            group_attrs = String.new         
+            ldap_con.search( LDAP_GROUP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+              group_dn = entry.dn
+              group_attrs = entry.attrs            
+            end
+            if group_dn.empty?
+              logger.debug( "Failed to find #{group} in ldap" )
+              return false
+            end
+            logger.debug( "group dn: #{group_dn} attrs: #{group_attrs}" )
+            
+            # user memberof attr exist?
+            if defined?( LDAP_USER_MEMBEROF_ATTR ) && user_attrs.include?( LDAP_USER_MEMBEROF_ATTR )
+              logger.debug( "The user entry include #{LDAP_USER_MEMBEROF_ATTR} attr")
+              # Search the user with memberof=group_dn
+              filter = "(#{LDAP_USER_MEMBEROF_ATTR}=#{group_dn})"
+              logger.debug( "Search in #{user_dn} with filter #{filter}" )
+              ldap_con.search( user_dn, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+                logger.debug( "#{user} is in #{group}" )
+                return true
+              end    
+            end
+
+            # group member attr exist?
+            if defined?( LDAP_GROUP_MEMBER_ATTR ) && group_attrs.include?(LDAP_GROUP_MEMBER_ATTR)
+              logger.debug( "The group entry include #{LDAP_GROUP_MEMBER_ATTR} attr")
+              # Search the group with member=user_dn
+              filter = "(#{LDAP_GROUP_MEMBER_ATTR}=#{user_dn})"
+              logger.debug( "Search in #{group_dn} with filter #{filter}" )
+              ldap_con.search( group_dn, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+                logger.debug( "#{user} is in #{group}" )
+                return true
+              end    
+            end
+
+            ldap_con.unbind()
+            logger.debug("#{user} is not in #{group}")
+            return false
+          end
+
+
+
           # This static method tries to update the password with the given login in the 
           # active directory server.  Return the error msg if any error occured
           def self.change_password_ldap(login, password)

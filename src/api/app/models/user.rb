@@ -18,9 +18,25 @@ class User < ActiveRecord::Base
   def self.current
     Thread.current[:user]
   end
+  
+  def self.currentID
+    Thread.current[:id]
+  end
+  
+  def self.currentAdmin
+    Thread.current[:admin]
+  end
 
   def self.current=(user)
     Thread.current[:user] = user
+  end
+
+  def self.currentID=(id)
+    Thread.current[:id] = id
+  end
+
+  def self.currentAdmin=(isadmin)
+    Thread.current[:admin] = isadmin
   end
 
   def encrypt_password
@@ -195,9 +211,9 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}"
-    return true if /^home:#{self.login}:/.match( project_name )
-    
+    return true if project_name == "home:#{self.login}" and CONFIG['allow_user_to_create_home_project'] != "false"
+    return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != "false"
+
     return true if has_global_permission? "create_project"
     p = DbProject.find_parent_for(project_name)
     return false if p.nil?
@@ -326,6 +342,65 @@ class User < ActiveRecord::Base
     has_global_permission?(*args)
   end
 
+  def user_in_group_ldap?(user, group)
+    logger.debug "Check if #{user} is in group: #{group} through LDAP"
+    begin
+      return true if User.perform_user_group_search_ldap(user, group)
+    rescue Exception
+      logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+    end
+    return false
+  end
+  
+  def local_permission_check_with_ldap ( perm_string, object)
+    logger.debug "Checking permission with ldap: object '#{object.name}', perm '#{perm_string}'" 
+    rel = StaticPermission.find :first, :conditions => ["title = ?", perm_string] 
+    if rel
+      static_permission_id = rel.id
+      logger.debug "Get perm_id '#{static_permission_id}'" 
+    else
+      logger.debug "Failed to search the static_permission_id"
+      return false
+    end
+                                                       
+    case object
+      when DbPackage
+        rels = PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN roles_static_permissions rolperm ON rolperm.role_id = package_group_role_relationships.role_id", 
+                                                  :conditions => ["rolperm.static_permission_id = ? and db_package_id = ?", static_permission_id, object],
+                                                  :include => :group            
+      when DbProject
+        rels = ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN roles_static_permissions rolperm ON rolperm.role_id = project_group_role_relationships.role_id", 
+                                                  :conditions => ["rolperm.static_permission_id = ? and db_project_id = ?", static_permission_id, object],
+                                                  :include => :group
+      end    
+
+    for rel in rels
+      #check whether current user is in this group
+      return true if user_in_group_ldap?(self.login, rel.group.title) 
+    end  
+    logger.debug "Failed with local_permission_check_with_ldap"
+    return false
+  end
+
+
+  def local_role_check_with_ldap (role, object)
+    logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
+    case object
+      when DbPackage
+        rels = PackageGroupRoleRelationship.find :all, :conditions => ["db_package_id = ? and role_id = ?", object, role], 
+                                                     :include => [:group]                                              
+      when DbProject
+        rels = ProjectGroupRoleRelationship.find :all, :conditions => ["db_project_id = ? and role_id = ?", object, role],
+                                                     :include => [:group]
+      end
+    for rel in rels
+      #check whether current user is in this group
+      return true if user_in_group_ldap?(self.login, rel.group.title) 
+    end
+    logger.debug "Failed with local_role_check_with_ldap"
+    return false
+  end
+
   def has_local_role?( role, object )
     case object
       when DbPackage
@@ -336,6 +411,14 @@ class User < ActiveRecord::Base
                                                   :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role],
                                                   :include => :role
          return true if rels > 0
+
+        # check with LDAP
+        if defined?( LDAP_MODE ) && LDAP_MODE == :on
+          if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+            return true if local_role_check_with_ldap(role, object)
+          end
+        end
+
         return has_local_role?(role, object.db_project)
       when DbProject
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
@@ -345,6 +428,14 @@ class User < ActiveRecord::Base
                                                   :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role],
                                                   :include => :role
         return true if rels > 0
+
+        # check with LDAP
+        if defined?( LDAP_MODE ) && LDAP_MODE == :on
+          if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+            return true if local_role_check_with_ldap(role, object)
+          end
+        end
+
         return false
       end
     return false
@@ -371,6 +462,13 @@ class User < ActiveRecord::Base
         end
       end
 
+      # check with LDAP
+      if defined?( LDAP_MODE ) && LDAP_MODE == :on
+        if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+          return true if local_permission_check_with_ldap(perm_string, object)
+        end
+      end
+
       #check permission of parent project
       logger.debug "permission not found, trying parent project '#{object.db_project.name}'"
       return has_local_permission?(perm_string, object.db_project)
@@ -386,6 +484,13 @@ class User < ActiveRecord::Base
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true
+        end
+      end
+
+      # check with LDAP
+      if defined?( LDAP_MODE ) && LDAP_MODE == :on
+        if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+          return true if local_permission_check_with_ldap(perm_string, object)
         end
       end
 

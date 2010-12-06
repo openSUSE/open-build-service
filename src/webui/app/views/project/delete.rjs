@@ -7,7 +7,7 @@ if @error
     page.redirect_to :action => :show
   end
 elsif not @confirmed
-  @message = "Really delete project #{@project}?"
+  @message = "Really delete project #{elide(@project.name, 40)}?"
   page.replace 'dialog_wrapper', :partial => 'confirm_dialog',
     :locals => {:buttons => [['Yes', {:url => {:action => 'delete', :confirmed => 1, :project => @project}}], ['No', :abort]]}
 else

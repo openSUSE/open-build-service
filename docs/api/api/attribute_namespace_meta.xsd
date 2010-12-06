@@ -15,7 +15,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="user" type="xs:string"/>
       <xs:attribute name="group" type="xs:string"/>
     </xs:complexType>
   </xs:element>

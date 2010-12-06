@@ -29,26 +29,108 @@ class DbProject < ActiveRecord::Base
     self.name.gsub(/:/, ':/')
   end
   
-  def before_validation
-    if self.disabled_for?('access', nil, nil) 
-      unless User.current and User.current.can_access?(self)
-        logger.debug "PrjAccessException: #{self.name}"
-        raise PrjAccessError.new "Unknown project '#{self.name}'"
-      end
-    end
-    if self.disabled_for?('sourceaccess', nil, nil)
-      logger.debug "PrjSourceAccessException: to be implemented"
-    end
-    if self.disabled_for?('binarydownload', nil, nil)
-      logger.debug "PrjBinaryDownloadException: to be implemented"
-    end
-  end
+#  def before_validation
+#  def after_create
+#    raise PrjAccessError.new "Unknown project" unless DbProject.check_access?(self)
+#  end
 
   class << self
 
-    def find_by_name(name)
-      find :first, :conditions => ["name = BINARY ?", name]
+    def is_remote_project?(name)
+      lpro, rpro = find_remote_project(name)
+      return true unless lpro.nil? or lpro.remoteurl.nil?
+      return false
     end
+
+    def is_hidden?(name)
+      options = {:conditions => ["name = BINARY ?", name]}
+      validate_find_options(options)
+      set_readonly_option!(options)
+
+      dbp = find_initial(options)
+      return nil if dbp.nil?
+      rels = dbp.flags.count :conditions => 
+          ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
+      return true if rels > 0
+      return false
+    end
+
+
+    def check_access?(dbp=self)
+      return false if dbp.nil?
+      # check for 'access' flag
+      rels = dbp.flags.count :conditions => 
+          ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
+      # rels > 0 --> flag set
+      if rels > 0
+        return true if User.currentAdmin
+        # simple check for involvement --> involved users can access
+        # dbp.id, User.currentID
+#
+        # FIXME: before: group  after : 2.2 roles ?
+#
+        userrels = dbp.project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
+        if userrels == 0 
+          # no relationship to package -> no access
+          return false
+        end
+      end
+      return true
+    end
+
+    # own version of find
+    def find(*args)
+      options = args.extract_options!
+      validate_find_options(options)
+      set_readonly_option!(options)
+
+      def securedfind_byids(args,options)
+        dbp=find_from_ids(args,options)
+        return if dbp.nil?
+        return unless check_access?(dbp)
+        return dbp
+      end
+
+      def securedfind_every(options)
+        ret = find_every(options)
+        return if ret.nil?
+        ret.each do |dbp|
+          unless check_access?(dbp)
+            ret.delete(dbp) unless User.currentAdmin
+          end
+        end
+        return ret
+      end
+
+      def securedfind_last(options)
+        dbp = find_last(options)
+        return if dbp.nil?
+        return unless check_access?(dbp)
+        return dbp
+      end
+
+      def securedfind_initial(options)
+        dbp = find_initial(options)
+        return if dbp.nil?
+        return unless check_access?(dbp)
+        return dbp
+      end
+
+      case args.first
+        when :first then securedfind_initial(options)
+        when :last  then securedfind_last(options)
+        when :all   then securedfind_every(options)
+        else    securedfind_byids(args, options)
+      end
+    end
+    
+    def find_by_name(name)
+      dbp = find :first, :conditions => ["name = BINARY ?", name]
+      return if dbp.nil?
+      return unless check_access?(dbp)
+      return dbp
+    end
+
 
     def find_by_attribute_type( attrib_type )
       # One sql statement is faster than a ruby loop
@@ -61,7 +143,13 @@ class DbProject < ActiveRecord::Base
       END_SQL
 
       sql += " GROUP by prj.id"
-      return DbProject.find_by_sql [sql, attrib_type.id.to_s]
+      ret = DbProject.find_by_sql [sql, attrib_type.id.to_s]
+      return if ret.nil?
+      return ret if User.currentAdmin
+      ret.each do |dbp|
+        ret.delete(dbp) unless check_access?(dbp)
+      end
+      return ret
     end
 
     def store_axml( project )
@@ -76,6 +164,7 @@ class DbProject < ActiveRecord::Base
     end
 
     def find_remote_project(name)
+      return nil unless name
       fragments = name.split(/:/)
       local_project = String.new
       remote_project = nil
@@ -99,7 +188,7 @@ class DbProject < ActiveRecord::Base
       LEFT OUTER JOIN db_projects lprj ON lprj.id = lp.linked_db_project_id
       WHERE lprj.name = BINARY ?
       END_SQL
-
+      # ACL TODO: should be check this or do we break functionality ?
       result = DbProject.find_by_sql [sql, self.name]
   end
 
@@ -245,7 +334,25 @@ class DbProject < ActiveRecord::Base
           end
 
           if not (group=Group.find_by_title(ge.groupid))
-            raise SaveError, "unknown group '#{ge.groupid}'"
+            # check with LDAP
+            if defined?( LDAP_MODE ) && LDAP_MODE == :on
+              if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+                if User.find_group_with_ldap(ge.groupid)
+                  logger.debug "Find and Create group '#{ge.groupid}' from LDAP"
+                  newgroup = Group.create( :title => ge.groupid )
+                  unless newgroup.errors.empty?
+                    raise SaveError, "unknown group '#{ge.groupid}', failed to create the ldap groupid on OBS"
+                  end
+                  group=Group.find_by_title(ge.groupid)
+                else
+                  raise SaveError, "unknown group '#{ge.groupid}' on LDAP server"
+                end
+              end
+            end
+
+            unless group
+              raise SaveError, "unknown group '#{ge.groupid}'"
+            end
           end
 
           begin
@@ -732,21 +839,25 @@ class DbProject < ActiveRecord::Base
     # the activity of a project is measured by the average activity
     # of all its packages. this is not perfect, but ok for now.
 
-    # get all packages including activity values
-    @packages = DbPackage.find :all,
-      :from => 'db_packages pac, db_projects pro',
-      :conditions => "pac.db_project_id = pro.id AND pro.id = #{self.id}",
-      :select => 'pro.*,' +
-      "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
-      'IF( @activity<0, 0, @activity ) AS activity_value'
-    # count packages and sum up activity values
-    project = { :count => 0, :sum => 0 }
-    @packages.each do |package|
-      project[:count] += 1
-      project[:sum] += package.activity_value.to_f
+    # get all packages including activity values, we may not have access
+    begin
+      @packages = DbPackage.find :all,
+        :from => 'db_packages pac, db_projects pro',
+        :conditions => "pac.db_project_id = pro.id AND pro.id = #{self.id}",
+        :select => 'pro.*,' +
+        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+        'IF( @activity<0, 0, @activity ) AS activity_value'
+      # count packages and sum up activity values
+      project = { :count => 0, :sum => 0 }
+      @packages.each do |package|
+        project[:count] += 1
+        project[:sum] += package.activity_value.to_f
+      end
+      # calculate and return average activity
+      return project[:sum] / project[:count]
+    rescue
+      return
     end
-    # calculate and return average activity
-    return project[:sum] / project[:count]
   end
 
 
@@ -815,7 +926,6 @@ class DbProject < ActiveRecord::Base
 
   # find a package in a project and its linked projects
   def find_package(package_name, processed={})
-    logger.debug("deep search for package #{package_name}")
     # cycle check in linked projects
     if processed[self]
       str = self.name
@@ -829,7 +939,10 @@ class DbProject < ActiveRecord::Base
 
     # package exists in this project
     pkg = self.db_packages.find_by_name(package_name)
-    return pkg unless pkg.nil?
+#    return pkg unless pkg.nil?
+    unless pkg.nil?
+      return pkg if DbPackage.check_access?(pkg)
+    end
 
     # search via all linked projects
     self.linkedprojects.each do |lp|
@@ -844,7 +957,9 @@ class DbProject < ActiveRecord::Base
       else
         pkg = lp.linked_db_project.find_package(package_name, processed)
       end
-      return pkg unless pkg.nil?
+      unless pkg.nil?
+        return pkg if DbPackage.check_access?(pkg)
+      end
     end
 
     # no package found

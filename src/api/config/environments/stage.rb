@@ -39,3 +39,4 @@ SOURCE_PORT = 5352
 
 ActionController::AbstractRequest.relative_url_root = "/stage"
 
+RESPONSE_SCHEMA_VALIDATION = true
