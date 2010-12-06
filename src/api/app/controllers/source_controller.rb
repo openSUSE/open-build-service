@@ -175,11 +175,10 @@ class SourceController < ApplicationController
 
         logger.info "destroying project object #{pro.name}"
         pro.destroy
-
-        logger.debug "delete request to backend: /source/#{pro.name}"
-        Suse::Backend.delete "/source/#{pro.name}"
-
       end
+
+      logger.debug "delete request to backend: /source/#{pro.name}"
+      Suse::Backend.delete "/source/#{pro.name}"
 
       render_ok
       return
