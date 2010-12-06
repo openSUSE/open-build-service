@@ -417,4 +417,27 @@ module ApplicationHelper
     return link.html_safe
   end
 
+  # Shortens a text if it longer than 'length'. 
+  def elide(text, length = 20, mode = :middle)
+    shortened_text = text.to_s      # make sure it's a String
+
+    return "..." if length <= 3     # corner case
+
+    if text.length > length
+      case mode
+      when :left                    # shorten at the beginning
+        shortened_text = "..." + text[text.length - length + 3 .. text.length]
+      when :middle                  # shorten in the middle
+        pre = text[0 .. length / 2 - 2]
+        offset = 2                  # depends if (shortened) length is even or odd
+        offset = 1 if length.odd?
+        post = text[text.length - length / 2 + offset .. text.length]
+        shortened_text = pre + "..." + post
+      when :right                   # shorten at the end
+        shortened_text = text[0 .. length - 4 ] + "..."
+      end
+    end
+    return shortened_text
+  end
+
 end
