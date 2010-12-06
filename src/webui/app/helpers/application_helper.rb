@@ -89,13 +89,6 @@ module ApplicationHelper
     end
   end
 
-
-  def shorten_text( text, length=15 )
-    text = text[0..length-1] + '...' if text.length > length
-    return text
-  end
-
-
   def focus_id( id )
     javascript_tag(
       "document.getElementById('#{id}').focus();"

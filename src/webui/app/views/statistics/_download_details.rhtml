@@ -67,7 +67,7 @@
     <tr>
 
       <td>
-        <% project = ' ' + shorten_text( count.project ) %>
+        <% project = ' ' + elide( count.project ) %>
         <% if @project %>
           <span class="greyed-out" title="(filter is active)">
             <%= image_tag( 'project.png' ) + project -%>
@@ -85,7 +85,7 @@
       </td>
 
       <td>
-        <% repo = ' ' + shorten_text( count.repository ) %>
+        <% repo = ' ' + elide( count.repository ) %>
         <% if @repo %>
           <span class="greyed-out" title="(filter is active)">
             <%= image_tag( 'repository.png' ) + repo -%>
@@ -101,7 +101,7 @@
       </td>
 
       <td>
-        <% arch = ' ' + shorten_text( count.architecture ) %>
+        <% arch = ' ' + elide( count.architecture ) %>
         <% if @arch %>
           <span class="greyed-out" title="(filter is active)">
             <%= image_tag( 'architecture.png' ) + arch -%>
@@ -116,7 +116,7 @@
       </td>
 
       <td>
-        <% package = ' ' + shorten_text( count.package ) %>
+        <% package = ' ' + elide( count.package ) %>
         <% if @package %>
           <span class="greyed-out" title="(filter is active)">
             <%= image_tag( 'package.png' ) + package -%>

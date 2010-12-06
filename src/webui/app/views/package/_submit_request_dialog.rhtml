@@ -34,12 +34,10 @@
           <%= hidden_field_tag(:project, @project) %>
           <%= hidden_field_tag(:package, @package) %>
           <%= hidden_field_tag(:revision, @revision) %>
-          <% prjname = @project.name
-             prjname = prjname[0..40] + "..." if @project.name.length > 40 -%>
           <p>Submit <b><%= @package %></b> (revision <%= @revision %>)</p>
           <p>
             <%= label_tag(:source_project, "From source project:") %><br/>
-            <%= text_field_tag(:source_project, prjname, :size => 44, :disabled => true) %><br/>
+            <%= text_field_tag(:source_project, elide(@project.name, 40), :size => 44, :disabled => true) %><br/>
             <%= label_tag(:target_project, "To target project:") %><br/>
             <%= text_field_tag(:target_project, tprj, :size => 44) %><br/>
             <%= label_tag(:description, "Description:") %><br/>

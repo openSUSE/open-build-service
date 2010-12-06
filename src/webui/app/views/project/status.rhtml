@@ -135,10 +135,6 @@
           end
           -%>
           <tr>
-            <% shortname = p['name']
-            if shortname.length > 19
-              shortname = shortname[0..17] + "..."
-            end -%>
             <td class="nowrap sortable">
               <% if icon == "error"  -%>
                 <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
@@ -147,7 +143,7 @@
               <% else -%>
                 <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
               <% end -%>
-              <%= link_to h(shortname), :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
+              <%= link_to h(elide(p['name'], 20)), :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
               <span class="sortkey"><%= h p['name'] %></span>
             </td>
             <%if show_devel_project  %>

@@ -38,7 +38,7 @@ module StatisticsHelper
 
 
   def link_to_package_view( name, project, title='', length=15 )
-    link_to image_tag( 'package.png' ) + " #{shorten_text(name, length)}",
+    link_to image_tag( 'package.png' ) + " #{elide(name, length)}",
       { :action => 'view', :controller => 'package',
       :package => name, :project => project },
       :title => "Package #{name} #{title}"
@@ -46,7 +46,7 @@ module StatisticsHelper
 
 
   def link_to_project_view( name, title='', length=15 )
-    link_to image_tag( 'project.png' ) + " #{shorten_text(name, length)}",
+    link_to image_tag( 'project.png' ) + " #{elide(name, length)}",
       { :action => 'view', :controller => 'project',
       :project => name },
       :title => "Project #{name} #{title}"
