@@ -1,0 +1,21 @@
+<div id="dialog_wrapper">
+<div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box" id="del_dialog">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Delete Confirmation</b>
+      </div>
+
+      <p>Really delete <b><%= h @package.name %></b>?</p>
+
+      <% form_tag({:controller => :package, :action => :remove}, :method => :post) do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <%= hidden_field_tag(:package, @package) %>
+        <p class="buttons">
+          <%= submit_tag("Yes", :class => "buttons") %>
+          <%= link_to_function("No", 'remove_dialog()') %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -519,6 +519,9 @@ class PackageController < ApplicationController
     redirect_to :action => 'show', :project => params[:project], :package => params[:package]
   end
 
+  def delete_dialog
+  end
+
   def remove
     valid_http_methods(:post)
     begin
