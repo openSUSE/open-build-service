@@ -11,6 +11,7 @@
     white-space: nowrap;
 }
 
+input[type="text"],
 textarea {
     width: 95%;
 }
