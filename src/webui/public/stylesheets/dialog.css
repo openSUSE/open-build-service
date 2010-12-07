@@ -31,23 +31,16 @@
   background-color: white;
 }
 
- .heigh17em { /* it's just a workaround */
-   height: 23em !important;
- }
 .dialog .box_content table { /* content of dialog box */
   width:100%;
-} 
-  .dialog .box_content td {
-    height:6em;
-    text-align: center;
-    vertical-align: middle;
-  } 
-.dialog #list_usedrepo {
-  text-align: left;
-  height: 14em;
-  overflow: auto;
-  border-bottom: 1px solid #eee;
 }
+
+.dialog .box_content td {
+  height:6em;
+  text-align: center;
+  vertical-align: middle;
+}
+
 .dialog .box_top_row,
 .dialog .box_bottom_row {
   background-image: none;
