@@ -120,6 +120,7 @@
   background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll right top;
 }
 
+.dialog input[type="submit"],
 .dialog .buttons a {
   padding: 3px 1ex;
   /*padding-left: 1ex;*/
@@ -135,11 +136,17 @@
   */
   color: #999;
 }
+.dialog input[type="submit"] {
+  background: #FFF;
+  border-color: #FFF;
+}
 
+.dialog input[type="submit"]:visited,
 .dialog .buttons a:visited {
   text-decoration: none;
 }
 
+.dialog input[type="submit"]:hover,
 .dialog .buttons a:hover {
   text-decoration: none;
   color: #666;

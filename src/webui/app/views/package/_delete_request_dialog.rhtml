@@ -13,12 +13,12 @@
         <%= hidden_field_tag(:package, @package) %>
         <p>
           <%= label_tag(:target_project, "In target project:") %><br/>
-          <%= text_field_tag(:target_project, @project, :size => 44, :disabled => true) %><br/>
+          <%= text_field_tag(:target_project, @project, :size => 40, :disabled => true) %><br/>
           <%= label_tag(:description, "Description:") %><br/>
           <%= text_area_tag(:description, "", :size => "40x3") %><br/>
         </p>
         <p class="buttons">
-          <%= submit_tag("Submit", :class => "buttons") %>
+          <%= submit_tag("Ok") %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
         </p>
       <% end %>

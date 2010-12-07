@@ -12,8 +12,8 @@
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
         <p class="buttons">
-          <%= submit_tag("Yes", :class => "buttons") %>
-          <%= link_to_function("No", 'remove_dialog()') %>
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()') %>
         </p>
       <% end %>
     </div>

@@ -37,9 +37,9 @@
           <p>Submit <b><%= @package %></b> (revision <%= @revision %>)</p>
           <p>
             <%= label_tag(:source_project, "From source project:") %><br/>
-            <%= text_field_tag(:source_project, elide(@project.name, 40), :size => 44, :disabled => true) %><br/>
+            <%= text_field_tag(:source_project, elide(@project.name, 40), :size => 40, :disabled => true) %><br/>
             <%= label_tag(:target_project, "To target project:") %><br/>
-            <%= text_field_tag(:target_project, tprj, :size => 44) %><br/>
+            <%= text_field_tag(:target_project, tprj, :size => 40) %><br/>
             <%= label_tag(:description, "Description:") %><br/>
             <%= text_area_tag(:description, "", :size => "40x3") %><br/>
             <% default = "update" %>
@@ -47,7 +47,7 @@
             <%= check_box_tag :source_update, 'cleanup' %> Remove local package if request is accepted
           </p>
           <p>
-            <%= submit_tag("Submit", :class => "buttons") %>
+            <%= submit_tag("Ok") %>
             <%= link_to_function("Cancel", 'remove_dialog()') %>
           </p>
         <% end %>
