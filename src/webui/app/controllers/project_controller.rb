@@ -293,7 +293,7 @@ class ProjectController < ApplicationController
   def delete
     valid_http_methods :post
     begin
-      if params[:force] == "1"
+      if params[:force] == '1'
         @project.delete :force => 1
       else
         @project.delete
