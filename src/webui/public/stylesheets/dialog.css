@@ -1,10 +1,12 @@
 .dialog {
   z-index: 90;
   position: fixed;
-  top: 30%;
-  left: 40%;
+  top: 50%;
+  left: 50%;
   height: 10em;
-  width: 24em;
+  margin-top: -5em;
+  width: 26em;
+  margin-left: -13em;
 }
 
 .dialog#disable_mask {
@@ -12,7 +14,9 @@
   top: 0px;
   left: 0px;
   height: 100%;
+  margin-top: 0px;
   width: 100%;
+  margin-left: 0px;
   background-image: url(/images/transparency_grey_20.png)
 }
 
