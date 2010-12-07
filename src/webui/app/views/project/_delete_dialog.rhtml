@@ -1,32 +1,44 @@
 <div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Delete Confirmation</b>
+      </div>
 
-<div class="dialog" id="disable_mask"></div>
-<div class="dialog darkgrey_box">
-  <div class="box box-shadow">
-    <div class="box-header aligncenter">
-      Confirmation
-    </div>
+      <p>Really delete <b><%= h elide(@project.name, 40) %></b>?</p>
 
-    <p>The following repositories use this project:</p>
-    <p>
-    <ul>
-      <% @repos.each do |repo| -%>
-        <% project = repo[0..repo.index('/')-1] %>
-        <li><%= link_to project, :controller => :project, :action => :show, :project => project %><%= repo[repo.index('/')..repo.length] %></li>
+      <% form_tag({:controller => :project, :action => :delete}, :method => :post) do %>
+        <% if @project.linking_projects %>
+          <p>Other projects still have source links to this project:</p>
+          <p>
+            <ul>
+              <% @project.linking_projects.each do |link| %>
+                <li><%= link_to(h(elide(link.name, 40)), :controller => :project, :action => :show, :project => link) %></li>
+              <% end %>
+            </ul>
+          </p>
+          <%= check_box_tag(:ignore_linking_projects, "Ignore project source links") %>
+        <% end %>
+
+        <% if @project.linking_repositories %>
+          <p>Other projects still have links to this project's repositories:</p>
+          <p>
+            <ul>
+              <% @project.linking_repositories.each do |link| %>
+                <li><%= link_to(h(elide(link.project.name, 40)), :controller => :project, :action => :show, :project => link) %></li>
+              <% end %>
+            </ul>
+          </p>
+          <%= check_box_tag(:ignore_linking_repositories, "Ignore repository links") %>
+        <% end %>
+
+        <%= hidden_field_tag(:project, @project) %>
+        <p class="buttons">
+          <%= submit_tag("Yes", :class => "buttons") %>
+          <%= link_to_function("No", 'remove_dialog()') %>
+        </p>
       <% end %>
-    </ul>
-    </p>
-
-    <p><div class="aligncenter buttons">
-      <%= link_to_remote 'Delete',
-        :url => {:action => :delete, :project => @project.name, :force => 1, :confirmed => 1},
-        :loading => 'hide_dialog()',
-        :complete => 'remove_dialog()'
-    %>
-      <%= link_to_function 'Abort', 'remove_dialog()' %>
     </div>
-    </p>
-
   </div>
-
-</div></div>
+</div>

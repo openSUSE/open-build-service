@@ -292,21 +292,20 @@ class ProjectController < ApplicationController
 
   def delete
     valid_http_methods :post
-    @confirmed = params[:confirmed]
-    if @confirmed == "1"
-      begin
-        if params[:force] == "1"
-          @project.delete :force => 1
-        else
-          @project.delete
-        end
-        Rails.cache.delete("%s_packages_mainpage" % @project)
-        Rails.cache.delete("%s_problem_packages" % @project)
-      rescue ActiveXML::Transport::Error => err
-        @error, @code, @api_exception = ActiveXML::Transport.extract_error_message err
-        logger.error "Could not delete project #{@project}: #{@error}"
+    begin
+      if params[:force] == "1"
+        @project.delete :force => 1
+      else
+        @project.delete
       end
+      Rails.cache.delete("%s_packages_mainpage" % @project)
+      Rails.cache.delete("%s_problem_packages" % @project)
+      flash[:note] = "Project '#{@project}' was removed successfully"
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
     end
+    redirect_to :action => :list_public
   end
 
   def repository_arch_list
