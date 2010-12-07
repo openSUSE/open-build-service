@@ -7,10 +7,6 @@
   width: 24em;
 }
 
-#del_dialog {
-  top: 23% !important;
-}
-  
 .dialog#disable_mask {
   z-index: 89;
   top: 0px;
@@ -20,17 +16,6 @@
   background-image: url(/images/transparency_grey_20.png)
 }
 
-.dialog#delete_dialog {
-  border: 2px solid black;
-  background: #dddddd;
-}
-#del_dialog h3 {
-  margin: 1em auto 1em;
-
-
-  font-size: 1.2em;
-  color: #CCC;
-}
 .dialog .box_content {
   width: 95%;
   padding: 2%;
@@ -105,9 +90,7 @@
   position: relative;
   top: 10em;
 }
-#del_dialog .box_bottom_row {
-  top: 23em;
-}
+
 .dialog .box_footer_row {
   width:100%; 
 }
