@@ -253,12 +253,6 @@ class BuildController < ApplicationController
 
     raise DbProject::PrjAccessError.new "" if prj.nil? or not DbProject.check_access?(prj)
 
-    # ACL(result): privacy on for prj means behave like a binary only project
-    if prj.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
-      render_ok
-      return
-    end
-
     pass_to_backend
   end
 

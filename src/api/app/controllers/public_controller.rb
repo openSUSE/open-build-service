@@ -87,12 +87,6 @@ class PublicController < ApplicationController
     end
     
     raise DbProject::PrjAccessError.new "" unless prj or rprj
-    # ACL(project_index): if private view is on behave like pkg without any src files
-    if prj and prj.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(prj)
-      render :text => '<directory count="0"></directory>', :content_type => "text/xml"
-      return
-    end
-
     if rprj
       # ACL(projectlist): a project lists only if project is not protected
       path = unshift_public(request.path)
@@ -151,11 +145,6 @@ class PublicController < ApplicationController
     end
 
     # ACL(package_index): if private view is on behave like pkg without any src files
-    if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
-      render :text => '<directory count="0"></directory>', :content_type => "text/xml"
-      return
-    end
-
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path

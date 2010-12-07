@@ -40,22 +40,6 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
 
-if $ENABLE_VIEWPROTECT
-  def test_get_projectlist_with_viewprotected_project
-    # visible, but no sources
-    prepare_request_with_user "tom", "thunder"
-    get "/source"
-    assert_response :success 
-    assert_match(/entry name="ViewprotectedProject"/, @response.body)
-    #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "adrian", "so_alone"
-    get "/source"
-    assert_response :success 
-    assert_match(/entry name="ViewprotectedProject"/, @response.body)
-  end
-end
-
   def test_get_packagelist
     prepare_request_with_user "tom", "thunder"
     get "/source/kde4"
@@ -178,21 +162,6 @@ end
     assert_tag :tag => "project", :attributes => { :name => "HiddenProject" }
   end
 
-if $ENABLE_VIEWPROTECT
-def test_get_project_meta_from_viewprotected_project
-    prepare_request_with_user "tom", "thunder"
-    get "/source/ViewprotectedProject/_meta"
-    assert_response :success
-    assert_tag :tag => "project", :attributes => { :name => "ViewprotectedProject" }
-    #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "view_homer", "homer"
-    get "/source/ViewprotectedProject/_meta"
-    assert_response :success
-    assert_tag :tag => "project", :attributes => { :name => "ViewprotectedProject" }
-  end
-end
-
   def test_get_project_meta_from_sourceaccess_protected_project
     prepare_request_with_user "tom", "thunder"
     get "/source/SourceprotectedProject/_meta"
@@ -238,24 +207,6 @@ end
       :children => { :count => 2 }
   end
 
-if $ENABLE_VIEWPROTECT
-  def test_get_package_filelist_from_viewprotected_project
-    prepare_request_with_user "tom", "thunder"
-    get "/source/ViewprotectedProject/pack"
-    assert_response :success
-    assert_tag :tag => "status", :attributes => { :code => "ok" }
-    assert_match(/<details><\/details>/, @response.body)
-    #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "adrian", "so_alone"
-    get "/source/ViewprotectedProject/pack"
-    assert_response :success
-    assert_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_tag :tag => "directory",
-      :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_file" } } }
-  end
-end
-
   def test_get_package_filelist_from_sourceaccess_protected_project
     prepare_request_with_user "tom", "thunder"
     get "/source/SourceprotectedProject/pack"
@@ -289,22 +240,6 @@ end
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "HiddenProject"}
   end
-
-if $ENABLE_VIEWPROTECT
-  def test_get_package_meta_from_viewprotected_project
-    # not listing files, but package meta is visible
-    prepare_request_with_user "tom", "thunder"
-    get "/source/ViewprotectedProject/pack/_meta"
-    assert_response :success
-    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "ViewprotectedProject"}
-    #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "adrian", "so_alone"
-    get "/source/ViewprotectedProject/pack/_meta"
-    assert_response :success
-    assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "ViewprotectedProject"}
-  end
-end
 
   def test_get_package_meta_from_sourceacces_protected_project
     # package meta is visible
@@ -447,29 +382,6 @@ end
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # FIXME: maintainer via group
   end
-
-if $ENABLE_VIEWPROTECT
-  def test_put_project_meta_viewprotected_project
-    prj="ViewprotectedProject"
-    # uninvolved user
-    resp1=:success
-    resp2=403
-    aresp={:tag => "status", :attributes => { :code => "change_project_no_permission" } }
-    match=nil
-    prepare_request_with_user "tom", "thunder"
-    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
-    # admin
-    resp1=:success
-    resp2=:success
-    aresp={:tag => "status", :attributes => { :code => "ok" } }
-    match=true
-    prepare_request_with_user "king", "sunflower"
-    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
-    do_change_project_meta_test(prj, resp1, resp2, aresp, match)
-  end
-end
 
   def test_put_project_meta_sourceaccess_protected_project
     prj="SourceprotectedProject"
@@ -713,30 +625,6 @@ end
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
   end
 
-if $ENABLE_VIEWPROTECT
-  def test_put_package_meta_viewprotected_package
-    prj="ViewprotectedProject"
-    pkg="pack"
-    resp1=:success
-    resp2=403
-    aresp={:tag => "status", :attributes => { :code => "change_package_no_permission" } }
-    match=nil
-    # uninvolved user
-    prepare_request_with_user "fred", "geröllheimer"
-    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
-    # admin
-    resp1=:success
-    resp2=:success
-    aresp={:tag => "status", :attributes => { :code => "ok"} }
-    match=true
-    prepare_request_with_user "king", "sunflower"
-    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
-    do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
-  end
-end
-
   def test_put_package_meta_sourceaccess_protected_package
     prj="SourceprotectedProject"
     pkg="pack"
@@ -840,30 +728,6 @@ end
     prepare_request_with_user "adrian", "so_alone"
     do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
   end
-
-if $ENABLE_VIEWPROTECT
-  def test_change_package_meta_viewprotect
-    prj="ViewprotectedProject"
-    pkg="pack"
-    # uninvolved user
-    resp1=:success
-    resp2=403
-    atag2={ :tag => "status", :attributes => { :code => "change_package_no_permission"} }
-    resp3=:success
-    asel3=nil
-    prepare_request_with_user "fred", "geröllheimer"
-    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
-
-    # maintainer
-    resp1=:success
-    resp2=:success
-    atag2={ :tag => "status", :attributes => { :code => "ok"} }
-    resp3=:success
-    asel3="package > build > enable"
-    prepare_request_with_user "view_homer", "homer"
-    do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
-  end
-end
 
   def test_change_package_meta_sourceaccess_protect
     prj="SourceprotectedProject"
@@ -1077,47 +941,6 @@ end
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
   end
-
-if $ENABLE_VIEWPROTECT
-  def test_add_file_to_package_viewprotect
-    # uninvolved user
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    url1="/source/ViewprotectedProject/pack"
-    asserttag1={ :tag => 'status', :attributes => { :code => "ok"} }
-    url2="/source/ViewprotectedProject/pack/testfile"
-    assertresp2=403
-    assertselect2=nil
-    assertselect2rev=nil
-    assertresp3=404
-    asserteq3=nil
-    assertresp4=403
-    add_file_to_package(url1, asserttag1, url2, assertresp2, 
-                               assertselect2, assertselect2rev, 
-                               assertresp3, asserteq3, assertresp4)
-    # nobody 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    add_file_to_package(url1, asserttag1, url2, assertresp2, 
-                               assertselect2, assertselect2rev, 
-                               assertresp3, asserteq3, assertresp4)
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
-    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "20189c0a1f15a9628e7d0ae59edd0c49" }}
-    assertresp2=:success
-    assertselect2="revision > srcmd5"
-    assertselect2rev='38ba097d164af7973f8508a3e73db3da'
-    assertresp3=:success
-    asserteq3=true
-    assertresp4=:success
-    add_file_to_package(url1, asserttag1, url2, assertresp2, 
-                               assertselect2, assertselect2rev, 
-                               assertresp3, asserteq3, assertresp4)
-    # admin
-    prepare_request_with_user "king", "sunflower"
-    add_file_to_package(url1, asserttag1, url2, assertresp2, 
-                               assertselect2, assertselect2rev, 
-                               assertresp3, asserteq3, assertresp4)
-  end
-end
 
   def test_add_file_to_package_sourceaccess_protect
     # uninvolved user
@@ -1361,36 +1184,6 @@ end
     assert_response :success
     assert_match(/argl/, @response.body)
   end
-
-if $ENABLE_VIEWPROTECT
-  def test_diff_package_viewprotected_project
-    prepare_request_with_user "tom", "thunder"
-    post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
-    assert_response :success
-    #reverse
-    post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
-    assert_response :success
-
-    prepare_request_with_user "view_homer", "homer"
-    post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
-    assert_response :success
-    assert_match(/Protected Content/, @response.body)
-    # reverse
-    post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
-    assert_response :success
-    assert_match(/argl/, @response.body)
-
-    prepare_request_with_user "king", "sunflower"
-    post "/source/ViewprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
-    assert_response :success
-    assert_match(/Protected Content/, @response.body)
-    # reverse
-    prepare_request_with_user "king", "sunflower"
-    post "/source/kde4/kdelibs?oproject=ViewprotectedProject&opackage=pack&cmd=diff"
-    assert_response :success
-    assert_match(/argl/, @response.body)
-  end
-end
 
   def test_diff_package_sourceaccess_protected_project
     prepare_request_with_user "tom", "thunder"

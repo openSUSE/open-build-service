@@ -89,9 +89,3 @@ binary_protected_project:
   flag: binarydownload
   position: 1
 
-privacy_protected_project:
-  status: "enable"
-  db_project_id: 3003
-  flag: privacy
-  position: 1
-

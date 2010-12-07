@@ -136,16 +136,6 @@ user_of_binary_protected_project:
   password_salt: ""
   password_hash_type: md5
 
-user_of_view_protected_project:
-  id: 48
-  login: view_homer
-  email: homer@nospam.net
-  state: 2
-  realname: user is maintainer in view protected project (privacy)
-  password: <%= Digest::MD5.hexdigest("homer") %>
-  password_salt: ""
-  password_hash_type: md5
-
 user_of_sourceaccess_protected_project:
   id: 49
   login: sourceaccess_homer

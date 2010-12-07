@@ -21,7 +21,6 @@ module FlagHelper
      'useforbuild' => :enable,
      'binarydownload' => :enable,
      'sourceaccess' => :enable,
-     'privacy' => :disable,
      'access' => :enable 
    }
    def self.default_for(flag_type)

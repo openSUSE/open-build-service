@@ -208,67 +208,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
   end
 
-  def test_branch_package_viewprotect_project_new
-    # viewprotected -> open
-    # unauthorized
-    ActionController::IntegrationTest::reset_auth 
-    sprj="ViewprotectedProject"  # source project
-    spkg="pack"                  # source package
-    tprj="home:tom"              # target project
-    resp=401                     # response
-    match=/Authentication required/
-    testflag=nil          # test for flag in target meta
-    delresp=401           # delete again
-    debug=false
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-    # tom/thunder
-    prepare_request_with_user "tom", "thunder"
-    resp=:success
-    match=/Ok/
-    delresp=:success
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
-    tprj="home:view_homer"
-    resp=:success
-    delresp=:success
-    match=/>ViewprotectedProject</
-    testflag=/<privacy>/
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-    # admin
-    prepare_request_with_user "king", "sunflower"
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-
-    # open -> viewprotected
-    # unauthorized
-    ActionController::IntegrationTest::reset_auth 
-    sprj="home:coolo:test"       # source project
-    spkg="kdelibs_DEVEL_package" # source package
-    tprj="ViewprotectedProject"  # target project
-    resp=401                     # response
-    match=/Authentication required/
-    testflag=nil          # test for flag in target meta
-    delresp=401           # delete again
-    debug=false
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-    # tom/thunder
-    prepare_request_with_user "tom", "thunder"
-    resp=403
-    match=/cmd_execution_no_permission/
-    delresp=404
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)  if $ENABLE_BROKEN_TEST
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
-    resp=:success
-    match="ViewprotectedProject"
-    testflag=nil
-    delresp=:success
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-    # admin
-    prepare_request_with_user "king", "sunflower"
-    do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-  end
-
   def test_branch_package_sourceaccess_protected_project_new
     # viewprotected -> open
     # unauthorized
@@ -303,17 +242,17 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def do_branch_package_test (sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     post "/source/#{sprj}/#{spkg}", :cmd => :branch, :target_project => "#{tprj}"
-    print @response.body if debug
+    puts @response.body if debug
     assert_response resp if resp
     assert_match(match, @response.body) if match
     get "/source/#{tprj}" if debug
-    print @response.body if debug
+    puts @response.body if debug
     get "/source/#{tprj}/_meta"
-    print @response.body if debug
+    puts @response.body if debug
     # FIXME: implementation is not done, change to assert_tag or assert_select
     assert_match(testflag, @response.body) if testflag
     delete "/source/#{tprj}/#{spkg}"
-    print @response.body if debug
+    puts @response.body if debug
     assert_response delresp if delresp
   end
 
@@ -337,49 +276,19 @@ class ReadPermissionTest < ActionController::IntegrationTest
   protected :do_read_access_project
   protected :do_read_access_package
 
-  # >>> ACL#2: privacy flag. behaves like binary-only project
-  def test_privacy_project_maintainer
-    # maintainer has full access
-    do_read_access_project("adrian", "so_alone", "ViewprotectedProject", :success)
-    # we reuse the listing here, valid-user -> pack visible
-    assert_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_tag :tag => "directory", :children => { :count => 2 }
-    assert_tag :child => { :tag => "entry", :attributes => { :name => "pack" } }
-    assert_tag :child => { :tag => "entry", :attributes => { :name => "target" } }
-    do_read_access_package("adrian", "so_alone", "ViewprotectedProject", "pack", :success)
-  end
-
-  def test_privacy_project_invalid_user
-    begin
-      do_read_access_project("Iggy", "asdfasdf", "ViewprotectedProject", :success)
-      # we reuse the listing here, invalid-user -> no packages visible
-      assert_tag :tag => "directory", :children => { :count => 0 }
-      # this should fail !
-    rescue
-      #
-    else
-      #FIXME: package in privacy-enabled project ?
-      #puts "\n This test should fail! We need to verify the logic! \n"
-      #do_read_access_package("Iggy", "asdfasdf", "ViewprotectedProject", "pack", 404)
-    end
-  end
-  # TODO
-  # * search 
-  # <<< ACL#2: privacy flag. behaves like binary-only project
-
   def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     get "/source/#{destprj}/#{destpkg}/_meta"
     orig=@response.body
     post "/source/#{destprj}/#{destpkg}", :cmd => "copy", :oproject => "#{srcprj}", :opackage => "#{srcpkg}"
-    print @response.body if debug
+    puts @response.body if debug
     assert_response resp if resp
     # ret destination package meta
     get "/source/#{destprj}/#{destpkg}/_meta"
-    print @response.body if debug
+    puts @response.body if debug
     # Fixme do assert_tag or assert_select if implementation is fixed
     assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
-    print @response.body if debug
+    puts @response.body if debug
     assert_response delresp if delresp
     get url_for(:controller => :source, :action => :package_meta, :project => "#{destprj}", :package => "#{destpkg}")
     put "/source/#{destprj}/#{destpkg}/_meta", orig
@@ -437,61 +346,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
     # flag not inherited - should we inherit in any case to be on the safe side ?
-    resp=:success
-    delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # admin
-    prepare_request_with_user "king", "sunflower"
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-  end
-
-  def test_copy_viewprotected_project
-    return unless $ENABLE_BROKEN_TEST
-    # invalid
-    ActionController::IntegrationTest::reset_auth 
-    srcprj="ViewprotectedProject"
-    srcpkg="pack"
-    destprj="CopyTest"
-    destpkg="target"
-    resp=401
-    flag=nil
-    delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # some user
-    prepare_request_with_user "tom", "thunder"
-    resp=200
-    delresp=200
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
-    resp=:success
-    delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
-    prepare_request_with_user "king", "sunflower"
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    #
-    # reverse 
-    #
-    # invalid
-    ActionController::IntegrationTest::reset_auth 
-    srcprj="CopyTest"
-    srcpkg="test"
-    destprj="ViewprotectedProject"
-    destpkg="target"
-    resp=401
-    flag=nil
-    delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # some user
-    prepare_request_with_user "tom", "thunder"
-    resp=:success
-    delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-    # maintainer
-    prepare_request_with_user "view_homer", "homer"
     resp=:success
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)

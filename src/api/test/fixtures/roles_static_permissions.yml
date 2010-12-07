@@ -72,14 +72,6 @@ maintainer_source:
   role_id:              3
   static_permission_id: 12
 
-maintainer_private:
-  role_id:              3
-  static_permission_id: 13
-
-admin_private:
-  role_id:              1
-  static_permission_id: 13
-
 maintainer_access:
   role_id:              3
   static_permission_id: 14
@@ -96,14 +88,6 @@ downloader:
   role_id:              5
   static_permission_id: 11
 
-downloader_privacy:
-  role_id:              5
-  static_permission_id: 13
-
 reader:
   role_id:              7
   static_permission_id: 12
-
-reader_privacy:
-  role_id:              7
-  static_permission_id: 13

@@ -191,25 +191,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
   end
 
-  def test_read_access_privacy_result_prj
-    get "/build/ViewprotectedProject/_result"
-    assert_response :success
-    assert_no_tag :tag => "resultlist"
-    # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "view_homer", "homer"
-    get "/build/ViewprotectedProject/_result"
-    assert_response :success
-    assert_tag :tag => "resultlist"
-    # retry with reader
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "adrian_reader", "so_alone"
-    get "/build/ViewprotectedProject/_result"
-    assert_response :success
-    assert_tag :tag => "resultlist"
-    prepare_request_valid_user
-  end
-
   def test_read_access_hidden_result_pkg
     get "/build/HiddenProject/_result?package=pack"
     assert_response 404
@@ -221,25 +202,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "resultlist"
     prepare_request_valid_user
 
-  end
-
-  def test_read_access_privacy_result_pkg
-    get "/build/ViewprotectedProject/_result?package=pack"
-    assert_response :success
-    assert_no_tag :tag => "resultlist"
-    # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "view_homer", "homer"
-    get "/build/ViewprotectedProject/_result?package=pack"
-    assert_response :success
-    assert_tag :tag => "resultlist"
-    # retry with reader
-    ActionController::IntegrationTest::reset_auth
-    prepare_request_with_user "adrian_reader", "so_alone"
-    get "/build/ViewprotectedProject/_result?package=pack"
-    assert_response :success
-    assert_tag :tag => "resultlist"
-    prepare_request_valid_user
   end
 
   def test_binary_view

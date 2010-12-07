@@ -4,6 +4,11 @@ adrian_maintainer_via_group:
   bs_group_id: 99
   role_id: 3
 
+adrian_hidden_maintainer_via_group:
+  db_project_id: 3000
+  bs_group_id: 99
+  role_id: 3
+
 adrian_reviewer_via_group:
   db_project_id: 2
   bs_group_id: 99
