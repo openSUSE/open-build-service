@@ -132,5 +132,8 @@
   /*background: #dd77dd;*/
 }
 
+.dialog input[type="text"] {
+  width: 95%; /* same as textarea */
+}
 /* rlihm pfusch */
 
