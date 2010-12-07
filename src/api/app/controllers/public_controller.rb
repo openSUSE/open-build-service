@@ -14,7 +14,7 @@ class PublicController < ApplicationController
     required_parameters :prj, :pkg, :repo, :arch
 
     prj = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prj)
+    raise DbProject::PrjAccessError.new "" unless prj
 
     # ACL(build): binarydownload denies access to build files
     if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
@@ -238,9 +238,9 @@ class PublicController < ApplicationController
     @pkg = @prj.find_package(params[:pkg]) if @prj
 
     prjchk = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prjchk)
+    raise DbProject::PrjAccessError.new "" unless prjchk
     pkgchk = prjchk.find_package(params[:pkg]) if prjchk
-    raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pkgchk)
+    raise DbPackage::PkgAccessError.new "" unless pkgchk
 
     # ACL(binary_packages): binarydownload denies access to build files
     if @pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(@pkg)

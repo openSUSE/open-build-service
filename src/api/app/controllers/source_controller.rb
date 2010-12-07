@@ -1005,7 +1005,7 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
 
       # ACL(file): access behaves like project not existing
-      raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pack)
+      raise DbPackage::PkgAccessError.new "" unless pack
 
       # ACL(file): source access gives permisson denied
       if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
