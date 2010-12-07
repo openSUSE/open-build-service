@@ -50,12 +50,14 @@
 
             <% package_users.each do |person| -%>
               <li>
-                <%=  gravatar_image(@email_hash[person]) %>
-                <%= if @user
-                  link_to(person, 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' )
-                else
-                  person
-                end -%>
+                <%= gravatar_image(@email_hash[person]) %>
+                <% realname = Person.realname_for_login(person) %>
+                <% if not realname.empty? %>
+                  <%= realname %> (<%= link_to(person, :controller => 'home', :user => person) %>)
+                <% else %>
+                  <%= link_to(person, :controller => 'home', :user => person) %>
+                <% end -%>
+                <%= link_to(image_tag('icons/email.png', :alt => "Send Mail", :title => "Send Mail to User"), 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' ) %>
                 <%- if @user and @user.is_maintainer?( @project, @package ) %>
                   <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove User"),
                     {:action => :remove_person, :project => @project, :userid => person, :role => r, :package => @package},
@@ -67,12 +69,14 @@
             <% project_users.each do |person| -%>
               <% next if package_users.include? person  %>
               <li>
-                <%=  gravatar_image(@email_hash[person]) %>
-                <%= if @user
-                  link_to(person, 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' )
-                else
-                  person
-                end -%>
+                <%= gravatar_image(@email_hash[person]) %>
+                <% realname = Person.realname_for_login(person) %>
+                <% if not realname.empty? %>
+                  <%= realname %> (<%= link_to(person, :controller => 'home', :user => person) %>)
+                <% else %>
+                  <%= link_to(person, :controller => 'home', :user => person) %>
+                <% end -%>
+                <%= link_to(image_tag('icons/email.png', :alt => "Send Mail", :title => "Send Mail to User"), 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' ) %>
                 <% unless @package %>
                   <% if ((r != "maintainer") or (project_users.length > 1)) and @user and @user.is_maintainer?( @project, @package ) %>
                     <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove User"),

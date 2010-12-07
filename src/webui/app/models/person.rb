@@ -36,6 +36,12 @@ class Person < ActiveXML::Base
     return p.value(:email) if p
     return ''
   end
+
+  def self.realname_for_login(person)
+    p = Person.find_cached(person)
+    return p.value(:realname) if p
+    return ''
+  end
   
   def to_s
     login.to_s
