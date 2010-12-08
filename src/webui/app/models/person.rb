@@ -91,10 +91,10 @@ class Person < ActiveXML::Base
       unless iprojects.empty?
         predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
         predicate = "#{predicate} or starts-with(action/target/@project, 'home:#{login}:')"
-        predicate = "state/@name='new' and (#{predicate})"
+        predicate = "(state/@name='new' or state/@name='review') and (#{predicate})"
         collection = Collection.find :what => :request, :predicate => predicate
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
-        collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{login}'"
+        collection = Collection.find :what => :request, :predicate => "(state/@name='new' or state/@name='review') and state/@who='#{login}'"
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         keys = myrequests.keys().sort {|x,y| y <=> x}
         keys.each do |id| 
