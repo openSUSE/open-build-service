@@ -4,6 +4,8 @@ class HomeController < ApplicationController
   before_filter :check_user
   
   def index
+    user = find_cached(Person, params['user'] ) if params['user']
+    @user = user if user
   end
 
   def list_requests

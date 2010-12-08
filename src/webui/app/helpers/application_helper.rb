@@ -66,11 +66,6 @@ module ApplicationHelper
     return @user
   end
 
-  def link_to_home_project
-    link_to "Home Project", :controller => "project", :action => "show", 
-      :project => "home:" + session[:login]
-  end
-
   def link_to_project project
     link_to project, :controller => "project", :action => :show,
       :project => project
