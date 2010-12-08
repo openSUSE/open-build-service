@@ -59,22 +59,50 @@ class DbProject < ActiveRecord::Base
     def check_access?(dbp=self)
       return false if dbp.nil?
       # check for 'access' flag
-      rels = dbp.flags.count :conditions => 
+      flags_set = dbp.flags.count :conditions => 
           ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
       # rels > 0 --> flag set
-      if rels > 0
+      if flags_set > 0
         return true if User.currentAdmin
         # simple check for involvement --> involved users can access
         # dbp.id, User.currentID
-#
-        # FIXME: before: group  after : 2.2 roles ?
-#
-        userrels = dbp.project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
-        if userrels == 0 
-          # no relationship to package -> no access
-          return false
+        grouprels_exist = dbp.project_group_role_relationships.count :conditions => ["db_project_id = ?" , dbp.id]
+
+        if grouprels_exist > 0
+          # fetch project groups
+          grouprels = dbp.project_group_role_relationships.find(:all, :conditions => ["db_project_id = ?", dbp.id])
+          ret = 0
+          grouprels.each do |grouprel|
+            # check if User.currentID belongs to group
+            us = User.find(User.currentID)
+            if grouprel and grouprel.bs_group_id
+              # LOCAL
+              # if user is in group -> return true
+              ret = ret + 1 if us.is_in_group?(grouprel.bs_group_id)
+              # LDAP
+              if defined?( LDAP_MODE ) && LDAP_MODE == :on
+                if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+                  if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
+                    ret = ret + 1
+                  end
+                end
+              end
+              #
+            end
+          end
+          # relationship to package -> access
+          return true if ret > 0
         end
+
+        userrels = dbp.project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
+        if userrels > 0 
+          # relationship to package -> access
+          return true
+        end
+        # no relationship to package -> no access
+        return false
       end
+      # no flag -> return true
       return true
     end
 
