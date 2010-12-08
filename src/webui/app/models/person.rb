@@ -95,12 +95,17 @@ class Person < ActiveXML::Base
 
       myrequests = Hash.new
       unless iprojects.empty?
+        # find active requests where person is maintained in target project
         predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
         predicate = "#{predicate} or starts-with(action/target/@project, 'home:#{login}:')"
         predicate = "(state/@name='new' or state/@name='review') and (#{predicate})"
         collection = Collection.find :what => :request, :predicate => predicate
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
+        # find requests created by person and still active
         collection = Collection.find :what => :request, :predicate => "(state/@name='new' or state/@name='review') and state/@who='#{login}'"
+        collection.each do |req| myrequests[Integer(req.value :id)] = req end
+        # find requests where person is reviewer
+        collection = Collection.find :what => :request, :predicate => "state/@name='review' and review[@by_user='#{login}' and @state='new']"
         collection.each do |req| myrequests[Integer(req.value :id)] = req end
         keys = myrequests.keys().sort {|x,y| y <=> x}
         keys.each do |id| 

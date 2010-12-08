@@ -50,7 +50,9 @@ class RequestController < ApplicationController
 
     @id = @therequest.data.attributes["id"]
     @state = @therequest.state.data.attributes["name"]
-    @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']"
+    # FIXME: actually also the history should be checked here
+    @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']" 
+    @is_author = @therequest.has_element? "//state[@name='review' and @who='#{session[:login]}']" unless @is_author
     @superseded_by = @therequest.state.data.attributes["superseded_by"] if @therequest.state.has_attribute? :superseded_by
     @newpackage = []
 
