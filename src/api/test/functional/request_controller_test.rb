@@ -557,9 +557,11 @@ class RequestControllerTest < ActionController::IntegrationTest
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
-    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $ENABLE_BROKEN_TEST
-    assert_response 403 if $ENABLE_BROKEN_TEST
-    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+#    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $ENABLE_BROKEN_TEST
+#    assert_response 403 if $ENABLE_BROKEN_TEST
+#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_response 404
+    assert_match(/Unknown target project HiddenProject/, @response.body)
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
@@ -572,8 +574,10 @@ class RequestControllerTest < ActionController::IntegrationTest
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
 # This check never really worked yet, it was just complaining that Iggy is no maintainer, but that tells that the package exists actually
-    assert_response 403 if $ENABLE_BROKEN_TEST
-    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+#    assert_response 403 if $ENABLE_BROKEN_TEST
+#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_response 404
+    assert_match(/Unknown source project HiddenProject/, @response.body)
   end
 
   # requests from Hidden to external
@@ -590,8 +594,10 @@ class RequestControllerTest < ActionController::IntegrationTest
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
 # This check never really worked yet, it was just complaining that Iggy is no maintainer, but that tells that the package exists actually
-    assert_response 403 if $ENABLE_BROKEN_TEST
-    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_response 404
+#    assert_response 403 if $ENABLE_BROKEN_TEST
+#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_match(/Unknown source project HiddenProject/, @response.body)
   end
 
   ## FIXME: what else
