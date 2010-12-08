@@ -62,7 +62,9 @@
             <% end %>
           </td>
           <td class="nowrap">
-            <span title="<%= req.state.who %>"><%= truncate(req.state.who, :length => 12) %></span>
+            <span title="<%= req.state.who %>">
+              <%= link_to(truncate(req.state.who, :length => 12), :controller => :home, :user => req.state.who) %>
+            </span>
           </td>
           <td class="nowrap">
             <!-- <%= reqtype(req) %> -->
