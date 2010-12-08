@@ -103,7 +103,8 @@ case "$1" in
 				        continue 
 				fi
 				if [ $partid = "8e" ];then
-					pvcreate $device && DEVICES="$DEVICES $device"
+                                        # metadata size is needed to align PV inside of partition
+					pvcreate --metadatasize 499k $device && DEVICES="$DEVICES $device"
 				fi
 			done
 			vgcreate OBS $DEVICES
