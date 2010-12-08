@@ -45,7 +45,7 @@
             ago
           </td>
           <td class="greyed-out">
-            <%= msg.value :user %>
+            <%= link_to(msg.value(:user), :controller => :home, :user => msg.value(:user)) %>
           </td>
           <% if @user.is_admin? -%>
             <td>
