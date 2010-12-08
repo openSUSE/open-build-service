@@ -53,10 +53,9 @@ class PublicController < ApplicationController
     prj = DbProject.find_by_name(params[:prj])
 
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     
     raise DbProject::PrjAccessError.new "" unless prj or rprj
@@ -80,10 +79,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     
     raise DbProject::PrjAccessError.new "" unless prj or rprj
@@ -104,10 +102,9 @@ class PublicController < ApplicationController
     valid_http_methods :get
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
 
     raise DbProject::PrjAccessError.new "" unless prj or rprj
@@ -128,10 +125,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     raise DbProject::PrjAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj
@@ -157,10 +153,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     raise DbProject::PrjAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj
@@ -186,10 +181,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     raise DbProject::PrjAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj

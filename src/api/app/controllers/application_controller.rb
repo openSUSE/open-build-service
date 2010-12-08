@@ -70,7 +70,7 @@ class ApplicationController < ActionController::Base
     User.currentAdmin = false
     User.current = @http_user if @http_user
     User.currentID = @http_user.id if @http_user and @http_user.id
-    User.currentAdmin = @http_user.is_admin? if @http_user and @http_user.is_admin?
+    User.currentAdmin = true if @http_user and @http_user.is_admin?
   end
 
   protected
