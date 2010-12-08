@@ -10,20 +10,20 @@ class HomeController < ApplicationController
 
   def list_requests
     user = find_cached(Person, params['user'] ) if params['user']
-    user ||= @user
+    @user = user if user
     @requests = user.involved_requests(:cache => false)
     @nr_involved_requests = @requests.size
   end
 
   def list_my
     user = find_cached(Person, params['user'] ) if params['user']
-    user ||= @user
+    @user = user if user
     @user.free_cache if discard_cache?
-    set_watchlist user
-    @iprojects = user.involved_projects.each.map {|x| x.name}.uniq.sort
+    set_watchlist @user
+    @iprojects = @user.involved_projects.each.map {|x| x.name}.uniq.sort
     @ipackages = Hash.new
-    pkglist = user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
-    pkglist.sort(&user.method('packagesorter')).each do |pack|
+    pkglist = @user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
+    pkglist.sort(&@user.method('packagesorter')).each do |pack|
       @ipackages[pack.project] ||= Array.new
       @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
     end
