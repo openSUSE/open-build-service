@@ -11,8 +11,7 @@ class HomeController < ApplicationController
   def list_requests
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
-    @requests = user.involved_requests(:cache => false)
-    @nr_involved_requests = @requests.size
+    @requests = @user.involved_requests(:cache => false)
   end
 
   def list_my
@@ -28,7 +27,6 @@ class HomeController < ApplicationController
       @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
     end
   end
-
 
   def remove_watched_project
     project = params[:project]
