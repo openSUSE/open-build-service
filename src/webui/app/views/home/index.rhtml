@@ -36,6 +36,5 @@
 <ul>
   <li><%= link_to "Home Project", :controller => "project", :action => "show", :project => "home:" + user.to_s %></li>
   <li><%= link_to("Involved Projects", :controller => :home, :action => :list_my, :user => user.to_s) %></li>
-  <li><%= link_to("Involved Requests", :controller => :home, :action => :list_requests, :user => user.to_s) %>
-    <%= "(#{@nr_involved_requests})" unless @nr_involved_requests.blank? %></li>
+  <li><%= link_to("Involved Requests", :controller => :home, :action => :list_requests, :user => user.to_s) %></li>
 </ul>
