@@ -53,7 +53,7 @@
                 <%= gravatar_image(@email_hash[person]) %>
                 <% realname = Person.realname_for_login(person) %>
                 <% if not realname.empty? %>
-                  <%= realname %> (<%= link_to(person, :controller => 'home', :user => person) %>)
+                  <%= link_to(realname + " (" + person + ")", :controller => 'home', :user => person) %>
                 <% else %>
                   <%= link_to(person, :controller => 'home', :user => person) %>
                 <% end -%>
@@ -72,7 +72,7 @@
                 <%= gravatar_image(@email_hash[person]) %>
                 <% realname = Person.realname_for_login(person) %>
                 <% if not realname.empty? %>
-                  <%= realname %> (<%= link_to(person, :controller => 'home', :user => person) %>)
+                  <%= link_to(realname + " (" + person + ")", :controller => 'home', :user => person) %>
                 <% else %>
                   <%= link_to(person, :controller => 'home', :user => person) %>
                 <% end -%>
