@@ -2430,11 +2430,12 @@ sub rebuildkiwiimage {
 
   my ($job, $joberror);
   if (!@{$repo->{'path'} || []}) {
+    # repo has no path, use kiwi repositories also for kiwi system setup
+    my $prp = "$projid/$repoid";
+    my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     # setup pool again for kiwi system expansion
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
-    my $prp = "$projid/$repoid";
-    my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     for my $aprp (@aprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-image)\n";
@@ -2455,10 +2456,12 @@ sub rebuildkiwiimage {
       goto &BSSolv::expander::expand;
     };   
     no warnings 'redefine';
-    *Build::expand = $ownexpand;
+    local *Build::expand = $ownexpand;
     use warnings 'redefine';
     ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, undef, $reason, $relsyncmax, 0);
   } else {
+    # repo has a configured path, expand kiwi system with it
+    $bconf = getconfig($myarch, @{$repo->{'path'} || []});	# XXX argument?
     ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, $prpsearchpath{"$projid/$repoid"} || [], $reason, $relsyncmax, 0);
   }
   if ($job) {
