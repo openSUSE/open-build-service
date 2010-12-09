@@ -790,12 +790,6 @@ class PackageController < ApplicationController
     }
   end
 
-  def escape_log(log)
-    log = CGI.escapeHTML(log)
-    log.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n").gsub(' ', '&ensp;')
-  end
-  private :escape_log
-
   def live_build_log
     @arch = params[:arch]
     @repo = params[:repository]
@@ -838,7 +832,7 @@ class PackageController < ApplicationController
         @finished = true
       else
         @offset += log_chunk.length
-        log_chunk = escape_log(log_chunk)
+        log_chunk = log_chunk
       end
 
     rescue Timeout::Error => ex
