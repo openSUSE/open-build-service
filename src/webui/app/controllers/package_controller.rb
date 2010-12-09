@@ -810,7 +810,7 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
-    @initiallog = @initiallog
+    @initiallog = escape_log(@initiallog)
     @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
       if $1[0].to_i < 32
         ''
