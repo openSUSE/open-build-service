@@ -104,7 +104,7 @@ req = @therequest
         <% if first %>
           <td rowspan="<%= length %>"><%= req.value :id %></td>
           <td rowspan="<%= length %>"><%= req.state.name %></td>
-          <td rowspan="<%= length %>"><%= link_to creator, :controller => :project, :action => "show", :project => "home:"+creator %></td>
+          <td rowspan="<%= length %>"><%= link_to(truncate(req.state.who, :length => 12), :controller => :home, :user => req.state.who) %></td>
           <% first = nil %>
         <% end %>
         <td>
