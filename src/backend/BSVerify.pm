@@ -283,6 +283,7 @@ sub verify_request {
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
   die("request contains unknown state '$req->{'state'}->{'name'}'\n") unless $req_states{$req->{'state'}->{'name'}};
+  verify_num($req->{'state'}->{'superseded_by'}) if exists $req->{'state'}->{'superseded_by'};
 
   my $actions;
   if ($req->{'type'}) {
