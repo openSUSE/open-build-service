@@ -86,6 +86,8 @@ package_bread_crumb 'Build Log'
   </p>
 </div>
 
-<%= render :partial => "live_log_controls" %>
+<% if not @initiallog.empty? %>
+  <%= render :partial => "live_log_controls" %>
+<% end %>
 
 
