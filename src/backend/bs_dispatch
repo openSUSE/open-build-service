@@ -383,6 +383,23 @@ while (1) {
     }
   }
 
+  # calculate and distribute project load
+  if (%$load) {
+    my %praload;
+    for my $prpa (keys %$load) {
+      my $pra = $prpa;
+      $pra =~ s/\/.*\//\//s;
+      $praload{$pra} += $load->{$prpa};
+    }
+    for my $prpa (keys %jobs) {
+      my $pra = $prpa;
+      $pra =~ s/\/.*\//\//s;
+      next unless $praload{$pra};
+      $load->{$prpa} = rand(.01) unless $load->{$prpa};
+      $load->{$prpa} = ($load->{$prpa} + $praload{$pra}) / 2;
+    }
+  }
+
   #print "calculating scales\n";
   my %scales;
   my @jobprpas = keys %jobs;
