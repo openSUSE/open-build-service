@@ -5437,7 +5437,7 @@ my $dispatches = [
   '/getsignkey $project withpubkey:bool?' => \&getsignkey,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
-  '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
+  '!- /lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
   '/public/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
