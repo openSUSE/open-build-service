@@ -1,0 +1,29 @@
+#
+# openSUSE Build Service 2.1.3
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backport:
+=================
+
+* none
+
+Changes:
+========
+
+* webui: is not offering a download link of files > 4MB, if user is not logged in.
+* api: api is not restoring a project object anymore if source server takes too
+       long removing the project (better fix in 2.2 branch)
+* backend: services get also executed on "commitfilelist" (used by osc 0.130)
+
+Bugfixes:
+=========
+
+* webui: OOM error fixes diststats calculation script
+* webui: tablesorter element fixes
+* api: fix anonymous access, when osc is used on api server
+* api: fix listing of history of meta data
+* backend: dispatcher priorisation fix
