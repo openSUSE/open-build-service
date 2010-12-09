@@ -74,7 +74,7 @@ Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib cpio
 Requires:       curl
 Recommends:     openslp lvm2
 # requires from build script
-Requires:       bash binutils
+Requires:       bash binutils bsdtar
 Summary:        The openSUSE Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
