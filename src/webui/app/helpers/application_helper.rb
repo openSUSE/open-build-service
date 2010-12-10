@@ -188,32 +188,6 @@ module ApplicationHelper
       return false
     end
   end
- 
-  def package_link(project, package, opts = {})
-    opts = { :hide_package => false, :hide_project => false, :length => 1000 }.merge(opts)
-    if package_exists? project, package
-      out = link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
-      if opts[:hide_package]
-        out += tlink_to(project, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
-      elsif opts[:hide_project]
-        out += tlink_to(package, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
-      else
-        out += tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
-        out += " / "
-        out += tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, :action => "show", :project => project, :package => package)
-      end
-    else
-      if opts[:hide_package]
-        out = "<span title='#{project}'>" + truncate(project, :length => opts[:length]) + "</span>"
-      elsif opts[:hide_project]
-        out = "<span title='#{package}'>" + truncate(package, :length => opts[:length]) + "</span>"
-      else
-        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project +
-              " / " + "<span title='#{package}'>" + truncate(package, :length => (opts[:length] - 3) / 2) + "</span>"
-      end
-      out.html_safe
-    end
-  end
 
   def status_for( repo, arch, package )
     @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status package='#{package}'/>")
