@@ -14,6 +14,8 @@
     <% else %>
       <% if ae.target.has_attribute?(:package) %> <!-- <%= ae.target.package %> -->
         <%= link_to(elide(ae.target.package, 44), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+      <% elsif ae.data.attributes[:type] == "delete" %>
+        This project
       <% end %>
     <% end %>
   <% end %>
