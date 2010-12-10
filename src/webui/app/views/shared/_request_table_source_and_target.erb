@@ -1,0 +1,20 @@
+<td>
+  <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
+    <%= link_to(elide(ae.source.project, 22), :controller => :project, :action => :show, :project => ae.source.project) %> /
+    <%= link_to(elide(ae.source.package, 22), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+  <% end %>
+</td>
+<td>
+  <% if ae.has_element?(:target) %>
+    <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
+      <%= link_to(elide(ae.target.project, 22), :controller => :project, :action => :show, :project => ae.target.project) %>
+      <% if ae.target.has_attribute?(:package) %> <!-- /<%= ae.target.package %> -->
+        / <%= link_to(elide(ae.target.package, 22), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+      <% end %>
+    <% else %>
+      <% if ae.target.has_attribute?(:package) %> <!-- <%= ae.target.package %> -->
+        <%= link_to(elide(ae.target.package, 44), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+      <% end %>
+    <% end %>
+  <% end %>
+</td>

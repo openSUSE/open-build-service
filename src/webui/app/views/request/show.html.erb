@@ -4,10 +4,56 @@
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
   <%= javascript_include_tag 'jquery.tooltip.min'  %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushDiff' %>
   <%= stylesheet_link_tag "jquery.tooltip" %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
 <% end %>
+
+<h3><%= @pagetitle %></h3>
+
+<% if @superseded_by %>
+  <p>This request has been superseded by request #<%= link_to @superseded_by, :id => @superseded_by %></p>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 1%">State</th>
+      <th style="width: 40%">Source</th>
+      <th style="width: 40%">Target</th>
+      <th style="width: 5%">Requester</th>
+      <th style="width: 1%">Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%  if @req.has_element? :action
+      actions = @req.each_action
+      length = actions.length
+    else
+      actions = [@req.submit]
+      length = 1
+    end
+    first = true %>
+    <% @req.each_action do |ae| %>
+      <tr>
+        <td>
+          <% if @req.has_element? :action %>
+            <%= ae.data.attributes["type"] %>
+          <% else %>
+            submit
+          <% end -%>
+        </td>
+        <%= render :partial => 'shared/request_table_source_and_target', :locals => {:ae => ae} %>
+        <% if first %>
+          <td rowspan="<%= length %>"><%= link_to(elide(@req.state.who, 12), :controller => :home, :user => @req.state.who) %></td>
+          <td rowspan="<%= length %>"><%= @req.state.name %></td>
+          <% first = nil %>
+        <% end %>
+      </tr>
+    <% end -%>
+    <tr>
+      <td colspan="6"><%= format_comment(@req.value('description')) %></td>
+    </tr>
+  </tbody>
+</table>
 
 <% content_for :head_javascript do %>
   function insertRow() {
@@ -46,84 +92,6 @@
     $("#pTable td#comment_"+field_id).text(comment)
   }
 <% end %>
-
-<% content_for :ready_function do %>
-  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-  dp.SyntaxHighlighter.HighlightAll('code');
-<% end %>
-
-<h3><%= @pagetitle %></h3>
-
-<% if @superseded_by %>
-  <p>This request has been superseded by request #<%= link_to @superseded_by, :id => @superseded_by %></p>
-<% end %>
-
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>State</th>
-      <th>Requester</th>
-      <th>Type</th>
-      <th>Source</th>
-      <th>Target</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%  if @req.has_element? :action
-      actions = @req.each_action
-      length = actions.length
-    else
-      actions = [@req.submit]
-      length = 1
-    end
-    if @req.has_element? :history
-      creator = @req.each_history.last.who
-    else
-      creator = @req.state.who
-    end
-    first = true %>
-    <% @req.each_action do |action| %>
-      <tr>
-        <% if first %>
-          <td rowspan="<%= length %>"><%= @req.value :id %></td>
-          <td rowspan="<%= length %>"><%= @req.state.name %></td>
-          <td rowspan="<%= length %>"><%= link_to(truncate(@req.state.who, :length => 12), :controller => :home, :user => @req.state.who) %></td>
-          <% first = nil %>
-        <% end %>
-        <td>
-          <% if @req.has_element? :action %>
-            <%= action.data.attributes["type"] %>
-          <% else %>
-            submit
-          <% end -%>
-        </td>
-        <td>
-          <% if action.has_element? :source %>
-            <span id="req_<%= @req.value(:id) %>"><%= image_tag 'icons/information.png' %>
-              <%= package_link(action.source.project, action.source.value(:package)) %>
-            </span>
-            <script type="text/javascript">
-              setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
-      :project => action.source.project, :package => action.source.package %>' )
-            </script>
-          <% end -%>
-
-        </td>
-        <td>
-          <%= if action.has_element? :target
-            package = action.target.value(:package)
-            package_link(action.target.project, package) if package
-          end -%>
-        </td>
-      </tr>
-    <% end -%>
-    <tr>
-      <td colspan="6"><%= format_comment(@req.value('description')) %></td>
-    </tr>
-  </tbody>
-</table>
-
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
   <div class="section">
     <% form_tag :action => "changerequest" do %>
@@ -219,6 +187,14 @@
 <% end %>
 
 <% if @diff_text and not @diff_text.empty?%>
+  <% content_for :content_for_head do %>
+    <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushDiff' %>
+    <%= stylesheet_link_tag "SyntaxHighlighter" %>
+  <% end %>
+  <% content_for :ready_function do %>
+    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+    dp.SyntaxHighlighter.HighlightAll('code');
+  <% end %>
   <pre id="code" class="patch">
     <%= h @diff_text %>
   </pre>
