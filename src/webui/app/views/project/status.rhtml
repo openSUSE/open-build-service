@@ -149,7 +149,7 @@
             <%if show_devel_project  %>
               <td class="sortable"><span class="sortkey"><%= h p['develproject'] %></span><%= if p['develproject'] then link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
             <% end %>
-            <td class="sortable"><%= outs.join('<br/>').html_safe -%><span class="sortkey"><%= sortkey %></span></td>
+            <td class="sortable"><%= raw outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
           </tr>
         <% end %>
       </tbody>
