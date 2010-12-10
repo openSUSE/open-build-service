@@ -5,6 +5,5 @@
 
 <h2>Pending Requests for <%=h @project %> (<%= @current_requests.size %>)</h2>
 
-<%= render :partial => 'shared/list_requests',
-  :locals => { :requests => @current_requests, :hide_package => false, :hide_project => true } %>
+<%= render :partial => 'shared/list_requests', :locals => { :requests => @current_requests, :hide_package => false, :hide_project => true } %>
 
