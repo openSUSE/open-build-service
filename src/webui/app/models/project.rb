@@ -309,7 +309,7 @@ class Project < ActiveXML::Base
     return true if Person.find_cached(userid).is_admin?
     all_groups("maintainer").each do |grp|
       return true if Person.find_cached(userid).is_in_group?(grp)
-    emd
+    end
     return false
   end
 
