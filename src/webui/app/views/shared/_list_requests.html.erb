@@ -26,38 +26,33 @@
         <th>Target</th>
         <th style="width: 5%">Requester</th>
         <th style="width: 1%">Type</th>
+        <th style="width: 1%">Action</th>
       </tr>
     </thead>
     <tbody>
       <% requests.each do |req| -%>
-        <% action_elem = req.submit if req.has_element? :submit
-        action_elem = req.action if req.has_element? :action %>
+        <% ae = req.submit if req.has_element? :submit
+        ae = req.action if req.has_element? :action %>
         <tr>
           <td class="nowrap"><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
           <td>
-            <% if action_elem.has_element? :source %>
-              <!-- <%= action_elem.source.project %>/<%= action_elem.source.package %> -->
-              <div id="req_<%= req.value(:id) %>"><%= image_tag 'icons/information.png' %>
-                <%= package_link(action_elem.source.project, action_elem.source.package, :length => 70) %>
-              </div>
-              <script type="text/javascript">
+            <% if ae.has_element? :source %>
+              <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
+              <%= link_to(elide(project, 40), :controller => :project, :action => :show, :project => ae.source.project %>/
+              <%= link_to(elide(package, 20), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package %>
+              <! --<script type="text/javascript">
                 setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
-                                          :project => action_elem.source.project, :package => action_elem.source.package %>' )
-              </script>
-            <% elsif reqtype(req) == "delete" %>
-              <% if action_elem.target.has_attribute? :package and hide_package %>
-                <!-- <%= action_elem.target.project %>/<%= action_elem.target.package %> -->
-                <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => true, :length => 70) %>
-              <% end %>
+                                          :project => ae.source.project, :package => ae.source.package %>' )
+                                        </script> -->
             <% end %>
           </td>
           <td>
-            <% if action_elem.has_element?(:target) && action_elem.target.has_attribute?(:package) %>
-              <!-- <%= action_elem.target.project %>/<%= action_elem.target.package %> -->
+            <% if ae.has_element?(:target) && ae.target.has_attribute?(:package) %>
+              <!-- <%= ae.target.project %>/<%= ae.target.package %> -->
               <% if reqtype(req) != "delete" or !hide_package %>
-                <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 ) %>
+                <%= package_link(ae.target.project, ae.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 ) %>
               <% else %>
-                <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => false, :hide_project => true, :length => 40 ) %>
+                <%= package_link(ae.target.project, ae.target.package, :hide_package => false, :hide_project => true, :length => 40 ) %>
               <% end %>
             <% end %>
           </td>
@@ -68,8 +63,10 @@
           </td>
           <td class="nowrap">
             <!-- <%= reqtype(req) %> -->
-            <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :id => req.value(:id)) -%>
             <%= link_to reqtype(req), :controller => :request, :action => :show, :id => req.value(:id) -%>
+          </td>
+          <td>
+            <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :id => req.value(:id)) -%>
           </td>
         </tr>
       <% end %>

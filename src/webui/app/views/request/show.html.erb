@@ -124,12 +124,6 @@
   </tbody>
 </table>
 
-<% if @diff_text and not @diff_text.empty?%>
-  <pre id="code" class="patch">
-    <%= h @diff_text %>
-  </pre>
-<% end %>
-
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
   <div class="section">
     <% form_tag :action => "changerequest" do %>
@@ -222,4 +216,10 @@
       </div>
     <% end %>
   </div>
+<% end %>
+
+<% if @diff_text and not @diff_text.empty?%>
+  <pre id="code" class="patch">
+    <%= h @diff_text %>
+  </pre>
 <% end %>
