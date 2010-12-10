@@ -66,7 +66,8 @@ class RequestController < ApplicationController
        end
 
        if review.has_attribute? :by_group
-         if @user.is_in_group? review.by_group
+         user = Person.find_cached(session[:login])
+         if user.is_in_group? review.by_group
             @is_reviewer = true
             break
          end
