@@ -167,6 +167,9 @@ class User < ActiveRecord::Base
     if group.kind_of? String
       group = Group.find_by_title(group)
     end
+    if group.kind_of? Fixnum
+      group = Group.find(group)
+    end
     unless group.kind_of? Group
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
     end

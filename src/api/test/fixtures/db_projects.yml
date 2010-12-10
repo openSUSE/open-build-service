@@ -131,20 +131,12 @@ BinaryprotectedProject:
   description: "for testing read/view permissions = binarydownload disabled"
   created_at: 2005-01-01 00:00:01
 
-ViewprotectedProject:
-  name: ViewprotectedProject
-  updated_at: 2005-01-01 00:00:01
-  title: This project has behaves like a binary only project except for adrian
-  id: 3003
-  description: "for testing read/view permissions = privacy enabled"
-  created_at: 2005-01-01 00:00:01
-
 CopyTestProject:
   name: CopyTest
   updated_at: 2005-01-01 00:00:01
   title: This project serves as copy target/source
   id: 3004
-  description: "for testing access/sourceacces/privacy"
+  description: "for testing access/sourceacces"
   created_at: 2005-01-01 00:00:01
 
 homeadrianProtectionTest:

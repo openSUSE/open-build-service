@@ -14,7 +14,7 @@ class PublicController < ApplicationController
     required_parameters :prj, :pkg, :repo, :arch
 
     prj = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prj)
+    raise DbProject::PrjAccessError.new "" unless prj
 
     # ACL(build): binarydownload denies access to build files
     if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
@@ -53,10 +53,9 @@ class PublicController < ApplicationController
     prj = DbProject.find_by_name(params[:prj])
 
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     
     raise DbProject::PrjAccessError.new "" unless prj or rprj
@@ -80,19 +79,12 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     
     raise DbProject::PrjAccessError.new "" unless prj or rprj
-    # ACL(project_index): if private view is on behave like pkg without any src files
-    if prj and prj.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(prj)
-      render :text => '<directory count="0"></directory>', :content_type => "text/xml"
-      return
-    end
-
     if rprj
       # ACL(projectlist): a project lists only if project is not protected
       path = unshift_public(request.path)
@@ -110,10 +102,9 @@ class PublicController < ApplicationController
     valid_http_methods :get
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
 
     raise DbProject::PrjAccessError.new "" unless prj or rprj
@@ -134,10 +125,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     raise DbProject::PrjAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj
@@ -151,11 +141,6 @@ class PublicController < ApplicationController
     end
 
     # ACL(package_index): if private view is on behave like pkg without any src files
-    if pkg and pkg.enabled_for?('privacy', nil, nil) and not @http_user.can_private_view?(pkg)
-      render :text => '<directory count="0"></directory>', :content_type => "text/xml"
-      return
-    end
-
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
@@ -168,10 +153,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     raise DbProject::PrjAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj
@@ -197,10 +181,9 @@ class PublicController < ApplicationController
 
     prj = DbProject.find_by_name(params[:prj])
     unless prj
+      rprj = nil
       ret = DbProject.find_remote_project(params[:prj])
-      if ret
-        rprj = ret[0]
-      end
+      rprj = ret[0] if ret and ret[0]
     end
     raise DbProject::PrjAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj
@@ -249,9 +232,9 @@ class PublicController < ApplicationController
     @pkg = @prj.find_package(params[:pkg]) if @prj
 
     prjchk = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prjchk)
+    raise DbProject::PrjAccessError.new "" unless prjchk
     pkgchk = prjchk.find_package(params[:pkg]) if prjchk
-    raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pkgchk)
+    raise DbPackage::PkgAccessError.new "" unless pkgchk
 
     # ACL(binary_packages): binarydownload denies access to build files
     if @pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(@pkg)

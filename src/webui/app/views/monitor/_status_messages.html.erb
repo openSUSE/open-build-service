@@ -10,7 +10,7 @@
         <th>Message</th>
         <th style="width: 10%">time entered</th>
         <th style="width: 5%">by user</th>
-        <% if @user.is_admin? -%>
+        <% if @user and @user.is_admin? -%>
           <th style="width: 1%">&nbsp;</th>
         <% end -%>
       </tr>
@@ -45,9 +45,9 @@
             ago
           </td>
           <td class="greyed-out">
-            <%= msg.value :user %>
+            <%= link_to(msg.value(:user), :controller => :home, :user => msg.value(:user)) %>
           </td>
-          <% if @user.is_admin? -%>
+          <% if @user and @user.is_admin? -%>
             <td>
               <% if msg.deleted_at.empty? %>
                 <%= link_to_remote image_tag( 'delete.png',
@@ -71,7 +71,7 @@
       </span>
     <% end %>
     <span id="add_message_form_area"></span>
-    <% if @user.is_admin? %>
+    <% if @user and @user.is_admin? %>
       <span id="add_message">
         <%= link_to_remote image_tag("list-add.png", :alt => "Add new message"),
           :update => 'add_message_form_area', :url => { :action => "add_message_form" },

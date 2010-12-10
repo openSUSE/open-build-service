@@ -498,32 +498,31 @@ class SourceController < ApplicationController
   # /source/:project/_attribute/:attribute
   # /source/:project/:package/_attribute/:attribute
   # /source/:project/:package/:binary/_attribute/:attribute
+  #--------------------------------------------------------
   def attribute_meta
+    # init and validation
+    #--------------------
     valid_http_methods :get, :post, :delete
     params[:user] = @http_user.login if @http_user
-
     binary=nil
     binary=params[:binary] if params[:binary]
-
-    # ACL(attribute_meta): access check - prj/pkg = nil
+    # valid post commands
+    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:package]
       @attribute_container = DbPackage.find_by_project_and_name(params[:project], params[:package])
-      unless @attribute_container
-        render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-          :status => 404, :errorcode => "unknown_package"
-        return
-      end
     else
+      # project
       @attribute_container = DbProject.find_by_name(params[:project])
-      unless @attribute_container
-        render_error :message => "Unknown project '#{params[:project]}'",
-          :status => 404, :errorcode => "unknown_project"
-        return
-      end
     end
-
     # is the attribute type defined at all ?
     if params[:attribute]
+      # Valid attribute
+      aname = params[:attribute]
+      name_parts = aname.split(/:/)
+      if name_parts.length != 2
+        raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+      end
+      # existing ?
       at = AttribType.find_by_name(params[:attribute])
       unless at
         render_error :status => 403, :errorcode => "not_existing_attribute",
@@ -532,15 +531,74 @@ class SourceController < ApplicationController
       end
     end
 
-    # GET
-    if request.get?
-      params[:binary]=binary if binary
-      render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
-      return
+
+    # access checks
+    #--------------
+    # ACL(attribute_meta): access check - prj/pkg = nil
+    if params[:package]
+      unless @attribute_container
+        DbPackage::PkgAccessError.new ""
+        return
+      end
+    else
+      unless @attribute_container
+        DbProject::PrjAccessError.new ""
+        return
+      end
     end
 
+    # GET
+    # /source/:project/_attribute/:attribute
+    # /source/:project/:package/_attribute/:attribute
+    # /source/:project/:package/:binary/_attribute/:attribute
+    #--------------------------------------------------------
+    if request.get?
+
+      # init
+      # checks
+      # exec
+      render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
+      return
+
+    # /request.get?
+
+    # DELETE
+    # /source/:project/_attribute/:attribute
+    # /source/:project/:package/_attribute/:attribute
+    # /source/:project/:package/:binary/_attribute/:attribute
+    #--------------------------------------------------------
+    elsif request.delete?
+      # init
+      ac = @attribute_container.find_attribute(name_parts[0], name_parts[1],binary)
+
+      # checks
+      unless ac
+          render_error :status => 404, :errorcode => "not_found",
+            :message => "Attribute #{aname} does not exist" and return
+      end
+      if params[:attribute]
+        unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
+          render_error :status => 403, :errorcode => "change_attribute_no_permission",
+            :message => "user #{user.login} has no permission to change attribute"
+          return
+    end
+      end
+
+      # exec
+      ac.destroy
+      @attribute_container.store
+      render_ok
+
+    # /request.delete?
+
     # POST
-    if request.post?
+    # /source/:project/_attribute/:attribute
+    # /source/:project/:package/_attribute/:attribute
+    # /source/:project/:package/:binary/_attribute/:attribute
+    #--------------------------------------------------------
+    elsif request.post?
+
+      # init
       begin
         req = BsRequest.new(request.body.read)
         req.data # trigger XML parsing
@@ -549,22 +607,15 @@ class SourceController < ApplicationController
           :status => 400, :errorcode => "invalid_xml"
         return
       end
-    end
 
-    # permission checking
+      # checks
     if params[:attribute]
-      aname = params[:attribute]
-      name_parts = aname.split(/:/)
-      if name_parts.length != 2
-        raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-      end
       unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
         render_error :status => 403, :errorcode => "change_attribute_no_permission",
           :message => "user #{user.login} has no permission to change attribute"
         return
       end
     else
-      if request.post?
         req.each_attribute do |attr|
           begin
             can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => attr.namespace, :name => attr.name
@@ -583,15 +634,9 @@ class SourceController < ApplicationController
             return
           end
         end
-      else
-        render_error :status => 403, :errorcode => "internal_error",
-          :message => "INTERNAL ERROR: unhandled request"
-        return
-      end
     end
 
-    # execute action
-    if request.post?
+      # exec
       req.each_attribute do |attr|
         begin
           @attribute_container.store_attribute_axml(attr, binary)
@@ -606,19 +651,12 @@ class SourceController < ApplicationController
       @attribute_container.store
       render_ok
 
-    # DELETE
-    elsif request.delete?
-      ac = @attribute_container.find_attribute(name_parts[0], name_parts[1],binary)
-      unless ac
-          render_error :status => 404, :errorcode => "not_found",
-            :message => "Attribute #{aname} does not exist" and return
-      end
-      ac.destroy
-      @attribute_container.store
-      render_ok
+    # /request.post?
+
+    # bad request
+    #------------
     else
-      render_error :message => "INTERNAL ERROR: Unhandled operation",
-        :status => 404, :errorcode => "unknown_operation"
+      raise IllegalRequestError.new
     end
   end
 
@@ -1005,7 +1043,7 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
 
       # ACL(file): access behaves like project not existing
-      raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pack)
+      raise DbPackage::PkgAccessError.new "" unless pack
 
       # ACL(file): source access gives permisson denied
       if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)

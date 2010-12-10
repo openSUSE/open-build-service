@@ -1,36 +1,27 @@
 <div id="dialog_wrapper">
   <div class="dialog" id="disable_mask"></div>
-  <div class="dialog darkgrey_box" id="delete_request">
+  <div class="dialog darkgrey_box">
     <div class="box box-shadow">
       <div class="box-header aligncenter">
         <b>Create Delete Request</b>
       </div>
 
-      <% tprj = ""
-         tpkg = @package.name
-         if @package.linkinfo
-           tprj = @package.linkinfo.project
-           tpkg = @package.linkinfo.package
-         end %>
+      <p>Request to delete <b><%= h @package %></b></p>
 
-      <div class="buttons">
-        <% form_tag({:controller => "package", :action => "delete_request"}, :method => "post") do %>
-          <%= hidden_field_tag(:project, @project) %>
-          <%= hidden_field_tag(:package, @package) %>
-          <p>Request to delete <b><%= tpkg %></b></p>
-          <p>
-            <%= label_tag(:target_project, "In target project:") %><br/>
-            <%= text_field_tag(:target_project, tprj, :size => 44, :disabled => true) %><br/>
-            <%= label_tag(:description, "Description:") %><br/>
-            <%= text_area_tag(:description, "", :size => "40x3") %><br/>
-          </p>
-          <p>
-            <%= submit_tag("Submit", :class => "buttons") %>
-            <%= link_to_function("Cancel", 'remove_dialog()') %>
-          </p>
-        <% end %>
-      </div>
-
+      <% form_tag({:controller => "package", :action => "delete_request"}, :method => "post") do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <%= hidden_field_tag(:package, @package) %>
+        <p>
+          <%= label_tag(:target_project, "In target project:") %><br/>
+          <%= text_field_tag(:target_project, @project, :size => 40, :disabled => true) %><br/>
+          <%= label_tag(:description, "Description:") %><br/>
+          <%= text_area_tag(:description, "", :size => "40x3") %><br/>
+        </p>
+        <p class="buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()') %>
+        </p>
+      <% end %>
     </div>
   </div>
 </div>

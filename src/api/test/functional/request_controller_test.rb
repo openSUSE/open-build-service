@@ -125,6 +125,36 @@ class RequestControllerTest < ActionController::IntegrationTest
                 :child => { :tag => "value", :content => id } )
   end
 
+  def test_create_request_review_and_supersede
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # add reviewer
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
+  end
+
   def test_create_request_and_decline_review
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
@@ -557,9 +587,11 @@ class RequestControllerTest < ActionController::IntegrationTest
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
-    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $ENABLE_BROKEN_TEST
-    assert_response 403 if $ENABLE_BROKEN_TEST
-    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+#    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $ENABLE_BROKEN_TEST
+#    assert_response 403 if $ENABLE_BROKEN_TEST
+#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_response 404
+    assert_match(/Unknown target project HiddenProject/, @response.body)
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
@@ -572,8 +604,10 @@ class RequestControllerTest < ActionController::IntegrationTest
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
 # This check never really worked yet, it was just complaining that Iggy is no maintainer, but that tells that the package exists actually
-    assert_response 403 if $ENABLE_BROKEN_TEST
-    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+#    assert_response 403 if $ENABLE_BROKEN_TEST
+#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_response 404
+    assert_match(/Unknown source project HiddenProject/, @response.body)
   end
 
   # requests from Hidden to external
@@ -590,8 +624,10 @@ class RequestControllerTest < ActionController::IntegrationTest
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
 # This check never really worked yet, it was just complaining that Iggy is no maintainer, but that tells that the package exists actually
-    assert_response 403 if $ENABLE_BROKEN_TEST
-    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_response 404
+#    assert_response 403 if $ENABLE_BROKEN_TEST
+#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_match(/Unknown source project HiddenProject/, @response.body)
   end
 
   ## FIXME: what else

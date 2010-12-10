@@ -1028,7 +1028,7 @@ class ProjectController < ApplicationController
     end
 
     raw_requests = Rails.cache.fetch("requests_new", :expires_in => 5.minutes) do
-      Collection.find(:what => 'request', :predicate => "(state/@name='new')")
+      Collection.find(:what => 'request', :predicate => "(state/@name='new' or state/@name='review')")
     end
 
     @requests = Hash.new
@@ -1222,7 +1222,7 @@ class ProjectController < ApplicationController
   end
 
   def load_current_requests
-    predicate = "state/@name='new' and action/target/@project='#{@project}'"
+    predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{@project}'"
     @current_requests = Array.new
     coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
     coll.each_request do |req|

@@ -1,14 +1,15 @@
-<% @pagetitle = "List My Projects" %>
-<%
-@crumb_list = ['My Projects']
--%>
+<% @pagetitle = "Projects of #{user}" %>
+<% @pagetitle = "My Projects" if user.to_s == session[:login] %>
+<% @crumb_list = [@pagetitle] -%>
 
-<h2>Watched Projects</h2>
+<h2><%= @pagetitle %></h2>
+
+<h3>Watched Projects</h3>
 <%= render :partial => 'watch_list' %>
 
 <br/>
 <div style="min-width: 50%; float: left">
-  <h2>Involved Projects</h2>
+  <h3>Involved Projects</h3>
   <% unless @iprojects.blank? -%>
     <table id='involved_prj-table' class='grid' title="Involved Projects">
       <tr>
@@ -29,7 +30,7 @@
 </div>
 
 <div style="min-width: 50%; float: left">
-  <h2>Involved Packages</h2>
+  <h3>Involved Packages</h3>
   <% unless @ipackages.blank? -%>
   <table id='involved_pkg-table' class='grid' title="Involved Packages">
     <tr>

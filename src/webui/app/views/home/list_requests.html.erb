@@ -1,6 +1,6 @@
-<% @pagetitle = "Pending Requests" 
-   @crumb_list = [@pagetitle]
--%>
+<% @pagetitle = "Requests of #{user}" %>
+<% @pagetitle = "My Requests" if user.to_s == session[:login] %>
+<% @crumb_list = [@pagetitle] -%>
 
 <h2><%= h @pagetitle %></h2>
 

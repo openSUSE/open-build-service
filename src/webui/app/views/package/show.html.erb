@@ -22,10 +22,8 @@
             <% if session[:login] %>
               <% if @package.can_edit?( session[:login] ) %>
                 <li>
-                  <%= link_to image_tag('icons/package_delete.png', :title => 'Delete Package'), { :action => :remove, :package => @package, :project => @project },
-                    {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
-                  <%= link_to 'Delete Package', { :action => :remove, :package => @package, :project => @project },
-                    {:confirm => "Really remove package '#{@package}'?", :method => :post } -%>
+                <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Delete Package'), :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
+                <%= link_to_remote 'Delete Package', :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
                 </li>
                 <li>
                   <%= link_to image_tag('icons/package_edit.png', :title => "Edit Package Information"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>

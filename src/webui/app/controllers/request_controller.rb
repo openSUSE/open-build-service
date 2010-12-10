@@ -42,20 +42,22 @@ class RequestController < ApplicationController
   end
 
   def show
-    @therequest = BsRequest.find_cached(params[:id]) if params[:id]
-    unless @therequest
+    @req = BsRequest.find_cached(params[:id]) if params[:id]
+    unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_to :action => :index and return
     end
 
-    @id = @therequest.data.attributes["id"]
-    @state = @therequest.state.data.attributes["name"]
-    @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']"
-    @superseded_by = @therequest.state.data.attributes["superseded_by"] if @therequest.state.has_attribute? :superseded_by
+    @id = @req.data.attributes["id"]
+    @state = @req.state.data.attributes["name"]
+    # FIXME: actually also the history should be checked here
+    @is_author = @req.has_element? "//state[@name='new' and @who='#{session[:login]}']" 
+    @is_author = @req.has_element? "//state[@name='review' and @who='#{session[:login]}']" unless @is_author
+    @superseded_by = @req.state.data.attributes["superseded_by"] if @req.state.has_attribute? :superseded_by and not @req.state.data.attributes["superseded_by"].empty?
     @newpackage = []
 
     @is_reviewer = false
-    @therequest.each_review do |review|
+    @req.each_review do |review|
        if review.has_attribute? :by_user
           if review.by_user.to_s == session[:login]
             @is_reviewer = true
@@ -64,7 +66,8 @@ class RequestController < ApplicationController
        end
 
        if review.has_attribute? :by_group
-         if @user.is_in_group? review.by_group
+         user = Person.find_cached(session[:login])
+         if user.is_in_group? review.by_group
             @is_reviewer = true
             break
          end
@@ -74,7 +77,7 @@ class RequestController < ApplicationController
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
   
     @is_maintainer = nil
-    @therequest.each_action do |action|
+    @req.each_action do |action|
       # FIXME: this can't handle multiple actions in a request
       @type = action.data.attributes["type"]
       if @type=="submit"

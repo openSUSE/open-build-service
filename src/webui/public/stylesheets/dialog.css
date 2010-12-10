@@ -1,36 +1,24 @@
 .dialog {
   z-index: 90;
   position: fixed;
-  top: 30%;
-  left: 40%;
+  top: 10%;
+  left: 50%;
   height: 10em;
-  width: 24em;
+  width: 26em;
+  margin-left: -13em;
 }
 
-#del_dialog {
-  top: 23% !important;
-}
-  
 .dialog#disable_mask {
   z-index: 89;
   top: 0px;
   left: 0px;
   height: 100%;
+  margin-top: 0px;
   width: 100%;
+  margin-left: 0px;
   background-image: url(/images/transparency_grey_20.png)
 }
 
-.dialog#delete_dialog {
-  border: 2px solid black;
-  background: #dddddd;
-}
-#del_dialog h3 {
-  margin: 1em auto 1em;
-
-
-  font-size: 1.2em;
-  color: #CCC;
-}
 .dialog .box_content {
   width: 95%;
   padding: 2%;
@@ -42,23 +30,16 @@
   background-color: white;
 }
 
- .heigh17em { /* it's just a workaround */
-   height: 23em !important;
- }
 .dialog .box_content table { /* content of dialog box */
   width:100%;
-} 
-  .dialog .box_content td {
-    height:6em;
-    text-align: center;
-    vertical-align: middle;
-  } 
-.dialog #list_usedrepo {
-  text-align: left;
-  height: 14em;
-  overflow: auto;
-  border-bottom: 1px solid #eee;
 }
+
+.dialog .box_content td {
+  height:6em;
+  text-align: center;
+  vertical-align: middle;
+}
+
 .dialog .box_top_row,
 .dialog .box_bottom_row {
   background-image: none;
@@ -105,9 +86,7 @@
   position: relative;
   top: 10em;
 }
-#del_dialog .box_bottom_row {
-  top: 23em;
-}
+
 .dialog .box_footer_row {
   width:100%; 
 }
@@ -120,6 +99,7 @@
   background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll right top;
 }
 
+.dialog input[type="submit"],
 .dialog .buttons a {
   padding: 3px 1ex;
   /*padding-left: 1ex;*/
@@ -135,16 +115,25 @@
   */
   color: #999;
 }
+.dialog input[type="submit"] {
+  background: #FFF;
+  border-color: #FFF;
+}
 
+.dialog input[type="submit"]:visited,
 .dialog .buttons a:visited {
   text-decoration: none;
 }
 
+.dialog input[type="submit"]:hover,
 .dialog .buttons a:hover {
   text-decoration: none;
   color: #666;
   /*background: #dd77dd;*/
 }
 
+.dialog input[type="text"] {
+  width: 95%; /* same as textarea */
+}
 /* rlihm pfusch */
 

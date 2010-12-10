@@ -1722,9 +1722,11 @@ sub getbuildinfo {
     $ret->{'imagetype'} = $info->{'imagetype'} || [];
     if (@prp < 2) {
       $ret->{'path'} = $info->{'path'} || [];
-      @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     } else {
       push @{$ret->{'path'}}, @{$info->{'path'} || []};	# XXX: should unify
+    }
+    if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
+      @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     }
   }
   if ($cgi->{'internal'}) {

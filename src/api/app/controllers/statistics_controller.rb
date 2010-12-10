@@ -493,9 +493,9 @@ class StatisticsController < ApplicationController
   def added_timestamp
 
     prj = DbProject.find_by_name(params[:project])
-    return @project=nil unless DbProject.check_access?(prj)
+    return @project=nil unless prj
     pkg = prj.find_package(params[:package]) if prj
-    return @package=nil unless DbPackage.check_access?(pkg)
+    return @package=nil unless pkg
 
     @project = DbProject.find_by_name(params[:project])
 

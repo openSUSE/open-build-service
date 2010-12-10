@@ -7,10 +7,12 @@ class BuildController < ApplicationController
     pkg = DbPackage.find_by_project_and_name( params[:project], params[:package] )  if prj and params[:package]
 
     # todo: check if prj.nil?/pkg.nil? is sufficient
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prj)
+    raise DbProject::PrjAccessError.new "" unless prj
     # returns <binarylist /> on unkown package !
-    # normally we'd do e.g.: raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pkg)
-    render :text => "<binarylist />", :content_type => "text/xml"  unless DbPackage.check_access?(pkg)
+    # normally we'd do e.g.: raise DbPackage::PkgAccessError.new "" unless pkg
+    if prj and params[:package]
+      render :text => "<binarylist />", :content_type => "text/xml"  unless pkg
+    end
 
     pass_to_backend 
   end
@@ -19,7 +21,7 @@ class BuildController < ApplicationController
     valid_http_methods :get, :post, :put
     prj = DbProject.find_by_name params[:project]
 
-    raise DbProject::PrjAccessError.new "" unless DbProject.check_access?(prj)
+    raise DbProject::PrjAccessError.new "" unless prj
 
     path = request.path
 
@@ -115,7 +117,7 @@ class BuildController < ApplicationController
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
     # ACL(buildinfo): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    raise DbPackage::PkgAccessError.new "" if pkg.nil? or not DbPackage.check_access?(pkg)
+    raise DbPackage::PkgAccessError.new "" if pkg.nil?
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
@@ -134,7 +136,7 @@ class BuildController < ApplicationController
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
     # ACL(package_index): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    raise DbPackage::PkgAccessError.new "" if pkg.nil? or not DbPackage.check_access?(pkg)
+    raise DbPackage::PkgAccessError.new "" if pkg.nil?
 
     pass_to_backend
   end
@@ -146,7 +148,7 @@ class BuildController < ApplicationController
 
     if not params[:package] == "_repository"
       pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-      raise DbPackage::PkgAccessError.new "" if pkg.nil? or not DbPackage.check_access?(pkg)
+      raise DbPackage::PkgAccessError.new "" if pkg.nil?
       end
     if pkg and not DbProject.find_remote_project params[:project]
       # ACL(file): binarydownload denies access to build files
@@ -224,11 +226,11 @@ class BuildController < ApplicationController
   def logfile
     valid_http_methods :get
     prj = DbProject.find_by_name params[:project]
-    raise DbProject::PrjAccessError.new "" if prj.nil? or not DbProject.check_access?(prj)
+    raise DbProject::PrjAccessError.new "" if prj.nil?
 
     pkg = prj.find_package params[:package]
 
-    raise DbPackage::PkgAccessError.new "" if pkg.nil? or not DbPackage.check_access?(pkg)
+    raise DbPackage::PkgAccessError.new "" if pkg.nil?
 
     # ACL(logfile): binarydownload denies logfile access
     if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
@@ -251,13 +253,7 @@ class BuildController < ApplicationController
     valid_http_methods :get
     prj = DbProject.find_by_name params[:project]
 
-    raise DbProject::PrjAccessError.new "" if prj.nil? or not DbProject.check_access?(prj)
-
-    # ACL(result): privacy on for prj means behave like a binary only project
-    if prj.enabled_for?('privacy', params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
-      render_ok
-      return
-    end
+    raise DbProject::PrjAccessError.new "" if prj.nil?
 
     pass_to_backend
   end
