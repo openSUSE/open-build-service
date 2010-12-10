@@ -306,7 +306,11 @@ class Project < ActiveXML::Base
   def can_edit? userid
     return false unless userid
     return true if is_maintainer? userid
-    Person.find_cached(userid).is_admin?
+    return true if Person.find_cached(userid).is_admin?
+    all_groups("maintainer").each do |grp|
+      return true if Person.find_cached(userid).is_in_group?(grp)
+    emd
+    return false
   end
 
   def name
