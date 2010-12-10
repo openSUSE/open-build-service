@@ -2,7 +2,7 @@
 <% @pagetitle = "My Requests" if user.to_s == session[:login] %>
 <% @crumb_list = [@pagetitle] -%>
 
-<h2><%= h @pagetitle %></h2>
+<h3><%= h @pagetitle %></h3>
 
 <% if user.to_s != session[:login] %>
   <p>
