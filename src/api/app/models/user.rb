@@ -346,12 +346,19 @@ class User < ActiveRecord::Base
   end
 
   def user_in_group_ldap?(user, group)
-    logger.debug "Check if #{user} is in group: #{group} through LDAP"
-    begin
-      return true if User.perform_user_group_search_ldap(user, group)
-    rescue Exception
-      logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+    grouplist = []
+    if group.kind_of? String
+      grouplist.push Group.find_by_title(group)
+    else
+      grouplist.push group
     end
+
+    begin      
+      return true unless User.perform_user_group_search_ldap(user, grouplist).empty?
+    rescue Exception
+      logger.debug "Error occured in searching user_group in ldap."
+    end
+
     return false
   end
   
@@ -378,6 +385,7 @@ class User < ActiveRecord::Base
       end    
 
     for rel in rels
+      return false if rel.group.nil?
       #check whether current user is in this group
       return true if user_in_group_ldap?(self.login, rel.group.title) 
     end  
@@ -397,6 +405,7 @@ class User < ActiveRecord::Base
                                                      :include => [:group]
       end
     for rel in rels
+      return false if rel.group.nil?
       #check whether current user is in this group
       return true if user_in_group_ldap?(self.login, rel.group.title) 
     end

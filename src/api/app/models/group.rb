@@ -24,6 +24,18 @@ class Group < ActiveRecord::Base
          user = User.find_by_login(user)
          return nil if user.nil?
          list = user.groups
+
+         # check with LDAP
+         if defined?( LDAP_MODE ) && LDAP_MODE == :on
+           if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+             grouplist = Group.find(:all)
+             begin
+               list = User.perform_user_group_search_ldap(user.login, grouplist)
+             rescue Exception
+               logger.debug "Error occured in searching user_group in ldap."
+             end
+           end
+         end         
        else
          list = Group.find(:all)
        end
