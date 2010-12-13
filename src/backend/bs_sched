@@ -2461,7 +2461,7 @@ sub rebuildkiwiimage {
     ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, undef, $reason, $relsyncmax, 0);
   } else {
     # repo has a configured path, expand kiwi system with it
-    $bconf = getconfig($myarch, @{$repo->{'path'} || []});	# XXX argument?
+    $bconf = getconfig($myarch, $repo->{'path'} || []);	# XXX argument?
     ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, $prpsearchpath{"$projid/$repoid"} || [], $reason, $relsyncmax, 0);
   }
   if ($job) {
