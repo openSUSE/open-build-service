@@ -1,18 +1,19 @@
 <div id="__watchlist">
   <%- if @watchlist and not @watchlist.empty? -%>
-    <table id="watched_projects-table" class="grid" title="Watched Projects">
+    <table style="width: 46%" id="watched_projects-table" class="grid" title="Watched Projects">
       <tr>
         <th>Project</th>
-        <th>Remove</th>
-        <th>Monitor</th>
+        <th style="width: 1%">Actions</th>
       </tr>
       <%- @watchlist.each do |project| -%>
         <tr>
-          <td><%= link_to project, :action => :show, :project => project, :controller => :project %></td>
-          <td><%= link_to_remote image_tag('list-remove.png', :size => '16x16', :alt => 'Remove', :title => 'Remove'), 
-                  {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %></td>
-          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
-                  :controller => :project, :action => :monitor, :project => project %></td>
+          <td><%= link_to elide(project, 60), :action => :show, :project => project, :controller => :project %></td>
+          <td>
+            <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
+                :controller => :project, :action => :monitor, :project => project %>
+            <%= link_to_remote image_tag('list-remove.png', :size => '16x16', :alt => 'Remove', :title => 'Remove'), 
+                {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %>
+          </td>
         </tr>
       <%- end -%>
     </table>
