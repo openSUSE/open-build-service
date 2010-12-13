@@ -483,6 +483,14 @@ class SourceController < ApplicationController
 
       elsif command == 'runservice'
         dispatch_command
+      elsif command == 'commit'
+        dispatch_command
+      elsif command == 'commitfilelist'
+        dispatch_command
+      elsif command == 'createSpecFileTemplate'
+        dispatch_command
+      elsif command == 'runservice'
+        dispatch_command
 
       else
         logger.debug "U N H A N D L E D   C O M M A N D : #{command} in source_controller/index_package"
