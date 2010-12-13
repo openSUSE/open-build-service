@@ -4,7 +4,7 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
-  #TODO index_package : additional testcases for 'commit', 'commitfilelist','createSpecFileTemplate', 'runservice', 'deleteuploadrev', 'linktobranch'  needed
+  #TODO index_package : additional testcases for 'createSpecFileTemplate', 'runservice', needed
   
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
@@ -1317,15 +1317,20 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match(/permission to execute command on project BaseDistro2:LinkedUpdateProject/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
-    assert_response 404
+    assert_response 403
+    assert_match(/permission to execute command 'deleteuploadrev'/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
-    assert_response 404
+    assert_response 403
+    assert_match(/permission to execute command 'commitfilelist'/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commit"
-    assert_response 404
+    assert_response 403
+    assert_match(/permission to execute command 'commit'/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
-    assert_response 404
+    assert_response 403
+    assert_match(/permission to execute command 'linktobranch'/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
     assert_response 403
+    assert_match(/permission to execute command 'undelete'/, @response.body)
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
