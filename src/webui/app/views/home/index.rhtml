@@ -1,9 +1,9 @@
 <% @pagetitle = "Home of #{user}" %>
 <% @crumb_list = [@pagetitle] %>
 
-<h2><%= @pagetitle %></h2>
+<h3><%= @pagetitle %></h3>
 
-<h3>User Info</h3>
+<h4>User Info</h4>
 
 <p><strong>Profile picture:</strong></p>
 <table>
@@ -32,7 +32,7 @@
   <% end %>
 <% end %>
 
-<h3>Related links:</h3>
+<h4>Related links:</h4>
 <ul>
   <li><%= link_to "Home Project", :controller => "project", :action => "show", :project => "home:" + user.to_s %></li>
   <li><%= link_to("Involved Projects", :controller => :home, :action => :list_my, :user => user.to_s) %></li>
