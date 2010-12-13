@@ -4,6 +4,8 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
+  #TODO index_package : additional testcases for 'commit', 'commitfilelist','createSpecFileTemplate', 'runservice', 'deleteuploadrev', 'linktobranch'  needed
+  
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
     get "/source"
