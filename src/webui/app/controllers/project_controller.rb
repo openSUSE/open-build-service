@@ -56,6 +56,16 @@ class ProjectController < ApplicationController
     render :text => @projects.join("\n")
   end
 
+  def autocomplete_packages
+    required_parameters :q
+    packages :norender => true
+    if valid_package_name_read?( params[:q] ) or params[:q] == ""
+      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    else
+      render :text => ""
+    end
+  end
+
   def autocomplete_repositories
     @repos = @project.repositories
     render :text => @repos.join("\n")
@@ -431,7 +441,8 @@ class ProjectController < ApplicationController
   end
   protected :load_packages
 
-  def packages
+  def packages(opts = {})
+    opts = {:norender => false}.merge opts
     load_packages
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
@@ -443,17 +454,9 @@ class ProjectController < ApplicationController
     end
     @filterstring = params[:searchtext] || ''
     get_filtered_packagelist @filterstring
+    return if opts[:norender] # norender when used through other actions (like autocomplete_packages)
     if request.xhr?
       render :partial => 'search_packages' and return
-    end
-  end
-
-  def autocomplete_packages
-    packages
-    if valid_package_name_read?( params[:q] ) or params[:q] == ""
-      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
-    else
-      render :text => ""
     end
   end
 
