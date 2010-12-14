@@ -5,6 +5,10 @@ class AttributeController < ApplicationController
   before_filter :requires
 
   def edit
+    if @attributes.nil? # fails if package does not exist in project anymore
+      redirect_to :controller => :project, :action => :attributes, :project => params[:project]
+      return
+    end
     if params[:namespace] and params[:name]
       selected_attribute = @attributes.data.find_first( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']")
       @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
