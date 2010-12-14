@@ -7,11 +7,8 @@ class UserController < ApplicationController
     logger.info "Logging out: #{session[:login]}"
     reset_session
     @user = nil
-    @return_to_path = "/"
-    if ICHAIN_MODE == 'on'
-      redirect_to '/cmd/ICSLogout'
-    end
     Person.free_cache session
+    redirect_to "/"
   end
 
   def login
