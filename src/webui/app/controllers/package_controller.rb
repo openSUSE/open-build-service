@@ -1,3 +1,4 @@
+require 'iconv'
 require 'open-uri'
 require 'project'
 
@@ -792,7 +793,7 @@ class PackageController < ApplicationController
 
   def escape_log(log)
     log = CGI.escapeHTML(log)
-    log.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n").gsub(' ', '&ensp;')
+    log.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n")
   end
   private :escape_log
 
@@ -810,14 +811,8 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
+    @initiallog = Iconv.conv("LATIN1", "UTF8", @initiallog)
     @initiallog = escape_log(@initiallog)
-    @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
-      if $1[0].to_i < 32
-        ''
-      else
-        $1
-      end
-    end
   end
 
 
