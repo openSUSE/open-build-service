@@ -264,6 +264,22 @@ class ProjectController < ApplicationController
     render :partial => 'buildstatus'
   end
 
+  def delete_request_dialog
+  end
+
+  def delete_request
+    req = BsRequest.new(:type => "delete", :targetproject => params[:project])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+  end
+
   def delete
     valid_http_methods :post
     @confirmed = params[:confirmed]

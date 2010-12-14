@@ -28,10 +28,12 @@ class BsRequest < ActiveXML::Base
           ret = XML::Parser.string(reply).parse.root
           ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
         when "delete" then
+          pkg_option = ""
+          pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
           reply = <<-EOF
             <request>
               <action type="delete">
-                <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+                <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
               </action>
               <state name="new"/>
               <description>#{opt[:description].to_xs}</description>
