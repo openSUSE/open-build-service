@@ -10,6 +10,8 @@ class UserController < ApplicationController
     @return_to_path = "/"
     if ICHAIN_MODE == 'on'
       redirect_to '/cmd/ICSLogout'
+    else
+      redirect_to '/'
     end
     Person.free_cache session
   end
