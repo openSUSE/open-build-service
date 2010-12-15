@@ -819,8 +819,8 @@ sub prpfinished {
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
     my $debian = grep {/\.dsc$/} @all;
-    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess'} @all;
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess'} @all;
     for my $bin (@all) {
       my $rbin = $bin;
       # XXX: should be source name instead?
