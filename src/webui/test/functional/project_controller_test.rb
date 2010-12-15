@@ -51,5 +51,18 @@ class ProjectControllerTest < ActionController::IntegrationTest
     assert( assigns(:packages).size == 2 )
     assert( assigns(:project) )
   end
+  
+  def test_group_access_adrian_kde4
+    logout
+    login_adrian
+    # adrian is maintainer via group on kde4 
+    get "/project/show?project=kde4"
+    # really simple test to get started
+    assert_match(/title="Delete Project"/, @response.body)
+    assert_match(/title="Edit Project Information"/, @response.body)
+    assert_match(/title="Create Subproject"/, @response.body)
+    logout
+    login_tom
+  end
 
 end
