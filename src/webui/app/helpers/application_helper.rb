@@ -176,11 +176,6 @@ module ApplicationHelper
     return diff_m.to_s + " months ago"
   end
 
-  def tlink_to(text, length, *url_opts)
-    out = "<span title='#{text}'>" + link_to( truncate( h(text), :length => length), *url_opts) + "</span>"
-    return out.html_safe
-  end
-
   def package_exists?(project, package)
     if Package.find_cached(package, :project => project )
       return true
