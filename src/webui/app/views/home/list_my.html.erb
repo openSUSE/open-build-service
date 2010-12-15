@@ -19,8 +19,7 @@
       <% @iprojects.each do |project| -%>
         <tr>
           <td><%= link_to elide(project, 60), :controller => :project, :action => :show, :project => project %></td>
-          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project,
-                          :action => :monitor, :project => project %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, :action => :monitor, :project => project %></td>
         </tr>
       <% end -%>
     </table>
@@ -34,17 +33,17 @@
   <% unless @ipackages.blank? -%>
   <table style="width: 92%" id='involved_pkg-table' class='grid' title="Involved Packages">
     <tr>
-      <th>Package</th>
       <th>Project</th>
+      <th>Package</th>
       <th style="width: 1%">Actions</th>
     </tr>
     <% @ipackages.each do |prj, packs| -%>
       <% packs.each do |pkg| -%>
         <tr>
-          <td><%= link_to elide(pkg, 20), :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
-          <td><%= link_to elide(prj, 35), :controller => :project, :action => :show, :project => prj %></td>
-          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'),
-                  :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
+          <% shortened_prj, shortened_pkg = elide_two(prj, pkg, 60) %>
+          <td><%= link_to shortened_prj, :controller => :project, :action => :show, :project => prj %></td>
+          <td><%= link_to shortened_pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
         </tr>
       <% end -%>
     <% end -%>

@@ -1,10 +1,11 @@
 <td>
   <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
-    <%= link_to(elide(ae.source.project, 22), :controller => :project, :action => :show, :project => ae.source.project) %> /
+    <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 44) %>
+    <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
     <% if package_exists?(ae.source.project, ae.source.package) %>
-      <%= link_to(elide(ae.source.package, 22), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+      <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
     <% else %>
-      <%= elide(ae.source.package, 22) %>
+      <%= src_pack %>
     <% end %>
   <% end %>
 </td>
@@ -12,11 +13,12 @@
   <% if ae.has_element?(:target) %>
     <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
       <% if ae.target.has_attribute?(:package) %> <!-- /<%= ae.target.package %> -->
-        <%= link_to(elide(ae.target.project, 22), :controller => :project, :action => :show, :project => ae.target.project) %>
+        <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, 44) %>
+        <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %>
         <% if package_exists?(ae.target.project, ae.target.package) %>
-          / <%= link_to(elide(ae.target.package, 22), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+          / <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
         <% else %>
-          / <%= elide(ae.source.package, 22) %>
+          / <%= tgt_pack %>
         <% end %>
       <% else %>
         <%= link_to(elide(ae.target.project, 44), :controller => :project, :action => :show, :project => ae.target.project) %>
