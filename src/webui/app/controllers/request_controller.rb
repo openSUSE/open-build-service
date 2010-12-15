@@ -103,7 +103,7 @@ class RequestController < ApplicationController
       @diff_text = transport.direct_http URI("/request/#{@id}?cmd=diff"), :method => "POST", :data => ""
     rescue ActiveXML::Transport::Error => e
       @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash.now[:error] = "Can't get diff for request: #{@diff_error}"
+      logger.debug "Can't get diff for request: #{@diff_error}"
     end
 
   end
