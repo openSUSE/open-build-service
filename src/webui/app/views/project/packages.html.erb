@@ -10,8 +10,9 @@
 <% end %>
 
 <div style="display: inline">
-  <% form_tag({:action => :list}, {:method => :get, :id => 'filter_packages_form' }) do -%>
+  <% form_tag({:action => :packages}, {:method => :get, :id => 'filter_packages_form' }) do -%>
     <p>
+      <%= hidden_field_tag(:project, @project.name ) %>
       <% if @packages.length > 0 %>
         <strong>Filter packages:</strong>
         <%= text_field_tag "searchtext", @filterstring -%>
@@ -20,12 +21,12 @@
       <% if @project.can_edit?( session[:login] ) %>
         <span style="float: right">
           <%= link_to image_tag( 'icons/package_add.png', :title => 'Add Package' ),
-            :controller => 'project', :action => :new_package, :project => @project %>
-          <%= link_to 'Create new package', :controller => 'project', :action => :new_package, :project => @project %>
+            :controller => :project, :action => :new_package, :project => @project %>
+          <%= link_to 'Create new pakage', :controller => 'project', :action => :new_package, :project => @project %>
           <%= link_to image_tag( 'icons/package_link.png', :title => 'Branch Package' ),
-            :controller => 'project', :action => :new_package_branch, :project => @project %>
+            :controller => :project, :action => :new_package_branch, :project => @project %>
           <%= link_to 'Branch package from other project',
-            :controller => 'project', :action => :new_package_branch, :project => @project %>
+            :controller => :project, :action => :new_package_branch, :project => @project %>
           <%= image_tag( 'icons/plugin_add.png', :title => 'Create patchinfo' ) %>
           <%= link_to 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %>
         </span>
