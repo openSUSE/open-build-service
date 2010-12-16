@@ -11,18 +11,17 @@
 <% content_for :ready_function do %>
    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
    dp.SyntaxHighlighter.HighlightAll('code'); 
-<% if @user %>
-   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-   $("#editlink").attr("href", "<%= url_for(:action => :edit_meta, :project => @project) %>");
+  <% if @user %>
+    $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+    $("#editlink").attr("href", "<%= url_for(:action => :edit_meta, :project => @project) %>");
+  <% end %>
 <% end %>
-<% end %>
-
 
 <%= render :partial => "tabs" %>
 
 <h3><%= @pagetitle %></h3>
 
-<pre id="code" class="xml">
-  <%=h @meta%>
+<pre id="cde" class="xml">
+  <%= h(@meta) %>
 </pre>
 
