@@ -111,11 +111,11 @@ class ProjectController < ApplicationController
   private :get_filtered_packagelist
 
   def users
-    @email_hash = Hash.new
-    @project.each_person do |person|
-      @email_hash[person.userid.to_s] = find_cached(Person, person.userid, :expires_in => 30.minutes ).email.to_s
-    end
+    @users = @project.users
+    @groups = @project.groups
     @roles = Role.local_roles
+    @emails = Hash.new
+    @users.each {|u| @emails[u] = Person.email_for_login(u)}
   end
 
   def subprojects

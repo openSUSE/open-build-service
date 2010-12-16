@@ -13,16 +13,6 @@ class PackageController < ApplicationController
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
-  def fill_email_hash
-    @email_hash = Hash.new
-    persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
-    persons.each do |person|
-      @email_hash[person] = Person.email_for_login(person)
-    end
-    @roles = Role.local_roles
-  end
-  private :fill_email_hash
-
   def show
     begin 
       @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
@@ -111,7 +101,11 @@ class PackageController < ApplicationController
   end
 
   def users
-    fill_email_hash
+    @users = [@project.users, @package.users].flatten.uniq
+    @groups = @project.groups
+    @roles = Role.local_roles
+    @emails = Hash.new
+    @users.each {|u| @emails[u] = Person.email_for_login(u)}
   end
 
   def list_requests

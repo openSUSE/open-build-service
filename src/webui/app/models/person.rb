@@ -42,7 +42,7 @@ class Person < ActiveXML::Base
     return p.value(:realname) if p
     return ''
   end
-  
+
   def to_s
     login.to_s
   end
@@ -126,6 +126,12 @@ class Person < ActiveXML::Base
     return true if is_admin?
     return true if package and package.is_maintainer?(login)
     return project.is_maintainer?(login)
+  end
+
+  def has_role?(role, project, package=nil)
+    return true if is_admin?
+    return true if package and package.user_has_role?(login, role)
+    return project.user_has_role?(login, role)
   end
 
 end

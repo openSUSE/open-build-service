@@ -1,101 +1,81 @@
-<!-- Involved users -->
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% end %>
 
-<% # used for projects and packages. As such @package can be nil -%>
 <div id="involved_users">
   <h3><%= @pagetitle %></h3>
 
-  <% if @user and @user.is_maintainer?( @project, @package ) %>
+  <% if @users and @users.length > 0 %>
+    <table cellspacing='1' id="users_table" class="tablesorter">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Full Name</th>
+          <th colspan="<%= @roles.length %>">Roles</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td><%= link_to(user, :controller => 'home', :user => user) %></td>
+            <td>
+              <%= gravatar_image(@emails[user]) %>
+              <%= Person.realname_for_login(user) %>
+            </td>
+            <% @roles.each do |role| %>
+              <% if defined? @package %>
+                <td><%= check_box_tag(user + "-" + role, '', @package.user_has_role?(user, role) || @project.user_has_role?(user, role)) %><%= role.capitalize %></td>
+              <% else %>
+                <td><%= check_box_tag(user + "-" + role, '', @project.user_has_role?(user, role)) %><%= role.capitalize %></td>
+              <% end %>
+            <% end %>
+            <td>
+              <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
+              <% mail_to += '/' + @package.name if defined? @package %>
+              <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
+              <% if @user and @user.is_maintainer?(@project, @package) %>
+                <% #TODO: Remove user %>
+                <%= image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user") %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+  <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>
-      <%= link_to image_tag('icons/user_add.png', :alt => "Add User", :title => "Add User"),
-        :action => :add_person, :package => @package, :project => @project %>
-      <%= link_to 'Add',
-        :action => :add_person, :package => @package, :project => @project %> a user
+      <%= link_to image_tag('icons/user_add.png', :alt => "Add user", :title => "Add user"), :action => :add_person, :package => @package, :project => @project %>
+      <%= link_to 'Add user', :action => :add_person, :package => @package, :project => @project %>
     </p>
   <% end %>
 
-  <ul>
-    <% had_roles = false
-       @roles.each do |r| -%>
-
-      <% if @package
-        package_groups = @package.all_groups(r).sort {|x,y| x.downcase <=> y.downcase }
-        package_users  = @package.all_persons(r).sort {|x,y| x.downcase <=> y.downcase }
-      else
-        package_groups = []
-        package_users  = []
-      end
-      project_groups = @project.all_groups(r).sort {|x,y| x.downcase <=> y.downcase }
-      project_users  = @project.all_persons(r).sort {|x,y| x.downcase <=> y.downcase }
-      -%>
-
-      <% if !project_users.empty? or !project_groups.empty? or !package_users.empty? or !package_groups.empty? 
-           had_roles = true -%>
-
-        <li>
-          <h5><%= h r.capitalize %>s</h5>
-          <ul>
-
-            <% package_groups.each do |group| -%>
-              <li>
-                <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
-                <%=  group %>
-              </li>
-            <% end -%>
-            <% project_groups.each do |group| -%>
-              <li>
-                <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
-                <%= group %>
-              </li>
-            <% end -%>
-
-            <% package_users.each do |person| -%>
-              <li>
-                <%= gravatar_image(@email_hash[person]) %>
-                <% realname = Person.realname_for_login(person) %>
-                <% if not realname.empty? %>
-                  <%= link_to(realname + " (" + person + ")", :controller => 'home', :user => person) %>
-                <% else %>
-                  <%= link_to(person, :controller => 'home', :user => person) %>
-                <% end -%>
-                <%= link_to(image_tag('icons/email.png', :alt => "Send Mail", :title => "Send Mail to User"), 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' ) %>
-                <%- if @user and @user.is_maintainer?( @project, @package ) %>
-                  <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove User"),
-                    {:action => :remove_person, :project => @project, :userid => person, :role => r, :package => @package},
-                    {:confirm => "Really remove user '#{person}'?", :method => :post}%>
-                <%- end %>
-              </li>
-            <%- end %>
-
-            <% project_users.each do |person| -%>
-              <% next if package_users.include? person  %>
-              <li>
-                <%= gravatar_image(@email_hash[person]) %>
-                <% realname = Person.realname_for_login(person) %>
-                <% if not realname.empty? %>
-                  <%= link_to(realname + " (" + person + ")", :controller => 'home', :user => person) %>
-                <% else %>
-                  <%= link_to(person, :controller => 'home', :user => person) %>
-                <% end -%>
-                <%= link_to(image_tag('icons/email.png', :alt => "Send Mail", :title => "Send Mail to User"), 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' ) %>
-                <% unless @package %>
-                  <% if ((r != "maintainer") or (project_users.length > 1)) and @user and @user.is_maintainer?( @project, @package ) %>
-                    <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove User"),
-                      {:action => :remove_person, :project => params[:project], :userid => person, :role => r},
-                      {:confirm => "Really remove user '#{person}'?", :class => "x"}%>
-                  <% end %>
-                <% else -%>
-                  <i>(user is inherited from <%= link_to 'project', :controller => :project, :project => @project, :action => :users %>)</i>
-                <% end -%>
-              </li>
-            <% end # project_users -%>
-
-          </ul>
-          </li>
-        <% end -%>
-    <% end # roles_each -%>
-
-    <% unless had_roles -%>
-      <li><i>No users involved</i></li>
-    <% end -%>
-  </ul>
+  <% if @groups and @groups.length > 0 %>
+    <table cellspacing='1' id="groups_table" class="tablesorter">
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th colspan="<%= @roles.length %>">Roles</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @groups.each do |group| %>
+          <tr>
+            <td><%= group %></td/>
+            <% @roles.each do |role| %>
+              <% #TODO do when users work %>
+            <% end %>
+            <td>
+              <% if @user and @user.is_maintainer?(@project, @package) %>
+                <% #TODO: Remove group %>
+                <%= image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group") %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
 </div>
