@@ -16,11 +16,11 @@
 <table>
   <thead>
     <tr>
-      <th style="width: 1%">State</th>
+      <th style="width: 1%">Type</th>
       <th style="width: 40%">Source</th>
       <th style="width: 40%">Target</th>
       <th style="width: 5%">Requester</th>
-      <th style="width: 1%">Type</th>
+      <th style="width: 1%">State</th>
     </tr>
   </thead>
   <tbody>
@@ -49,11 +49,9 @@
         <% end %>
       </tr>
     <% end -%>
-    <tr>
-      <td colspan="6"><%= format_comment(@req.value('description')) %></td>
-    </tr>
   </tbody>
 </table>
+<p><%= format_comment(@req.value('description')) %></p>
 
 <% content_for :head_javascript do %>
   function insertRow() {
@@ -96,15 +94,18 @@
   <div class="section">
     <% form_tag :action => "changerequest" do %>
       <div>
+        <h3>Edit Request</h3>
         <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author || @req.each_review.length > 0) %>
-          <h3>Reviewers</h3>
           <!-- handle existing reviews -->
+          <p>
+            <strong>Reviewers:</strong>
+          </p>
           <table id="pTable">
             <tr>
-              <th>Type</th>
-              <th>Owner</th>
-              <th>Comment</th>
-              <th>State</th>
+              <th style="width: 1%">Type</th>
+              <th style="width: 8%">Owner</th>
+              <th style="width: 90%">Comment</th>
+              <th style="width: 1%">State</th>
             </tr>
             <% @req.each_review do |r|%>
               <%- comment=nil
@@ -146,8 +147,8 @@
                 <tr class="add_reviewer">
                   <td><%= select_tag "add_review_type", options_for_select(["User", "Group"]) %></td>
                   <td><%= text_field_tag "add_review_name" %></td>
-                  <td><%= text_field_tag "add_review_comment", nil, :size => "50x2" %></td>
-                  <td><%= button_to_function("Add Reviewer") {|r| r.call :insertRow} %></td>
+                  <td><%= text_field_tag "add_review_comment", nil, :style => "width: 99%" %></td>
+                  <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow()") %></td>
                 </tr>
               <% end %>
             <% end %>
@@ -155,11 +156,10 @@
         <% end %>
 
         <!-- handle the request itself -->
-        <h3>Actions</h3>
         <%= hidden_field_tag( "id", @id) %>
         <p>
-          <strong>Comment:</strong>
-          <%= text_field_tag :reason, '' , :size => 80 %>
+          <strong>Your Comment:</strong><br/>
+          <%= text_field_tag :reason, '' , :style => "width: 99%" %><br/>
         </p>
         <p>
           <% if @is_maintainer %>
@@ -195,6 +195,7 @@
     dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
     dp.SyntaxHighlighter.HighlightAll('code');
   <% end %>
+  <h3>Diff</h3>
   <pre id="code" class="patch">
     <%= h @diff_text %>
   </pre>
