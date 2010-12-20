@@ -268,20 +268,18 @@ class PackageController < ApplicationController
   def rdiff
     required_parameters :project, :package
     if params[:commit]
-      @opackage = params[:package]
-      @oproject = params[:project]
       @rev = params[:commit]
-      @orev = (@rev.to_i - 1).to_s
     else
       required_parameters :opackage, :oproject
       @opackage = params[:opackage]
       @oproject = params[:oproject]
     end
     @rdiff = ''
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?" +
-      "opackage=#{CGI.escape(@opackage)}&oproject=#{CGI.escape(@oproject)}&unified=1&cmd=diff"
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&unified=1"
     path += "&linkrev=#{CGI.escape(params[:linkrev])}" if params[:linkrev]
     path += "&rev=#{CGI.escape(@rev)}" if @rev
+    path += "&oproject=#{CGI.escape(@oproject)}" if @oproject
+    path += "&opackage=#{CGI.escape(@opackage)}" if @opackage
     path += "&orev=#{CGI.escape(@orev)}" if @orev
     begin
       @rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
