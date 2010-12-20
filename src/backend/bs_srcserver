@@ -3173,6 +3173,7 @@ sub putfile {
 sub sourcediff {
   my ($cgi, $projid, $packid) = @_;
 
+  BSVerify::verify_linkrev($cgi->{'olinkrev'}) if defined($cgi->{'olinkrev'}) && $cgi->{'olinkrev'} ne 'linkrev';
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
 
@@ -3194,6 +3195,7 @@ sub sourcediff {
   if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     die("revision is not a simple commit\n") unless $rev->{'rev'} =~ /^\d+$/s;
     $orev = $rev->{'rev'} - 1;
+    $cgi->{'olinkrev'} = 'linkrev' if !defined($cgi->{'olinkrev'});
   }
   if ($cgi->{'meta'}) {
     $orev = getrev_meta($oprojid, $opackid, $orev);
@@ -3213,6 +3215,7 @@ sub sourcediff {
       }
       $files = handlelinks($rev, $files, \%li);
       die("bad link: $files\n") unless ref $files;
+      $cgi->{'olinkrev'} = $li{'srcmd5'} if $cgi->{'olinkrev'} eq 'linkrev';
       if ($l && $cgi->{'linkrev'} && $l->{'project'} eq $oprojid && $l->{'package'} eq $opackid && !$l->{'rev'} && !$cgi->{'orev'}) {
         # we're diffing against the link target. As the user specified a baserev, we should use it
         # instead of the latest source
@@ -3221,7 +3224,7 @@ sub sourcediff {
       }
     }
     if ($ofiles->{'_link'}) {
-      $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
+      $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'} && $cgi->{'olinkrev'} ne 'linkrev';
       $ofiles = handlelinks($orev, $ofiles);
       die("bad link: $ofiles\n") unless ref $ofiles;
     }
@@ -3397,15 +3400,22 @@ sub keeplink {
   # easy for branches: just copy file list and update baserev
   if ($isbranch) {
     my $nfiles = { %$files };
+    $nfiles->{'_link'} = $ofilesl->{'_link'};
+    my $lchanged;
     my $baserev = $linkrev || $ltgtsrcmd5;
     if (($l->{'baserev'} || '') ne $baserev) {
       $l->{'baserev'} = $baserev;
+      $lchanged = 1;
+    }
+    if ($cgi->{'setrev'} && ($l->{'rev'} || '') ne $baserev) {
+      $l->{'rev'} = $baserev;
+      $lchanged = 1;
+    }
+    if ($lchanged) {
       $l->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
       mkdir_p($uploaddir);
       writexml("$uploaddir/$$", undef, $l, $BSXML::link);
       $nfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
-    } else {
-      $nfiles->{'_link'} = $ofilesl->{'_link'};
     }
     return $nfiles;
   }
@@ -3494,6 +3504,10 @@ sub keeplink {
   my $baserev = $linkrev || $ltgtsrcmd5;
   if (($l->{'baserev'} || '') ne $baserev) {
     $l->{'baserev'} = $baserev;
+    $lchanged = 1;
+  }
+  if ($cgi->{'setrev'} && ($l->{'rev'} || '') ne $baserev) {
+    $l->{'rev'} = $baserev;
     $lchanged = 1;
   }
   if ($lchanged) {
@@ -5397,11 +5411,11 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
-  'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool?' => \&sourcecommit,
-  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool? requestid:num?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
+  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num?' => \&sourcecommitfilelist,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:bool? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? force:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
