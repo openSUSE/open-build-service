@@ -144,6 +144,10 @@ my $workerdircache = {};
 my $builddircache = {};
 
 my %badhost;
+my %newestsrcchange;
+my %infocache;
+
+my %lastbuild;	# last time a job was build in that prpa
 
 sub assignjob {
   my ($job, $idlename, $arch) = @_;
@@ -238,6 +242,29 @@ sub sendeventtosrcserver {
   BSRPC::rpc($param, undef, @args);
 }
 
+sub staleness {
+  my ($prpa, $now, $ic, $jobs) = @_;
+
+  my $projid = (split('/', $prpa))[0];
+  my $lb = $lastbuild{$prpa};
+  return 0 unless $lb;
+  $lb = $now if $lb > $now;
+  my $newestsrcchange = $newestsrcchange{$projid};
+  if (!defined $newestsrcchange) {
+    $newestsrcchange = 0;
+    for (@$jobs) {
+      my $job = $ic->{$_};
+      $newestsrcchange = $job->{'revtime'} if $job && $job->{'revtime'} && $job->{'revtime'} > $newestsrcchange;
+    }
+    $newestsrcchange ||= $lb;
+    $newestsrcchange{$projid} = $newestsrcchange;
+  }
+  my $ret = ($lb - $newestsrcchange) / (($now - $lb) * 40 + 5000000);
+  $ret = 0 if $ret < 0;
+  #print "staleness $prpa: $ret\n";
+  return $ret;
+}
+
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 print "starting build service dispatcher\n";
@@ -252,7 +279,14 @@ my $dispatchprios;
 my $dispatchprios_project;
 my $dispatchprios_id = '';
 
-my %infocache;
+if (-s "$rundir/bs_dispatch.state") {
+  print "reading old state...\n";
+  my $state = BSUtil::retrieve("$rundir/bs_dispatch.state", 2);
+  unlink("$rundir/bs_dispatch.state");
+  %infocache = %{$state->{'infocache'}} if $state && $state->{'infocache'};
+  %badhost = %{$state->{'badhost'}} if $state && $state->{'badhost'};
+  %newestsrcchange = %{$state->{'newestsrcchange'}} if $state && $state->{'newestsrcchange'};
+}
 
 while (1) {
 
@@ -323,6 +357,7 @@ while (1) {
     my $ll = $l->[1];
     $ll *= exp($decay * ($now - $l->[0])) if $now > $l->[0];
     $load->{$prpa} = $ll;
+    $lastbuild{$prpa} = $l->[0];
   }
   
   my @idle = grep {!/^\./} ls("$workersdir/idle");
@@ -355,6 +390,7 @@ while (1) {
       my $prpa = "$projid/$repoid/$arch";
       $load->{$prpa} ||= 0;
       $load->{$prpa} += 1;
+      $lastbuild{$prpa} = $now;
     }
     @b = grep {!/:(?:dir|status|new)$/} @b;
     @b = grep {!$locked{"$_:status"}} @b;
@@ -447,8 +483,11 @@ while (1) {
   #print "fast src change load adapt\n";
   for my $prpa (@jobprpas) {
     next if $maybesrcchange{$prpa};
+    my $arch = (split('/', $prpa))[2];
+    my $ic = $infocache{$arch} || {};
     $didsrcchange{$prpa} = 1;
     $load->{$prpa} *= $nosrcchangescale;
+    $load->{$prpa} += staleness($prpa, $now, $ic, $jobs{$prpa} || []);
   }
 
   @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
@@ -481,6 +520,7 @@ while (1) {
 	# a change in a linked package
 	if ($info->{'reason'} eq 'new build' || !$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
 	  push @srcchange, $job;
+	  $newestsrcchange{$info->{'project'}} = $info->{'readytime'} if ($newestsrcchange{$info->{'project'}} || 0) < $info->{'readytime'};
 	}
       }
     }
@@ -510,6 +550,7 @@ while (1) {
       if (!$srcchange{$job} && !$didsrcchange{$prpa}) {
 	$didsrcchange{$prpa} = 1;
 	$load->{$prpa} *= $nosrcchangescale;
+	$load->{$prpa} += staleness($prpa, $now, $ic, \@b);
 	if (defined($nextload) && $scales{$prpa} * $load->{$prpa} > $nextload) {
 	  $rerun = 1;
 	  last;
@@ -620,11 +661,23 @@ while (1) {
   }
 
   if (-e "$rundir/bs_dispatch.exit") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
     unlink("$rundir/bs_dispatch.exit");
     print "exiting...\n";
     exit(0);
   }
   if (-e "$rundir/bs_dispatch.restart") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
     unlink("$rundir/bs_dispatch.restart");
     print "restarting...\n";
     exec($0);
