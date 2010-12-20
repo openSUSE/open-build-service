@@ -4838,6 +4838,8 @@ sub getrequest {
 sub postrequest {
   my ($cgi, $id) = @_;
 
+  # work around bad osc versions
+  delete $cgi->{'superseded_by'} if defined($cgi->{'superseded_by'}) && $cgi->{'superseded_by'} eq '';
   my $cmd = $cgi->{'cmd'};
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
   die("404 no such request '$id'\n") unless $oreq;
@@ -4907,7 +4909,7 @@ sub postrequest {
       push @{$req->{'history'}}, $oldstate;
       if ($cgi->{'newstate'} eq 'superseded') { # superseded
          $req->{'state'} = {'name' => 'superseded'};
-         $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'};
+         $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
       } else { # no open reviews anymore
          $req->{'state'} = {'name' => $go_new_state} if $go_new_state;
       }
