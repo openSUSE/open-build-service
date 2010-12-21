@@ -28,13 +28,24 @@
 
   <dt><label>Groups</label></dt>
   <dd>
-    <%= node_tree(Group.find(:all)) do |group|
-          result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" checked=\"checked\" /> ".html_safe if @user.groups.include? group
-          result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" /> ".html_safe unless @user.groups.include? group
-          result += "<label for=\"user_groups_#{group.id}\">#{group.title}</label> ".html_safe
-          result
-        end %>
+    <%= ldapgroups = @user.usergroups_ldap
+        node_tree(Group.find(:all)) do |group|
+          if @user.ldapgroup_enabled?
+            result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" checked=\"checked\" disabled=True/> ".html_safe if @user.groups.include? group or ldapgroups.include? group
+            result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" disabled=True/> ".html_safe unless @user.groups.include? group or ldapgroups.include? group
+            result += "<label for=\"user_groups_#{group.id}\">#{group.title}</label> ".html_safe
+            result
+          else
+            result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" checked=\"checked\"/> ".html_safe if @user.groups.include? group
+            result = "<input id=\"user_groups_#{group.id}\" type=\"checkbox\" name=\"user[groups][]\" value=\"#{group.id}\" /> ".html_safe unless @user.groups.include? group
+            result += "<label for=\"user_groups_#{group.id}\">#{group.title}</label> ".html_safe
+            result
+          end
+        end%>
   </dd>
+  <% if @user.ldapgroup_enabled? %>
+    <dd>LDAP group support enabled, users can only be added to group via LDAP.</dd>
+  <% end %>
   <dt><label>Comment why the User wants the Account:</label></dt>
   <dd><%= @user.adminnote %>
   </dd>

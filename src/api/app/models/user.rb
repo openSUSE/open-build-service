@@ -345,6 +345,30 @@ class User < ActiveRecord::Base
     has_global_permission?(*args)
   end
 
+  def ldapgroup_enabled?
+    if defined?( LDAP_MODE ) && LDAP_MODE == :on
+      if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+        return true
+      end
+    end
+    return false
+  end
+
+  def usergroups_ldap ()
+    logger.debug "List the groups #{self.login} is in"
+    ldapgroups = Array.new
+    # check with LDAP
+    if ldapgroup_enabled?
+      grouplist = Group.find(:all)
+      begin
+        ldapgroups = User.perform_user_group_search_ldap(self.login, grouplist)
+      rescue Exception
+        logger.debug "Error occured in searching user_group in ldap."
+      end
+    end        
+    return ldapgroups
+  end
+
   def user_in_group_ldap?(user, group)
     grouplist = []
     if group.kind_of? String
@@ -425,10 +449,8 @@ class User < ActiveRecord::Base
          return true if rels > 0
 
         # check with LDAP
-        if defined?( LDAP_MODE ) && LDAP_MODE == :on
-          if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
-            return true if local_role_check_with_ldap(role, object)
-          end
+        if ldapgroup_enabled?
+          return true if local_role_check_with_ldap(role, object)
         end
 
         return has_local_role?(role, object.db_project)
@@ -442,10 +464,8 @@ class User < ActiveRecord::Base
         return true if rels > 0
 
         # check with LDAP
-        if defined?( LDAP_MODE ) && LDAP_MODE == :on
-          if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
-            return true if local_role_check_with_ldap(role, object)
-          end
+        if ldapgroup_enabled?
+          return true if local_role_check_with_ldap(role, object)
         end
 
         return false
@@ -475,10 +495,8 @@ class User < ActiveRecord::Base
       end
 
       # check with LDAP
-      if defined?( LDAP_MODE ) && LDAP_MODE == :on
-        if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
-          return true if local_permission_check_with_ldap(perm_string, object)
-        end
+      if ldapgroup_enabled?
+        return true if local_permission_check_with_ldap(perm_string, object)
       end
 
       #check permission of parent project
@@ -500,10 +518,8 @@ class User < ActiveRecord::Base
       end
 
       # check with LDAP
-      if defined?( LDAP_MODE ) && LDAP_MODE == :on
-        if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
-          return true if local_permission_check_with_ldap(perm_string, object)
-        end
+      if ldapgroup_enabled?
+        return true if local_permission_check_with_ldap(perm_string, object)
       end
 
       if (parent = object.find_parent)
