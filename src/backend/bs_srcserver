@@ -1911,7 +1911,7 @@ sub getprojpack {
 	$pinfo->{'error'} = 'no metadata';
 	next;
       }
-      for (qw{build publish debuginfo useforbuild bcntsynctag}) {
+      for (qw{build publish debuginfo useforbuild bcntsynctag sourceaccess privacy access}) {
 	$pinfo->{$_} = $pack->{$_} if $pack->{$_};
       }
       if (!$pinfo->{'build'}) {
