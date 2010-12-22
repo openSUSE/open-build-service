@@ -1273,8 +1273,19 @@ sub putjob {
     my @s = stat("$dir/$file->{'name'}");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    my $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
-    BSVerify::verify_nevraquery($data);
+    my $data;
+    eval {
+      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file->{'name'}");
+      $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
+      BSVerify::verify_nevraquery($data);
+    };
+    if ($@) {
+      BSUtil::appendstr("$dir/logfile", "$file->{'name'}: $@");
+      unlink("$dir/$file->{'name'}");
+      $uploaded = [ grep {$_->{'name'} ne $file->{'name'}} @$uploaded ];
+      $jobstatus->{'result'} = 'failed';
+      next;
+    }
     $bininfo->{$id} = $data;
   }
   BSUtil::store("$dir/.bininfo", undef, $bininfo) if %$bininfo;
