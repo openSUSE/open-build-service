@@ -3407,8 +3407,9 @@ sub keeplink {
       $l->{'baserev'} = $baserev;
       $lchanged = 1;
     }
-    if ($cgi->{'setrev'} && ($l->{'rev'} || '') ne $baserev) {
-      $l->{'rev'} = $baserev;
+    $cgi->{'setrev'} = $baserev if $cgi->{'setrev'} && $cgi->{'setrev'} eq 'base';
+    if ($cgi->{'setrev'} && ($l->{'rev'} || '') ne $cgi->{'setrev'}) {
+      $l->{'rev'} = $cgi->{'setrev'};
       $lchanged = 1;
     }
     if ($lchanged) {
@@ -3506,8 +3507,9 @@ sub keeplink {
     $l->{'baserev'} = $baserev;
     $lchanged = 1;
   }
-  if ($cgi->{'setrev'} && ($l->{'rev'} || '') ne $baserev) {
-    $l->{'rev'} = $baserev;
+  $cgi->{'setrev'} = $baserev if $cgi->{'setrev'} && $cgi->{'setrev'} eq 'base';
+  if ($cgi->{'setrev'} && ($l->{'rev'} || '') ne $cgi->{'setrev'}) {
+    $l->{'rev'} = $cgi->{'setrev'};
     $lchanged = 1;
   }
   if ($lchanged) {
@@ -5415,7 +5417,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:bool? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? force:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
