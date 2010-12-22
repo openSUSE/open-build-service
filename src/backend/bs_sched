@@ -826,7 +826,6 @@ sub prpfinished {
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian;
       next if exists $origin{$rbin};	# first one wins
-      $origin{$rbin} = $packid;
       if ($nosourceaccess) {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
 	next if $bin =~ /-debug(:?info|source).*\.rpm$/;
@@ -841,6 +840,7 @@ sub prpfinished {
 	}
 	next if $bad;
       }
+      $origin{$rbin} = $packid;
       # link from package dir (pdir) to repo dir (rdir)
       my @sr = lstat("$rdir/$rbin");
       if (@sr) {
