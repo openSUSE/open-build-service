@@ -186,17 +186,7 @@
   </div>
 <% end %>
 
-<% if @diff_text and not @diff_text.empty?%>
-  <% content_for :content_for_head do %>
-    <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushDiff' %>
-    <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <% end %>
-  <% content_for :ready_function do %>
-    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-    dp.SyntaxHighlighter.HighlightAll('code');
-  <% end %>
+<% if @diff_text and not @diff_text.empty? %>
   <h3>Diff</h3>
-  <pre id="code" class="patch">
-    <%= h @diff_text %>
-  </pre>
+  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @diff_text, :type => 'diff'} %>
 <% end %>

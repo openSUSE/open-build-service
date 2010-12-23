@@ -1,24 +1,8 @@
-<% @pagetitle = "Changes of Commit #{params[:commit]}" %>
-
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml', 'syntax/shBrushDiff' %>
-<% end %>
-
-<% content_for :ready_function do %>
-  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-  dp.SyntaxHighlighter.HighlightAll('code');
-  <% if @addeditlink %>
-    $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-    $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
-      :package => @package, :file => @filename ) %>");
-  <% end %>
-<% end %>
-
-<% package_bread_crumb("Changes") -%>
+<% @pagetitle = "Changes of Commit #{params[:commit]}"
+   package_bread_crumb("Changes")
+-%>
 
 <%= render :partial => "tabs" %>
-
 
 <% if params[:commit] %>
   <h3><%= h @pagetitle %></h3>
@@ -31,10 +15,14 @@
 <% if @rdiff.empty? %>
   <p><em>No difference</em></p>
 <% else %>
+  <% if @addeditlink %>
+    <p>
+      <% link_to(image_tag("icon/package_edit.png", :title => "Edit diff"), :action => :edit_file, :project => @project, :package => @package, :file => @filename) %>
+      <% link_to("Edit diff", :action => :edit_file, :project => @project, :package => @package, :file => @filename) %>
+    </p>
+  <% end %>
 
-  <pre id="code" class="patch">
-    <%=h @rdiff %>
-  </pre>
+  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @rdiff, :type => 'diff'} %>
 
   <% if @lastreq %>
     <div><span class="strong">Careful!</span> The last request (<%= @lastreq.data[:id] %>) was declined
@@ -51,9 +39,7 @@
         <p>Submit these changes to <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %></p>
       <% end %>
 
-      <p>
-        Comment: <%= text_field_tag 'description', "", :size => "80" -%>
-      </p>
+      <p>Comment: <%= text_field_tag 'description', "", :size => "80" -%></p>
       <div>
         <% if params[:commit] %>
           <!-- FIXME: Add an option to just revert this single commit -->
@@ -64,5 +50,4 @@
       </div>
     <% end %>
   <% end %>
-
 <% end %>
