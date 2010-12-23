@@ -1,47 +1,55 @@
 /**
- * Code Syntax Highlighter.
- * Version 1.5.2
- * Copyright (C) 2004-2008 Alex Gorbatchev
- * http://www.dreamprojections.com/syntaxhighlighter/
+ * SyntaxHighlighter
+ * http://alexgorbatchev.com/SyntaxHighlighter
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, version 3 of the License.
+ * SyntaxHighlighter is donationware. If you are using it, please donate.
+ * http://alexgorbatchev.com/SyntaxHighlighter/donate.html
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * @version
+ * 3.0.83 (July 02 2010)
+ * 
+ * @copyright
+ * Copyright (C) 2004-2010 Alex Gorbatchev.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @license
+ * Dual licensed under the MIT and GPL licenses.
  */
-
-/* Ruby 1.8.4 syntax contributed by Erik Peterson */
-dp.sh.Brushes.Ruby = function()
+;(function()
 {
-  var keywords =	'alias and BEGIN begin break case class def define_method defined do each else elsif ' +
-					'END end ensure false for if in module new next nil not or raise redo rescue retry return ' +
-					'self super then throw true undef unless until when while yield';
+	// CommonJS
+	typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
 
-  var builtins =	'Array Bignum Binding Class Continuation Dir Exception FalseClass File::Stat File Fixnum Fload ' +
-					'Hash Integer IO MatchData Method Module NilClass Numeric Object Proc Range Regexp String Struct::TMS Symbol ' +
-					'ThreadGroup Thread Time TrueClass';
+	function Brush()
+	{
+		// Contributed by Erik Peterson.
+	
+		var keywords =	'alias and BEGIN begin break case class def define_method defined do each else elsif ' +
+						'END end ensure false for if in module new next nil not or raise redo rescue retry return ' +
+						'self super then throw true undef unless until when while yield';
 
-	this.regexList = [
-		{ regex: dp.sh.RegexLib.SingleLinePerlComments,			css: 'comment' },	// one line comments
-		{ regex: dp.sh.RegexLib.DoubleQuotedString,				css: 'string' },	// double quoted strings
-		{ regex: dp.sh.RegexLib.SingleQuotedString,				css: 'string' },	// single quoted strings
-		{ regex: new RegExp(':[a-z][A-Za-z0-9_]*', 'g'),		css: 'symbol' },	// symbols
-		{ regex: new RegExp('(\\$|@@|@)\\w+', 'g'),				css: 'variable' },	// $global, @instance, and @@class variables
-		{ regex: new RegExp(this.GetKeywords(keywords), 'gm'),	css: 'keyword' },	// keywords
-		{ regex: new RegExp(this.GetKeywords(builtins), 'gm'),	css: 'builtin' }	// builtins
-		];
+		var builtins =	'Array Bignum Binding Class Continuation Dir Exception FalseClass File::Stat File Fixnum Fload ' +
+						'Hash Integer IO MatchData Method Module NilClass Numeric Object Proc Range Regexp String Struct::TMS Symbol ' +
+						'ThreadGroup Thread Time TrueClass';
 
-	this.CssClass = 'dp-rb';
-	this.Style =	'.dp-rb .symbol { color: #a70; }' +
-					'.dp-rb .variable { color: #a70; font-weight: bold; }';
-};
+		this.regexList = [
+			{ regex: SyntaxHighlighter.regexLib.singleLinePerlComments,	css: 'comments' },		// one line comments
+			{ regex: SyntaxHighlighter.regexLib.doubleQuotedString,		css: 'string' },		// double quoted strings
+			{ regex: SyntaxHighlighter.regexLib.singleQuotedString,		css: 'string' },		// single quoted strings
+			{ regex: /\b[A-Z0-9_]+\b/g,									css: 'constants' },		// constants
+			{ regex: /:[a-z][A-Za-z0-9_]*/g,							css: 'color2' },		// symbols
+			{ regex: /(\$|@@|@)\w+/g,									css: 'variable bold' },	// $global, @instance, and @@class variables
+			{ regex: new RegExp(this.getKeywords(keywords), 'gm'),		css: 'keyword' },		// keywords
+			{ regex: new RegExp(this.getKeywords(builtins), 'gm'),		css: 'color1' }			// builtins
+			];
 
-dp.sh.Brushes.Ruby.prototype = new dp.sh.Highlighter();
-dp.sh.Brushes.Ruby.Aliases = ['ruby', 'rails', 'ror'];
+		this.forHtmlScript(SyntaxHighlighter.regexLib.aspScriptTags);
+	};
+
+	Brush.prototype	= new SyntaxHighlighter.Highlighter();
+	Brush.aliases	= ['ruby', 'rails', 'ror', 'rb'];
+
+	SyntaxHighlighter.brushes.Ruby = Brush;
+
+	// CommonJS
+	typeof(exports) != 'undefined' ? exports.Brush = Brush : null;
+})();
