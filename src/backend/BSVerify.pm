@@ -99,7 +99,7 @@ sub verify_patchinfo_complete {
 
 sub verify_simple {
   my $name = $_[0];
-  die("illegal characters\n") if $name =~ /[^\-+=\.,0-9:\@#%A-Z_a-z~\200-\377]/s;
+  die("illegal characters\n") if $name =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
 }
 
 sub verify_filename {

@@ -191,7 +191,10 @@ sub findbins_dir {
       $data = Build::query($bin, 'evra' => 1);	# need arch
       next unless $data;
     }
-    BSVerify::verify_nevraquery($data);
+    eval {
+      BSVerify::verify_nevraquery($data);
+    };
+    next if $@;
     delete $data->{'disttag'};
     $data->{'id'} = $id;
     $repobins->{$bin} = $data;
