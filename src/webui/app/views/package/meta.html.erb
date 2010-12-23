@@ -8,8 +8,8 @@
 
 <% if @user %>
   <p>
-    <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit configuration' ), :action => :edit_meta, :project => @project, :package => @package) %>
-    <%= link_to('Edit configuration', :action => :edit_meta, :project => @project, :package => @package) %>
+    <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit raw configuration' ), :action => :edit_meta, :project => @project, :package => @package) %>
+    <%= link_to('Edit raw configuration', :action => :edit_meta, :project => @project, :package => @package) %>
   </p>
 <% end %>
 

@@ -3,38 +3,25 @@
    project_bread_crumb 'Project Configuration'
 -%>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushPrjconf' %>
-<% end %>
-
-<% content_for :ready_function do %>
-  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-  dp.SyntaxHighlighter.HighlightAll('code');
-  <% if @user %>
-    $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-    $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
-  <% end %>
-<% end %>
-
 <%= render :partial => "tabs" %>
 
 <h3><%= @pagetitle %></h3>
 
 <% if @config.blank? %>
-
   <p>This project does not have a custom
-    <% if @project.can_edit?( session[:login] ) %>
-      <%= link_to 'project configuration', :controller => 'project', :action => :edit_prjconf, :project => @project %>
+    <% if @project.can_edit?(session[:login]) %>
+      <%= link_to 'project configuration', :action => :edit_prjconf, :project => @project %>.
     <% else %>
-      project configuration
+      project configuration.
     <% end %>
-    .</p>
-
+  </p>
 <% else %>
+  <% if @project.can_edit?(session[:login]) %>
+    <p>
+      <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit project configuration' ), :action => :edit_prjconf, :project => @project) %>
+      <%= link_to('Edit project configuration', :action => :edit_prjconf, :project => @project) %>
+    </p>
+  <% end %>
 
-  <pre id="code" class="prjconf"><%=h @config%>
-
-</pre>
-
+  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @config, :type => 'prjconf'} %>
 <% end %>
