@@ -154,6 +154,7 @@ Suse::Backend.put( '/source/LocalProject/_meta', DbProject.find_by_name('LocalPr
 Suse::Backend.put( '/source/LocalProject/remotepackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "remotepackage").to_axml)
 Suse::Backend.put( '/source/LocalProject/remotepackage/_link', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
 Suse::Backend.put( '/source/RemoteInstance/_meta', DbProject.find_by_name('RemoteInstance').to_axml)
+Suse::Backend.put( '/source/HiddenRemoteInstance/_meta', DbProject.find_by_name('HiddenRemoteInstance').to_axml)
 Suse::Backend.put( '/source/UseRemoteInstance/_meta', DbProject.find_by_name('UseRemoteInstance').to_axml)
 Suse::Backend.put( '/source/home:adrian:BaseDistro/_meta', DbProject.find_by_name('home:adrian:BaseDistro').to_axml)
 Suse::Backend.put( '/source/home:adrian:ProtectionTest/_meta', DbProject.find_by_name('home:adrian:ProtectionTest').to_axml)

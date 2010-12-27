@@ -4,6 +4,12 @@ class BuildController < ApplicationController
     valid_http_methods :get, :post, :put
 
     prj = DbProject.find_by_name params[:project]
+    if prj.nil? and DbProject.is_remote_project?(params[:project], skip_access=true)
+      lpro, rpro = DbProject.find_remote_project(params[:project], skip_access=true)
+      prj = lpro if DbProject.check_access? lpro
+      # package is irrelevant for a remoteproject
+      params.delete :package
+    end
     pkg = DbPackage.find_by_project_and_name( params[:project], params[:package] )  if prj and params[:package]
 
     # todo: check if prj.nil?/pkg.nil? is sufficient

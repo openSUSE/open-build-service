@@ -77,6 +77,12 @@ hide_project:
   flag: access
   position: 1
 
+hide_remoteurlproject:
+  status: "disable"
+  db_project_id: 3006
+  flag: access
+  position: 1
+
 source_protected_project:
   status: "disable"
   db_project_id: 3001

@@ -79,6 +79,10 @@ class SourceController < ApplicationController
     deleted = params.has_key? :deleted
     pro = DbProject.find_by_name project_name
     hidden = DbProject.is_hidden?(project_name)
+    if pro.nil? and DbProject.is_remote_project?(project_name, skip_access=true)
+      lpro, rpro = DbProject.find_remote_project(project_name, skip_access=true)
+      hidden = DbProject.is_hidden?(lpro.name) && !DbProject.check_access?(lpro)
+    end
 
     # access checks
     #--------------

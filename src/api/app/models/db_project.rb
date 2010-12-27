@@ -36,10 +36,9 @@ class DbProject < ActiveRecord::Base
 
   class << self
 
-    def is_remote_project?(name)
-      lpro, rpro = find_remote_project(name)
-      return true unless lpro.nil? or lpro.remoteurl.nil?
-      return false
+    def is_remote_project?(name, skip_access=false)
+      lpro, rpro = find_remote_project(name, skip_access)
+      !lpro.nil? and !lpro.remoteurl.nil?
     end
 
     def is_hidden?(name)
@@ -191,7 +190,7 @@ class DbProject < ActiveRecord::Base
       return dbp
     end
 
-    def find_remote_project(name)
+    def find_remote_project(name, skip_access=false)
       return nil unless name
       fragments = name.split(/:/)
       local_project = String.new
@@ -201,7 +200,12 @@ class DbProject < ActiveRecord::Base
         remote_project = [fragments.pop, remote_project].compact.join ":"
         local_project = fragments.join ":"
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
-        lpro = DbProject.find_by_name local_project
+        if skip_access
+          # hmm calling a private class method is not the best idea..
+          lpro = find_initial :conditions => ["name = BINARY ?", local_project]
+        else
+          lpro = DbProject.find_by_name local_project
+        end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
       return nil

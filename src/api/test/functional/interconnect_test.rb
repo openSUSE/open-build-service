@@ -240,4 +240,43 @@ end
     assert_response :success
   end
 
+  def test_get_packagelist_with_hidden_remoteurlproject
+    prepare_request_with_user "tom", "thunder"
+    get "/source/HiddenRemoteInstance"
+    assert_response 404
+    get "/source/HiddenRemoteInstance:BaseDistro"
+    assert_response 404
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "hidden_homer", "homer"
+    get "/source/HiddenRemoteInstance"
+    assert_response :success
+    get "/source/HiddenRemoteInstance:BaseDistro"
+    assert_response :success
+  end
+
+  def test_read_access_hidden_remoteurlproject_index
+    prepare_request_with_user "tom", "thunder"
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
+    assert_response 404
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache"
+    assert_response 404
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=binaryversions"
+    assert_response 404
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cpio"
+    assert_response 404
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1"
+    assert_response 404
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "hidden_homer", "homer"
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
+    assert_response :success
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache"
+    assert_response :success
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=binaryversions"
+    assert_response :success
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cpio"
+    assert_response :success
+    get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1"
+    assert_response :success
+  end
 end
