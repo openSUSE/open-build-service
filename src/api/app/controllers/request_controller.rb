@@ -223,7 +223,7 @@ class RequestController < ApplicationController
              sourceupdate = action.options.sourceupdate.text
           end
           # cleanup implicit home branches, should be done in client with 2.0
-          if not sourceupdate and action.has_element? :target
+          if not sourceupdate and action.has_element?(:target) and action.target.has_attribute?(:project)
              if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
                if not action.has_element? 'options'
                  action.add_element 'options'
