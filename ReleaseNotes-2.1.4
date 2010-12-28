@@ -1,0 +1,28 @@
+#
+# openSUSE Build Service 2.1.4
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+This release is a security release, fixing the publishing of sources which
+have been set to disallow sourceaccess.
+
+Feature backport:
+=================
+
+* none
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* backend: obey sourcaccess setting when publishing
+* backend: fix sourceaccess flags forwarding in source server
+* webui: fix crasher for attributes#edit when package doesn't exist
+
