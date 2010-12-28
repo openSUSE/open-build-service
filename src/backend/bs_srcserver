@@ -4811,7 +4811,7 @@ sub createrequest {
         }
       }
     }
-    die("target project does not exist\n") if ($r->{'type'} || '') eq 'submit' && ! -e "$projectsdir/$r->{'target'}->{'project'}.xml";
+    die("target project does not exist\n") if ($r->{'type'} || '') eq 'submit' && (!$r->{'target'}->{'project'} || ! -e "$projectsdir/$r->{'target'}->{'project'}.xml");
   }
 
   # new requests are either in state 'new' or 'review'
