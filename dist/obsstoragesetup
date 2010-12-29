@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
-# Start-Before:      mysql
+# Start-Before:      mysql sshd
 # Required-Start:    $network boot.lvm
 # Required-Stop:     $null
 # Default-Start:     3 5
