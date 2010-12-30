@@ -372,7 +372,6 @@ class ApplicationController < ActionController::Base
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
-  hide_action :pass_to_backend
   public :pass_to_backend
 
   def rescue_action_locally( exception )
