@@ -128,12 +128,6 @@ our $relsync_pool = {
 #our $forceprojectkeys = 1;
 
 
-# Build some package only on specific hosts, or do not build on them
-# our %specialbuildhost = (
-# "openSUSE:Factory/glibc" => { good => [ "build20", "build21" ] },
-# "openSUSE:Factory/cmake" => { bad => [ "build10", "build11" ] },
-#);
-
 # Use a special local arch for product building
 # our $localarch = "x86_64";
 
