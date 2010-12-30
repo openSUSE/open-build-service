@@ -140,14 +140,12 @@ class RequestController < ApplicationController
           return
         end
       end
-      if action.has_element? 'source'
-        if action.source.has_attribute? 'project'
-          sprj = DbProject.find_by_name action.source.project
-          unless sprj
-            render_error :status => 404, :errorcode => 'unknown_project',
-              :message => "Unknown source project #{action.source.project}"
-            return
-          end
+      if action.has_element?('source') and action.source.has_attribute?('project')
+        sprj = DbProject.find_by_name action.source.project
+        unless sprj
+          render_error :status => 404, :errorcode => 'unknown_project',
+            :message => "Unknown source project #{action.source.project}"
+          return
         end
         if action.source.has_attribute? 'package'
           spkg = sprj.db_packages.find_by_name action.source.package
@@ -159,14 +157,12 @@ class RequestController < ApplicationController
         end
       end
 
-      if action.has_element? 'target'
-        if action.target.has_attribute? 'project'
-          tprj = DbProject.find_by_name action.target.project
-          unless tprj
-            render_error :status => 404, :errorcode => 'unknown_project',
-              :message => "Unknown target project #{action.target.project}"
-            return
-          end
+      if action.has_element?('target') and action.target.has_attribute?('project')
+        tprj = DbProject.find_by_name action.target.project
+        unless tprj
+          render_error :status => 404, :errorcode => 'unknown_project',
+            :message => "Unknown target project #{action.target.project}"
+          return
         end
         if action.target.has_attribute? 'package' and action.data.attributes["type"] != "submit"
           tpkg = tprj.db_packages.find_by_name action.target.package
@@ -272,12 +268,12 @@ class RequestController < ApplicationController
       tprj = nil
       tpkg = nil
 
-      if action.has_element? 'target'
+      if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.find_by_name action.target.project
         if action.target.has_attribute? 'package'
-	  tpkg = tprj.db_packages.find_by_name action.target.package
-	elsif action.has_element? 'source' and action.source.has_attribute? 'package'
-	  tpkg = tprj.db_packages.find_by_name action.source.package
+          tpkg = tprj.db_packages.find_by_name action.target.package
+        elsif action.has_element? 'source' and action.source.has_attribute? 'package'
+          tpkg = tprj.db_packages.find_by_name action.source.package
         end
       elsif action.has_element? 'source'
         # find target via linkinfo or fail
