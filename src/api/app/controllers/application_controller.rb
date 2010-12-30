@@ -64,6 +64,7 @@ class ApplicationController < ActionController::Base
   end
   hide_action :start_test_backend
 
+  protected
   def set_current_user
     User.current = nil
     User.currentID = nil
@@ -73,7 +74,6 @@ class ApplicationController < ActionController::Base
     User.currentAdmin = true if @http_user and @http_user.is_admin?
   end
 
-  protected
   def restrict_admin_pages
      if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
         return require_admin
@@ -372,6 +372,7 @@ class ApplicationController < ActionController::Base
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
+  hide_action :pass_to_backend
   public :pass_to_backend
 
   def rescue_action_locally( exception )
