@@ -100,6 +100,12 @@
 .syntaxhighlighter .constants {
   color: #0066cc !important;
 }
+.syntaxhighlighter .rpm {
+  color: maroon !important;
+}
+.syntaxhighlighter .operator {
+  color: #808080;
+}
 .syntaxhighlighter .script {
   font-weight: bold !important;
   color: #006699 !important;

@@ -1,50 +1,51 @@
-dp.sh.Brushes.Spec = function()
+/**
+ * Copyright (c) 2011, SUSE Linux Products GmbH.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program (see the file COPYING); if not, write to the
+ * Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+;(function()
+{
+    // CommonJS
+    typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
+
+    function Brush()
     {
-        var funcs = 'abs avg case cast coalesce convert count current_timestamp ' +
-        'current_user day isnull left lower month nullif replace right ' +
-        'session_user space substring sum system_user upper user year';
-
-        var keywords =	'^name ^summary ^version ^release ^source\\d* ^patch\\d* ^requires ^license ' +
-        '^group ^url ^buildroot ^prefix ^buildrequires ^packager ^provides ^vendor ^autoreqprov';
-
-        var operators =	'debug_package description prep setup build install files clean changelog';
+        var functions = 'abs avg case cast coalesce convert count current_timestamp ' +
+                        'current_user day isnull left lower month nullif replace right ' +
+                        'session_user space substring sum system_user upper user year';
+        var operators = '^debug_package ^description ^prep ^setup ^build ^install ^files ^clean ^changelog';
 
         this.regexList = [
-        {
-            regex: new RegExp('#(.*)$', 'gm'),
-            css: 'comment'
-        },	// one line and multiline comments
-
-        {
-            regex: dp.sh.RegexLib.DoubleQuotedString,
-            css: 'string'
-        },	// double quoted strings
-
-        {
-            regex: dp.sh.RegexLib.SingleQuotedString,
-            css: 'string'
-        },	// single quoted strings
-
-        {
-            regex: new RegExp(this.GetKeywords(funcs), 'gmi'),
-            css: 'func'
-        },	// functions
-
-        {
-            regex: new RegExp(this.GetKeywords(operators), 'gmi'),
-            css: 'op'
-        },	// operators and such
-
-        {
-            regex: new RegExp(this.GetKeywords(keywords), 'gmi'),
-            css: 'keyword'
-        }// keyword
+            { regex: /^\s*#(.*)$/gm, css: 'comments' },
+            { regex: SyntaxHighlighter.regexLib.doubleQuotedString, css: 'string' }, // strings
+            { regex: SyntaxHighlighter.regexLib.singleQuotedString, css: 'string' }, // strings
+            { regex: /%(\{?\??[\w-]*\}?)/gm, css: 'rpm' },
+            { regex: /\$\w*/gm, css: 'variable'},
+            { regex: /\${\w*}/gm, css: 'variable'},
+            { regex: new RegExp(this.getKeywords(functions), 'gm'), css: 'functions bold' },
+            { regex: /^\w+(\((pre|post)\))?:/gm, css: 'keyword bold'},
+            { regex: new RegExp(this.getKeywords(operators), 'gmi'), css: 'operator bold' }
         ];
+    };
 
-        this.CssClass = 'dp-spec';
-        this.Style =	'.dp-spec .func { color: #ff1493; }' +
-    '.dp-spec .op { color: #808080; }';
-    }
+    Brush.prototype = new SyntaxHighlighter.Highlighter();
+    Brush.aliases = ['spec'];
 
-dp.sh.Brushes.Spec.prototype	= new dp.sh.Highlighter();
-dp.sh.Brushes.Spec.Aliases	= ['spec'];
+    SyntaxHighlighter.brushes.Spec = Brush;
+
+    // CommonJS
+    typeof(exports) != 'undefined' ? exports.Brush = Brush : null;
+})();
