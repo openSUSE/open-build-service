@@ -80,7 +80,7 @@ namespace :config do
 
   desc "Sync public to static.o.o"
   task :sync_static do
-    `rsync  --delete-after --exclude=themes -av public/ -e 'ssh -p2212' proxy-opensuse.suse.de:/srv/www/vhosts/static.opensuse.org/hosts/#{static}`
+    `rsync  --delete-after --exclude=themes -av --no-p public/ -e 'ssh -p2212' proxy-opensuse.suse.de:/srv/www/vhosts/static.opensuse.org/hosts/#{static}`
   end
 
 end
