@@ -51,24 +51,17 @@ class PublicController < ApplicationController
     valid_http_methods :get
 
     prj = DbProject.find_by_name(params[:prj])
-
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-
     if prj
       render :text => prj.to_axml, :content_type => 'text/xml'
     else
+      rprj = nil
+      ret = DbProject.find_remote_project(params[:prj])
+      rprj = ret[0] if ret and ret[0]
       if rprj
         # project from remote buildservice, get metadata via backend
         pass_to_backend unshift_public(request.path)
       else
-        render_error :message => "Unknown project '#{params[:prj]}'",
-          :status => 404, :errorcode => "unknown_project"
+        raise DbProject::PrjAccessError.new "Unknown project '#{CGI::escape(params[:prj])}'"
       end
     end
   end
