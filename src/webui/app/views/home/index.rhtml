@@ -23,7 +23,7 @@
     <em>No real name set.</em>
   <% end %>
 </p>
-<p><strong>Email Address:</strong> <%= user.email %></p>
+<p><strong>Email Address:</strong> <%= mail_to(user.email) %></p>
 
 <% if user == session[:login] %>
   <p><%= image_tag('icons/user_edit.png') %> <%= link_to("Edit User Data", :controller => "user", :action => "edit") %></p>
