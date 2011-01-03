@@ -53,7 +53,7 @@
 <% end %>
 
 <% content_for :ready_function do %>
-       $(".worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+       $("#worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
 
        resizeMonitorBoxes();
 
@@ -61,7 +61,7 @@
        setInterval("update()", 100000 );
 
        $("#worker_display").change(function() {
-	   $("select option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+	   $("#worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
 	   update();
        });
 <% end %>
