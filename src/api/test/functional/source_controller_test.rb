@@ -1726,7 +1726,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 404
 #    assert_match(/Unknown package 'Nothere' in project 'home:Iggy'/, @response.body)
-    assert_match(/Unknown Package/, @response.body)
+    assert_match(/Unknown package/, @response.body)
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400
