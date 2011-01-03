@@ -16,11 +16,13 @@
 <table>
   <thead>
     <tr>
-      <th style="width: 1%">Type</th>
+      <th style="width: 1%">Date</th>
       <th style="width: 40%">Source</th>
       <th style="width: 40%">Target</th>
       <th style="width: 5%">Requester</th>
+      <th style="width: 1%">Type</th>
       <th style="width: 1%">State</th>
+      <th style="width: 1%">Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -34,17 +36,26 @@
     first = true %>
     <% @req.each_action do |ae| %>
       <tr>
-        <td>
-          <% if @req.has_element? :action %>
-            <%= ae.data.attributes["type"] %>
-          <% else %>
-            submit
-          <% end -%>
-        </td>
+        <td rowspan="<%= length %>" class="nowrap"><!-- <%= @req.value :id %> --><%= fuzzy_time_string( @req.state.value "when" ) %></td>
         <%= render :partial => 'shared/request_table_source_and_target', :locals => {:ae => ae} %>
         <% if first %>
           <td rowspan="<%= length %>"><%= link_to(elide(@req.state.who, 12), :controller => :home, :user => @req.state.who) %></td>
+          <td>
+            <% if @req.has_element? :action %>
+              <%= ae.data.attributes["type"] %>
+            <% else %>
+              submit
+            <% end -%>
+          </td>
           <td rowspan="<%= length %>"><%= @req.state.name %></td>
+          <td>
+            <% if ae.has_element? :source %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
+              <script type="text/javascript">
+                setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
+              </script>
+            <% end %>
+          </td>
           <% first = nil %>
         <% end %>
       </tr>
