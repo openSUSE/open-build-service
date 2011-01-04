@@ -30,7 +30,7 @@
             { regex: /\$\(.*\)/gm, css: 'script' },
             { regex: /\${\w*}/gm, css: 'variable' },
             { regex: /\$\w+/gm, css: 'variable' },
-            { regex: /^\w+(\(\w+\))?:/gm, css: 'keyword bold' }, // rpm preamble keywords
+            { regex: /^(Name|Version|Release|License|Summary|Url|Group|Source|BuildRequires|BuildRoot|AutoReqProv|Provides|Requires(\(\w+\))?|Obsoletes|Conflicts|Recommends|Source\d*|Patch\d*|ExclusiveArch|NoSource|Supplements):/gmi, css: 'keyword bold' },
             { regex: /^(export|mkdir|cd|cp|rm|mv|chmod|chown|install)\s+(-\w+)*/gm, css: 'keyword bold' }, // direct shell commands
             { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
             { regex: /^%(debug_package|package|description|prep|build|install|files|clean|changelog|preun|postun|prein|postin|pre|post|triggerin|triggerun|pretrans|posttrans|verify)/gmi, css: 'section bold' }, // rpm sections

@@ -30,7 +30,7 @@
             { regex: /\$\(.*\)/gm, css: 'script' },
             { regex: /\${\w*}/gm, css: 'variable' },
             { regex: /\$\w+/gm, css: 'variable' },
-            { regex: /^\w+(\(\w+\))?:/gm, css: 'keyword bold' }, // rpm preamble keywords
+            { regex: /^(Conflict|Ignore|Keep|Macros|Optflags|Order|Prefer|ExportFilter|Type|Patterntype|Preinstall|Repotype|Required|Runscripts|Substitute|Support|VMinstall):/gm, css: 'keyword bold' },
             { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
             { regex: /%(\{?\??[\w-]+\}?)/gm, css: 'rpm' },
             { regex: new RegExp(this.getKeywords(archs), 'gm'), css: 'architecture' },
