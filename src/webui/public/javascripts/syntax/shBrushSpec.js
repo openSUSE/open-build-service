@@ -33,7 +33,7 @@
             { regex: /^\w+(\(\w+\))?:/gm, css: 'keyword bold' }, // rpm preamble keywords
             { regex: /^(export|mkdir|cd|cp|rm|mv|chmod|chown|install)\s+(-\w+)*/gm, css: 'keyword bold' }, // direct shell commands
             { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
-            { regex: /^%(debug_package|description|prep|setup|build|install|files|clean|changelog)/gmi, css: 'section bold' }, // rpm sections
+            { regex: /^%(debug_package|package|description|prep|build|install|files|clean|changelog|preun|postun|prein|postin|pre|post|triggerin|triggerun|pretrans|posttrans|verify)/gmi, css: 'section bold' }, // rpm sections
             { regex: /%(\{?\??[\w-]+\}?)/gm, css: 'rpm' },
             { regex: new RegExp(this.getKeywords(archs), 'gm'), css: 'architecture' },
             { regex: /\s+\d+\s+/gm, css: 'value' }
