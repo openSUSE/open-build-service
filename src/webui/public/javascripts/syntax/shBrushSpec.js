@@ -33,7 +33,7 @@
             { regex: /^(Name|Version|Release|License|Summary|Url|Group|Source|BuildRequires|BuildRoot|AutoReqProv|Provides|Requires(\(\w+\))?|Obsoletes|Conflicts|Recommends|Source\d*|Patch\d*|ExclusiveArch|NoSource|Supplements):/gmi, css: 'keyword bold' },
             { regex: /^(export|mkdir|cd|cp|rm|mv|chmod|chown|install|make)\s+(-\w+)*/gm, css: 'keyword bold' }, // direct shell commands
             { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
-            { regex: /^%(debug_package|package|description|prep|build|install|files|clean|changelog|preun|postun|prein|postin|pre|post|triggerin|triggerun|pretrans|posttrans|verify)/gmi, css: 'section bold' }, // rpm sections
+            { regex: /^%(debug_package|package|description|prep|build|install|files|clean|changelog|preun|postun|pre|post|triggerin|triggerun|pretrans|posttrans|verifyscript|check|triggerpostun|triggerprein|trigger)/gmi, css: 'section bold' }, // rpm sections
             { regex: /%(\{?\??[\w-]+\}?)/gm, css: 'rpm' },
             { regex: new RegExp(this.getKeywords(archs), 'gm'), css: 'architecture' },
             { regex: /\s+\d+\s+/gm, css: 'value' }
