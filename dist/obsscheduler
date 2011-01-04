@@ -57,18 +57,18 @@ case "$1" in
 		done
 		rc_status -v
 	;;
-	stop)
+	stop|shutdown)
 		echo -n "Shutting down obsscheduler"
-		killall bs_sched
-		rc_status -v
-	;;
-	shutdown)
-		echo -n "Dumping state of obsscheduler"
-		cd "$obsdir"
 		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
 		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-			./bs_admin --shutdown-scheduler $i
+		 	obs_admin --shutdown-scheduler "$i"
 		done
+		for i in `seq 3000`; do
+			checkproc bs_sched || break
+		done
+		if checkproc bs_sched ; then
+			killall bs_sched
+		fi
 		rc_status -v
 	;;
 	restart)
