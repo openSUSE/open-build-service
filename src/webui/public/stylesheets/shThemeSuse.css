@@ -109,6 +109,12 @@
 .syntaxhighlighter .section {
   color: green !important;
 }
+.syntaxhighlighter .changeheader {
+  color: green !important;
+}
+.syntaxhighlighter .email {
+  color: red !important;
+}
 .syntaxhighlighter .operator {
   color: #808080;
 }
