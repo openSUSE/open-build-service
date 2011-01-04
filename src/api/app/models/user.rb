@@ -345,23 +345,14 @@ class User < ActiveRecord::Base
     has_global_permission?(*args)
   end
 
-  def ldapgroup_enabled?
-    if defined?( LDAP_MODE ) && LDAP_MODE == :on
-      if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
-        return true
-      end
-    end
-    return false
-  end
-
   def usergroups_ldap ()
     logger.debug "List the groups #{self.login} is in"
     ldapgroups = Array.new
     # check with LDAP
-    if ldapgroup_enabled?
+    if User.ldapgroup_enabled?
       grouplist = Group.find(:all)
       begin
-        ldapgroups = User.perform_user_group_search_ldap(self.login, grouplist)
+        ldapgroups = User.render_grouplist_ldap(grouplist, self.login)
       rescue Exception
         logger.debug "Error occured in searching user_group in ldap."
       end
@@ -378,7 +369,7 @@ class User < ActiveRecord::Base
     end
 
     begin      
-      return true unless User.perform_user_group_search_ldap(user, grouplist).empty?
+      return true unless User.render_grouplist_ldap(grouplist, user).empty?
     rescue Exception
       logger.debug "Error occured in searching user_group in ldap."
     end
@@ -449,7 +440,7 @@ class User < ActiveRecord::Base
          return true if rels > 0
 
         # check with LDAP
-        if ldapgroup_enabled?
+        if User.ldapgroup_enabled?
           return true if local_role_check_with_ldap(role, object)
         end
 
@@ -464,7 +455,7 @@ class User < ActiveRecord::Base
         return true if rels > 0
 
         # check with LDAP
-        if ldapgroup_enabled?
+        if User.ldapgroup_enabled?
           return true if local_role_check_with_ldap(role, object)
         end
 
@@ -495,7 +486,7 @@ class User < ActiveRecord::Base
       end
 
       # check with LDAP
-      if ldapgroup_enabled?
+      if User.ldapgroup_enabled?
         return true if local_permission_check_with_ldap(perm_string, object)
       end
 
@@ -518,7 +509,7 @@ class User < ActiveRecord::Base
       end
 
       # check with LDAP
-      if ldapgroup_enabled?
+      if User.ldapgroup_enabled?
         return true if local_permission_check_with_ldap(perm_string, object)
       end
 

@@ -40,7 +40,9 @@
 
 <h3>Directly Assigned Users</h3>
 
-<% if @group.users.length == 0 %>
+<% if User.ldapgroup_enabled? %>
+<p>LDAP group support enabled, you can get Assigned Users info via LDAP</p>
+<% elsif @group.users.length == 0 %>
 <p>None</p>
 <% else %>
 <ul>
@@ -52,7 +54,9 @@
 
 <h3>All Assigned Users</h3>
 
-<% if @group.all_users.length == 0 %>
+<% if User.ldapgroup_enabled? %>
+<p>LDAP group support enabled, you can get All Assigned Users info via LDAP</p>
+<% elsif @group.all_users.length == 0 %>
 <p>None</p>
 <% else %>
 <ul>

@@ -8,7 +8,10 @@ Below is a complete tree of all groups known to the system.
 <%= link_to 'New group', :action => 'create' %>
 </div>
 
-<%= node_tree @groups do |group|
+<%= if User.ldapgroup_enabled?
+      @groups = User.render_grouplist_ldap(@groups)
+    end
+    node_tree @groups do |group|
       result = link_to(group.title, { :action => 'show', :id => group }) + " "
       result += "[" + group.users.length.to_s + '/' + group.all_users.length.to_s + " users, "
       result += group.roles.length.to_s + '/' + group.all_roles.length.to_s + " roles]"
