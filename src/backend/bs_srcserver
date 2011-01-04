@@ -117,7 +117,7 @@ sub runservice {
 
   # collect current sources to POST them
   my $rev = getrev($projid, $packid);
-  my $files = lsrev_expanded($rev);
+  my $files = lsrev($rev);
   unless ($files->{'_service'}){
     # drop all existing service files
     my $dirty=0;
