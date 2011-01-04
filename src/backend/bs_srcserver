@@ -120,11 +120,11 @@ sub runservice {
   my $files = lsrev($rev);
   unless ($files->{'_service'}){
     # drop all existing service files
-    my $dirty=0;
+    my $dirty;
     for my $pfile (keys %$files) {
       if ($pfile =~ /^_service[_:]/) {
         delete $files->{$pfile};
-        $dirty=1;
+        $dirty = 1;
       }
     }
     if ($dirty){
@@ -132,6 +132,19 @@ sub runservice {
       notify_repservers('package', $projid, $packid);
     }
     return;
+  }
+
+  if ($files->{'_link'}) {
+    # make sure it's a branch
+    my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    if (!$l || !$l->{'patches'} || @{$l->{'patches'}->{''} || []} != 1 || (keys %{$l->{'patches'}->{''}->[0]})[0] ne 'branch') {
+      mkdir_p($uploaddir);
+      writestr("$uploaddir/_service_error$$", undef, "services only work on branches\n");
+      $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
+      addrev($projid, $packid, $files, "_service", "generated via source service", undef);
+      notify_repservers('package', $projid, $packid);
+      return;
+    }
   }
 
   my $lockfile = "$eventdir/service/${projid}::$packid";
