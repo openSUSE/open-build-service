@@ -23,21 +23,20 @@
 
     function Brush()
     {
-        var functions = 'abs avg case cast coalesce convert count current_timestamp ' +
-                        'current_user day isnull left lower month nullif replace right ' +
-                        'session_user space substring sum system_user upper user year';
-        var operators = '^debug_package ^description ^prep ^setup ^build ^install ^files ^clean ^changelog';
+        var archs = 'i386 i586 i686 x86_64 ppc ppc64 ia64 s390 s390x sparc sparc64 sparcv9';
 
         this.regexList = [
             { regex: /^\s*#(.*)$/gm, css: 'comments' },
-            { regex: SyntaxHighlighter.regexLib.doubleQuotedString, css: 'string' }, // strings
-            { regex: SyntaxHighlighter.regexLib.singleQuotedString, css: 'string' }, // strings
-            { regex: /%(\{?\??[\w-]*\}?)/gm, css: 'rpm' },
-            { regex: /\$\w*/gm, css: 'variable'},
-            { regex: /\${\w*}/gm, css: 'variable'},
-            { regex: new RegExp(this.getKeywords(functions), 'gm'), css: 'functions bold' },
-            { regex: /^\w+(\((pre|post)\))?:/gm, css: 'keyword bold'},
-            { regex: new RegExp(this.getKeywords(operators), 'gmi'), css: 'operator bold' }
+            { regex: /\$\(.*\)/gm, css: 'script' },
+            { regex: /\${\w*}/gm, css: 'variable' },
+            { regex: /\$\w+/gm, css: 'variable' },
+            { regex: /^\w+(\(\w+\))?:/gm, css: 'keyword bold' }, // rpm preamble keywords
+            { regex: /^(export|mkdir|cd|cp|rm|mv|chmod|chown|install)\s+(-\w+)*/gm, css: 'keyword bold' }, // direct shell commands
+            { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
+            { regex: /^%(debug_package|description|prep|setup|build|install|files|clean|changelog)/gmi, css: 'section bold' }, // rpm sections
+            { regex: /%(\{?\??[\w-]+\}?)/gm, css: 'rpm' },
+            { regex: new RegExp(this.getKeywords(archs), 'gm'), css: 'architecture' },
+            { regex: /\s+\d+\s+/gm, css: 'value' }
         ];
     };
 

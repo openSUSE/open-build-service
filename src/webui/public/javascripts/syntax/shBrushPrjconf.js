@@ -23,14 +23,18 @@
 
     function Brush()
     {
+        var archs = 'i386 i586 i686 x86_64 ppc ppc64 ia64 s390 s390x sparc sparc64 sparcv9';
+
         this.regexList = [
             { regex: /^\s*#(.*)$/gm, css: 'comments' },
-            { regex: SyntaxHighlighter.regexLib.doubleQuotedString, css: 'string' }, // strings
-            { regex: SyntaxHighlighter.regexLib.singleQuotedString, css: 'string' }, // strings
-            { regex: /%(\{?\??[\w-]*\}?)/gm, css: 'rpm' },
-            { regex: /\$\h\w*/gm, css: 'variable'},
-            { regex: /\${\w*}/gm, css: 'variable'},
-            { regex: /^(\w+:)/gm, css: 'keyword bold'}
+            { regex: /\$\(.*\)/gm, css: 'script' },
+            { regex: /\${\w*}/gm, css: 'variable' },
+            { regex: /\$\w+/gm, css: 'variable' },
+            { regex: /^\w+(\(\w+\))?:/gm, css: 'keyword bold' }, // rpm preamble keywords
+            { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
+            { regex: /%(\{?\??[\w-]+\}?)/gm, css: 'rpm' },
+            { regex: new RegExp(this.getKeywords(archs), 'gm'), css: 'architecture' },
+            { regex: /\s+\d+\s+/gm, css: 'value' }
         ];
     };
 
