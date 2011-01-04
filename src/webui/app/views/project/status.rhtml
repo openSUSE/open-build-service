@@ -122,13 +122,13 @@
             outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
                 :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project, :package => p['name']) +
                 " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days:" +
-                (" <span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
-                show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>').html_safe)
+                (" <span id='".html_safe + valid_xml_id('comment_' + p['name']) + "'>".html_safe +
+                show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'.html_safe))
             icon = "error"
             sortkey = '1-fails-%010d-%s' % [ Time.now.to_i - p['firstfail'], p['name'] ]
           else
-            outs << ("<span id='" + valid_xml_id('comment_' + p['name']) + "'>" +
-              show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>').html_safe
+            outs << ("<span id='".html_safe + valid_xml_id('comment_' + p['name']) + "'>".html_safe +
+              show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'.html_safe)
           end
           if sortkey.nil?
             sortkey = "9-ok-" + p['name']
@@ -149,7 +149,7 @@
             <%if show_devel_project  %>
               <td class="sortable"><span class="sortkey"><%= h p['develproject'] %></span><%= if p['develproject'] then link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
             <% end %>
-            <td class="sortable"><%= raw outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
+            <td class="sortable"><%= raw outs.join("<br/>".html_safe) -%><span class="sortkey"><%= sortkey %></span></td>
           </tr>
         <% end %>
       </tbody>
