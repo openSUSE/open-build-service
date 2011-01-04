@@ -10,6 +10,8 @@
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
 # Start-Before:      mysql sshd
+# Should-Start:      xendomains
+# Should-Stop:       $none
 # Required-Start:    $network boot.lvm
 # Required-Stop:     $null
 # Default-Start:     3 5

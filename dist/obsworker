@@ -11,7 +11,7 @@
 # Provides:          obsworker
 # Required-Start:    $time $network $syslog
 # Required-Stop:     $time $network $syslog
-# Should-Start:      $remote_fs obssrcserver obsrepserver xend
+# Should-Start:      $remote_fs obssrcserver obsrepserver xendomains
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
