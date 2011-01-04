@@ -147,13 +147,15 @@ sub filediff {
     my $fx = defined($f1) && !ref($f1) ? '-' : '+';
     my $lcnt = 0;
     $lcnt = $$lcntp if $lcntp;
-    return '' if $f =~ /\.(?:zip|tar|jar|zoo)(?:\.gz|\.bz2)?$/;
+    return '' if $f =~ /\.(?:zip|tar|jar|zoo)(?:\.gz|\.bz2|\.xz)?$/;
     local *F;
     if (!$noarchive) {
       if ($f =~ /\.gz$/i) {
         open(F, "-|", 'gunzip', '-dc', $f) || die("open $f: $!\n");
       } elsif ($f =~ /\.bz2$/i) {
         open(F, "-|", 'bzip2', '-dc', $f) || die("open $f: $!\n");
+      } elsif ($f =~ /\.xz$/i) {
+        open(F, "-|", 'xz', '-dc', $f) || die("open $f: $!\n");
       }
     }
     open(F, '<', $f) || die("open $f: $!\n") if !defined(fileno(F));
@@ -200,11 +202,15 @@ sub filediff {
         open(F1, "-|", 'gunzip', '-dc', $f1) || die("open $f1: $!\n");
       } elsif ($f1 =~ /\.bz2$/i) {
         open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
+      } elsif ($f1 =~ /\.xz$/i) {
+        open(F1, "-|", 'xz', '-dc', $f1) || die("open $f1: $!\n");
       }
       if ($f2 =~ /\.gz$/i) {
         open(F2, "-|", 'gunzip', '-dc', $f2) || die("open $f2: $!\n");
       } elsif ($f2 =~ /\.bz2$/i) {
         open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
+      } elsif ($f2 =~ /\.xz$/i) {
+        open(F2, "-|", 'xz', '-dc', $f2) || die("open $f2: $!\n");
       } 
     }
     open(F1, '<', $f1) || die("open $f1: $!\n") if !defined(fileno(F1));
@@ -514,7 +520,7 @@ sub srcdiff {
       next if $old->{$of} eq $new->{$f};
       $d .= "\n++++++ $f\n" if $of eq $f;
     }
-    if ($f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz)$/) {
+    if ($f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz)$/) {
       if (defined $of) {
         $d .= tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", $of, $f, $tmax, $edir);
         next;
