@@ -185,6 +185,20 @@ module UserMixins
 
             return result
           end
+   
+          # This method returns all groups assigned to the given user via ldap - including
+          # the ones he gets by being assigned through group inheritance.
+          def all_groups_ldap(group_ldap)
+            result = Array.new
+            for group in group_ldap
+              result << group.ancestors_and_self
+            end
+
+            result.flatten!
+            result.uniq!
+
+            return result
+          end
 
           # This method returns true if the user is assigned the role with one of the
           # role titles given as parameters. False otherwise.
@@ -507,7 +521,7 @@ module UserMixins
                 filter = "(#{LDAP_SEARCH_ATTR}=#{user})"
               end
               user_dn = String.new
-              user_memberof_attr = String.new   
+              user_memberof_attr = String.new
               ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
                 user_dn = entry.dn
                 if defined?( LDAP_USER_MEMBEROF_ATTR ) && entry.attrs.include?( LDAP_USER_MEMBEROF_ATTR )
@@ -532,7 +546,7 @@ module UserMixins
               end
 
               unless group.kind_of? String
-                raise ArgumentError, "illegal parameter type to user#perform_user_group_search_ldap?: #{eachgroup.class.name}"
+                raise ArgumentError, "illegal parameter type to user#render_grouplist_ldap?: #{eachgroup.class.name}"
               end
 
               # search group

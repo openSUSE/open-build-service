@@ -345,7 +345,7 @@ class User < ActiveRecord::Base
     has_global_permission?(*args)
   end
 
-  def usergroups_ldap ()
+  def groups_ldap ()
     logger.debug "List the groups #{self.login} is in"
     ldapgroups = Array.new
     # check with LDAP

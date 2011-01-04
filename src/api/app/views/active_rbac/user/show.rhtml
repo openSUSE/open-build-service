@@ -40,10 +40,15 @@
 
 <h3>Directly Assigned Groups</h3>
 
-<% if @user.groups.empty? %>
+<% if User.ldapgroup_enabled? %>
+<%   grouplist = @user.groups_ldap %>
+<% else %>
+<%   grouplist = @user.groups %>
+<% end %>
+<% if grouplist.empty? %>
 <p>No Groups</p>
 <% else %>
-<%= node_tree(@user.groups) { |g| link_to( g.title, { :controller => 'group', :action => 'show', :id => g.id })} %>
+<%= node_tree(grouplist) { |g| link_to( g.title, { :controller => 'group', :action => 'show', :id => g.id })} %>
 <% end %>
 
 <h3>All Assigned Roles</h3>
@@ -65,10 +70,15 @@ might be assigned to groups that are assigned to this user.
 
 <!-- TODO Somehow mark which group comes from which source -->
 
-<% if @user.all_groups.empty? %>
+<% if User.ldapgroup_enabled? %>
+<%   allgrouplist = @user.all_groups_ldap(@user.groups_ldap) %>
+<% else %>
+<%   allgrouplist = @user.all_groups %>
+<% end %>
+<% if allgrouplist.empty? %>
 <p>No Groups</p>
 <% else %>
-<%= node_tree(@user.all_groups) { |g| link_to( g.title, { :controller => 'group', :action => 'show', :id => g.id })} %>
+<%= node_tree(allgrouplist) { |g| link_to( g.title, { :controller => 'group', :action => 'show', :id => g.id })} %>
 <% end %>
 
 <h3>Comment why the User wants Access</h3>
