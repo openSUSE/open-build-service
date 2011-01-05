@@ -184,13 +184,13 @@ case "$1" in
                 fi
                 DEVICE="--device $DEVICE"
                 SWAP="--swap $SWAP"
-                echo $OBS_INSTANCE_MEMORY > "$OBS_WORKER_DIRECTORY/root_$I/memory"
+                MEMORY="--vm-memory $OBS_INSTANCE_MEMORY"
             else
                 [ -d $R ] || mkdir -p $R
             fi
                 echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_PARM" \
-                "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $DEVICE $SWAP" \
+                "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
                 [ -d $workerdir/$I ] || mkdir -p $workerdir/$I
         done
