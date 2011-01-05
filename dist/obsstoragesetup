@@ -47,9 +47,6 @@ backenddir=/srv/obs
 if [ -z "$OBS_WORKER_DIRECTORY" ]; then
 	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
 fi
-if [ -z "$OBS_CACHE_DIRECTORY" ]; then
-	OBS_CACHE_DIRECTORY="/var/cache/obs/cache"
-fi
 
 rc_reset
 case "$1" in
@@ -320,9 +317,9 @@ EOF
 		
 		echo "### autoconfigured values by obsstoragesetup init script"  > /etc/buildhost.config
 		echo "OBS_WORKER_DIRECTORY=\"$OBS_WORKER_DIRECTORY/\"" >> /etc/buildhost.config
-		echo "OBS_CACHE_DIRECTORY=\"$OBS_CACHE_DIRECTORY\""   >> /etc/buildhost.config
-		CACHEMB=`df -m /$OBS_CACHE_DIRECTORY | tail -n 1 | sed -n 's,^/dev/[^ ]*[ ]*\([^ ]*\).*,\1,p'`
-		[ -z "$CACHEMB" ] && CACHEMB=`df -m /$OBS_CACHE_DIRECTORY | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+		echo "OBS_CACHE_DIR=\"$OBS_WORKER_DIRECTORY/cache\""   >> /etc/buildhost.config
+		CACHEMB=`df -m /$OBS_CACHE_DIR | tail -n 1 | sed -n 's,^/dev/[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+		[ -z "$CACHEMB" ] && CACHEMB=`df -m /$OBS_CACHE_DIR | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
 		[ -n "$CACHEMB" ] && echo "OBS_CACHE_SIZE=\"$(( $CACHEMB / 2 ))\"" >> /etc/buildhost.config
 		if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
 			echo "Found XEN virtualization"
