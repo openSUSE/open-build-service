@@ -5,13 +5,13 @@
       case source
       when :user
         remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
-                        :source => source, :user => user}, :with => "'type='+$('.request_select').value")
+                        :source => source, :user => user}, :with => "'type='+$('#request_select')[0].value")
       when :project
         remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
-                        :source => source, :project => project}, :with => "'type='+$('.request_select').value")
+                        :source => source, :project => project}, :with => "'type='+$('#request_select')[0].value")
       when :package
         remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
-                        :source => source, :project => project, :package => package}, :with => "'type='+$('.request_select').value")
+                        :source => source, :project => project, :package => package}, :with => "'type='+$('#request_select')[0].value")
       end
     %>
   }
