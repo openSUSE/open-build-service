@@ -67,47 +67,51 @@ case "$1" in
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" ]; then
-			echo "Collect all LVM partitions for the worker"
-			# remove everything first
-			vgreduce --removemissing OBS
-			vgremove -f OBS
-			pvremove `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
+			if [ -e /dev/OBS/server ]; then
+				echo "ERROR: A OBS server partition exists, aborting, do no take all space!"
+			else
+				echo "Collect all LVM partitions for the worker"
+				# remove everything first
+				vgreduce --removemissing --force OBS
+				vgremove -f OBS
+				pvremove `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
 
-			# Find unpartitioned disks and create LVM partition on them
-			for disk in `hwinfo --disk | grep "Device File:" |\
-				cut -f2 -d: | cut -f2 -d" "`;do
-			        count=0
-			        used=
-			        for i in `sfdisk -l $disk 2>/dev/null | tr -d '*' | grep ^/ |\
-			                sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
-			                blocks=`echo $i | cut -f2 -d:`
-			                if [ $blocks = "0" ];then
-			                        count=`expr $count + 1`
-			                        continue
-			                fi
-			                used=1
-			        done
-			        if [ $count -eq 4 ] || [ -z "$used" ];then
-					echo ",,8e,-" | sfdisk $disk >/dev/null 2>&1
-			        fi
-			done
+				# Find unpartitioned disks and create LVM partition on them
+				for disk in `hwinfo --disk | grep "Device File:" |\
+					cut -f2 -d: | cut -f2 -d" "`;do
+				        count=0
+				        used=
+				        for i in `sfdisk -l $disk 2>/dev/null | tr -d '*' | grep ^/ |\
+				                sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
+				                blocks=`echo $i | cut -f2 -d:`
+				                if [ $blocks = "0" ];then
+				                        count=`expr $count + 1`
+				                        continue
+				                fi
+				                used=1
+				        done
+				        if [ $count -eq 4 ] || [ -z "$used" ];then
+						echo ",,8e,-" | sfdisk $disk >/dev/null 2>&1
+				        fi
+				done
 
-			# Collect all LVM partitions
-			DEVICES=""
-			for i in `sfdisk -l 2>/dev/null | tr -d '*' | grep ^/ |\
-				sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
-				device=`echo $i | cut -f1 -d:`
-				blocks=`echo $i | cut -f2 -d:`
-				partid=`echo $i | cut -f3 -d:`
-				if [ $blocks = "0" ];then
-				        continue 
-				fi
-				if [ $partid = "8e" ];then
-					pvcreate $device && DEVICES="$DEVICES $device"
-				fi
-			done
-			vgcreate OBS $DEVICES
-			vgscan
+				# Collect all LVM partitions
+				DEVICES=""
+				for i in `sfdisk -l 2>/dev/null | tr -d '*' | grep ^/ |\
+					sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
+					device=`echo $i | cut -f1 -d:`
+					blocks=`echo $i | cut -f2 -d:`
+					partid=`echo $i | cut -f3 -d:`
+					if [ $blocks = "0" ];then
+					        continue 
+					fi
+					if [ $partid = "8e" ];then
+						pvcreate $device && DEVICES="$DEVICES $device"
+					fi
+				done
+				vgcreate OBS $DEVICES
+				vgscan
+			fi
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
