@@ -1,8 +1,8 @@
-<% @pagetitle = "Pending Requests for #{user}" %>
+<% @pagetitle = "Requests for #{h(user)}" %>
 <% @pagetitle = "My Requests" if user.to_s == session[:login] %>
 <% @crumb_list = [@pagetitle] -%>
 
-<h3><%= h @pagetitle %> (<%= @requests.size %>)</h3>
+<h3><%= @pagetitle %> (<%= @requests.size %> Pending)</h3>
 
 <% if user.to_s != session[:login] %>
   <p>
@@ -17,4 +17,4 @@
   </p>
 <% end %>
 
-<%= render :partial => 'shared/list_requests', :locals => { :requests => @requests, :hide_package => true, :hide_project => false } %>
+<%= render :partial => 'shared/list_requests', :locals => { :requests => @requests } %>
