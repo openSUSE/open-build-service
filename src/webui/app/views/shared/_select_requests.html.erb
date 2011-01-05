@@ -1,0 +1,32 @@
+<% content_for :head_javascript do %>
+  function updateRequestDisplay()
+  {
+    <%=
+      case source
+      when :user
+        remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
+                        :source => source, :user => user}, :with => "'type='+$('.request_select').value")
+      when :project
+        remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
+                        :source => source, :project => project}, :with => "'type='+$('.request_select').value")
+      when :package
+        remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
+                        :source => source, :project => project, :package => package}, :with => "'type='+$('.request_select').value")
+      end
+    %>
+  }
+<% end %>
+
+<% content_for :ready_function do %>
+  updateRequestDisplay();
+<% end %>
+
+<p>
+  Display all
+  <%= select_tag("request_select", 
+                options_for_select(['pending', 'new', 'deleted', 'declined', 'accepted', 'reviewed', 'revoked', 'superseded']),
+                :onchange => "updateRequestDisplay();") %> requests:
+</p>
+
+<div id="request_display">
+</div>

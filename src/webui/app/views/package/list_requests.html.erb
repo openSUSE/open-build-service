@@ -3,7 +3,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h3><%= @pagetitle %> (<%= @current_requests.size %> Pending)</h3>
+<h3><%= @pagetitle %></h3>
 
-<%= render :partial => 'shared/list_requests', :locals => { :requests => @current_requests } %>
+<%= render :partial => 'shared/select_requests', :locals => { :source => :package, :project => @project, :package => @package} %>
 

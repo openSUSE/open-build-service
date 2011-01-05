@@ -174,4 +174,32 @@ class RequestController < ApplicationController
     redirect_to :action => :show, :id => params[:id]
   end
 
+  # List requests of a specific 'type' for a 'source' (namely users, projects or packages).
+  # Returns a partial that renders the requests into a table.
+  def list
+    predicate = ""
+    case params[:type]
+      when "pending" then    predicate += "(state/@name='new' or state/@name='review')"
+      when "new" then        predicate += "state/@name='new'"
+      when "deleted" then    predicate += "state/@name='deleted'"
+      when "declined" then   predicate += "state/@name='declined'"
+      when "accepted" then   predicate += "state/@name='accepted'"
+      when "reviewed" then   predicate += "state/@name='reviewed'"
+      when "revoked"  then   predicate += "state/@name='revoked'"
+      when "superseded" then predicate += "state/@name='superseded'"
+      else                   predicate += "(state/@name='new' or state/@name='review')"
+    end
+    case params[:source]
+      when "user" then       predicate += " and state/@who='#{params[:user]}'"
+      when "project" then    predicate += " and action/target/@project='#{params[:project]}'"
+      when "package" then    predicate += " and action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
+    end
+
+    requests = Array.new
+    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
+    coll.each_request do |req|
+      requests << req
+    end
+    render :partial => 'shared/list_requests', :locals => { :requests => requests }
+  end
 end
