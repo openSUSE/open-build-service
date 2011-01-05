@@ -88,8 +88,6 @@
 
 .unknown_failure {  color: red; }
 
-#advanced_tabs { display: none; }
-
 /* build status and repo status are for project/monitor */
 td.buildstatus { 
   min-width: 11ex; /* unresolvable */
