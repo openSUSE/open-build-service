@@ -2076,7 +2076,6 @@ sub getprojpack {
         } elsif ($cgi->{'withdeps'}) {
 	  my @dinfo;
 
-          # Build config cache for all repositories
 	  for my $repo (@{$proj->{'repository'} || []}) {
 	    my $repoid = $repo->{'name'};
 	    next if $repoids && !$repoids->{$repoid};
@@ -2844,11 +2843,11 @@ sub expandsearchpath {
 
 sub getconfig {
   my ($cgi, $projid, $repoid) = @_;
-  my @path = expandsearchpath($projid, $repoid);
+  my @path;
   if ($cgi->{'path'}) {
     @path = @{$cgi->{'path'}};
-    # XXX: commented out to make it consistent to the scheduler
-    # unshift @path, "$projid/$repoid" unless @path && $path[0] eq "$projid/$repoid";
+  } else {
+    @path = expandsearchpath($projid, $repoid);
   }
   my $config = "%define _project $projid\n";
   my $macros = '';
