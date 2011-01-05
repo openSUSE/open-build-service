@@ -75,9 +75,9 @@ workerbootdir="$workerdir"/boot
 screenrc="$workerdir"/boot/screenrc
 OBS_WORKER_OPT=""
 
-if [ -n "$OBS_CACHE_SIZE" -a -n "$OBS_CACHE_DIR" ]; then
-    OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
-    mkdir -p $OBS_CACHE_DIR
+if [ -n "$OBS_CACHE_SIZE" -a -n "$OBS_CACHE_DIRECTORY" ]; then
+    OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIRECTORY"
+    mkdir -p $OBS_CACHE_DIRECTORY
     OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
 fi
 
