@@ -171,7 +171,7 @@ module ApplicationHelper
     diff = Integer(diff/24) # now days
     return diff.to_s + (diff == 1 ? " day ago" : " days ago") if diff < 14
     diff_w = Integer(diff/7) # now weeks
-    return diff_w.to_s + (diff_w == 1 ? " week ago" : " weeks ago") if diff < 50
+    return diff_w.to_s + (diff_w == 1 ? " week ago" : " weeks ago") if diff < 63
     diff_m = Integer(diff/30.5) # roughly months
     return diff_m.to_s + " months ago"
   end

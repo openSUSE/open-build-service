@@ -146,4 +146,24 @@ class BsRequest < ActiveXML::Base
     end
   end
 
+  def creator
+    if self.has_element?(:history)
+      e = self.history('@name="new"')
+    else
+      e = self.state
+    end
+    return "unknown" if e.nil?
+    return e.value(:who)
+  end
+  
+  def history
+    ret = []
+    self.each_history do |h|
+      ret << { :who => h.who, :when => Time.parse(h.when), :name => h.name, :comment => h.value(:comment) }
+    end if self.has_element?(:history)
+    h = self.state
+    ret << { :who => h.who, :when => Time.parse(h.when), :name => h.name, :comment => h.value(:comment) }
+    return ret
+  end
+
 end
