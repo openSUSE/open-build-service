@@ -1,6 +1,7 @@
 <% content_for :head_javascript do %>
   function updateRequestDisplay()
   {
+    $('#request_display').html('<p><%= image_tag('ajax-loader.gif') %></p>');
     <%=
       case source
       when :user
@@ -24,9 +25,9 @@
 <p>
   Display all
   <%= select_tag("request_select", 
-                 options_for_select(['pending', 'new', 'deleted', 'declined', 'accepted', 'reviewed', 'revoked', 'superseded']),
+                 options_for_select([['new or reviewed', 'pending'], 'new', 'deleted', 'declined', 'accepted', 'reviewed', 'revoked', 'superseded']),
                  :onchange => "updateRequestDisplay();") %>
   requests:
 </p>
 
-<div id="request_display"> </div>
+<div id="request_display"></div>
