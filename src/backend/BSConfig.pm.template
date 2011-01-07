@@ -123,6 +123,17 @@ our $relsync_pool = {
 #our $forceprojectkeys = 1;
 
 
+# Special rules to assign some packages to special hosts
+# These are
+#our $powerhosts = [
+#  'build30', 'build31', 'build32', 'build33', 'build34', 'build35', 'build36', 'build37',
+#];
+#
+#our $powerpkgs = [
+#  'autoconf',
+#];
+
+
 # Use a special local arch for product building
 # our $localarch = "x86_64";
 
