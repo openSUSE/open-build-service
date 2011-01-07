@@ -1,20 +1,28 @@
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= javascript_include_tag 'jquery.tooltip.min' %>
+  <%= stylesheet_link_tag 'jquery.tooltip' %>
+<% end %>
+
 <% content_for :head_javascript do %>
-  function updateRequestDisplay()
-  {
-    $('#request_display').html('<p><%= image_tag('ajax-loader.gif') %></p>');
-    <%=
-      case source
-      when :user
-        remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
-                        :source => source, :user => user}, :with => "'type='+$('#request_select')[0].value")
-      when :project
-        remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
-                        :source => source, :project => project}, :with => "'type='+$('#request_select')[0].value")
-      when :package
-        remote_function(:update => 'request_display', :url => {:controller => :request, :action => :list,
-                        :source => source, :project => project, :package => package}, :with => "'type='+$('#request_select')[0].value")
-      end
-    %>
+  function updateRequestDisplay() {
+    $('.spinner').show();
+    $.ajax({
+      url: '<%= url_for(:controller => :request, :action => :list) %>',
+      type: 'post',
+      data: {
+        'type': $('#request_select')[0].value,
+        'source': '<%= source %>',
+        <%= "'user': '" + user + "'" if source == :user %>
+        <%= "'project': '" + project + "'" if source == :project %>
+        <%= "'project': '" + project + "', 'package': '" + package + "'" if source == :package %>
+      },
+      success: function(content) {
+        $('#request_display').html(content);
+        $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
+        $('.spinner').hide();
+      }
+    });
   }
 <% end %>
 
@@ -24,10 +32,11 @@
 
 <p>
   Display all
-  <%= select_tag("request_select", 
-                 options_for_select([['new or reviewed', 'pending'], 'new', 'deleted', 'declined', 'accepted', 'reviewed', 'revoked', 'superseded']),
+  <%= select_tag("request_select",
+                 options_for_select(['involved', 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']),
                  :onchange => "updateRequestDisplay();") %>
   requests:
 </p>
 
+<p class="spinner"><%= image_tag('ajax-loader.gif') %></p>
 <div id="request_display"></div>

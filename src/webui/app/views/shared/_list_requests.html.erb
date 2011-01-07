@@ -1,24 +1,8 @@
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-  <%= javascript_include_tag 'jquery.tooltip.min'  %>
-  <%= stylesheet_link_tag "jquery.tooltip" %>
-<% end %>
-
-
-<% content_for :ready_function do %>
-  $("#request_table").tablesorter( {
-  widgets: ['zebra'],
-  sortList: [[0,1]],
-  headers: {5: {sorter: false}}
-  } );
-<% end %>
-
 <div id="build_result_popup"><div id="build_result_html"></div></div>
 
 <% if requests.blank? %>
   <p><em>No requests.</em></p>
-<% else %> 
-
+<% else %>
   <table cellspacing="1" id="request_table" class="tablesorter" style="width: 95%">
     <thead>
       <tr>
@@ -58,5 +42,4 @@
       <% end %>
     </tbody>
   </table>
-
 <% end %>
