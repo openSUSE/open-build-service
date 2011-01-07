@@ -33,9 +33,9 @@ if [ -f /etc/buildhost.config ];then
 fi
 
 if [ -z "$OBS_WORKER_DIRECTORY" ]; then
-	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
+    OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
 fi
-[ -d "$OBS_WORKER_DIRECTORY" ] || mkdir -p "$OBS_WORKER_DIRECTORY"
+mkdir -p "$OBS_WORKER_DIRECTORY"
 
 if [ -z "$OBS_RUN_DIR" ]; then
     OBS_RUN_DIR="/var/run/obs"
@@ -59,15 +59,11 @@ else
     OBS_NICE=18
 fi
 
-if [ -n "$OBS_REPO_SERVERS" ]; then
-    for i in $OBS_REPO_SERVERS; do
-        OBS_REPO_PARM="$OBS_REPO_PARM --reposerver http://$i"
-        WORKER_CODE="http://$i"
-        done
-else
-    OBS_REPO_PARM="$OBS_REPO_PARM --reposerver http://localhost:5252"
-    WORKER_CODE="http://localhost:5252"
-fi
+REPO_PARAM=
+for i in $OBS_REPO_SERVERS; do
+    REPO_PARAM="$REPO_PARAM --reposerver http://$i"
+    WORKER_CODE="http://$i"
+done
 
 obsrundir="$OBS_RUN_DIR"
 workerdir="$obsrundir"/worker
@@ -148,14 +144,15 @@ case "$1" in
             for i in `slptool findsrvs service:obs.repo_server | sed -n 's/service:obs.repo_server:\([^,]*\),.*/\1/p'`; do
                 [ "${i#http://localhost}" != "$i" ] && continue
                 [ "${i#http://127.}" != "$i" ] && continue
-                OBS_REPO_PARM="$OBS_REPO_PARM --reposerver $i"
+                REPO_PARAM="$REPO_PARAM --reposerver $i"
                 # any of them should be okay
                 WORKER_CODE="$i"
             done
         fi
 
         # fetch worker sources from server
-        [ -d "$workerbootdir" ] || mkdir -p "$workerbootdir"
+        echo "Fetching initial worker code from $WORKER_CODE"
+        mkdir -p "$workerbootdir"
         pushd "$workerbootdir" > /dev/null
         curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract 
         ln -s . XML 
@@ -173,7 +170,7 @@ case "$1" in
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
             if [ -n "$vmopt" ]; then
-                [ -d $R ] || mkdir -p $R
+                mkdir -p $R
                 DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
                 SWAP="$OBS_WORKER_DIRECTORY/root_$I/swap"
                 if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" -a -n "$OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE" ]; then
@@ -186,13 +183,16 @@ case "$1" in
                 SWAP="--swap $SWAP"
                 MEMORY="--vm-memory $OBS_INSTANCE_MEMORY"
             else
-                [ -d $R ] || mkdir -p $R
+                mkdir -p $R
+                DEVICE=
+                SWAP=
+                MEMORY=
             fi
-                echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
-                "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_PARM" \
+	    echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
+                "--statedir $workerdir/$I --id $HOSTNAME/$I $REPO_PARAM" \
                 "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
-                [ -d $workerdir/$I ] || mkdir -p $workerdir/$I
+	    mkdir -p $workerdir/$I
         done
         pushd "$workerbootdir" > /dev/null
         screen -m -d -c $screenrc
