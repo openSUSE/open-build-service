@@ -37,7 +37,7 @@
   </div>
 <% end %>
 
-<% if session[:login] %>
+<% if session[:login] and @project.can_edit?(session[:login]) %>
   <p>
     <%= link_to image_tag('icons/note_add.png'), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package %>
     <%= link_to "Add a new attribute", :controller => "attribute", :action => "edit", :project => @project.name, :package => @package %>
