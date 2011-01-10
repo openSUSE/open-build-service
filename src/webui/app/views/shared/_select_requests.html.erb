@@ -14,8 +14,8 @@
         'type': $('#request_select')[0].value,
         'source': '<%= source %>',
         <%= "'user': '" + user + "'" if source == :user %>
-        <%= "'project': '" + project + "'" if source == :project %>
-        <%= "'project': '" + project + "', 'package': '" + package + "'" if source == :package %>
+        <%= "'project': '" + project.to_s + "'" if source == :project %>
+        <%= "'project': '" + project.to_s + "', 'package': '" + package + "'" if source == :package %>
       },
       success: function(content) {
         $('#request_display').html(content);
