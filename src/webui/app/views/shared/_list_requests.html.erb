@@ -42,4 +42,7 @@
       <% end %>
     </tbody>
   </table>
+  <script type="text/javascript">
+    $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
+  </script>
 <% end %>

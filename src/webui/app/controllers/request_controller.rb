@@ -174,70 +174,8 @@ class RequestController < ApplicationController
     redirect_to :action => :show, :id => params[:id]
   end
 
-  # List requests of a specific 'type' for a 'source' (namely users, projects or packages).
-  # Returns a partial that renders the requests into a table.
   def list
-    logger.debug "AWESOME!!!"
-
-     #TODO: In progress, this is just freaking madness that needs some more mind-bending!
-     #requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-     #  request_ids = Array.new
-     #  myrequests = Hash.new
-     #  involved_projects = Collection.find_cached(:id, :what => 'project', :predicate => %(person/@userid='#{login}'))
-     #  unless iprojects.empty?
-     #    # find active requests where person is maintained in target project
-     #    #predicate = involved_projects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
-     #    predicate = involved_projects.each {|prj| "action/target/@project='#{prj.name}'"}.join(" or ")
-     #    predicate = "(state/@name='new' or state/@name='review') and (#{predicate})"
-     #    collection = Collection.find :what => :request, :predicate => predicate
-     #    collection.each do |req| myrequests[Integer(req.value :id)] = req end
-     #    # find requests created by person and still active
-     #    collection = Collection.find :what => :request, :predicate => "(state/@name='new' or state/@name='review') and state/@who='#{login}'"
-     #    collection.each do |req| myrequests[Integer(req.value :id)] = req end
-     #    # find requests where person is reviewer
-     #    collection = Collection.find :what => :request, :predicate => "state/@name='review' and review[@by_user='#{login}' and @state='new']"
-     #    collection.each do |req| myrequests[Integer(req.value :id)] = req end
-     #  end
-     #  # check for all open review tasks
-     #  collection = BsRequest.find_open_review_requests(login)
-     #  collection.each do |req| myrequests[Integer(req.value :id)] = req end
-     #  requests
-     #end
-
-    predicate = ""
-    case params[:type]
-      when "involved" then   predicate += "(state/@name='new' or state/@name='review')"
-      when "new" then        predicate += "state/@name='new'"
-      when "deleted" then    predicate += "state/@name='deleted'"
-      when "declined" then   predicate += "state/@name='declined'"
-      when "accepted" then   predicate += "state/@name='accepted'"
-      when "review" then     predicate += "state/@name='review'"
-      when "revoked"  then   predicate += "state/@name='revoked'"
-      when "superseded" then predicate += "state/@name='superseded'"
-      else                   predicate += "(state/@name='new' or state/@name='review')"
-    end
-
-    case params[:source]
-      when "user" then
-        # user's own submitted requests
-        predicate += " and (state/@who='#{params[:user]}'"
-        # requests where the user is reviewer
-        predicate += " or review[@by_user='#{params[:user]}' and @state='new']" if params[:type] == "involved" or params[:type] == "review"
-        predicate += ")"
-        # find requests where person is maintainer in target project
-       #involved_projects = Array.new
-       #ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => %(person/@userid='#{params[:user]}'))
-       #ip_coll.each {|ip| involved_projects += ["action/target/@project='#{ip.name}'"]}
-       #predicate += " or (" + involved_projects.join(" or ") + ")" unless involved_projects.empty?
-      when "project" then    predicate += " and action/target/@project='#{params[:project]}'"
-      when "package" then    predicate += " and action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
-    end
-
-    logger.debug "PREDICATE: " + predicate
-
-    requests = Array.new
-    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
-    coll.each_request {|req| requests << req }
+    requests = BsRequest.list(params)
     render :partial => 'shared/list_requests', :locals => { :requests => requests }
   end
 end

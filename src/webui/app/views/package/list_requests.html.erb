@@ -5,5 +5,5 @@
 
 <h3><%= @pagetitle %></h3>
 
-<%= render :partial => 'shared/select_requests', :locals => { :source => :package, :project => @project, :package => @package} %>
+<%= render :partial => 'shared/select_requests', :locals => { :project => @project.to_s, :package => @package} %>
 

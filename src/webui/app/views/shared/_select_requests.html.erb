@@ -6,37 +6,31 @@
 
 <% content_for :head_javascript do %>
   function updateRequestDisplay() {
-    $('.spinner').show();
+    $('#spinner').show();
     $.ajax({
       url: '<%= url_for(:controller => :request, :action => :list) %>',
       type: 'post',
       data: {
         'type': $('#request_select')[0].value,
-        'source': '<%= source %>',
-        <%= "'user': '" + user + "'" if source == :user %>
-        <%= "'project': '" + project.to_s + "'" if source == :project %>
-        <%= "'project': '" + project.to_s + "', 'package': '" + package + "'" if source == :package %>
+        <%= "'user': '" + user.to_s + "'," unless not defined?(user)  %>
+        <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
+        <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
       },
-      success: function(content) {
-        $('#request_display').html(content);
-        $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
-        $('.spinner').hide();
-      }
+      success: function(data) { $('#request_display').html(data); $('#spinner').hide(); }
     });
   }
 <% end %>
-
 <% content_for :ready_function do %>
-  updateRequestDisplay();
+  <%= "updateRequestDisplay();" unless defined?(@requests) %>
 <% end %>
 
 <p>
   Display all
-  <%= select_tag("request_select",
-                 options_for_select(['involved', 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']),
-                 :onchange => "updateRequestDisplay();") %>
+  <%= select_tag("request_select", options_for_select(['pending', 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>
   requests:
+  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>
 
-<p class="spinner"><%= image_tag('ajax-loader.gif') %></p>
-<div id="request_display"></div>
+<div id="request_display">
+  <%= render(:partial => 'shared/list_requests', :locals => { :requests => @requests }) unless not defined?(@requests) %>
+</div>
