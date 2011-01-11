@@ -21,7 +21,7 @@
   }
 <% end %>
 <% content_for :ready_function do %>
-  <%= "updateRequestDisplay();" unless defined?(@requests) %>
+  <%= "updateRequestDisplay();" unless defined?(requests) %>
 <% end %>
 
 <p>
@@ -32,5 +32,5 @@
 </p>
 
 <div id="request_display">
-  <%= render(:partial => 'shared/list_requests', :locals => { :requests => @requests }) unless not defined?(@requests) %>
+  <%= render(:partial => 'shared/list_requests', :locals => { :requests => requests }) unless not defined?(requests) %>
 </div>
