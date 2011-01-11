@@ -194,16 +194,16 @@ class BsRequest < ActiveXML::Base
           predicate += " and action/target/@project='#{opts[:project]}'"
         end
       elsif opts[:user] # should be set in almost all cases
-          # user's own submitted requests
-          predicate += " and (state/@who='#{opts[:user]}'"
-          # requests where the user is reviewer
-          predicate += " or review[@by_user='#{opts[:user]}' and @state='new']" if opts[:type] == "pending" or opts[:type] == "review"
-          predicate += ")"
-          # find requests where person is maintainer in target project
-         #pending_projects = Array.new
-         #ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => %(person/@userid='#{opts[:user]}'))
-         #ip_coll.each {|ip| pending_projects += ["action/target/@project='#{ip.name}'"]}
-         #predicate += " or (" + pending_projects.join(" or ") + ")" unless pending_projects.empty?
+        # user's own submitted requests
+        predicate += " and (state/@who='#{opts[:user]}'"
+        # requests where the user is reviewer
+        predicate += " or review[@by_user='#{opts[:user]}' and @state='new']" if opts[:type] == "pending" or opts[:type] == "review"
+        predicate += ")"
+        # find requests where person is maintainer in target project
+        pending_projects = Array.new
+        ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => %(person/@userid='#{opts[:user]}'))
+        ip_coll.each {|ip| pending_projects += ["action/target/@project='#{ip.name}'"]}
+        predicate += " or (" + pending_projects.join(" or ") + ")" unless pending_projects.empty?
       end
 
       logger.debug "PREDICATE: " + predicate
