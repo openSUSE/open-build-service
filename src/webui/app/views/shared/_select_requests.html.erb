@@ -26,7 +26,7 @@
 
 <p>
   Display all
-  <%= select_tag("request_select", options_for_select(['pending', 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>
+  <%= select_tag("request_select", options_for_select([['new or review', 'pending'], 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>
   requests:
   <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>

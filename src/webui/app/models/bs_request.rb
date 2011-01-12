@@ -149,34 +149,10 @@ class BsRequest < ActiveXML::Base
       unless opts[:type] and opts[:user] or opts[:project] and (opts[:package] or 1) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
       end
-      #TODO: In progress, this is just freaking madness that needs some more mind-bending!
-      #requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      #  request_ids = Array.new
-      #  myrequests = Hash.new
-      #  pending_projects = Collection.find_cached(:id, :what => 'project', :predicate => %(person/@userid='#{login}'))
-      #  unless iprojects.empty?
-      #    # find active requests where person is maintained in target project
-      #    #predicate = pending_projects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
-      #    predicate = pending_projects.each {|prj| "action/target/@project='#{prj.name}'"}.join(" or ")
-      #    predicate = "(state/@name='new' or state/@name='review') and (#{predicate})"
-      #    collection = Collection.find :what => :request, :predicate => predicate
-      #    collection.each do |req| myrequests[Integer(req.value :id)] = req end
-      #    # find requests created by person and still active
-      #    collection = Collection.find :what => :request, :predicate => "(state/@name='new' or state/@name='review') and state/@who='#{login}'"
-      #    collection.each do |req| myrequests[Integer(req.value :id)] = req end
-      #    # find requests where person is reviewer
-      #    collection = Collection.find :what => :request, :predicate => "state/@name='review' and review[@by_user='#{login}' and @state='new']"
-      #    collection.each do |req| myrequests[Integer(req.value :id)] = req end
-      #  end
-      #  # check for all open review tasks
-      #  collection = BsRequest.find_open_review_requests(login)
-      #  collection.each do |req| myrequests[Integer(req.value :id)] = req end
-      #  requests
-      #end
 
       predicate = ""
       case opts[:type]
-        when "pending" then   predicate += "(state/@name='new' or state/@name='review')"
+        when "pending" then    predicate += "(state/@name='new' or state/@name='review')"
         when "new" then        predicate += "state/@name='new'"
         when "deleted" then    predicate += "state/@name='deleted'"
         when "declined" then   predicate += "state/@name='declined'"
@@ -198,12 +174,12 @@ class BsRequest < ActiveXML::Base
         predicate += " and (state/@who='#{opts[:user]}'"
         # requests where the user is reviewer
         predicate += " or review[@by_user='#{opts[:user]}' and @state='new']" if opts[:type] == "pending" or opts[:type] == "review"
-        predicate += ")"
         # find requests where person is maintainer in target project
         pending_projects = Array.new
-        ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => %(person/@userid='#{opts[:user]}'))
+        ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
         ip_coll.each {|ip| pending_projects += ["action/target/@project='#{ip.name}'"]}
         predicate += " or (" + pending_projects.join(" or ") + ")" unless pending_projects.empty?
+        predicate += ")"
       end
 
       logger.debug "PREDICATE: " + predicate
