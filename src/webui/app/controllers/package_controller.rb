@@ -395,6 +395,9 @@ class PackageController < ApplicationController
     end
   end
 
+  def branch_dialog
+  end
+
   def branch
     valid_http_methods(:post)
     begin

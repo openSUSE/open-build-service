@@ -40,10 +40,8 @@
                 </li>
               <% end %>
               <li>
-                <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch Package'), {:action => :branch, :project => @project, :package => @package},
-                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
-                <%= link_to 'Branch Package', {:action => :branch, :project => @project, :package => @package},
-                  {:confirm => "Branch Package '#{@package}'?", :method => :post } %>
+                <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch Package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
+                <%= link_to_remote 'Branch Package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
               </li>
             <% end %>
           </ul>
