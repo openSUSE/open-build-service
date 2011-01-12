@@ -173,7 +173,11 @@ class User < ActiveRecord::Base
     unless group.kind_of? Group
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
     end
-    return true if groups.find(:all, :conditions => [ "id = ?", group ]).length > 0
+    if User.ldapgroup_enabled?
+      return true if user_in_group_ldap?(self.login, group) 
+    else 
+      return true if groups.find(:all, :conditions => [ "id = ?", group ]).length > 0
+    end
     return false
   end
 
