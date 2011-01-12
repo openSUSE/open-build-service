@@ -8,7 +8,7 @@ class MainController < ApplicationController
     @user ||= Person.find :login => session[:login] if session[:login]
 
     begin
-      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes) do
+      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
         Workerstatus.find :all
       end
 
@@ -30,11 +30,11 @@ class MainController < ApplicationController
       end
       logger.debug @busy.inspect
 
-      @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes) do
+      @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes, :shared => true) do
         GlobalCounters.find( :all )
       end
 
-      @latest_updates = Rails.cache.fetch('latest_updates', :expires_in => 5.minutes) do
+      @latest_updates = Rails.cache.fetch('latest_updates', :expires_in => 5.minutes, :shared => true) do
         LatestUpdated.find( :limit => 6 )
       end
 

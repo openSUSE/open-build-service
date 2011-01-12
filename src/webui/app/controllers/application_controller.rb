@@ -7,6 +7,8 @@ require 'person'
 
 class ApplicationController < ActionController::Base
 
+  Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
+
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
@@ -261,6 +263,7 @@ class ApplicationController < ActionController::Base
        Person.find( session[:login] )
     end
     if @user
+      Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
       begin
         @nr_involved_requests = @user.involved_requests(:cache => !discard_cache?).size
       rescue

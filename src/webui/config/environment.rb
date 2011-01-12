@@ -69,7 +69,11 @@ init = Rails::Initializer.run do |config|
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
 
-  config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient'}
+  # domain_cach_store prefixes all cache keys with the user, so that users do not
+  # see the cache entries of other users. If you are sure that your projects
+  # don't use the 'access' flag to limit visibility, you can remove the
+  # :domain_cache_store part to enhance cache performance.
+  config.cache_store = :domain_cache_store, :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient'}
 
   # See Rails::Configuration for more options
 
