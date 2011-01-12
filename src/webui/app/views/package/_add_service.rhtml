@@ -6,20 +6,16 @@
         <b>Add a Source Service</b>
       </div>
 
-      <p>
-        <% Service.available.each do |service| %>
-          <% object_id = "new_service_#{service[:name]}" %>
-          <div id="<%= object_id %>" onclick="window.location = '<%= url_for :action => :add_or_move_service, :id => object_id, :position => -1, :package => @package, :project => @project %>'" >
-            <a name="<%= service[:name] %>"><%= service[:summary] %></a>
-            <div style="color: #999; font-size: 8pt">
-               <%= service[:name] %>
-            </div>
-          </div>
-        <% end %>
-      </p>
-      <p class="buttons">
+      <% Service.available.each do |service| %>
+        <% object_id = "new_service_#{service[:name]}" %>
+        <div class="show_left" id="<%= object_id %>" onclick="window.location = '<%= url_for :action => :add_or_move_service, :id => object_id, :position => -1, :package => @package, :project => @project %>'" >
+          <a name="<%= service[:name] %>"><%= service[:summary] %></a>
+          <div style="color: #999; font-size: 8pt"><%= service[:name] %></div>
+        </div>
+      <% end %>
+      <div class="buttons">
         <%= link_to_function 'Cancel', 'remove_dialog()'%>
-      </p>
+      </div>
+    </div>
   </div>
-</div>
 </div>
