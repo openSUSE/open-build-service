@@ -14,7 +14,7 @@ class PublicController < ApplicationController
     required_parameters :prj, :pkg, :repo, :arch
 
     prj = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless prj
+    raise DbProject::ReadAccessError.new "" unless prj
 
     # ACL(build): binarydownload denies access to build files
     if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
@@ -50,20 +50,10 @@ class PublicController < ApplicationController
   def project_meta
     valid_http_methods :get
 
-    prj = DbProject.find_by_name(params[:prj])
-    if prj
-      render :text => prj.to_axml, :content_type => 'text/xml'
-    else
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-      if rprj
-        # project from remote buildservice, get metadata via backend
-        pass_to_backend unshift_public(request.path)
-      else
-        raise DbProject::PrjAccessError.new "Unknown project '#{CGI::escape(params[:prj])}'"
-      end
-    end
+    # get object or raise error
+    prj = DbProject.get_by_name(params[:prj])
+
+    pass_to_backend unshift_public(request.path)
   end
 
   # GET /public/source/:prj
@@ -77,7 +67,7 @@ class PublicController < ApplicationController
       rprj = ret[0] if ret and ret[0]
     end
     
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
+    raise DbProject::ReadAccessError.new "" unless prj or rprj
     if rprj
       # ACL(projectlist): a project lists only if project is not protected
       path = unshift_public(request.path)
@@ -100,7 +90,7 @@ class PublicController < ApplicationController
       rprj = ret[0] if ret and ret[0]
     end
 
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
+    raise DbProject::ReadAccessError.new "" unless prj or rprj
 
     if prj.nil? and rprj.nil?
       msg = "Server returned an error: HTTP Error 404: Not Found\nproject '#{params[:prj]}' does not exist"
@@ -122,9 +112,9 @@ class PublicController < ApplicationController
       ret = DbProject.find_remote_project(params[:prj])
       rprj = ret[0] if ret and ret[0]
     end
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
+    raise DbProject::ReadAccessError.new "" unless prj or rprj
     pkg = prj.find_package(params[:pkg]) if prj
-#   raise DbPackage::PkgAccessError.new "" unless (prj and pkg) or rprj
+#   raise DbPackage::ReadAccessError.new "" unless (prj and pkg) or rprj
 
     # ACL(package_index): source access forbidden ?
     if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
@@ -143,28 +133,10 @@ class PublicController < ApplicationController
   def package_meta
     valid_http_methods :get
 
+    # get object or raise error
+    pkg = DbPackage.get_by_project_and_name(params[:prj], params[:pkg], use_source=false)
 
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-    pkg = prj.find_package(params[:pkg]) if prj
-#   raise DbPackage::PkgAccessError.new "" unless (prj and pkg) or rprj
-
-    if prj
-      if pkg
-        render :text => pkg.to_axml, :content_type => 'text/xml'
-      else
-         # may be a package in a linked remote project
-        pass_to_backend unshift_public(request.path)
-      end
-    else
-      # may be a package in remote project
-      pass_to_backend unshift_public(request.path)
-    end
+    pass_to_backend unshift_public(request.path)
   end
 
   # GET /public/source/:prj/:pkg/:file
@@ -172,22 +144,8 @@ class PublicController < ApplicationController
     valid_http_methods :get
     file = params[:file]
 
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-    pkg = prj.find_package(params[:pkg]) if prj
-#   raise DbPackage::PkgAccessError.new "" unless (prj and pkg) or rprj
-
-    # ACL(package_index): source access forbidden ?
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => 'source_access_no_permission',
-        :message => "Source access to package #{params[:pkg]} in project #{params[:prj]} is forbidden"
-      return
-    end
+    # get object or raise error
+    pkg = DbPackage.get_by_project_and_name(params[:prj], params[:pkg])
 
     path = "/source/#{CGI.escape(params[:prj])}/#{CGI.escape(params[:pkg])}/#{CGI.escape(file)}"
 
@@ -225,9 +183,9 @@ class PublicController < ApplicationController
     @pkg = @prj.find_package(params[:pkg]) if @prj
 
     prjchk = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless prjchk
+    raise DbProject::ReadAccessError.new "" unless prjchk
     pkgchk = prjchk.find_package(params[:pkg]) if prjchk
-    raise DbPackage::PkgAccessError.new "" unless pkgchk
+    raise DbPackage::ReadAccessError.new "" unless pkgchk
 
     # ACL(binary_packages): binarydownload denies access to build files
     if @pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(@pkg)

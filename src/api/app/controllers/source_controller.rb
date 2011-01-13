@@ -88,7 +88,7 @@ class SourceController < ApplicationController
     #--------------
     if pro.nil? and hidden
       # no access to hidden
-      raise DbProject::PrjAccessError.new ""
+      raise DbProject::ReadAccessError.new ""
     end
 
     # GET /source/:project
@@ -289,13 +289,13 @@ class SourceController < ApplicationController
     #--------------
     if sprj.nil? #and sprj_hidden
       # no access to hidden or not existing
-      raise DbProject::PrjAccessError.new ""
+      raise DbProject::ReadAccessError.new ""
     end
     if tprj.nil? #and tprj_hidden
       # for branch/copy we need to look more closely
       unless package_creating_commands.include?(command)
         # no access to hidden or not existing
-        raise DbProject::PrjAccessError.new ""
+        raise DbProject::ReadAccessError.new ""
       end
     end
     # ACL(index_package): source access gives permisson denied
@@ -350,7 +350,7 @@ class SourceController < ApplicationController
 #        else
           if dpkg.nil? and deleted
             logger.debug " SC : dpkg.nil"
-            raise DbPackage::PkgAccessError.new "" unless tpkg
+            raise DbPackage::ReadAccessError.new "" unless tpkg
           end
 #        end
       end
@@ -386,7 +386,7 @@ class SourceController < ApplicationController
         return
       end
       # nothing to delete or hidden
-      raise DbPackage::PkgAccessError.new "" unless tpkg
+      raise DbPackage::ReadAccessError.new "" unless tpkg
       # ACL: check if user is allowed to delete package
       unless @http_user.can_modify_package?(tpkg)
         render_error :status => 403, :errorcode => "delete_package_no_permission",
@@ -456,7 +456,7 @@ class SourceController < ApplicationController
                  command == 'undelete' or
                  ( command == 'showlinked' and not tprj_hidden )
                )
-          raise DbPackage::PkgAccessError.new ""
+          raise DbPackage::ReadAccessError.new ""
         end
       end
 
@@ -551,12 +551,12 @@ class SourceController < ApplicationController
     # ACL(attribute_meta): access check - prj/pkg = nil
     if params[:package]
       unless @attribute_container
-        DbPackage::PkgAccessError.new ""
+        DbPackage::ReadAccessError.new ""
         return
       end
     else
       unless @attribute_container
-        DbProject::PrjAccessError.new ""
+        DbProject::ReadAccessError.new ""
         return
       end
     end
@@ -697,7 +697,7 @@ class SourceController < ApplicationController
       # init
       # checks
       if prj.nil? and prj_hidden
-        raise DbProject::PrjAccessError.new ""
+        raise DbProject::ReadAccessError.new ""
       end
       # exec
       if prj
@@ -706,7 +706,7 @@ class SourceController < ApplicationController
         # project from remote buildservice, get metadata from backend
         pass_to_backend
       else
-        raise DbProject::PrjAccessError.new ""
+        raise DbProject::ReadAccessError.new ""
       end
       return
 
@@ -758,7 +758,7 @@ class SourceController < ApplicationController
         tprj_hidden = DbProject.is_hidden?(tproject_name)
         #
         if tprj.nil? and tprj_hidden
-          raise DbProject::PrjAccessError.new ""
+          raise DbProject::ReadAccessError.new ""
         else
           # ACL(project_meta): check that user does not link an unprotected project to a protected project
           if prj
@@ -987,7 +987,7 @@ class SourceController < ApplicationController
       end
 
       # ACL(package_meta): in case of access, project is really hidden, accessing says project is not existing
-#      raise DbPackage::PkgAccessError.new "" unless DbPackage.check_access?(pack)
+#      raise DbPackage::ReadAccessError.new "" unless DbPackage.check_access?(pack)
 
       render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
 
@@ -1057,7 +1057,7 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? pack
 
       # ACL(file): access behaves like project not existing
-      raise DbPackage::PkgAccessError.new "" unless pack
+      raise DbPackage::ReadAccessError.new "" unless pack
 
       # ACL(file): source access gives permisson denied
       if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)

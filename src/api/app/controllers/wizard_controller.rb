@@ -9,7 +9,7 @@ class WizardController < ApplicationController
     pkg = DbPackage.find_by_project_and_name(prj_name, pkg_name)
 
     # ACL(package_wizard): access behaves like package / project not existing
-    raise DbPackage::PkgAccessError.new "" unless pkg
+    raise DbPackage::ReadAccessError.new "" unless pkg
 
     if not @http_user.can_modify_package?(pkg)
       render_error :status => 403, :errorcode => "change_package_no_permission",

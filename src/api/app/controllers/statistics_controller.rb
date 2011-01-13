@@ -154,10 +154,10 @@ class StatisticsController < ApplicationController
     @package = params[:package]
 
     object = DbProject.find_by_name(@project)
-    raise DbProject::PrjAccessError.new "" unless object
+    raise DbProject::ReadAccessError.new "" unless object
     if @package
       object = object.find_package(@package)
-      raise DbPackage::PkgAccessError.new "" unless object
+      raise DbPackage::ReadAccessError.new "" unless object
     end
 
     if request.get?
@@ -443,11 +443,11 @@ class StatisticsController < ApplicationController
 
   def activity
     @project = DbProject.find_by_name(params[:project])
-    raise DbProject::PrjAccessError.new "" unless @project
+    raise DbProject::ReadAccessError.new "" unless @project
 
     if @package
       @package = object.find_package(params[:package])
-      raise DbPackage::PkgAccessError.new "" unless @package
+      raise DbPackage::ReadAccessError.new "" unless @package
     end
   end
 
