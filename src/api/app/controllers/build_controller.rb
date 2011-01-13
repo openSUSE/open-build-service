@@ -16,8 +16,9 @@ class BuildController < ApplicationController
     raise DbProject::PrjAccessError.new "" unless prj
     # returns <binarylist /> on unkown package !
     # normally we'd do e.g.: raise DbPackage::PkgAccessError.new "" unless pkg
-    if prj and params[:package]
-      render :text => "<binarylist />", :content_type => "text/xml"  unless pkg
+    if prj and params[:package] and pkg.nil?
+      render :text => "<binarylist />", :content_type => "text/xml"
+      return
     end
 
     pass_to_backend 
