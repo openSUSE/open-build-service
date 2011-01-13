@@ -38,52 +38,18 @@ class DbPackage < ActiveRecord::Base
   class << self
 
     def is_hidden?(project, package)
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM db_packages pack
-      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
-      WHERE pro.name = BINARY ? AND pack.name = BINARY ?
-      END_SQL
-
-      result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
-      dbpkg = nil
-      dbpkg = result[0] if result
-
-      return nil if dbpkg.nil?
-      pkgrels = dbpkg.flags.count :conditions => 
-          ["db_package_id = ? and flag = 'access' and status = 'disable'", dbpkg.id]
-      return true if pkgrels > 0
-      return true if DbProject.is_hidden?(project)
-      return false
+      return DbProject.is_hidden?(project)
     end
 
     def check_dbp_access?(dbp)
       return false unless dbp.class == DbProject
       return false if dbp.nil?
-      return false unless DbProject.check_access?(dbp)
-      return true
+      return DbProject.check_access?(dbp)
     end
     def check_access?(dbpkg=self)
       return false if dbpkg.nil?
       return false unless dbpkg.class == DbPackage
-      # check_project
-      dbp = DbProject.find(dbpkg.db_project_id) if dbpkg and dbpkg.db_project_id
-      return false unless check_dbp_access?(dbp)
-
-      # check package flag
-      # check for 'access' flag
-      rels = dbpkg.flags.count :conditions => 
-          ["db_package_id = ? and flag = 'access' and status = 'disable'", dbpkg.id]
-      # rels > 0 --> flag set
-      if rels > 0
-        # simple check for involvement --> involved users can access
-        userrels = dbpkg.package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
-        if userrels == 0 and not User.currentAdmin
-          # no relationship to package -> no access
-          return false
-        end
-      end
-      return true
+      return DbProject.check_access?(dbpkg.db_project)
     end
 
     # own custom find
