@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   helper RbacHelper
 
   before_filter :validate_xml_request, :add_api_version
-  if RESPONSE_SCHEMA_VALIDATION
+  if defined?( RESPONSE_SCHEMA_VALIDATION ) && RESPONSE_SCHEMA_VALIDATION == true
     after_filter :validate_xml_response
   end
 
