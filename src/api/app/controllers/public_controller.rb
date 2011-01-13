@@ -13,15 +13,14 @@ class PublicController < ApplicationController
     valid_http_methods :get
     required_parameters :prj, :pkg, :repo, :arch
 
-    prj = DbProject.find_by_name(params[:prj])
-    raise DbProject::ReadAccessError.new "" unless prj
+    prj = DbProject.get_by_name(params[:prj])
 
-    # ACL(build): binarydownload denies access to build files
-    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from project #{params[:prj]}"
-      return
-    end
+# binary download is not a security feature...
+#    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
+#      render_error :status => 403, :errorcode => "download_binary_no_permission",
+#      :message => "No permission to download binaries from project #{params[:prj]}"
+#      return
+#    end
 
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
@@ -161,6 +160,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
     
     # ACL(lastevents): This API is not protected at all and displays a event id and a sync flag.
+    #FIXME2.2: discuss what to do with the events, must be solved in backend IMHO
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
@@ -171,28 +171,14 @@ class PublicController < ApplicationController
   def distributions
     valid_http_methods :get
 
-    # ACL(distributions): This API is not protected at all, OBS admin should not put in a hidden project into this list.
-
     render :text => DistributionController.read_distfile, :content_type => "text/xml"
   end
 
   # GET /public/binary_packages/:prj/:pkg
   def binary_packages
 
-    @prj = DbProject.find_by_name(params[:prj])
-    @pkg = @prj.find_package(params[:pkg]) if @prj
-
-    prjchk = DbProject.find_by_name(params[:prj])
-    raise DbProject::ReadAccessError.new "" unless prjchk
-    pkgchk = prjchk.find_package(params[:pkg]) if prjchk
-    raise DbPackage::ReadAccessError.new "" unless pkgchk
-
-    # ACL(binary_packages): binarydownload denies access to build files
-    if @pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(@pkg)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-      return
-    end
+    # get object or raise error
+    @pkg = DbPackage.get_by_project_and_name(params[:prj], params[:pkg], use_source=false)
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
     begin
@@ -222,7 +208,7 @@ class PublicController < ApplicationController
     d = scan_distfile(distfile)
 
     @binary_links = {}
-    @prj.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
+    @pkg.db_project.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
       # TODO: this code doesnt handle path elements and layering
       # TODO: walk the path and find the base repos? is that desired?
       dist = d[repo.name]
@@ -232,7 +218,7 @@ class PublicController < ApplicationController
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
           if binary and dist.vendor == "openSUSE"
-            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@prj.name, repo.name, @pkg.name+".ymp") ) }
+            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.db_project.name, repo.name, @pkg.name+".ymp") ) }
           end
 
           @binary_links[dist_id][:binary] ||= []
@@ -240,8 +226,8 @@ class PublicController < ApplicationController
             binary_type = binary.method_missing(:type)
             @binary_links[dist_id][:binary] << {:type => binary_type, :arch => binary.arch, :url => download_url(binary.filepath)}
             if @binary_links[dist_id][:repository].blank?
-              repo_filename = (binary_type == 'rpm') ? "#{@prj.name}.repo" : ''
-              repository_path = File.join(@prj.download_name, repo.name, repo_filename)
+              repo_filename = (binary_type == 'rpm') ? "#{@pkg.db_project.name}.repo" : ''
+              repository_path = File.join(@pkg.db_project.download_name, repo.name, repo_filename)
               @binary_links[dist_id][:repository] ||= { :url => download_url(repository_path) }
             end
           end
