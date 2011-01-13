@@ -237,10 +237,10 @@ class BuildControllerTest < ActionController::IntegrationTest
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -284,13 +284,13 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_hidden_file
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/NOT_EXISTING"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"

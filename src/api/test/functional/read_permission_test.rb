@@ -75,6 +75,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
     # user access
     prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/_meta"
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
     assert_tag( :tag => "binarylist" )
@@ -83,8 +84,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
     get "/build/SourceprotectedProject/repo/i586/pack/#{srcrpm}"
     assert_response 404
-
-    # FIXME: add view=cpio test
 
     # test aggregated package
     get "/build/home:adrian:ProtectionTest/repo/i586/aggregate"

@@ -3,17 +3,13 @@ class BuildController < ApplicationController
   def index
     valid_http_methods :get, :post, :put
 
-    prj = DbProject.find_by_name params[:project]
-    if prj.nil? and DbProject.is_remote_project?(params[:project], skip_access=true)
-      lpro, rpro = DbProject.find_remote_project(params[:project], skip_access=true)
-      prj = lpro if DbProject.check_access? lpro
-      # package is irrelevant for a remoteproject
-      params.delete :package
+    # for permission check
+    if params[:package] and params[:package] != "_repository"
+      pkg = DbPackage.get_by_project_and_name( params[:project], params[:package], use_source=false )
+    else
+      prj = DbProject.get_by_name params[:project]
     end
-    pkg = DbPackage.find_by_project_and_name( params[:project], params[:package] )  if prj and params[:package]
 
-    # todo: check if prj.nil?/pkg.nil? is sufficient
-    raise DbProject::ReadAccessError.new "" unless prj
     # returns <binarylist /> on unkown package !
     # normally we'd do e.g.: raise DbPackage::ReadAccessError.new "" unless pkg
 
@@ -28,9 +24,7 @@ class BuildController < ApplicationController
 
   def project_index
     valid_http_methods :get, :post, :put
-    prj = DbProject.find_by_name params[:project]
-
-    raise DbProject::ReadAccessError.new "" unless prj
+    prj = DbProject.get_by_name params[:project]
 
     path = request.path
 
@@ -59,12 +53,7 @@ class BuildController < ApplicationController
       end
 
       if not allowed
-        prj = DbProject.find_by_name( params[:project] ) 
-        if prj.nil?
-          render_error :status => 404, :errorcode => "not_found",
-            :message => "Project does not exist #{params[:project]}"
-          return
-        end
+        prj = DbProject.get_by_name( params[:project] ) 
 
         #check if user has project modify rights
         allowed = true if permissions.project_change? prj
@@ -123,10 +112,7 @@ class BuildController < ApplicationController
   def buildinfo
     valid_http_methods :get, :post
     required_parameters :project, :repository, :arch, :package
-    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-
-    # ACL(buildinfo): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    raise DbPackage::ReadAccessError.new "" if pkg.nil?
+    pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
@@ -137,15 +123,16 @@ class BuildController < ApplicationController
   end
 
   # /build/:prj/:repo/:arch/:pkg
-  # GET on ?view=cpio and ?view=cache unauthenticated and streamed
-  # USED ??
   def package_index
     valid_http_methods :get
     required_parameters :project, :repository, :arch, :package
-    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
 
-    # ACL(package_index): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    raise DbPackage::ReadAccessError.new "" if pkg.nil?
+    # read access permission check
+    if params[:package] == "_repository"
+      prj = DbProject.get_by_name params[:project], use_source=false
+    else
+      pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
+    end
 
     pass_to_backend
   end
@@ -155,17 +142,21 @@ class BuildController < ApplicationController
     valid_http_methods :get, :delete
     required_parameters :project, :repository, :arch, :package, :filename
 
-    if not params[:package] == "_repository"
-      pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-      raise DbPackage::ReadAccessError.new "" if pkg.nil?
-      end
-    if pkg and not DbProject.find_remote_project params[:project]
-      # ACL(file): binarydownload denies access to build files
-      if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
-        render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-        return
-      end
+    # read access permission check
+    if params[:package] == "_repository"
+      prj = DbProject.get_by_name params[:project]
+    else
+      pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
+      prj = pkg.db_project
+    end
+
+    # FIXME2.2:
+    # binary download can be only supported project wide. We need to disallow it as per package
+    # setting, now that it is wanted as security feature
+    if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
+      render_error :status => 403, :errorcode => "download_binary_no_permission",
+      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+      return
     end
 
     path = request.path+"?"+request.query_string
@@ -234,24 +225,16 @@ class BuildController < ApplicationController
 
   def logfile
     valid_http_methods :get
-    prj = DbProject.find_by_name params[:project]
-    raise DbProject::ReadAccessError.new "" if prj.nil?
 
-    pkg = prj.find_package params[:package]
+    # for permission check
+    pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
 
-    raise DbPackage::ReadAccessError.new "" if pkg.nil?
-
-    # ACL(logfile): binarydownload denies logfile access
-    if pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
+    # FIXME2.2:
+    # binary download can be only supported project wide. We need to disallow it as per package
+    # setting, now that it is wanted as security feature
+    if pkg.db_project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.db_project)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
-      return
-    end
-
-    # ACL(logfile): sourceaccess denies logfile access
-    if pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
+      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
 
@@ -260,9 +243,8 @@ class BuildController < ApplicationController
 
   def result
     valid_http_methods :get
-    prj = DbProject.find_by_name params[:project]
-
-    raise DbProject::ReadAccessError.new "" if prj.nil?
+    # for permission check
+    prj = DbProject.get_by_name params[:project]
 
     pass_to_backend
   end
