@@ -797,7 +797,7 @@ class SourceController < ApplicationController
         tprj_hidden = DbProject.is_hidden?(tproject_name)
         tprj_remote = DbProject.is_remote_project?(tproject_name)
 
-        if tprj.nil? and tprj_hidden
+        if tprj.nil? or tprj_hidden
           render_error :status => 404, :errorcode => 'not_found',
           :message => "The link target project #{tproject_name} does not exist"
           return
