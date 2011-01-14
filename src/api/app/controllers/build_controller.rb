@@ -24,7 +24,11 @@ class BuildController < ApplicationController
 
   def project_index
     valid_http_methods :get, :post, :put
-    prj = DbProject.get_by_name params[:project]
+
+    prj = nil
+    unless params[:project] == "_dispatchprios"
+      prj = DbProject.get_by_name params[:project]
+    end
 
     path = request.path
 
@@ -35,6 +39,7 @@ class BuildController < ApplicationController
     end
     if request.get?
       pass_to_backend path
+      return
     elsif request.post?
       allowed = false
       allowed = true if permissions.global_project_change
@@ -95,7 +100,7 @@ class BuildController < ApplicationController
       pass_to_backend path
       return
     elsif request.put? 
-      if  @http_user.is_admin?
+      if @http_user.is_admin?
         pass_to_backend path
       else
         render_error :status => 403, :errorcode => "execute_cmd_no_permission",

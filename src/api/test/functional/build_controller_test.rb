@@ -37,6 +37,22 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_dispatchprios
+    ActionController::IntegrationTest::reset_auth
+    get "/build/_dispatchprios"
+    assert_response 401
+
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build/_dispatchprios"
+    assert_response :success
+    put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    assert_response :success
+  end
+
   def test_read_from_repository
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
