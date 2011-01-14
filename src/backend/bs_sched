@@ -72,7 +72,7 @@ my $uploaddir = "$bsdir/upload";
 my $rundir = $BSConfig::rundir || "$bsdir/run";
 my $infodir = "$bsdir/info";
 
-if ($ARGV[0] eq '--testmode') {
+if (@ARGV && $ARGV[0] eq '--testmode') {
   $testmode = 1;
   shift;
 };
@@ -857,11 +857,7 @@ sub prpfinished {
 
   my $rdir = "$reporoot/$prp/$myarch/:repo";
 
-  my $rinfo = {};
-  if (@$packs && $pubenabled && grep {!$_} values(%$pubenabled)) {
-    $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
-  }
-  $rinfo->{'binaryorigins'} ||= {};
+  my $rinfo;
 
   # link all packages into :repo
   my %origin;
@@ -875,6 +871,11 @@ sub prpfinished {
   for my $packid (@$packs) {
     if ($pubenabled && !$pubenabled->{$packid}) {
       # publishing of this package is disabled
+      if (!$rinfo) {
+	$rinfo = {};
+	$rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
+	$rinfo->{'binaryorigins'} ||= {};
+      }
       print "        $packid: publishing disabled\n";
       my @all = grep {$rinfo->{'binaryorigins'}->{$_} eq $packid} keys %{$rinfo->{'binaryorigins'}};
       for my $bin (@all) {
@@ -942,6 +943,15 @@ sub prpfinished {
   }
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
+    if (0) {
+      if (!$rinfo) {
+	$rinfo = {};
+	$rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
+	$rinfo->{'binaryorigins'} ||= {};
+      }
+      $origin{$rbin} = $rinfo->{'binaryorigins'}->{$rbin} if $rinfo->{'binaryorigins'}->{$rbin};
+      next;
+    }
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");
@@ -1592,10 +1602,10 @@ sub get_projpacks_postprocess {
 }
 
 #
-# addwatchremote:  register for a remote resource
+# addwatchremote:  register for a possibly remote resource
 #
 # input:  $type: type of resource (project/package/repository)
-#         $projid: update just this project
+#         $projid: local name of the project
 #         $watch: extra data to match
 #
 sub addwatchremote {
@@ -1669,9 +1679,6 @@ sub expandsearchpath {
   my %done;
   my @ret;
   my @path = @{$repository->{'path'} || []};
-  for my $pathel (@path) {
-    addwatchremote('repository', $pathel->{'project'}, "/$pathel->{'repository'}/$myarch");
-  }
   # our own repository is not included in the path,
   # so put it infront of everything
   unshift @path, {'project' => $projid, 'repository' => $repository->{'name'}};
@@ -1680,31 +1687,19 @@ sub expandsearchpath {
     my $prp = "$t->{'project'}/$t->{'repository'}";
     push @ret, $t unless $done{$prp};
     $done{$prp} = 1;
+    addwatchremote('repository', $t->{'project'}, "/$t->{'repository'}/$myarch") unless $t->{'repository'} eq '_unavailable';
     if (!@path) {
       last if $done{"/$prp"};
-      my ($pid, $tid) = ($t->{'project'}, $t->{'repository'});
+      my ($pid, $rid) = ($t->{'project'}, $t->{'repository'});
       my $proj = addwatchremote('project', $pid, '');
       if ($proj) {
-	# check/invalidate cache?
 	$proj = fetchremoteproj($proj, $pid);
-	# clone it as we modify the repopath
-	$proj = Storable::dclone($proj);
-        my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
-        if (@repo && $repo[0]->{'path'}) {
-	  addwatchremote('repository', $pid, "/$tid/$myarch");
-	  for my $pathel (@{$repo[0]->{'path'}}) {
-	    # map projects to remote
-	    my $remoteprojid = $pathel->{'project'};
-	    $pathel->{'project'} = maptoremote($proj, $remoteprojid);
-	    addwatchremote('repository', $pathel->{'project'}, "/$pathel->{'repository'}/$myarch") if $pathel->{'project'} ne '_unavailable';
-	  }
-	}
       } else {
 	$proj = $projpacks->{$pid};
       }
       next unless $proj;
       $done{"/$prp"} = 1;	# mark expanded
-      my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
+      my @repo = grep {$_->{'name'} eq $rid} @{$proj->{'repository'} || []};
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
     }
   }
@@ -1726,12 +1721,6 @@ sub expandprojlink {
     my $lproj = addwatchremote('project', $lprojid, '');
     if ($lproj) {
       $lproj = fetchremoteproj($lproj, $lprojid);
-      if ($lproj->{'link'}) {
-        $lproj = Storable::dclone($lproj);
-        for my $p (@{$lproj->{'link'} || []}) {
-	  $p->{'project'} = maptoremote($lproj, $p->{'project'});
-	}
-      }
     } else {
       $lproj = $projpacks->{$lprojid};
     }
@@ -1912,6 +1901,15 @@ sub fetchremoteproj {
   return undef unless $rproj;
   for (qw{name root remoteroot remoteurl remoteproject}) {
     $rproj->{$_} = $proj->{$_};
+  }
+  # map remote project names to local names
+  for my $repo (@{$rproj->{'repository'} || []}) {
+    for my $pathel (@{$repo->{'path'} || []}) {
+      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
+    }    
+  }
+  for my $link (@{$rproj->{'link'} || []}) {
+    $link->{'project'} = maptoremote($proj, $link->{'project'});
   }
   $remoteprojs{$projid} = $rproj;
   return $rproj;
