@@ -810,13 +810,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian_nobody", "so_alone"
     get "/source/HiddenProject/pack/my_file"
 
-    assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "not_found"} 
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project"} 
     # uninvolved, 
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/pack/my_file"
-    assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "not_found"} 
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project"} 
     # reader
     # downloader
     # maintainer
@@ -911,12 +911,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     url1="/source/HiddenProject/pack"
     asserttag1={ :tag => 'status', :attributes => { :code => "unknown_project"} }
     url2="/source/HiddenProject/pack/testfile"
-    assertresp2=403 #404
+    assertresp2=404
     assertselect2=nil
     assertselect2rev=nil
-    assertresp3=403 #404
+    assertresp3=404
     asserteq3=nil
-    assertresp4=403 #404
+    assertresp4=404
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)

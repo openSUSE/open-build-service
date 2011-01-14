@@ -85,6 +85,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_link"
     assert_response :success
+
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro/_link"
     assert_response :success

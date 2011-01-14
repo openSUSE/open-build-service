@@ -917,60 +917,35 @@ class SourceController < ApplicationController
     return unless @http_user
     params[:user] = @http_user.login
 
-    # ACL(file): TODO fishy
-    prj = DbProject.find_by_name(project_name)
-    prj_hidden = DbProject.is_hidden?(project_name)
-    prj_remote = DbProject.is_remote_project?(project_name)
-    pack = DbPackage.find_by_project_and_name(project_name, package_name)
+    prj = DbProject.get_by_name(project_name)
+    pack = nil
+    allowed = false
+
     if package_name == "_project" or package_name == "_pattern"
-#      if prj.nil? and pack.nil?
-#        render_error :status => 404, :errorcode => 'not_found',
-#          :message => "The given project #{project_name} does not exist"
-#        return
-#      end
-      if prj.nil?
-        render_error :status => 403, :errorcode => 'not_found',
-          :message => "The given project #{project_name} does not exist"
-        return
-      end
       allowed = permissions.project_change? prj
-    elsif params.has_key? :deleted and ["_history",].include?(file)
-      # ACL TODO: revisit
     else
-      if pack.nil? and request.get? and not prj_hidden
-        logger.debug " # 2 # "
-        # Check if this is a package on a remote OBS instance
-        answer = Suse::Backend.get(request.path)
-        if answer
-          logger.debug " # 3 # "
-          pass_to_backend
-          return
+      if request.get?
+        # a readable package, even on remote instance is enough here
+        begin
+          pack = DbPackage.get_by_project_and_name(project_name, package_name)
+        rescue DbPackage::UnknownObjectError
         end
+      else
+        # we need a local package here in any case for modifications
+        pack = DbPackage.get_by_project_and_name(project_name, package_name)
+        allowed = permissions.package_change? pack
       end
-      if prj and pack.nil? and request.get?
-        logger.debug " # 0 # "
-        # find package instance of linked local project
-        pack = prj.find_package(package_name)
-      end
-      logger.debug " # 1 # "
-      logger.debug "pack.nil" if pack.nil?
-      logger.debug "request.get" if request.get?
-      logger.debug "prj_remote" if prj_remote
-      if pack.nil? and package_name != "_project"
-        render_error :status => 403, :errorcode => 'not_found',
-          :message => "The given package #{package_name} does not exist in project #{project_name}"
-        return
-      end
-      allowed = permissions.package_change? pack
 
-      # ACL(file): access behaves like project not existing
-      raise DbPackage::ReadAccessError.new "" unless pack
+      unless params.has_key? :deleted and ["_history",].include?(file)
+        if pack.nil? and request.get?
+          # Check if this is a package on a remote OBS instance
+          answer = Suse::Backend.get(request.path)
+          if answer
+            pass_to_backend
+            return
+          end
+        end
 
-      # ACL(file): source access gives permisson denied
-      if pack.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pack)
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-        :message => "no read access to package #{package_name}, project #{project_name}"
-        return
       end
     end
 
@@ -983,96 +958,98 @@ class SourceController < ApplicationController
 
     # PUT /source/:project/:package/:file
     if request.put?
-      # ACL(file): lookup via :rev / :linkrev is prevented now by backend if $nosharedtrees is set
-      path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
-
-      if  allowed
-        # file validation where possible
-        if params[:file] == "_link"
-           validator = Suse::Validator.new( "link" )
-           validator.validate(request)
-        elsif params[:file] == "_aggregate"
-           validator = Suse::Validator.new( "aggregate" )
-           validator.validate(request)
-        elsif params[:package] == "_pattern"
-           validator = Suse::Validator.new( "pattern" )
-           validator.validate(request)
-        end
-
-        # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
-        # package here implicit to stay api compatible.
-        # FIXME3.0: to be revisited
-        if package_name == "_pattern" and pack.nil?
-          pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
-          prj.db_packages << pack
-        end
-
-        if params[:file] == "_link"
-          data = REXML::Document.new(request.raw_post.to_s)
-          data.elements.each("link") do |e|
-            tproject_name = e.attributes["project"]
-            tpackage_name = e.attributes["package"]
-            tproject_name = project_name if tproject_name.blank?
-            tpackage_name = package_name if tpackage_name.blank?
-            tprj = DbProject.find_by_name(tproject_name)
-            if tprj.nil?
-              # link to remote project ?
-              unless tprj = DbProject.find_remote_project(tproject_name)
-                render_error :status => 404, :errorcode => 'not_found',
-                :message => "The given project #{tproject_name} does not exist"
-                return
-              end
-            else
-              tpkg = tprj.find_package(tpackage_name)
-              if tpkg.nil?
-                # check if this is a package on a remote OBS instance
-                begin
-                  answer = Suse::Backend.get("/source/#{URI.escape tproject_name}/#{URI.escape tpackage_name}/_meta")
-                rescue
-                  render_error :status => 404, :errorcode => 'not_found',
-                  :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
-                  return
-                end
-              end
-              
-              # ACL(file): _link sourceaccess gives permisson denied
-              if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
-                render_error :status => 403, :errorcode => "source_access_no_permission",
-                :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
-                return
-              end
-
-              logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
-            end
-          end
-        end
-
-        pass_to_backend path
-        pack.update_timestamp
-        if package_name == "_product"
-          update_product_autopackages
-        end
-      else
+      unless allowed
         render_error :status => 403, :errorcode => 'put_file_no_permission',
           :message => "Insufficient permissions to store file in package #{package_name}, project #{project_name}"
+        return
       end
+
+      path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
+
+      # file validation where possible
+      if params[:file] == "_link"
+         validator = Suse::Validator.new( "link" )
+         validator.validate(request)
+      elsif params[:file] == "_aggregate"
+         validator = Suse::Validator.new( "aggregate" )
+         validator.validate(request)
+      elsif params[:package] == "_pattern"
+         validator = Suse::Validator.new( "pattern" )
+         validator.validate(request)
+      end
+
+      # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
+      # package here implicit to stay api compatible.
+      # FIXME3.0: to be revisited
+      if package_name == "_pattern" and pack.nil?
+        pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
+        prj.db_packages << pack
+      end
+
+      if params[:file] == "_link"
+        data = REXML::Document.new(request.raw_post.to_s)
+        data.elements.each("link") do |e|
+          tproject_name = e.attributes["project"]
+          tpackage_name = e.attributes["package"]
+          tproject_name = project_name if tproject_name.blank?
+          tpackage_name = package_name if tpackage_name.blank?
+          tprj = DbProject.find_by_name(tproject_name)
+          if tprj.nil?
+            # link to remote project ?
+            unless tprj = DbProject.find_remote_project(tproject_name)
+              render_error :status => 404, :errorcode => 'not_found',
+              :message => "The given project #{tproject_name} does not exist"
+              return
+            end
+          else
+            tpkg = tprj.find_package(tpackage_name)
+            if tpkg.nil?
+              # check if this is a package on a remote OBS instance
+              begin
+                answer = Suse::Backend.get("/source/#{URI.escape tproject_name}/#{URI.escape tpackage_name}/_meta")
+              rescue
+                render_error :status => 404, :errorcode => 'not_found',
+                :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
+                return
+              end
+            end
+            
+            # ACL(file): _link sourceaccess gives permisson denied
+            if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
+              render_error :status => 403, :errorcode => "source_access_no_permission",
+              :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
+              return
+            end
+
+            logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
+          end
+        end
+      end
+
+      pass_to_backend path
+      pack.update_timestamp
+
+      update_product_autopackages if package_name == "_product"
 
     # DELETE /source/:project/:package/:file
     elsif request.delete?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
 
-      if allowed
-        Suse::Backend.delete path
-        pack = DbPackage.find_by_project_and_name(project_name, package_name)
-        pack.update_timestamp
-        if package_name == "_product"
-          update_product_autopackages
-        end
-        render_ok
-      else
+      unless allowed
         render_error :status => 403, :errorcode => 'delete_file_no_permission',
           :message => "Insufficient permissions to delete file"
+        return
       end
+
+      Suse::Backend.delete path
+      unless package_name == "_pattern" and pack.nil?
+        # _pattern was not a real package in old times
+        pack.update_timestamp
+      end
+      if package_name == "_product"
+        update_product_autopackages
+      end
+      render_ok
     end
   end
 
@@ -1152,7 +1129,7 @@ class SourceController < ApplicationController
     end
   end
 
-  # POST /source?cmd=branch
+  # POST /source?cmd=branch (aka osc mbranch)
   def index_branch
     # set defaults
     unless params[:attribute]
@@ -1238,17 +1215,9 @@ class SourceController < ApplicationController
       end
     end
 
-    #ACL permission check of source packages
+    # check for source access permission
     @packages.each do |p|
-      # ACL(index_branch): source access gives permisson denied
-      if p[:package].disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(p[:package])
-        render_error :status => 403, :errorcode => "source_access_no_permission",
-          :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project}"
-        return
-      end
-
-      # ACL(index_branch): skip access protected packages
-      #@packages.delete(p) unless @http_user.can_access?(p[:package]) - we already don't list these
+      DbPackage.get_by_project_and_name( p[:package].db_project.name, p[:package].name )
     end
 
     unless @packages.length > 0
@@ -1258,8 +1227,7 @@ class SourceController < ApplicationController
     end
 
     #create branch project
-    tprj = DbProject.find_by_name params[:target_project]
-    if tprj.nil?
+    unless DbProject.exists_by_name params[:target_project]
        # permission check
        unless @http_user.can_create_project?(params[:target_project])
          render_error :status => 403, :errorcode => "create_project_no_permission",
@@ -1283,17 +1251,18 @@ class SourceController < ApplicationController
         ans = AttribNamespace.find_by_name "OBS"
         at = AttribType.find( :first, :joins => ans, :conditions=>{:name=>"RequestCloned"} )
 
+        tprj = DbProject.get_by_name params[:target_project]
         a = Attrib.new(:db_project => tprj, :attrib_type => at)
         a.values << AttribValue.new(:value => params[:request], :position => 1)
         a.save
       end
-    else
-      # ACL(index_branch): in case of access, project is really hidden and shown as non existing to users without access
-      if not @http_user.can_modify_project?(tprj) or (tprj.disabled_for?('access', nil, nil) and not @http_user.can_access?(tprj))
-        render_error :status => 403, :errorcode => "modify_project_no_permission",
-          :message => "no permission to modify project '#{params[:target_project]}' while executing branch project command"
-        return
-      end
+    end
+
+    tprj = DbProject.get_by_name params[:target_project]
+    unless @http_user.can_modify_project?(tprj)
+      render_error :status => 403, :errorcode => "modify_project_no_permission",
+        :message => "no permission to modify project '#{params[:target_project]}' while executing branch project command"
+      return
     end
 
     # create package branches
@@ -1316,12 +1285,14 @@ class SourceController < ApplicationController
       # check for update project
       if not params[:request] and a = p[:target_project].find_attribute(name_parts[0], name_parts[1]) and a.values[0]
         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p[:package].name )
+          # check permissions
+          DbPackage.get_by_project_and_name( a.values[0].value, p[:package].name )
           branch_target_project = pa.db_project.name
           branch_target_package = pa.name
         else
           # package exists not yet in update project, but it may have a project link ?
     	  uprj = DbProject.find_by_name(a.values[0].value)
-    	  if uprj and uprj.find_package( pac.name )
+    	  if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
           end
         end
@@ -1945,17 +1916,9 @@ class SourceController < ApplicationController
     valid_http_methods :post
 
     required_parameters :project, :flag, :status
-
     prj_name = params[:project]
+    prj = DbProject.get_by_name prj_name
 
-    prj = DbProject.find_by_name prj_name
-
-    # ACL(index_project_set_flag): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if prj.nil?
-      render_error :status => 404, :errorcode => "unknown_project",
-        :message => "Unknown project '#{prj_name}'"
-      return
-    end
 
     begin
       # first remove former flags of the same class
@@ -1991,13 +1954,7 @@ class SourceController < ApplicationController
 
     required_parameters :project, :package, :flag
     
-    pkg = DbPackage.find_by_project_and_name( params[:project], params[:package] )
-    if pkg.nil?
-      render_error :status => 404, :errorcode => "unknown_project",
-        :message => "Unknown project '#{prj_name}'"
-      return
-    end
-
+    pkg = DbPackage.get_by_project_and_name( params[:project], params[:package] )
     
     pkg.remove_flag(params[:flag], params[:repository], params[:arch])
     pkg.store
@@ -2011,14 +1968,7 @@ class SourceController < ApplicationController
 
     prj_name = params[:project]
 
-    prj = DbProject.find_by_name prj_name
-
-    # ACL(index_project_remove_flag): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if prj.nil?
-      render_error :status => 404, :errorcode => "unknown_project",
-        :message => "Unknown project '#{prj_name}'"
-      return
-    end
+    prj = DbProject.get_by_name prj_name
 
     prj.remove_flag(params[:flag], params[:repository], params[:arch])
     prj.store
