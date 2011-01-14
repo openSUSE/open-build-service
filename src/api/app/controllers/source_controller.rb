@@ -43,7 +43,6 @@ class SourceController < ApplicationController
       else
         dir = Project.find :all
         # list all projects (visible to user)
-        # ACL(projectlist): projects with flag 'access' are not listed
         render :text => dir.dump_xml, :content_type => "text/xml"
         return
       end
@@ -76,32 +75,21 @@ class SourceController < ApplicationController
     end
     project_name = params[:project]
     admin_user = @http_user.is_admin?
-    deleted = params.has_key? :deleted
-    pro = DbProject.find_by_name project_name
-    hidden = DbProject.is_hidden?(project_name)
-    if pro.nil? and DbProject.is_remote_project?(project_name, skip_access=true)
-      lpro, rpro = DbProject.find_remote_project(project_name, skip_access=true)
-      hidden = DbProject.is_hidden?(lpro.name) && !DbProject.check_access?(lpro)
-    end
-
-    # access checks
-    #--------------
-    if pro.nil? and hidden
-      # no access to hidden
-      raise DbProject::ReadAccessError.new ""
-    end
 
     # GET /source/:project
     #---------------------
     if request.get?
-      if deleted
+      if params.has_key? :deleted
+        # FIXME2.2: this would grants access to hidden projects
         pass_to_backend
       else
-        if pro
+        if DbProject.is_remote_project? project_name
+          pass_to_backend
+        else
+          # for access check
+          pro = DbProject.get_by_name project_name
           @dir = Package.find :all, :project => project_name
           render :text => @dir.dump_xml, :content_type => "text/xml"
-        else
-          pass_to_backend
         end
       end
       return
@@ -110,9 +98,10 @@ class SourceController < ApplicationController
     # DELETE /source/:project
     #------------------------
     elsif request.delete?
+      pro = DbProject.get_by_name project_name
 
       # checks
-      unless pro and @http_user.can_modify_project?(pro)
+      unless @http_user.can_modify_project?(pro)
         logger.debug "No permission to delete project #{project_name}"
         render_error :status => 403, :errorcode => 'delete_project_no_permission',
           :message => "Permission denied (delete project #{project_name})"
@@ -204,8 +193,10 @@ class SourceController < ApplicationController
         end
         return
       end
+
+      pro = DbProject.get_by_name project_name
       # command: showlinked, set_flag, remove_flag, ...?
-      if pro and (@http_user.can_modify_project?(pro) or command == "showlinked")
+      if command == "showlinked" or @http_user.can_modify_project?(pro)
         dispatch_command
       else
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
@@ -523,10 +514,10 @@ class SourceController < ApplicationController
     # valid post commands
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:package]
-      @attribute_container = DbPackage.find_by_project_and_name(params[:project], params[:package])
+      @attribute_container = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false)
     else
       # project
-      @attribute_container = DbProject.find_by_name(params[:project])
+      @attribute_container = DbProject.get_by_name(params[:project])
     end
     # is the attribute type defined at all ?
     if params[:attribute]
@@ -545,21 +536,6 @@ class SourceController < ApplicationController
       end
     end
 
-
-    # access checks
-    #--------------
-    # ACL(attribute_meta): access check - prj/pkg = nil
-    if params[:package]
-      unless @attribute_container
-        DbPackage::ReadAccessError.new ""
-        return
-      end
-    else
-      unless @attribute_container
-        DbProject::ReadAccessError.new ""
-        return
-      end
-    end
 
     # GET
     # /source/:project/_attribute/:attribute
@@ -683,30 +659,18 @@ class SourceController < ApplicationController
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     project_name = params[:project]
     params[:user] = @http_user.login
-    prj = DbProject.find_by_name(project_name)
-    prj_hidden = DbProject.is_hidden?(project_name)
-    prj_remote = DbProject.is_remote_project?(project_name)
-    @project = prj
-    # access checks
-    #--------------
-    return unless @http_user #extract_user
 
     # GET /source/:project/_meta
     #---------------------------
     if request.get?
-      # init
-      # checks
-      if prj.nil? and prj_hidden
-        raise DbProject::ReadAccessError.new ""
-      end
-      # exec
-      if prj
-        render :text => @project.to_axml(params[:view]), :content_type => 'text/xml'
-      elsif prj_remote
+      if DbProject.find_remote_project project_name
         # project from remote buildservice, get metadata from backend
         pass_to_backend
       else
-        raise DbProject::ReadAccessError.new ""
+        # access check
+        prj = DbProject.get_by_name(project_name)
+
+        render :text => prj.to_axml(params[:view]), :content_type => 'text/xml'
       end
       return
 
@@ -719,26 +683,49 @@ class SourceController < ApplicationController
       path += build_query_from_hash(params, [:user, :comment, :rev])
       allowed = false
       request_data = request.raw_post
-      p = Project.new(request_data, :name => project_name)
-      p_hidden = DbProject.is_hidden?(p.name)
 
-      # checks
-      if prj.nil? and prj_hidden
-          # no access to hidden (same as prj is new)
-          logger.debug "source_controller.rb: access denied to hidden project #{project_name}"
-          render_error :status => 403, :errorcode => 'create_project_no_permission',
-                       :message => "not allowed to create new project '#{project_name}'"
-          return
+      # permission check
+      p = Project.new(request_data, :name => project_name)
+      begin
+        prj = DbProject.get_by_name p.name
+      rescue DbProject::UnknownObjectError
+        prj = nil
       end
+
+      # remote url project must be edited by the admin
+      unless @http_user.is_admin?
+        if (p.has_element? :remoteurl or p.has_element? :remoteproject)
+          render_error :status => 403, :errorcode => "change_project_no_permission",
+            :message => "admin rights are required to change remoteurl or remoteproject"
+          return
+        end
+      end
+
       # Need permission
       logger.debug "Checking permission for the put"
       if prj
         # project exists, change it
         unless @http_user.can_modify_project? prj
-          logger.debug "user #{user.login} has no permission to modify project #{@project.name}"
+          logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
           return
+        end
+
+        # check for raising read access permissions, which can't get ensured atm
+        unless prj.disabled_for?('access', nil, nil)
+          if p.disabled_for? :access
+             render_error :status => 403, :errorcode => "change_project_protection_level",
+               :message => "admin rights are required to raise the source protection level of a project"
+             return
+          end
+        end
+        unless prj.disabled_for?('sourceaccess', nil, nil)
+          if p.disabled_for? :sourceaccess
+             render_error :status => 403, :errorcode => "change_project_protection_level",
+               :message => "admin rights are required to raise the protection level of a project"
+             return
+          end
         end
       else
         # project is new
@@ -749,112 +736,42 @@ class SourceController < ApplicationController
           return
         end
       end
-      # ACL(project_meta): the following code checks if the target project of a linked project exists or is ACL protected, skip remote projects
+
+      # the following code checks if the target project of a linked project exists or is not readable by user
       rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
-         # ACL(project_meta) TODO: check if project linking check cannot be circumvented
+        # permissions check
         tproject_name = e.attributes["project"]
-        tprj = DbProject.find_by_name(tproject_name)
-        tprj_hidden = DbProject.is_hidden?(tproject_name)
-        #
-        if tprj.nil? and tprj_hidden
-          raise DbProject::ReadAccessError.new ""
-        else
-          # ACL(project_meta): check that user does not link an unprotected project to a protected project
-          if prj
-            # existing
-            if (tprj_hidden and not prj_hidden)
-              render_error :status => 403, :errorcode => 'not_found',
-                           :message => "unknown_target"
-              return
-#            elsif prj.disabled_for?('sourceaccess', nil, nil) and tprj_hidden
-#              render_error :status => 403, :errorcode => 'not_found',
-#                           :message => "unknown_target"
-            end
-          elsif prj.nil?
-            # new
-            if p_hidden and not tprj_hidden
-              logger.debug "source_controller.rb: access denied to hidden project #{project_name}"
-              render_error :status => 403, :errorcode => 'create_project_no_permission',
-                           :message => "not allowed to create new project '#{project_name}'"
-              return
-            elsif not p_hidden and tprj_hidden
-              render_error :status => 403, :errorcode => 'not_found',
-                           :message => "unknown_target"
-              return
-            end
-          end
+        tprj = DbProject.get_by_name(tproject_name)
+
+        # The read access protection for own and linked project must be the same.
+        # ignore this for remote targets
+        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) and not p.disabled_for?('access')
+          render_error :status => 404, :errorcode => "project_read_access_failure" ,
+                       :message => "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
+          return
         end
+
         logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
       end
 
-      # ACL(project_meta): the following code checks if a repository path 
-      # is to protected project, skip remote projects
+      # Check used repo pathes for existens and read access permissions
       rdata.elements.each("project/repository/path") do |e|
-         # ACL(project_meta) TODO: check if repository check cannot be circumvented
+        # permissions check
         tproject_name = e.attributes["project"]
-        tprj = DbProject.find_by_name(tproject_name)
-        tprj_hidden = DbProject.is_hidden?(tproject_name)
-        tprj_remote = DbProject.is_remote_project?(tproject_name)
-
-        if tprj.nil? or tprj_hidden
-          render_error :status => 404, :errorcode => 'not_found',
-          :message => "The link target project #{tproject_name} does not exist"
+        tprj = DbProject.get_by_name(tproject_name)
+        if tprj.disabled_for?('access', nil, nil)
+          render_error :status => 404, :errorcode => "repository_access_failure" ,
+                       :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
           return
-        else
-#?old      # FIXME2.1: or to be discussed. This is currently a regression. It was wanted so far that it is still
-#?old      #           possible to build against a path, where binary download was not possible.
-#?old      # ACL(project_meta): project link to project with binarydownload gives permisson denied
-#?old      if tprj.disabled_for?('binarydownload', nil, nil) and not @http_user.can_download_binaries?(tprj)
-#?old        render_error :status => 403, :errorcode => "binary_download_no_permission",
-#?old        :message => "No permission for a repository path to project #{tproject_name}"
-#?old        return
-#?old      end
-          # ACL(project_meta): check that user does not link an unprotected project to a protected project
-          if prj
-            if (tprj_hidden and not prj_hidden) or
-                (tprj.disabled_for?('binarydownload', nil, nil) and not prj_hidden and prj.enabled_for?('binarydownload', nil, nil))
-              render_error :status => 403, :errorcode => "binary_download_no_permission" ,
-              :message => "repository path from a insufficiently protected project #{project_name} to a protected project #{tproject_name}"
-              return
-            end
-          elsif prj.nil? and (tprj_hidden or tprj.disabled_for?('binarydownload', nil, nil))
-            render_error :status => 403, :errorcode => "binary_download_no_permission" ,
-            :message => "cannot check permission of project #{project_name} which must preexist"
-            return
-          end
         end
+
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
-      if prj and not prj.disabled_for?('sourceaccess', nil, nil)
-        if p.disabled_for? :sourceaccess
-           render_error :status => 403, :errorcode => "change_project_protection_level",
-             :message => "admin rights are required to raise the source protection level of a project"
-           return
-        end
-      end
-      if prj and not prj_hidden
-        if p.disabled_for? :access
-           render_error :status => 403, :errorcode => "change_project_protection_level",
-             :message => "admin rights are required to raise the protection level of a project"
-           return
-        end
-      end
-      if p.name != project_name
-        render_error :status => 400, :errorcode => 'project_name_mismatch',
-          :message => "project name in xml data does not match resource path component"
-        return
-      end
 
-      if (p.has_element? :remoteurl or p.has_element? :remoteproject) and not @http_user.is_admin?
-        render_error :status => 403, :errorcode => "change_project_no_permission",
-          :message => "admin rights are required to change remoteurl or remoteproject"
-        return
-      end
       # exec
-      p.add_person(:userid => @http_user.login) unless @project
+      p.add_person(:userid => @http_user.login) unless prj
       p.save
-
       render_ok
 
     # bad request

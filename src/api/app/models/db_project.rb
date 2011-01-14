@@ -155,6 +155,8 @@ class DbProject < ActiveRecord::Base
     
     # returns an object of project(local or remote) or raises an exception
     # should be always used when a project is required
+    # The return value is either a DbProject for local project or an xml 
+    # array for a remote project
     def get_by_name(name)
       dbp = find :first, :conditions => ["name = BINARY ?", name]
       if dbp.nil?

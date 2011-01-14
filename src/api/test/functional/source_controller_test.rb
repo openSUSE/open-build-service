@@ -1131,7 +1131,8 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # undelete project again
     post "/source/kde4", :cmd => :undelete
-    assert_response 403
+    assert_response 404
+    assert_match(/project 'kde4' already exists/, @response.body)
   end
 
   def test_remove_project_and_verify_repositories
@@ -1617,9 +1618,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     original = @response.body
 
     post "/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build"
-#    assert_response 404
-    assert_response 403
-    assert_match(/no permission to execute command/, @response.body)
+    assert_response 404
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
