@@ -1363,6 +1363,26 @@ class SourceControllerTest < ActionController::IntegrationTest
     end
   end
 
+  def test_source_commands_tests
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
+    assert_response 403
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response 403
+
+    prepare_request_with_user "fred", "geröllheimer"
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    assert_response :success
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    assert_response :success
+  end
+
   def test_list_of_linking_instances
     prepare_request_with_user "tom", "thunder"
 

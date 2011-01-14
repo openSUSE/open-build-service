@@ -336,14 +336,10 @@ class SourceController < ApplicationController
       # ACL(package_index) : bail out on missing access rights
 #      unless ["_project", "_product", "_pattern"].include?(target_package_name) or tprj_remote or dpkg
       unless ["_project", "_product", "_pattern"].include?(target_package_name)
-#        if tprj_remote
-#          logger.debug " SC : tprj_remote true" if tprj_remote
-#        else
           if dpkg.nil? and deleted
             logger.debug " SC : dpkg.nil"
             raise DbPackage::ReadAccessError.new "" unless tpkg
           end
-#        end
       end
       # ACL(index_package): source access gives permisson denied
       if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
@@ -429,14 +425,22 @@ class SourceController < ApplicationController
         return
       end
       # do we create the target ?
-      unless package_creating_commands.include?(command)  # branch/copy
+      if package_creating_commands.include?(command)  # branch/copy
         # are we allowed to modify the existing target ?
-        unless @http_user.can_modify_project?(tprj)
-          # just read-only commands / rebuild ?
-          unless (read_commands.include?(command) or command == "rebuild")
+        if tpkg 
+          unless @http_user.can_modify_package?(tpkg)
             render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to execute command '#{command}'"
+              :message => "no permission to execute command '#{command}' for package #{tpkg.name}"
             return
+          end
+        else
+          # branch command may find out target project itself
+          if target_project_name
+            unless @http_user.can_create_project?(target_project_name) or @http_user.can_create_package_in?(target_project_name)
+              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+                :message => "no permission to execute command '#{command}' for project #{target_project_name}"
+              return
+            end
           end
         end
       end
