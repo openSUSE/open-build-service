@@ -110,19 +110,14 @@ class ReadPermissionTest < ActionController::IntegrationTest
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user user, "so_alone" #adrian users have all the same password
     get "/source/HiddenProject/_meta"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject/pack"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject/pack/_meta"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject/pack/my_file"
-#    STDERR.puts @response.body if debug
     assert_response response
   end
   protected :do_read_access_all_pathes
@@ -710,6 +705,50 @@ end
     delete "/source/home:adrian:ProtectedProject3"
     assert_response :success
     delete "/source/home:adrian:ProtectedProject4"
+    assert_response :success
+  end
+
+  def test_compare_error_messages
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
+    error_message = @response.body
+    get "/source/home:adrian:ProtectedProject/_meta"
+    assert_response 404
+    error_message2 = @response.body
+    get "/source/home:adrian:ProtectedProject/package/_meta"
+    assert_response 404
+    error_message3 = @response.body
+
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
+        '<project name="home:adrian:ProtectedProject"> <title/> <description/> <access><disable/></access> </project>'
+    assert_response :success
+    get "/source/home:adrian:ProtectedProject"
+    assert_response :success
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProtectedProject", :package => "package"),
+        '<package project="home:adrian:ProtectedProject" name="package"> <title/> <description/></package>'
+    assert_response :success
+    get "/source/home:adrian:ProtectedProject/package"
+    assert_response :success
+
+    # now we check if the project creation has changed the error message
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
+    assert_match error_message, @response.body
+    get "/source/home:adrian:ProtectedProject/_meta"
+    assert_response 404
+    assert_match error_message2, @response.body
+    get "/source/home:adrian:ProtectedProject/package/_meta"
+    assert_response 404
+    assert_match error_message3, @response.body
+
+    # cleanup
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/home:adrian:ProtectedProject"
     assert_response :success
   end
 
