@@ -123,12 +123,16 @@ class DbPackage < ActiveRecord::Base
     # in case you don't access sources or build logs in any way use 
     # use_source=false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
-    def get_by_project_and_name( project, package, use_source=true )
+    def get_by_project_and_name( project, package, use_source=true, follow_project_links=true )
       return nil if DbProject.is_remote_project?( project )
       prj = DbProject.get_by_name( project )
       raise UnknownObjectError, "#{project}/#{package}" unless prj
-      pkg = prj.find_package(package)
-      if pkg.nil?
+      if follow_project_links
+        pkg = prj.find_package(package)
+      else
+        pkg = prj.db_packages.find_by_name(package)
+      end
+      if pkg.nil? and follow_project_links
         # in case we link to a remote project we need to assume that the
         # backend may be able to find it even when we don't have the package local
         prj.linkedprojects.each do |l|
@@ -139,7 +143,7 @@ class DbPackage < ActiveRecord::Base
       raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
-      if use_source and pkg.disabled_for?('sourceaccess', nil, nil)
+      if use_source and (pkg.disabled_for?('sourceaccess', nil, nil) or pkg.db_project.disabled_for?('sourceaccess', nil, nil))
         if User.current.nil?
           raise ReadSourceAccessError, "#{project}/#{package}"
         else

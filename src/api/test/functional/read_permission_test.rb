@@ -189,7 +189,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # tom/thunder
     prepare_request_with_user "tom", "thunder"
     resp=403
-    match=/create_project_no_permission/
+    match=/cmd_execution_no_permission/
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
@@ -584,7 +584,7 @@ end
     # must not see package content
     prepare_request_with_user "tom", "thunder"
     get "/source/home:adrian:PublicProject/ProtectedPackage?deleted=1"
-    assert_response 404
+    assert_response 403
 # belongs to the regression above
 #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
 #    assert_response 403

@@ -1318,20 +1318,20 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match(/permission to execute command on project BaseDistro2:LinkedUpdateProject/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
-    assert_response 403
-    assert_match(/permission to execute command 'deleteuploadrev'/, @response.body)
+    assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
-    assert_response 403
-    assert_match(/permission to execute command 'commitfilelist'/, @response.body)
+    assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commit"
-    assert_response 403
-    assert_match(/permission to execute command 'commit'/, @response.body)
+    assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
-    assert_response 403
-    assert_match(/permission to execute command 'linktobranch'/, @response.body)
+    assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
-    assert_response 403
-    assert_match(/permission to execute command 'undelete'/, @response.body)
+    assert_response 404
+    assert_match(/package_exists/, @response.body)
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
@@ -1579,7 +1579,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # undelete package again
     post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
-    assert_response 403
+    assert_response 404
 
   end
 
@@ -1744,8 +1744,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 404
-#    assert_match(/Unknown package 'Nothere' in project 'home:Iggy'/, @response.body)
-    assert_match(/Unknown package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400
