@@ -897,36 +897,7 @@ class SourceController < ApplicationController
           tpackage_name = e.attributes["package"]
           tproject_name = project_name if tproject_name.blank?
           tpackage_name = package_name if tpackage_name.blank?
-          tprj = DbProject.find_by_name(tproject_name)
-          if tprj.nil?
-            # link to remote project ?
-            unless tprj = DbProject.find_remote_project(tproject_name)
-              render_error :status => 404, :errorcode => 'not_found',
-              :message => "The given project #{tproject_name} does not exist"
-              return
-            end
-          else
-            tpkg = tprj.find_package(tpackage_name)
-            if tpkg.nil?
-              # check if this is a package on a remote OBS instance
-              begin
-                answer = Suse::Backend.get("/source/#{URI.escape tproject_name}/#{URI.escape tpackage_name}/_meta")
-              rescue
-                render_error :status => 404, :errorcode => 'not_found',
-                :message => "The given package #{tpackage_name} does not exist in project #{tproject_name}"
-                return
-              end
-            end
-            
-            # ACL(file): _link sourceaccess gives permisson denied
-            if tpkg and tpkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(tpkg)
-              render_error :status => 403, :errorcode => "source_access_no_permission",
-              :message => "No permission to _link to package #{tpackage_name} at project #{tproject_name}"
-              return
-            end
-
-            logger.debug "_link checked against #{tpackage_name} in  #{tproject_name} package permission"
-          end
+          tpkg = DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
         end
       end
 
@@ -1062,22 +1033,10 @@ class SourceController < ApplicationController
         prj=nil
         pkg=nil
         if action.has_element? 'source'
-          if action.source.has_attribute? 'project'
-            prj = DbProject.find_by_name action.source.project
-            unless prj
-              render_error :status => 404, :errorcode => 'unknown_project',
-              :message => "Unknown source project #{action.source.project} in request #{params[:request]}"
-              return
-            end
-          end
           if action.source.has_attribute? 'package'
-            pkg = prj.db_packages.find_by_name action.source.package
-            unless pkg
-              render_error :status => 404, :errorcode => 'unknown_package',
-                :message => "Unknown source package #{action.source.package} in project #{action.source.project} in request #{params[:request]}"
-              return
-            end
-
+            pkg = DbPackage.get_by_project_and_name action.source.project, action.source.package
+          elsif action.source.has_attribute? 'project'
+            prj = DbProject.get_by_name action.source.project
           end
         end
 
@@ -1093,7 +1052,7 @@ class SourceController < ApplicationController
       end
       if params[:value]
         DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |pkg|
-          @packages.push({ :target_project => pkg.db_project, :package => pkg })
+          @packages.push({ :target_project => pkg.db_project, :package => pkg }) if @http_user.can_access? pkg.db_project
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
@@ -1108,7 +1067,7 @@ class SourceController < ApplicationController
             prj.linkedprojects.each do |lprj|
               if lprj.linked_db_project
                 if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                  @packages.push({ :target_project => prj, :package => pkg })
+                  @packages.push({ :target_project => prj, :package => pkg }) unless pkg.db_project.disabled_for? 'access', nil, nil and not @http_user.can_access? pkg.db_project
                 else
                   # FIXME: add support for branching from remote projects
                 end
@@ -1119,7 +1078,7 @@ class SourceController < ApplicationController
       end
     end
 
-    # check for source access permission
+    # check for source access permission. Hidden projects must not exist here anymore!
     @packages.each do |p|
       DbPackage.get_by_project_and_name( p[:package].db_project.name, p[:package].name )
     end

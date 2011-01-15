@@ -423,10 +423,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="HiddenProject" package="notexisting" />'
     assert_response 404
-    assert_match(/package 'notexisting' does not exist in project 'HiddenProject'/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # working local link from hidden package to hidden package
     put url, '<link project="HiddenProject" package="pack" />'
@@ -444,10 +444,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match(/package 'notexiting' does not exist in project 'kde4'/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # special user cannot link unprotected to protected package
     put url, '<link project="HiddenProject" package="target" />'
@@ -481,10 +481,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match(/package 'notexiting' does not exist in project 'kde4'/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # normal user cannot access hidden project
     put url, '<link project="HiddenProject" package="pack1" />'

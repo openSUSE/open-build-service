@@ -303,24 +303,10 @@ class User < ActiveRecord::Base
     return false
   end
 
-  def can_private_view?(parm)
-    return true if is_admin?
-    return true if has_global_permission? "private_view"
-    return true if has_local_permission?("private_view", parm)
-    return false
-  end
-
   def can_access?(parm)
     return true if is_admin?
     return true if has_global_permission? "access"
     return true if has_local_permission?("access", parm)
-    return false
-  end
-
-  def can_access_viewany?(parm)
-    return true if is_admin?
-    return true if can_private_view?(parm)
-    return true if can_access?(parm)
     return false
   end
 

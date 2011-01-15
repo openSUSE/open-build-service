@@ -1433,10 +1433,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match(%r{package 'notexiting' does not exist in project 'kde4'}, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # working local link
     put url, '<link project="BaseDistro" package="pack1" />'
