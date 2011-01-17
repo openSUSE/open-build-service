@@ -69,7 +69,7 @@ class Person < ActiveXML::Base
 
   def free_cache
     Collection.free_cache :id, :what => 'project', :predicate => %(person/@userid='#{login}')
-    Collection.find_cached :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+    Collection.free_cache :id, :what => 'package', :predicate => %(person/@userid='#{login}')
   end
 
   def involved_projects
