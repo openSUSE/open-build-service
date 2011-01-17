@@ -1,6 +1,6 @@
 ## Path:        Applications/OBS
 ## Description: define for which architectures the packages should get build
-## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparcv8|sparcv9|sparcv9v|sparc64|sparc64v|mips|mips64|mipsel|mips64el|armv4l|armv5el|armv6el|armv7el|armv8el|sh4)+)
+## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparcv8|sparcv9|sparcv9v|sparc64|sparc64v|mips|mips64|mipsel|mips64el|armv4l|armv5el|armv6el|armv7el|armv7hl|armv8el|sh4)+)
 ## Default:     "i586 x86_64"
 ## Config:      OBS
 #

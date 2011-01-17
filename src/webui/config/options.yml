@@ -23,7 +23,7 @@ exception_recipients: []
 # hide_private_options: true
 
 # List or architectures, which are visible by default in the webui
-visible_architectures: [ "i586", "x86_64", "ppc", "ppc64", "armv4l", "armv5el", "armv7el", "sh4", "sparcv9", "sparc64", "ia64", "s390", "s390x", "hppa" ]
+visible_architectures: [ "i586", "x86_64", "ppc", "ppc64", "armv4l", "armv5el", "armv7el", "armv7hl", "sh4", "sparcv9", "sparc64", "ia64", "s390", "s390x", "hppa" ]
 default_enabled_architectures: [ "i586", "x86_64" ]
 
 # make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite

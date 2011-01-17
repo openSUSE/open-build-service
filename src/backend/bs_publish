@@ -381,6 +381,7 @@ ARCH.armv4l  arm       armv4l noarch
 ARCH.armv5el arm armel armv4l armv5el armv5tel noarch
 ARCH.armv6el arm armel armv4l armv5el armv5tel armv6el armv6l armv6vl noarch
 ARCH.armv7el arm armel armv4l armv5el armv5tel armv6el armv6l armv6vl armv7el armv7l armv7vl noarch
+ARCH.armv7hl armhf armv7hl armv7nhl noarch
 ARCH.armv8el arm armel armv4l armv5el armv5tel armv6el armv6l armv6vl armv7el armv7l armv7vl armv8el armv8l armv8vl noarch
 ARCH.i686 i686 i586 i486 i386 noarch
 ARCH.i586 i586 i486 i386 noarch

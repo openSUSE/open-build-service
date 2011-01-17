@@ -94,6 +94,7 @@ our $relsync_pool = {
  "armv5el" => "armv5el",
  "armv6el" => "armv6el",
  "armv7el" => "armv7el",
+ "armv7hl" => "armv7hl",
  "armv8el" => "armv8el",
  "sparcv9" => "sparcv9",
  "sparc64" => "sparcv9",
