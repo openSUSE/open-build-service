@@ -86,50 +86,7 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
 
-    requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      # FIXME: we assume that the user is involved in all his subprojects (home:#{login}:...)
-      #        that should not be needed ... verify ...
-      iprojects = involved_projects.each.map {|x| x.name}.reject {|x| /^home:#{login}:/.match(x) }.sort
-      requests = Array.new
-      request_ids = Array.new
-
-      myrequests = Hash.new
-      unless iprojects.empty?
-        # find active requests where person is maintained in target project
-        predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
-        predicate = "#{predicate} or starts-with(action/target/@project, 'home:#{login}:')"
-        predicate = "(state/@name='new' or state/@name='review') and (#{predicate})"
-        collection = Collection.find :what => :request, :predicate => predicate
-        collection.each do |req| myrequests[Integer(req.value :id)] = req end
-        # find requests created by person and still active
-        collection = Collection.find :what => :request, :predicate => "(state/@name='new' or state/@name='review') and state/@who='#{login}'"
-        collection.each do |req| myrequests[Integer(req.value :id)] = req end
-        # find requests where person is reviewer
-        collection = Collection.find :what => :request, :predicate => "state/@name='review' and review[@by_user='#{login}' and @state='new']"
-        collection.each do |req| myrequests[Integer(req.value :id)] = req end
-        keys = myrequests.keys().sort {|x,y| y <=> x}
-        keys.each do |id| 
-          unless request_ids.include? id
-            requests << myrequests[id]
-            request_ids << id
-          end
-        end
-      end
-
-      # check for all open review tasks
-      collection = BsRequest.find_open_review_requests(login)
-      collection.each do |req| myrequests[Integer(req.value :id)] = req end
-      keys = myrequests.keys().sort {|x,y| y <=> x}
-      keys.each do |id| 
-        unless request_ids.include? id
-          requests << myrequests[id]
-          request_ids << id
-        end
-      end
-
-      requests
-    end
-    return requests
+    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) { BsRequest.list({:type => 'pending', :user => login}) }
   end
 
   def groups
