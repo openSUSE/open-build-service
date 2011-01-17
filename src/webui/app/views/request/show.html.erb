@@ -94,9 +94,11 @@
           <td><%= h[:name] %></td>
           <td><%= link_to(h[:who], :controller => :home, :user => h[:who]) %></td>
         </tr>
-        <tr>
-          <td colspan="3"><p><%= h[:comment] %></p></td>
-        </tr>
+        <% if h.has_key?(:comment) and not h[:comment].nil? %>
+          <tr>
+            <td colspan="3"><p><%= h[:comment] %></p></td>
+          </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
