@@ -13,6 +13,7 @@ class BsRequest < ActiveXML::Base
         when "submit" then
           option = ""
           option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+          opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
           opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
           reply = <<-EOF
             <request>
