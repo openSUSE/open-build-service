@@ -180,13 +180,16 @@ class BsRequest < ActiveXML::Base
         coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
         coll.each {|mp| maintained_projects += ["action/target/@project='#{mp.name}'"]}
         predicate += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
-        predicate += ")"
         # find request where user is maintainer in target package
-        #maintained_packages = Array.new
-        #coll = Collection.find_cached(:id, :what => 'package', :predicate => "person/@userid='#{opts[:user]}'")
-        #coll.each {|mp| maintained_packages += ["action/target/@package='#{mp.name}'"]}
-        #predicate += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-        #predicate += ")"
+        maintained_packages = Array.new
+        maintained_projects_hash = Hash.new
+        coll.each {|prj| maintained_projects_hash[prj.name] = true}
+        coll = Collection.find(:id, :what => 'package', :predicate => "person/@userid='#{opts[:user]}'")
+        coll.each do |mp|
+          maintained_packages += ["(action/target/@project='#{mp.project}' and action/target/@package='#{mp.name}')"] unless maintained_projects_hash.has_key?(mp.project.to_s)
+        end
+        predicate += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        predicate += ")"
       end
 
       return Collection.find_cached(:what => :request, :predicate => predicate).each
