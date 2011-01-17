@@ -68,9 +68,9 @@
     </div>
 
     <div>
-      <% unless @current_requests.blank? %>
-        <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
-            <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project %></p></div>
+      <% unless @requests.blank? %>
+        <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@requests.size, "is", "are") %>
+            <%= @requests.size %> open <%= link_to "request#{@requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project %></p></div>
       <% end %>
 
       <% if @nr_of_problem_packages > 0 %>

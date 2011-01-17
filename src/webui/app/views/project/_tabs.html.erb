@@ -17,9 +17,7 @@
     <% if @project.has_element?(:repository) -%>
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
-    <% if @project_has_requests %>
-      <%= tab "Requests", :controller => :project, :action => 'list_requests'%>
-    <% end -%>
+    <%= tab "Requests", :controller => :project, :action => 'list_requests' unless @requests.blank? %>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>

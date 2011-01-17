@@ -16,12 +16,7 @@ class ProjectController < ApplicationController
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png]
-
-  before_filter :load_current_requests, :only => [:delete, :view,
-    :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
-    :remove_person, :save_person, :add_person, :remove_target,
-    :show, :monitor, :edit_prjconf, :list_requests,
-    :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
+  before_filter :load_current_requests
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
@@ -189,7 +184,6 @@ class ProjectController < ApplicationController
     end
 
     linking_projects
-
     load_buildresult
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
@@ -477,9 +471,6 @@ class ProjectController < ApplicationController
   end
 
   def list_requests
-    @current_requests.each do |c|
-      logger.debug c.dump_xml
-    end
   end
 
   def save_new
@@ -1241,13 +1232,7 @@ class ProjectController < ApplicationController
   end
 
   def load_current_requests
-    predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{@project}'"
-    @current_requests = Array.new
-    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
-    coll.each_request do |req|
-      @current_requests << req
-    end
-    @project_has_requests = !@current_requests.blank?
+    @requests = BsRequest.list({:type => 'pending', :project => @project.name})
   end
 
 end
