@@ -15,9 +15,7 @@
     <%= tab 'Sources', :controller => :package, :action => :files %>
     <%= tab 'Repositories', :controller => :package, :action => :repositories %>
     <%= tab 'Revisions', :controller => :package, :action => :source_history %>
-    <% if @package_has_requests %>
-      <%= tab "Requests", :controller => :package, :action => 'list_requests'%>
-    <% end -%>
+    <%= tab "Requests", :controller => :package, :action => 'list_requests' unless @requests.blank? %>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>

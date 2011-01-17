@@ -1145,13 +1145,7 @@ class PackageController < ApplicationController
   end
 
   def load_current_requests
-    predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{@project}' and action/target/@package='#{@package}'"
-    @current_requests = Array.new
-    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
-    coll.each_request do |req|
-      @current_requests << req
-    end
-    @package_has_requests = !@current_requests.blank?
+    @requests = BsRequest.list({:type => 'pending', :project => @project.name, :package => @package.name})
   end
 
 end
