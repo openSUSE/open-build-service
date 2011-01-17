@@ -12,8 +12,7 @@ class PackageController < ApplicationController
     :set_url, :set_url_form, :update_build_log]
   before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
     :save_modified_file, :save_new, :save_new_link, :update_build_log]
-
-  before_filter :load_requests
+  before_filter :load_requests, :except => [:add_person, :edit_file, :rawlog, :save_new]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 

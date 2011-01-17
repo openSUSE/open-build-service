@@ -16,9 +16,13 @@ class ProjectController < ApplicationController
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png]
-  before_filter :load_requests
-  before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
-  before_filter :require_meta, :only => [:edit_meta, :meta ]
+  before_filter :load_requests, :only => [:delete, :view,
+    :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
+    :remove_person, :save_person, :add_person, :remove_target,
+    :show, :monitor, :edit_prjconf, :list_requests,
+    :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
+  before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
+  before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
 
   def index
