@@ -175,12 +175,18 @@ class BsRequest < ActiveXML::Base
         predicate += " and (state/@who='#{opts[:user]}'"
         # requests where the user is reviewer or own requests that are in review by someone else
         predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:type] == "pending" or opts[:type] == "review"
-        # find requests where person is maintainer in target project
-        pending_projects = Array.new
-        ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
-        ip_coll.each {|ip| pending_projects += ["action/target/@project='#{ip.name}'"]}
-        predicate += " or (" + pending_projects.join(" or ") + ")" unless pending_projects.empty?
+        # find requests where user is maintainer in target project
+        maintained_projects = Array.new
+        coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
+        coll.each {|mp| maintained_projects += ["action/target/@project='#{mp.name}'"]}
+        predicate += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
         predicate += ")"
+        # find request where user is maintainer in target package
+        #maintained_packages = Array.new
+        #coll = Collection.find_cached(:id, :what => 'package', :predicate => "person/@userid='#{opts[:user]}'")
+        #coll.each {|mp| maintained_packages += ["action/target/@package='#{mp.name}'"]}
+        #predicate += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        #predicate += ")"
       end
 
       return Collection.find_cached(:what => :request, :predicate => predicate).each
