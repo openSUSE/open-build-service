@@ -183,10 +183,7 @@ class BsRequest < ActiveXML::Base
         predicate += ")"
       end
 
-      logger.debug "PREDICATE: " + predicate
-      requests = Collection.find_cached :what => :request, :predicate => predicate
-      return [] if requests.each.blank? # same behavior as Person#involved_requests
-      return requests
+      return Collection.find_cached(:what => :request, :predicate => predicate).each
     end
   end
 
