@@ -173,8 +173,8 @@ class BsRequest < ActiveXML::Base
       elsif opts[:user] # should be set in almost all cases
         # user's own submitted requests
         predicate += " and (state/@who='#{opts[:user]}'"
-        # requests where the user is reviewer
-        predicate += " or review[@by_user='#{opts[:user]}' and @state='new']" if opts[:type] == "pending" or opts[:type] == "review"
+        # requests where the user is reviewer or own requests that are in review by someone else
+        predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:type] == "pending" or opts[:type] == "review"
         # find requests where person is maintainer in target project
         pending_projects = Array.new
         ip_coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
