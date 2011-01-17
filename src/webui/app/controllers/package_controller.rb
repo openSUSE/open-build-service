@@ -13,7 +13,7 @@ class PackageController < ApplicationController
   before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
     :save_modified_file, :save_new, :save_new_link, :update_build_log]
 
-  before_filter :load_current_requests
+  before_filter :load_requests
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
@@ -1144,7 +1144,7 @@ class PackageController < ApplicationController
     end
   end
 
-  def load_current_requests
+  def load_requests
     @requests = BsRequest.list({:type => 'pending', :project => @project.name, :package => @package.name})
   end
 
