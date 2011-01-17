@@ -1829,6 +1829,13 @@ sub getprojquotapackage {
 
 sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
+  local *oldbsrpc = *BSRPC::rpc;
+  local *BSRPC::rpc;
+  if ($cgi->{'noremote'}) {
+    *BSRPC::rpc = sub {die("500 remote error: noremote option\n");};
+  } else {
+    *BSRPC::rpc = *oldbsrpc;
+  }
   $arch ||= 'noarch';
   $projids = [ findprojects() ] unless $projids;
   if ($BSConfig::limit_projects && $BSConfig::limit_projects->{$arch}) {
@@ -1840,16 +1847,56 @@ sub getprojpack {
   $packids = { map {$_ => 1} @$packids } if $packids;
   my $bconf = Build::read_config($arch);
 
-  my %remotemap;
-  my $withremotemap = $cgi->{'withremotemap'};
+  my $remotemap = $cgi->{'withremotemap'} ? {} : undef;
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
-    if ($withremotemap && !exists($remotemap{$projid})) {
-      $remotemap{$projid} = remoteprojid($projid);
-    }
     my $proj = readproj($projid, 1);
+    if ($remotemap && (!$proj || $proj->{'remoteurl'}) && !exists($remotemap->{$projid})) {
+      my $r = remoteprojid($projid);
+      $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
+    }
     next unless $proj;
+
+    my %expandedrepos;
+
+    if ($cgi->{'withrepos'}) {
+      if ($repoids) {
+	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
+      } else {
+        $jinfo->{'repository'} = $proj->{'repository'} || [];
+      }
+      if ($cgi->{'expandedrepos'}) {
+	$jinfo->{'repository'} = Storable::dclone($jinfo->{'repository'});
+	for my $repo (@{$jinfo->{'repository'}}) {
+	  my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap);
+          $expandedrepos{"$projid/$repo->{'name'}"} = [ @prps ];
+	  for my $prp (@prps) {
+	    my @s = split('/', $prp, 2);
+	    $prp = {'project' => $s[0], 'repository' => $s[1]};
+	  }
+	  $repo->{'path'} = \@prps;
+	}
+      } elsif ($remotemap) {
+	for my $repo (@{$jinfo->{'repository'}}) {
+	  eval {
+	    my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap);
+            $expandedrepos{"$projid/$repo->{'name'}"} = [ @prps ];
+	  };
+	  $expandedrepos{"$projid/$repo->{'name'}"} = $@ if $@;
+	}
+      }
+    }
+
+    if ($remotemap) {
+      for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+        my $lproj = remoteprojid($lprojid);
+	eval {
+	  fetchremoteproj($lproj, $lprojid, $remotemap) if $lproj;
+	};
+      }
+    }
+
     if ($cgi->{'withconfig'}) {
       my $config = readstr("$projectsdir/$projid.conf", 1);
       if ($config) {
@@ -1913,26 +1960,6 @@ sub getprojpack {
       $quota_exceeded = 1 if defined($pquota) && @packages > $pquota;
     }
 
-    if ($cgi->{'withrepos'}) {
-      if ($repoids) {
-	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
-      } else {
-        $jinfo->{'repository'} = $proj->{'repository'} || [];
-      }
-      if ($cgi->{'expandedrepos'}) {
-	for my $repo (@{$jinfo->{'repository'}}) {
-	  my @prps = expandsearchpath($projid, $repo->{'name'});
-	  for my $prp (@prps) {
-	    my @s = split('/', $prp, 2);
-	    if ($withremotemap && !exists($remotemap{$s[0]})) {
-	      $remotemap{$s[0]} = remoteprojid($s[0]);
-	    }
-	    $prp = {'project' => $s[0], 'repository' => $s[1]};
-	  }
-	  $repo->{'path'} = \@prps;
-	}
-      }
-    }
     if (!$cgi->{'ignoredisable'} && !grep {!$_->{'status'} || $_->{'status'} ne 'disabled'} @{$proj->{'repository'} || []}) {
       # either no repositories or all disabled. No need to check packages
       @packages = ();
@@ -2087,10 +2114,20 @@ sub getprojpack {
 	      next;
 	    }
             if (!$bconfs{$repoid}) {
-	      print "reading config for $projid/$repoid $arch\n";
+	      print "calculating config for $projid/$repoid $arch\n";
+	      my $path = $expandedrepos{"$projid/$repoid"};
+	      if (!$path) {
+	        eval {
+		  my @path = expandsearchpath($projid, $repoid, $remotemap);
+		  $expandedrepos{"$projid/$repoid"} = \@path;
+		};
+		$expandedrepos{"$projid/$repoid"} = $@ if $@;
+		$path = $expandedrepos{"$projid/$repoid"};
+	      }
 	      my $c;
 	      eval {
-	        ($c) = getconfig($cgi, $projid, $repoid);
+		die($path) unless ref $path;
+		$c = concatconfigs($projid, $repoid, $remotemap, @$path);
 	      };
 	      if ($@) {
 	        my $err = $@;
@@ -2100,7 +2137,7 @@ sub getprojpack {
 	      }
 	      $c = [ split("\n", $c) ];
 	      $bconfs{$repoid} = Build::read_config($arch, $c);
-            };
+            }
 	    my $conf = $bconfs{$repoid};
 	    my $type = $conf->{'type'};
 	    if (!$type || $type eq 'UNDEFINED') {
@@ -2151,6 +2188,11 @@ sub getprojpack {
 	      for ('imagetype', 'path', 'extrasource') {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
+	      if ($remotemap && $rinfo->{'path'} && !$repo->{'path'}) {
+		eval {
+		  concatconfigs($projid, $repoid, $remotemap, @{$rinfo->{'path'}});
+		};
+	      }
 	    } else {
 	      $rinfo->{'error'} = "can not parse package name from $file";
 	      $rinfo->{'error'} .= " because: ".$d->{'error'} if $d->{'error'};
@@ -2164,10 +2206,15 @@ sub getprojpack {
     push @res, $jinfo;
   }
   my $ret = {'project' => \@res};
-  if ($withremotemap && %remotemap) {
-    for (sort keys %remotemap) {
-      next unless $remotemap{$_};
-      my $r = {'project' => $_, 'remoteurl' => $remotemap{$_}->{'remoteurl'}, 'remoteproject' => $remotemap{$_}->{'remoteproject'}};
+  #print Dumper($remotemap);
+  if ($remotemap && %$remotemap) {
+    for my $p (sort keys %$remotemap) {
+      next unless $remotemap->{$p};
+      my $r = {'project' => $p};
+      for (qw{remoteurl remoteproject remoteroot root config repository error proto}) {
+        $r->{$_} = $remotemap->{$p}->{$_} if defined($remotemap->{$p}->{$_});
+      }
+      $r->{'error'} =~ s/\n$// if $r->{'error'};
       push @{$ret->{'remotemap'}}, $r;
     }
   }
@@ -2678,17 +2725,37 @@ sub maptoremote {
 }
 
 sub fetchremoteproj {
-  my ($proj, $projid) = @_;
+  my ($proj, $projid, $remotemap) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
+  my $rproj;
+  my $c;
+  if ($remotemap) {
+    $rproj = $remotemap->{$projid};
+    if ($rproj) {
+      die($rproj->{'error'}) if $rproj->{'error'};
+      return $rproj unless $rproj->{'proto'};
+      $c = $rproj->{'config'};	# save old config
+      undef $rproj;
+    }
+  }
   print "fetching remote project data for $projid\n";
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
     'timeout' => 60,
     'proxy' => $proxy,
   };
-  my $rproj = BSRPC::rpc($param, $BSXML::proj);
-  return undef unless $rproj;
+  eval {
+    $rproj = BSRPC::rpc($param, $BSXML::proj);
+  };
+  if ($@) {
+    if ($remotemap) {
+      $rproj = {%$proj, 'error' => $@, 'proto' => 1};
+      $rproj->{'config'} = $c if defined $c;
+      $remotemap->{$projid} = $rproj;
+    }
+    die($@);
+  }
   for (qw{name root remoteroot remoteurl remoteproject}) {
     $rproj->{$_} = $proj->{$_};
   }
@@ -2700,20 +2767,39 @@ sub fetchremoteproj {
   for my $link (@{$rproj->{'link'} || []}) {
     $link->{'project'} = maptoremote($proj, $link->{'project'});
   }
+  $remotemap->{$projid} = $rproj if $remotemap;
   return $rproj;
 }
 
 sub fetchremoteconfig {
-  my ($proj, $projid) = @_;
+  my ($proj, $projid, $remotemap) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
+  if ($remotemap) {
+    my $rproj = $remotemap->{$projid};
+    if ($rproj) {
+      die($rproj->{'error'}) if $rproj->{'error'};
+      return $rproj->{'config'} if defined $rproj->{'config'};
+    } else {
+      $remotemap->{$projid} = {%$proj, 'proto' => 1};
+    }
+  }
   print "fetching remote project config for $projid\n";
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
     'timeout' => 60,
     'proxy' => $proxy,
   };
-  return BSRPC::rpc($param, undef);
+  my $c;
+  eval {
+    $c = BSRPC::rpc($param, undef);
+  };
+  if ($@) {
+    $remotemap->{$projid}->{'error'} = $@ if $remotemap;
+    die($@);
+  }
+  $remotemap->{$projid}->{'config'} = $c if $remotemap;
+  return $c;
 }
 
 sub remote_getrev {
@@ -2815,7 +2901,7 @@ sub remote_getrev {
 }
 
 sub expandsearchpath {
-  my ($projid, $repoid) = @_;
+  my ($projid, $repoid, $remotemap) = @_;
   my %done;
   my @ret;
   my @path = {project => $projid, repository => $repoid};
@@ -2829,9 +2915,13 @@ sub expandsearchpath {
       my ($pid, $tid) = ($t->{'project'}, $t->{'repository'});
       my $proj = readproj($pid, 1);
       if (!$proj || $proj->{'remoteurl'}) {
-        $proj = remoteprojid($pid);
-        $proj = fetchremoteproj($proj, $pid);
-        die("404 project '$pid' does not exist\n") unless $proj;
+	undef $proj;
+	$proj = $remotemap->{$pid} if $remotemap && $remotemap->{$pid};
+	if (!$proj || $proj->{'proto'}) {
+          $proj = remoteprojid($pid);
+          $proj = fetchremoteproj($proj, $pid, $remotemap);
+          die("404 project '$pid' does not exist\n") unless $proj;
+        }
       }
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
@@ -2841,14 +2931,9 @@ sub expandsearchpath {
   return @ret;
 }
 
-sub getconfig {
-  my ($cgi, $projid, $repoid) = @_;
-  my @path;
-  if ($cgi->{'path'}) {
-    @path = @{$cgi->{'path'}};
-  } else {
-    @path = expandsearchpath($projid, $repoid);
-  }
+sub concatconfigs {
+  my ($projid, $repoid, $remotemap, @path) = @_;
+
   my $config = "%define _project $projid\n";
   my $macros = '';
 
@@ -2884,7 +2969,7 @@ sub getconfig {
       $c = readstr("$projectsdir/$p.conf");
     } elsif (!-e "$projectsdir/$p.xml") {
       my $proj = remoteprojid($p);
-      $c = fetchremoteconfig($proj, $p);
+      $c = fetchremoteconfig($proj, $p, $remotemap);
     }
     next unless defined $c;
     $config .= "\n### from $p\n";
@@ -2912,6 +2997,18 @@ sub getconfig {
     }
   }
   $config .= "\nMacros:\n$macros" if $macros ne '';
+  return $config;
+}
+
+sub getbuildconfig {
+  my ($cgi, $projid, $repoid) = @_;
+  my @path;
+  if ($cgi->{'path'}) {
+    @path = @{$cgi->{'path'}};
+  } else {
+    @path = expandsearchpath($projid, $repoid);
+  }
+  my $config = concatconfigs($projid, $repoid, undef, @path);
   return ($config, 'Content-Type: text/plain');
 }
 
@@ -5461,13 +5558,13 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,
-  '/getconfig $project $repository path:prp*' => \&getconfig,
+  '/getconfig $project $repository path:prp*' => \&getbuildconfig,
 
   '/getsignkey $project withpubkey:bool?' => \&getsignkey,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
@@ -5501,7 +5598,7 @@ my $dispatches = [
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
-  '/build/$project/$repository/_buildconfig path:prp*' => \&getconfig,
+  '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
