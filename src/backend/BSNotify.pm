@@ -79,11 +79,45 @@ sub requestParams( $$ )
   }
 
   for my $a (@{$actions || []}) {
-    # FIXME: how to handle multiple actions in one request here ?
-    # right now the last one just wins ....
-    $reqinfo{'type'} = $a->{'type'};
-    if( $a->{'type'} eq 'submit' && $a->{'source'} &&
-        $a->{'target'}) {
+    if ($BSConfig::multiaction_notify_support) {
+      # Use a nested data structure to support multiple actions in one request
+      my %action ;
+      $action{'type'} = $a->{'type'};
+      if( $a->{'type'} eq 'submit' && $a->{'source'} &&
+	  $a->{'target'}) {
+        $action{'sourceproject'}  = $a->{'source'}->{'project'};
+        $action{'sourcepackage'}  = $a->{'source'}->{'package'};
+        $action{'sourcerevision'} = $a->{'source'}->{'rev'};
+        $action{'targetproject'}  = $a->{'target'}->{'project'};
+        $action{'targetpackage'}  = $a->{'target'}->{'package'};
+        $action{'deleteproject'}  = undef;
+        $action{'deletepackage'}  = undef;
+      }elsif( $a->{'type'} eq 'change_devel' && $a->{'source'} &&
+	      $a->{'target'}) {
+        $action{'sourceproject'}  = $a->{'source'}->{'project'};
+        $action{'sourcepackage'}  = $a->{'source'}->{'package'};
+        $action{'targetproject'}  = $a->{'target'}->{'project'};
+        $action{'targetpackage'}  = ($a->{'target'}->{'package'} || $a->{'source'}->{'package'});
+        $action{'deleteproject'}  = undef;
+        $action{'deletepackage'}  = undef;
+        $action{'sourcerevision'} = undef;
+      }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
+        $action{'deleteproject'}  = $a->{'target'}->{'project'};
+        $action{'deletepackage'}  = $a->{'target'}->{'package'};
+        $action{'sourceproject'}  = undef;
+        $action{'sourcepackage'}  = undef;
+        $action{'targetproject'}  = undef;
+        $action{'targetpackage'}  = undef;
+        $action{'sourcerevision'} = undef;
+      }
+      push @{$reqinfo{'actions'}}, \%action;
+    } else {
+      # This is the old code that doesn't handle multiple actions in one request.
+      # The last one just wins ....
+      # Needed until Hermes supports $reqinfo{'actions'}
+      $reqinfo{'type'} = $a->{'type'};
+      if( $a->{'type'} eq 'submit' && $a->{'source'} &&
+	  $a->{'target'}) {
         $reqinfo{'sourceproject'}  = $a->{'source'}->{'project'};
         $reqinfo{'sourcepackage'}  = $a->{'source'}->{'package'};
         $reqinfo{'sourcerevision'} = $a->{'source'}->{'rev'};
@@ -91,8 +125,8 @@ sub requestParams( $$ )
         $reqinfo{'targetpackage'}  = $a->{'target'}->{'package'};
         $reqinfo{'deleteproject'}  = undef;
         $reqinfo{'deletepackage'}  = undef;
-    }elsif( $a->{'type'} eq 'change_devel' && $a->{'source'} &&
-            $a->{'target'}) {
+      }elsif( $a->{'type'} eq 'change_devel' && $a->{'source'} &&
+	      $a->{'target'}) {
         $reqinfo{'sourceproject'}  = $a->{'source'}->{'project'};
         $reqinfo{'sourcepackage'}  = $a->{'source'}->{'package'};
         $reqinfo{'targetproject'}  = $a->{'target'}->{'project'};
@@ -100,7 +134,7 @@ sub requestParams( $$ )
         $reqinfo{'deleteproject'}  = undef;
         $reqinfo{'deletepackage'}  = undef;
         $reqinfo{'sourcerevision'} = undef;
-    }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
+      }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
         $reqinfo{'deleteproject'}  = $a->{'target'}->{'project'};
         $reqinfo{'deletepackage'}  = $a->{'target'}->{'package'};
         $reqinfo{'sourceproject'}  = undef;
@@ -108,6 +142,7 @@ sub requestParams( $$ )
         $reqinfo{'targetproject'}  = undef;
         $reqinfo{'targetpackage'}  = undef;
         $reqinfo{'sourcerevision'} = undef;
+      }
     }
   }
   if( $req->{'oldstate'} ) {
