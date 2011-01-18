@@ -224,7 +224,7 @@ class SourceController < ApplicationController
     # valid post commands
     valid_commands=['diff', 'branch', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
                     'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
-                    'createSpecFileTemplate', 'runservice', 'deleteuploadrev', 'linktobranch']
+                    'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch']
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['diff', 'linkdiff', 'showlinked']
     source_untouched_commands = ['diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag']
