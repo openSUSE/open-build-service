@@ -171,14 +171,9 @@ module ApplicationHelper
     diff = Integer(diff/24) # now days
     return diff.to_s + (diff == 1 ? " day ago" : " days ago") if diff < 14
     diff_w = Integer(diff/7) # now weeks
-    return diff_w.to_s + (diff_w == 1 ? " week ago" : " weeks ago") if diff < 50
+    return diff_w.to_s + (diff_w == 1 ? " week ago" : " weeks ago") if diff < 63
     diff_m = Integer(diff/30.5) # roughly months
     return diff_m.to_s + " months ago"
-  end
-
-  def tlink_to(text, length, *url_opts)
-    out = "<span title='#{text}'>" + link_to( truncate( h(text), :length => length), *url_opts) + "</span>"
-    return out.html_safe
   end
 
   def package_exists?(project, package)
@@ -186,32 +181,6 @@ module ApplicationHelper
       return true
     else
       return false
-    end
-  end
- 
-  def package_link(project, package, opts = {})
-    opts = { :hide_package => false, :hide_project => false, :length => 1000 }.merge(opts)
-    if package_exists? project, package
-      out = link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
-      if opts[:hide_package]
-        out += tlink_to(project, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
-      elsif opts[:hide_project]
-        out += tlink_to(package, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
-      else
-        out += tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
-        out += " / "
-        out += tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, :action => "show", :project => project, :package => package)
-      end
-    else
-      if opts[:hide_package]
-        out = "<span title='#{project}'>" + truncate(project, :length => opts[:length]) + "</span>"
-      elsif opts[:hide_project]
-        out = "<span title='#{package}'>" + truncate(package, :length => opts[:length]) + "</span>"
-      else
-        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project +
-              " / " + "<span title='#{package}'>" + truncate(package, :length => (opts[:length] - 3) / 2) + "</span>"
-      end
-      out.html_safe
     end
   end
 
@@ -426,6 +395,15 @@ module ApplicationHelper
       end
     end
     return shortened_text
+  end
+
+  def elide_two(text1, text2, overall_length = 40, mode = :middle)
+    half_length = overall_length / 2
+    text1_free = half_length - text1.length
+    text1_free = 0 if text1_free < 0
+    text2_free = half_length - text2.length
+    text2_free = 0 if text2_free < 0
+    return [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
 
 end

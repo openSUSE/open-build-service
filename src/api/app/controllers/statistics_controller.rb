@@ -153,12 +153,8 @@ class StatisticsController < ApplicationController
     @project = params[:project]
     @package = params[:package]
 
-    object = DbProject.find_by_name(@project)
-    raise DbProject::PrjAccessError.new "" unless object
-    if @package
-      object = object.find_package(@package)
-      raise DbPackage::PkgAccessError.new "" unless object
-    end
+    object = DbProject.get_by_name(@project)
+    object = DbPackage.get_by_project_and_name(@project, @package, use_source=false, follow_project_links=false) if @package
 
     if request.get?
 
@@ -205,7 +201,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 30.minutes
 
-    # ACL(download_counter) TODO: this call is not instrumented
+    # FIXME2.2: ACL(download_counter) TODO: this call is not instrumented
 
     # initialize @stats
     @stats = []
@@ -315,8 +311,6 @@ class StatisticsController < ApplicationController
     #breakpoint "redirect problem"
     # check permissions
 
-    # ACL(redirect_stats) TODO: check if this needs instrumentation
-
     unless permissions.set_download_counters
       render_error :status => 403, :errorcode => "permission denied",
         :message => "download counters cannot be set, insufficient permissions"
@@ -381,6 +375,8 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 30.minutes
 
+    #FIXME2.2: not done
+
     @type = params[:type] or @type = 'packages'
 
     if @type == 'projects'
@@ -442,13 +438,8 @@ class StatisticsController < ApplicationController
   end
 
   def activity
-    @project = DbProject.find_by_name(params[:project])
-    raise DbProject::PrjAccessError.new "" unless @project
-
-    if @package
-      @package = object.find_package(params[:package])
-      raise DbPackage::PkgAccessError.new "" unless @package
-    end
+    @project = DbProject.get_by_name(params[:project])
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false, follow_project_links=false) if params[:package]
   end
 
 
@@ -472,13 +463,13 @@ class StatisticsController < ApplicationController
     list = []
     projects.each do |project|
       prj = DbProject.find_by_name project.name
-      # ACL(latest_added): dont put protected projects to the list
+      # read access check: dont put protected projects to the list
       if prj and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
         list << project
       end
     end
     packages.each do |package|
-      # ACL(latest_added): dont put protected packages to the list
+      # read access check: dont put protected packages to the list
       pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
       if pkg and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
         list << package
@@ -492,38 +483,17 @@ class StatisticsController < ApplicationController
 
   def added_timestamp
 
-    prj = DbProject.find_by_name(params[:project])
-    return @project=nil unless prj
-    pkg = prj.find_package(params[:package]) if prj
-    return @package=nil unless pkg
+    @project = DbProject.get_by_name(params[:project])
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false, follow_project_links=true)
 
-    @project = DbProject.find_by_name(params[:project])
-
-#    @project = DbProject.find_by_name( params[:project] )
-#    pkg = @project.find_package(params[:package]) if @project
-
-    # ACL(added_timestamp): in case of access, package is really hidden and shown as non existing to users without access
-    if pkg and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
-    # ACL(added_timestamp): protect hidden projects with "access"
-    if @project and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
-      render_error :message => "Unknown project '#{params[:project]}'",
-      :status => 404, :errorcode => "project_not_found"
-      return
-    end
-#    @package = DbPackage.find( :first, :conditions =>
-#      [ 'name=? AND db_project_id=?', params[:package], @project.id ]
-#    ) if @project
-     @package = DbPackage.find_by_project_and_name(@project.name, params[:package]) if @project
+    # is it used at all ?
   end
 
 
   def latest_updated
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 5.minutes
+
 
     # FIXME: calculate the number of hidden projects instead of using 4xlimit
     packages = []
@@ -541,16 +511,13 @@ class StatisticsController < ApplicationController
     projects.each do |project|
       prj = DbProject.find_by_name project.name
       # ACL(latest_updated): dont put protected projects to the list
+# FIXME2.2: this makes hidden projects visible. This is currently commented out because it would kill the performance.
       if prj # and (prj.enabled_for?('access', nil, nil) or @http_user.can_access?(prj))
         list << project
       end
     end
     packages.each do |package|
-      # ACL(latest_updated): dont put protected packages to the list
-      pkg = DbPackage.find_by_project_and_name(package.project_name, package.name)
-      if pkg # and (pkg.enabled_for?('access', nil, nil) or @http_user.can_access?(pkg))
-        list << package
-      end
+      list << package
     end
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
@@ -560,33 +527,8 @@ class StatisticsController < ApplicationController
 
   def updated_timestamp
 
-
-    @project = DbProject.find_by_name(params[:project])
-    return unless DbProject.check_access?(@project)
-    pkg = @project.find_package(params[:pkg]) if @project
-    return unless DbPackage.check_access?(pkg)
-
-#    @project = DbProject.find_by_name( params[:project] )
-#    pkg = @project.find_package(params[:package]) if @project
-
-
-    # ACL(updated_timestamp): in case of access, package is really hidden and shown as non existing to users without access
-    if not pkg #and pkg.disabled_for?('access', nil, nil) and not @http_user.can_access?(pkg)
-      render_error :status => 404, :errorcode => 'unknown_package',
-      :message => "Unknown package #{params[:package]} in project #{params[:project]}"
-      return
-    end
-
-    # ACL(updated_timestamp): protect hidden projects with "access"
-    if not @project #and @project.disabled_for?('access', nil, nil) and not @http_user.can_access?(@project)
-      render_error :message => "Unknown project '#{params[:project]}'",
-      :status => 404, :errorcode => "project_not_found"
-      return
-    end
-#    @package = DbPackage.find( :first, :conditions =>
-#      [ 'name=? AND db_project_id=?', params[:package], @project.id ]
-#    ) if @project
-     @package = DbPackage.find_by_project_and_name(@project.name, params[:package]) if @project
+    @project = DbProject.get_by_name(params[:project])
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false, follow_project_links=true)
 
   end
 

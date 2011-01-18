@@ -1,0 +1,36 @@
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= javascript_include_tag 'jquery.tooltip.min' %>
+  <%= stylesheet_link_tag 'jquery.tooltip' %>
+<% end %>
+
+<% content_for :head_javascript do %>
+  function updateRequestDisplay() {
+    $('#spinner').show();
+    $.ajax({
+      url: '<%= url_for(:controller => :request, :action => :list) %>',
+      type: 'post',
+      data: {
+        'type': $('#request_select')[0].value,
+        <%= "'user': '" + user.to_s + "'," unless not defined?(user)  %>
+        <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
+        <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
+      },
+      success: function(data) { $('#request_display').html(data); $('#spinner').hide(); }
+    });
+  }
+<% end %>
+<% content_for :ready_function do %>
+  <%= "updateRequestDisplay();" unless defined?(requests) %>
+<% end %>
+
+<p>
+  Display all
+  <%= select_tag("request_select", options_for_select([['new or review', 'pending'], 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>
+  requests:
+  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
+</p>
+
+<div id="request_display">
+  <%= render(:partial => 'shared/list_requests', :locals => { :requests => requests }) unless not defined?(requests) %>
+</div>

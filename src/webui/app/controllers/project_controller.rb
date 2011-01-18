@@ -16,14 +16,13 @@ class ProjectController < ApplicationController
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png]
-
-  before_filter :load_current_requests, :only => [:delete, :view,
+  before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target,
     :show, :monitor, :edit_prjconf, :list_requests,
-    :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
-  before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
-  before_filter :require_meta, :only => [:edit_meta, :meta ]
+    :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
+  before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
+  before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
 
   def index
@@ -54,6 +53,16 @@ class ProjectController < ApplicationController
     required_parameters :q
     get_filtered_projectlist params[:q], ''
     render :text => @projects.join("\n")
+  end
+
+  def autocomplete_packages
+    required_parameters :q
+    packages :norender => true
+    if valid_package_name_read?( params[:q] ) or params[:q] == ""
+      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    else
+      render :text => ""
+    end
   end
 
   def autocomplete_repositories
@@ -179,7 +188,6 @@ class ProjectController < ApplicationController
     end
 
     linking_projects
-
     load_buildresult
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
@@ -252,6 +260,22 @@ class ProjectController < ApplicationController
     end
     load_buildresult false
     render :partial => 'buildstatus'
+  end
+
+  def delete_request_dialog
+  end
+
+  def delete_request
+    req = BsRequest.new(:type => "delete", :targetproject => params[:project])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def delete
@@ -431,7 +455,8 @@ class ProjectController < ApplicationController
   end
   protected :load_packages
 
-  def packages
+  def packages(opts = {})
+    opts = {:norender => false}.merge opts
     load_packages
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
@@ -443,24 +468,13 @@ class ProjectController < ApplicationController
     end
     @filterstring = params[:searchtext] || ''
     get_filtered_packagelist @filterstring
+    return if opts[:norender] # norender when used through other actions (like autocomplete_packages)
     if request.xhr?
       render :partial => 'search_packages' and return
     end
   end
 
-  def autocomplete_packages
-    packages
-    if valid_package_name_read?( params[:q] ) or params[:q] == ""
-      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
-    else
-      render :text => ""
-    end
-  end
-
   def list_requests
-    @current_requests.each do |c|
-      logger.debug c.dump_xml
-    end
   end
 
   def save_new
@@ -1221,14 +1235,8 @@ class ProjectController < ApplicationController
     end
   end
 
-  def load_current_requests
-    predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{@project}'"
-    @current_requests = Array.new
-    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
-    coll.each_request do |req|
-      @current_requests << req
-    end
-    @project_has_requests = !@current_requests.blank?
+  def load_requests
+    @requests = BsRequest.list({:type => 'pending', :project => @project.name})
   end
 
 end

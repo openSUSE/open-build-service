@@ -147,6 +147,15 @@ homeadrianProtectionTest:
   description: ""
   created_at: 2005-01-01 00:00:01
 
+HiddenRemoteInstance:
+  name: HiddenRemoteInstance
+  updated_at: 2005-01-01 00:00:01
+  title: Remoteurl project which is hidden (access disabled)
+  id: 3006
+  remoteurl: http://localhost:3200
+  description: "for testing hidden remoteurl projects (access disabled)"
+  created_at: 2005-01-01 00:00:01
+
 # For testing remote project handling (we are our own remote instance)
 RemoteInstance:
   name: RemoteInstance

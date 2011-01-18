@@ -252,3 +252,5 @@ table.patchinfo td { vertical-align: middle; }
   top: 20px;
   z-index: 3;
 }
+
+#advanced_tabs { display: none; }

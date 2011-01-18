@@ -1,10 +1,9 @@
-<% @pagetitle = "Requests for #{@project}" %>
+<% @pagetitle = "Requests for #{h(@project)}" %>
 <% project_bread_crumb( "Requests" ) -%>
 
 <%= render :partial => "tabs" %>
 
-<h2>Pending requests of project <%=h @project %> (#<%= @current_requests.size %>)</h2>
+<h3><%= @pagetitle %></h3>
 
-<%= render :partial => 'shared/list_requests',
-  :locals => { :requests => @current_requests, :hide_package => false, :hide_project => true } %>
+<%= render :partial => 'shared/select_requests', :locals => { :requests => @requests, :project => @project.to_s } %>
 

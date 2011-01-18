@@ -1,46 +1,51 @@
 /**
- * Code Syntax Highlighter.
- * Version 1.5.2
- * Copyright (C) 2004-2008 Alex Gorbatchev
- * http://www.dreamprojections.com/syntaxhighlighter/
+ * SyntaxHighlighter
+ * http://alexgorbatchev.com/SyntaxHighlighter
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, version 3 of the License.
+ * SyntaxHighlighter is donationware. If you are using it, please donate.
+ * http://alexgorbatchev.com/SyntaxHighlighter/donate.html
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * @version
+ * 3.0.83 (July 02 2010)
+ * 
+ * @copyright
+ * Copyright (C) 2004-2010 Alex Gorbatchev.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @license
+ * Dual licensed under the MIT and GPL licenses.
  */
-
-/** Contributed by Yegor Jbanov and David Bernard. */
-dp.sh.Brushes.Scala = function()
+;(function()
 {
-	var keywords =	'val sealed case def true trait implicit forSome import match object null finally super ' +
-	                'override try lazy for var catch throw type extends class while with new final yield abstract ' +
-	                'else do if return protected private this package false';
+	// CommonJS
+	typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
 
-	var keyops =	'[_:=><%#@]+';
+	function Brush()
+	{
+		// Contributed by Yegor Jbanov and David Bernard.
+	
+		var keywords =	'val sealed case def true trait implicit forSome import match object null finally super ' +
+						'override try lazy for var catch throw type extends class while with new final yield abstract ' +
+						'else do if return protected private this package false';
 
-	this.regexList = [
-		{ regex: dp.sh.RegexLib.SingleLineCComments,							css: 'comment' },		// one line comments
-		{ regex: dp.sh.RegexLib.MultiLineCComments,								css: 'comment' },		// multiline comments
-		{ regex: new RegExp("(['\"]{3})([^\\1])*?\\1", 'gm'),                   css: 'string'  },		// multi-line strings
-		{ regex: new RegExp('"(?!")(?:\\.|\\\\\\"|[^\\""\\n\\r])*"', 'gm'),     css: 'string'  },       // double-quoted string
-		{ regex: dp.sh.RegexLib.SingleQuotedString,								css: 'string'  },		// strings
-		{ regex: new RegExp('\\b([\\d]+(\\.[\\d]+)?|0x[a-f0-9]+)\\b', 'gi'),	css: 'number'  },		// numbers
-		{ regex: new RegExp(this.GetKeywords(keywords), 'gm'),					css: 'keyword' },		// keywords
-		{ regex: new RegExp(keyops, 'gm'),										css: 'keyword' }		                    // scala keyword
-		];
+		var keyops =	'[_:=><%#@]+';
 
-	this.CssClass = 'dp-j';
-	this.Style =	'.dp-j .annotation { color: #646464; }' +
-					'.dp-j .number { color: #C00000; }';
-}
+		this.regexList = [
+			{ regex: SyntaxHighlighter.regexLib.singleLineCComments,			css: 'comments' },	// one line comments
+			{ regex: SyntaxHighlighter.regexLib.multiLineCComments,				css: 'comments' },	// multiline comments
+			{ regex: SyntaxHighlighter.regexLib.multiLineSingleQuotedString,	css: 'string' },	// multi-line strings
+			{ regex: SyntaxHighlighter.regexLib.multiLineDoubleQuotedString,    css: 'string' },	// double-quoted string
+			{ regex: SyntaxHighlighter.regexLib.singleQuotedString,				css: 'string' },	// strings
+			{ regex: /0x[a-f0-9]+|\d+(\.\d+)?/gi,								css: 'value' },		// numbers
+			{ regex: new RegExp(this.getKeywords(keywords), 'gm'),				css: 'keyword' },	// keywords
+			{ regex: new RegExp(keyops, 'gm'),									css: 'keyword' }	// scala keyword
+			];
+	}
 
-dp.sh.Brushes.Scala.prototype	= new dp.sh.Highlighter();
-dp.sh.Brushes.Scala.Aliases		= ['scala'];
+	Brush.prototype	= new SyntaxHighlighter.Highlighter();
+	Brush.aliases	= ['scala'];
+
+	SyntaxHighlighter.brushes.Scala = Brush;
+
+	// CommonJS
+	typeof(exports) != 'undefined' ? exports.Brush = Brush : null;
+})();

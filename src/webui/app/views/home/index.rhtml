@@ -1,9 +1,9 @@
 <% @pagetitle = "Home of #{user}" %>
 <% @crumb_list = [@pagetitle] %>
 
-<h2><%= @pagetitle %></h2>
+<h3><%= @pagetitle %></h3>
 
-<h3>User Info</h3>
+<h4>User Info</h4>
 
 <p><strong>Profile picture:</strong></p>
 <table>
@@ -16,25 +16,25 @@
 </table>
 
 <p>
-  <strong>Real Name:</strong>
+  <strong>Real name:</strong>
   <% if user.realname && !user.realname.to_s.empty? %>
     <%= h(user.realname) %>
   <% else %>
     <em>No real name set.</em>
   <% end %>
 </p>
-<p><strong>Email Address:</strong> <%= user.email %></p>
+<p><strong>Email address:</strong> <%= mail_to(user.email) %></p>
 
-<% if user == session[:login] %>
-  <p><%= image_tag('icons/user_edit.png') %> <%= link_to("Edit User Data", :controller => "user", :action => "edit") %></p>
+<% if user.to_s == session[:login] %>
+  <p><%= image_tag('icons/user_edit.png') %> <%= link_to("Edit user data", :controller => "user", :action => "edit") %></p>
   <% if defined?( CHANGE_PASSWD ) && CHANGE_PASSWD == 'on' %>
-    <p><%= image_tag('icons/key.png') %> <%= link_to("Change Password", :controller => "user", :action => "change_my_password") %></p>
+    <p><%= image_tag('icons/key.png') %> <%= link_to("Change password", :controller => "user", :action => "change_my_password") %></p>
   <% end %>
 <% end %>
 
-<h3>Related links:</h3>
+<h4>Related Links</h4>
 <ul>
-  <li><%= link_to "Home Project", :controller => "project", :action => "show", :project => "home:" + user.to_s %></li>
-  <li><%= link_to("Involved Projects", :controller => :home, :action => :list_my, :user => user.to_s) %></li>
-  <li><%= link_to("Involved Requests", :controller => :home, :action => :list_requests, :user => user.to_s) %></li>
+  <li><%= link_to "Home project", :controller => "project", :action => "show", :project => "home:" + user.to_s %></li>
+  <li><%= link_to("Involved projects", :controller => :home, :action => :list_my, :user => user.to_s) %></li>
+  <li><%= link_to("Involved requests", :controller => :home, :action => :list_requests, :user => user.to_s) %></li>
 </ul>

@@ -12,8 +12,7 @@ class PackageController < ApplicationController
     :set_url, :set_url_form, :update_build_log]
   before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
     :save_modified_file, :save_new, :save_new_link, :update_build_log]
-
-  before_filter :load_current_requests
+  before_filter :load_requests, :except => [:add_person, :edit_file, :rawlog, :save_new]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
@@ -268,20 +267,18 @@ class PackageController < ApplicationController
   def rdiff
     required_parameters :project, :package
     if params[:commit]
-      @opackage = params[:package]
-      @oproject = params[:project]
       @rev = params[:commit]
-      @orev = (@rev.to_i - 1).to_s
     else
       required_parameters :opackage, :oproject
       @opackage = params[:opackage]
       @oproject = params[:oproject]
     end
     @rdiff = ''
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?" +
-      "opackage=#{CGI.escape(@opackage)}&oproject=#{CGI.escape(@oproject)}&unified=1&cmd=diff"
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&unified=1"
     path += "&linkrev=#{CGI.escape(params[:linkrev])}" if params[:linkrev]
     path += "&rev=#{CGI.escape(@rev)}" if @rev
+    path += "&oproject=#{CGI.escape(@oproject)}" if @oproject
+    path += "&opackage=#{CGI.escape(@opackage)}" if @opackage
     path += "&orev=#{CGI.escape(@orev)}" if @orev
     begin
       @rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
@@ -301,10 +298,12 @@ class PackageController < ApplicationController
         return
       end
     end
-    @lastreq = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage,
-      :sourceproject => params[:project], :sourcepackage => params[:package])
-    if @lastreq and @lastreq.state.name != "declined"
-      @lastreq = nil # ignore all !declined
+    if not params[:commit]
+      @lastreq = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage,
+        :sourceproject => params[:project], :sourcepackage => params[:package])
+      if @lastreq and @lastreq.state.name != "declined"
+        @lastreq = nil # ignore all !declined
+      end
     end
   end
 
@@ -393,6 +392,9 @@ class PackageController < ApplicationController
       flash[:note] = "Failed to create package '#{@package}'"
       redirect_to :controller => 'project', :action => 'show', :project => params[:project]
     end
+  end
+
+  def branch_dialog
   end
 
   def branch
@@ -1141,14 +1143,8 @@ class PackageController < ApplicationController
     end
   end
 
-  def load_current_requests
-    predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{@project}' and action/target/@package='#{@package}'"
-    @current_requests = Array.new
-    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
-    coll.each_request do |req|
-      @current_requests << req
-    end
-    @package_has_requests = !@current_requests.blank?
+  def load_requests
+    @requests = BsRequest.list({:type => 'pending', :project => @project.name, :package => @package.name})
   end
 
 end

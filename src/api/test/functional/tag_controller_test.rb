@@ -414,9 +414,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404   
     
     #request tags for an existing package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
-    :package => "TestPack",
-    :user => "Iggy" )
+    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy", :package => "TestPack", :user => "Iggy" )
     assert_response :success
     
     #checking response-data 

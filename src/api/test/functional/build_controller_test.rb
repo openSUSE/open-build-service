@@ -37,6 +37,41 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_dispatchprios
+    ActionController::IntegrationTest::reset_auth
+    get "/build/_dispatchprios"
+    assert_response 401
+
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build/_dispatchprios"
+    assert_response :success
+    put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    assert_response :success
+  end
+
+  def test_read_from_repository
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
+    assert_response 404
+    get "/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
+    assert_response :success
+    get "/build/home:Iggy/10.2/i586/_repository"
+    assert_response :success
+    assert_tag :tag => "binarylist", :child => { :tag => "binary" }
+    assert_tag :tag => "binary", :attributes => { :filename => "package.rpm" }
+    get "/build/home:Iggy/10.2/i586/_repository/package.rpm"
+    assert_response :success
+    get "/build/home:Iggy/10.2/i586/_repository?binary=rpm&binary=package&view=cpio"
+    assert_response :success
+    ret = IO.popen("cpio -t", "r+") { |f| f.puts @response.body; f.close_write; f.gets }
+    assert_match(/package.rpm/, ret)
+  end
+
   def test_delete_from_repository
     ActionController::IntegrationTest::reset_auth
     delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
@@ -218,10 +253,10 @@ class BuildControllerTest < ActionController::IntegrationTest
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -265,13 +300,13 @@ class BuildControllerTest < ActionController::IntegrationTest
   def test_read_access_hidden_file
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/NOT_EXISTING"
     assert_response 404
-    assert_match(/unknown_package/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"

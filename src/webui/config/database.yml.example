@@ -2,7 +2,7 @@
 
 production:
   adapter: mysql
-  database: obs_webui_production
+  database: webui_production
   username: root
   password: opensuse
 

@@ -263,8 +263,15 @@ our $projpack = [
      ]],
      [[ 'remotemap' =>
 	    'project',
+	    'root',
 	    'remoteurl', 
 	    'remoteproject', 
+	    'remoteroot', 
+	    'proto',	# project data not included
+	     [],
+	    'config',
+	  [ $repo ],
+	    'error',
      ]],
 ];
 

@@ -2,7 +2,9 @@ class DbPackage < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
-  class PkgAccessError < Exception; end
+  class ReadAccessError < Exception; end
+  class UnknownObjectError < Exception; end
+  class ReadSourceAccessError < Exception; end
   belongs_to :db_project
 
   belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
@@ -32,58 +34,24 @@ class DbPackage < ActiveRecord::Base
 
   
 #  def after_create
-#    raise PkgAccessError.new "Unknown package" unless DbPackage.check_access?(self)
+#    raise ReadAccessError.new "Unknown package" unless DbPackage.check_access?(self)
 #  end
 
   class << self
 
     def is_hidden?(project, package)
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM db_packages pack
-      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
-      WHERE pro.name = BINARY ? AND pack.name = BINARY ?
-      END_SQL
-
-      result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
-      dbpkg = nil
-      dbpkg = result[0] if result
-
-      return nil if dbpkg.nil?
-      pkgrels = dbpkg.flags.count :conditions => 
-          ["db_package_id = ? and flag = 'access' and status = 'disable'", dbpkg.id]
-      return true if pkgrels > 0
-      return true if DbProject.is_hidden?(project)
-      return false
+      return DbProject.is_hidden?(project)
     end
 
     def check_dbp_access?(dbp)
       return false unless dbp.class == DbProject
       return false if dbp.nil?
-      return false unless DbProject.check_access?(dbp)
-      return true
+      return DbProject.check_access?(dbp)
     end
     def check_access?(dbpkg=self)
       return false if dbpkg.nil?
       return false unless dbpkg.class == DbPackage
-      # check_project
-      dbp = DbProject.find(dbpkg.db_project_id) if dbpkg and dbpkg.db_project_id
-      return false unless check_dbp_access?(dbp)
-
-      # check package flag
-      # check for 'access' flag
-      rels = dbpkg.flags.count :conditions => 
-          ["db_package_id = ? and flag = 'access' and status = 'disable'", dbpkg.id]
-      # rels > 0 --> flag set
-      if rels > 0
-        # simple check for involvement --> involved users can access
-        userrels = dbpkg.package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
-        if userrels == 0 and not User.currentAdmin
-          # no relationship to package -> no access
-          return false
-        end
-      end
-      return true
+      return DbProject.check_access?(dbpkg.db_project)
     end
 
     # own custom find
@@ -150,6 +118,59 @@ class DbPackage < ActiveRecord::Base
       return dbp
     end
 
+    # returns an object of package or raises an exception
+    # should be always used when a project is required
+    # in case you don't access sources or build logs in any way use 
+    # use_source=false to skip check for sourceaccess permissions
+    # function returns a nil object in case the package is on remote instance
+    def get_by_project_and_name( project, package, use_source=true, follow_project_links=true )
+      return nil if DbProject.is_remote_project?( project )
+      prj = DbProject.get_by_name( project )
+      raise UnknownObjectError, "#{project}/#{package}" unless prj
+      if follow_project_links
+        pkg = prj.find_package(package)
+      else
+        pkg = prj.db_packages.find_by_name(package)
+      end
+      if pkg.nil? and follow_project_links
+        # in case we link to a remote project we need to assume that the
+        # backend may be able to find it even when we don't have the package local
+        prj.linkedprojects.each do |l|
+          return nil if l.linked_remote_project_name
+        end
+      end
+
+      raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
+      raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
+
+      if use_source and (pkg.disabled_for?('sourceaccess', nil, nil) or pkg.db_project.disabled_for?('sourceaccess', nil, nil))
+        if User.current.nil?
+          raise ReadSourceAccessError, "#{project}/#{package}"
+        else
+          u = User.find(User.currentID)
+          raise ReadSourceAccessError, "#{project}/#{package}" unless u.can_source_access?(pkg)
+        end
+      end
+      return pkg
+    end
+
+    # to check existens of a project (local or remote)
+    def exists_by_project_and_name( project, package )
+      prj = DbProject.get_by_name( project )
+      pkg = prj.find_package(package)
+      if pkg.nil?
+# FIXME: how to handle remote ?
+#        return true if find_remote_project(name)
+        return false
+      end
+      unless check_access?(pkg)
+        return false
+      end
+      return true
+    end
+
+    # should not be used directly, this function is not throwing exceptions on problems
+    # use get_by_name or exists_by_name instead
     def find_by_project_and_name( project, package )
       sql =<<-END_SQL
       SELECT pack.*

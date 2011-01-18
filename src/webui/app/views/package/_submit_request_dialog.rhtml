@@ -43,10 +43,10 @@
           <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
           <%= check_box_tag :source_update, 'cleanup' %> Remove local package if request is accepted
         </p>
-        <p class="buttons">
+        <div class="buttons">
           <%= submit_tag("Ok") %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
-        </p>
+        </div>
       <% end %>
     </div>
   </div>

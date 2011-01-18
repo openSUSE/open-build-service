@@ -58,6 +58,7 @@ sub verify_arch {
   my $arch = $_[0];
   die("arch is empty\n") unless defined($arch) && $arch ne '';
   die("arch '$arch' is illegal\n") if $arch =~ /[\/:\.\000-\037]/;
+  verify_simple($arch);
 }
 
 sub verify_packid_repository {
@@ -94,6 +95,11 @@ sub verify_patchinfo_complete {
   }
 
   # checks of optional content to be added here
+}
+
+sub verify_simple {
+  my $name = $_[0];
+  die("illegal characters\n") if $name =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
 }
 
 sub verify_filename {
@@ -348,6 +354,7 @@ sub verify_nevraquery {
   my $f = "$q->{'name'}-$q->{'version'}";
   $f .= "-$q->{'release'}" if defined $q->{'release'};
   verify_filename($f);
+  verify_simple($f);
 }
 
 our $verifyers = {

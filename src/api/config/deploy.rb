@@ -5,7 +5,7 @@ set :application, "obs-api"
 # git settings
 set :scm, :git
 set :repository,  "git://gitorious.org/opensuse/build-service.git"
-set :branch, "2.1"
+set :branch, "master"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/api'

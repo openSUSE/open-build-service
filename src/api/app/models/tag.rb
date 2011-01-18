@@ -7,7 +7,7 @@ class Tag < ActiveRecord::Base
   :conditions => "taggings.taggable_type = 'DbPackage'"
   
   has_many :users, :through => :taggings
-  
+
   attr_accessor :cached_count
   
   def before_save

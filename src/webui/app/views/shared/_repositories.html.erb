@@ -47,14 +47,16 @@
 <div class="clear" style="margin-bottom: 2em"></div>
 <br/>
 
-<div style="min-width: 50%; float: left;">
-  <h3>Debuginfo Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_debuginfo', :class => 'spinner hidden' %><span id='error_flag_table_debuginfo' class='flagerror'></span></h3>
-  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.debuginfo, :obj => obj } %>
-</div>
+<% if obj.has_element? "debuginfo" %>
+  <div style="min-width: 50%; float: left;">
+    <h3>Debuginfo Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_debuginfo', :class => 'spinner hidden' %><span id='error_flag_table_debuginfo' class='flagerror'></span></h3>
+    <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.debuginfo, :obj => obj } %>
+  </div>
 
-<div style="min-width: 50%; float: left">
-  <h3>Use for Build Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_useforbuild', :class => 'spinner hidden' %><span id='error_flag_table_useforbuild' class='flagerror'></span></h3>
-  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.useforbuild, :obj => obj } %>
-</div>
+  <div style="min-width: 50%; float: left">
+    <h3>Use for Build Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_useforbuild', :class => 'spinner hidden' %><span id='error_flag_table_useforbuild' class='flagerror'></span></h3>
+    <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.useforbuild, :obj => obj } %>
+  </div>
+<% end %>
 
 <div class="clear"></div>

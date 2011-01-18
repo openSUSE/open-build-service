@@ -46,7 +46,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
  def test_latest_updated
    prepare_request_with_user "adrian", "so_alone"
    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
-   assert_response 200
+   assert_response 404
    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
    '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
    assert_response 200
@@ -68,7 +68,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
    prepare_request_with_user "fred", "geröllheimer"
    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
-   assert_response 200
+   assert_response 404
    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
    '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
    assert_response 200
@@ -83,31 +83,29 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
  def test_timestamp_calls
    prepare_request_with_user "adrian", "so_alone"
-   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "pack")
    assert_response 200
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject", :package => "pack")
    assert_response 200
 
-   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "kde4", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "kde4", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
    prepare_request_with_user "fred", "geröllheimer"
-   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "kde4", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "kde4", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
-   if $ENABLE_BROKEN_TEST
-   get url_for(:controller => :statistics, :action => :added_timestamp , :project => "HiddenProject", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :added_timestamp , :project => "HiddenProject", :package => "not_existing")
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject", :package => "test_latest_added")
-#   puts @response.body
+   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject", :package => "not_existing")
    assert_response 404
 
    get url_for(:controller => :statistics, :action => :added_timestamp , :project => "HiddenProject")
@@ -115,7 +113,6 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
    get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject")
    assert_response 404
-   end
 
  end
 
@@ -139,7 +136,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    get url_for(:controller => :statistics, :action => :activity, :project => "kde4")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => "test_latest_added")
+   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => "pack")
    assert_response :success
 
    get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject")

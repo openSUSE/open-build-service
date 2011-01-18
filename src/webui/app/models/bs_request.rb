@@ -13,6 +13,7 @@ class BsRequest < ActiveXML::Base
         when "submit" then
           option = ""
           option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+          opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
           opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
           reply = <<-EOF
             <request>
@@ -28,10 +29,12 @@ class BsRequest < ActiveXML::Base
           ret = XML::Parser.string(reply).parse.root
           ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
         when "delete" then
+          pkg_option = ""
+          pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
           reply = <<-EOF
             <request>
               <action type="delete">
-                <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+                <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
               </action>
               <state name="new"/>
               <description>#{opt[:description].to_xs}</description>
@@ -142,6 +145,75 @@ class BsRequest < ActiveXML::Base
       requests = Collection.find_cached :what => :request, :predicate => pred
       return requests
     end
+
+    def list(opts)
+      unless opts[:type] and opts[:user] or opts[:project] and (opts[:package] or 1) # boolean algebra rocks!
+        raise RuntimeError, "missing parameters"
+      end
+
+      predicate = ""
+      case opts[:type]
+        when "pending" then    predicate += "(state/@name='new' or state/@name='review')"
+        when "new" then        predicate += "state/@name='new'"
+        when "deleted" then    predicate += "state/@name='deleted'"
+        when "declined" then   predicate += "state/@name='declined'"
+        when "accepted" then   predicate += "state/@name='accepted'"
+        when "review" then     predicate += "state/@name='review'"
+        when "revoked"  then   predicate += "state/@name='revoked'"
+        when "superseded" then predicate += "state/@name='superseded'"
+        else                   predicate += "(state/@name='new' or state/@name='review')"
+      end
+
+      if opts[:project] and not opts[:project].empty?
+        if opts[:package] and not opts[:package].empty?
+          predicate += " and action/target/@project='#{opts[:project]}' and action/target/@package='#{opts[:package]}'"
+        else
+          predicate += " and action/target/@project='#{opts[:project]}'"
+        end
+      elsif opts[:user] # should be set in almost all cases
+        # user's own submitted requests
+        predicate += " and (state/@who='#{opts[:user]}'"
+        # requests where the user is reviewer or own requests that are in review by someone else
+        predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:type] == "pending" or opts[:type] == "review"
+        # find requests where user is maintainer in target project
+        maintained_projects = Array.new
+        coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
+        coll.each {|mp| maintained_projects += ["action/target/@project='#{mp.name}'"]}
+        predicate += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+        # find request where user is maintainer in target package
+        maintained_packages = Array.new
+        maintained_projects_hash = Hash.new
+        coll.each {|prj| maintained_projects_hash[prj.name] = true}
+        coll = Collection.find(:id, :what => 'package', :predicate => "person/@userid='#{opts[:user]}'")
+        coll.each do |mp|
+          maintained_packages += ["(action/target/@project='#{mp.project}' and action/target/@package='#{mp.name}')"] unless maintained_projects_hash.has_key?(mp.project.to_s)
+        end
+        predicate += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        predicate += ")"
+      end
+
+      return Collection.find_cached(:what => :request, :predicate => predicate).each
+    end
+  end
+
+  def creator
+    if self.has_element?(:history)
+      e = self.history('@name="new"')
+    else
+      e = self.state
+    end
+    return "unknown" if e.nil?
+    return e.value(:who)
+  end
+  
+  def history
+    ret = []
+    self.each_history do |h|
+      ret << { :who => h.who, :when => Time.parse(h.when), :name => h.name, :comment => h.value(:comment) }
+    end if self.has_element?(:history)
+    h = self.state
+    ret << { :who => h.who, :when => Time.parse(h.when), :name => h.name, :comment => h.value(:comment) }
+    return ret
   end
 
 end

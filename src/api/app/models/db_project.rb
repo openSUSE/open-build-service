@@ -4,7 +4,8 @@ class DbProject < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
-  class PrjAccessError < Exception; end
+  class ReadAccessError < Exception; end
+  class UnknownObjectError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :project_group_role_relationships, :dependent => :destroy
@@ -31,15 +32,14 @@ class DbProject < ActiveRecord::Base
   
 #  def before_validation
 #  def after_create
-#    raise PrjAccessError.new "Unknown project" unless DbProject.check_access?(self)
+#    raise ReadAccessError.new "Unknown project" unless DbProject.check_access?(self)
 #  end
 
   class << self
 
-    def is_remote_project?(name)
-      lpro, rpro = find_remote_project(name)
-      return true unless lpro.nil? or lpro.remoteurl.nil?
-      return false
+    def is_remote_project?(name, skip_access=false)
+      lpro, rpro = find_remote_project(name, skip_access)
+      !lpro.nil? and !lpro.remoteurl.nil?
     end
 
     def is_hidden?(name)
@@ -80,6 +80,7 @@ class DbProject < ActiveRecord::Base
               # if user is in group -> return true
               ret = ret + 1 if us.is_in_group?(grouprel.bs_group_id)
               # LDAP
+# FIXME2.2: please do not do special things here for ldap. please cover this in a generic group modell.
               if defined?( LDAP_MODE ) && LDAP_MODE == :on
                 if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
                   if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
@@ -152,6 +153,37 @@ class DbProject < ActiveRecord::Base
       end
     end
     
+    # returns an object of project(local or remote) or raises an exception
+    # should be always used when a project is required
+    # The return value is either a DbProject for local project or an xml 
+    # array for a remote project
+    def get_by_name(name)
+      dbp = find :first, :conditions => ["name = BINARY ?", name]
+      if dbp.nil?
+        return dbp if dbp = find_remote_project(name)
+        raise UnknownObjectError, name
+      end
+      unless check_access?(dbp)
+        raise ReadAccessError, name
+      end
+      return dbp
+    end
+
+    # to check existens of a project (local or remote)
+    def exists_by_name(name)
+      dbp = find :first, :conditions => ["name = BINARY ?", name]
+      if dbp.nil?
+        return true if find_remote_project(name)
+        return false
+      end
+      unless check_access?(dbp)
+        return false
+      end
+      return true
+    end
+
+    # to be obsoleted, this function is not throwing exceptions on problems
+    # use get_by_name or exists_by_name instead
     def find_by_name(name)
       dbp = find :first, :conditions => ["name = BINARY ?", name]
       return if dbp.nil?
@@ -191,7 +223,7 @@ class DbProject < ActiveRecord::Base
       return dbp
     end
 
-    def find_remote_project(name)
+    def find_remote_project(name, skip_access=false)
       return nil unless name
       fragments = name.split(/:/)
       local_project = String.new
@@ -201,7 +233,12 @@ class DbProject < ActiveRecord::Base
         remote_project = [fragments.pop, remote_project].compact.join ":"
         local_project = fragments.join ":"
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
-        lpro = DbProject.find_by_name local_project
+        if skip_access
+          # hmm calling a private class method is not the best idea..
+          lpro = find_initial :conditions => ["name = BINARY ?", local_project]
+        else
+          lpro = DbProject.find_by_name local_project
+        end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
       return nil

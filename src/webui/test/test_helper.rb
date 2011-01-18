@@ -18,6 +18,13 @@ module ActionController
     assert_redirected_to '/'
     assert_equal "You are logged in now", @response.flash[:success]
   end
+
+  def login_adrian
+    post '/user/do_login', :username => 'adrian', :password => 'so_alone', :return_to_path => '/'
+    assert_redirected_to '/'
+    assert_equal "You are logged in now", @response.flash[:success]
+  end
+
   
   def logout
     post '/user/logout'

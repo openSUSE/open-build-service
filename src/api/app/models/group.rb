@@ -23,9 +23,25 @@ class Group < ActiveRecord::Base
        if user
          user = User.find_by_login(user)
          return nil if user.nil?
-         list = user.groups
+         if User.ldapgroup_enabled?
+           begin
+             list = User.render_grouplist_ldap(Group.find(:all), user.login)
+           rescue Exception
+             logger.debug "Error occured in rendering grouplist in ldap."
+           end
+         else
+           list = user.groups
+         end         
        else
-         list = Group.find(:all)
+         if User.ldapgroup_enabled?
+           begin
+             list = User.render_grouplist_ldap(Group.find(:all))
+           rescue Exception
+             logger.debug "Error occured in rendering grouplist in ldap."
+           end
+         else
+           list = Group.find(:all)
+         end
        end
    
        xml = builder.directory( :count => list.length ) do |dir|

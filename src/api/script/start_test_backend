@@ -154,6 +154,7 @@ Suse::Backend.put( '/source/LocalProject/_meta', DbProject.find_by_name('LocalPr
 Suse::Backend.put( '/source/LocalProject/remotepackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "remotepackage").to_axml)
 Suse::Backend.put( '/source/LocalProject/remotepackage/_link', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
 Suse::Backend.put( '/source/RemoteInstance/_meta', DbProject.find_by_name('RemoteInstance').to_axml)
+Suse::Backend.put( '/source/HiddenRemoteInstance/_meta', DbProject.find_by_name('HiddenRemoteInstance').to_axml)
 Suse::Backend.put( '/source/UseRemoteInstance/_meta', DbProject.find_by_name('UseRemoteInstance').to_axml)
 Suse::Backend.put( '/source/home:adrian:BaseDistro/_meta', DbProject.find_by_name('home:adrian:BaseDistro').to_axml)
 Suse::Backend.put( '/source/home:adrian:ProtectionTest/_meta', DbProject.find_by_name('home:adrian:ProtectionTest').to_axml)
@@ -244,14 +245,14 @@ f.close
 # upload build result as a worker would do
 system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{SourceprotectedJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
 
+# upload a binary file to repository directly
+Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read() )
 
 # run scheduler again to handle the build result
 IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
    # just for waiting until scheduler finishes
    io.each {|line| logger.debug line.strip unless line.blank? }
 end
-# upload a binary file to repository directly
-Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package-1.0-1.i586.rpm").read() )
 
 @http_user = nil
 User.current = nil

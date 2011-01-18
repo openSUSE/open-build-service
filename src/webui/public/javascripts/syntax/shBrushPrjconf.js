@@ -1,20 +1,48 @@
-dp.sh.Brushes.Prjconf = function()
+/**
+ * Copyright (c) 2011, SUSE Linux Products GmbH.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program (see the file COPYING); if not, write to the
+ * Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+;(function()
 {
-	var keywords =	'Conflict Ignore Keep Macros Optflags Order Prefer ExportFilter Type Patterntype ' +
-                        'Preinstall Repotype Required Runscripts Substitute Support VMinstall'
+    // CommonJS
+    typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
 
-	this.regexList = [
-		{ regex: new RegExp('#(.*)$', 'gm'),	    css: 'comment' },	// one line and multiline comments
-		{ regex: new RegExp('%(.*)$', 'gm'),       css: 'rpm' },
-		{ regex: dp.sh.RegexLib.DoubleQuotedString, css: 'string' },	// double quoted strings
-                { regex: dp.sh.RegexLib.SingleQuotedString, css: 'string' },	// single quoted strings
-		{ regex: new RegExp(this.GetKeywords(keywords), 'gmi'),	css: 'keyword' } // keyword
-		];
+    function Brush()
+    {
+        var archs = 'i386 i586 i686 x86_64 ppc ppc64 ia64 s390 s390x sparc sparc64 sparcv9';
 
-	this.CssClass = 'dp-prjconf';
-	this.Style =	'.dp-prjconf .func { color: #ff1493; } ' +
-			'.dp-prjconf .rpm { color: orange }';
-}
+        this.regexList = [
+            { regex: /^\s*#(.*)$/gm, css: 'comments' },
+            { regex: /\$\(.*\)/gm, css: 'script' },
+            { regex: /\${\w*}/gm, css: 'variable' },
+            { regex: /\$\w+/gm, css: 'variable' },
+            { regex: /^(Conflict|Ignore|Keep|Macros|Optflags|Order|Prefer|ExportFilter|Type|Patterntype|Preinstall|Repotype|Required|Runscripts|Substitute|Support|VMinstall):/gm, css: 'keyword bold' },
+            { regex: /%(ifnarch|ifarch|if|else|endif)/gm, css: 'script' }, // rpm control flow macros
+            { regex: /%(\{?\??[\w-]+\}?)/gm, css: 'rpm' },
+            { regex: new RegExp(this.getKeywords(archs), 'gm'), css: 'architecture' },
+            { regex: /\s+\d+\s+/gm, css: 'value' }
+        ];
+    };
 
-dp.sh.Brushes.Prjconf.prototype	= new dp.sh.Highlighter();
-dp.sh.Brushes.Prjconf.Aliases	= ['prjconf'];
+    Brush.prototype = new SyntaxHighlighter.Highlighter();
+    Brush.aliases = ['prjconf'];
+
+    SyntaxHighlighter.brushes.Prjconf = Brush;
+
+    // CommonJS
+    typeof(exports) != 'undefined' ? exports.Brush = Brush : null;
+})();

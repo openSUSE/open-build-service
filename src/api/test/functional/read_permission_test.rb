@@ -75,6 +75,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
     # user access
     prepare_request_with_user "tom", "thunder"
+    get "/source/SourceprotectedProject/_meta"
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
     assert_tag( :tag => "binarylist" )
@@ -83,8 +84,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
     get "/build/SourceprotectedProject/repo/i586/pack/#{srcrpm}"
     assert_response 404
-
-    # FIXME: add view=cpio test
 
     # test aggregated package
     get "/build/home:adrian:ProtectionTest/repo/i586/aggregate"
@@ -111,19 +110,14 @@ class ReadPermissionTest < ActionController::IntegrationTest
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user user, "so_alone" #adrian users have all the same password
     get "/source/HiddenProject/_meta"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject/pack"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject/pack/_meta"
-#    STDERR.puts @response.body if debug
     assert_response response
     get "/source/HiddenProject/pack/my_file"
-#    STDERR.puts @response.body if debug
     assert_response response
   end
   protected :do_read_access_all_pathes
@@ -190,7 +184,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # tom/thunder
     prepare_request_with_user "tom", "thunder"
     resp=403
-    match=/create_project_no_permission/
+    match=/cmd_execution_no_permission/
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
@@ -424,10 +418,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="HiddenProject" package="notexisting" />'
     assert_response 404
-    assert_match(/package 'notexisting' does not exist in project 'HiddenProject'/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # working local link from hidden package to hidden package
     put url, '<link project="HiddenProject" package="pack" />'
@@ -445,10 +439,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match(/package 'notexiting' does not exist in project 'kde4'/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # special user cannot link unprotected to protected package
     put url, '<link project="HiddenProject" package="target" />'
@@ -482,10 +476,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match(/package 'notexiting' does not exist in project 'kde4'/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # normal user cannot access hidden project
     put url, '<link project="HiddenProject" package="pack1" />'
@@ -585,7 +579,7 @@ end
     # must not see package content
     prepare_request_with_user "tom", "thunder"
     get "/source/home:adrian:PublicProject/ProtectedPackage?deleted=1"
-    assert_response 404
+    assert_response 403
 # belongs to the regression above
 #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
 #    assert_response 403
@@ -639,54 +633,62 @@ end
     assert_response :success
   end
 
-  def test_project_links_to_access_protected_projects
+  def test_project_links_to_read_access_protected_projects
     # Create public project with protected package
-    prepare_request_with_user "adrian", "so_alone"
+    prepare_request_with_user "tom", "thunder"
 
+    # try to link to an access protected hidden project from sourceaccess project
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
+        '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    assert_response 404
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
+        '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    assert_response 404
+
+
+    prepare_request_with_user "adrian", "so_alone"
     # try to link to an access protected hidden project from sourceaccess project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
-    assert_response 403 # 403
+    assert_response 404
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
+    assert_response 404
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </project>'
-    assert_response 200
-
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
-        '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
-    assert_response 403 # 403
-
+    assert_response :success
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> </project>'
-    assert_response 200
+    assert_response :success
 
-    # FIXME 2.1 change of Adrians project linking code now allows to link from an open to a sourceaccess protected project
-    # can this give somehow access to the source via build process or .src.rpm? Is that handled now in the backend?
+    # Allow linking from not sourceaccess protected project to protected own. src.rpms are not delivered by the backend.
     #
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
      '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
-    assert_response 200
+    assert_response :success
+    # FIXME2.2: add test for source rpm access
 
     # try to link to an access protected hidden project from access hidden project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
         '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
-    assert_response 403
+    assert_response 404
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
         '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
-    assert_response 200
+    assert_response :success
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
         '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
-    assert_response 200
+    assert_response 404
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> </project>'
-    assert_response 200
+    assert_response :success
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> <link project="home:adrian:ProtectedProject2"/> </project>'
-    assert_response 200
+    assert_response :success
 
     # try to access it directly with a user not permitted
     prepare_request_with_user "tom", "thunder"
@@ -706,14 +708,61 @@ end
     assert_response :success
   end
 
+  def test_compare_error_messages
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
+    error_message = @response.body
+    get "/source/home:adrian:ProtectedProject/_meta"
+    assert_response 404
+    error_message2 = @response.body
+    get "/source/home:adrian:ProtectedProject/package/_meta"
+    assert_response 404
+    error_message3 = @response.body
+
+    prepare_request_with_user "adrian", "so_alone"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
+        '<project name="home:adrian:ProtectedProject"> <title/> <description/> <access><disable/></access> </project>'
+    assert_response :success
+    get "/source/home:adrian:ProtectedProject"
+    assert_response :success
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProtectedProject", :package => "package"),
+        '<package project="home:adrian:ProtectedProject" name="package"> <title/> <description/></package>'
+    assert_response :success
+    get "/source/home:adrian:ProtectedProject/package"
+    assert_response :success
+
+    # now we check if the project creation has changed the error message
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:adrian:ProtectedProject"
+    assert_response 404
+    assert_match error_message, @response.body
+    get "/source/home:adrian:ProtectedProject/_meta"
+    assert_response 404
+    assert_match error_message2, @response.body
+    get "/source/home:adrian:ProtectedProject/package/_meta"
+    assert_response 404
+    assert_match error_message3, @response.body
+
+    # cleanup
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/home:adrian:ProtectedProject"
+    assert_response :success
+  end
+
   def test_project_paths_to_download_protected_projects
     # try to access it with a user not permitted
     prepare_request_with_user "tom", "thunder"
 
     # check if unsufficiently permitted users tries to access protected projects
+if $ENABLE_BROKEN_TEST
+#FIXME2.2: TBD, the backend is handling this
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject1"),
         '<project name="home:tom:ProtectedProject1"> <title/> <description/>  <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 403
+end
 
     # try to access it with a user permitted for binarydownload
     prepare_request_with_user "binary_homer", "homer"
@@ -733,10 +782,13 @@ end
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
     assert_response 200
 
+if $ENABLE_BROKEN_TEST
+#FIXME2.2: TBD, the backend is handling this
     put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject2"),
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
     #STDERR.puts(@response.body)
     assert_response 403
+end
   end
 
   def test_project_paths_to_access_protected_projects
@@ -758,12 +810,12 @@ end
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
-    assert_response 200
+    assert_response 404
 
-    # check if unsufficiently protected projects try to access protected projects
+    # building against
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
-    assert_response 403
+    assert_response 404
 
     # check if download protected project has to access protected project, which reveals Hidden project existence to others and is and error
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
@@ -773,7 +825,7 @@ end
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     #STDERR.puts(@response.body)
-    assert_response 403
+    assert_response 404
 
     # check if access protected project has access binarydownload protected project
     prepare_request_with_user "binary_homer", "homer"

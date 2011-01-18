@@ -1,10 +1,9 @@
 class RequestController < ApplicationController
 
   def addreviewer
-    if params[:id]
-      @therequest = find_cached(BsRequest, params[:id] )
-    end
-    BsRequest.free_cache( params[:id] )
+    @therequest = find_cached(BsRequest, params[:id]) if params[:id]
+    BsRequest.free_cache(params[:id])
+
     begin
       if params[:user]
         r = BsRequest.addReviewByUser( params[:id], params[:user], params[:comment] )
@@ -22,10 +21,8 @@ class RequestController < ApplicationController
   end
 
   def modifyreviewer
-    if params[:id]
-      @therequest = find_cached(BsRequest, params[:id] )
-    end
-    BsRequest.free_cache( params[:id] )
+    @therequest = find_cached(BsRequest, params[:id]) if params[:id]
+    BsRequest.free_cache(params[:id])
 
     begin
       if params[:group].blank?
@@ -58,20 +55,22 @@ class RequestController < ApplicationController
 
     @is_reviewer = false
     @req.each_review do |review|
-       if review.has_attribute? :by_user
-          if review.by_user.to_s == session[:login]
+      if review.has_attribute? :by_user
+        if review.by_user.to_s == session[:login]
+          @is_reviewer = true
+          break
+        end
+      end
+
+      if review.has_attribute? :by_group
+        if session[:login]
+          user = Person.find_cached(session[:login])
+          if user.is_in_group? review.by_group
             @is_reviewer = true
             break
           end
-       end
-
-       if review.has_attribute? :by_group
-         user = Person.find_cached(session[:login])
-         if user.is_in_group? review.by_group
-            @is_reviewer = true
-            break
-         end
-       end
+        end
+      end
     end
 
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
@@ -103,7 +102,7 @@ class RequestController < ApplicationController
       @diff_text = transport.direct_http URI("/request/#{@id}?cmd=diff"), :method => "POST", :data => ""
     rescue ActiveXML::Transport::Error => e
       @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash.now[:error] = "Can't get diff for request: #{@diff_error}"
+      logger.debug "Can't get diff for request: #{@diff_error}"
     end
 
   end
@@ -174,4 +173,9 @@ class RequestController < ApplicationController
     redirect_to :action => :show, :id => params[:id]
   end
 
+  def list
+    redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
+    requests = BsRequest.list(params)
+    render :partial => 'shared/list_requests', :locals => { :requests => requests }
+  end
 end

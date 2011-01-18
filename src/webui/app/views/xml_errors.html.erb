@@ -1,24 +1,11 @@
 <% @pagetitle = 'XHTML Errors' %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushXml' %>
-<% end %>
-
-<% content_for :ready_function do %>
-  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-  dp.SyntaxHighlighter.HighlightAll('code');
-<% end %>
-
 <h2>XML errors</h2>
 <ul>
-<% errors.each do |msg| %>
-<li><%= h msg %></li>
-<% end -%>
+  <% errors.each do |msg| %>
+    <li><%= h msg %></li>
+  <% end -%>
 </ul>
 
 <h2>HTML Code</h2>
-<pre id="code" class="xml">
-<%=h oldbody %>
-</pre>
-
+<%= render :partial => "shared/syntaxhighlighter", :locals => {:code => h(oldbody), :type => 'xml'} %>

@@ -1,0 +1,21 @@
+<div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box" id="branch_dialog">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Branch Confirmation</b>
+      </div>
+
+      <p>Branch <b><%= h @package.name %></b>?</p>
+
+      <% form_tag({:controller => :package, :action => :branch}, :method => :post) do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <%= hidden_field_tag(:package, @package) %>
+        <div class="buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()') %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+

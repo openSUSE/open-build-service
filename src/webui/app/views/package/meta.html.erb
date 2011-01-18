@@ -1,26 +1,16 @@
-<% @pagetitle = "Raw Configuration of %s" % @package
+<% @pagetitle = "Raw Configuration of #{@package}"
    package_bread_crumb('Raw Config')
 -%>
-
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushXml' %>
-<% end %>
-
-<% content_for :ready_function do %>
-   dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-   dp.SyntaxHighlighter.HighlightAll('code'); 
-<% if @user %>
-   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-   $("#editlink").attr("href", "<%= url_for(:action => :edit_meta, :project => @project, :package => @package) %>");
-<% end %>
-<% end %>
 
 <%= render :partial => "tabs" %>
 
 <h3><%= @pagetitle %></h3>
 
-<pre id="code" class="xml">
-<%=h @meta%>
-</pre>
+<% if @user %>
+  <p>
+    <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit raw configuration' ), :action => :edit_meta, :project => @project, :package => @package) %>
+    <%= link_to('Edit raw configuration', :action => :edit_meta, :project => @project, :package => @package) %>
+  </p>
+<% end %>
 
+<%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @meta, :type => 'xml'} %>

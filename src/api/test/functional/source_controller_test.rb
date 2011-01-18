@@ -4,6 +4,8 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
+  #TODO index_package : additional testcases for 'createSpecFileTemplate', 'runservice', needed
+  
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -808,13 +810,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian_nobody", "so_alone"
     get "/source/HiddenProject/pack/my_file"
 
-    assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "not_found"} 
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project"} 
     # uninvolved, 
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/pack/my_file"
-    assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "not_found"} 
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project"} 
     # reader
     # downloader
     # maintainer
@@ -909,12 +911,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     url1="/source/HiddenProject/pack"
     asserttag1={ :tag => 'status', :attributes => { :code => "unknown_project"} }
     url2="/source/HiddenProject/pack/testfile"
-    assertresp2=403 #404
+    assertresp2=404
     assertselect2=nil
     assertselect2rev=nil
-    assertresp3=403 #404
+    assertresp3=404
     asserteq3=nil
-    assertresp4=403 #404
+    assertresp4=404
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
@@ -1129,7 +1131,8 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # undelete project again
     post "/source/kde4", :cmd => :undelete
-    assert_response 403
+    assert_response 404
+    assert_match(/project 'kde4' already exists/, @response.body)
   end
 
   def test_remove_project_and_verify_repositories
@@ -1316,14 +1319,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match(/permission to execute command on project BaseDistro2:LinkedUpdateProject/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
     assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
     assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commit"
     assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
     assert_response 404
+    assert_match(/unknown_package/, @response.body)
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
-    assert_response 403
+    assert_response 404
+    assert_match(/package_exists/, @response.body)
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
@@ -1353,6 +1361,26 @@ class SourceControllerTest < ActionController::IntegrationTest
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response :success
     end
+  end
+
+  def test_source_commands_tests
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
+    assert_response 403
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response 403
+
+    prepare_request_with_user "fred", "geröllheimer"
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    assert_response :success
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    assert_response :success
   end
 
   def test_list_of_linking_instances
@@ -1405,10 +1433,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_match(/The given project notexisting does not exist/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_match(%r{package 'notexiting' does not exist in project 'kde4'}, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # working local link
     put url, '<link project="BaseDistro" package="pack1" />'
@@ -1551,7 +1579,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # undelete package again
     post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
-    assert_response 403
+    assert_response 404
 
   end
 
@@ -1610,9 +1638,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     original = @response.body
 
     post "/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build"
-#    assert_response 404
-    assert_response 403
-    assert_match(/no permission to execute command/, @response.body)
+    assert_response 404
 
     post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 400
@@ -1718,8 +1744,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
     assert_response 404
-#    assert_match(/Unknown package 'Nothere' in project 'home:Iggy'/, @response.body)
-    assert_match(/Unknown Package/, @response.body)
+    assert_match(/unknown_package/, @response.body)
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
     assert_response 400

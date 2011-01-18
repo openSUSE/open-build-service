@@ -10,6 +10,7 @@ require 'rexml/document'
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
 class IllegalRequestError < Exception; end
+class UserNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -23,7 +24,7 @@ class ApplicationController < ActionController::Base
   helper RbacHelper
 
   before_filter :validate_xml_request, :add_api_version
-  if RESPONSE_SCHEMA_VALIDATION
+  if defined?( RESPONSE_SCHEMA_VALIDATION ) && RESPONSE_SCHEMA_VALIDATION == true
     after_filter :validate_xml_response
   end
 
@@ -64,6 +65,7 @@ class ApplicationController < ActionController::Base
   end
   hide_action :start_test_backend
 
+  protected
   def set_current_user
     User.current = nil
     User.currentID = nil
@@ -73,7 +75,6 @@ class ApplicationController < ActionController::Base
     User.currentAdmin = true if @http_user and @http_user.is_admin?
   end
 
-  protected
   def restrict_admin_pages
      if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
         return require_admin
@@ -125,12 +126,12 @@ class ApplicationController < ActionController::Base
         if @http_user == nil
           @http_user = User.find :first, :conditions => ['login = ?', ichain_user ]
           if @http_user == nil
-            render_error :message => "iChain user not yet registered", :status => 403,
+            render_error :message => "Your user is not yet registered with iChain", :status => 403,
               :errorcode => "unregistered_ichain_user",
               :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
           else
             if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
-              render_error :message => "iChain user #{ichain_user} is registered but not yet approved.", :status => 403,
+              render_error :message => "Your registed iChain user #{ichain_user} is not yet approved.", :status => 403,
                 :errorcode => "registered_ichain_but_unapproved",
                 :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
                 "<p>Please stay tuned until you get approval message.</p>"
@@ -397,27 +398,9 @@ class ApplicationController < ActionController::Base
     when InvalidHttpMethodError
       render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
     when DbPackage::SaveError
-      render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
+      render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
-      render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
-    when DbProject::PrjAccessError
-      logger.error "PrjAccessError: #{exception.message} \n-ACL"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'unknown_project',
-          :message => "Unknown Project"
-      else
-        render_error :status => 404, :errorcode => 'unknown_project',
-          :message => exception.message
-      end
-    when DbPackage::PkgAccessError
-      logger.error "PkgAccessError: #{exception.message} \n-ACL"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "Unknown Package"
-      else
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => exception.message
-      end
+      render_error :message => "Error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
     when IllegalRequestError
       message = "Illegal request"
       message = exception.message unless exception.message.nil?
@@ -433,11 +416,49 @@ class ApplicationController < ActionController::Base
       render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
     when DbProject::CycleError
       render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
+
+    # unknown objects and no read access permission are handled in the same way by default
+    when DbProject::ReadAccessError, DbProject::UnknownObjectError
+      logger.error "ReadAccessError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'unknown_project',
+          :message => "Unknown project"
+      else
+        render_error :status => 404, :errorcode => 'unknown_project',
+          :message => exception.message
+      end
+    when DbPackage::ReadAccessError, DbPackage::UnknownObjectError
+      logger.error "ReadAccessError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => "Unknown package"
+      else
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => exception.message
+      end
+    when DbPackage::ReadSourceAccessError
+      logger.error "ReadSourceAccessError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 403, :errorcode => 'source_access_no_permission',
+          :message => "Source Access not alllowed"
+      else
+        render_error :status => 403, :errorcode => 'source_access_no_permission',
+          :message => exception.message
+      end
+    when UserNotFoundError
+      logger.error "UserNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'user_not_found',
+          :message => "User not found"
+      else
+        render_error :status => 404, :errorcode => 'user_not_found',
+          :message => exception.message
+      end
     else
       if send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
       end
-      render_error :message => "uncaught exception: #{exception.message}", :status => 400
+      render_error :message => "Uncaught exception: #{exception.message}", :status => 400
     end
   end
 
@@ -564,7 +585,7 @@ class ApplicationController < ActionController::Base
     opt = defaults.merge opt
     unless params.has_key? opt[:cmd_param]
       render_error :status => 400, :errorcode => "missing_parameter'",
-        :message => "missing parameter '#{opt[:cmd_param]}'"
+        :message => "Missing parameter '#{opt[:cmd_param]}'"
       return
     end
 
@@ -603,7 +624,7 @@ class ApplicationController < ActionController::Base
 
     if missing.length > 0
       render_error :status => 400, :errorcode => "missing_query_parameters",
-        :message => "missing query parameters: #{missing.join ', '}"
+        :message => "Missing query parameters: #{missing.join ', '}"
     end
     return false
   end

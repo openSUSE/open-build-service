@@ -1,14 +1,17 @@
-<% @pagetitle = "Edit Raw Config for #{@project}" %>
-<% project_bread_crumb( 'Edit raw config' ) -%>
+<% @pagetitle = "Edit Raw Configuration of #{@project}"
+   project_bread_crumb('Edit raw configuration')
+-%>
 
 <%= render :partial => "tabs" %>
 
-<h3>Editing Raw Config for <%=h @project %></h3>
+<h3><%= @pagetitle %></h3>
 
 <% form_tag :action => :save_meta do %>
-  <p><strong>Config:</strong><br/>
-  <%= text_area_tag "meta", @meta, :rows => 20, :cols => 40 %><br/>
-  <%= hidden_field_tag "project", @project.name %></p>
+  <p>
+    <strong>Config:</strong><br/>
+    <%= text_area_tag "meta", @meta, :rows => 20, :cols => 40 %><br/>
+    <%= hidden_field_tag "project", @project.name %>
+  </p>
   <p><%= submit_tag %></p>
 <% end %>
 

@@ -2,25 +2,24 @@
 <% @pagetitle = "My Projects" if user.to_s == session[:login] %>
 <% @crumb_list = [@pagetitle] -%>
 
-<h2><%= @pagetitle %></h2>
+<h3><%= @pagetitle %></h3>
 
-<h3>Watched Projects</h3>
+<h4>Watched Projects</h4>
 <%= render :partial => 'watch_list' %>
-
 <br/>
-<div style="min-width: 50%; float: left">
-  <h3>Involved Projects</h3>
+
+<div style="width: 50%; float: left">
+  <h4>Involved Projects</h4>
   <% unless @iprojects.blank? -%>
-    <table id='involved_prj-table' class='grid' title="Involved Projects">
+    <table style="width: 92%" id='involved_prj-table' class='grid' title="Involved Projects">
       <tr>
         <th>Project</th>
-        <th>Monitor</th>
+        <th style="width: 1%">Actions</th>
       </tr>
       <% @iprojects.each do |project| -%>
         <tr>
-          <td><%= link_to project, :controller => :project, :action => :show, :project => project %></td>
-          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, 
-                          :action => :monitor, :project => project %></td>
+          <td><%= link_to elide(project, 60), :controller => :project, :action => :show, :project => project %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, :action => :monitor, :project => project %></td>
         </tr>
       <% end -%>
     </table>
@@ -29,22 +28,22 @@
   <% end -%>
 </div>
 
-<div style="min-width: 50%; float: left">
-  <h3>Involved Packages</h3>
+<div style="width: 50%; float: left">
+  <h4>Involved Packages</h4>
   <% unless @ipackages.blank? -%>
-  <table id='involved_pkg-table' class='grid' title="Involved Packages">
+  <table style="width: 92%" id='involved_pkg-table' class='grid' title="Involved Packages">
     <tr>
-      <th>Package</th>
       <th>Project</th>
-      <th>Monitor</th>
+      <th>Package</th>
+      <th style="width: 1%">Actions</th>
     </tr>
     <% @ipackages.each do |prj, packs| -%>
       <% packs.each do |pkg| -%>
         <tr>
-          <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
-          <td><%= link_to prj, :controller => :project, :action => :show, :project => prj %></td>
-          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
-                  :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
+          <% shortened_prj, shortened_pkg = elide_two(prj, pkg, 60) %>
+          <td><%= link_to shortened_prj, :controller => :project, :action => :show, :project => prj %></td>
+          <td><%= link_to shortened_pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
         </tr>
       <% end -%>
     <% end -%>
@@ -53,4 +52,5 @@
     <p><em>Not involved in any package.</em></p>
   <% end -%>
 </div>
+
 <div class="clear" style="margin-bottom: 2em"></div>

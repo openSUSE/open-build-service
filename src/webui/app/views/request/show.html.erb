@@ -4,10 +4,105 @@
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
   <%= javascript_include_tag 'jquery.tooltip.min'  %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushDiff' %>
   <%= stylesheet_link_tag "jquery.tooltip" %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
 <% end %>
+
+<h3><%= @pagetitle %> (<%= @req.state.name %>)</h3>
+
+<% if @superseded_by %>
+  <p>This request has been superseded by request #<%= link_to @superseded_by, :id => @superseded_by %></p>
+<% end %>
+
+<div>
+  <h3>Actions</h3>
+  <table style="width: 95%">
+    <thead>
+      <tr>
+        <th class="header">Type</th>
+        <th class="header">Source</th>
+        <th class="header">Target</th>
+        <th class="header">Build Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @req.each_action do |ae| %>
+        <tr>
+          <td><%= ae.data.attributes["type"] %></td>
+          <td>
+          <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
+            <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 64) %>
+            <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
+            <% if package_exists?(ae.source.project, ae.source.package) %>
+              <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+            <% else %>
+              <%= src_pack %>
+            <% end %>
+          <% end %>
+          </td>
+          <td>
+          <% if ae.has_element?(:target) %>
+            <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
+              <% if ae.target.has_attribute?(:package) and package_exists?(ae.target.project, ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, 64) %>
+                <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
+                <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+              <% else %>
+                <%= link_to(elide(ae.target.project, 64), :controller => :project, :action => :show, :project => ae.target.project) %>
+              <% end %>
+            <% else %>
+              <% if ae.target.has_attribute?(:package) and package_exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
+                <%= link_to(elide(ae.target.package, 64), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+              <% elsif ae.data.attributes[:type] == "delete" %>
+                This project
+              <% end %>
+            <% end %>
+          <% end %>
+          </td>
+          <td>
+            <% if ae.has_element? :source %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
+              <script type="text/javascript">
+                setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
+              </script>
+             <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <h3>Comment</h3>
+  <p><%= format_comment(@req.value('description')) %></p>
+</div>
+
+<div>
+  <h3>History</h3>
+  <table style="width: 95%">
+    <thead>
+      <tr>
+        <th class="header">Date</th>
+        <th class="header">State</th>
+        <th class="header">User</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @req.history.each do |h| %>
+        <tr>
+          <td><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
+          <td><%= h[:name] %></td>
+          <td><%= link_to(h[:who], :controller => :home, :user => h[:who]) %></td>
+        </tr>
+        <% if h.has_key?(:comment) and not h[:comment].nil? %>
+          <tr>
+            <td colspan="3"><p><%= h[:comment] %></p></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
 <% content_for :head_javascript do %>
   function insertRow() {
@@ -46,103 +141,22 @@
     $("#pTable td#comment_"+field_id).text(comment)
   }
 <% end %>
-
-<% content_for :ready_function do %>
-  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-  dp.SyntaxHighlighter.HighlightAll('code');
-<% end %>
-
-<h3><%= @pagetitle %></h3>
-
-<% if @superseded_by %>
-  <p>This request has been superseded by request #<%= link_to @superseded_by, :id => @superseded_by %></p>
-<% end %>
-
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>State</th>
-      <th>Requester</th>
-      <th>Type</th>
-      <th>Source</th>
-      <th>Target</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%  if @req.has_element? :action
-      actions = @req.each_action
-      length = actions.length
-    else
-      actions = [@req.submit]
-      length = 1
-    end
-    if @req.has_element? :history
-      creator = @req.each_history.last.who
-    else
-      creator = @req.state.who
-    end
-    first = true %>
-    <% @req.each_action do |action| %>
-      <tr>
-        <% if first %>
-          <td rowspan="<%= length %>"><%= @req.value :id %></td>
-          <td rowspan="<%= length %>"><%= @req.state.name %></td>
-          <td rowspan="<%= length %>"><%= link_to(truncate(@req.state.who, :length => 12), :controller => :home, :user => @req.state.who) %></td>
-          <% first = nil %>
-        <% end %>
-        <td>
-          <% if @req.has_element? :action %>
-            <%= action.data.attributes["type"] %>
-          <% else %>
-            submit
-          <% end -%>
-        </td>
-        <td>
-          <% if action.has_element? :source %>
-            <span id="req_<%= @req.value(:id) %>"><%= image_tag 'icons/information.png' %>
-              <%= package_link(action.source.project, action.source.value(:package)) %>
-            </span>
-            <script type="text/javascript">
-              setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult,
-      :project => action.source.project, :package => action.source.package %>' )
-            </script>
-          <% end -%>
-
-        </td>
-        <td>
-          <%= if action.has_element? :target
-            package = action.target.value(:package)
-            package_link(action.target.project, package) if package
-          end -%>
-        </td>
-      </tr>
-    <% end -%>
-    <tr>
-      <td colspan="6"><%= format_comment(@req.value('description')) %></td>
-    </tr>
-  </tbody>
-</table>
-
-<% if @diff_text and not @diff_text.empty?%>
-  <pre id="code" class="patch">
-    <%= h @diff_text %>
-  </pre>
-<% end %>
-
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
   <div class="section">
     <% form_tag :action => "changerequest" do %>
       <div>
+        <h3>Edit Request</h3>
         <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author || @req.each_review.length > 0) %>
-          <h3>Reviewers</h3>
           <!-- handle existing reviews -->
+          <p>
+            <strong>Reviewers:</strong>
+          </p>
           <table id="pTable">
             <tr>
-              <th>Type</th>
-              <th>Owner</th>
-              <th>Comment</th>
-              <th>State</th>
+              <th style="width: 1%">Type</th>
+              <th style="width: 8%">Owner</th>
+              <th style="width: 90%">Comment</th>
+              <th style="width: 1%">State</th>
             </tr>
             <% @req.each_review do |r|%>
               <%- comment=nil
@@ -184,8 +198,8 @@
                 <tr class="add_reviewer">
                   <td><%= select_tag "add_review_type", options_for_select(["User", "Group"]) %></td>
                   <td><%= text_field_tag "add_review_name" %></td>
-                  <td><%= text_field_tag "add_review_comment", nil, :size => "50x2" %></td>
-                  <td><%= button_to_function("Add Reviewer") {|r| r.call :insertRow} %></td>
+                  <td><%= text_field_tag "add_review_comment", nil, :style => "width: 99%" %></td>
+                  <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow()") %></td>
                 </tr>
               <% end %>
             <% end %>
@@ -193,11 +207,10 @@
         <% end %>
 
         <!-- handle the request itself -->
-        <h3>Actions</h3>
         <%= hidden_field_tag( "id", @id) %>
         <p>
-          <strong>Comment:</strong>
-          <%= text_field_tag :reason, '' , :size => 80 %>
+          <strong>Your Comment:</strong><br/>
+          <%= text_field_tag :reason, '' , :style => "width: 99%" %><br/>
         </p>
         <p>
           <% if @is_maintainer %>
@@ -222,4 +235,9 @@
       </div>
     <% end %>
   </div>
+<% end %>
+
+<% if @diff_text and not @diff_text.empty? %>
+  <h3>Diff</h3>
+  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @diff_text, :type => 'diff'} %>
 <% end %>

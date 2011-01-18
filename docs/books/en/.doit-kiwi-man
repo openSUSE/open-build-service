@@ -1,9 +1,0 @@
-#/bin/bash
-
-DB=/usr/share/xml/docbook/stylesheet/nwalsh/current/
-xsltproc $DB/manpages/docbook.xsl  xml/kiwi-man.xml
-xsltproc $DB/manpages/docbook.xsl  xml/kiwi-man-config.sh.xml
-xsltproc $DB/manpages/docbook.xsl  xml/kiwi-man-images.sh.xml
-
-#xsltproc --output kiwi.html $DB/html/docbook.xsl xml/kiwi-man.xml
-

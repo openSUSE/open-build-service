@@ -111,7 +111,7 @@ class StatusController < ApplicationController
 
     data=REXML::Document.new(ret)
     # ACL(update_workerstatus_cache): filter out all packages / projects that are hidden by access
-    # THIS WON'T WORK AS IT'S READ FROM CACHE ANYWAY
+    # FIXME2.2: THIS WON'T WORK AS IT'S READ FROM CACHE ANYWAY
     accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
     accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
     data.root.each_element('building') do |b|
@@ -179,12 +179,7 @@ class StatusController < ApplicationController
 
   def project
     # ACL(project): This call is not used in config/routes. FIXME: delete?
-     dbproj = DbProject.find_by_name(params[:id])
-     if ! dbproj
-        render_error :status => 404, :errorcode => "no such project",
-          :message => "project %s does not exist" % params[:id]
-        return
-     end
+     dbproj = DbProject.get_by_name(params[:id])
      key='project_status_xml_%s' % dbproj.name
      xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
        @packages = dbproj.complex_status(backend)
@@ -201,16 +196,8 @@ class StatusController < ApplicationController
       render :text => '<status code="unknown">Not submit</status>' and return
     end
 
-    tproj = DbProject.find_by_name(req.action.target.project)
-    sproj = DbProject.find_by_name(req.action.source.project)
-    
-    unless tproj
-      render :text => '<status code="error">Target project does not exist</status>' and return
-    end
-
-    unless sproj
-      render :text => '<status code="error">Source project does not exist</status>' and return
-    end
+    tproj = DbProject.get_by_name(req.action.target.project)
+    sproj = DbProject.get_by_name(req.action.source.project)
     
     tocheck_repos = Array.new
     sproj.repositories.each do |srep| 

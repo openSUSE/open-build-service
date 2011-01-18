@@ -1,5 +1,5 @@
 <div id="dialog_wrapper">
-<div class="dialog" id="disable_mask"></div>
+  <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box" id="del_dialog">
     <div class="box box-shadow">
       <div class="box-header aligncenter">
@@ -11,10 +11,10 @@
       <% form_tag({:controller => :package, :action => :remove}, :method => :post) do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
-        <p class="buttons">
+        <div class="buttons">
           <%= submit_tag("Ok") %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
-        </p>
+        </div>
       <% end %>
     </div>
   </div>

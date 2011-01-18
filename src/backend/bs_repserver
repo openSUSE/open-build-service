@@ -1206,7 +1206,7 @@ sub putjob {
   my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
   die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
   die("job is not building\n") if $jobstatus->{'code'} ne 'building';
-  
+
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
   die("job info does not match\n") if $infoxmlmd5 ne $jobid;
@@ -1215,8 +1215,10 @@ sub putjob {
   my $projid = $info->{'project'} || $info->{'path'}->[0]->{'project'};
   my $repoid = $info->{'repository'} || $info->{'path'}->[0]->{'repository'};
 
+  my $now = time();
+
   $jobstatus->{'code'} = 'built';
-  $jobstatus->{'endtime'} = time();
+  $jobstatus->{'endtime'} = $now;
 
   my $idlename = "$jobstatus->{'hostarch'}:$jobstatus->{'workerid'}";
   $idlename =~ s/\//_/g;
@@ -1230,6 +1232,14 @@ sub putjob {
     unlink("$jobsdir/$arch/$job:status");
     close(F);
     return $BSStdServer::return_ok;
+  }
+
+  # check if worker time is "good enough"
+  if ($cgi->{'now'} && ($cgi->{'now'} > $now + 3600 || $cgi->{'now'} < $now - 3600)) {
+    sendbadhostevent($info, $idlename);
+    unlink("$jobsdir/$arch/$job:status");
+    close(F);
+    die("time mismatch\n");
   }
 
   # right job, fetch everything!
@@ -1263,8 +1273,19 @@ sub putjob {
     my @s = stat("$dir/$file->{'name'}");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    my $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
-    BSVerify::verify_nevraquery($data);
+    my $data;
+    eval {
+      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file->{'name'}");
+      $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
+      BSVerify::verify_nevraquery($data);
+    };
+    if ($@) {
+      BSUtil::appendstr("$dir/logfile", "$file->{'name'}: $@");
+      unlink("$dir/$file->{'name'}");
+      $uploaded = [ grep {$_->{'name'} ne $file->{'name'}} @$uploaded ];
+      $jobstatus->{'result'} = 'failed';
+      next;
+    }
     $bininfo->{$id} = $data;
   }
   BSUtil::store("$dir/.bininfo", undef, $bininfo) if %$bininfo;
@@ -1277,7 +1298,7 @@ sub putjob {
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
   if ($BSConfig::sign && grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso)$/} (@$uploaded)) {
-    # write now jobstatus and free lock
+    # write jobstatus and free lock
     $jobstatus->{'code'} = 'signing';
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
     close F;
@@ -1286,7 +1307,7 @@ sub putjob {
     writexml("$eventdir/signer/.finished:$arch:$job$$", "$eventdir/signer/finished:$arch:$job", $ev, $BSXML::event);
     ping('signer');
   } else {
-    # write now jobstatus and free lock
+    # write jobstatus and free lock
     $jobstatus->{'code'} = 'finished';
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
     close F;
@@ -2771,7 +2792,7 @@ my $dispatches = [
   '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
-  '!worker POST:/putjob $arch $job $jobid:md5 $code:?' => \&putjob,
+  '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num?' => \&putjob,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 

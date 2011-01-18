@@ -1,9 +1,9 @@
 <table class="flag_table" id="flag_table_<%= flags.element_name %>">
   <tr>
     <th></th>
-    <th style="width: 7ex">All</th>
+    <th style="width: 6ex">All</th>
     <% @project.architectures.each do |arch| %>
-      <th style="width: 7ex"><%=h arch %></th>
+      <th style="width: 6ex"><%=h arch %></th>
     <% end %>
   </tr>
 
@@ -18,7 +18,7 @@
   <!-- renders each line in flag table, excepting the 'all' row -->
   <% @project.repositories.each do |repo| %>
     <tr>
-      <td class="reponame"><strong title="<%=h repo %>"><%= h(truncate(repo, :length => 19)) %></strong></td>
+      <td class="reponame"><strong title="<%=h repo %>"><%= h(elide(repo, 18)) %></strong></td>
       <td class="allrow"><%= flag_status(flags, repo, nil) -%></td>
       <% @project.architectures.each do |a| %>
         <td><%= flag_status(flags, repo, a) -%></td>

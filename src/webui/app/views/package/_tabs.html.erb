@@ -1,3 +1,10 @@
+<% content_for :ready_function do %>
+  $("#advanced_tabs_trigger").click(function() {
+    $("#advanced_tabs").show();
+    $("#advanced_tabs_trigger").remove();
+  });
+<% end %>
+
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "package", :media => "all" %>
 <% end %>
@@ -8,13 +15,22 @@
     <%= tab 'Sources', :controller => :package, :action => :files %>
     <%= tab 'Repositories', :controller => :package, :action => :repositories %>
     <%= tab 'Revisions', :controller => :package, :action => :source_history %>
-    <%= tab 'Attributes', :controller => :package, :action => :attributes %>
-    <%= tab 'Users', :controller => :package, :action => :users %>
-    <% if @package_has_requests %>
-      <%= tab "Requests", :controller => :package, :action => 'list_requests'%>
-    <% end -%>
-    <%= tab 'Raw Config', :controller => :package, :action => :meta %>
-  </ul>
+    <%= tab "Requests", :controller => :package, :action => 'list_requests' unless @requests.blank? %>
 
+    <% if @controller.is_advanced_tab? %>
+      <% content_for :ready_function do %>
+        $("#advanced_tabs").show();
+      <% end %>
+    <% else %>
+      <li><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
+    <% end %>
+  </ul>
+  <div id="advanced_tabs">
+    <ul>
+      <%= tab 'Users', :controller => :package, :action => :users %>
+      <%= tab 'Attributes', :controller => :package, :action => :attributes %>
+      <%= tab 'Raw Config', :controller => :package, :action => :meta %>
+    </ul>
+  </div>
 </div>
 <div class="clear"></div>

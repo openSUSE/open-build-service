@@ -863,7 +863,6 @@ sub writeProductSPECfile( $$$$ )
 ";
      my $bugtracker=getUrl($product,"i586","bugtracker");
      $content.="\n# Please submit bugfixes or comments via $bugtracker\n#\n\n" if ("$bugtracker" ne "");
-     $content.="# norootforbuild\n";
      $content.="\n\n";
      $content.="Name:           $product->{name}-release\n";
      $content.="%define         product $product->{name}\n";

@@ -39,6 +39,7 @@ please issue the following commands as root user in your shell:
  $ zypper refresh
  $ zypper install devel_rpm_build osc mysql-community-server sqlite3 \
                   perl perl-Net-Domain perl-Net-SSLeay perl-BSSolv \
+                  perl-GD \
                   ruby ruby-mysql rubygems rubygem-sqlite3 rubygem-rails-2_3 \
                   rubygem-delayed_job rubygem-gruff rubygem-libxml-ruby \
                   rubygem-sqlite3 rubygem-daemons \

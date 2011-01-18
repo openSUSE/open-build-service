@@ -6,21 +6,11 @@ class WizardController < ApplicationController
   def package_wizard
     prj_name = params[:project]
     pkg_name = params[:package]
-    pkg = DbPackage.find_by_project_and_name(prj_name, pkg_name)
-
-    # ACL(package_wizard): access behaves like package / project not existing
-    raise DbPackage::PkgAccessError.new "" unless pkg
+    pkg = DbPackage.get_by_project_and_name(prj_name, pkg_name)
 
     if not @http_user.can_modify_package?(pkg)
       render_error :status => 403, :errorcode => "change_package_no_permission",
         :message => "no permission to change package"
-      return
-    end
-
-    # ACL(package_wizard): source access gives permisson denied
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => "source_access_no_permission",
-      :message => "user #{params[:user]} has no read access to package #{pkg_name} in project #{prj_name}"
       return
     end
 

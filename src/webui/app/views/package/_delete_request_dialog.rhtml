@@ -15,12 +15,12 @@
           <%= label_tag(:target_project, "In target project:") %><br/>
           <%= text_field_tag(:target_project, @project, :size => 40, :disabled => true) %><br/>
           <%= label_tag(:description, "Description:") %><br/>
-          <%= text_area_tag(:description, "", :size => "40x3") %><br/>
+          <%= text_area_tag(:description, "", :size => "40x3") %>
         </p>
-        <p class="buttons">
+        <div class="buttons">
           <%= submit_tag("Ok") %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
-        </p>
+        </div>
       <% end %>
     </div>
   </div>

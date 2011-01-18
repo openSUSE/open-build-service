@@ -5,7 +5,7 @@ set :application, "obs-webui"
 # git settings
 set :scm, :git
 set :repository,  "git://gitorious.org/opensuse/build-service.git"
-set :branch, "2.1"
+set :branch, "master"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/webui'
@@ -80,7 +80,7 @@ namespace :config do
 
   desc "Sync public to static.o.o"
   task :sync_static do
-    `rsync  --delete-after --exclude=themes -av public/ -e 'ssh -p2212' proxy-opensuse.suse.de:/srv/www/vhosts/static.opensuse.org/hosts/#{static}`
+    `rsync  --delete-after --exclude=themes -av --no-p public/ -e 'ssh -p2212' proxy-opensuse.suse.de:/srv/www/vhosts/static.opensuse.org/hosts/#{static}`
   end
 
 end

@@ -1,8 +1,0 @@
-#/bin/bash
-
-#. ./ENV-Build_Service
-. ./ENV-Quickstart-KIWI
-make pdf
-#make ROOTID=cha.kiwi pdf
-#make ROOTID=cha.kiwi html
-

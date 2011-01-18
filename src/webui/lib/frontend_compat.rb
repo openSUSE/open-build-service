@@ -110,8 +110,8 @@ class FrontendCompat
 
   def gethistory(key, range, cache=1)
     cachekey = key + "-#{range}"
-    Rails.cache.delete(cachekey) if !cache
-    return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150) do
+    Rails.cache.delete(cachekey, :shared => true) if !cache
+    return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
       hash = Hash.new
       data = transport.direct_http(URI('/public/status/history?key=%s&hours=%d&samples=400' % [key, range]))
       d = XML::Parser.string(data).parse

@@ -1,30 +1,16 @@
-<% @pagetitle = "View File #{@filename} of Package #{@package}" %>
-
-<% package_bread_crumb(
-  link_to( 'Files', :action => :files, :project => @project, :package => @package, :rev => @srcmd5 ),
-  h(@filename)) -%>
+<% @pagetitle = "View File #{@filename} of Package #{@package}"
+   package_bread_crumb(link_to('Files', :action => :files, :project => @project, :package => @package, :rev => @srcmd5), h(@filename))
+-%>
 
 <%= render :partial => "tabs" %>
 
-
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml', 'syntax/shBrushDiff' %>
-<% end %>
-
-<% content_for :ready_function do %>
-  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-  dp.SyntaxHighlighter.HighlightAll('code');
-  <% if @addeditlink %>
-    $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-    $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
-      :package => @package, :file => @filename, :srcmd5 => @srcmd5, :expand => @expand ) %>");
-  <% end %>
-<% end %>
-
 <h3><%= h @pagetitle %> (Project <%=h @project %>)</h3>
 
-<pre id="code" class="<%= guess_code_class(@filename) %>">
-<%=h @file %>
-</pre>
+<% if @addeditlink %>
+  <p>
+    <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit file' ), :action => :edit_file, :project => @project, :package => @package, :file => @filename, :srcmd5 => @srcmd5, :expand => @expand) %>
+    <%= link_to('Edit file', :action => :edit_file, :project => @project, :package => @package, :file => @filename, :srcmd5 => @srcmd5, :expand => @expand) %>
+  </p>
+<% end %>
 
+<%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @file, :type => guess_code_class(@filename)} %>

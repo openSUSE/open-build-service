@@ -9,7 +9,9 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
-# Start-Before:      mysql
+# Start-Before:      mysql sshd
+# Should-Start:      xendomains
+# Should-Stop:       $none
 # Required-Start:    $network boot.lvm
 # Required-Stop:     $null
 # Default-Start:     3 5
@@ -67,48 +69,52 @@ case "$1" in
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" ]; then
-			echo "Collect all LVM partitions for the worker"
-			# remove everything first
-			vgreduce --removemissing OBS
-			vgremove -f OBS
-			pvremove `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
+			if [ -e /dev/OBS/server ]; then
+				echo "ERROR: A OBS server partition exists, aborting, do no take all space!"
+			else
+				echo "Collect all LVM partitions for the worker"
+				# remove everything first
+				vgreduce --removemissing --force OBS
+				vgremove -f OBS
+				pvremove `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
 
-			# Find unpartitioned disks and create LVM partition on them
-			for disk in `hwinfo --disk | grep "Device File:" |\
-				cut -f2 -d: | cut -f2 -d" "`;do
-			        count=0
-			        used=
-			        for i in `sfdisk -l $disk 2>/dev/null | tr -d '*' | grep ^/ |\
-			                sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
-			                blocks=`echo $i | cut -f2 -d:`
-			                if [ $blocks = "0" ];then
-			                        count=`expr $count + 1`
-			                        continue
-			                fi
-			                used=1
-			        done
-			        if [ $count -eq 4 ] || [ -z "$used" ];then
-					echo ",,8e,-" | sfdisk $disk >/dev/null 2>&1
-			        fi
-			done
+				# Find unpartitioned disks and create LVM partition on them
+				for disk in `hwinfo --disk | grep "Device File:" |\
+					cut -f2 -d: | cut -f2 -d" "`;do
+				        count=0
+				        used=
+				        for i in `sfdisk -l $disk 2>/dev/null | tr -d '*' | grep ^/ |\
+				                sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
+				                blocks=`echo $i | cut -f2 -d:`
+				                if [ $blocks = "0" ];then
+				                        count=`expr $count + 1`
+				                        continue
+				                fi
+				                used=1
+				        done
+				        if [ $count -eq 4 ] || [ -z "$used" ];then
+						echo ",,8e,-" | sfdisk $disk >/dev/null 2>&1
+				        fi
+				done
 
-			# Collect all LVM partitions
-			DEVICES=""
-			for i in `sfdisk -l 2>/dev/null | tr -d '*' | grep ^/ |\
-				sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
-				device=`echo $i | cut -f1 -d:`
-				blocks=`echo $i | cut -f2 -d:`
-				partid=`echo $i | cut -f3 -d:`
-				if [ $blocks = "0" ];then
-				        continue 
-				fi
-				if [ $partid = "8e" ];then
-                                        # metadata size is needed to align PV inside of partition
-					pvcreate --metadatasize 499k $device && DEVICES="$DEVICES $device"
-				fi
-			done
-			vgcreate OBS $DEVICES
-			vgscan
+				# Collect all LVM partitions
+				DEVICES=""
+				for i in `sfdisk -l 2>/dev/null | tr -d '*' | grep ^/ |\
+					sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
+					device=`echo $i | cut -f1 -d:`
+					blocks=`echo $i | cut -f2 -d:`
+					partid=`echo $i | cut -f3 -d:`
+					if [ $blocks = "0" ];then
+					        continue 
+					fi
+					if [ $partid = "8e" ];then
+                		                # metadata size is needed to align PV inside of partition
+						pvcreate --metadatasize 499k $device && DEVICES="$DEVICES $device"
+					fi
+				done
+				vgcreate OBS $DEVICES
+				vgscan
+			fi
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
@@ -121,7 +127,12 @@ case "$1" in
 				NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
 
 				# but be sure that we have at least 512MB per instance
-				MEMORY=`sed -n 's/^MemTotal:[ ]*\(.*\).kB$/\1/p' /proc/meminfo`
+				if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
+					MEMORY=`xm info | sed -n 's/^max_free_memory[ ]*:[ ]*\(.*\)$/\1/p'`
+					MEMORY=$(( $MEMORY * 1024 ))
+				else
+					MEMORY=`sed -n 's/^MemTotal:[ ]*\(.*\).kB$/\1/p' /proc/meminfo`
+				fi
 				if [ $MEMORY -lt $(( $NUM * 512 * 1024 )) ]; then
 					NUM=$(( $MEMORY / ( 1024 * 512 ) ))
 					NUM=$(( $NUM - 1 ))  # for Dom0

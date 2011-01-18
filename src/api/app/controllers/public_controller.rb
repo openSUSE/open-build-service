@@ -8,20 +8,50 @@ class PublicController < ApplicationController
     redirect_to :controller => 'main'
   end
 
+  def check_project_access(name)
+    key = "public_project:" + name
+    allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
+      begin
+        prj = DbProject.get_by_name(name)
+        return true
+      rescue
+        return false
+      end
+    end
+
+    raise DbProject::UnknownObjectError, "#{name}"
+  end
+  private :check_project_access
+
+  def check_package_access(project, package)
+    key = "public_package:" + project + ":" + package
+    allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
+      begin
+        prj = DbPackage.get_by_project_and_name(project, package)
+        return true
+      rescue
+        return false
+      end
+    end
+
+    raise DbPackage::UnknownObjectError, "#{project} / #{package} "
+  end
+  private :check_package_access
+
+
   # GET /public/build/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
     required_parameters :prj, :pkg, :repo, :arch
 
-    prj = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless prj
+    check_project_access(params[:prj])
 
-    # ACL(build): binarydownload denies access to build files
-    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from project #{params[:prj]}"
-      return
-    end
+# binary download is not a security feature...
+#    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
+#      render_error :status => 403, :errorcode => "download_binary_no_permission",
+#      :message => "No permission to download binaries from project #{params[:prj]}"
+#      return
+#    end
 
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
@@ -50,69 +80,27 @@ class PublicController < ApplicationController
   def project_meta
     valid_http_methods :get
 
-    prj = DbProject.find_by_name(params[:prj])
+    # get object or raise error
+    check_project_access(params[:prj])
 
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-
-    if prj
-      render :text => prj.to_axml, :content_type => 'text/xml'
-    else
-      if rprj
-        # project from remote buildservice, get metadata via backend
-        pass_to_backend unshift_public(request.path)
-      else
-        render_error :message => "Unknown project '#{params[:prj]}'",
-          :status => 404, :errorcode => "unknown_project"
-      end
-    end
+    pass_to_backend unshift_public(request.path)
   end
 
   # GET /public/source/:prj
   def project_index
     valid_http_methods :get
 
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
+    check_project_access(params[:prj])
     
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-    if rprj
-      # ACL(projectlist): a project lists only if project is not protected
-      path = unshift_public(request.path)
-      path += "?#{request.query_string}" unless request.query_string.empty?
-      pass_to_backend path
-    else
-      dir = Project.find :all
-      render :text => dir.dump_xml, :content_type => "text/xml"
-    end
+    pass_to_backend unshift_public(request.path)
   end
 
   # GET /public/source/:prj/_config
   # GET /public/source/:prj/_pubkey
   def project_file
     valid_http_methods :get
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
 
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-
-    if prj.nil? and rprj.nil?
-      msg = "Server returned an error: HTTP Error 404: Not Found\nproject '#{params[:prj]}' does not exist"
-      render_error :status => 404, :text => msg, :content_type => "text/xml"
-    end
+    check_project_access(params[:prj])
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
@@ -123,22 +111,7 @@ class PublicController < ApplicationController
   def package_index
     valid_http_methods :get
 
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-    pkg = prj.find_package(params[:pkg]) if prj
-#   raise DbPackage::PkgAccessError.new "" unless (prj and pkg) or rprj
-
-    # ACL(package_index): source access forbidden ?
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => 'source_access_no_permission',
-        :message => "Source access to package #{params[:pkg]} in project #{params[:prj]} is forbidden"
-      return
-    end
+    check_package_access(params[:prj], params[:pkg])
 
     # ACL(package_index): if private view is on behave like pkg without any src files
     path = unshift_public(request.path)
@@ -150,28 +123,9 @@ class PublicController < ApplicationController
   def package_meta
     valid_http_methods :get
 
+    check_package_access(params[:prj], params[:pkg])
 
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-    pkg = prj.find_package(params[:pkg]) if prj
-#   raise DbPackage::PkgAccessError.new "" unless (prj and pkg) or rprj
-
-    if prj
-      if pkg
-        render :text => pkg.to_axml, :content_type => 'text/xml'
-      else
-         # may be a package in a linked remote project
-        pass_to_backend unshift_public(request.path)
-      end
-    else
-      # may be a package in remote project
-      pass_to_backend unshift_public(request.path)
-    end
+    pass_to_backend unshift_public(request.path)
   end
 
   # GET /public/source/:prj/:pkg/:file
@@ -179,22 +133,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
     file = params[:file]
 
-    prj = DbProject.find_by_name(params[:prj])
-    unless prj
-      rprj = nil
-      ret = DbProject.find_remote_project(params[:prj])
-      rprj = ret[0] if ret and ret[0]
-    end
-    raise DbProject::PrjAccessError.new "" unless prj or rprj
-    pkg = prj.find_package(params[:pkg]) if prj
-#   raise DbPackage::PkgAccessError.new "" unless (prj and pkg) or rprj
-
-    # ACL(package_index): source access forbidden ?
-    if pkg and pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(pkg)
-      render_error :status => 403, :errorcode => 'source_access_no_permission',
-        :message => "Source access to package #{params[:pkg]} in project #{params[:prj]} is forbidden"
-      return
-    end
+    check_package_access(params[:prj], params[:pkg])
 
     path = "/source/#{CGI.escape(params[:prj])}/#{CGI.escape(params[:pkg])}/#{CGI.escape(file)}"
 
@@ -210,6 +149,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
     
     # ACL(lastevents): This API is not protected at all and displays a event id and a sync flag.
+    #FIXME2.2: discuss what to do with the events, must be solved in backend IMHO
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
@@ -220,32 +160,18 @@ class PublicController < ApplicationController
   def distributions
     valid_http_methods :get
 
-    # ACL(distributions): This API is not protected at all, OBS admin should not put in a hidden project into this list.
-
     render :text => DistributionController.read_distfile, :content_type => "text/xml"
   end
 
   # GET /public/binary_packages/:prj/:pkg
   def binary_packages
 
-    @prj = DbProject.find_by_name(params[:prj])
-    @pkg = @prj.find_package(params[:pkg]) if @prj
-
-    prjchk = DbProject.find_by_name(params[:prj])
-    raise DbProject::PrjAccessError.new "" unless prjchk
-    pkgchk = prjchk.find_package(params[:pkg]) if prjchk
-    raise DbPackage::PkgAccessError.new "" unless pkgchk
-
-    # ACL(binary_packages): binarydownload denies access to build files
-    if @pkg.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(@pkg)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-      return
-    end
+    check_package_access(params[:prj], params[:pkg])
+    @pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
     begin
-       binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{@pkg.db_project.name}' and @package='#{@pkg.name}'"
+       binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{params[:prj]}' and @package='#{params[:pkg]}'"
     rescue
       render_error :status => 400, :errorcode => 'search_failure', :message => "The search can't get executed."
       return
@@ -271,7 +197,7 @@ class PublicController < ApplicationController
     d = scan_distfile(distfile)
 
     @binary_links = {}
-    @prj.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
+    @pkg.db_project.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
       # TODO: this code doesnt handle path elements and layering
       # TODO: walk the path and find the base repos? is that desired?
       dist = d[repo.name]
@@ -281,7 +207,7 @@ class PublicController < ApplicationController
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
           if binary and dist.vendor == "openSUSE"
-            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@prj.name, repo.name, @pkg.name+".ymp") ) }
+            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.db_project.name, repo.name, @pkg.name+".ymp") ) }
           end
 
           @binary_links[dist_id][:binary] ||= []
@@ -289,8 +215,8 @@ class PublicController < ApplicationController
             binary_type = binary.method_missing(:type)
             @binary_links[dist_id][:binary] << {:type => binary_type, :arch => binary.arch, :url => download_url(binary.filepath)}
             if @binary_links[dist_id][:repository].blank?
-              repo_filename = (binary_type == 'rpm') ? "#{@prj.name}.repo" : ''
-              repository_path = File.join(@prj.download_name, repo.name, repo_filename)
+              repo_filename = (binary_type == 'rpm') ? "#{@pkg.db_project.name}.repo" : ''
+              repository_path = File.join(@pkg.db_project.download_name, repo.name, repo_filename)
               @binary_links[dist_id][:repository] ||= { :url => download_url(repository_path) }
             end
           end
