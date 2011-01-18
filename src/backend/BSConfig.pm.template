@@ -43,6 +43,9 @@ our $repodownload = "http://$hostname/repositories";
 #
 # Notification Plugin
 #our $notification_plugin = "notify_hermes";
+# Does the notify plugin supports multiple actions?
+# Hermes doesn't, BOSS does.
+#our $multiaction_notify_support = 0
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.
