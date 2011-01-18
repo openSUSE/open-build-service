@@ -13,13 +13,13 @@ class PublicController < ApplicationController
     allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
       begin
         prj = DbProject.get_by_name(name)
-        return true
-      rescue
-        return false
+        true
+      rescue Exception
+        false
       end
     end
 
-    raise DbProject::UnknownObjectError, "#{name}"
+    raise DbProject::UnknownObjectError, "#{name}" unless allowed
   end
   private :check_project_access
 
@@ -28,13 +28,13 @@ class PublicController < ApplicationController
     allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
       begin
         prj = DbPackage.get_by_project_and_name(project, package)
-        return true
-      rescue
-        return false
+        true
+      rescue Exception
+        false
       end
     end
 
-    raise DbPackage::UnknownObjectError, "#{project} / #{package} "
+    raise DbPackage::UnknownObjectError, "#{project} / #{package} " unless allowed
   end
   private :check_package_access
 
