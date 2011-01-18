@@ -8,26 +8,19 @@ class PublicController < ApplicationController
     redirect_to :controller => 'main'
   end
 
-  def check_project_access(name)
-    key = "public_project:" + name
-    allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
-      begin
-        prj = DbProject.get_by_name(name)
-        true
-      rescue Exception
-        false
-      end
+  def check_package_access(project, package, use_source=true)
+
+    # don't use the cache for use_source
+    if use_source
+      DbPackage.get_by_project_and_name(project, package)
+      return
     end
 
-    raise DbProject::UnknownObjectError, "#{name}" unless allowed
-  end
-  private :check_project_access
-
-  def check_package_access(project, package)
+    # generic access checks
     key = "public_package:" + project + ":" + package
     allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
       begin
-        prj = DbPackage.get_by_project_and_name(project, package)
+        DbPackage.get_by_project_and_name(project, package, use_source=false)
         true
       rescue Exception
         false
@@ -38,13 +31,13 @@ class PublicController < ApplicationController
   end
   private :check_package_access
 
-
   # GET /public/build/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
     required_parameters :prj, :pkg, :repo, :arch
 
-    check_project_access(params[:prj])
+    # project visible/known ? 
+    DbProject.get_by_name(params[:prj])
 
 # binary download is not a security feature...
 #    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
@@ -80,8 +73,8 @@ class PublicController < ApplicationController
   def project_meta
     valid_http_methods :get
 
-    # get object or raise error
-    check_project_access(params[:prj])
+    # project visible/known ? 
+    DbProject.get_by_name(params[:prj])
 
     pass_to_backend unshift_public(request.path)
   end
@@ -90,7 +83,8 @@ class PublicController < ApplicationController
   def project_index
     valid_http_methods :get
 
-    check_project_access(params[:prj])
+    # project visible/known ? 
+    DbProject.get_by_name(params[:prj])
     
     pass_to_backend unshift_public(request.path)
   end
@@ -100,7 +94,8 @@ class PublicController < ApplicationController
   def project_file
     valid_http_methods :get
 
-    check_project_access(params[:prj])
+    # project visible/known ? 
+    DbProject.get_by_name(params[:prj])
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
@@ -123,7 +118,7 @@ class PublicController < ApplicationController
   def package_meta
     valid_http_methods :get
 
-    check_package_access(params[:prj], params[:pkg])
+    check_package_access(params[:prj], params[:pkg], false)
 
     pass_to_backend unshift_public(request.path)
   end
@@ -166,7 +161,7 @@ class PublicController < ApplicationController
   # GET /public/binary_packages/:prj/:pkg
   def binary_packages
 
-    check_package_access(params[:prj], params[:pkg])
+    check_package_access(params[:prj], params[:pkg], false)
     @pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
