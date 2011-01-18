@@ -52,6 +52,7 @@ init = Rails::Initializer.run do |config|
   # (remember to create the caching directory and make it readable to the application)
   # config.action_controller.fragment_cache_store = :file_store, "#{RAILS_ROOT}/cache"
 
+  config.gem 'builder'
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'libxml-ruby'
