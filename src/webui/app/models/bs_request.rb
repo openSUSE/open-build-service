@@ -152,7 +152,7 @@ class BsRequest < ActiveXML::Base
       end
 
       predicate = ""
-      case opts[:state]
+      case opts[:state].to_s
         when "pending" then    predicate += "(state/@name='new' or state/@name='review') and "
         when "new" then        predicate += "state/@name='new' and "
         when "deleted" then    predicate += "state/@name='deleted' and "
