@@ -41,8 +41,8 @@ class SourceController < ApplicationController
           return
         end
       else
-        dir = Project.find :all
         # list all projects (visible to user)
+        dir = Project.find :all
         render :text => dir.dump_xml, :content_type => "text/xml"
         return
       end

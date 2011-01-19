@@ -75,90 +75,62 @@ class TagController < ApplicationController
   
   
   def get_projects_by_tag ( do_render=true )
-# FIXME2.2: this is not filtering hidden projects
-    begin
-      @tag = params[:tag]      
-      @projects = Array.new
+    @tag = params[:tag]      
+    @projects = Array.new
 
-       first_run = true
+     first_run = true
 
-      @tag.split('::').each do |t|
-        tag = Tag.find_by_name(t)
-        raise RuntimeError.new( "Error: Tag '#{t}' not found." ) unless tag
-        
-        unless first_run         
-          @projects = @projects & tag.db_projects.find(:all, :group => "name", :order => "name")      
-        else
-          @projects = tag.db_projects.find(:all, :group => "name", :order => "name")
-          first_run = false 
-        end
-      end
+    @tag.split('::').each do |t|
+      tag = Tag.find_by_name(t)
+      raise TagNotFoundError.new("Tag #{t} not found") unless tag
 
-      if do_render
-        render :partial => "objects_by_tag"
+      unless first_run         
+        @projects = @projects & tag.db_projects.find(:all, :group => "name", :order => "name")      
       else
-        return @projects
-      end
-      
-    rescue Exception => error
-      if do_render 
-        render_error :status => 404, :errorcode => 'tag_error',
-        :message => error
-      else
-        raise error
+        @projects = tag.db_projects.find(:all, :group => "name", :order => "name")
+        first_run = false 
       end
     end
+
+    if do_render
+      render :partial => "objects_by_tag"
+      return
+    end
+    return @projects
   end
   
   
   def get_packages_by_tag( do_render=true )
-# FIXME2.2: this is not filtering hidden projects
-    begin
-      @tag = params[:tag]
-      @packages = Array.new
+    @tag = params[:tag]
+    @packages = Array.new
+    
+    first_run = true
+    
+    @tag.split('::').each do |t|
+      tag = Tag.find_by_name(t)
+      raise TagNotFoundError.new("Tag #{t} not found") unless tag
       
-      first_run = true
-      
-      @tag.split('::').each do |t|
-        tag = Tag.find_by_name(t)
-        raise RuntimeError.new( "Error: Tag '#{t}' not found." ) unless tag
-        
-        unless first_run
-          @packages = @packages & tag.db_packages.find(:all, :group => "name", :order => "name")
-        else
-          @packages = tag.db_packages.find(:all, :group => "name", :order => "name")
-          first_run = false
-        end
-      end
-      
-      if do_render
-        render :partial => "objects_by_tag"
+      unless first_run
+        @packages = @packages & tag.db_packages.find(:all, :group => "name", :order => "name")
       else
-        return @packages
-      end
-      
-    rescue Exception => error
-      if do_render 
-        render_error :status => 404, :errorcode => 'tag_error',
-        :message => error
-      else
-        raise error
+        @packages = tag.db_packages.find(:all, :group => "name", :order => "name")
+        first_run = false
       end
     end
+    
+    if do_render
+      render :partial => "objects_by_tag"
+      return
+    end
+    return @packages
   end
   
   
   def get_objects_by_tag
-    begin
-      @projects = get_projects_by_tag( false )
-      @packages = get_packages_by_tag( false )
-      
-      render :partial => "objects_by_tag"     
-      
-    rescue Exception => error
-      render_error :status => 404, :errorcode => 'tag_error',
-      :message => error
-    end
+    @projects = get_projects_by_tag( false )
+    @packages = get_packages_by_tag( false )
+    
+    render :partial => "objects_by_tag"     
   end
   
   

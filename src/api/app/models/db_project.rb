@@ -126,13 +126,26 @@ class DbProject < ActiveRecord::Base
       end
 
       def securedfind_every(options)
-        ret = find_every(options)
-        return if ret.nil?
-        ret.each do |dbp|
-          unless check_access?(dbp)
-            ret.delete(dbp) unless User.currentAdmin
+        unless User.currentAdmin
+          # limit to projects which have no "access" flag, except user has any role inside
+          # FIXME2.2: this is not a complete check, but we are on the save side so far
+          #            
+          options[:joins] = "" if options[:joins].nil?
+          options[:joins] += " LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id"
+          options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = db_projects.id"
+          options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
+
+          if options[:conditions].nil?
+            options[:conditions] = ["ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}'"]
+          else
+            if options[:conditions].class == String
+              options[:conditions] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions] + ")"
+            else
+              options[:conditions][0] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions][0] + ")"
+            end
           end
         end
+        ret = find_every(options)
         return ret
       end
 

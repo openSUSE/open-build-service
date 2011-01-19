@@ -11,6 +11,7 @@ class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
 class IllegalRequestError < Exception; end
 class UserNotFoundError < Exception; end
+class TagNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -443,6 +444,15 @@ class ApplicationController < ActionController::Base
           :message => "Source Access not alllowed"
       else
         render_error :status => 403, :errorcode => 'source_access_no_permission',
+          :message => exception.message
+      end
+    when TagNotFoundError
+      logger.error "TagNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'tag_not_found',
+          :message => "Tag not found"
+      else
+        render_error :status => 404, :errorcode => 'tag_not_found',
           :message => exception.message
       end
     when UserNotFoundError
