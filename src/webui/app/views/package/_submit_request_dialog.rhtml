@@ -3,10 +3,10 @@
 <%= stylesheet_link_tag 'jquery.autocomplete' %>
 
 <script type="text/javascript">
-  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+  $("#targetproject").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
     { minChars: 2, matchCase: true, max: 50 } );
 
-  $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+  $("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
     minChars: 0, matchCase: true, max: 50,
     extraParams: {
        project: function() { return $("#target_project").val(); }
