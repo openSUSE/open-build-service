@@ -124,7 +124,7 @@ class SearchController < ApplicationController
       attribValues[v.attrib_id] ||= Array.new
       attribValues[v.attrib_id] << v
     end
-    packages = DbPackage.find(:all, :conditions => [ "id IN (?)", attribs.collect { |a| a.db_package_id } ], :include => :db_project)
+    packages = DbPackage.find(:all, :conditions => [ "db_packages.id IN (?)", attribs.collect { |a| a.db_package_id } ], :include => :db_project)
     pack2attrib = Hash.new
     attribs.each do |a|
       if a.db_package_id

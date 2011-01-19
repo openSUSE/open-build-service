@@ -145,8 +145,7 @@ class DbProject < ActiveRecord::Base
             end
           end
         end
-        ret = find_every(options)
-        return ret
+        return find_every(options)
       end
 
       def securedfind_last(options)
