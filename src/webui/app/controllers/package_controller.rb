@@ -163,15 +163,14 @@ class PackageController < ApplicationController
   end
 
   def submit_request
-    req = BsRequest.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
-      :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:source_update])
+    params[:type] = "submit"
+    req = BsRequest.new(params)
     begin
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
-        :project => params[:project], :package => params[:package]
+      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage], :project => params[:project], :package => params[:package]
       return
     end
     Rails.cache.delete "requests_new"

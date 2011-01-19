@@ -31,17 +31,17 @@
       <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
-        <%= hidden_field_tag(:revision, @revision) %>
+        <%= hidden_field_tag(:rev, @revision) %>
         <p>
-          <%= label_tag(:source_project, "From source project:") %><br/>
-          <%= text_field_tag(:source_project, elide(@project.name, 40), :size => 40, :disabled => true) %><br/>
-          <%= label_tag(:target_project, "To target project:") %><br/>
-          <%= text_field_tag(:target_project, tprj, :size => 40) %><br/>
+          <%= label_tag(:sourceproject, "From source project:") %><br/>
+          <%= text_field_tag(:sourceproject, elide(@project.name, 40), :size => 40, :disabled => true) %><br/>
+          <%= label_tag(:targetproject, "To target project:") %><br/>
+          <%= text_field_tag(:targetproject, tprj, :size => 40) %><br/>
           <%= label_tag(:description, "Description:") %><br/>
           <%= text_area_tag(:description, "", :size => "40x3") %><br/>
           <% default = "update" %>
           <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
-          <%= check_box_tag :source_update, 'cleanup' %> Remove local package if request is accepted
+          <%= check_box_tag :sourceupdate, 'cleanup' %> Remove local package if request is accepted
         </p>
         <div class="buttons">
           <%= submit_tag("Ok") %>
