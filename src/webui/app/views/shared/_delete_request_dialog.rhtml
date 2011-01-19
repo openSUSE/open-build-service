@@ -8,7 +8,7 @@
 
       <p>Request to delete <b><%= h((defined? @package) ? @package : @project) %></b></p>
 
-      <% form_tag({:controller => (defined? @package) ? :package : :project, :action => "delete_request"}, :method => "post") do %>
+      <% form_tag(:action => "delete_request", :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) if defined? @package %>
         <p>
