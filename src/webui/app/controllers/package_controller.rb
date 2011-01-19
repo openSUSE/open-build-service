@@ -1143,7 +1143,7 @@ class PackageController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:type => 'pending', :project => @project.name, :package => @package.name})
+    @requests = BsRequest.list({:state => 'pending', :project => @project.name, :package => @package.name})
   end
 
 end
