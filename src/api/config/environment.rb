@@ -81,7 +81,12 @@ Rails::Initializer.run do |config|
   
   config.active_record.schema_format = :sql
 
-  config.logger = NiceLogger.new(config.log_path)
+  if defined? FCGI_INSTANCE_NAME
+    config.logger = NiceLogger.new("#{RAILS_ROOT}/log/#{FCGI_INSTANCE_NAME}.log")
+  else
+    config.logger = NiceLogger.new(config.log_path)
+  end
+
   # See Rails::Configuration for more options
 end
 
