@@ -263,6 +263,7 @@ class ProjectController < ApplicationController
   end
 
   def delete_request_dialog
+    render :template => 'shared/delete_request_dialog'
   end
 
   def delete_request
