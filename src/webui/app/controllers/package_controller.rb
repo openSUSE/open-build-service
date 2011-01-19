@@ -170,8 +170,7 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage], :project => params[:project], :package => params[:package]
-      return
+      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
     Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
