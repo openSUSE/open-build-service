@@ -58,21 +58,15 @@ class BsRequest < ActiveXML::Base
       return ret
     end
 
-    def addReviewByGroup(id, group, comment = nil)
-      addReview(id, nil, group, comment)
-    end
-    def addReviewByUser(id, user, comment = nil)
-      addReview(id, user, nil, comment)
-    end
-    def addReview(id, user=nil, group=nil, comment = nil)
+    def addReview(id, opts)
+      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
+
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?cmd=addreview"
-      if user
-        path << "&by_user=#{CGI.escape(user)}"
-      end
-      if group
-        path << "&by_group=#{CGI.escape(group)}"
-      end
+      path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
+      path << "&by_group=#{CGI.escape(opts[:group[)}" if opts[:group]
+      path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
+      path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
         r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment
         # FIXME add a full error handler here
@@ -86,25 +80,18 @@ class BsRequest < ActiveXML::Base
       end
     end
 
-    def modifyReviewByGroup(id, changestate, comment, group)
-      modifyReview(id, changestate, comment, nil, group)
-    end
-    def modifyReviewByUser(id, changestate, comment, user)
-      modifyReview(id, changestate, comment, user)
-    end
-    def modifyReview(id, changestate, comment, user=nil, group=nil)
+    def modifyReview(id, changestate, opts)
+      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
       unless (changestate=="accepted" || changestate=="declined")
         raise ModifyError, "unknown changestate #{changestate}"
       end
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?newstate=#{changestate}&cmd=changereviewstate"
-      if user
-        path << "&by_user=#{CGI.escape(user)}"
-      end
-      if group
-        path << "&by_group=#{CGI.escape(group)}"
-      end
+      path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
+      path << "&by_group=#{CGI.escape(opts[:group])}" if opts[:group]
+      path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
+      path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
         transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment.to_s
         return true

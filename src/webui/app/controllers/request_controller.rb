@@ -1,23 +1,18 @@
 class RequestController < ApplicationController
 
   def addreviewer
+    unless params[:user] or params[:group] or params[:project] or params[:package]
+      render :text => "ERROR: don't know how to add reviewer" and return
+    end
     @therequest = find_cached(BsRequest, params[:id]) if params[:id]
     BsRequest.free_cache(params[:id])
 
     begin
-      if params[:user]
-        r = BsRequest.addReviewByUser( params[:id], params[:user], params[:comment] )
-      elsif params[:group]
-        r = BsRequest.addReviewByGroup( params[:id], params[:group], params[:comment] )
-      else
-        render :text => "ERROR: don't know how to add reviewer"
-        return
-      end
+      r = BsRequest.addReview(params[:id], params)
+      render :text => "added"
     rescue BsRequest::ModifyError => e
       render :text => e.message
-      return
     end
-    render :text => "added"
   end
 
   def modifyreviewer
@@ -25,17 +20,11 @@ class RequestController < ApplicationController
     BsRequest.free_cache(params[:id])
 
     begin
-      if params[:group].blank?
-        r = BsRequest.modifyReviewByUser( params[:id], params[:new_state], params[:comment], session[:login] )
-      else
-        r = BsRequest.modifyReviewByGroup( params[:id], params[:new_state], params[:comment], params[:group] )
-      end
-
+      r = BsRequest.modifyReview(params[:id], params)
+      render :text => params[:new_state]
     rescue BsRequest::ModifyError => e
       render :text => e.message
-      return
     end
-    render :text => params[:new_state]
   end
 
   def show
@@ -62,13 +51,12 @@ class RequestController < ApplicationController
         end
       end
 
-      if review.has_attribute? :by_group
-        if session[:login]
-          user = Person.find_cached(session[:login])
-          if user.is_in_group? review.by_group
-            @is_reviewer = true
-            break
-          end
+      if session[:login]
+        user = Person.find_cached(session[:login])
+        if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or 
+           (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
+           (review.has_attribute? :by_project and user.is_maintainer? review.by_project and revoke.has_attribute? :by_package and user.is_maintainer? review.by_package)
+          @is_reviewer = true and break
         end
       end
     end
@@ -104,15 +92,13 @@ class RequestController < ApplicationController
       @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
       logger.debug "Can't get diff for request: #{@diff_error}"
     end
-
   end
  
   def change_request(changestate, params)
     BsRequest.free_cache( params[:id] )
     begin
       if BsRequest.modify( params[:id], changestate, params[:reason] )
-        flash[:note] = "Request #{changestate}!"
-        return true
+        flash[:note] = "Request #{changestate}!" and return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end

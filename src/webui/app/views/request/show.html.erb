@@ -166,7 +166,7 @@
             </tr>
             <% @req.each_review do |r|%>
               <%- comment = r.comment if r.has_element? :comment or nil%>
-              <% if r.has_attribute? :by_user or r.has_attribute? :by_group %>
+              <% if r.has_attribute? :by_user or r.has_attribute? :by_group or r.has_attribute :by_project %>
                 <tr>
                   <% if r.has_attribute? :by_user %>
                     <td>User</td> <td><%=r.by_user%></td>
@@ -196,14 +196,20 @@
                     <% end %>
                   <%end%>
                 </tr>
+
+                <% if r.has_attribute? :by_project %>
+                  <td>Project</td><td><%= r.by_project %></td>
+                <% end %>
+
               <% end %>
+              </tr>
             <%end%>
 
             <!-- add another review -->
             <% if !@diff_error && (@req.state.name == "review" || @req.state.name == "new") %>
               <% if @is_maintainer || @is_reviewer || @is_author %>
                 <tr class="add_reviewer">
-                  <td><%= select_tag "add_review_type", options_for_select(["User", "Group"]) %></td>
+                  <td><%= select_tag "add_review_type", options_for_select(["User", "Group", "Project"]) %></td>
                   <td><%= text_field_tag "add_review_name" %></td>
                   <td><%= text_field_tag "add_review_comment", nil, :style => "width: 99%" %></td>
                   <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow()") %></td>
