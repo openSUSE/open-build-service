@@ -381,7 +381,12 @@ class SourceController < ApplicationController
       # exec
       DbPackage.transaction do
         tpkg.destroy
-        Suse::Backend.delete "/source/#{target_project_name}/#{target_package_name}"
+
+        params[:user] = @http_user.login
+        path = "/source/#{target_project_name}/#{target_package_name}"
+        path << build_query_from_hash(params, [:user, :comment])
+        Suse::Backend.delete path
+    
         if target_package_name == "_product"
           update_product_autopackages
         end
@@ -394,9 +399,6 @@ class SourceController < ApplicationController
     #-------------------------------
     elsif request.post?
 
-      # checks
-      # do we create the target ?
-      # exec
       dispatch_command
 
     else
