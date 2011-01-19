@@ -18,7 +18,7 @@ class BsRequest < ActiveXML::Base
           reply = <<-EOF
             <request>
               <action type="submit">
-                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
+                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}" rev="#{opt[:rev]}"/>
                 <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
                 #{option}
               </action>
