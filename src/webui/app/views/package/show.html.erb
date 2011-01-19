@@ -29,12 +29,6 @@
                   <%= link_to image_tag('icons/package_edit.png', :title => "Edit Package Information"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
                   <%= link_to "Edit Package Information", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
                 </li>
-                <% if Package.current_rev(@project, @package) %>
-                  <li>
-                    <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-                    <%= link_to_remote 'Submit Package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-                  </li>
-                <% end %>
               <% else %>
                 <li>
                   <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
@@ -44,6 +38,12 @@
               <li>
                 <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch Package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
                 <%= link_to_remote 'Branch Package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
+              </li>
+            <% end %>
+            <% if Package.current_rev(@project, @package) %>
+              <li>
+                <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+                <%= link_to_remote 'Submit Package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
               </li>
             <% end %>
           </ul>
