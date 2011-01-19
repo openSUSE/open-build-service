@@ -161,8 +161,11 @@ class SourceController < ApplicationController
         logger.info "destroying project object #{pro.name}"
         pro.destroy
 
-        logger.debug "delete request to backend: /source/#{pro.name}"
+        params[:user] = @http_user.login
+        path = "/source/#{pro.name}"
+        path << build_query_from_hash(params, [:user, :comment])
         Suse::Backend.delete "/source/#{pro.name}"
+        logger.debug "delete request to backend: #{path}"
       end
 
       render_ok
