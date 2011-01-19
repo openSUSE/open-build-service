@@ -18,7 +18,7 @@ class BsRequest < ActiveXML::Base
           reply = <<-EOF
             <request>
               <action type="submit">
-                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
+                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}" rev="#{opt[:rev]}"/>
                 <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
                 #{option}
               </action>
@@ -147,34 +147,36 @@ class BsRequest < ActiveXML::Base
     end
 
     def list(opts)
-      unless opts[:type] and opts[:user] or opts[:project] and (opts[:package] or 1) # boolean algebra rocks!
+      unless (opts[:state] or opts[:type]) and (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
       end
 
       predicate = ""
-      case opts[:type]
-        when "pending" then    predicate += "(state/@name='new' or state/@name='review')"
-        when "new" then        predicate += "state/@name='new'"
-        when "deleted" then    predicate += "state/@name='deleted'"
-        when "declined" then   predicate += "state/@name='declined'"
-        when "accepted" then   predicate += "state/@name='accepted'"
-        when "review" then     predicate += "state/@name='review'"
-        when "revoked"  then   predicate += "state/@name='revoked'"
-        when "superseded" then predicate += "state/@name='superseded'"
-        else                   predicate += "(state/@name='new' or state/@name='review')"
+      case opts[:state]
+        when "pending" then    predicate += "(state/@name='new' or state/@name='review') and "
+        when "new" then        predicate += "state/@name='new' and "
+        when "deleted" then    predicate += "state/@name='deleted' and "
+        when "declined" then   predicate += "state/@name='declined' and "
+        when "accepted" then   predicate += "state/@name='accepted' and "
+        when "review" then     predicate += "state/@name='review' and "
+        when "revoked"  then   predicate += "state/@name='revoked' and "
+        when "superseded" then predicate += "state/@name='superseded' and "
       end
+
+      # Filter by request type (submit, delete, ...)
+      predicate += "action/@type='#{opts[:type]}' and " if opts[:type]
 
       if opts[:project] and not opts[:project].empty?
         if opts[:package] and not opts[:package].empty?
-          predicate += " and action/target/@project='#{opts[:project]}' and action/target/@package='#{opts[:package]}'"
+          predicate += "action/target/@project='#{opts[:project]}' and action/target/@package='#{opts[:package]}'"
         else
-          predicate += " and action/target/@project='#{opts[:project]}'"
+          predicate += "action/target/@project='#{opts[:project]}'"
         end
       elsif opts[:user] # should be set in almost all cases
         # user's own submitted requests
-        predicate += " and (state/@who='#{opts[:user]}'"
+        predicate += "(state/@who='#{opts[:user]}'"
         # requests where the user is reviewer or own requests that are in review by someone else
-        predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:type] == "pending" or opts[:type] == "review"
+        predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:state] == "pending" or opts[:state] == "review"
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")

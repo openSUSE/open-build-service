@@ -6,9 +6,8 @@
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
 <% end %>
-
 <% content_for :ready_function do %>
-  projectStatusReady();
+  $('.tablesorter').tablesorter({widgets: ['zebra']});
 <% end %>
 
 <%= render :partial => "tabs" %>
@@ -17,39 +16,34 @@
 
 <% comments_to_clear = [] %>
 
-<% form_tag({ :action => :status }, :method => :get) do %>
-  <div>
-    <p>
-      <%= hidden_field_tag 'project', @project -%>
-      <% if @develprojects.size > 2 %>
-        Devel project: <%= select_tag("filter_devel", options_for_select(@develprojects, @current_develproject)) %>
-      <% end %>
-    </p>
-    <p>
-      <%= check_box_tag("ignore_pending", true, @ignore_pending) %>
-      <%= label_tag 'ignore_pending', 'Ignore packages with pending requests to %s' % @project %><br/>
-      <%= hidden_field_tag('limit_to_fails', 'false', :id => 'fails_hidden') %>
-      <%= check_box_tag("limit_to_fails", true, @limit_to_fails) %>
-      <%= label_tag 'limit_to_fails', 'Limit to currently failing packages' %><br/>
-      <%= hidden_field_tag('include_versions', 'false', :id => 'versions_hidden') %>
-      <%= check_box_tag("include_versions", true, @include_versions) %>
-      <%= label_tag 'include_versions', 'Include version updates' %>
-    </p>
-    <p>
-      <%= submit_tag 'Filter results' %>
-    </p>
-  </div>
+<% form_tag({:action => :status}, :method => :get) do %>
+  <p>
+    <%= hidden_field_tag(:project, @project) -%>
+    <% if @develprojects.size > 2 %>
+      Devel project: <%= select_tag(:filter_devel, options_for_select(@develprojects, @current_develproject)) %>
+    <% end %>
+  </p>
+  <p>
+    <%= check_box_tag(:ignore_pending, true, @ignore_pending) %>
+    <%= label_tag(:ignore_pending, "Ignore packages with pending requests to #{@project}") %><br/>
+    <%= hidden_field_tag(:limit_to_fails, 'false', :id => 'fails_hidden') %>
+    <%= check_box_tag(:limit_to_fails, true, @limit_to_fails) %>
+    <%= label_tag(:limit_to_fails, 'Limit to currently failing packages') %><br/>
+    <%= hidden_field_tag(:include_versions, 'false', :id => 'versions_hidden') %>
+    <%= check_box_tag(:include_versions, true, @include_versions) %>
+    <%= label_tag(:include_versions, 'Include version updates') %>
+  </p>
+  <p><%= submit_tag('Filter results') %></p>
 <% end %>
 
 <% if !@packages.blank? %>
-
   <p>Displaying <%= @packages.size %> packages that need handling, including:
     <%= @packages.select {|p| p['firstfail'] and p['firstfail'] > 0}.length %> not building,
     <%= @packages.select {|p| !p['problems'].empty?}.length %> with a diff in the devel project,
     <%= @packages.select {|p| !p['requests_to'].empty? || !p['requests_from'].empty?}.length %> with a pending request.
   </p>
 
-  <% show_devel_project = !(@packages.select {|p| !p['develproject'].blank? }.empty?)  %>
+  <% show_devel_project = !(@packages.select {|p| !p['develproject'].blank? }.empty?) %>
 
   <div>
     <table class='tablesorter' cellspacing='1'>
@@ -135,8 +129,9 @@
           end
           -%>
           <tr>
-            <td class="nowrap sortable">
-              <% if icon == "error"  -%>
+            <td class="nowrap">
+              <span class="hidden"><%= h p['name'] %></span>
+              <% if icon == "error" -%>
                 <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
               <% elsif icon == "ok" -%>
                 <%= image_tag("icons/accept.png", :size => "16x16", :title => "Ok" ) %>
@@ -144,20 +139,24 @@
                 <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
               <% end -%>
               <%= link_to h(elide(p['name'], 20)), :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
-              <span class="sortkey"><%= h p['name'] %></span>
             </td>
-            <%if show_devel_project  %>
-              <td class="sortable"><span class="sortkey"><%= h p['develproject'] %></span><%= if p['develproject'] then link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
+            <% if show_devel_project %>
+              <td>
+                <span class="hidden"><%= h p['develproject'] %></span>
+                <%= link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] if p['develproject'] %>
+              </td>
             <% end %>
-            <td class="sortable"><%= raw outs.join("<br/>".html_safe) -%><span class="sortkey"><%= sortkey %></span></td>
+            <td>
+              <span class="hidden"><%= sortkey %></span>
+              <%= raw outs.join("<br/>".html_safe) -%>
+            </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   </div>
-
 <% end %>
 
-<%= if @project.can_edit?( session[:login] ) and not comments_to_clear.empty? 
-  link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project, "package" => comments_to_clear)
-end -%>
+<% if @project.can_edit?(session[:login]) and not comments_to_clear.empty? %>
+  <%= link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project, "package" => comments_to_clear) %>
+<% end -%>

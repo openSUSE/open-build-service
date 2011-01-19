@@ -12,7 +12,7 @@ class PackageController < ApplicationController
     :set_url, :set_url_form, :update_build_log]
   before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
     :save_modified_file, :save_new, :save_new_link, :update_build_log]
-  before_filter :load_requests, :except => [:add_person, :edit_file, :rawlog, :save_new]
+  before_filter :load_requests, :except => [:add_person, :edit_file, :rawlog, :save_new, :submit_request]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
@@ -163,22 +163,21 @@ class PackageController < ApplicationController
   end
 
   def submit_request
-    req = BsRequest.new(:type => "submit", :targetproject => params[:target_project], :targetpackage => params[:target_package],
-      :project => params[:project], :package => params[:package], :rev => params[:revision], :description => params[:description], :sourceupdate => params[:source_update])
+    params[:type] = "submit"
+    req = BsRequest.new(params)
     begin
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
-        :project => params[:project], :package => params[:package]
-      return
+      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
     Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def delete_request_dialog
+    render :template => 'shared/delete_request_dialog'
   end
 
   def delete_request
@@ -1144,7 +1143,7 @@ class PackageController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:type => 'pending', :project => @project.name, :package => @package.name})
+    @requests = BsRequest.list({:state => 'pending', :project => @project.name, :package => @package.name})
   end
 
 end

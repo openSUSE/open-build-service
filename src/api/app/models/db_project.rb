@@ -59,52 +59,57 @@ class DbProject < ActiveRecord::Base
     def check_access?(dbp=self)
       return false if dbp.nil?
       # check for 'access' flag
-      flags_set = dbp.flags.count :conditions => 
-          ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
-      # rels > 0 --> flag set
-      if flags_set > 0
-        return true if User.currentAdmin
-        # simple check for involvement --> involved users can access
-        # dbp.id, User.currentID
-        grouprels_exist = dbp.project_group_role_relationships.count :conditions => ["db_project_id = ?" , dbp.id]
 
-        if grouprels_exist > 0
-          # fetch project groups
-          grouprels = dbp.project_group_role_relationships.find(:all, :conditions => ["db_project_id = ?", dbp.id])
-          ret = 0
-          grouprels.each do |grouprel|
-            # check if User.currentID belongs to group
-            us = User.find(User.currentID)
-            if grouprel and grouprel.bs_group_id
-              # LOCAL
-              # if user is in group -> return true
-              ret = ret + 1 if us.is_in_group?(grouprel.bs_group_id)
-              # LDAP
+      # same cache as in public controller
+      key = "public_project:" + dbp.name
+      public_allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
+        flags_set = dbp.flags.count :conditions => 
+            ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
+        flags_set == 0
+      end
+
+      # Do we need a per user check ?
+      return true if public_allowed
+      return true if User.currentAdmin
+
+      # simple check for involvement --> involved users can access
+      # dbp.id, User.currentID
+      grouprels_exist = dbp.project_group_role_relationships.count :conditions => ["db_project_id = ?" , dbp.id]
+
+      if grouprels_exist > 0
+        # fetch project groups
+        grouprels = dbp.project_group_role_relationships.find(:all, :conditions => ["db_project_id = ?", dbp.id])
+        ret = 0
+        grouprels.each do |grouprel|
+          # check if User.currentID belongs to group
+          us = User.find(User.currentID)
+          if grouprel and grouprel.bs_group_id
+            # LOCAL
+            # if user is in group -> return true
+            ret = ret + 1 if us.is_in_group?(grouprel.bs_group_id)
+            # LDAP
 # FIXME2.2: please do not do special things here for ldap. please cover this in a generic group modell.
-              if defined?( LDAP_MODE ) && LDAP_MODE == :on
-                if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
-                  if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
-                    ret = ret + 1
-                  end
+            if defined?( LDAP_MODE ) && LDAP_MODE == :on
+              if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+                if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
+                  ret = ret + 1
                 end
               end
-              #
             end
+            #
           end
-          # relationship to package -> access
-          return true if ret > 0
         end
-
-        userrels = dbp.project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
-        if userrels > 0 
-          # relationship to package -> access
-          return true
-        end
-        # no relationship to package -> no access
-        return false
+        # relationship to package -> access
+        return true if ret > 0
       end
-      # no flag -> return true
-      return true
+
+      userrels = dbp.project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
+      if userrels > 0 
+        # relationship to package -> access
+        return true
+      end
+      # no relationship to package -> no access
+      return false
     end
 
     # own version of find
@@ -121,13 +126,26 @@ class DbProject < ActiveRecord::Base
       end
 
       def securedfind_every(options)
-        ret = find_every(options)
-        return if ret.nil?
-        ret.each do |dbp|
-          unless check_access?(dbp)
-            ret.delete(dbp) unless User.currentAdmin
+        unless User.currentAdmin
+          # limit to projects which have no "access" flag, except user has any role inside
+          # FIXME2.2: this is not a complete check, but we are on the save side so far
+          #            
+          options[:joins] = "" if options[:joins].nil?
+          options[:joins] += " LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id"
+          options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = db_projects.id"
+          options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
+
+          if options[:conditions].nil?
+            options[:conditions] = ["ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}'"]
+          else
+            if options[:conditions].class == String
+              options[:conditions] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions] + ")"
+            else
+              options[:conditions][0] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions][0] + ")"
+            end
           end
         end
+        ret = find_every(options)
         return ret
       end
 

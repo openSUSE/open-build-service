@@ -263,6 +263,7 @@ class ProjectController < ApplicationController
   end
 
   def delete_request_dialog
+    render :template => 'shared/delete_request_dialog'
   end
 
   def delete_request
@@ -1236,7 +1237,7 @@ class ProjectController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:type => 'pending', :project => @project.name})
+    @requests = BsRequest.list({:state => 'pending', :project => @project.name})
   end
 
 end

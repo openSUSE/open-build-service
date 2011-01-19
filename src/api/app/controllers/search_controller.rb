@@ -60,26 +60,20 @@ class SearchController < ApplicationController
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<collection>\n"
 
-    accessprjs = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
-
     collection.uniq!
     collection.each do |item|
-      if item.kind_of? DbPackage
-        prj = item.db_project
-      elsif item.kind_of? DbProject
-        prj = item
+      if item.kind_of? DbPackage or item.kind_of? DbProject
+        # already checked in this case
       elsif item.kind_of? Repository
-        prj = item.db_project
+        # This returns nil if access is not allowed
+        next unless DbProject.find_by_id item.db_project_id
       else
         render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
         return
       end
 
-      # ACL(search): 'access' hides a project/package
-      unless prj.nil?
-        str = (render_all ? item.to_axml : item.to_axml_id)
-        output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
-      end
+      str = (render_all ? item.to_axml : item.to_axml_id)
+      output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
     end
 
     output << "</collection>\n"
@@ -108,12 +102,10 @@ class SearchController < ApplicationController
       render_error :status => 404, :message => "no such attribute"
       return
     end
-    if params[:project]
-      project = DbProject.find_by_name(params[:project])
-    end
+    project = DbProject.get_by_name(params[:project]) if params[:project]
     if params[:package]
       if params[:project]
-         packages = DbPackage.find_by_project_and_name(params[:project], params[:package])
+         packages = DbPackage.get_by_project_and_name(params[:project], params[:package])
       else
          packages = DbPackage.find(:all, :conditions => ["name = BINARY ?", params[:package]])
       end
