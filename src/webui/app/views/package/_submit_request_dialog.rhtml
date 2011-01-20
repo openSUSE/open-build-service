@@ -1,15 +1,18 @@
-
 <%= javascript_include_tag 'jquery.autocomplete.pack' %>
 <%= stylesheet_link_tag 'jquery.autocomplete' %>
 
 <script type="text/javascript">
-  $("#targetproject").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
-    { minChars: 2, matchCase: true, max: 50 } );
-
-  $("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
-    minChars: 0, matchCase: true, max: 50,
-    extraParams: {
-       project: function() { return $("#target_project").val(); }
+  $("#targetproject").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
+    minChars: 2, matchCase: true, max: 50
+  });
+  /*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+    minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
+  });*/
+  $("#targetproject").change(function() {
+    if ($("#targetproject")[0].value > "") {
+      $("input[name='commit']").removeAttr("disabled");
+    } else {
+      $("input[name='commit']").attr("disabled", "disabled");
     }
   });
 </script>
@@ -22,12 +25,11 @@
         <b>Create Submit Request</b>
       </div>
 
-      <p>Submit <b><%= h @package %></b> revision <%= @revision %></p>
+      <p>Submit <b><%= h @package %></b> in revision <%= @revision %></p>
 
-      <% tprj = ""
-         if @package.linkinfo
-           tprj = @package.linkinfo.project
-         end %>
+      <% tprj = "" %>
+      <% tprj = @package.linkinfo.project if @package.linkinfo %>
+
       <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
@@ -41,10 +43,10 @@
           <%= text_area_tag(:description, "", :size => "40x3") %><br/>
           <% default = "update" %>
           <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
-          <%= check_box_tag :sourceupdate, 'cleanup' %> Remove local package if request is accepted
+          <%= check_box_tag(:sourceupdate, 'cleanup') %> Remove local package if request is accepted
         </p>
         <div class="buttons">
-          <%= submit_tag("Ok") %>
+          <%= submit_tag("Ok", :disabled => true) %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
         </div>
       <% end %>
