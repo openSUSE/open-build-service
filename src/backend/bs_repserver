@@ -2090,44 +2090,6 @@ sub getbuildinfo {
   return ($ret, $BSXML::buildinfo);
 }
 
-sub looks_like_dsc {
-  my ($fn) = @_;
-  local *F;
-  if (!open(F, '<', $fn)) {
-    return 0;
-  }
-  my $l = <F>;
-  if ($l =~ /^-----BEGIN/) {
-    $l = <F>;
-    $l = <F>;
-    $l = <F>;
-  }
-  if ($l =~ /^format:/i) {
-    close F;
-    return 1;
-  }
-  close F;
-  return 0;
-}
-
-sub looks_like_kiwi {
-  my ($fn) = @_;
-  local *F;
-  if (!open(F, '<', $fn)) {
-    return 0;
-  }
-  my $l = <F>;
-  if ($l =~ /^\<\?xml/) {
-    $l = <F>;
-  }
-  if ($l =~ /^\s*\<image/) {
-    close F;
-    return 1;
-  }
-  close F;
-  return 0;
-}
-
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -2160,18 +2122,20 @@ sub getbuildinfo_post {
   close(F);
   my $d;
   my $info = {'repository' => $repoid};
-  if (looks_like_dsc($descr)) {
+  if ($bconf->{'type'} eq 'dsc') {
     $d = Build::Deb::parse($bconf, $descr);
     $info->{'file'} = 'upload.dsc';
-  } elsif (looks_like_kiwi($descr)) {
+  } elsif ($bconf->{'type'} eq 'kiwi') {
     $d = Build::Kiwi::parse($bconf, $descr);
     $info->{'imagetype'} = $d->{'imagetype'};
     $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
     $info->{'path'} = $d->{'path'};
     $info->{'file'} = 'upload.kiwi';
-  } else {
+  } elsif ($bconf->{'type'} eq 'spec') {
     $d = Build::Rpm::parse($bconf, $descr);
     $info->{'file'} = 'upload.spec';
+  } else {
+    die("unknown repository type $bconf->{'type'}\n");
   }
   unlink($fn);
   unless (defined $d->{'name'}) {
