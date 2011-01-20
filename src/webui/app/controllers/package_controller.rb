@@ -163,6 +163,11 @@ class PackageController < ApplicationController
   end
 
   def submit_request
+    if params[:targetproject].nil? or params[:targetproject].empty?
+      flash[:error] = "Please provide a target for the submit request"
+      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+    end
+
     params[:type] = "submit"
     req = BsRequest.new(params)
     begin
