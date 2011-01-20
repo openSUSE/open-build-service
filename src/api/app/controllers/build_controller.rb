@@ -117,7 +117,13 @@ class BuildController < ApplicationController
   def buildinfo
     valid_http_methods :get, :post
     required_parameters :project, :repository, :arch, :package
-    pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
+    # just for permission checking
+    if request.post? and params[:package] == "_repository"
+      # for osc local package build in this repository
+      DbProject.get_by_name params[:project]
+    else
+      DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
+    end
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
