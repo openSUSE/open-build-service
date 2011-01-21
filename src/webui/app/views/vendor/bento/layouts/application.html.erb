@@ -19,7 +19,6 @@
     <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
     <%= javascript_include_tag 'jrails', "application" %>
     <%= javascript_include_tag '/themes/bento/js/script' %>
-    <%= javascript_include_tag "https://ssl.google-analytics.com/ga.js" if CONFIG['theme'] == 'bento' %>
 
     <%= yield :content_for_head %>
 
@@ -27,9 +26,7 @@
     /* <![CDATA[ */
     <%= yield :head_javascript %>
     $(function() {
-      <% if CONFIG['theme'] == 'bento' %>
-      googleTracker();
-      <% else %>
+      <% unless CONFIG['theme'] == 'bento' %>
       setup_favorites();
       <% end %>
       <%= yield :ready_function %>
