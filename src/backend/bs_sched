@@ -260,8 +260,11 @@ sub addrepo_scan {
       my $doddata = $doddata[0];
       eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $myarch ] })};
       if ($@) {
-	warn("download on demand: cannot read metadata: $@");
+	print "    download on demand: cannot read metadata: $@\n";
 	return undef;
+      } elsif (!$cache) {
+        print "    download on demand: cannot read metadata: unknown mtype attribute\n";
+        return undef;
       }
       for (values %$cache) {
 	$_->{'id'} = 'dod';
