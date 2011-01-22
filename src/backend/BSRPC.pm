@@ -54,6 +54,12 @@ sub urlencode {
   return $url;
 }
 
+sub urldecode {
+  my $url = $_[0];
+  $url =~ s/%([0-9][0-9])/chr(hex($1))/sge;
+  return $url;
+}
+
 sub createuri {
   my ($param, @args) = @_;
   my $uri = $param->{'uri'};
