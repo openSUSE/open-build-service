@@ -5596,16 +5596,16 @@ my $dispatches = [
 
   # search interface
   '/search $in: $match: return:? values:bool?' => \&search,
-  '/search/project $match:*' => \&search_proj,
-  '/search/project/id $match:*' => \&search_proj_id,
-  '/search/package $match:*' => \&search_pack,
-  '/search/package/id $match:*' => \&search_pack_id,
-  '/search/request $match:* limit:num?' => \&search_request,
-#  '/search/request/id $match:* limit:num?' => \&search_request_id,
+  '/search/project $match:?' => \&search_proj,
+  '/search/project/id $match:?' => \&search_proj_id,
+  '/search/package $match:?' => \&search_pack,
+  '/search/package/id $match:?' => \&search_pack_id,
+  '/search/request $match:? limit:num?' => \&search_request,
+#  '/search/request/id $match:? limit:num?' => \&search_request_id,
 
   'POST:/search/published cmd:' => \&search_published_updatedb,
-  '/search/published/binary/id $match:* limit:num?' => \&search_published_binary_id,
-  '/search/published/pattern/id $match:* limit:num?' => \&search_published_pattern_id,
+  '/search/published/binary/id $match:? limit:num?' => \&search_published_binary_id,
+  '/search/published/pattern/id $match:? limit:num?' => \&search_published_pattern_id,
 
   # service interface, just for listing for now
   '/service' => \&listservices,
