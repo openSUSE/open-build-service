@@ -17,7 +17,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_get_invalid_1
     prepare_request_with_user "Iggy", "xxx"
-    get "/request/1"
+    get "/request/0815"
     assert_response 401
   end
 
@@ -183,6 +183,27 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+  end
+
+  def test_search_requests
+    prepare_request_with_user "king", "sunflower"
+    # make sure there is at least one
+    Suse::Backend.put( '/request/1', load_backend_file('request/1'))
+    get "/request/1"
+    assert_response :success
+    assert_tag( :tag => "request", :attributes => { :id => "1"} )
+    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+
+    # via GET
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/request", :match => "(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')"
+    assert_response :success
+    assert_tag( :tag => "request", :attributes => { :id => "1"} )
+
+    # via POST
+    post "/search/request", URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
+    assert_response :success
+    assert_tag( :tag => "request", :attributes => { :id => "1"} )
   end
 
   def test_revoke_when_packages_dont_exist
