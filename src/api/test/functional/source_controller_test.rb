@@ -198,7 +198,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/pack"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" } if $ENABLE_BROKEN_TEST
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -234,7 +234,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/pack/_meta"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" } if $ENABLE_BROKEN_TEST
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -1162,7 +1162,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response 404
-    assert_tag :tag => 'status', :attributes => { :code => "unknown_project"} if $ENABLE_BROKEN_TEST
+    assert_tag :tag => 'status', :attributes => { :code => "unknown_project"}
     #reverse
     post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
     assert_response 404
@@ -1353,14 +1353,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # create package and remove it again
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response 404
-    if $ENABLE_BROKEN_TEST
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
     assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response :success
-    end
   end
 
   def test_source_commands_tests
@@ -1496,10 +1496,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match(/no permission to create project/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 403
-    assert_match(/no permission to/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_match(/no permission to/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1" 
     assert_response 403
-    assert_match(/no permission to/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_match(/no permission to/, @response.body)
  
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
@@ -1795,51 +1795,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:Iggy/TestPack/bnc#620675.diff"
     assert_response :success
-  end
-
-  def test_create_aggregates_projects
-    # he can hidden protected project
-    prepare_request_with_user "adrian", "so_alone"
-
-    get url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA")
-    assert_response 404
-
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProjectA"),
-        '<project name="home:adrian:ProjectA"> <title/> <description/> </project>'
-    assert_response 200
-
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProjectB"),
-        '<project name="home:adrian:ProjectB"> <title/> <description/> </project>'
-    assert_response 200
-
-    get url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA", :package => "aggregate")
-    assert_response 404
-
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA", :package => "aggregate"), 
-        '<package project="home:adrian:ProjectA" name="aggregate"> <title/> <description/> </package>'
-    assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
-
-    url1 = "/source/home:adrian:ProjectA/aggregate/_aggregate"
-
-    put url1, '<aggregatelist> <aggregate project="UnknownProject"> <repository target="UnknownProjectRepo" source="nada" /> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 404 if $ENABLE_BROKEN_TEST
-
-    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 200
-
-    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> <aggregate project="home:adrian:ProjectB"> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 200
-
-    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> <aggregate project="RemoteInstance:BaseDistro"> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 200
-
-    # cleanup
-    delete url1
   end
 
 end
