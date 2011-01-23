@@ -514,4 +514,60 @@ class User < ActiveRecord::Base
     else
     end
   end
+
+  def involved_projects
+    # just for maintainer for now.
+    role = "maintainer"
+
+    # all projects where user is maintainer
+    sql =<<-END_SQL
+    SELECT prj.*
+    FROM db_projects prj
+    LEFT OUTER JOIN project_user_role_relationships ur ON prj.id = ur.db_project_id
+    LEFT OUTER JOIN roles r ON ur.role_id = r.id
+    WHERE ur.bs_user_id = BINARY ? and r.title = BINARY ?
+    END_SQL
+    projects = DbProject.find_by_sql [sql, id, role]
+
+    # all projects where user is maintainer via a group
+    sql =<<-END_SQL
+    SELECT prj.*
+    FROM db_projects prj
+    LEFT OUTER JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
+    LEFT OUTER JOIN roles r ON gr.role_id = r.id
+    LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id
+    WHERE ug.user_id = BINARY ? and r.title = BINARY ?
+    END_SQL
+    projects += DbProject.find_by_sql [sql, id, role]
+
+    return projects
+  end
+
+  def involved_packages
+    # just for maintainer for now.
+    role = "maintainer"
+
+    # all packages where user is maintainer
+    sql =<<-END_SQL
+    SELECT pkg.*
+    FROM db_packages pkg
+    LEFT OUTER JOIN package_user_role_relationships ur ON pkg.id = ur.db_package_id
+    LEFT OUTER JOIN roles r ON ur.role_id = r.id
+    WHERE ur.bs_user_id = BINARY ? and r.title = BINARY ?
+    END_SQL
+    packages = DbPackage.find_by_sql [sql, id, role]
+
+    # all packages where user is maintainer via a group
+    sql =<<-END_SQL
+    SELECT pkg.*
+    FROM db_packages pkg
+    LEFT OUTER JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
+    LEFT OUTER JOIN roles r ON gr.role_id = r.id
+    LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id
+    WHERE ug.user_id = BINARY ? and r.title = BINARY ?
+    END_SQL
+    packages += DbPackage.find_by_sql [sql, id, role]
+
+    return packages
+  end
 end

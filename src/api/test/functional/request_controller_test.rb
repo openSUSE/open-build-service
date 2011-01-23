@@ -185,7 +185,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => "declined" } )
   end
 
-  def test_search_requests
+  def test_search_and_involved_requests
     prepare_request_with_user "king", "sunflower"
     # make sure there is at least one
     Suse::Backend.put( '/request/1', load_backend_file('request/1'))
@@ -204,6 +204,35 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/search/request", URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
     assert_response :success
     assert_tag( :tag => "request", :attributes => { :id => "1"} )
+
+    # old style listing
+    get "/request"
+    assert_response :success
+    assert_tag( :tag => 'directory', :child => {:tag => 'entry' } )
+
+    # collection view
+    get "/request?view=collection"
+    assert_response 404
+
+    # collection of user involved requests
+    get "/request?view=collection&user=Iggy"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
+
+    # collection for given package
+    get "/request?view=collection&project=kde4&package=wpa_supplicant"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
+    assert_tag( :tag => "target", :attributes => { :project => "kde4", :package => "wpa_supplicant"} )
+    assert_tag( :tag => "request", :attributes => { :id => "1"} )
+
+    # collection for given project
+    get "/request?view=collection&project=kde4"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "collection", :attributes => { :matches => "3"} )
   end
 
   def test_revoke_when_packages_dont_exist
@@ -542,8 +571,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     # accept the other request, what will fail
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id2}?cmd=changestate&newstate=accepted"
-    assert_response 400
-    assert_match(/Unable to delete package/, @response.body)
+    assert_response 404
+    assert_match(/unknown_package/, @response.body)
 
     # decline the request
     prepare_request_with_user "king", "sunflower"

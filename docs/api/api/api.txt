@@ -565,6 +565,23 @@ XmlResult: status
 == Requests
 
 
+GET /request
+  
+  Get a list of requests. When using the "view=collection" you need also to filter
+  either by user, project or package.
+
+Parameters:
+
+  view: collection, return a collection of requests instead of directory listing
+  user: filter for given user, includes all target projects and packages where
+        the user is maintainer and also open review requests
+  project: limit to result to defined target project or review requests
+  package: limit to result to defined target package or review requests
+  state: filter for given request state
+
+XmlResult: collection
+
+
 GET /request/<id>
   
   Get a request

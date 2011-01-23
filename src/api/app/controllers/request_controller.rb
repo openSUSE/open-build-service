@@ -3,11 +3,78 @@ class RequestController < ApplicationController
 
   # the simple writing action.type instead of action.data.attributes['type'] can not be used, since it is a rails function
 
-  # GET /request
-  alias_method :index, :pass_to_backend
-
   # POST /request?cmd=create
   alias_method :create, :dispatch_command
+
+  # GET /request
+  def index
+    valid_http_methods :get
+
+    if params[:view] == "collection"
+      predicates = []
+
+      # Do not allow a full collection to avoid server load
+      if params[:project].blank? and params[:user].blank?
+       render_error :status => 404, :errorcode => 'require_filter',
+         :message => "This call requires at least one filter, either by user, project or package"
+       return
+      end
+
+      # show all pending requests by default
+      if params[:state].blank?
+        predicates << "(state/@name='new' or state/@name='review')"
+      else
+        predicates << "state/@name='#{params[:state]}'"
+      end
+
+      # Filter by request type (submit, delete, ...)
+      predicates << "action/@type='#{params[:action_type]}'" if params[:action_type]
+
+      unless params[:project].blank?
+        if params[:package].blank?
+          str = "action/target/@project='#{params[:project]}'"
+          str += " or (review[@by_project='#{params[:project]}' and @state='new'])"
+        else
+          str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
+          str += " or (review[@by_project='#{params[:project]}' and @by_package='#{params[:package]}' and @state='new'])"
+        end
+        predicates << str
+      end
+
+      if params[:user] # should be set in almost all cases
+        # user's own submitted requests
+        str = "(state/@who='#{params[:user]}'"
+        # requests where the user is reviewer or own requests that are in review by someone else
+        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position() = 1]" if params[:state] == "pending" or params[:state] == "review"
+        # find requests where user is maintainer in target project
+        maintained_projects = Array.new
+        maintained_projects_hash = Hash.new
+        u = User.find_by_login(params[:user])
+        u.involved_projects.each do |ip|
+          maintained_projects += ["action/target/@project='#{ip.name}'"]
+          maintained_projects_hash[ip.name] = true
+        end
+        str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+        # find request where user is maintainer in target package, except we have to project already
+        maintained_packages = Array.new
+        u.involved_packages.each do |ip|
+          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project.name.to_s)
+          str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
+        end
+        str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        str += ")"
+        predicates << str
+      end
+
+      pr = "match=" + predicates.join(" and ")
+      c = Suse::Backend.post("/search/request", URI.escape(pr))
+      render :text => c.body, :content_type => "text/xml"
+    else
+      # directory list of all requests. not very usefull but for backward compatibility...
+      # OBS3: make this more usefull
+      pass_to_backend
+    end
+  end
 
   # GET /request/:id
   def show
@@ -523,15 +590,12 @@ class RequestController < ApplicationController
                 :message => "Group #{params[:by_group]} is unkown"
        return
     end
-    if params[:by_project] and DbProject.find_by_name(params[:by_project]).nil?
-       render_error :status => 404, :errorcode => "unknown_project",
-                :message => "Project #{params[:by_project]} is unkown"
-       return
-    end
-    if params[:by_package] and DbPackage.find_by_project_and_name(params[:by_project], params[:by_package]).nil?
-       render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Package params[:by_project] / #{params[:by_package]} is unkown"
-       return
+
+    # valid project or package ?
+    if params[:by_project] and params[:by_package]
+      pkg = DbPackage.get_by_project_and_name(params[:by_project], params[:by_package])
+    elsif params[:by_project]
+      prj = DbProject.get_by_name(params[:by_project])
     end
 
     # generic permission check
@@ -554,11 +618,9 @@ class RequestController < ApplicationController
       permission_granted = true if params[:by_user] == @http_user.login
       if params[:by_project] 
         if params[:by_package]
-          spkg = DbPackage.find_by_project_and_name params[:by_project], params[:by_package]
-          permission_granted = true if spkg and @http_user.can_modify_package? spkg
+          permission_granted = true if @http_user.can_modify_package? pkg
         else
-          sprj = DbProject.find_by_name params[:by_project]
-          permission_granted = true if prj and @http_user.can_modify_project? prj
+          permission_granted = true if @http_user.can_modify_project? prj
         end
       end
       unless permission_granted
@@ -821,13 +883,13 @@ class RequestController < ApplicationController
             end
           end
       elsif action.data.attributes["type"] == "delete"
-          project = DbProject.find_by_name(action.target.project)
           if not action.target.has_attribute? :package
+            project = DbProject.get_by_name(action.target.project)
             project.destroy
             Suse::Backend.delete "/source/#{action.target.project}"
           else
             DbPackage.transaction do
-              package = project.db_packages.find_by_name(action.target.package)
+              package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
               package.destroy
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end

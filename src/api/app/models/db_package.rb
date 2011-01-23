@@ -139,8 +139,12 @@ class DbPackage < ActiveRecord::Base
     # use_source=false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name( project, package, use_source=true, follow_project_links=true )
-      return nil if DbProject.is_remote_project?( project )
-      prj = DbProject.get_by_name( project )
+      if project.class == DbProject
+        prj = project
+      else
+        return nil if DbProject.is_remote_project?( project )
+        prj = DbProject.get_by_name( project )
+      end
       raise UnknownObjectError, "#{project}/#{package}" unless prj
       if follow_project_links
         pkg = prj.find_package(package)

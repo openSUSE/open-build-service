@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class GrouopControllerTest < ActionController::IntegrationTest 
+class GroupControllerTest < ActionController::IntegrationTest 
 
   fixtures :all
  
