@@ -5107,10 +5107,6 @@ sub fetchreq {
 
 sub search_request {
   my ($cgi, $match) = @_;
-  unless ($match) {
-    $match = BSRPC::urldecode(BSServer::read_data()) unless $match;
-    $match =~ s/^match=//;
-  }
   my $db = BSDB::opendb($reqindexdb, '');
   $db->{'noindex'} = {'id' => 1};
   $db->{'allkeyspath'} = 'type';
@@ -5625,7 +5621,7 @@ my $dispatches = [
   '/request/$id:num' => \&getrequest,
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
-  '/search/request $match:* limit:num?' => \&search_request,
+  '/search/request $match: limit:num?' => \&search_request,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
