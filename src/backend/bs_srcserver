@@ -4406,10 +4406,6 @@ sub getajaxstatus {
 
 sub search_proj {
   my ($cgi, $match, $id) = @_;
-  unless ($match) {
-    $match = BSRPC::urldecode(BSServer::read_data()) unless $match;
-    $match =~ s/^match=//;
-  }
   $match =~ s/^\[(.*)\]$/$1/s;
   my $data = [];
   for my $projid (findprojects()) {
@@ -4468,10 +4464,6 @@ sub pkgsearch_indexfunc {
 
 sub search_pack {
   my ($cgi, $match, $id) = @_;
-  unless ($match) {
-    $match = BSRPC::urldecode(BSServer::read_data()) unless $match;
-    $match =~ s/^match=//;
-  }
   $match =~ s/^\[(.*)\]$/$1/s;
   # really ugly hack to speed up needed api call
   if ($match =~ /^\@project='(.+)' and starts-with\(\@name,'(.+)'\)$/) {
