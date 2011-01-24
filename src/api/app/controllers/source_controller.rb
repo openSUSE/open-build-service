@@ -262,6 +262,11 @@ class SourceController < ApplicationController
     spkg = nil
     sprj = DbProject.get_by_name origin_project_name                                  if origin_project_name
     spkg = DbPackage.get_by_project_and_name origin_project_name, origin_package_name if origin_package_name and not [ '_project', '_pattern' ].include? origin_package_name
+    if spkg
+      # use real source in case we followed project link
+      params[:oproject] = origin_project_name = spkg.db_project.name
+      params[:opackage] = origin_package_name = spkg.name
+    end
 
     tprj = nil
     tpkg = nil
@@ -820,7 +825,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-    path = "/source/#{CGI.escape(project_name)}/#{CGI.escape(package_name)}/#{CGI.escape(file)}"
+    path = "/source/#{URI.escape(project_name)}/#{URI.escape(package_name)}/#{URI.escape(file)}"
 
     #authenticate
     return unless @http_user
@@ -860,6 +865,9 @@ class SourceController < ApplicationController
 
     # GET /source/:project/:package/:file
     if request.get?
+      if pack # local package
+        path = "/source/#{URI.escape(pack.db_project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
+      end
       path += build_query_from_hash(params, [:rev, :meta])
       pass_to_backend path
       return
@@ -1526,7 +1534,6 @@ class SourceController < ApplicationController
     # We need to use the project name of package object, since it might come via a project linked project
     path = "/source/#{CGI.escape(tpkg.db_project.name)}/#{CGI.escape(tpkg.name)}"
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
-    
     pass_to_backend path
   end
 

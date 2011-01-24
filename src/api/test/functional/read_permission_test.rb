@@ -547,17 +547,14 @@ end
     assert_response 403
     get "/public/source/home:tom:temp/ProtectedPackage"
     assert_response 403
-    # Admin can bypass api, but backend would still not build it
+    # Admin can bypass api
     prepare_request_with_user "king", "sunflower"
     get "/source/home:tom:temp/ProtectedPackage"
-    assert_response 403
-    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    assert_response 403 # FIXME2.2: this is inconsistend, why is the bachend saying a 403 here ?
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
-    assert_response 403
-    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    assert_response :success
     get "/source/home:tom:temp/ProtectedPackage/non_existing_file"
-    assert_response 403
-    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    assert_response 404
 
     # check access to deleted package
     prepare_request_with_user "adrian", "so_alone"

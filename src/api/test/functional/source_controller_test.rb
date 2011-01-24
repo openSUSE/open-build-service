@@ -1486,6 +1486,29 @@ class SourceControllerTest < ActionController::IntegrationTest
     delete "/source/TEMPORARY"
   end
 
+  def test_use_project_link_as_non_maintainer
+    prepare_request_with_user "fred", "geröllheimer"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:fred:temporary"), 
+        '<project name="home:fred:temporary"> <title/> <description/> <link project="kde4" /> </project>'
+    assert_response :success
+    get "/source/home:fred:temporary"
+    assert_response :success
+    get "/source/home:fred:temporary/kdelibs"
+    assert_response :success
+    get "/source/home:fred:temporary/kdelibs/_history"
+    assert_response :success
+    delete "/source/home:fred:temporary/kdelibs"
+    assert_response 404
+    post "/source/home:fred:temporary/kdelibs", :cmd => :copy, :oproject => "home:fred:temporary", :opackage => "kdelibs"
+    assert_response :success
+    delete "/source/home:fred:temporary/kdelibs"
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:fred:temporary"
+    assert_response :success
+  end
+
   def test_branch_package_delete_and_undelete
     ActionController::IntegrationTest::reset_auth 
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
