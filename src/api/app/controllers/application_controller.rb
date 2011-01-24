@@ -351,8 +351,14 @@ class ApplicationController < ActionController::Base
   end
 
   def pass_to_backend( path = nil )
+
     unless path
-      path = request.path+'?'+request.query_string
+      path = request.path
+      if not request.query_string.blank?
+        path = path + '?'+request.query_string
+      elsif not request.env["rack.request.form_vars"].blank?
+        path = path + '?' + request.env["rack.request.form_vars"]
+      end
     end
 
     case request.method

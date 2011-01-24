@@ -67,7 +67,7 @@ class RequestController < ApplicationController
       end
 
       pr = "match=" + predicates.join(" and ")
-      c = Suse::Backend.post("/search/request", URI.escape(pr))
+      c = Suse::Backend.post("/search/request?" + URI.escape(pr), nil)
       render :text => c.body, :content_type => "text/xml"
     else
       # directory list of all requests. not very usefull but for backward compatibility...
