@@ -273,18 +273,18 @@ class SourceController < ApplicationController
     # The target must exist, except for following cases
     if command == 'undelete' or (request.get? and deleted_package)
       tprj = DbProject.get_by_name(target_project_name)
-      if DbPackage.exists_by_project_and_name(target_project_name, target_package_name)
+      if DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
         render_error :status => 404, :errorcode => "package_exists",
           :message => "the package exists already #{tprj.name} #{target_package_name}"
         return
       end
     elsif request.post? and package_creating_commands.include?(command)  # branch/copy
       # we require a target, but are we allowed to modify the existing target ?
-      if DbProject.exists_by_name(target_project_name) and DbPackage.exists_by_project_and_name(target_project_name, target_package_name)
-        tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name)
+      if DbProject.exists_by_name(target_project_name) and DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
+        tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
         unless @http_user.can_modify_package?(tpkg)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to execute command '#{command}' for package #{tpkg.name}"
+            :message => "no permission to execute command '#{command}' for package #{tpkg.name} in project #{tpkg.db_project.name}"
           return
         end
       else
@@ -798,13 +798,29 @@ class SourceController < ApplicationController
     else
       # PUT /source/:project/:package/_meta
 
+      pkg_xml = Package.new( request.raw_post, :project => project_name, :name => package_name )
+
+      if( pkg_xml.name != package_name )
+        render_error :status => 400, :errorcode => 'package_name_mismatch',
+          :message => "package name in xml data does not match resource path component"
+        return
+      end
+
       # check for project
-      if DbPackage.exists_by_project_and_name( project_name, package_name )
+      if DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links=false )
         pkg = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false )
         unless @http_user.can_modify_package?(pkg)
           render_error :status => 403, :errorcode => "change_package_no_permission",
             :message => "no permission to modify package '#{pkg.db_project.name}'/#{pkg.name}"
           return
+        end
+
+        if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
+          if pkg_xml.disabled_for? :sourceaccess
+             render_error :status => 403, :errorcode => "change_package_protection_level",
+               :message => "admin rights are required to raise the protection level of a package"
+             return
+          end
         end
       else
         prj = DbProject.get_by_name(project_name)
@@ -815,7 +831,14 @@ class SourceController < ApplicationController
         end
       end
 
-      update_package_meta(project_name, package_name, request.raw_post, @http_user.login, params[:comment])
+      begin
+        pkg_xml.save
+      rescue DbPackage::CycleError => e
+        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+        return
+      end
+
+      render_ok
     end
   end
 
@@ -942,54 +965,6 @@ class SourceController < ApplicationController
   end
 
   private
-
-  def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
-    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
-
-    if pkg
-      # Being here means that the package already exists
-      unless permissions.package_change? pkg
-        logger.debug "user #{user} has no permission to change package #{package_name}"
-        render_error :status => 403, :errorcode => "change_package_no_permission",
-          :message => "no permission to change package"
-        return
-      end
-    else
-      # Ok, the package is new
-      unless permissions.package_create?( project_name )
-        # User is not allowed by global permission.
-        logger.debug "Not allowed to create new packages"
-        render_error :status => 403, :errorcode => "create_package_no_permission",
-          :message => "no permission to create package for project #{project_name}"
-        return
-      end
-    end
-
-    @package = Package.new( request_data, :project => project_name, :name => package_name )
-
-    if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
-      if @package.disabled_for? :sourceaccess
-	 render_error :status => 403, :errorcode => "change_package_protection_level",
-	   :message => "admin rights are required to raise the protection level of a package"
-	 return
-      end
-    end
-
-    if( @package.name != package_name )
-      render_error :status => 400, :errorcode => 'package_name_mismatch',
-        :message => "package name in xml data does not match resource path component"
-      return
-    end
-
-    begin
-      @package.save
-    rescue DbPackage::CycleError => e
-      render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
-      return
-    end
-
-    render_ok
-  end
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages

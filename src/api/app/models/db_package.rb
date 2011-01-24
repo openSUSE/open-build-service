@@ -174,9 +174,13 @@ class DbPackage < ActiveRecord::Base
     end
 
     # to check existens of a project (local or remote)
-    def exists_by_project_and_name( project, package )
+    def exists_by_project_and_name( project, package, follow_project_links=true )
       prj = DbProject.get_by_name( project )
-      pkg = prj.find_package(package)
+      if follow_project_links
+        pkg = prj.find_package(package)
+      else
+        pkg = prj.db_packages.find_by_name(package)
+      end
       if pkg.nil?
 # FIXME: how to handle remote ?
 #        return true if find_remote_project(name)

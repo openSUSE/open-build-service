@@ -543,7 +543,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"foo\"><title></title><description></description></package>"
+    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"pack\"><title></title><description></description></package>"
     assert_response 404
   end
 
@@ -1329,9 +1329,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
-    assert_response 404
-    assert_match(/package_exists/, @response.body)
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
@@ -1359,7 +1356,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
     assert_response :success
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
+    assert_response 404
+    assert_match(/package_exists/, @response.body)
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response :success
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
     assert_response :success
   end
 
@@ -1487,38 +1489,38 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
   def test_use_project_link_as_non_maintainer
-    prepare_request_with_user "fred", "geröllheimer"
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:fred:temporary"), 
-        '<project name="home:fred:temporary"> <title/> <description/> <link project="kde4" /> </project>'
+    prepare_request_with_user "tom", "thunder"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
     assert_response :success
-    get "/source/home:fred:temporary"
+    get "/source/home:tom:temporary"
     assert_response :success
-    get "/source/home:fred:temporary/kdelibs"
+    get "/source/home:tom:temporary/kdelibs"
     assert_response :success
-    get "/source/home:fred:temporary/kdelibs/_history"
+    get "/source/home:tom:temporary/kdelibs/_history"
     assert_response :success
-    delete "/source/home:fred:temporary/kdelibs"
+    delete "/source/home:tom:temporary/kdelibs"
     assert_response 404
-    post "/source/home:fred:temporary/kdelibs", :cmd => :copy, :oproject => "home:fred:temporary", :opackage => "kdelibs"
+    post "/source/home:tom:temporary/kdelibs", :cmd => :copy, :oproject => "home:tom:temporary", :opackage => "kdelibs"
     assert_response :success
-    get "/source/home:fred:temporary/kdelibs/_meta"
+    get "/source/home:tom:temporary/kdelibs/_meta"
     meta = @response.body
     assert_response :success
-    delete "/source/home:fred:temporary/kdelibs"
+    delete "/source/home:tom:temporary/kdelibs"
     assert_response :success
-    delete "/source/home:fred:temporary/kdelibs"
+    delete "/source/home:tom:temporary/kdelibs"
     assert_response 404
 
     # check if package creation is doing the right thing
-    put "/source/home:fred:temporary/kdelibs/_meta", meta
+    put "/source/home:tom:temporary/kdelibs/_meta", meta
     assert_response :success
-    delete "/source/home:fred:temporary/kdelibs"
+    delete "/source/home:tom:temporary/kdelibs"
     assert_response :success
-    delete "/source/home:fred:temporary/kdelibs"
+    delete "/source/home:tom:temporary/kdelibs"
     assert_response 404
 
     # cleanup
-    delete "/source/home:fred:temporary"
+    delete "/source/home:tom:temporary"
     assert_response :success
   end
 
