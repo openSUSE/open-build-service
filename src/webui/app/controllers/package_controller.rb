@@ -6,13 +6,10 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :except => [:add_person, :submit_request,
-    :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
-    :remove_url, :save, :save_modified_file, :save_person,
-    :set_url, :set_url_form, :update_build_log]
-  before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
-    :save_modified_file, :save_new, :save_new_link, :update_build_log]
-  before_filter :load_requests, :except => [:add_person, :edit_file, :rawlog, :save_new, :submit_request]
+  before_filter :require_project, :except => [:rawlog, :submit_request]
+  before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new ]
+  # make sure it's after the require_, it requires both
+  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new ]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
