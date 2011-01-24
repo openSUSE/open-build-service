@@ -4682,10 +4682,6 @@ sub published_projectindexfunc {
 
 sub search_published_binary_id {
   my ($cgi, $match) = @_;
-  unless ($match) {
-    $match = BSRPC::urldecode(BSServer::read_data()) unless $match;
-    $match =~ s/^match=//;
-  }
   my $binarydb = BSDB::opendb($extrepodb, 'binary');
   $binarydb->{'allkeyspath'} = 'name';
   $binarydb->{'noindex'} = {'version' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1};
@@ -4708,10 +4704,6 @@ sub search_published_binary_id {
 
 sub search_published_pattern_id {
   my ($cgi, $match) = @_;
-  unless ($match) {
-    $match = BSRPC::urldecode(BSServer::read_data()) unless $match;
-    $match =~ s/^match=//;
-  }
   my $patterndb = BSDB::opendb($extrepodb, 'pattern');
   $patterndb->{'noindex'} = {'project' => 1, 'repository' => 1};
   $patterndb->{'fetch'} = \&pattern_key_to_data;
@@ -5596,16 +5588,14 @@ my $dispatches = [
 
   # search interface
   '/search $in: $match: return:? values:bool?' => \&search,
-  '/search/project $match:*' => \&search_proj,
-  '/search/project/id $match:*' => \&search_proj_id,
-  '/search/package $match:*' => \&search_pack,
-  '/search/package/id $match:*' => \&search_pack_id,
-  '/search/request $match:* limit:num?' => \&search_request,
-#  '/search/request/id $match:* limit:num?' => \&search_request_id,
+  '/search/project $match:' => \&search_proj,
+  '/search/project/id $match:' => \&search_proj_id,
+  '/search/package $match:' => \&search_pack,
+  '/search/package/id $match:' => \&search_pack_id,
 
   'POST:/search/published cmd:' => \&search_published_updatedb,
-  '/search/published/binary/id $match:* limit:num?' => \&search_published_binary_id,
-  '/search/published/pattern/id $match:* limit:num?' => \&search_published_pattern_id,
+  '/search/published/binary/id $match: limit:num?' => \&search_published_binary_id,
+  '/search/published/pattern/id $match: limit:num?' => \&search_published_pattern_id,
 
   # service interface, just for listing for now
   '/service' => \&listservices,
@@ -5643,6 +5633,7 @@ my $dispatches = [
   '/request/$id:num' => \&getrequest,
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
+  '/search/request $match:* limit:num?' => \&search_request,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
