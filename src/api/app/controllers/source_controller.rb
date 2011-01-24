@@ -970,7 +970,7 @@ class SourceController < ApplicationController
   def update_product_autopackages
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-    frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "name LIKE '_product:%'")
+    frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "`db_packages`.name LIKE '_product:%'")
     f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
