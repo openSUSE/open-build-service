@@ -1501,8 +1501,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     post "/source/home:fred:temporary/kdelibs", :cmd => :copy, :oproject => "home:fred:temporary", :opackage => "kdelibs"
     assert_response :success
+    get "/source/home:fred:temporary/kdelibs/_meta"
+    meta = @response.body
+    assert_response :success
     delete "/source/home:fred:temporary/kdelibs"
     assert_response :success
+    delete "/source/home:fred:temporary/kdelibs"
+    assert_response 404
+
+    # check if package creation is doing the right thing
+    put "/source/home:fred:temporary/kdelibs/_meta", meta
+    assert_response :success
+    delete "/source/home:fred:temporary/kdelibs"
+    assert_response :success
+    delete "/source/home:fred:temporary/kdelibs"
+    assert_response 404
 
     # cleanup
     delete "/source/home:fred:temporary"
