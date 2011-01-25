@@ -1421,8 +1421,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-    pkg = DbPackage.get_by_project_and_name(project_name, package_name)
-
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
