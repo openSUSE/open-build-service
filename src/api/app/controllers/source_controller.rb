@@ -1519,13 +1519,7 @@ class SourceController < ApplicationController
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
-    prj = DbProject.find_by_name prj_name
-    pkg = prj.db_packages.find_by_name(pkg_name)
-    if pkg.nil?
-      render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{pkg_name} in project #{prj_name}"
-      return
-    end
+    pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
 
     #convert link to branch
     rev = ""
@@ -1718,14 +1712,7 @@ class SourceController < ApplicationController
     prj_name = params[:project]
     pkg_name = params[:package]
 
-    # we can savely assume it exists - this function is called through dispatch_command
-    prj = DbProject.find_by_name prj_name
-    pkg = prj.find_package( pkg_name )
-    if pkg.nil? or prj.nil?
-      render_error :status => 404, :errorcode => "unknown_package",
-        :message => "Unknown package '#{pkg_name}' in project '#{prj_name}'"
-      return
-    end
+    pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
 
     # first remove former flags of the same class
     begin
@@ -1746,7 +1733,6 @@ class SourceController < ApplicationController
     required_parameters :project, :flag, :status
     prj_name = params[:project]
     prj = DbProject.get_by_name prj_name
-
 
     begin
       # first remove former flags of the same class
