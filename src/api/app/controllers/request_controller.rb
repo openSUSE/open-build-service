@@ -899,7 +899,7 @@ class RequestController < ApplicationController
           end
       end
 
-      if action.target.package == "_product"
+      if action.target.has_attribute? :package and action.target.package == "_product"
         update_product_autopackages action.target.project
       end
     end
