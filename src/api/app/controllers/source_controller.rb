@@ -676,7 +676,7 @@ class SourceController < ApplicationController
         # permissions check
         tproject_name = e.attributes["project"]
         tprj = DbProject.get_by_name(tproject_name)
-        if tprj.disabled_for?('access', nil, nil)
+        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
           render_error :status => 404, :errorcode => "repository_access_failure" ,
                        :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
           return
@@ -1557,7 +1557,7 @@ class SourceController < ApplicationController
 
     prj = DbProject.get_by_name prj_name
     
-    if prj
+    if prj.class == DbProject
       pkg = prj.find_package( pkg_name )
       if pkg.nil?
         # Check if this is a package via project link to a remote OBS instance
@@ -1577,7 +1577,7 @@ class SourceController < ApplicationController
       raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
 
-    if prj and a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
+    if prj.class == DbProject and a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
         # We have a package in the update project already, take that
         pkg = pa
@@ -1620,7 +1620,7 @@ class SourceController < ApplicationController
     end
  
     oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
-    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj
+    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj.class == DbProject
     opkg_name = pkg_name
     opkg_name = pkg.name if pkg
     oprj_name = target_project unless target_project.nil?
@@ -1638,7 +1638,7 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj_name}"
         oprj.add_user @http_user, "maintainer"
-        if prj
+        if prj.class == DbProject
           prj.repositories.each do |repo|
             orepo = oprj.repositories.create :name => repo.name
             orepo.architectures = repo.architectures
