@@ -8,13 +8,6 @@
   /*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
     minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
   });*/
-  $("#targetproject").change(function() {
-    if ($("#targetproject")[0].value > "") {
-      $("input[name='commit']").removeAttr("disabled");
-    } else {
-      $("input[name='commit']").attr("disabled", "disabled");
-    }
-  });
 </script>
 
 <div id="dialog_wrapper">
@@ -46,7 +39,7 @@
           <%= check_box_tag(:sourceupdate, 'cleanup') %> Remove local package if request is accepted
         </p>
         <div class="buttons">
-          <%= submit_tag("Ok", :disabled => true) %>
+          <%= submit_tag("Ok") %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
         </div>
       <% end %>
