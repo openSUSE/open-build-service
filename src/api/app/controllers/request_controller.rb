@@ -1,3 +1,6 @@
+
+include ProductHelper
+
 class RequestController < ApplicationController
   #TODO: request schema validation
 
@@ -775,6 +778,10 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
+      end
+
+      if action.target.package == "_product"
+        update_product_autopackages action.target.project
       end
     end
     pass_to_backend path
