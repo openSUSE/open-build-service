@@ -1,5 +1,7 @@
 require "rexml/document"
 
+include ProductHelper
+
 class SourceController < ApplicationController
 
   validate_action :index => {:method => :get, :response => :directory}
@@ -396,7 +398,7 @@ class SourceController < ApplicationController
         Suse::Backend.delete path
     
         if target_package_name == "_product"
-          update_product_autopackages
+          update_product_autopackages params[:project]
         end
       end
       render_ok
@@ -940,7 +942,7 @@ class SourceController < ApplicationController
       pass_to_backend path
       pack.update_timestamp
 
-      update_product_autopackages if package_name == "_product"
+      update_product_autopackages params[:project] if package_name == "_product"
 
     # DELETE /source/:project/:package/:file
     elsif request.delete?
@@ -958,39 +960,13 @@ class SourceController < ApplicationController
         pack.update_timestamp
       end
       if package_name == "_product"
-        update_product_autopackages
+        update_product_autopackages params[:project]
       end
       render_ok
     end
   end
 
   private
-
-  # updates packages automatically generated in the backend after submitting a product file
-  def update_product_autopackages
-    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-    frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "`db_packages`.name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-
-    all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
-
-    wt_state = ActiveXML::Config.global_write_through
-    begin
-      ActiveXML::Config.global_write_through = false
-      all_pkgs.each do |pkg|
-        if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
-          # new autopackage, import in database
-          Package.new(b_pkg_index[pkg].dump_xml, :project => params[:project]).save
-        elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
-          # autopackage was removed, remove from database
-          f_pkg_index[pkg].destroy
-        end
-      end
-    ensure
-      ActiveXML::Config.global_write_through = wt_state
-    end
-  end
 
   # POST /source?cmd=branch (aka osc mbranch)
   def index_branch
@@ -1434,7 +1410,7 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     if params[:package] == "_product"
-      update_product_autopackages
+      update_product_autopackages params[:project]
     end
   end
 
@@ -1452,7 +1428,7 @@ class SourceController < ApplicationController
     pass_to_backend path
     
     if params[:package] == "_product"
-      update_product_autopackages
+      update_product_autopackages params[:project]
     end
   end
 
