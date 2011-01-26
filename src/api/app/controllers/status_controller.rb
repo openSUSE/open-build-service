@@ -178,7 +178,6 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
-    # ACL(project): This call is not used in config/routes. FIXME: delete?
      dbproj = DbProject.get_by_name(params[:id])
      key='project_status_xml_%s' % dbproj.name
      xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
@@ -189,7 +188,6 @@ class StatusController < ApplicationController
   end
 
   def bsrequest
-    # ACL(bsrequest): This call is not used in config/routes. FIXME: delete?
     required_parameters :id
     req = BsRequest.find :id => params[:id]
     if req.action.value('type') != 'submit'

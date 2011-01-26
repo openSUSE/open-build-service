@@ -1451,7 +1451,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # _project exists always
     put "/source/home:Iggy/_project/filename?rev=repository", 'CONTENT'
-print @response.body
     assert_response :success
     post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
