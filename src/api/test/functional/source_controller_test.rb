@@ -1365,7 +1365,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_source_commands_tests
+  def test_source_commits
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
     assert_response 403
@@ -1424,23 +1424,42 @@ class SourceControllerTest < ActionController::IntegrationTest
     # _product must be created
     put "/source/home:Iggy/_product/_meta", "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
     assert_response :success
-    put "/source/home:Iggy/_product/filename", 'CONTENT'
+    put "/source/home:Iggy/_product/filename?rev=repository", 'CONTENT'
     assert_response :success
-    post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/_product/filename"
+    assert_response :success
+    put "/source/home:Iggy/_product/filename2", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/_product/filename2"
     assert_response :success
 
     # _pattern exists always
     put "/source/home:Iggy/_pattern/filename", 'CONTENT'
     assert_response 400 # illegal content
-    put "/source/home:Iggy/_pattern/filename", load_backend_file("pattern/digiKam.xml")
+    put "/source/home:Iggy/_pattern/filename?rev=repository", load_backend_file("pattern/digiKam.xml")
     assert_response :success
     post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="d23e402af68579c3b30ff00f8c8424e0" /> </directory> '
     assert_response :success
+    get "/source/home:Iggy/_pattern/filename"
+    assert_response :success
+    put "/source/home:Iggy/_pattern/filename2", load_backend_file("pattern/digiKam.xml")
+    assert_response :success
+    get "/source/home:Iggy/_pattern/filename2"
+    assert_response :success
 
     # _project exists always
-    put "/source/home:Iggy/_project/filename", 'CONTENT'
+    put "/source/home:Iggy/_project/filename?rev=repository", 'CONTENT'
+print @response.body
     assert_response :success
-    post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/_project/filename"
+    assert_response :success
+    put "/source/home:Iggy/_project/filename2", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/_project/filename2"
     assert_response :success
   end
 

@@ -920,14 +920,6 @@ class SourceController < ApplicationController
          validator.validate(request)
       end
 
-      # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
-      # package here implicit to stay api compatible.
-      # FIXME3.0: to be revisited
-      if package_name == "_pattern" and pack.nil?
-        pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
-        prj.db_packages << pack
-      end
-
       if params[:file] == "_link"
         data = REXML::Document.new(request.raw_post.to_s)
         data.elements.each("link") do |e|
@@ -939,12 +931,23 @@ class SourceController < ApplicationController
         end
       end
 
-      pass_to_backend path
-      if package_name == "_project"
-        # TO BE IMPLEMENTED: add support for project update_timestamp
+      # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
+      # package here implicit to stay api compatible.
+      # FIXME3.0: to be revisited
+      if package_name == "_pattern" and not DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links=false )
+        pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
+        prj.db_packages << pack
+        pack.save
       else
-        pack.update_timestamp
+        if package_name == "_project"
+          # TO BE IMPLEMENTED: add support for project update_timestamp
+        else
+          pack = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false, follow_project_links=false )
+          pack.update_timestamp
+        end
       end
+
+      pass_to_backend path
 
       update_product_autopackages params[:project] if package_name == "_product"
 
