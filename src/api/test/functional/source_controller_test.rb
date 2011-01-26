@@ -1372,16 +1372,75 @@ class SourceControllerTest < ActionController::IntegrationTest
     put "/source/home:Iggy/TestPack/filename", 'CONTENT'
     assert_response 403
 
+    # fred has maintainer permissions in this single package of Iggys home
+    # this is the osc way
     prepare_request_with_user "fred", "geröllheimer"
-    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    put "/source/home:Iggy/TestPack/filename?rev=repository", 'CONTENT'
     assert_response :success
-    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response 404
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_no_tag( :tag => "revision", :attributes => { :rev => "3"} )
+    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+
+    # delete file with commit
+    delete "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response 404
+
+    # this is the future webui way
+    prepare_request_with_user "fred", "geröllheimer"
+    put "/source/home:Iggy/TestPack/filename?rev=upload", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename?rev=latest"
+    assert_response 404
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_no_tag( :tag => "revision", :attributes => { :rev => "5"} )
+    post "/source/home:Iggy/TestPack?cmd=commit"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename?rev=latest"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+
+    #
+    # Test commits to special packages
+    #
+    prepare_request_with_user "Iggy", "asdfasdf"
+    # _product must be created
+    put "/source/home:Iggy/_product/_meta", "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/_product/filename", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
     assert_response :success
 
-    prepare_request_with_user "Iggy", "asdfasdf"
-    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    # _pattern exists always
+    put "/source/home:Iggy/_pattern/filename", 'CONTENT'
+    assert_response 400 # illegal content
+    put "/source/home:Iggy/_pattern/filename", load_backend_file("pattern/digiKam.xml")
     assert_response :success
-    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="d23e402af68579c3b30ff00f8c8424e0" /> </directory> '
+    assert_response :success
+
+    # _project exists always
+    put "/source/home:Iggy/_project/filename", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
     assert_response :success
   end
 

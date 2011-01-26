@@ -940,7 +940,11 @@ class SourceController < ApplicationController
       end
 
       pass_to_backend path
-      pack.update_timestamp
+      if package_name == "_project"
+        # TO BE IMPLEMENTED: add support for project update_timestamp
+      else
+        pack.update_timestamp
+      end
 
       update_product_autopackages params[:project] if package_name == "_product"
 
@@ -955,7 +959,7 @@ class SourceController < ApplicationController
       end
 
       Suse::Backend.delete path
-      unless package_name == "_pattern" and pack.nil?
+      unless package_name == "_pattern" or package_name == "_project"
         # _pattern was not a real package in old times
         pack.update_timestamp
       end
