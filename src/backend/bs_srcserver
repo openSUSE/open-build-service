@@ -85,6 +85,7 @@ my $eventlay = [qw{number time type project package repository arch}];
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 my $uploaddir = "$srcrep/:upload";
 
+my $repoid;
 my %packagequota;
 
 sub notify_repservers {
@@ -2210,7 +2211,7 @@ sub getprojpack {
     $jinfo->{'package'} = \@pinfo;
     push @res, $jinfo;
   }
-  my $ret = {'project' => \@res};
+  my $ret = {'repoid' => $repoid, 'project' => \@res};
   #print Dumper($remotemap);
   if ($remotemap && %$remotemap) {
     for my $p (sort keys %$remotemap) {
@@ -5505,8 +5506,8 @@ sub getdispatchprios {
 
 sub hello {
   my ($cgi) = @_;
-  return "<hello name=\"Source Repository Ajax Server\" />\n" if $BSStdServer::isajax;
-  return "<hello name=\"Source Repository Server\" />\n";
+  return "<hello name=\"Source Repository Ajax Server\" repoid=\"$repoid\" />\n" if $BSStdServer::isajax;
+  return "<hello name=\"Source Repository Server\" repoid=\"$repoid\" />\n";
 }
 
 ####################################################################
@@ -5671,6 +5672,13 @@ my $aconf = {
   'getrequest_recvfd' => \&BSHandoff::receive,
   'setkeepalive' => 1,
 };
+
+# set a repoid for identification of this data repository
+if ( ! -e "$projectsdir/_repoid" ) {
+  my $randomid = int(rand(1000000000));
+  writestr("$projectsdir/._repoid", "$projectsdir/_repoid", sprintf("%09d", $randomid)) || die ("Unable to initialize the project repository");
+}
+$repoid = readstr("$projectsdir/_repoid");
 
 BSNotify::notify("SRCSRV_START", $conf);
 

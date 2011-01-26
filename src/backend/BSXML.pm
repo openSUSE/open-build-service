@@ -230,6 +230,7 @@ our $patchinfo = [
 
 our $projpack = [
     'projpack' =>
+    'repoid',
      [[ 'project' =>
 	    'name',
 	     [],
