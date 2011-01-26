@@ -112,14 +112,17 @@ sub notify_repservers {
 sub runservice {
   my ($cgi, $projid, $packid) = @_;
 
+  return if $packid eq "_project";
   return unless $BSConfig::serviceserver;
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
 
   # collect current sources to POST them
+  my $projectrev = getrev($projid, '_project');
+  my $projectfiles = lsrev($projectrev);
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);
-  unless ($files->{'_service'}){
+  unless ($files->{'_service'} || $projectfiles->{'_service'}){
     # drop all existing service files
     my $dirty;
     for my $pfile (keys %$files) {
@@ -154,6 +157,8 @@ sub runservice {
 
   # Run the source update in own process (do not wait for it)
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
+  # add _service file from project with different name
+  push @send, {'name' => '_serviceproject', 'filename' => "$srcrep/_project/$projectfiles->{'_service'}-_service"} if $projectfiles->{'_service'};
   # run update as background job
   my $pid = xfork();
   return $BSStdServer::return_ok if $pid;
@@ -3741,8 +3746,12 @@ sub sourcecommit {
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'});
-  if ($files->{'_service'} && !$cgi->{'noservice'}) {
-    runservice($cgi, $projid, $packid);
+  if (!$cgi->{'noservice'}) {
+    my $prev = getrev($projid, '_project');
+    my $pfiles = lsrev($prev);
+    if ($files->{'_service'} || $pfiles->{'_service'}) {
+      runservice($cgi, $projid, $packid);
+    }
   }
   delete $rev->{'project'};
   delete $rev->{'package'};
@@ -3783,8 +3792,12 @@ sub sourcecommitfilelist {
   }
   my $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, undef, $cgi->{'requestid'});
 
-  if ($files->{'_service'} && !$cgi->{'noservice'}) {
-    runservice($cgi, $projid, $packid);
+  if (!$cgi->{'noservice'}) {
+    my $prev = getrev($projid, '_project');
+    my $pfiles = lsrev($prev);
+    if ($files->{'_service'} || $pfiles->{'_service'}) {
+      runservice($cgi, $projid, $packid);
+    }
   }
 
   $cgi->{'rev'} = $rev->{'rev'};
