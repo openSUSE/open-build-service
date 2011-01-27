@@ -9,38 +9,50 @@ class BsRequest < ActiveXML::Base
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
       
       ret = nil
-      case opt[:type]
-        when "submit" then
-          option = ""
-          option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
-          opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
-          opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
-          reply = <<-EOF
-            <request>
-              <action type="submit">
-                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}" rev="#{opt[:rev]}"/>
-                <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
-                #{option}
-              </action>
-              <state name="new"/>
-              <description>#{opt[:description].to_xs}</description>
-            </request>
-          EOF
-          ret = XML::Parser.string(reply).parse.root
-          ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
-        when "delete" then
-          pkg_option = ""
-          pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
-          reply = <<-EOF
-            <request>
-              <action type="delete">
-                <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
-              </action>
-              <state name="new"/>
-              <description>#{opt[:description].to_xs}</description>
-            </request>
-          EOF
-          ret = XML::Parser.string(reply).parse.root
+      if opt[:type] == "submit" then
+        option = ""
+        option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+        opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
+        opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
+        reply = <<-EOF
+          <request>
+            <action type="submit">
+              <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
+              <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+              #{option}
+            </action>
+            <state name="new"/>
+            <description>#{opt[:description].to_xs}</description>
+          </request>
+        EOF
+        ret = XML::Parser.string(reply).parse.root
+        ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
+      else
+        # set request-specific options
+        option = ""
+        case opt[:type]
+          when "add_role" then
+            option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :group and not opt[:group].nil?
+            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :person and not opt[:person].nil?
+          when "set_bugowner" then
+            option = "<person name=\"#{opt[:person]}\" role=\"#{opŧ[:role]}\"/>"
+          when "change_devel" then
+            option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+        end
+        # build the request XML
+        pkg_option = ""
+        pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
+        reply = <<-EOF
+          <request>
+            <action type="#{opt[:type]}">
+              <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
+              #{option}
+            </action>
+            <state name="new"/>
+            <description>#{opt[:description].to_xs}</description>
+          </request>
+        EOF
+        ret = XML::Parser.string(reply).parse.root
       end
       return ret
     end
