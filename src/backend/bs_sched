@@ -1480,7 +1480,10 @@ sub get_projpacks {
 
   # Be sure that this is the right source server for my binary packages
   die("ERROR: source server did not report a repoid") unless $projpacksin->{'repoid'};
-  writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'}) unless -e "$reporoot/_repoid";
+  if (! -e "$reporoot/_repoid") {
+    mkdir_p("$reporoot") unless -d "$reporoot";
+    writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'});
+  }
   my $buildrepoid = readstr("$reporoot/_repoid");
   die("ERROR: My repository id($buildrepoid) has wrong length(".length($buildrepoid).")") unless length($buildrepoid) == 9;
   die("ERROR: source server repository id($projpacksin->{'repoid'}) does not match my repository id($buildrepoid)") unless $buildrepoid eq $projpacksin->{'repoid'};
