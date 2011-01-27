@@ -11,7 +11,7 @@
       url: '<%= url_for(:controller => :request, :action => :list) %>',
       type: 'post',
       data: {
-        'type': $('#request_select')[0].value,
+        'state': $('#request_select')[0].value,
         <%= "'user': '" + user.to_s + "'," unless not defined?(user)  %>
         <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
         <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
