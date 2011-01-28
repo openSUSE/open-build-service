@@ -176,6 +176,25 @@ class RequestController < ApplicationController
   def list
     redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
-    render :partial => 'shared/list_requests', :locals => { :requests => requests }
+    render :partial => 'shared/list_requests', :locals => {:requests => requests}
+  end
+
+  def add_role_request_dialog
+    @project = params[:project]
+    @package = params[:package] if params[:package]
+    render :template => 'shared/add_role_request_dialog'
+  end
+
+  def add_role_request
+    req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 end
