@@ -35,7 +35,7 @@ class BsRequest < ActiveXML::Base
             option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :group and not opt[:group].nil?
             option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :person and not opt[:person].nil?
           when "set_bugowner" then
-            option = "<person name=\"#{opt[:person]}\" role=\"#{opŧ[:role]}\"/>"
+            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
           when "change_devel" then
             option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
         end
