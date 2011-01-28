@@ -2313,7 +2313,10 @@ sub importevent {
   my %all = map {$_ => 1} @all;
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
+  my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
   my $useforbuildenabled = 1;
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
+ $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
