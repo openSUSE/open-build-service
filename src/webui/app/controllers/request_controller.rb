@@ -182,7 +182,6 @@ class RequestController < ApplicationController
   def delete_request_dialog
     @project = params[:project]
     @package = params[:package] if params[:package]
-    render :template => 'shared/delete_request_dialog'
   end
 
   def delete_request
@@ -202,7 +201,6 @@ class RequestController < ApplicationController
   def add_role_request_dialog
     @project = params[:project]
     @package = params[:package] if params[:package]
-    render :template => 'shared/add_role_request_dialog'
   end
 
   def add_role_request

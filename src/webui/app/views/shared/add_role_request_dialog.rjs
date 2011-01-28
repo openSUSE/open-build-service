@@ -1,1 +1,0 @@
-page.replace 'dialog_wrapper', :partial => 'shared/add_role_request_dialog'
