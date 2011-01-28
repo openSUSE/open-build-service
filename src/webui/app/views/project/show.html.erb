@@ -47,11 +47,11 @@
                   <%= link_to_remote(image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => {:controller => :request, :action => :delete_request_dialog, :project => @project}) %>
                   <%= link_to_remote('Request Deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project}) %>
                 </li>
+                <li>
+                  <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request Role Addition"), :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project}) %>
+                  <%= link_to_remote("Request Role Addition", :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project}) %>
+                </li>
               <% end %>
-              <li>
-                <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request Role Addition"), :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project}) %>
-                <%= link_to_remote("Request Role Addition", :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project}) %>
-              </li>
             <% end %>
           </ul>
         </div>
