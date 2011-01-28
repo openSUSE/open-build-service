@@ -31,8 +31,8 @@
                 </li>
               <% else %>
                 <li>
-                  <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
-                  <%= link_to_remote 'Request Deletion', :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Request Deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
                 </li>
               <% end %>
               <% if Package.current_rev(@project, @package) %>

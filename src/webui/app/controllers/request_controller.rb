@@ -179,6 +179,26 @@ class RequestController < ApplicationController
     render :partial => 'shared/list_requests', :locals => {:requests => requests}
   end
 
+  def delete_request_dialog
+    @project = params[:project]
+    @package = params[:package] if params[:package]
+    render :template => 'shared/delete_request_dialog'
+  end
+
+  def delete_request
+    begin
+      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
+      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+  end
+
   def add_role_request_dialog
     @project = params[:project]
     @package = params[:package] if params[:package]
@@ -186,13 +206,14 @@ class RequestController < ApplicationController
   end
 
   def add_role_request
-    req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user])
     begin
+      req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user])
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      return
+      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
+      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
     Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
