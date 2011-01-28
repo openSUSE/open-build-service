@@ -165,9 +165,9 @@ class PackageController < ApplicationController
       redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
 
-    params[:type] = "submit"
-    req = BsRequest.new(params)
     begin
+      params[:type] = "submit"
+      req = BsRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
