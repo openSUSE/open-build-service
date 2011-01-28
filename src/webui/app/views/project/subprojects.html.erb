@@ -36,7 +36,7 @@
     <ul>
       <%- @subprojects.each do |key, value| -%>
         <li><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
-          <% if value.title && !value.title.text.blank? %>
+          <% if defined? value.title && !value.title.text.blank? %>
             <i>(<%= value.title  %>)</i>
           <% else %>
             <i>(no title set)</i>
