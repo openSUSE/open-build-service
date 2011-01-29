@@ -1011,7 +1011,7 @@ class SourceController < ApplicationController
           end
         end
 
-        @packages.push({ :target_project => pkg.db_project, :package => pkg })
+        @packages.push({ :target_project => pkg.db_project, :package => pkg }) unless pkg.nil?
       end
     else
       # find packages via attributes
