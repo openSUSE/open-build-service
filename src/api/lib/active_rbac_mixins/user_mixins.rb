@@ -670,9 +670,18 @@ module UserMixins
             end
             logger.debug( "Search for #{user_filter}" )
             dn = String.new
+            ldap_password = String.new
             begin
               ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
                 dn = entry.dn
+                if defined?( LDAP_AUTHENTICATE ) && LDAP_AUTHENTICATE == :local
+                  if entry[LDAP_AUTH_ATTR] then
+                    ldap_password = entry[LDAP_AUTH_ATTR][0]
+                    logger.debug( "Get auth_attr:#{ldap_password}" )
+                  else
+                    logger.debug( "Failed to get attr:#{LDAP_AUTH_ATTR}" )
+                  end
+                end
               end
             rescue
               logger.debug( "Search failed:  error #{ @@ldap_search_con.err}" )
@@ -691,13 +700,13 @@ module UserMixins
               authenticated = false
               case LDAP_AUTH_MECH
               when :cleartext then
-                if entry[LDAP_AUTH_ATTR][0] == password then
+                if ldap_password == password then
                   authenticated = true
                 end
               when :md5 then
                 require 'digest/md5'
                 require 'base64'
-                if entry[LDAP_AUTH_ATTR][0] == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
+                if ldap_password == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
                   authenticated = true
                 end
               end
