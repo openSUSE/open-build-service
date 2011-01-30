@@ -1,4 +1,4 @@
-class AddArchs3  < ActiveRecord::Migration
+class AddArmv7hl < ActiveRecord::Migration
 
 
   def self.up
