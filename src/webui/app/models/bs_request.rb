@@ -150,15 +150,6 @@ class BsRequest < ActiveXML::Base
       return last
     end
 
-    def find_open_review_requests(user)
-      unless user
-        raise RuntimeError, "missing parameters"
-      end
-      pred = "state/@name='review' and review/@state='new' and review/@by_user='#{user}'"
-      requests = Collection.find_cached :what => :request, :predicate => pred
-      return requests
-    end
-
     def list(opts)
       unless opts[:state] or opts[:type] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
