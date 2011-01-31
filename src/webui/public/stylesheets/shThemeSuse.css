@@ -123,11 +123,17 @@
   color: #006699 !important;
   background-color: none !important;
 }
+.syntaxhighlighter .diff-minus {
+  color: red !important;
+}
+.syntaxhighlighter .diff-plus {
+  color: green !important;
+}
 .syntaxhighlighter .color1, .syntaxhighlighter .color1 a {
-  color: gray !important;
+  color: black !important;
 }
 .syntaxhighlighter .color2, .syntaxhighlighter .color2 a {
-  color: #ff1493 !important;
+  color: gray !important;
 }
 .syntaxhighlighter .color3, .syntaxhighlighter .color3 a {
   color: red !important;
