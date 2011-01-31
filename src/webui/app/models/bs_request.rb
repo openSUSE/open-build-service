@@ -1,5 +1,6 @@
 class BsRequest < ActiveXML::Base
 
+  class ListError < Exception; end
   class ModifyError < Exception; end
 
   default_find_parameter :id
@@ -159,54 +160,24 @@ class BsRequest < ActiveXML::Base
     end
 
     def list(opts)
-      unless (opts[:state] or opts[:type]) and (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
+      unless opts[:state] or opts[:type] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
       end
 
-      predicate = ""
-      case opts[:state].to_s
-        when "pending" then    predicate += "(state/@name='new' or state/@name='review') and "
-        when "new" then        predicate += "state/@name='new' and "
-        when "deleted" then    predicate += "state/@name='deleted' and "
-        when "declined" then   predicate += "state/@name='declined' and "
-        when "accepted" then   predicate += "state/@name='accepted' and "
-        when "review" then     predicate += "state/@name='review' and "
-        when "revoked"  then   predicate += "state/@name='revoked' and "
-        when "superseded" then predicate += "state/@name='superseded' and "
+      transport ||= ActiveXML::Config::transport_for :bsrequest
+      path = "/request?view=collection"
+      path << "&state=#{opts[:state]}" if opts[:state]
+      path << "&type=#{opts[:type]}" if opts[:type]
+      path << "&user=#{opts[:user]}" if opts[:user]
+      path << "&project=#{opts[:project]}" if opts[:project]
+      path << "&package=#{opts[:package]}" if opts[:package]
+      begin
+        answer = transport.direct_http URI("https://#{path}"), :method => "GET"
+        return Collection.new(answer).each
+      rescue ActiveXML::Transport::Error => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        raise ListError, message
       end
-
-      # Filter by request type (submit, delete, ...)
-      predicate += "action/@type='#{opts[:type]}' and " if opts[:type]
-
-      if opts[:project] and not opts[:project].empty?
-        if opts[:package] and not opts[:package].empty?
-          predicate += "action/target/@project='#{opts[:project]}' and action/target/@package='#{opts[:package]}'"
-        else
-          predicate += "action/target/@project='#{opts[:project]}'"
-        end
-      elsif opts[:user] # should be set in almost all cases
-        # user's own submitted requests
-        predicate += "(state/@who='#{opts[:user]}'"
-        # requests where the user is reviewer or own requests that are in review by someone else
-        predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:state] == "pending" or opts[:state] == "review"
-        # find requests where user is maintainer in target project
-        maintained_projects = Array.new
-        coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
-        coll.each {|mp| maintained_projects += ["action/target/@project='#{mp.name}'"]}
-        predicate += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
-        # find request where user is maintainer in target package
-        maintained_packages = Array.new
-        maintained_projects_hash = Hash.new
-        coll.each {|prj| maintained_projects_hash[prj.name] = true}
-        coll = Collection.find(:id, :what => 'package', :predicate => "person/@userid='#{opts[:user]}'")
-        coll.each do |mp|
-          maintained_packages += ["(action/target/@project='#{mp.project}' and action/target/@package='#{mp.name}')"] unless maintained_projects_hash.has_key?(mp.project.to_s)
-        end
-        predicate += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-        predicate += ")"
-      end
-
-      return Collection.find_cached(:what => :request, :predicate => predicate).each
     end
   end
 
