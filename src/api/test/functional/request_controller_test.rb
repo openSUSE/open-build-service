@@ -215,13 +215,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     # collection of user involved requests
-    get "/request?view=collection&user=Iggy"
+    get "/request?view=collection&user=Iggy&state=pending"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
 
     # collection for given package
-    get "/request?view=collection&project=kde4&package=wpa_supplicant"
+    get "/request?view=collection&project=kde4&package=wpa_supplicant&state=pending"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
@@ -229,7 +229,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "request", :attributes => { :id => "1"} )
 
     # collection for given project
-    get "/request?view=collection&project=kde4"
+    get "/request?view=collection&project=kde4&state=pending"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "3"} )
