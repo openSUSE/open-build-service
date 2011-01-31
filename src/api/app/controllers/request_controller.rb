@@ -23,8 +23,8 @@ class RequestController < ApplicationController
        return
       end
 
-      # show all pending requests by default
-      if params[:state].blank?
+      # pending requests are new or in review requests
+      if params[:state] == "pending"
         predicates << "(state/@name='new' or state/@name='review')"
       else
         predicates << "state/@name='#{params[:state]}'"
