@@ -141,13 +141,10 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/UseRemoteInstance/pack1/my_file"
     assert_response :success
-if $ENABLE_BROKEN_TEST
     post "/source/UseRemoteInstance/pack1", :cmd => "showlinked"
-    puts @response.body
     assert_response :success
     post "/source/UseRemoteInstance/pack1", :cmd => "branch"
     assert_response :success
-end
     get "/source/UseRemoteInstance/NotExisting"
     assert_response 404
     get "/source/UseRemoteInstance/NotExisting/_meta"
