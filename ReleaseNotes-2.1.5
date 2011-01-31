@@ -1,0 +1,33 @@
+#
+# openSUSE Build Service 2.1.5
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backport:
+=================
+
+* Support xz compression on srcdiff
+
+Changes:
+========
+
+* backend: Throw valid error message when running a source service on a linked, but
+  not branched package.
+* backend: cleaned up BSConfig template.
+* worker: Support new --vm-memory parameter of new build script.
+* Outdated OBS book has been removed
+
+Bugfixes:
+=========
+
+* webui: Don't crash if package has no debuginfo 
+* webui: Don't crash without session data
+* api: fix database of _product: packages, when a request accept of product rename
+       or a new product addition happens.
+* backend: fixed storage of incorrect linked data, which could happen when accessing
+           to a package link via a project link under some circumstances.
+* backend: useforbuild parameter was not checked when using Exportfilters in prjconf.
+
