@@ -1,7 +1,7 @@
 <div>
   <form action="/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
     <% relative_root = '' %>
-    <% relative_root = ActionController::Base.relative_url_root unless @return_to_path !=~ /^#{ActionController::Base.relative_url_root}/ %>
+    <% relative_root = ActionController::Base.relative_url_root unless @return_to_path =~ /^#{ActionController::Base.relative_url_root}/ %>
     <input name="url" size="20" value="<%= "#{@return_to_host}#{relative_root}#{@return_to_path}" %>" type="hidden" />
     <input name="context" value="default" type="hidden" />
     <input name="proxypath" value="reverse" type="hidden" />
