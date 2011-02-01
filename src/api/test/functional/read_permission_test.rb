@@ -506,6 +506,24 @@ end
         '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "change_package_protection_level" }
+    delete "/source/home:adrian:Project"
+    assert_response :success
+    delete "/source/home:adrian:PublicProject"
+    assert_response :success
+  end
+
+  def test_alter_access_flags
+    # Create public project with protected package
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> <access><disable/></access> </project>'
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+    delete "/source/home:adrian:Project"
+    assert_response :success
   end
 
   def test_project_links_to_sourceaccess_protected_package
