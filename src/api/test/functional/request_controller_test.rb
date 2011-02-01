@@ -233,6 +233,20 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "3"} )
+
+if $ENABLE_BROKEN_TEST
+#FIXME2.2: Either we need to fix complete request controller including search not to show requests with 
+#          references or we need to document that requests can tell the existens of projects and packages
+# this is working for involved search now, but not for other requests like add_role with a target.
+    # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable
+    prepare_request_with_user "tom", "thunder"
+    get "/request?view=collection&user=adrian&state=pending"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_no_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
+
+# FIXME: add test cases for group search and for involved project search
+end
   end
 
   def test_revoke_when_packages_dont_exist

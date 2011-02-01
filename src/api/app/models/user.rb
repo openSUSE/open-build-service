@@ -519,15 +519,20 @@ class User < ActiveRecord::Base
     # just for maintainer for now.
     role = "maintainer"
 
-    # all projects where user is maintainer
+    ### all projects where user is maintainer
+    # ur is the target user role relationship, aur is the asking user role relation ship
     sql =<<-END_SQL
     SELECT prj.*
     FROM db_projects prj
     LEFT OUTER JOIN project_user_role_relationships ur ON prj.id = ur.db_project_id
     LEFT OUTER JOIN roles r ON ur.role_id = r.id
+    LEFT OUTER JOIN flags f ON f.db_project_id = prj.id
+    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id 
+    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
     WHERE ur.bs_user_id = BINARY ? and r.title = BINARY ?
+          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
     END_SQL
-    projects = DbProject.find_by_sql [sql, id, role]
+    projects = DbProject.find_by_sql [sql, id, role, User.currentID]
 
     # all projects where user is maintainer via a group
     sql =<<-END_SQL
@@ -535,10 +540,14 @@ class User < ActiveRecord::Base
     FROM db_projects prj
     LEFT OUTER JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
     LEFT OUTER JOIN roles r ON gr.role_id = r.id
+    LEFT OUTER JOIN flags f ON f.db_project_id = prj.id
     LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id
+    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id 
+    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
     WHERE ug.user_id = BINARY ? and r.title = BINARY ?
+          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
     END_SQL
-    projects += DbProject.find_by_sql [sql, id, role]
+    projects += DbProject.find_by_sql [sql, id, role, User.currentID]
 
     return projects
   end
@@ -553,9 +562,13 @@ class User < ActiveRecord::Base
     FROM db_packages pkg
     LEFT OUTER JOIN package_user_role_relationships ur ON pkg.id = ur.db_package_id
     LEFT OUTER JOIN roles r ON ur.role_id = r.id
+    LEFT OUTER JOIN flags f ON f.db_project_id = pkg.db_project_id
+    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id 
+    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
     WHERE ur.bs_user_id = BINARY ? and r.title = BINARY ?
+          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
     END_SQL
-    packages = DbPackage.find_by_sql [sql, id, role]
+    packages = DbPackage.find_by_sql [sql, id, role, User.currentID]
 
     # all packages where user is maintainer via a group
     sql =<<-END_SQL
@@ -564,9 +577,13 @@ class User < ActiveRecord::Base
     LEFT OUTER JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
     LEFT OUTER JOIN roles r ON gr.role_id = r.id
     LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id
+    LEFT OUTER JOIN flags f ON f.db_project_id = pkg.db_project_id
+    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id 
+    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
     WHERE ug.user_id = BINARY ? and r.title = BINARY ?
+          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
     END_SQL
-    packages += DbPackage.find_by_sql [sql, id, role]
+    packages += DbPackage.find_by_sql [sql, id, role, User.currentID]
 
     return packages
   end
