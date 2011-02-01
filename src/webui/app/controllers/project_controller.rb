@@ -43,7 +43,7 @@ class ProjectController < ApplicationController
     @filterstring = params[:searchtext] || ''
     @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
     get_filtered_projectlist @filterstring, @excludefilter
-    if request.xhr?
+    if request.xhr? && !mobile_request?
       render :partial => 'search_project' and return
     end
     render :list, :status => params[:nextstatus]

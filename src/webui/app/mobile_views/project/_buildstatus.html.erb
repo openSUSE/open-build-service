@@ -1,0 +1,17 @@
+
+<% @buildresult.each do |repo, archarray| %>
+
+  <div data-role="collapsible" data-collapsed="true">
+    <h3><%= h repo %></h3>
+    <% archarray.each do |arch, counts| -%>
+      <%= repo_status_icon @repostatushash[repo][arch] %> <b><%= h(arch) %>:</b>  
+      <% counts.each do |code, count| -%>
+        <%= "#{code}:&nbsp;#{count}".html_safe -%>
+      <% end -%>
+    <br/>
+    <% end %>
+
+  </div>
+
+<% end %>
+

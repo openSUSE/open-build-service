@@ -1,0 +1,55 @@
+
+<h3><%=h elide( @project.name, 20 ) %>/<%=h @package.name %><br/>
+<%=h @package.title if( !@package.title.blank? && @package.title.to_s != @package.name.to_s) %></h3>
+
+<% description = @package.description.text %>
+<% unless description.blank? %>
+  <div data-role="collapsible" data-collapsed="true">
+    <h3>Description</h3>
+    <p>
+      <% description.split( /\n/ ).each do |line| %>
+        <%=h line -%><br/>
+      <% end %>
+    </p>
+  </div>
+<% end -%>
+
+
+
+
+<%- if @package.files.blank?  %>
+  <p>
+    <%= image_tag 'icons/information.png' %> This package doesn't contain any
+    <%= link_to 'files', :action => :files, :project => @project, :package => @package %> yet.
+  </p>
+<%- end -%>
+
+<% unless @requests.blank? %>
+  <p>
+    <%= image_tag 'icons/information.png' %> There <%= plural(@requests.size, "is", "are") %>
+    <% if @requests.size == 1 -%>
+      1 open <%= link_to "request", :action => :show, :controller => :request, :id => @requests[0].value(:id) %>
+    <% else -%>
+      <%= @requests.size %> open <%= link_to "requests", :action => :list_requests, :project => @project, :package => @package %>
+    <% end -%>
+  </p>
+<% end %>
+
+<% if @failures and @failures > 0 %>
+  <p>
+    <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
+    <%= @failures %> <%= plural(@failures, "failure", "failures") %>
+  </p>
+<% end %>
+
+
+<!-- Build status -->
+<% if @project.has_element?(:repository) && !@buildresult.blank? %>
+  <div data-role="collapsible" data-collapsed="true">
+    <h3>Build Status</h3>
+    <div id='buildstatus'>
+      <%=  render :partial => 'buildstatus' %>
+    </div>
+  </div>
+<% end -%>
+
