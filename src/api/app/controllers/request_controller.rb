@@ -61,8 +61,11 @@ class RequestController < ApplicationController
         # find request where user is maintainer in target package, except we have to project already
         maintained_packages = Array.new
         u.involved_packages.each do |ip|
-          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project.name.to_s)
-          str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
+          # Catch packages with hidden project, for now just discard them
+          unless ip.db_project.nil?
+            maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project.name.to_s)
+            str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
+          end
         end
         str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
         str += ")"
