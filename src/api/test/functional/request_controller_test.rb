@@ -260,6 +260,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id1 = node.data['id']
@@ -273,6 +274,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id2 = node.data['id']

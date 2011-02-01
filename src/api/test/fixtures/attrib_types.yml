@@ -27,3 +27,8 @@ InitializeDevelPackage:
   name: InitializeDevelPackage
   value_count: 0
   attrib_namespace_id: 9
+Maintenance:
+  id: 62
+  name: Maintenance
+  value_count: 0
+  attrib_namespace_id: 9

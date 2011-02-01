@@ -265,7 +265,8 @@ class RequestController < ApplicationController
             return
           end
         end
-      elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
+      elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel" \
+         or action.data.attributes["type"] == "merge" or action.data.attributes["type"] == "maintenance" 
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -283,7 +284,31 @@ class RequestController < ApplicationController
           end
         end
 
+        if action.data.attributes["type"] == "maintenance"
+          # find target project via attribute, if not specified
+          unless action.has_element? 'target' 
+            action.add_element 'target'
+          end
+          unless action.target.has_attribute?(:project)
+            # hardcoded default. frontends can lookup themselfs a different target via attribute search
+            at = AttribType.find_by_name("OBS:Maintenance")
+            unless at
+              render_error :status => 404, :errorcode => 'not_found',
+                :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
+              return
+            end
+            prj = DbProject.find_by_attribute_type( at ).first()
+            unless prj
+              render_error :status => 404, :errorcode => 'project_not_found',
+                :message => "There is no project flagged as maintenance project on server and no target in request defined."
+              return
+            end
+            action.target.data.attributes["project"] = prj.name
+          end
+        end
+
         # source update checks
+#FIXME2.3: support this also for maintenance requests
         if action.data.attributes["type"] == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'

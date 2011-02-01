@@ -46,7 +46,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_mbranch
+  def test_mbranch_and_maintenance_request
     prepare_request_with_user "king", "sunflower"
     put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
@@ -150,9 +150,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     # FIXME: test with binaries
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo&force=1"
     assert_response :success
-  end
 
-  # FIXME: to be implemented:
-  # def test_submitrequest_for_mbranch_project
+    # create maintenance request
+    # without specifing target, the default target must get found via attribute
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance">
+                                     <source project="home:tom:branches:OBS_Maintained:pack2" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+
+    #FIXME2.3: add code for accept maintenance request
+  end
 
 end

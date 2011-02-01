@@ -13,3 +13,6 @@ obs_maintained:
 obs_InitializeDevelPackage_for_kde4_project:
   attrib_type_id: 61
   db_project_id: 2
+obs_maintenance_for_my_maintenance_project:
+  attrib_type_id: 62
+  db_project_id: 2048

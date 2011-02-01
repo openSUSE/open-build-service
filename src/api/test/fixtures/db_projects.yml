@@ -105,6 +105,11 @@ BaseDistro3:
   id: 2047
   description: "Base distro without update project"
   created_at: 2005-01-01 00:00:01
+My_Maintenance:
+  name: My:Maintenance
+  title: official maintenance space
+  id: 2048
+  description: official maintenance space, maintained by maintenance ;)
 
 # For read/view permission checks
 HiddenProject:
