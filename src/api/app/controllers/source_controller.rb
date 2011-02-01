@@ -579,7 +579,12 @@ class SourceController < ApplicationController
     #--------------------
     valid_http_methods :get, :put
     required_parameters :project
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
+    unless valid_project_name?(params[:project])
+      render_error :status => 400, :errorcode => "invalid_project_name",
+        :message => "invalid project name '#{params[:project]}'"
+      return
+    end
+
     project_name = params[:project]
     params[:user] = @http_user.login
 
@@ -639,14 +644,14 @@ class SourceController < ApplicationController
         unless prj.disabled_for?('access', nil, nil)
           if p.disabled_for? :access
              render_error :status => 403, :errorcode => "change_project_protection_level",
-               :message => "admin rights are required to raise the source protection level of a project"
+               :message => "admin rights are required to raise the protection level of a project (it won't be safe anyway)"
              return
           end
         end
         unless prj.disabled_for?('sourceaccess', nil, nil)
           if p.disabled_for? :sourceaccess
              render_error :status => 403, :errorcode => "change_project_protection_level",
-               :message => "admin rights are required to raise the protection level of a project"
+               :message => "admin rights are required to raise the protection level of a project (it won't be safe anyway)"
              return
           end
         end
@@ -1804,7 +1809,8 @@ class SourceController < ApplicationController
   end
 
   def valid_project_name? name
-    name =~ /^\w[-_+\w\.:]*$/
+    return true if name =~ /^\w[-_+\w\.:]*$/
+    return false
   end
 
   def valid_package_name? name

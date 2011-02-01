@@ -257,6 +257,16 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "SourceprotectedProject"}
   end
 
+  def test_invalid_project_and_package_name
+    prepare_request_with_user "king", "sunflower"
+    [ "..", "_blah" ].each do |n|
+      put "/source/#{n}/_meta", "<project name='#{n}'> <title /> <description /> </project>"
+      assert_response 400
+      put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
+      assert_response 400
+    end
+  end
+
   # project_meta does not require auth
   def test_invalid_user
     prepare_request_with_user "king123", "sunflower"
