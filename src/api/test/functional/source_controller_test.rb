@@ -1404,6 +1404,29 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_linktobranch
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
+    assert_response :success
+
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
+    assert_response 403
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
+    assert_response :success
+    get "/source/home:Iggy/TestLinkPack/_link"
+    assert_response :success
+    assert_tag( :tag => "link", :attributes => { :baserev => "1ac07842727acaf13d0e2b3213b47785" } )
+    assert_tag( :parent => { :tag => "patches", :content => nil }, :tag => "branch", :content => nil )
+
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
+
   def test_source_commits
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
@@ -1455,6 +1478,19 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "user", :content => "fred" )
     assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+
+
+    # test deleteuploadrev
+    put "/source/home:Iggy/TestPack/anotherfilename?rev=upload", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/TestPack/anotherfilename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/anotherfilename?rev=latest"
+    assert_response 404
+    post "/source/home:Iggy/TestPack?cmd=deleteuploadrev"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/anotherfilename"
+    assert_response 404
 
     #
     # Test commits to special packages
