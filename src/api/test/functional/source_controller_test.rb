@@ -693,6 +693,24 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "status", :attributes => { :code => "create_package_no_permission"} )
   end
 
+  def test_devel_package_cycle
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
+    assert_response :success
+    put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
+    assert_response :success
+    # create a cycle via new package
+    put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "devel_cycle"} )
+    # create a cycle via existing package
+    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "devel_cycle"} )
+  end
+
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
     get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
     assert_response response1
