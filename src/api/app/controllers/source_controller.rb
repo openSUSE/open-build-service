@@ -838,9 +838,9 @@ class SourceController < ApplicationController
         end
       else
         prj = DbProject.get_by_name(project_name)
-        unless @http_user.can_modify_project?(prj)
-          render_error :status => 403, :errorcode => "modify_project_no_permission",
-            :message => "no permission to modify project '#{prj.name}'"
+        unless @http_user.can_create_package_in?(prj)
+          render_error :status => 403, :errorcode => "create_package_no_permission",
+            :message => "no permission to create a package in project '#{project_name}'"
           return
         end
       end

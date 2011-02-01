@@ -671,8 +671,11 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kdelibs2' ) 
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2"), doc.to_s
-    assert_response 200
+    assert_response :success
     assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    # do not allow to create it with invalid name
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), doc.to_s
+    assert_response 400
     
     # Get data again and check that the maintainer was added
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2")
@@ -680,6 +683,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["/package"]
     assert_equal(d.attribute('name').value(), 'kdelibs2', message="Project name was not set to kdelibs2")
+
+    # check for lacking permission to create a package
+    prepare_request_with_user "tom", "thunder"
+    d.delete_attribute( 'name' )   
+    d.add_attribute( 'name', 'kdelibs3' ) 
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), newdoc.to_s
+    assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => "create_package_no_permission"} )
   end
 
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
