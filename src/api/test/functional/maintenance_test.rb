@@ -161,8 +161,15 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
 
-    #FIXME2.3: add code for accept maintenance request
+    # accept request
+    #FIXME2.3: do this and verify result as maintenance owner
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
   end
 
 end

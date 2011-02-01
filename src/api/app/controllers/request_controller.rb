@@ -177,8 +177,6 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create_create
-    # ACL(create_create) TODO: check this leaks no information that is prevented by ACL
-    # ACL(create_create) TODO: how to handle if permissions in source and target project are different
     req = BsRequest.new(request.body.read)
 
     req.each_action do |action|
@@ -212,36 +210,26 @@ class RequestController < ApplicationController
         end
       end
       if action.has_element?('source') and action.source.has_attribute?('project')
-        sprj = DbProject.find_by_name action.source.project
+        sprj = DbProject.get_by_name action.source.project
         unless sprj
           render_error :status => 404, :errorcode => 'unknown_project',
             :message => "Unknown source project #{action.source.project}"
           return
         end
+        unless sprj.class == DbProject
+          render_error :status => 400, :errorcode => 'not_supported',
+            :message => "Source project #{action.source.project} is not a local project. This is not supported yet."
+          return
+        end
         if action.source.has_attribute? 'package'
-          spkg = sprj.db_packages.find_by_name action.source.package
-          unless spkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown source package #{action.source.package} in project #{action.source.project}"
-            return
-          end
+          spkg = DbPackage.get_by_project_and_name sprj.name, action.source.package
         end
       end
 
       if action.has_element?('target') and action.target.has_attribute?('project')
-        tprj = DbProject.find_by_name action.target.project
-        unless tprj
-          render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown target project #{action.target.project}"
-          return
-        end
+        tprj = DbProject.get_by_name action.target.project
         if action.target.has_attribute? 'package' and action.data.attributes["type"] != "submit"
-          tpkg = tprj.db_packages.find_by_name action.target.package
-          unless tpkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown target package #{action.target.package} in project #{action.target.project}"
-            return
-          end
+          tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
         end
       end
 
@@ -249,11 +237,6 @@ class RequestController < ApplicationController
       if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
         #check existence of target
         unless tprj
-          if DbProject.find_remote_project(action.target.project)
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Project is on remote instance, #{action.data.attributes["type"]} not possible  #{action.target.project}"
-            return
-          end
           render_error :status => 404, :errorcode => 'unknown_project',
             :message => "No target project specified"
           return
@@ -265,8 +248,7 @@ class RequestController < ApplicationController
             return
           end
         end
-      elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel" \
-         or action.data.attributes["type"] == "merge" or action.data.attributes["type"] == "maintenance" 
+      elsif [ "submit", "change_devel", "merge", "maintenance" ].include?(action.data.attributes["type"])
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -285,9 +267,19 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "maintenance"
+          if spkg
+            render_error :status => 400, :errorcode => 'illegal_request',
+              :message => "Maintenance requests accept only entire projects as source"
+            return
+          end
           # find target project via attribute, if not specified
           unless action.has_element? 'target' 
             action.add_element 'target'
+          end
+          if action.target.has_attribute?(:package)
+            render_error :status => 400, :errorcode => 'illegal_request',
+              :message => "Maintenance requests accept only projects as target"
+            return
           end
           unless action.target.has_attribute?(:project)
             # hardcoded default. frontends can lookup themselfs a different target via attribute search
@@ -670,16 +662,23 @@ class RequestController < ApplicationController
 
     # permission and validation check for each request inside
     req.each_action do |action|
-      if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
-        source_project = DbProject.find_by_name(action.source.project)
-        target_project = DbProject.find_by_name(action.target.project)
-        if params[:newstate] != "declined" and params[:newstate] != "revoked"
+      if [ "submit", "change_devel", "merge", "maintenance" ].include? action.data.attributes["type"]
+        source_package = nil
+        target_package = nil
+        if params[:newstate] == "declined" or params[:newstate] == "revoked"
+          # relaxed access checks for getting rid of request
+          source_project = DbProject.find_by_name(action.source.project)
+          target_project = DbProject.find_by_name(action.target.project)
+        else
+          # full access checks
+          source_project = DbProject.get_by_name(action.source.project)
+          target_project = DbProject.get_by_name(action.target.project)
           if target_project.nil?
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
             return
           end
-          if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
+          if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
             return
@@ -688,19 +687,21 @@ class RequestController < ApplicationController
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
             return
-          else
-            source_package = source_project.db_packages.find_by_name(action.source.package)
+          elsif action.source.has_attribute? :package
+            source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
-          if source_package.nil? and params[:newstate] != "revoked"
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
-            return
+          if [ "submit", "change_devel" ].include? action.data.attributes["type"]
+            unless source_package
+              render_error :status => 404, :errorcode => "unknown_package",
+                :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+              return
+            end
           end
         end
         if target_project
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
-          else
+          elsif [ "submit", "change_devel" ].include? action.data.attributes["type"]
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
         end
@@ -923,6 +924,10 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
+      elsif action.data.attributes["type"] == "merge"
+#FIXME2.3: implement me
+      elsif action.data.attributes["type"] == "maintenance"
+#FIXME2.3: implement me
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"
