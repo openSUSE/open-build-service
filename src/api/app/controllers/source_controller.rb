@@ -234,7 +234,7 @@ class SourceController < ApplicationController
     read_commands = ['diff', 'linkdiff', 'showlinked']
     source_untouched_commands = ['diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag']
     # list of cammands which create the target package
-    package_creating_commands = [ 'branch', 'copy' ]
+    package_creating_commands = [ 'branch', 'copy', 'undelete' ]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -273,12 +273,20 @@ class SourceController < ApplicationController
     tprj = nil
     tpkg = nil
     # The target must exist, except for following cases
-    if command == 'undelete' or (request.get? and deleted_package)
+    if (request.post? and command == 'undelete') or (request.get? and deleted_package)
       tprj = DbProject.get_by_name(target_project_name)
       if DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
         render_error :status => 404, :errorcode => "package_exists",
           :message => "the package exists already #{tprj.name} #{target_package_name}"
         return
+      end
+      if command == 'undelete' and request.post?
+        tprj = DbProject.get_by_name(target_project_name)
+        unless @http_user.can_create_package_in?(tprj)
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+            :message => "no permission to create package in project #{target_project_name}"
+          return
+        end
       end
     elsif request.post? and package_creating_commands.include?(command)  # branch/copy
       # we require a target, but are we allowed to modify the existing target ?
@@ -315,8 +323,7 @@ class SourceController < ApplicationController
       else
         tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, use_source = true, follow_project_links = follow_project_links)
         tprj = tpkg.db_project unless tpkg.nil? # for remote package case
-
-        if request.post? and not read_commands.include? command
+        if request.delete? or (request.post? and not read_commands.include? command)
           unless @http_user.can_modify_package?(tpkg)
             render_error :status => 403, :errorcode => "cmd_execution_no_permission",
               :message => "no permission to execute command '#{command}' for package #{tpkg.name}"

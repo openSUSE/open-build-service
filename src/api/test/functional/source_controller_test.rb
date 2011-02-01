@@ -1560,9 +1560,12 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # cleanup
     delete "/source/kde4/temporary"
+    assert_response :success
     delete "/source/kde4/temporary2"
+    assert_response :success
     prepare_request_with_user "king", "sunflower"
     delete "/source/TEMPORARY"
+    assert_response :success
   end
 
   def test_use_project_link_as_non_maintainer
@@ -1598,6 +1601,46 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # cleanup
     delete "/source/home:tom:temporary"
+    assert_response :success
+  end
+
+  def test_delete_and_undelete_permissions
+    ActionController::IntegrationTest::reset_auth 
+    delete "/source/kde4/kdelibs"
+    assert_response 401
+    delete "/source/kde4"
+    assert_response 401
+
+    prepare_request_with_user "tom", "thunder"
+    delete "/source/kde4/kdelibs"
+    assert_response 403
+    delete "/source/kde4"
+    assert_response 403
+
+    prepare_request_with_user "adrian", "so_alone"
+    delete "/source/kde4/kdelibs"
+    assert_response :success
+    delete "/source/kde4"
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/kde4", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/kde4", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/kde4", :cmd => :undelete
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/kde4/kdelibs", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/kde4/kdelibs", :cmd => :undelete
     assert_response :success
   end
 
