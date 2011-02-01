@@ -70,6 +70,7 @@ class RequestController < ApplicationController
       end
 
       pr = "match=" + predicates.join(" and ")
+      logger.debug "running backend query at #{Time.now}"
       c = Suse::Backend.post("/search/request?" + URI.escape(pr), nil)
       render :text => c.body, :content_type => "text/xml"
     else
