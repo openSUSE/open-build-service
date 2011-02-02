@@ -256,6 +256,56 @@ if $ENABLE_BROKEN_TEST
 end
   end
 
+  def test_submit_request_from_hidden_project_and_hidden_source
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="HiddenProject" package="pack" rev="1"/>
+                                     <target project="home:tom" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="SourceprotectedProject" package="pack" rev="1"/>
+                                     <target project="home:tom" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 403
+
+    prepare_request_with_user "hidden_homer", "homer"
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="HiddenProject" package="pack" rev="1"/>
+                                     <target project="kde4" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="SourceprotectedProject" package="pack" rev="1"/>
+                                     <target project="kde4" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+  end
+
   def test_revoke_when_packages_dont_exist
     prepare_request_with_user 'tom', 'thunder'
     post "/source/kde4/kdebase", :cmd => :branch
