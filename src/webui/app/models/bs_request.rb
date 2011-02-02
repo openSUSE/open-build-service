@@ -8,7 +8,7 @@ class BsRequest < ActiveXML::Base
   class << self
     def make_stub(opt)
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
-      
+
       ret = nil
       if opt[:type] == "submit" then
         option = ""
@@ -155,20 +155,25 @@ class BsRequest < ActiveXML::Base
         raise RuntimeError, "missing parameters"
       end
 
-      transport ||= ActiveXML::Config::transport_for :bsrequest
-      path = "/request?view=collection"
-      path << "&state=#{opts[:state]}" if opts[:state]
-      path << "&type=#{opts[:type]}" if opts[:type]
-      path << "&user=#{opts[:user]}" if opts[:user]
-      path << "&project=#{opts[:project]}" if opts[:project]
-      path << "&package=#{opts[:package]}" if opts[:package]
-      begin
-        answer = transport.direct_http URI("https://#{path}"), :method => "GET"
-        return Collection.new(answer).each
-      rescue ActiveXML::Transport::Error => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        raise ListError, message
+      # try to find request list in cache first before asking the OBS API
+      request_list = Rails.cache.fetch("request_list:#{opts.to_s}", :expires_in => 10.minutes) do
+        transport ||= ActiveXML::Config::transport_for :bsrequest
+        path = "/request?view=collection"
+        path << "&state=#{opts[:state]}" if opts[:state]
+        path << "&type=#{opts[:type]}" if opts[:type]
+        path << "&user=#{opts[:user]}" if opts[:user]
+        path << "&project=#{opts[:project]}" if opts[:project]
+        path << "&package=#{opts[:package]}" if opts[:package]
+        begin
+          logger.debug "Fetching request list from api"
+          response = transport.direct_http URI("https://#{path}"), :method => "GET"
+          Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
+        rescue ActiveXML::Transport::Error => e
+          message, code, api_exception = ActiveXML::Transport.extract_error_message e
+          raise ListError, message
+        end
       end
+      return request_list
     end
   end
 
@@ -181,7 +186,7 @@ class BsRequest < ActiveXML::Base
     return "unknown" if e.nil?
     return e.value(:who)
   end
-  
+
   def history
     ret = []
     self.each_history do |h|
