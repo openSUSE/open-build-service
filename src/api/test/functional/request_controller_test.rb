@@ -21,7 +21,47 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 401
   end
 
+  def test_submit_request_with_broken_source
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE", :cmd => :branch
+    assert_response :success
+    post "/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2", :cmd => :branch
+    assert_response :success
+    put "/source/home:Iggy/TestPack.DELETE/conflictingfile", "ASD"
+    assert_response :success
+    put "/source/home:Iggy/TestPack.DELETE2/conflictingfile", "123"
+    assert_response :success
+
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE2"/>
+                                     <target project="home:Iggy" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag( :tag => "summary", :content => 'conflict in file conflictingfile' )
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE2" rev="2"/>
+                                     <target project="home:Iggy" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag( :tag => "summary", :content => 'conflict in file conflictingfile' )
+
+    delete "/source/home:Iggy/TestPack.DELETE"
+    assert_response :success
+    delete "/source/home:Iggy/TestPack.DELETE2"
+    assert_response :success
+  end
+
   def test_submit_broken_request
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:coolo:test/kdelibs_DEVEL_package/file", "CONTENT" # just to have a revision, or we fail
+    assert_response :success
+
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/no_such_project')
     assert_response 404
@@ -715,6 +755,9 @@ end
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
+    prepare_request_with_user "king", "sunflower"
+    put "/source/HiddenProject/target/file", "ASD"
+    assert_response :success
     request_hidden("adrian", "so_alone", 'request/to_hidden_from_hidden_valid')
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'new' } )

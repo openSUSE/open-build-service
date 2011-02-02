@@ -265,6 +265,20 @@ class RequestController < ApplicationController
               :message => "No source package specified"
             return
           end
+
+          # validate that the sources are not broken
+          begin
+            pr = ""
+            if action.source.has_attribute?('rev')
+              pr = "rev=#{action.source.rev}"
+            end
+            url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1&" + URI.escape(pr)
+            c = Suse::Backend.get(url)
+          rescue ActiveXML::Transport::Error => e
+            render_error :status => 400, :errorcode => "expand_error",
+              :message => "The source of package #{action.source.project}/#{action.source.package} rev=#{action.source.rev} are broken"
+            return
+          end
         end
 
         if action.data.attributes["type"] == "maintenance"
