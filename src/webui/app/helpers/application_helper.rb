@@ -406,4 +406,9 @@ module ApplicationHelper
     return [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
 
+  def escape_and_transform_nonprintables(text)
+    text = CGI.escapeHTML(text)
+    text.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n").gsub(' ', '&ensp;')
+  end
+
 end

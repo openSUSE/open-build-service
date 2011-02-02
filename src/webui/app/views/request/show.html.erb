@@ -96,7 +96,7 @@
         </tr>
         <% if h.has_key?(:comment) and not h[:comment].nil? %>
           <tr>
-            <td colspan="3"><p><%= h[:comment] %></p></td>
+            <td colspan="3"><p><%= raw escape_and_transform_nonprintables(h[:comment]) %></p></td>
           </tr>
         <% end %>
       <% end %>
