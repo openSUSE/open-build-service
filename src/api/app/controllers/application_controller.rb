@@ -21,8 +21,6 @@ class ApplicationController < ActionController::Base
 
   helper RbacHelper
 
-  before_filter :validate_incoming_xml, :add_api_version
-
   if Rails.env.test?
     before_filter :start_test_backend
   end
