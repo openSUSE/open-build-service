@@ -227,6 +227,17 @@ CREATE TABLE `linked_projects` (
   UNIQUE KEY `linked_projects_index` (`db_project_id`,`linked_db_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `maintenance_incidents` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `db_project_id` int(11) DEFAULT NULL,
+  `maintenance_db_project_id` int(11) DEFAULT NULL,
+  `request` int(11) DEFAULT NULL,
+  `day` int(11) DEFAULT NULL,
+  `month` int(11) DEFAULT NULL,
+  `year` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `object_id` int(11) DEFAULT NULL,
@@ -548,6 +559,8 @@ INSERT INTO schema_migrations (version) VALUES ('20100507115929');
 
 INSERT INTO schema_migrations (version) VALUES ('20100530180617');
 
+INSERT INTO schema_migrations (version) VALUES ('20100530180618');
+
 INSERT INTO schema_migrations (version) VALUES ('20100609100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20100609200000');
@@ -587,6 +600,10 @@ INSERT INTO schema_migrations (version) VALUES ('20101110100000');
 INSERT INTO schema_migrations (version) VALUES ('20110117000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110131100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110202100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110202110000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -674,21 +674,12 @@ class RequestController < ApplicationController
           # full access checks
           source_project = DbProject.get_by_name(action.source.project)
           target_project = DbProject.get_by_name(action.target.project)
-          if target_project.nil?
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-            return
-          end
           if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
             return
           end
-          if source_project.nil?
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-            return
-          elsif action.source.has_attribute? :package
+          if action.source.has_attribute? :package
             source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
           if [ "submit", "change_devel" ].include? action.data.attributes["type"]
@@ -811,7 +802,7 @@ class RequestController < ApplicationController
           end
           object.store
       elsif action.data.attributes["type"] == "change_devel"
-          target_project = DbProject.find_by_name(action.target.project)
+          target_project = DbProject.get_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
           target_package.develpackage = DbPackage.find_by_project_and_name(action.source.project, action.source.package)
           begin
@@ -844,7 +835,7 @@ class RequestController < ApplicationController
           end
 
           #create package unless it exists already
-          target_project = DbProject.find_by_name(action.target.project)
+          target_project = DbProject.get_by_name(action.target.project)
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
           else
@@ -925,9 +916,13 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-      elsif action.data.attributes["type"] == "merge"
-#FIXME2.3: implement me
       elsif action.data.attributes["type"] == "maintenance"
+
+        # create incident project
+        target_project = DbProject.get_by_name(action.target.project)
+        incident = create_new_maintenance_incident(target_project, source_project, req )
+
+      elsif action.data.attributes["type"] == "merge"
 #FIXME2.3: implement me
       end
 

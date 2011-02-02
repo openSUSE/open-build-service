@@ -166,10 +166,51 @@ class MaintenanceTests < ActionController::IntegrationTest
     id = node.data['id']
 
     # accept request
-    #FIXME2.3: do this and verify result as maintenance owner
+    #FIXME2.3: do this and verify result
+    prepare_request_with_user "maintenance_coord", "power"
+    get "/request/#{id}"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+  end
+
+  def test_create_maintenance_project_and_release_packages
+    prepare_request_with_user "maintenance_coord", "power"
+
+    # setup a maintained distro
+    post "/source/BaseDistro/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+
+    # create a maintenance incident
+    post "/source", :cmd => "createmaintenanceincident"
+    assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    data = REXML::Document.new(@response.body)
+    maintenanceProject=data.elements["/status/data"].text
+
+    # submit packages via mbranch
+    post "/source", :cmd => "branch", :package => "pack1", :target_project => maintenanceProject
+    assert_response :success
+
+if $ENABLE_BROKEN_TEST
+    # check all build flags
+
+    # create release request
+    post "/request?cmd=create", '<request>
+                                   <action type="merge">
+                                     <source project="My:Maintenance:ID" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # release packages
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
+end
   end
 
 end

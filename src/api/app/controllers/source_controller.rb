@@ -1,6 +1,7 @@
 require "rexml/document"
 
 include ProductHelper
+include MaintenanceHelper
 
 class SourceController < ApplicationController
 
@@ -17,10 +18,6 @@ class SourceController < ApplicationController
   # /source
   #########
   def index
-    projectlist
-  end
-
-  def projectlist
     # init and validation
     #--------------------
     deleted = params.has_key? :deleted
@@ -43,10 +40,7 @@ class SourceController < ApplicationController
           return
         end
       else
-        # list all projects (visible to user)
-        dir = Project.find :all
-        render :text => dir.dump_xml, :content_type => "text/xml"
-        return
+        projectlist
       end
     # /if request.get?
 
@@ -60,6 +54,13 @@ class SourceController < ApplicationController
     else
       raise IllegalRequestError.new
     end
+  end
+
+  def projectlist
+    # list all projects (visible to user)
+    dir = Project.find :all
+    render :text => dir.dump_xml, :content_type => "text/xml"
+    return
   end
 
   # /source/:project
@@ -987,6 +988,32 @@ class SourceController < ApplicationController
 
   private
 
+  # POST /source?cmd=createmaintenanceincident
+  def index_createmaintenanceincident
+    # set defaults
+    unless params[:attribute]
+      params[:attribute] = "OBS:Maintenance"
+    end
+
+    # find maintenance project via attribute
+    at = AttribType.find_by_name(params[:attribute])
+    unless at
+      render_error :status => 403, :errorcode => 'not_found',
+        :message => "The given attribute #{params[:attribute]} does not exist"
+      return
+    end
+    prj = DbProject.find_by_attribute_type( at ).first()
+    unless @http_user.can_modify_project?(prj)
+      render_error :status => 403, :errorcode => "modify_project_no_permission",
+        :message => "no permission to modify project '#{prj.name}'"
+      return
+    end
+
+    # create incident project
+    incident = create_new_maintenance_incident(prj)
+    render_ok :data => {:targetproject => incident.db_project.name}
+  end
+
   # POST /source?cmd=branch (aka osc mbranch)
   def index_branch
     # set defaults
@@ -1028,7 +1055,7 @@ class SourceController < ApplicationController
     else
       # find packages via attributes
       at = AttribType.find_by_name(params[:attribute])
-      if not at
+      unless at
         render_error :status => 403, :errorcode => 'not_found',
           :message => "The given attribute #{params[:attribute]} does not exist"
         return
