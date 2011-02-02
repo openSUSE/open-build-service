@@ -51,7 +51,7 @@ class RequestController < ApplicationController
     @newpackage = []
 
     @is_reviewer = false
-    @req.each_review do |review|
+    @therequest.each_review do |review|
       if review.has_attribute? :by_user
         if review.by_user.to_s == session[:login]
           @is_reviewer = true
