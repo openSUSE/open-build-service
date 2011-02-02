@@ -21,7 +21,7 @@
         <th class="header">Type</th>
         <th class="header">Source</th>
         <th class="header">Target</th>
-        <th class="header">Build Status</th>
+        <th class="header">Info</th>
       </tr>
     </thead>
     <tbody>
@@ -60,7 +60,7 @@
           </td>
           <td>
             <% if ae.has_element? :source %>
-              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
               <script type="text/javascript">
                 setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
               </script>
