@@ -1923,6 +1923,7 @@ class SourceController < ApplicationController
 
     #create branch container
     oprj = DbProject.find_by_name oprj_name
+    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(oprj_name)
     if oprj.nil?
       unless @http_user.can_create_project?(oprj_name)
         render_error :status => 403, :errorcode => "create_project_no_permission",
@@ -1962,6 +1963,10 @@ class SourceController < ApplicationController
     end
 
     #create branch package
+    unless valid_package_name? opkg_name
+      render_error :status => 400, :errorcode => "invalid_package_name",
+        :message => "invalid package name '#{opkg_name}'"
+    end
     if opkg = oprj.db_packages.find_by_name(opkg_name)
       if params[:force]
         # shall we clean all files here ?
