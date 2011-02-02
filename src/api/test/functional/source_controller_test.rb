@@ -264,6 +264,15 @@ class SourceControllerTest < ActionController::IntegrationTest
       assert_response 400
       put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
       assert_response 400
+      post "/source/kde4/kdebase", :cmd => "branch", :target_package => n
+      assert_response 400
+      post "/source/kde4/#{n}", :cmd => "copy", :opackage => "kdebase", :oproject => "kde4"
+      if n == ".."
+        # this is failing already at routing
+        assert_response 403
+      else
+        assert_response 400
+      end
     end
   end
 
