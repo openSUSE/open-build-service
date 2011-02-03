@@ -658,8 +658,9 @@ sub addrev {
   die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
-    my $filename = (keys %$files)[0];
-    BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filename, user => $user});
+    my $filenames = join( ', ', keys %$files );
+    BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filenames, comment => $comment, 
+                                       target => $target, request_id => $requestid, user => $user});
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -727,7 +728,7 @@ sub addrev {
     extract_old_prjsource($projid, $rev);
     unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
     notify_repservers('project', $projid);
-    BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => $user });
+    BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "files" => $filestr, "comment" => $comment, "sender" => $user });
     return $rev;
   }
 
@@ -2437,7 +2438,7 @@ sub delproject {
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
 
-  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
+  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -2472,6 +2473,8 @@ sub undeleteproject {
     }
   }
   notify_repservers('project', $projid);
+  BSNotify::notify("SRCSRV_UNDELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
+
   return $BSStdServer::return_ok;
 }
 
@@ -2612,7 +2615,7 @@ sub delpackage {
     expandproduct($projid, $packid, undef);
   }
   notify_repservers('package', $projid, $packid);
-  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown") });
+  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
   return $BSStdServer::return_ok;
 }
 
@@ -2654,6 +2657,8 @@ sub undeletepackage {
     updatelinkinfodb($projid, $packid, $nrev, lsrev($nrev));
   }
   notify_repservers('package', $projid, $packid);
+  BSNotify::notify("SRCSRV_UNDELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
+
   return $BSStdServer::return_ok;
 }
 
