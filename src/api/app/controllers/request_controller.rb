@@ -26,7 +26,7 @@ class RequestController < ApplicationController
       # pending requests are new or in review requests
       if params[:state] == "pending"
         predicates << "(state/@name='new' or state/@name='review')"
-      else
+      elsif params[:state]
         predicates << "state/@name='#{params[:state]}'"
       end
 
@@ -48,7 +48,7 @@ class RequestController < ApplicationController
         # user's own submitted requests
         str = "(state/@who='#{params[:user]}'"
         # requests where the user is reviewer or own requests that are in review by someone else
-        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position() = 1]" if params[:state] == "pending" or params[:state] == "review"
+        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         maintained_projects_hash = Hash.new
@@ -68,6 +68,15 @@ class RequestController < ApplicationController
        #str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
         str += ")"
         predicates << str
+      end
+
+      # Pagination: Discard 'offset' most recent requests (useful with 'count')
+      if params[:offset]
+        # TODO: Backend XPath engine needs better range support
+      end
+      # Pagination: Return only 'count' requests
+      if params[:count]
+        # TODO: Backend XPath engine needs better range support
       end
 
       pr = "match=" + predicates.join(" and ")
