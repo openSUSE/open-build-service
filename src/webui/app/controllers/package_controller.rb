@@ -1031,6 +1031,7 @@ class PackageController < ApplicationController
   end
 
   def require_package
+    params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     unless valid_package_name_read? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"
       flash[:error] = "\"#{params[:package]}\" is not a valid package name"

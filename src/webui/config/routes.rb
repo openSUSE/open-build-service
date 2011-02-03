@@ -8,6 +8,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/', :controller => 'main'
 
+  map.connect ':project/:repository/:pkgrev', :controller => 'package', :action => 'files', :requirements => { :project => /[^\/]+/, :repository => /[^\/]+/, :pkgrev => /[a-fA-F0-9]{32}-(.+)/ }
+
   # REST style paths
   # -> disabled, because this doesn't work for project/package names that conatain colons (:)
   #
