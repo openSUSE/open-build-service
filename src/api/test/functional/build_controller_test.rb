@@ -425,4 +425,26 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
  
   # FIXME: remoteinstance and ACL ?!
+
+  def test_jobhistory
+    get "/build/home:Iggy/10.2/i586/_jobhistory"
+    assert_response :success
+    get "/build/home:Iggy/10.2/i586/_jobhistory?package=TestPack"
+    assert_response :success
+  end
+
+  def test_read_access_hidden_jobhistory
+    get "/build/HiddenProject/nada/i586/_jobhistory"
+    assert_response 404
+    get "/build/HiddenProject/nada/i586/_jobhistory?package=pack"
+    assert_response 404
+    # retry with maintainer
+    ActionController::IntegrationTest::reset_auth
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build/HiddenProject/nada/i586/_jobhistory"
+    assert_response :success
+    get "/build/HiddenProject/nada/i586/_jobhistory?package=pack"
+    assert_response :success
+    prepare_request_valid_user
+  end
 end
