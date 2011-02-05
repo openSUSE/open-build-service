@@ -22,6 +22,26 @@ Existing problems which need to be fixed before 2.2 final release
 * webui is generating corrupt project meta data -> add repo is failing
 * webui is caching also secret data, exposing hidden projects.
 
+To be considered regarding read access checks
+=============================================
+
+* "access" flag is hiding and protecting entire project. This includes binaries
+  and sources. It can only be used at project creation time and can just be
+  globally enabled (aka make it public again) afterwards.
+   This flag can only be used on projects.
+
+* "sourceaccess" flag is hiding the sources, this includes also debug packages
+  in case the distribution is supporting this correctly.
+    This flag can also only be used at package creation time. There is no code
+  yet which is checking for possible references to this package.
+    This flag can be used on projects or packages. However, every maintainer of
+  a project can get access the sources.
+
+* "downloadbinary" permission still exists like before. However, unlike "access" 
+  and "sourceaccess" this is not secure feature, just a convinience feature, which
+  makes it inpossible to get the binaries via the API direktly. But it still possible
+  to get the binaries via build time in any case.
+
 
 Known Regressions to 2.1:
 =========================
