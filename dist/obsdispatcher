@@ -55,12 +55,12 @@ case "$1" in
 	;;
 	stop)
 		echo -n "Shutting down obsdispatcher"
-		touch "$obsdir"/run/bs_dispatch.exit
+		su obsrun -c touch "$rundir"/bs_dispatch.exit
                 for i in `seq 3000`; do
-               		test -e "$obsdir"/run/bs_dispatch.exit || break
+               		test -e "$rundir"/run/bs_dispatch.exit || break
                		LC_ALL=C sleep 0.1
 		done
-                if test -e "$obsdir"/run/bs_dispatch.exit; then
+                if test -e "$rundir"/bs_dispatch.exit; then
                         # no clean shutdown, kill it
 			killproc "$obsdir"/bs_dispatch
                 fi
