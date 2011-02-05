@@ -108,7 +108,6 @@ class PublicController < ApplicationController
 
     check_package_access(params[:prj], params[:pkg])
 
-    # ACL(package_index): if private view is on behave like pkg without any src files
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
@@ -143,8 +142,7 @@ class PublicController < ApplicationController
   def lastevents
     valid_http_methods :get
     
-    # ACL(lastevents): This API is not protected at all and displays a event id and a sync flag.
-    #FIXME2.2: discuss what to do with the events, must be solved in backend IMHO
+    #FIXME2.2: discuss what to do with the events regarding hidden projects, must be solved in backend IMHO
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?

@@ -704,7 +704,7 @@ end
     assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
   end
 
-  # ACL
+  # test permissions on read protected objects
   #
   #
   def test_submit_from_source_protected_project

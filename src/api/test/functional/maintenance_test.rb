@@ -166,11 +166,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     id = node.data['id']
 
     # accept request
-    #FIXME2.3: do this and verify result
     prepare_request_with_user "maintenance_coord", "power"
-    get "/request/#{id}"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    data = REXML::Document.new(@response.body)
+    maintenanceProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
+    assert_not_equal maintenanceProject, "My:Maintenance"
+    assert_match /^My:Maintenance:#{Time.now.utc.year}-1/, maintenanceProject
   end
 
   def test_create_maintenance_project_and_release_packages

@@ -43,8 +43,27 @@ module MaintenanceHelper
     end
 
     # copy all packages and project source files from base project
+    # we don't branch from it to keep the link target.
     if baseProject
-#FIXME2.3
+      baseProject.db_packages.each do |pkg|
+        new = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+        new.flags = pkg.flags
+        tprj.db_packages << new
+        new.save
+
+        # backend copy of current sources
+        cp_params = {
+          :cmd => "copy",
+          :user => @http_user.login,
+          :oproject => src.project,
+          :opackage => src.package,
+          :comment => "Maintenance copy from project " + src.project
+        }
+        cp_params[:requestid] = request.id if request
+        cp_path = "/source/#{tprj.name}/#{pkg.name}"
+        cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid])
+        Suse::Backend.post cp_path, nil
+      end
     end
 
     return mi

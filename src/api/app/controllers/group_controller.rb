@@ -3,12 +3,10 @@
 class GroupController < ApplicationController
 
   def index
-     # ACL(index): index is not displaying any hidden info
     grouplist
   end
 
   def grouplist
-     # ACL(grouplist): grouplist is not displaying any hidden info
     if !@http_user
       logger.debug "No user logged in, access to group information denied"
       @errorcode = 401

@@ -413,6 +413,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     match=nil
     prepare_request_with_user "tom", "thunder"
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # same with set_flag command ?
+    post "/source/SourceprotectedProject?cmd=set_flag&flag=sourceaccess&status=enable"
+    assert_response 403
+    assert_match(/no permission to execute command/, @response.body)
     # admin
     resp1=:success
     resp2=:success

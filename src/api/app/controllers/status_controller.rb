@@ -4,7 +4,7 @@ class StatusController < ApplicationController
   
 
   def messages
-    # ACL(messages) this displays the status messages the Admin can enter for users.
+    # this displays the status messages the Admin can enter for users.
     if request.get?
 
       @messages = StatusMessage.find :all,
@@ -78,7 +78,6 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-    # ACL(workerstatus): update_workerstatus_cache does the job
      data = Rails.cache.fetch('workerstatus') do
        update_workerstatus_cache
      end
@@ -90,7 +89,6 @@ class StatusController < ApplicationController
     samples = begin Integer(params[:samples] || '100') rescue 0 end
     samples = [samples, 1].max
 
-    # ACL(history): This is used by the history plotter. leaks no ACL relevant project or package information. This call is not used in config/routes.
     hours = begin Integer(params[:hours] || '24') rescue 24 end
     logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
@@ -110,7 +108,6 @@ class StatusController < ApplicationController
     ret = backend_get('/build/_workerstatus')
 
     data=REXML::Document.new(ret)
-    # ACL(update_workerstatus_cache): filter out all packages / projects that are hidden by access
     # FIXME2.2: THIS WON'T WORK AS IT'S READ FROM CACHE ANYWAY
     accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
     accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
