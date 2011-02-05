@@ -927,6 +927,11 @@ class RequestController < ApplicationController
         target_project = DbProject.get_by_name(action.target.project)
         incident = create_new_maintenance_incident(target_project, source_project, req )
 
+        # update request with real target project
+        # FIXME2.3: Discuss this, changing the target on state change is not nice, but avoids an extra element/attribute
+        action.target.data["project"] = incident.db_project.name
+        req.save
+
       elsif action.data.attributes["type"] == "merge"
 #FIXME2.3: implement me
       end
