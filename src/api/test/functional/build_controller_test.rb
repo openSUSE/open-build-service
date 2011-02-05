@@ -100,7 +100,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_read_access_hidden_project_index
-    # ACL(project_index)
+    # Test if hidden projects appear for the right users
     # testing build_controller project_index 
     # currently this test shows that there's an information leak.
     get "/build"
@@ -203,7 +203,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_read_access_binarydownload_logfile
-    # build_controller.rb:    # ACL(logfile): binarydownload denies logfile acces
+    # Download is not protecting binaries for real, but it disallows download via api
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
     assert_response 403
     assert_match(/download_binary_no_permission/, @response.body)
@@ -424,7 +424,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
  
-  # FIXME: remoteinstance and ACL ?!
+  # FIXME: remoteinstance
 
   def test_jobhistory
     get "/build/home:Iggy/10.2/i586/_jobhistory"

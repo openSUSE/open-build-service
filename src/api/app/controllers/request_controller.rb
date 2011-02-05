@@ -107,7 +107,6 @@ class RequestController < ApplicationController
 
   # PUT /request/:id
   def update
-    # ACL(update) TODO: check this leaks no information that is prevented by ACL
     params[:user] = @http_user.login if @http_user
     
     #TODO: allow PUT for non-admins
@@ -498,34 +497,17 @@ class RequestController < ApplicationController
             path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
           end
         else
-          spkg = DbPackage.find_by_project_and_name( action.source.project, action.source.package )
-          tpkg = DbPackage.find_by_project_and_name( action.target.project, action.target.package )
-          unless spkg
-              render_error :status => 404, :errorcode => "unknown_package",
-                 :message => "Source package #{action.source.package}, project #{action.source.project} does not exist"
-              return
-          end
-          # ACL: show diff only if user has either read access rights in source or has maintainer rights in target
-          if spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
-            isTargetMaintainer = false
-            if @http_user
-              if tpkg
-                isTargetMaintainer = true if @http_user.can_modify_package?(tpkg)
-              else
-                tprj = DbProject.find_by_name( action.target.project ) unless tpkg
-                if tprj and @http_user.can_create_package_in?(tprj)
-                  isTargetMaintainer = true
-                end
-              end
-            end
-            if @http_user.nil? or not isTargetMaintainer
-              render_error :status => 403, :errorcode => "source_access_no_permission",
-                 :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project} and is not a maintainer of package #{action.target.package}, project #{action.target.project}"
-              return
+          # for requests not yet accepted or accepted with OBS 2.0 and before
+          spkg = DbPackage.get_by_project_and_name( action.source.project, action.source.package )
+          tpkg = nil
+          if @http_user
+            if DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = false )
+              tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+            else
+              tprj = DbProject.get_by_name( action.target.project )
             end
           end
 
-          # for requests not yet accepted or accepted with OBS 2.0 and before
           if tpkg
             path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
                    [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
