@@ -522,7 +522,7 @@ class User < ActiveRecord::Base
     ### all projects where user is maintainer
     # ur is the target user role relationship, aur is the asking user role relation ship
     sql =<<-END_SQL
-    SELECT prj.*
+    SELECT DISTINCT prj.*
     FROM db_projects prj
     LEFT OUTER JOIN project_user_role_relationships ur ON prj.id = ur.db_project_id
     LEFT OUTER JOIN roles r ON ur.role_id = r.id
@@ -536,7 +536,7 @@ class User < ActiveRecord::Base
 
     # all projects where user is maintainer via a group
     sql =<<-END_SQL
-    SELECT prj.*
+    SELECT DISTINCT prj.*
     FROM db_projects prj
     LEFT OUTER JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
     LEFT OUTER JOIN roles r ON gr.role_id = r.id
@@ -549,7 +549,7 @@ class User < ActiveRecord::Base
     END_SQL
     projects += DbProject.find_by_sql [sql, id, role, User.currentID]
 
-    return projects
+    return projects.uniq
   end
 
   def involved_packages
@@ -558,7 +558,7 @@ class User < ActiveRecord::Base
 
     # all packages where user is maintainer
     sql =<<-END_SQL
-    SELECT pkg.*
+    SELECT DISTINCT pkg.*
     FROM db_packages pkg
     LEFT OUTER JOIN package_user_role_relationships ur ON pkg.id = ur.db_package_id
     LEFT OUTER JOIN roles r ON ur.role_id = r.id
@@ -572,7 +572,7 @@ class User < ActiveRecord::Base
 
     # all packages where user is maintainer via a group
     sql =<<-END_SQL
-    SELECT pkg.*
+    SELECT DISTINCT pkg.*
     FROM db_packages pkg
     LEFT OUTER JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
     LEFT OUTER JOIN roles r ON gr.role_id = r.id
@@ -585,6 +585,6 @@ class User < ActiveRecord::Base
     END_SQL
     packages += DbPackage.find_by_sql [sql, id, role, User.currentID]
 
-    return packages
+    return packages.uniq
   end
 end
