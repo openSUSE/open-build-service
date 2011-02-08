@@ -601,7 +601,7 @@ class RequestController < ApplicationController
     if params[:newstate] == "accepted"
        if params[:cmd] == "changestate" and req.state.name == "review" and not params[:force]
           render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "Request is in review state."
+            :message => "Request is in review state. You may use the force parameter to ignore this."
           return
        end
     end
