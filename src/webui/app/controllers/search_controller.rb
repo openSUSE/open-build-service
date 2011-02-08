@@ -12,6 +12,14 @@ class SearchController < ApplicationController
     required_parameters :search_text
 
     @search_text = params[:search_text]
+
+    if @search_text.starts_with?("obs://")
+      # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
+      disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
+      disturl_rev, disturl_package = disturl_pkgrev.split('-')
+      redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
+    end
+
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "")
     @attribute = params[:attribute]
     if (!@search_text or @search_text.length < 2) && @attribute.blank?
