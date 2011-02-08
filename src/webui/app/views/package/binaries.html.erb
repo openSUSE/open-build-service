@@ -1,21 +1,21 @@
-
-<% @pagetitle = "Files of Package #{@package} (Project #{@project})"
+<% @pagetitle = "Repository State of #{@package}"
    @metarobots = "index,nofollow" # do not follow the single binary pages
-   package_bread_crumb "Packages for Repository '#{@repository}'"
+   package_bread_crumb "Repository State"
 -%>
 
 <%= render :partial => "tabs" %>
 
-<h2>Repository state for <%= @repository %></h2>
+<h3><%= @pagetitle %></h3>
 
-<p><%= link_to image_tag( 'icons/drive_web.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) %>
+<p>
+  <%= link_to image_tag('icons/drive_web.png'), repo_url(@project, @repository) %>
+  <%= link_to 'Go to download repository', repo_url(@project, @repository) %>
 </p>
 
-<% @buildresult.data.find( 'result').each do |result| 
+<% @buildresult.data.find('result').each do |result|
      code='unknown'
-     status = result.find( 'status').first
-     code=status.attributes['code'] if status
-   %>
+     status = result.find('status').first
+     code=status.attributes['code'] if status %>
 
   <h3><%= repo_status_icon code %> Architecture: <%= result.attributes['arch'] %></h3>
 
@@ -23,29 +23,25 @@
     <p><i>No published binaries</i></p>
   <% else %>
     <ul>
-      <% result.find( 'binarylist/binary' ).each do |binary| %>
-
+      <% result.find('binarylist/binary').each do |binary| %>
         <% if binary.attributes['filename'] == 'rpmlint.log' %>
           <li><%= binary.attributes['filename'] %></li>
         <% else %>
           <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package,
             :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
         <% end %>
-
       <% end %>
     </ul>
   <% end %>
-
   <p>
-    <% if @package.can_edit?( session[:login] ) %>
-      <%= link_to image_tag( 'rebuild.png' ), { :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete } %>
+    <% if @package.can_edit?(session[:login]) %>
+      <%= link_to image_tag('rebuild.png'), { :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete } %>
       <%= link_to 'Trigger',{ :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> rebuild
 
-      <% if !result.find( 'binarylist/binary' ).blank? %>
-        <%= link_to image_tag( 'icons/drive_burn.png' ), { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete } %>
+      <% if !result.find('binarylist/binary').blank? %>
+        <%= link_to image_tag('icons/drive_burn.png'), { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete } %>
         <%= link_to 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> published binaries
       <% end %>
     <% end %>
   </p>
-
 <% end %>
