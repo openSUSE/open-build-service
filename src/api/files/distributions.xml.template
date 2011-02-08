@@ -54,6 +54,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLES-9-16.png"/>
   <link>http://www.suse.com/</link>
  </distribution>
+ <distribution vendor="Debian" version="6.0" id="debian-6.0">
+  <name>Debian 6.0</name>
+  <project>openSUSE.org:Debian:6.0</project>
+  <reponame>Debian_6.0</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/debian-6.0-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-6.0-16.png"/>
+  <link>http://www.debian.org/</link>
+ </distribution>
  <distribution vendor="Debian" version="5.0" id="debian-5.0">
   <name>Debian 5.0</name>
   <project>openSUSE.org:Debian:5.0</project>
