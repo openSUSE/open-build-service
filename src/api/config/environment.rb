@@ -7,7 +7,7 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-RAILS_GEM_VERSION = '>=2.3.8' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
