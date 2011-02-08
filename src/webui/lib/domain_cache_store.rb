@@ -10,7 +10,11 @@ class DomainCacheStore < ActiveSupport::Cache::Store
   end
 
   def read(key, options = nil)
-    @cache.read(mkkey(key, options), options)
+    begin
+      @cache.read(mkkey(key, options), options)
+    rescue Zlib::GzipFile::Error
+      return nil
+    end
   end
 
   def write(key, value, options = nil)
