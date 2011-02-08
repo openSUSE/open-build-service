@@ -926,6 +926,7 @@ class RequestController < ApplicationController
       elsif action.data.attributes["type"] == "maintenance"
 
         # create incident project
+        source_project = DbProject.get_by_name(action.source.project)
         target_project = DbProject.get_by_name(action.target.project)
         incident = create_new_maintenance_incident(target_project, source_project, req )
 

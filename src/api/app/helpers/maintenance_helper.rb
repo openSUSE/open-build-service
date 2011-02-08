@@ -55,9 +55,9 @@ module MaintenanceHelper
         cp_params = {
           :cmd => "copy",
           :user => @http_user.login,
-          :oproject => src.project,
-          :opackage => src.package,
-          :comment => "Maintenance copy from project " + src.project
+          :oproject => baseProject.name,
+          :opackage => pkg.name,
+          :comment => "Maintenance copy from project " + baseProject.name
         }
         cp_params[:requestid] = request.id if request
         cp_path = "/source/#{tprj.name}/#{pkg.name}"
