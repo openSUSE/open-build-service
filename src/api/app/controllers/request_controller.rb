@@ -900,9 +900,11 @@ class RequestController < ApplicationController
                 end
               end
 
-              # remove source project, if this is the only package
-              source_project.destroy
-              Suse::Backend.delete "/source/#{action.source.project}"
+              if source_project.name != "home:" + user.login
+                # remove source project, if this is the only package and not the user's home project
+                source_project.destroy
+                Suse::Backend.delete "/source/#{action.source.project}"
+              end
             else
               # just remove package
               source_package.destroy
