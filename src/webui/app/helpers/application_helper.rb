@@ -347,6 +347,7 @@ module ApplicationHelper
   end
 
   def valid_xml_id(rawid)
+    rawid = '_' + rawid if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
     ERB::Util::h(rawid.gsub(/[+&: .]/, '_'))
   end
 
@@ -404,6 +405,11 @@ module ApplicationHelper
     text2_free = half_length - text2.length
     text2_free = 0 if text2_free < 0
     return [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
+  end
+
+  def escape_and_transform_nonprintables(text)
+    text = CGI.escapeHTML(text)
+    text.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n").gsub(' ', '&ensp;')
   end
 
 end

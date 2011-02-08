@@ -264,6 +264,15 @@ class SourceControllerTest < ActionController::IntegrationTest
       assert_response 400
       put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
       assert_response 400
+      post "/source/kde4/kdebase", :cmd => "branch", :target_package => n
+      assert_response 400
+      post "/source/kde4/#{n}", :cmd => "copy", :opackage => "kdebase", :oproject => "kde4"
+      if n == ".."
+        # this is failing already at routing
+        assert_response 403
+      else
+        assert_response 400
+      end
     end
   end
 
@@ -404,6 +413,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     match=nil
     prepare_request_with_user "tom", "thunder"
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # same with set_flag command ?
+    post "/source/SourceprotectedProject?cmd=set_flag&flag=sourceaccess&status=enable"
+    assert_response 403
+    assert_match(/no permission to execute command/, @response.body)
     # admin
     resp1=:success
     resp2=:success

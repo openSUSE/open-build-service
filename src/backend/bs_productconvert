@@ -294,6 +294,7 @@ sub createProductOptions($$$)
     
     my $mediaStyle = "suse-11.1"; # fallback value
     $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
+    $mediaStyle = "suse-11.3" if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} eq "suse-11.4"); # there is no kiwi plugin for 11.4
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
@@ -388,7 +389,10 @@ sub createMetadata( $$$ )
           die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
           push @onlyarch, $archSets{$ref}->{productarch} unless grep { $_ eq $archSets{$ref}->{productarch} } @onlyarch;
         }
-        push @onlyarch, "noarch" unless grep { $_ eq "noarch" } @onlyarch;
+        # In 11.4 and later noarch metapackages need explicit a onlyarch="noarch" in config because we do now fail on missing packages
+	if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+          push @onlyarch, "noarch" unless grep { $_ eq "noarch" } @onlyarch;
+        }
       }
       my $h = { name => $pack->{name},
                 medium => $metadata_medium,

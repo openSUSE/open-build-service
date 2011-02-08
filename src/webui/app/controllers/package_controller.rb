@@ -775,12 +775,6 @@ class PackageController < ApplicationController
     }
   end
 
-  def escape_log(log)
-    log = CGI.escapeHTML(log)
-    log.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n").gsub(' ', '&ensp;')
-  end
-  private :escape_log
-
   def live_build_log
     @arch = params[:arch]
     @repo = params[:repository]
@@ -795,7 +789,7 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
-    @initiallog = escape_log(@initiallog)
+    @initiallog = escape_and_transform_nonprintables(@initiallog)
     @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
       if $1[0].to_i < 32
         ''
@@ -823,7 +817,7 @@ class PackageController < ApplicationController
         @finished = true
       else
         @offset += log_chunk.length
-        log_chunk = escape_log(log_chunk)
+        log_chunk = escape_and_transform_nonprintables(log_chunk)
       end
 
     rescue Timeout::Error => ex
@@ -1037,6 +1031,7 @@ class PackageController < ApplicationController
   end
 
   def require_package
+    params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     unless valid_package_name_read? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"
       flash[:error] = "\"#{params[:package]}\" is not a valid package name"

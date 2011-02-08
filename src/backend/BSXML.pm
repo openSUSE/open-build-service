@@ -923,17 +923,19 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
-	'type',		# obsolete in future, type will be defined per action
+	'type',		# obsolete, still here to handle OBS pre-1.5 requests
      [[ 'action' =>
-	    'type',	# currently submit, delete, change_devel, add_role
+	    'type',	# currently submit, delete, change_devel, add_role, merge, maintenance (obsolete: set_bugowner)
 	  [ 'source' =>
 	        'project',
 	        'package',
-	        'rev',
+	        'rev',        # belongs to package attribute
+	        'repository', # for merge request
 	  ],
 	  [ 'target' =>
 		'project',
 		'package',
+	        'repository', # for merge request
 	  ],
 	  [ 'person' =>
 		'name',

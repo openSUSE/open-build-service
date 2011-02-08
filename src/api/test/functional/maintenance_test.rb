@@ -46,7 +46,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_mbranch
+  def test_mbranch_and_maintenance_request
     prepare_request_with_user "king", "sunflower"
     put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
@@ -150,9 +150,92 @@ class MaintenanceTests < ActionController::IntegrationTest
     # FIXME: test with binaries
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo&force=1"
     assert_response :success
+
+    # create maintenance request
+    # without specifing target, the default target must get found via attribute
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance">
+                                     <source project="home:tom:branches:OBS_Maintained:pack2" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # accept request
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    data = REXML::Document.new(@response.body)
+    maintenanceProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
+    assert_not_equal maintenanceProject, "My:Maintenance"
+    assert_match(/^My:Maintenance:#{Time.now.utc.year}-1/, maintenanceProject)
+
+    # validate created project
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    oprojectmeta = ActiveXML::XMLNode.new(@response.body)
+    assert_response :success
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_meta"
+    assert_response :success
+    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_not_nil node.repository.data
+    assert_equal node.repository.data, oprojectmeta.repository.data
+    assert_equal node.build.data, oprojectmeta.build.data
+
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1"
+    assert_response :success
+    assert_tag( :tag => "directory", :attributes => { :count => "7" } )
+
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1/pack2.BaseDistro2/_meta"
+    assert_response :success
+    assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2_BaseDistro_repo" } )
   end
 
-  # FIXME: to be implemented:
-  # def test_submitrequest_for_mbranch_project
+  def test_create_maintenance_project_and_release_packages
+    prepare_request_with_user "maintenance_coord", "power"
+
+    # setup a maintained distro
+    post "/source/BaseDistro/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+
+    # create a maintenance incident
+    post "/source", :cmd => "createmaintenanceincident"
+    assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    data = REXML::Document.new(@response.body)
+    maintenanceProject=data.elements["/status/data"].text
+
+    # submit packages via mbranch
+    post "/source", :cmd => "branch", :package => "pack1", :target_project => maintenanceProject
+    assert_response :success
+
+if $ENABLE_BROKEN_TEST
+    # check all build flags
+
+    # create release request
+    post "/request?cmd=create", '<request>
+                                   <action type="merge">
+                                     <source project="My:Maintenance:ID" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # release packages
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+end
+  end
 
 end

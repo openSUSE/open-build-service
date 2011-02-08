@@ -1,12 +1,5 @@
 <% @pagetitle = "Show Project #{@project}" %>
-<%
-@crumb_list = []
-@crumb_list << link_to( 'Projects', :action => :list_public)
-@crumb_list << @project.name
-
-@nr_packages = 0
-@nr_packages = @packages.each.size if @packages
--%>
+<% @crumb_list = [link_to( 'Projects', :action => :list_public), @project.name] -%>
 
 <%= render :partial => "tabs" %>
 

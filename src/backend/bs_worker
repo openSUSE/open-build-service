@@ -1309,7 +1309,6 @@ sub patchkiwi {
         next;
       }
 
-      my $addarchs = join(',', sort map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}});
       for my $pkg (sort keys %allpkgs) {
         # exclude blind take of all debug packages. They will be taken
         # automatically if a configured debug medium exists.
@@ -1321,7 +1320,17 @@ sub patchkiwi {
         next if $pkg =~ /-debugsource-64bit$/;
         next if $pkg =~ /-debuginfo-x86$/;
         next if $pkg =~ /-debugsource-x86$/;
-        push @rp, {'name' => $pkg, 'addarch' => $addarchs};
+        my @a;
+        for my $availableArch (sort keys %{$allpkgs{$pkg}}){
+          if ($availableArch eq "noarch") {
+            for my $a (sort map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}}) {
+              push @a, $a;
+           }
+          }else{
+            push @a, $availableArch;
+          }
+        }
+        push @rp, {'name' => $pkg, 'arch' => "".join(",", @a)};
       }
     }
     $repopackages->{'repopackage'} = \@rp;
@@ -1457,6 +1466,11 @@ sub dobuild {
   push @args, '--signdummy' if $kiwimode && !$localkiwi && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
+
+  print "\n";
+  print "$timestring: build finished '$packid' for project '$projid' repository '$repoid' arch '$arch'";
+  print " using helper $helper" if $helper;
+
   my $ret = $?;
   if ($ret == 512) { # system exit code 2 maps to 2 * 256
     if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {

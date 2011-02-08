@@ -1,3 +1,5 @@
+<% elide_len ||= 44 %>
+
 <% if requests.blank? %>
   <p><em>No requests.</em></p>
 <% else %>
@@ -20,7 +22,7 @@
           <td class="nowrap"><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
-              <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 44) %>
+              <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, elide_len) %>
               <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
               <% if package_exists?(ae.source.project, ae.source.package) %>
                 <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
@@ -33,15 +35,15 @@
             <% if ae.has_element?(:target) %>
               <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
                 <% if ae.target.has_attribute?(:package) and package_exists?(ae.target.project, ae.target.package) %> <!-- /<%= ae.target.package %> -->
-                  <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, 44) %>
+                  <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
                   <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
                   <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
                 <% else %>
-                  <%= link_to(elide(ae.target.project, 44), :controller => :project, :action => :show, :project => ae.target.project) %>
+                  <%= link_to(elide(ae.target.project, elide_len), :controller => :project, :action => :show, :project => ae.target.project) %>
                 <% end %>
               <% else %>
                 <% if ae.target.has_attribute?(:package) and package_exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
-                  <%= link_to(elide(ae.target.package, 44), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                  <%= link_to(elide(ae.target.package, elide_len), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
                 <% elsif ae.data.attributes[:type] == "delete" %>
                   This project
                 <% end %>

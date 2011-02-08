@@ -176,6 +176,8 @@ class ProjectController < ApplicationController
 
     load_packages_mainpage
 
+    @nr_packages = 0
+    @nr_packages = @packages.each.size if @packages
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
@@ -189,6 +191,7 @@ class ProjectController < ApplicationController
 
     linking_projects
     load_buildresult
+
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end

@@ -1,6 +1,7 @@
 require "rexml/document"
 
 include ProductHelper
+include MaintenanceHelper
 
 class SourceController < ApplicationController
 
@@ -17,10 +18,6 @@ class SourceController < ApplicationController
   # /source
   #########
   def index
-    projectlist
-  end
-
-  def projectlist
     # init and validation
     #--------------------
     deleted = params.has_key? :deleted
@@ -43,10 +40,7 @@ class SourceController < ApplicationController
           return
         end
       else
-        # list all projects (visible to user)
-        dir = Project.find :all
-        render :text => dir.dump_xml, :content_type => "text/xml"
-        return
+        projectlist
       end
     # /if request.get?
 
@@ -62,6 +56,13 @@ class SourceController < ApplicationController
     end
   end
 
+  def projectlist
+    # list all projects (visible to user)
+    dir = Project.find :all
+    render :text => dir.dump_xml, :content_type => "text/xml"
+    return
+  end
+
   # /source/:project
   #-----------------
   def index_project
@@ -69,7 +70,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_http_methods :get, :post, :delete
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -457,6 +458,9 @@ class SourceController < ApplicationController
           :message => "Attribute is not defined in system"
         return
       end
+      # only needed for a get request
+      params[:namespace] = name_parts[0]
+      params[:name] = name_parts[1]
     end
 
 
@@ -987,6 +991,32 @@ class SourceController < ApplicationController
 
   private
 
+  # POST /source?cmd=createmaintenanceincident
+  def index_createmaintenanceincident
+    # set defaults
+    unless params[:attribute]
+      params[:attribute] = "OBS:Maintenance"
+    end
+
+    # find maintenance project via attribute
+    at = AttribType.find_by_name(params[:attribute])
+    unless at
+      render_error :status => 403, :errorcode => 'not_found',
+        :message => "The given attribute #{params[:attribute]} does not exist"
+      return
+    end
+    prj = DbProject.find_by_attribute_type( at ).first()
+    unless @http_user.can_modify_project?(prj)
+      render_error :status => 403, :errorcode => "modify_project_no_permission",
+        :message => "no permission to modify project '#{prj.name}'"
+      return
+    end
+
+    # create incident project
+    incident = create_new_maintenance_incident(prj)
+    render_ok :data => {:targetproject => incident.db_project.name}
+  end
+
   # POST /source?cmd=branch (aka osc mbranch)
   def index_branch
     # set defaults
@@ -1028,7 +1058,7 @@ class SourceController < ApplicationController
     else
       # find packages via attributes
       at = AttribType.find_by_name(params[:attribute])
-      if not at
+      unless at
         render_error :status => 403, :errorcode => 'not_found',
           :message => "The given attribute #{params[:attribute]} does not exist"
         return
@@ -1452,8 +1482,6 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
     valid_http_methods :post
-    project_name = params[:project]
-    package_name = params[:package]
     oproject_name = params[:oproject]
     opackage_name = params[:opackage]
  
@@ -1465,8 +1493,6 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=linkdiff
   def index_package_linkdiff
     valid_http_methods :post
-    project_name = params[:project]
-    package_name = params[:package]
 
     path = request.path
     path << build_query_from_hash(params, [:rev, :unified, :linkrev])
@@ -1509,8 +1535,6 @@ class SourceController < ApplicationController
   def index_package_runservice
     valid_http_methods :post
     params[:user] = @http_user.login
-    project_name = params[:project]
-    package_name = params[:package]
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment])
@@ -1521,8 +1545,6 @@ class SourceController < ApplicationController
   def index_package_deleteuploadrev
     valid_http_methods :post
     params[:user] = @http_user.login
-    project_name = params[:project]
-    package_name = params[:package]
 
     path = request.path
     path << build_query_from_hash(params, [:cmd])
@@ -1641,6 +1663,7 @@ class SourceController < ApplicationController
 
     #create branch container
     oprj = DbProject.find_by_name oprj_name
+    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(oprj_name)
     if oprj.nil?
       unless @http_user.can_create_project?(oprj_name)
         render_error :status => 403, :errorcode => "create_project_no_permission",
@@ -1670,6 +1693,10 @@ class SourceController < ApplicationController
     end
 
     #create branch package
+    unless valid_package_name? opkg_name
+      render_error :status => 400, :errorcode => "invalid_package_name",
+        :message => "invalid package name '#{opkg_name}'"
+    end
     if opkg = oprj.db_packages.find_by_name(opkg_name)
       if params[:force]
         # shall we clean all files here ?
@@ -1732,6 +1759,7 @@ class SourceController < ApplicationController
     pkg_name = params[:package]
 
     pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
+    # FIXME2.2: sourceaccess flag enable/removal is not checked here
 
     # first remove former flags of the same class
     begin
@@ -1762,19 +1790,18 @@ class SourceController < ApplicationController
       return
     end
       
-    # ACL(index_project_set_flag): you are not allowed to protect an unprotected project with access
-    if params[:flag] == "access" and params[:status] == "disable" and prj.enabled_for?('access', params[:repository], params[:arch]) and not
-        @http_user.is_admin?
-      render_error :status => 403, :errorcode => "change_project_protection_level",
-      :message => "admin rights are required to raise the protection level of a project"
-      return
-    end
-    # ACL(index_project_set_flag): you are not allowed to protect an unprotected project with sourceaccess
-    if params[:flag] == "sourceaccess" and params[:status] == "disable" and prj.enabled_for?('sourceaccess', params[:repository], params[:arch]) and not
-        @http_user.is_admin?
-      render_error :status => 403, :errorcode => "change_project_protection_level",
-      :message => "admin rights are required to raise the protection level of a project"
-      return
+    # Raising permissions afterwards is not secure. Do not allow this by default.
+    unless @http_user.is_admin?
+      if params[:flag] == "access" and params[:status] == "enable" and not prj.enabled_for?('access', params[:repository], params[:arch])
+        render_error :status => 403, :errorcode => "change_project_protection_level",
+        :message => "admin rights are required to raise the protection level of a project"
+        return
+      end
+      if params[:flag] == "sourceaccess" and params[:status] == "enable" and not prj.enabled_for?('sourceaccess', params[:repository], params[:arch])
+        render_error :status => 403, :errorcode => "change_project_protection_level",
+        :message => "admin rights are required to raise the protection level of a project"
+        return
+      end
     end
 
     prj.store

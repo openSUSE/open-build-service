@@ -21,7 +21,7 @@
         <th class="header">Type</th>
         <th class="header">Source</th>
         <th class="header">Target</th>
-        <th class="header">Build Status</th>
+        <th class="header">Info</th>
       </tr>
     </thead>
     <tbody>
@@ -59,8 +59,14 @@
           <% end %>
           </td>
           <td>
-            <% if ae.has_element? :source %>
-              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
+            <% if ae.data.attributes["type"] == "add_role" %>
+              <% if ae.has_element? :group %>
+                Role <b><%= ae.group.role %></b> for group <b><%= ae.group.name %></b>
+              <% elsif ae.has_element? :person %>
+                Role <b><%= ae.person.role %></b> for user <b><%= ae.person.name %></b>
+              <% end %>
+            <% elsif ae.has_element? :source %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
               <script type="text/javascript">
                 setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
               </script>
@@ -96,7 +102,7 @@
         </tr>
         <% if h.has_key?(:comment) and not h[:comment].nil? %>
           <tr>
-            <td colspan="3"><p><%= h[:comment] %></p></td>
+            <td colspan="3"><p><%= raw escape_and_transform_nonprintables(h[:comment]) %></p></td>
           </tr>
         <% end %>
       <% end %>

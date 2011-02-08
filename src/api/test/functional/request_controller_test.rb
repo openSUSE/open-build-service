@@ -21,15 +21,55 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 401
   end
 
+  def test_submit_request_with_broken_source
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE", :cmd => :branch
+    assert_response :success
+    post "/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2", :cmd => :branch
+    assert_response :success
+    put "/source/home:Iggy/TestPack.DELETE/conflictingfile", "ASD"
+    assert_response :success
+    put "/source/home:Iggy/TestPack.DELETE2/conflictingfile", "123"
+    assert_response :success
+
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE2"/>
+                                     <target project="home:Iggy" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag( :tag => "summary", :content => 'conflict in file conflictingfile' )
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE2" rev="2"/>
+                                     <target project="home:Iggy" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag( :tag => "summary", :content => 'conflict in file conflictingfile' )
+
+    delete "/source/home:Iggy/TestPack.DELETE"
+    assert_response :success
+    delete "/source/home:Iggy/TestPack.DELETE2"
+    assert_response :success
+  end
+
   def test_submit_broken_request
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:coolo:test/kdelibs_DEVEL_package/file", "CONTENT" # just to have a revision, or we fail
+    assert_response :success
+
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/no_such_project')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown source project home:guest/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   
     post "/request?cmd=create", load_backend_file('request/no_such_package')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown source package mypackage in project home:Iggy/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_user')
     assert_response 404
@@ -45,11 +85,11 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_project')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown target project/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_package')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown target package/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     post "/request?cmd=create", load_backend_file('request/missing_role')
     assert_response 404
@@ -71,7 +111,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner_fail')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     # test direct put
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -87,12 +127,19 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
 
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
+    assert_response 404
   end
 
   def test_create_request_clone_and_superseed_it
@@ -249,6 +296,56 @@ if $ENABLE_BROKEN_TEST
 end
   end
 
+  def test_submit_request_from_hidden_project_and_hidden_source
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="HiddenProject" package="pack" rev="1"/>
+                                     <target project="home:tom" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="SourceprotectedProject" package="pack" rev="1"/>
+                                     <target project="home:tom" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 403
+
+    prepare_request_with_user "hidden_homer", "homer"
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="HiddenProject" package="pack" rev="1"/>
+                                     <target project="kde4" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="SourceprotectedProject" package="pack" rev="1"/>
+                                     <target project="kde4" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+  end
+
   def test_revoke_when_packages_dont_exist
     prepare_request_with_user 'tom', 'thunder'
     post "/source/kde4/kdebase", :cmd => :branch
@@ -260,6 +357,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id1 = node.data['id']
@@ -273,6 +371,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id2 = node.data['id']
@@ -605,7 +704,7 @@ end
     assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
   end
 
-  # ACL
+  # test permissions on read protected objects
   #
   #
   def test_submit_from_source_protected_project
@@ -644,21 +743,21 @@ end
   ## create request to hidden package from open place - valid user  - success
   def test_create_request_to_hidden_package_from_open_place_valid_user
     request_hidden("adrian", "so_alone", 'request/to_hidden_from_open_valid')
-    #assert_response :success #FIXME: fixture problem
+    assert_response :success
     #assert_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
   ## create request to hidden package from open place - invalid user - fail 
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
-#    print "\n FIXME ! test_create_request_to_hidden_package_from_open_place_invalid_user \n" if $ENABLE_BROKEN_TEST
-#    assert_response 403 if $ENABLE_BROKEN_TEST
-#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
     assert_response 404
-    assert_match(/Unknown target project HiddenProject/, @response.body)
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
+    prepare_request_with_user "king", "sunflower"
+    put "/source/HiddenProject/target/file", "ASD"
+    assert_response :success
     request_hidden("adrian", "so_alone", 'request/to_hidden_from_hidden_valid')
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'new' } )
@@ -667,11 +766,8 @@ end
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
-# This check never really worked yet, it was just complaining that Iggy is no maintainer, but that tells that the package exists actually
-#    assert_response 403 if $ENABLE_BROKEN_TEST
-#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
     assert_response 404
-    assert_match(/Unknown source project HiddenProject/, @response.body)
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
 
   # requests from Hidden to external
@@ -687,11 +783,8 @@ end
   ## create request from hidden package to open place - invalid user  - fail !
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
-# This check never really worked yet, it was just complaining that Iggy is no maintainer, but that tells that the package exists actually
     assert_response 404
-#    assert_response 403 if $ENABLE_BROKEN_TEST
-#    assert_match(/create_request_no_permission/, @response.body) if $ENABLE_BROKEN_TEST
-    assert_match(/Unknown source project HiddenProject/, @response.body)
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
 
   ## FIXME: what else

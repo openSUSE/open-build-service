@@ -176,7 +176,7 @@ class RequestController < ApplicationController
   def list
     redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
-    render :partial => 'shared/list_requests', :locals => {:requests => requests}
+    render :partial => 'shared/list_requests', :locals => {:requests => requests, :elide_len => params[:elide_len].to_i ||= 44}
   end
 
   def delete_request_dialog

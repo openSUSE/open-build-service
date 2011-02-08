@@ -4,7 +4,7 @@ class BuildController < ApplicationController
     valid_http_methods :get, :post, :put
 
     # for permission check
-    if params[:package] and params[:package] != "_repository"
+    if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
       pkg = DbPackage.get_by_project_and_name( params[:project], params[:package], use_source=false )
     else
       prj = DbProject.get_by_name params[:project]
