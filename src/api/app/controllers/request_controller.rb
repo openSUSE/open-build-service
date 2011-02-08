@@ -58,14 +58,14 @@ class RequestController < ApplicationController
           maintained_projects_hash[ip.id] = true
         end
         str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
-	## find request where user is maintainer in target package, except we have to project already
-	maintained_packages = Array.new
-	u.involved_packages.each do |ip|
-	  maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
-	  #FIXME2.3: This code causes heavy load in the backend source server, to be re-evaluated.
-	  #str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
-	end
-	str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        ## find request where user is maintainer in target package, except we have to project already
+        maintained_packages = Array.new
+        u.involved_packages.each do |ip|
+          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
+          #FIXME2.3: This code causes heavy load in the backend source server, to be re-evaluated.
+          #str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
+        end
+        str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
         str += ")"
         predicates << str
       end
@@ -250,8 +250,8 @@ class RequestController < ApplicationController
             :message => "No target project specified"
           return
         end
-	if action.data.attributes["type"] == "add_role"
-	  unless role
+        if action.data.attributes["type"] == "add_role"
+          unless role
             render_error :status => 404, :errorcode => 'unknown_role',
               :message => "No role specified"
             return
@@ -782,15 +782,15 @@ class RequestController < ApplicationController
           bugowner = Role.find_by_title("bugowner")
           if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
- 	     PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
-		r.destroy
+              PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
+                r.destroy
              end
-	  else
- 	     ProjectUserRoleRelationship.find(:all, :conditions => ["db_project_id = ? AND role_id = ?", object, bugowner]).each do |r|
-		r.destroy
+          else
+              ProjectUserRoleRelationship.find(:all, :conditions => ["db_project_id = ? AND role_id = ?", object, bugowner]).each do |r|
+                r.destroy
              end
           end
-	  object.add_user( action.person.name, bugowner )
+          object.add_user( action.person.name, bugowner )
           object.store
       elsif action.data.attributes["type"] == "add_role"
           object = DbProject.find_by_name(action.target.project)
@@ -799,11 +799,11 @@ class RequestController < ApplicationController
           end
           if action.has_element? 'person'
              role = Role.find_by_title(action.person.role)
-	     object.add_user( action.person.name, role )
+             object.add_user( action.person.name, role )
           end
           if action.has_element? 'group'
              role = Role.find_by_title(action.group.role)
-	     object.add_group( action.group.name, role )
+             object.add_group( action.group.name, role )
           end
           object.store
       elsif action.data.attributes["type"] == "change_devel"
