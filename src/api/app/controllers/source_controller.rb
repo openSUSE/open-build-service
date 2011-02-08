@@ -458,6 +458,9 @@ class SourceController < ApplicationController
           :message => "Attribute is not defined in system"
         return
       end
+      # only needed for a get request
+      params[:namespace] = name_parts[0]
+      params[:name] = name_parts[1]
     end
 
 
