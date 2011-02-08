@@ -7,10 +7,7 @@
 
 <h3><%= @pagetitle %></h3>
 
-<p>
-  <%= link_to image_tag('icons/drive_web.png'), repo_url(@project, @repository) %>
-  <%= link_to 'Go to download repository', repo_url(@project, @repository) %>
-</p>
+<%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
 
 <% @buildresult.data.find('result').each do |result|
      code='unknown'
