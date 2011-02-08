@@ -176,6 +176,26 @@ class MaintenanceTests < ActionController::IntegrationTest
     maintenanceProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
     assert_not_equal maintenanceProject, "My:Maintenance"
     assert_match(/^My:Maintenance:#{Time.now.utc.year}-1/, maintenanceProject)
+
+    # validate created project
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    oprojectmeta = ActiveXML::XMLNode.new(@response.body)
+    assert_response :success
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_meta"
+    assert_response :success
+    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_not_nil node.repository.data
+    assert_equal node.repository.data, oprojectmeta.repository.data
+    assert_equal node.build.data, oprojectmeta.build.data
+
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1"
+    assert_response :success
+    assert_tag( :tag => "directory", :attributes => { :count => "7" } )
+
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1/pack2.BaseDistro2/_meta"
+    assert_response :success
+    assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2_BaseDistro_repo" } )
   end
 
   def test_create_maintenance_project_and_release_packages
