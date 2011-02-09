@@ -160,18 +160,21 @@
           <table id="pTable">
             <tr>
               <th style="width: 1%">Type</th>
-              <th style="width: 8%">Owner</th>
+              <th style="width: 8%">Name</th>
               <th style="width: 90%">Comment</th>
-              <th style="width: 1%">State</th>
+              <th style="width: 1%">Action</th>
             </tr>
             <% @req.each_review do |r|%>
               <%- comment = r.comment if r.has_element? :comment or nil%>
               <% if r.has_attribute? :by_user or r.has_attribute? :by_group or r.has_attribute :by_project %>
                 <tr>
                   <% if r.has_attribute? :by_user %>
-                    <td>User</td> <td><%=r.by_user%></td>
+                    <td>User</td>
+                    <td><%=r.by_user%></td>
                     <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and r.by_user.to_s == @user.login.to_s %>
-                      <td id="comment_user_<%=r.by_user%>"><%=text_field_tag "review_comment", comment, :size => "50x2" %></td>
+                      <td id="comment_user_<%=r.by_user%>">
+                        <%= text_field_tag "review_comment", comment, :size => "50x2" %>
+                      </td>
                       <td id="user_<%=r.by_user%>">
                         <%= button_to_function "Approve", :onclick => "modifyReview(\"\", \"accepted\", \"user_#{r.by_user}\")" %>
                         <%= button_to_function "Reject", :onclick => "modifyReview(\"\", \"declined\", \"user_#{r.by_user}\")" %>
@@ -183,9 +186,12 @@
                   <%end%>
 
                   <% if r.has_attribute? :by_group %>
-                    <td>Group</td> <td><%=r.by_group%></td>
+                    <td>Group</td>
+                    <td><%=r.by_group%></td>
                     <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and @user.is_in_group? r.by_group %>
-                      <td id="comment_group_<%=r.by_group%>"><%=text_field_tag "review_comment_#{r.by_group}", comment, :size => "50x2" %></td>
+                      <td id="comment_group_<%=r.by_group%>">
+                        <%= text_field_tag "review_comment_#{r.by_group}", comment, :size => "50x2" %>
+                      </td>
                       <td id="group_<%=r.by_group%>">
                         <%= button_to_function "Approve", :onclick => "modifyReview(\"#{r.by_group}\", \"accepted\", \"group_#{r.by_group}\")" %>
                         <%= button_to_function "Reject", :onclick => "modifyReview(\"#{r.by_group}\", \"declined\", \"group_#{r.by_group}\")" %>
@@ -195,14 +201,25 @@
                       <td><%= r.state %></td>
                     <% end %>
                   <%end%>
+
+                  <% if r.has_attribute? :by_project %>
+                    <td>Project</td>
+                    <td><%= r.by_project %></td>
+                    <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and @user.is_maintainer? r.by_project %>
+                      <td id="comment_project__<%=r.by_project%>">
+                        <%= text_field_tag "review_comment_#{r.by_project}", comment, :size => "50x2" %>
+                      </td>
+                      <td id="project_<%=r.by_project%>">
+                        <%= button_to_function "Approve", :onclick => "modifyReview(\"#{r.by_project}\", \"accepted\", \"project_#{r.by_project}\")" %>
+                        <%= button_to_function "Reject", :onclick => "modifyReview(\"#{r.by_project}\", \"declined\", \"project_#{r.by_project}\")" %>
+                      </td>
+                    <% else %>
+                      <td><%= comment%></td>
+                      <td><%= r.state %></td>
+                    <% end %>
+                  <% end %>
                 </tr>
-
-                <% if r.has_attribute? :by_project %>
-                  <td>Project</td><td><%= r.by_project %></td>
-                <% end %>
-
               <% end %>
-              </tr>
             <%end%>
 
             <!-- add another review -->
