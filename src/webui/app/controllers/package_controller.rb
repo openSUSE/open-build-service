@@ -983,6 +983,11 @@ class PackageController < ApplicationController
   end
 
   def repositories
+    begin
+      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes)
+    rescue => e
+      logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
+    end
     @package = find_cached(Package, params[:package], :project => params[:project], :view => :flagdetails )
   end
 
