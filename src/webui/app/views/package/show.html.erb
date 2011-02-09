@@ -44,11 +44,11 @@
                   <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
                   <%= link_to_remote 'Submit Package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
                 </li>
+                <li>
+                  <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch Package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Branch Package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
+                </li>
               <% end %>
-              <li>
-                <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch Package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Branch Package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
-              </li>
             <% end %>
           </ul>
         </div>
