@@ -380,6 +380,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/kde4:subproject"
     assert_response :success
+
+    # create illegal project 
+    prepare_request_with_user "fred", "geröllheimer"
+    subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response 400
+    aresp={:tag => "status", :attributes => { :code => "project_name_mismatch" } }
   end
 
   def test_put_project_meta_hidden_project

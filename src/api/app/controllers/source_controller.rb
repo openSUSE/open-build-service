@@ -618,6 +618,11 @@ class SourceController < ApplicationController
 
       # permission check
       p = Project.new(request_data, :name => project_name)
+      if( p.name != project_name )
+        render_error :status => 400, :errorcode => 'project_name_mismatch',
+          :message => "package name in xml data does not match resource path component"
+        return
+      end
       begin
         prj = DbProject.get_by_name p.name
       rescue DbProject::UnknownObjectError
