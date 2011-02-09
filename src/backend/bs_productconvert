@@ -825,7 +825,7 @@ sub writeMigrationSPECfile( $$$$$ )
 
 sub writeProductSPECfile( $$$$ )
 {
-    my( $file, $infile, $prodRef,$product ) = @_;
+    my( $file, $infile, $prodRef, $product ) = @_;
     my $product_flavors="";
     ### A product may obsolete packages.
     my $obsoletepackage="";
@@ -925,12 +925,16 @@ sub writeProductSPECfile( $$$$ )
      } else {
        $str =~ s/___BETA_VERSION___//g;
      }
+     # take media style from first media. not nice, but we can only have one product package for all of them.
+     my $medium = $prodRef->{mediasets}->{media}[0];
      if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
         # this is the product release, not a package release. should not be used anymore.
         # this old way is a problem because it can produce leading zeros in product provides
         $str =~ s/___RELEASE___/0%{?release}/g;
      } else {
-        $str =~ s/___RELEASE___/%{?release}/g;
+        # product release is not really used so far, but defined in zypp stack. So let's
+        # support it. But it is so far 0 on all our products
+        $str =~ s/___RELEASE___/$product->{release}/g;
      }
      $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
      $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
