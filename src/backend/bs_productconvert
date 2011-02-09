@@ -925,7 +925,13 @@ sub writeProductSPECfile( $$$$ )
      } else {
        $str =~ s/___BETA_VERSION___//g;
      }
-     $str =~ s/___RELEASE___/0%{?release}/g; # should not be used anymore
+     if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+        # this is the product release, not a package release. should not be used anymore.
+        # this old way is a problem because it can produce leading zeros in product provides
+        $str =~ s/___RELEASE___/0%{?release}/g;
+     } else {
+        $str =~ s/___RELEASE___/%{?release}/g;
+     }
      $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
      $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
      $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
