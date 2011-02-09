@@ -65,9 +65,7 @@ class RequestController < ApplicationController
   
     @is_maintainer = nil
     @req.each_action do |action|
-      # FIXME: this can't handle multiple actions in a request
-      @type = action.data.attributes["type"]
-      if @type=="submit"
+      if action.data.attributes["type"] == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
       end

@@ -68,7 +68,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment
+        r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
         # FIXME add a full error handler here
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -93,7 +93,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment.to_s
+        transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
         message, _, _ = ActiveXML::Transport.extract_error_message e

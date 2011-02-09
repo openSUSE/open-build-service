@@ -117,19 +117,19 @@
     var comment = document.getElementById('add_review_comment').value;
     var id = "id_"+type+"_"+value
     var path = "/request/addreviewer/<%=@id%>?comment="+encodeURIComponent(comment)+"&"
-    if (type == "User") {
-      path = path + "user="+encodeURIComponent(value)
-    } else {
-      path = path + "group="+encodeURIComponent(value)
-    }
+    path = path + type.toLowerCase() + "=" + encodeURIComponent(value)
 
     $('#pTable tr:last').before('<tr>'+
-      '<td>'+type+'</td>'+
-      '<td>'+value+'</td>'+
-      '<td>'+comment+'</td>'+
-      '<td id="'+id+'">adding...</td>'+
+        '<td>'+type+'</td>'+
+        '<td>'+value+'</td>'+
+        '<td>'+comment+'</td>'+
+        '<td id="'+id+'"><img alt="" id="spinner" src="/images/rotating-tail.gif"/></td>'+
       '</tr>');
-    $.ajax({type: "POST", url: path, success: function(data){$("#pTable td#"+id).text(data)} })
+    $.ajax({type: "POST", url: path,
+      success: function(data) {
+        $("#pTable td#"+id).text("")
+      }
+    })
   }
 
   function modifyReview(group, new_state, field_id) {
@@ -162,42 +162,43 @@
               <th style="width: 1%">Type</th>
               <th style="width: 8%">Name</th>
               <th style="width: 90%">Comment</th>
-              <th style="width: 1%">Action</th>
+              <th style="width: 1%">Actions</th>
             </tr>
-            <% @req.each_review do |r|%>
+            <% @req.each_review do |r| %>
               <%- comment = r.comment if r.has_element? :comment or nil%>
-              <% if r.has_attribute? :by_user or r.has_attribute? :by_group or r.has_attribute :by_project %>
+
+              <% if r.has_attribute? :by_user or r.has_attribute? :by_group or r.has_attribute? :by_project %>
                 <tr>
                   <% if r.has_attribute? :by_user %>
                     <td>User</td>
-                    <td><%=r.by_user%></td>
+                    <td><%= r.by_user %></td>
                     <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and r.by_user.to_s == @user.login.to_s %>
-                      <td id="comment_user_<%=r.by_user%>">
+                      <td id="comment_user_<%= r.by_user %>">
                         <%= text_field_tag "review_comment", comment, :size => "50x2" %>
                       </td>
-                      <td id="user_<%=r.by_user%>">
+                      <td id="user_<%= r.by_user %>">
                         <%= button_to_function "Approve", :onclick => "modifyReview(\"\", \"accepted\", \"user_#{r.by_user}\")" %>
                         <%= button_to_function "Reject", :onclick => "modifyReview(\"\", \"declined\", \"user_#{r.by_user}\")" %>
                       </td>
                     <% else %>
-                      <td><%= comment%></td>
+                      <td><%= comment %></td>
                       <td><%= r.state %></td>
                     <% end %>
                   <%end%>
 
                   <% if r.has_attribute? :by_group %>
                     <td>Group</td>
-                    <td><%=r.by_group%></td>
+                    <td><%= r.by_group %></td>
                     <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and @user.is_in_group? r.by_group %>
-                      <td id="comment_group_<%=r.by_group%>">
+                      <td id="comment_group_<%= r.by_group %>">
                         <%= text_field_tag "review_comment_#{r.by_group}", comment, :size => "50x2" %>
                       </td>
-                      <td id="group_<%=r.by_group%>">
+                      <td id="group_<%= r.by_group %>">
                         <%= button_to_function "Approve", :onclick => "modifyReview(\"#{r.by_group}\", \"accepted\", \"group_#{r.by_group}\")" %>
                         <%= button_to_function "Reject", :onclick => "modifyReview(\"#{r.by_group}\", \"declined\", \"group_#{r.by_group}\")" %>
                       </td>
                     <% else %>
-                      <td><%= comment%></td>
+                      <td><%= comment %></td>
                       <td><%= r.state %></td>
                     <% end %>
                   <%end%>
@@ -206,15 +207,16 @@
                     <td>Project</td>
                     <td><%= r.by_project %></td>
                     <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and @user.is_maintainer? r.by_project %>
-                      <td id="comment_project__<%=r.by_project%>">
-                        <%= text_field_tag "review_comment_#{r.by_project}", comment, :size => "50x2" %>
+                      <% by_project_id = valid_xml_id(r.by_project) %>
+                      <td id="comment_project_<%= by_project_id %>">
+                        <%= text_field_tag "review_comment_#{by_project_id}", comment, :size => "50x2" %>
                       </td>
-                      <td id="project_<%=r.by_project%>">
-                        <%= button_to_function "Approve", :onclick => "modifyReview(\"#{r.by_project}\", \"accepted\", \"project_#{r.by_project}\")" %>
-                        <%= button_to_function "Reject", :onclick => "modifyReview(\"#{r.by_project}\", \"declined\", \"project_#{r.by_project}\")" %>
+                      <td id="project_<%= by_project_id %>">
+                        <%= button_to_function "Approve", :onclick => "modifyReview(\"#{r.by_project}\", \"accepted\", \"project_#{by_project_id}\")" %>
+                        <%= button_to_function "Reject", :onclick => "modifyReview(\"#{r.by_project}\", \"declined\", \"project_#{by_project_id}\")" %>
                       </td>
                     <% else %>
-                      <td><%= comment%></td>
+                      <td><%= comment %></td>
                       <td><%= r.state %></td>
                     <% end %>
                   <% end %>
@@ -223,15 +225,13 @@
             <%end%>
 
             <!-- add another review -->
-            <% if !@diff_error && (@req.state.name == "review" || @req.state.name == "new") %>
-              <% if @is_maintainer || @is_reviewer || @is_author %>
-                <tr class="add_reviewer">
-                  <td><%= select_tag "add_review_type", options_for_select(["User", "Group", "Project"]) %></td>
-                  <td><%= text_field_tag "add_review_name" %></td>
-                  <td><%= text_field_tag "add_review_comment", nil, :style => "width: 99%" %></td>
-                  <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow()") %></td>
-                </tr>
-              <% end %>
+            <% if !@diff_error && (@req.state.name == "review" || @req.state.name == "new") && (@is_maintainer || @is_reviewer || @is_author) %>
+              <tr class="add_reviewer">
+                <td><%= select_tag "add_review_type", options_for_select(["User", "Group", "Project"]) %></td>
+                <td><%= text_field_tag "add_review_name" %></td>
+                <td><%= text_field_tag "add_review_comment", nil, :style => "width: 99%" %></td>
+                <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow()") %></td>
+              </tr>
             <% end %>
           </table>
         <% end %>
@@ -240,7 +240,7 @@
         <%= hidden_field_tag( "id", @id) %>
         <p>
           <strong>Your Comment:</strong><br/>
-          <%= text_field_tag :reason, '' , :style => "width: 99%" %><br/>
+          <%= text_field_tag :reason, '' , :style => "width: 99%" %>
         </p>
         <p>
           <% if @is_maintainer %>
