@@ -53,7 +53,7 @@ class RequestController < ApplicationController
 
       if session[:login]
         user = Person.find_cached(session[:login])
-        if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or 
+        if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
            (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
            (review.has_attribute? :by_project and user.is_maintainer? review.by_project and revoke.has_attribute? :by_package and user.is_maintainer? review.by_package)
           @is_reviewer = true and break

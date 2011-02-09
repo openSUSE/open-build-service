@@ -64,7 +64,7 @@ class BsRequest < ActiveXML::Base
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?cmd=addreview"
       path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
-      path << "&by_group=#{CGI.escape(opts[:group[)}" if opts[:group]
+      path << "&by_group=#{CGI.escape(opts[:group])}" if opts[:group]
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
@@ -72,10 +72,10 @@ class BsRequest < ActiveXML::Base
         # FIXME add a full error handler here
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       rescue ActiveXML::Transport::NotFoundError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       end
     end
@@ -96,10 +96,10 @@ class BsRequest < ActiveXML::Base
         transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment.to_s
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       rescue ActiveXML::Transport::NotFoundError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       end
     end
@@ -112,10 +112,10 @@ class BsRequest < ActiveXML::Base
           transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason.to_s
           return true
         rescue ActiveXML::Transport::ForbiddenError => e
-          message, code, api_exception = ActiveXML::Transport.extract_error_message e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
           raise ModifyError, message
         rescue ActiveXML::Transport::NotFoundError => e
-          message, code, api_exception = ActiveXML::Transport.extract_error_message e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
           raise ModifyError, message
         end
       end
@@ -128,11 +128,9 @@ class BsRequest < ActiveXML::Base
       end
       pred = "(action/target/@package='#{opts[:targetpackage]}' and action/target/@project='#{opts[:targetproject]}' and action/source/@project='#{opts[:sourceproject]}' and action/source/@package='#{opts[:sourcepackage]}' and action/@type='submit')"
       requests = Collection.find_cached :what => :request, :predicate => pred
-      last=nil
+      last = nil
       requests.each_request do |r|
-        if not last or Integer(r.data[:id]) > Integer(last.data[:id])
-          last=r
-        end
+        last = r if not last or Integer(r.data[:id]) > Integer(last.data[:id])
       end
       return last
     end
@@ -156,7 +154,7 @@ class BsRequest < ActiveXML::Base
           response = transport.direct_http URI("https://#{path}"), :method => "GET"
           Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
         rescue ActiveXML::Transport::Error => e
-          message, code, api_exception = ActiveXML::Transport.extract_error_message e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
           raise ListError, message
         end
       end
