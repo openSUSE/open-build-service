@@ -124,7 +124,9 @@ class Person < ActiveXML::Base
   # if package is nil, returns project maintainership
   def is_maintainer?(project, package=nil)
     return true if is_admin?
+    package = Package.find_cached(package) if package.class == String
     return true if package and package.is_maintainer?(login)
+    project = Project.find_cached(project) if project.class == String
     return project.is_maintainer?(login)
   end
 
