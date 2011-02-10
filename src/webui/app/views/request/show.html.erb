@@ -77,11 +77,9 @@
     </tbody>
   </table>
 </div>
-
-<div>
-  <h3>Comment</h3>
+<% unless @req.value('description').empty? %>
   <p><%= format_comment(@req.value('description')) %></p>
-</div>
+<% end %>
 
 <div>
   <h3>History</h3>
@@ -91,13 +89,13 @@
         <th>Date</th>
         <th>State</th>
         <th>User</th>
-        <th>Comment</th>
+        <th style="width: 70%">Comment</th>
       </tr>
     </thead>
     <tbody>
       <% @req.history.each do |h| %>
         <tr>
-          <td><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
+          <td class="nowrap"><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
           <td><%= h[:name] %></td>
           <td><%= link_to(h[:who], :controller => :home, :user => h[:who]) %></td>
           <td><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
@@ -113,36 +111,34 @@
       var type = document.getElementById('add_review_type').value;
       var value = document.getElementById('add_review_name').value;
       var comment = document.getElementById('add_review_comment').value;
-      var id = "id_"+type+"_"+value
-      var path = "/request/addreviewer/<%=@id%>?comment="+encodeURIComponent(comment)+"&"
-      path = path + type.toLowerCase() + "=" + encodeURIComponent(value)
+      var id = "id_" + type + "_" + value
+      var path = "/request/addreviewer/<%=@id%>?comment=" + encodeURIComponent(comment) +
+                                              "&" + type.toLowerCase() + "=" + encodeURIComponent(value)
 
-      $('#pTable tr:last').before('<tr>'+
-          '<td>'+type+'</td>'+
-          '<td>'+value+'</td>'+
-          '<td>'+comment+'</td>'+
-          '<td id="'+id+'"><%= image_tag('ajax-loader.gif') %></td>'+
+      $('#review_table tr:last').before('<tr>' +
+          '<td id="' + id + '"><%= image_tag('ajax-loader.gif') %></td>' +
+          '<td>' + type + '</td>' +
+          '<td>' + value + '</td>' +
+          '<td>' + comment + '</td>' +
+          '<td></td>' +
         '</tr>');
       $.ajax({type: "POST", url: path,
-        success: function(data) {
-          $("#pTable td#"+id).text("")
-        }
+        success: function(data) { $("#review_table td#" + id).text(data); }
       })
     }
 
-    function modifyReview(group, new_state, field_id) {
-      var path = "/request/modifyreviewer/<%=@id%>?new_state="+encodeURIComponent(new_state)
-      var comment
-      if (group != "") {
-        path = path + "&group="+encodeURIComponent(group)
-        comment = document.getElementById('review_comment_'+group).value;
-      } else {
-        comment = document.getElementById('review_comment').value;
-      }
-      path = path + "&comment=" + encodeURIComponent(comment);
-
-      $.ajax({type: "POST", url: path, success: function(data){$("#pTable td#"+field_id).text(data)} })
-      $("#pTable td#comment_"+field_id).text(comment)
+    function modifyReview(id, new_state) {
+      var comment = $('#review_comment_' + id).text();
+      var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) +
+                                                    "&comment=" + encodeURIComponent(comment) +
+                                                    "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
+      $.ajax({type: "POST", url: path,
+        success: function(data) {
+          $('#review_table td#review_state_' + id).text(data);
+          $('#review_table td#review_comment_' + id).text(comment);
+          $('#review_table td#review_buttons_' + id).text("");
+        }
+      })
     }
   <% end %>
   <% form_tag :action => "changerequest" do %>
@@ -150,7 +146,7 @@
       <%= hidden_field_tag( "id", @id) %>
       <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author) %>
         <h3>Reviews</h3>
-        <table id="pTable">
+        <table id="review_table">
           <tr>
             <th style="width: 1%">State</th>
             <th style="width: 1%">Type</th>
@@ -162,20 +158,20 @@
             <%- comment = r.comment if r.has_element? :comment or nil%>
 
             <tr>
-              <td><%= r.state %></td>
+              <td id="review_state_<%= r.id %>"><%= r.state %></td>
               <% if r.has_attribute? :by_user %>
-                <td>User</td>
-                <td><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
+                <td id="review_type_<%= r.id %>">user</td>
+                <td id="review_name_<%= r.id %>"><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
               <% elsif r.has_attribute? :by_group %>
-                <td>Group</td>
-                <td><%= r.by_group %></td>
+                <td id="review_type_<%= r.id %>">group</td>
+                <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
               <% elsif r.has_attribute? :by_project %>
                 <% if r.has_attribute? :by_package %>
-                  <td>Package</td>
-                  <td><%= link_to(r.by_project +" / "+ r.by_package, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %></td>
+                  <td id="review_type_<%= r.id %>">package</td>
+                  <td id="review_name_<%= r.id %>"><%= link_to(r.by_project +" / "+ r.by_package, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %></td>
                 <% else %>
-                  <td>Project</td>
-                  <td><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
+                  <td id="review_type_<%= r.id %>">project</td>
+                  <td id="review_name_<%= r.id %>"><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
                 <% end %>
               <% end %>
 
@@ -185,8 +181,8 @@
                      (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
                 <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
                 <td id="review_buttons_<%= r.id %>">
-                  <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview('accepted', #{r.id});") %>
-                  <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview('declined', #{r.id});") %>
+                  <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted');") %>
+                  <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{r.id}, 'declined');") %>
                 </td>
               <% else %>
                 <td><%= comment %></td>
@@ -198,10 +194,10 @@
           <% if (@req.state.name == "review" || @req.state.name == "new") %>
             <tr>
               <td></td>
-              <td><%= select_tag "add_review_type", options_for_select(["User", "Group", "Project"]) %></td>
+              <td><%= select_tag "add_review_type", options_for_select(["user", "group", "project"]) %></td>
               <td><%= text_field_tag "add_review_name" %></td>
-              <td></td>
-              <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow()") %></td>
+              <td><%= text_field_tag "add_review_comment", "", :style => "width: 99%" %></td>
+              <td><%= link_to_function(image_tag("icons/user_add.png", :alt => "Add reviewer"), "insertRow();") %></td>
             </tr>
           <% end %>
         </table>
