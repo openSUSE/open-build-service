@@ -232,7 +232,10 @@
   <% end %>
 <% end %>
 
-<% if @diff_text and not @diff_text.empty? %>
+<% if @diff_error %>
+  <h3>Diff Error</h3>
+  <p><%= @diff_error %></p>
+<% elsif @diff_text and not @diff_text.empty? %>
   <h3>Diff</h3>
   <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @diff_text, :type => 'diff'} %>
 <% end %>
