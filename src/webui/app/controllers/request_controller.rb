@@ -1,18 +1,23 @@
 class RequestController < ApplicationController
 
   def addreviewer
-    unless params[:user] or params[:group] or params[:project] or params[:package]
-      render :text => "ERROR: don't know how to add reviewer" and return
-    end
     @therequest = find_cached(BsRequest, params[:id]) if params[:id]
     BsRequest.free_cache(params[:id])
 
     begin
-      r = BsRequest.addReview(params[:id], params)
-      render :text => "added"
+      opts = {}
+      case params[:review_type]
+        when "user" then opts[:user] = params[:review_name]
+        when "group" then opts[:group] = params[:review_name]
+        when "project" then opts[:project] = params[:review_name]
+      end
+      opts[:comment] = params[:comment] if params[:comment]
+
+      BsRequest.addReview(params[:request_id], opts)
     rescue BsRequest::ModifyError => e
-      render :text => e.message
+      flash[:error] = e.message
     end
+    redirect_to :action => "show", :id => params[:request_id] and return
   end
 
   def modifyreviewer
@@ -20,7 +25,7 @@ class RequestController < ApplicationController
     BsRequest.free_cache(params[:id])
 
     begin
-      r = BsRequest.modifyReview(params[:id], params)
+      BsRequest.modifyReview(params[:id], params)
       render :text => params[:new_state]
     rescue BsRequest::ModifyError => e
       render :text => e.message
