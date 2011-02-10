@@ -10,7 +10,6 @@
       <thead>
         <tr>
           <th>User</th>
-          <th>Full Name</th>
           <th colspan="<%= @roles.length %>">Roles</th>
           <th>Actions</th>
         </tr>
@@ -18,10 +17,14 @@
       <tbody>
         <% @users.each do |user| %>
           <tr>
-            <td><%= link_to(user, :controller => 'home', :user => user) %></td>
             <td>
               <%= gravatar_image(@emails[user]) %>
-              <%= Person.realname_for_login(user) %>
+              <% realname = Person.realname_for_login(user) %>
+              <% unless realname.empty? %>
+                <%= link_to(realname + ' (' + user + ')', :controller => 'home', :user => user) %>
+              <% else %>
+                <%= link_to(user, :controller => 'home', :user => user) %>
+              <% end %>
             </td>
             <% @roles.each do |role| %>
               <% if defined? @package %>
@@ -43,6 +46,9 @@
         <% end %>
       </tbody>
     </table>
+    <script type="text/javascript">
+      $('#users_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {1: {sorter: false}, 2: {sorter: false}} });
+    </script>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>
@@ -77,5 +83,8 @@
         <% end %>
       </tbody>
     </table>
+    <script type="text/javascript">
+      $('#groups_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {1: {sorter: false}, 2: {sorter: false}} });
+    </script>
   <% end %>
 </div>
