@@ -654,6 +654,19 @@ module UserMixins
           # credentials are correctly found using LDAP.
           def self.find_with_ldap(login, password)
             logger.debug( "Looking for #{login} using ldap" )
+            ldap_info = Array.new
+            # use cache to check the password firstly
+            key="ldap_cache_userpasswd:" + login
+            if Rails.cache.exist?(key)
+              cache_password = Rails.cache.read(key)
+              if cache_password == password
+                ldap_info[0] =  'fake@email.ldap'
+                ldap_info[1] = login
+                logger.debug("login success for checking with ldap cache")
+                return ldap_info
+              end 
+            end
+
             if @@ldap_search_con.nil?
               @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
             end
@@ -693,7 +706,6 @@ module UserMixins
               logger.debug( "User not found in ldap" )
               return nil
             end
-            ldap_info = Array.new
             # Attempt to authenticate user
             case LDAP_AUTHENTICATE
             when :local then
@@ -736,7 +748,8 @@ module UserMixins
                 user_con.unbind()
               end
             end
-            logger.debug( "login success = #{ldap_info}" )
+            Rails.cache.write(key, password, :expires_in => 2.minute)
+            logger.debug( "login success for checking with ldap server" )
             ldap_info
           end
 
