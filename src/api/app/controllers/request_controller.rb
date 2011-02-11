@@ -540,13 +540,13 @@ class RequestController < ApplicationController
         else
           # for requests not yet accepted or accepted with OBS 2.0 and before
           spkg = DbPackage.get_by_project_and_name( action.source.project, action.source.package )
-          tpkg = nil
-          if @http_user
-            if DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = false )
-              tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
-            else
-              tprj = DbProject.get_by_name( action.target.project )
-            end
+          tpkg = linked_tpkg = nil
+          if DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = false )
+            tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+          elsif DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = true )
+            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+          else
+            tprj = DbProject.get_by_name( action.target.project )
           end
 
           if tpkg
@@ -555,8 +555,11 @@ class RequestController < ApplicationController
             if action.source.data['rev']
               path += "&rev=#{action.source.rev}"
             end
+            if linked_tpkg
+              diff_text = "New package instance: " + action.target.project + "/" + action.target.package + " following diff contains diff to package from linked project.\n" + diff_text
+            end
           else
-            diff_text = "New package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
+            diff_text = "Additional package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
           end
         end
 
