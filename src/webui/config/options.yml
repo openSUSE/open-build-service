@@ -19,6 +19,12 @@ exception_recipients: []
 # Use static.opensuse.org for static style content
 #use_static: build.o.o
 
+# Download base URL of published binaries
+#download_url: http://myhost:82/
+
+# Bugzilla link url for creating bugreports for projects or packages
+#bugzilla_host: http://bugzilla.myproject.org
+
 # Hide private options in webui, like source or binary protection 
 # hide_private_options: true
 
