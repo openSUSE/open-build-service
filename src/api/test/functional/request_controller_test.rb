@@ -413,7 +413,7 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", req
     assert_response 400
-    assert_select "status[code] > summary", /target project does not exist/
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_target_package' } )
 
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
@@ -637,6 +637,7 @@ end
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
+
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )

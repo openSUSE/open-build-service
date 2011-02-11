@@ -1,4 +1,5 @@
 
+include MaintenanceHelper
 include ProductHelper
 
 class RequestController < ApplicationController
@@ -188,6 +189,54 @@ class RequestController < ApplicationController
   def create_create
     req = BsRequest.new(request.body.read)
 
+    # expand merge and submit request targets if not specified
+    req.each_action do |action|
+      if [ "submit", "merge" ].include?(action.data.attributes["type"])
+        unless action.has_element? 'target'
+          packages = Array.new
+          if action.source.has_attribute? 'package'
+            packages << DbPackage.get_by_project_and_name( action.source.project, action.source.package )
+          else
+            prj = DbProject.get_by_name action.source.project
+            packages = prj.db_packages
+          end
+
+          packages.each do |pkg|
+            # find target via linkinfo or fail
+            data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
+            e = data.elements["directory/linkinfo"]
+            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
+              render_error :status => 400, :errorcode => 'unknown_target_package',
+                :message => "target package does not exist"
+              return
+            end
+            newAction = action.clone
+            newAction.add_element 'target' unless newAction.has_element? 'target'
+            newAction.source.data.attributes["package"] = pkg.name
+            newAction.target.data.attributes["project"] = e.attributes["project"]
+            newAction.target.data.attributes["package"] = e.attributes["package"]
+            if action.data.attributes["type"] == "merge" and not newAction.source.has_attribute? 'rev'
+              # merge needs the binaries, so we always use the current source
+              rev=nil
+              if e.attributes["xsrcmd5"]
+                rev=e.attributes["xsrcmd5"]
+              elsif e.attributes["srcmd5"]
+                rev=e.attributes["srcmd5"]
+              else
+                render_error :status => 400, :errorcode => 'broken_source',
+                  :message => "Current sources are broken"
+                return
+              end
+              newAction.source.data.attributes["rev"] = rev
+            end
+            req.add_node newAction.data
+          end
+          req.delete_element action
+        end
+      end
+    end
+
+    # permission checks
     req.each_action do |action|
       # find objects if specified or report error
       role=nil
@@ -386,15 +435,7 @@ class RequestController < ApplicationController
         elsif action.has_element? 'source' and action.source.has_attribute? 'package'
           tpkg = tprj.db_packages.find_by_name action.source.package
         end
-      elsif action.has_element? 'source'
-        # find target via linkinfo or fail
-        data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}") )
-        data.elements.each("directory/linkinfo") do |e|
-          tprj = DbProject.find_by_name e.attributes["project"]
-          tpkg = tprj.db_packages.find_by_name e.attributes["package"]
-        end
       end
-
       if action.has_element? 'source'
         # Creating submit request from packages where no maintainer right exists will enforce a maintainer review
         # to avoid that random people can submit versions without talking to the maintainers 
@@ -404,7 +445,7 @@ class RequestController < ApplicationController
             review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
           end
         else
-          sprj = DbPackage.find_by_name action.source.project
+          sprj = DbProject.find_by_name action.source.project
           if sprj and not @http_user.can_modify_project? sprj
             review_packages.push({ :by_project => action.source.project })
           end
@@ -445,7 +486,7 @@ class RequestController < ApplicationController
       review_packages.each do |p|
         e = req.add_element "review"
         e.data.attributes["by_project"] = p[:by_project]
-        e.data.attributes["by_package"] = p[:by_package]
+        e.data.attributes["by_package"] = p[:by_package] if p[:by_package]
         e.data.attributes["state"] = "new"
       end
     end
@@ -936,7 +977,11 @@ class RequestController < ApplicationController
         req.save
 
       elsif action.data.attributes["type"] == "merge"
-#FIXME2.3: implement me
+        pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
+        tprj = DbProject.get_by_name(action.target.project)
+
+#FIXME2.3: support limiters to specified repositories
+        merge_package(pkg, tprj, action.target.package, action.source.rev, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"

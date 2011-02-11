@@ -186,17 +186,16 @@ class SourceController < ApplicationController
           return
         end
         dispatch_command
+        return
+      end
 
-        # read meta data from backend to restore database object
-        path = request.path + "/_meta"
-        Project.new(backend_get(path)).save
-
-        # restore all package meta data objects in DB
-        backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}'"
-        backend_pkgs.each_package do |package|
-          path = request.path + "/" + package.name + "/_meta"
-          Package.new(backend_get(path), :project => params[:project]).save
+      if 'release' == command
+        unless @http_user.can_create_project?(project_name) and pro.nil?
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
+            :message => "no permission to execute command '#{command}'"
+          return
         end
+        dispatch_command
         return
       end
 
@@ -1269,6 +1268,43 @@ class SourceController < ApplicationController
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
     pass_to_backend path
+
+    # read meta data from backend to restore database object
+    path = request.path + "/_meta"
+    Project.new(backend_get(path)).save
+
+    # restore all package meta data objects in DB
+    backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"
+    backend_pkgs.each_package do |package|
+      path = request.path + "/" + package.name + "/_meta"
+      Package.new(backend_get(path), :project => params[:project]).save
+    end
+  end
+
+  # POST /source/<project>?cmd=release
+  def index_project_release
+    valid_http_methods :post
+    params[:user] = @http_user.login
+    project_name = params[:project]
+    oproject = params[:oproject]
+    repository = params[:repository]
+
+    # create new project object based on oproject
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    pass_to_backend path
+
+    # read meta data from backend to restore database object
+    path = request.path + "/_meta"
+    Project.new(backend_get(path)).save
+
+    # restore all package meta data objects in DB
+    backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"
+    backend_pkgs.each_package do |package|
+      path = request.path + "/" + package.name + "/_meta"
+      Package.new(backend_get(path), :project => params[:project]).save
+    end
   end
 
   # POST /source/<project>?cmd=createpatchinfo

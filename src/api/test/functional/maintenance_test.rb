@@ -202,7 +202,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "maintenance_coord", "power"
 
     # setup a maintained distro
-    post "/source/BaseDistro/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+    post "/source/BaseDistro3/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
     # create a maintenance incident
@@ -213,20 +215,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     maintenanceProject=data.elements["/status/data"].text
 
     # submit packages via mbranch
-    post "/source", :cmd => "branch", :package => "pack1", :target_project => maintenanceProject
+    post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
     assert_response :success
-
-if $ENABLE_BROKEN_TEST
-    # check all build flags
 
     # create release request
     post "/request?cmd=create", '<request>
                                    <action type="merge">
-                                     <source project="My:Maintenance:ID" />
+                                     <source project="' + maintenanceProject + '" />
                                    </action>
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
@@ -235,7 +236,6 @@ if $ENABLE_BROKEN_TEST
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
-end
   end
 
 end

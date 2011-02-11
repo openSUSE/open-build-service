@@ -69,4 +69,34 @@ module MaintenanceHelper
     return mi
   end
 
+  def merge_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
+    # create package container, if missing
+    unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
+      new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      new.flags = sourcePackage.flags
+#FIXME2.3 validate that there are no build enable flags
+      targetProject.db_packages << new
+      new.save
+    end
+
+    # merge binaries
+#FIXME2.3: find out about used revision of binaries
+
+    # merge sources
+    # backend copy of current sources
+    cp_params = {
+      :cmd => "copy",
+      :user => @http_user.login,
+      :oproject => sourcePackage.db_project.name,
+      :opackage => sourcePackage.name,
+      :comment => "Merge from project " + sourcePackage.db_project.name,
+      :keeplink => "1",
+#      :keeprevision => "1", #FIXME2.3: needs to be supported by backend
+    }
+    cp_params[:requestid] = request.id if request
+    cp_path = "/source/#{targetProject.name}/#{targetPackageName}"
+    cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :keeplink])
+    Suse::Backend.post cp_path, nil
+
+  end
 end
