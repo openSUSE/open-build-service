@@ -969,7 +969,14 @@ sub createSPECfileFlavors ( $$ ) {
       }
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
-      $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
+      # take media style from first media. not nice, but we can only have one product package for all of them.
+      my $medium = $prodRef->{mediasets}->{media}[0];
+      if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+        $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
+      } else {
+        # this is the product version and release, not a package release.
+        $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{version}-$product->{release}\n";
+      }
       if (defined($flavor->{'productdependency'})){
 	foreach my $dependency (@{$flavor->{'productdependency'}}){
 	    my ($relship, $version, $patchlevel, $flavor, $release, $flag);
