@@ -27,18 +27,29 @@
               <% end %>
             </td>
             <% @roles.each do |role| %>
-              <% if defined? @package %>
-                <td><%= check_box_tag(user + "-" + role, '', @package.user_has_role?(user, role) || @project.user_has_role?(user, role)) %><%= role.capitalize %></td>
-              <% else %>
-                <td><%= check_box_tag(user + "-" + role, '', @project.user_has_role?(user, role)) %><%= role.capitalize %></td>
-              <% end %>
+              <td>
+                <% if defined? @package %>
+                  <%= check_box_tag("role_" + user + "_" + role, '', @package.user_has_role?(user, role) || @project.user_has_role?(user, role)) %><%= role.capitalize %>
+                <% else %>
+                  <%= check_box_tag("role_" + user + "_" + role, '', @project.user_has_role?(user, role)) %><%= role.capitalize %>
+                <% end %>
+                <script type="text/javascript">
+                  $('#role_<%= user %>_<%= role %>').change(function() {
+                    if ($('#role_<%= user %>_<%= role %>').attr('checked')) {
+                      <%= remote_function(:update => "", :url => {:action => "save_person", :project => @project, :package => @package, :userid => user, :role => role}) %>
+                    } else {
+                      <%= remote_function(:update => "", :url => {:action => "remove_person", :project => @project, :package => @package, :userid => user, :role => role}) %>
+                    }
+                  });
+                </script>
+              </td>
             <% end %>
             <td>
               <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
               <% mail_to += '/' + @package.name if defined? @package %>
               <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
               <% if @user and @user.is_maintainer?(@project, @package) %>
-                <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => :remove_person, :project => @project, :userid => user, :package => @package}, {:confirm => "Really remove user '#{user}'?", :method => :post}%>
+                <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
               <% end %>
             </td>
           </tr>
@@ -70,12 +81,30 @@
           <tr>
             <td><%= group %></td/>
             <% @roles.each do |role| %>
-              <% #TODO do when users work %>
+              <td>
+                <% if defined? @package %>
+                  <%= check_box_tag("role_" + group + "_" + role, '', @package.group_has_role?(group, role) || @project.group_has_role?(group, role)) %><%= role.capitalize %>
+                <% else %>
+                  <%= check_box_tag("role_" + group + "_" + role, '', @project.group_has_role?(group, role)) %><%= role.capitalize %>
+                <% end %>
+                <% #TODO: Add respective controller actions to support group addition / removal %>
+                <script type="text/javascript">
+                  $('#role_<%= group %>_<%= role %>').change(function() {
+                    if ($('#role_<%= group %>_<%= role %>').attr('checked')) {
+                      <%= remote_function(:update => "", :url => {:action => "save_group", :project => @project, :package => @package, :groupid => user, :role => role}) %>
+                    } else {
+                      <%= remote_function(:update => "", :url => {:action => "remove_group", :project => @project, :package => @package, :groupid => user, :role => role}) %>
+                    }
+                  });
+                </script>
+              </td>
             <% end %>
             <td>
               <% if @user and @user.is_maintainer?(@project, @package) %>
-                <% #TODO: Remove group %>
+                <% #TODO: Add respective controller actions to support group addition / removal %>
                 <%= image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group") %>
+
+                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => user}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
               <% end %>
             </td>
           </tr>
