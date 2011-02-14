@@ -89,7 +89,7 @@
         <th>Date</th>
         <th>State</th>
         <th>User</th>
-        <th style="width: 70%">Comment</th>
+        <th style="width: 70%">Comment for Reviewer</th>
       </tr>
     </thead>
     <tbody>
@@ -107,110 +107,103 @@
 
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
   <% content_for :head_javascript do %>
-    function insertRow() {
-      var type = $('#add_review_type').attr('value');
-      var name = $('#add_review_name').attr('value');
-      var comment = $('#add_review_comment').attr('value');
-      var path = "/request/addreviewer/<%=@id%>?comment=" + encodeURIComponent(comment) +
-                                              "&" + type.toLowerCase() + "=" + encodeURIComponent(name);
-      $('#spinner').show();
-      $.ajax({type: "POST", url: path,
-        success: function(review) { 
-          $('#spinner').hide();
-
-          $('#review_table tr:last').before(
-            '<tr>' +
-              '<td id="review_state_">' + review + '</td>' +
-              '<td id="review_type_">' + type + '</td>' +
-              '<td id="review_name_">' + name + '</td>' +
-              '<td id="review_comment_">' + comment + '</td>' +
-              '<td>' + '</td>' +
-            '</tr>');
-          $('#add_review_name').text("");
-          $('#add_review_comment').text("");
-        }
-      })
-    }
-
     function modifyReview(id, new_state) {
-      var comment = $('#review_comment_' + id).text();
-      var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) +
-                                                    "&comment=" + encodeURIComponent(comment) +
-                                                    "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
+      var comment = $('#review_comment_' + id).attr('value');
+      var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
+      if ($('#review_type_' + id).text() == "package") {
+        project_and_package = $('#review_name_' + id).text().split(' / ');
+        path += "&project=" + encodeURIComponent(project_and_package[0].trim());
+        path += "&package=" + encodeURIComponent(project_and_package[1].trim());
+      } else {
+        path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
+      }
       $.ajax({type: "POST", url: path,
         success: function(data) {
           $('#review_table td#review_state_' + id).text(data);
-          $('#review_table td#review_comment_' + id).text(comment);
           $('#review_table td#review_buttons_' + id).text("");
+          $('#review_table td #review_comment_' + id).parent().html(comment);
         }
       })
     }
   <% end %>
 
   <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author) %>
-    <h3>Reviews</h3>
-    <table id="review_table">
-      <tr>
-        <th style="width: 1%">State</th>
-        <th style="width: 1%">Type</th>
-        <th style="width: 8%">Reviewer</th>
-        <th style="width: 90%">Comment</th>
-        <th style="width: 1%">Actions</th>
-      </tr>
-      <% @req.each_review do |r| %>
-        <%- comment = r.comment if r.has_element? :comment or nil%>
+    <% if @req.each_review.length > 0 %>
+      <h3>Reviews</h3>
+      <table id="review_table">
         <tr>
-          <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
-          <% if r.has_attribute? :by_user %>
-            <td id="review_type_<%= r.id %>">user</td>
-            <td id="review_name_<%= r.id %>"><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
-          <% elsif r.has_attribute? :by_group %>
-            <td id="review_type_<%= r.id %>">group</td>
-            <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
-          <% elsif r.has_attribute? :by_project %>
-            <% if r.has_attribute? :by_package %>
-              <td id="review_type_<%= r.id %>">package</td>
-              <td id="review_name_<%= r.id %>"><%= link_to(r.by_project +" / "+ r.by_package, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %></td>
-            <% else %>
-              <td id="review_type_<%= r.id %>">project</td>
-              <td id="review_name_<%= r.id %>"><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
-            <% end %>
-          <% end %>
-
-          <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and
-                ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
-                 (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
-                 (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
-            <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
-            <td id="review_buttons_<%= r.id %>">
-              <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted')") %>
-              <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{r.id}, 'declined')") %>
-            </td>
-          <% else %>
-            <td><%= comment %></td>
-            <td></td>
-          <% end %>
+          <th style="width: 1%">State</th>
+          <th style="width: 1%">Type</th>
+          <th style="width: 8%">Reviewer</th>
+          <th style="width: 90%">Reviewer Comment</th>
+          <th style="width: 1%">Actions</th>
         </tr>
-      <%end%>
-    </table>
+        <% @req.each_review do |r| %>
+          <%- comment = r.comment if r.has_element? :comment or nil%>
+          <tr>
+            <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
+            <% if r.has_attribute? :by_user %>
+              <td id="review_type_<%= r.id %>">user</td>
+              <td id="review_name_<%= r.id %>"><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
+            <% elsif r.has_attribute? :by_group %>
+              <td id="review_type_<%= r.id %>">group</td>
+              <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
+            <% elsif r.has_attribute? :by_project %>
+              <% if r.has_attribute? :by_package %>
+                <td id="review_type_<%= r.id %>">package</td>
+                <td id="review_name_<%= r.id %>" class ="nowrap">
+                  <%= link_to(r.by_project.to_s + ' / ' + r.by_package.to_s, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %>
+                </td>
+              <% else %>
+                <td id="review_type_<%= r.id %>">project</td>
+                <td id="review_name_<%= r.id %>"><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
+              <% end %>
+            <% end %>
+
+            <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and
+                  ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
+                   (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
+                   (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
+              <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
+              <td id="review_buttons_<%= r.id %>">
+                <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted')") %>
+                <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{r.id}, 'declined')") %>
+              </td>
+            <% else %>
+              <td><%= comment %></td>
+              <td></td>
+            <% end %>
+          </tr>
+        <%end%>
+      </table>
+    <% end %>
 
     <% if (@req.state.name == "review" || @req.state.name == "new") %>
       <% form_tag(:action => "addreviewer") do %>
         <h3>Add Reviewer</h3>
         <p>
           <%= hidden_field_tag("request_id", @id) %>
-          <strong>Type:</strong><br/>
-          <%= select_tag("type", options_for_select(["user", "group", "project", "package"])) %><br/>
-          <strong>User:</strong><br/>
-          <%= text_field_tag("user") %><br/>
-          <strong>Group:</strong><br/>
-          <%= text_field_tag("group") %><br/>
-          <strong>Project:</strong><br/>
-          <%= text_field_tag("project") %><br/>
-          <strong>Package:</strong><br/>
-          <%= text_field_tag("package") %><br/>
-          <strong>Your comment:</strong><br/>
-          <%= text_field_tag("comment") %>
+          <b>Type:</b><br/>
+          <%= select_tag("review_type", options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
+          <b id="review_name_label">User:</b><br/>
+          <%= text_field_tag("review_name") %><br/>
+          <span id="review_package_span" class="hidden">
+            <b>Package:</b><br/>
+            <%= text_field_tag("review_package") %><br/>
+          </span>
+          <b>Comment for reviewer:</b><br/>
+          <%= text_field_tag("review_comment") %>
+          <script type="text/javascript">
+            $('#review_type').change(function() {
+                if ($('#review_type option:selected').attr('value') == 'package') {
+                  $('#review_name_label').text("Project:");
+                  $('#review_package_span').show();
+                } else {
+                  $('#review_name_label').text($('#review_type option:selected').text() + ':');
+                  $('#review_package_span').hide();
+                }
+            });
+          </script>
         </p>
         <p><%= submit_tag("Add reviewer") %></p>
       <% end %>
@@ -220,7 +213,7 @@
   <% form_tag(:action => "changerequest") do %>
     <h3>Handle Request</h3>
     <p>
-      <strong>Your comment:</strong><br/>
+      <b>Comment for requester:</b><br/>
       <%= text_field_tag(:reason, '' , :style => "width: 99%") %>
     </p>
     <p>

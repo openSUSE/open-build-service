@@ -1,8 +1,8 @@
 class RequestController < ApplicationController
 
   def addreviewer
-    @therequest = find_cached(BsRequest, params[:id]) if params[:id]
-    BsRequest.free_cache(params[:id])
+    @therequest = find_cached(BsRequest, params[:request_id]) if params[:request_id]
+    BsRequest.free_cache(params[:request_id])
 
     begin
       opts = {}
@@ -10,8 +10,10 @@ class RequestController < ApplicationController
         when "user" then opts[:user] = params[:review_name]
         when "group" then opts[:group] = params[:review_name]
         when "project" then opts[:project] = params[:review_name]
+        when "package" then opts[:project] = params[:review_name]
+                            opts[:package] = params[:review_package]
       end
-      opts[:comment] = params[:comment] if params[:comment]
+      opts[:comment] = params[:review_comment] if params[:review_comment]
 
       BsRequest.addReview(params[:request_id], opts)
     rescue BsRequest::ModifyError => e
@@ -25,7 +27,7 @@ class RequestController < ApplicationController
     BsRequest.free_cache(params[:id])
 
     begin
-      BsRequest.modifyReview(params[:id], params)
+      BsRequest.modifyReview(params[:id], params[:new_state], params)
       render :text => params[:new_state]
     rescue BsRequest::ModifyError => e
       render :text => e.message
