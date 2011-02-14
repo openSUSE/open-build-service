@@ -925,9 +925,6 @@ class ProjectController < ApplicationController
 
   def edit_comment_form
     @comment = params[:comment]
-    :q
-    :
-
     @project = params[:project]
     @package = params[:package]
     render :partial => "edit_comment_form"
