@@ -2,8 +2,10 @@
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :list_requests), @pagetitle] %>
 
 <% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
   <%= javascript_include_tag 'jquery.tooltip.min'  %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
   <%= stylesheet_link_tag "jquery.tooltip" %>
 <% end %>
 
@@ -185,23 +187,64 @@
           <%= hidden_field_tag("request_id", @id) %>
           <b>Type:</b><br/>
           <%= select_tag("review_type", options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
-          <b id="review_name_label">User:</b><br/>
-          <%= text_field_tag("review_name") %><br/>
+          <span id="review_user_span">
+            <b>User:</b><br/>
+            <%= text_field_tag("review_user") %><br/>
+            <% #TODO: Add user autocompletion %>
+          </span>
+          <span id="review_group_span" class="hidden">
+            <b>Group:</b><br/>
+            <%= text_field_tag("review_group") %><br/>
+            <% #TODO: Add group autocompletion %>
+          </span>
+          <span id="review_project_span" class="hidden">
+            <b>Project:</b><br/>
+            <%= text_field_tag("review_project") %><br/>
+            <script type="text/javascript">
+              $("#project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
+                minChars: 2, matchCase: true, max: 50
+              });
+            </script>
+          </span>
           <span id="review_package_span" class="hidden">
             <b>Package:</b><br/>
             <%= text_field_tag("review_package") %><br/>
+            <script type="text/javascript">
+              $("#package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+                minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#project").val(); }}
+              });
+            </script>
           </span>
           <b>Comment for reviewer:</b><br/>
           <%= text_field_tag("review_comment") %>
           <script type="text/javascript">
             $('#review_type').change(function() {
-                if ($('#review_type option:selected').attr('value') == 'package') {
-                  $('#review_name_label').text("Project:");
-                  $('#review_package_span').show();
-                } else {
-                  $('#review_name_label').text($('#review_type option:selected').text() + ':');
+              switch($('#review_type option:selected').attr('value')) {
+                case "user": {
+                  $('#review_user_span').show();
+                  $('#review_group_span').hide();
+                  $('#review_project_span').hide();
                   $('#review_package_span').hide();
-                }
+                } break;
+                case "group": {
+                  $('#review_user_span').hide();
+                  $('#review_group_span').show();
+                  $('#review_project_span').hide();
+                  $('#review_package_span').hide();
+                } break;
+                case "project": {
+                  $('#review_user_span').hide();
+                  $('#review_group_span').hide();
+                  $('#review_project_span').show();
+                  $('#review_package_span').hide();
+                } break;
+                case "package": {
+                  $('#review_user_span').hide();
+                  $('#review_group_span').hide();
+                  $('#review_project_span').show();
+                  $('#review_package_span').show();
+                } break;
+              }
             });
           </script>
         </p>
