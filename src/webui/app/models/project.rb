@@ -158,7 +158,7 @@ class Project < ActiveXML::Base
     if not opt.empty?
       opt_arr = []
       opt.each do |k,v|
-        opt_arr << "@#{k}='#{v}'"
+        opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?
       end
       xpath += "[#{opt_arr.join ' and '}]"
     end

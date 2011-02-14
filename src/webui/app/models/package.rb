@@ -62,12 +62,15 @@ class Package < ActiveXML::Base
   end
 
   #removes persons based on attributes
+  def remove_person(person, role=nil)
+
+  end
   def remove_persons( opt={} )
     xpath="//person"
     if not opt.empty?
       opt_arr = []
       opt.each do |k,v|
-        opt_arr << "@#{k}='#{v}'"
+        opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?
       end
       xpath += "[#{opt_arr.join ' and '}]"
     end
