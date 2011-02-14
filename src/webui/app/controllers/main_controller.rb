@@ -4,6 +4,8 @@ require 'models/latest_updated'
 
 class MainController < ApplicationController
 
+  before_filter :check_xhr, :except => [:index, :sitemap, :sitemap_projects_subpage, :sitemap_projects, :about, :sitemap_packages]
+
   def index
     @user ||= Person.find :login => session[:login] if session[:login]
 

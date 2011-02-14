@@ -357,4 +357,8 @@ class ApplicationController < ActionController::Base
        @@frontend = nil
     end
   end
+
+  def check_xhr
+    redirect_to :action => "index" and return unless request.xhr?
+  end
 end
