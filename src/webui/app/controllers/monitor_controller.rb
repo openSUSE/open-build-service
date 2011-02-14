@@ -1,7 +1,6 @@
 class MonitorController < ApplicationController
 
   skip_before_filter :check_user, :only => [ :plothistory ]
-  before_filter :check_xhr, :except => [:old, :index]
 
   def old
     get_settings

@@ -1,11 +1,5 @@
 class RequestController < ApplicationController
 
-  before_filter :check_xhr, :except => [:index, :show]
-
-  def index
-    redirect_to :controller => "home", :action => "list_requests"
-  end
-
   def addreviewer
     @therequest = find_cached(BsRequest, params[:id]) if params[:id]
     BsRequest.free_cache(params[:id])

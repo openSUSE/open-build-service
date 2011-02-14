@@ -24,7 +24,6 @@ class ProjectController < ApplicationController
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
-  before_filter :check_xhr, :only => [:package_buildresult, :buildresult]
 
   def index
     redirect_to :action => 'list_public'
@@ -259,6 +258,9 @@ class ProjectController < ApplicationController
   protected :load_buildresult
 
   def buildresult
+    unless request.xhr?
+      render :text => 'no ajax', :status => 400 and return
+    end
     load_buildresult false
     render :partial => 'buildstatus'
   end
@@ -801,6 +803,10 @@ class ProjectController < ApplicationController
 
   # should be in the package controller, but all the helper functions to render the result of a build are in the project
   def package_buildresult
+    unless request.xhr?
+      render :text => 'no ajax', :status => 400 and return
+    end
+
     @project = params[:project]
     @package = params[:package]
     begin
@@ -1170,7 +1176,7 @@ class ProjectController < ApplicationController
   def require_project
     if !valid_project_name? params[:project]
       unless request.xhr?
-        flash[:error] = "'#{params[:project]}' is not a valid project name"
+        flash[:error] = "#{params[:project]} is not a valid project name"
         redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
       else
         render :text => 'Not a valid project name', :status => 404 and return

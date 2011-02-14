@@ -2,7 +2,6 @@ class HomeController < ApplicationController
   
   before_filter :require_login
   before_filter :check_user
-  before_filter :check_xhr, :except => [:index, :list_requests, :list_my]
   
   def index
     user = find_cached(Person, params['user'] ) if params['user']

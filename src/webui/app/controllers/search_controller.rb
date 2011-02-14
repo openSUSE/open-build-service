@@ -1,13 +1,14 @@
 class SearchController < ApplicationController
 
   before_filter :set_attribute_list
-  before_filter :check_xhr, :except => [:index, :search]
 
   def index
     @search_what = %w{ package project }
   end
 
+
   def search
+
     required_parameters :search_text
 
     @search_text = params[:search_text]
@@ -140,9 +141,11 @@ class SearchController < ApplicationController
     @results.sort! { |a,b| b[:weight] <=> a[:weight] }
   end
 
+
   def log_weight(log_prefix, reason, new_weight)
     logger.debug "#{log_prefix} #{reason}, new weight=#{new_weight}"
   end
+
 
 end
 
@@ -162,4 +165,7 @@ def set_attribute_list
       end
     end
   end
+  
 end
+
+
