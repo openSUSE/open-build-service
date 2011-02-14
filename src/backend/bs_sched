@@ -3763,6 +3763,12 @@ while(1) {
 	next;
       }
 
+      if ($ev->{'type'} eq 'wipenotyet') {
+        my $prp = "$ev->{'project'}/$ev->{'repository'}";
+        delete $nextmed{$prp};
+        next;
+      }
+
       if ($ev->{'type'} eq 'wipe') {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
