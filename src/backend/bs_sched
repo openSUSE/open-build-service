@@ -3711,13 +3711,20 @@ while(1) {
       if ($ev->{'type'} eq 'rebuild' || $ev->{'type'} eq 'recheck') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
-	for my $prp (@prps) {
-	  if ((split('/', $prp, 2))[0] eq $projid) {
-	    $changed_high{$prp} ||= 1;
-	    $changed_dirty{$prp} = 1;
-	  }
-	}
-	$changed_high{$projid} ||= 1;
+	my $repoid = $ev->{'repository'};
+        if (defined($repoid)) {
+          my $prp = "$projid/$repoid";
+          $changed_high{$prp} ||= 1;
+          $changed_dirty{$prp} = 1;
+        } else {
+          for my $prp (@prps) {
+            if ((split('/', $prp, 2))[0] eq $projid) {
+              $changed_high{$prp} ||= 1;
+              $changed_dirty{$prp} = 1;
+            }
+          }
+	  $changed_high{$projid} ||= 1;
+        }
 	next;
       }
 
