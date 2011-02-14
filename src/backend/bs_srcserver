@@ -4964,13 +4964,21 @@ sub createrequest {
   for my $r (@{$req->{'review'} || []}) {
     my $notification = BSNotify::requestParams($req, $cgi->{'user'});
     my $hermes_type;
-    if ($r->{'by_user'}) {
+    if ($r->{'by_package'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED";
+      $notification->{'newreviewer_project'} = $r->{'by_project'};
+      $notification->{'newreviewer_package'} = $r->{'by_package'};
+    }elsif ($r->{'by_project'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED";
+      $notification->{'newreviewer_project'} = $r->{'by_project'};
+    } elsif ($r->{'by_user'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
       $notification->{'newreviewer'} = $r->{'by_user'};
     } elsif ($r->{'by_group'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
-      $notification->{'newreviewer'} = $r->{'by_group'};
+      $notification->{'newreviewer_group'} = $r->{'by_group'};
     }
+    $notification->{'comment'} = $r->{'comment'};
     BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
    }
 
@@ -5087,13 +5095,21 @@ sub postrequest {
   my $hermes_type;
   my $notification = BSNotify::requestParams($req, $cgi->{'user'});
   if ($cmd eq 'addreview') {
-    if ($cgi->{'by_user'}) {
+    if ($cgi->{'by_package'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED";
+      $notification->{'newreviewer_project'} = $cgi->{'by_project'};
+      $notification->{'newreviewer_package'} = $cgi->{'by_package'};
+    }elsif ($cgi->{'by_project'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED";
+      $notification->{'newreviewer_project'} = $cgi->{'by_project'};
+    } elsif ($cgi->{'by_user'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
       $notification->{'newreviewer'} = $cgi->{'by_user'};
     } elsif ($cgi->{'by_group'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
-      $notification->{'newreviewer'} = $cgi->{'by_group'};
+      $notification->{'newreviewer_group'} = $cgi->{'by_group'};
     }
+    $notification->{'comment'} = $cgi->{'comment'};
   } else {
     if( $cgi->{'newstate'} eq "accepted" ) {
       $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
