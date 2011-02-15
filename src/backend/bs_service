@@ -50,7 +50,7 @@ use strict;
 undef $BSConfig::bsuser;	# need to stay root
 undef $BSConfig::bsgroup;
 
-my $buildroot;
+my $tempdir = $BSConfig::servicetempdir || "/var/tmp";
 my $port = 5152;
 $port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
 my $silent;
@@ -66,9 +66,9 @@ sub usage {
   my ($ret) = @_;
 
 print <<EOF;
-Usage: $0 [OPTION] [--root <directory>]
+Usage: $0 [OPTION] [--tempdir <directory>]
 
-       --root      : buildroot directory (switches to daemon mode)
+       --tempdir   : temp dir directory (switches to daemon mode)
 
        --port      : fixed port number
 
@@ -85,9 +85,9 @@ my @argv = @ARGV;	# need to make copy for restart feature
 while (@argv) {
   usage(0) if $argv[0] eq '--help';
   exit 0 if $argv[0] eq '--test'; # just for self-startup test
-  if ($argv[0] eq '--root') {
+  if ($argv[0] eq '--root' || $argv[0] eq '--tempdir') {
     shift @argv;
-    $buildroot = shift @argv;
+    $tempdir = shift @argv;
     next;
   }
   if ($argv[0] eq '--port') {
@@ -98,7 +98,7 @@ while (@argv) {
   last;
 }
 
-usage(1) unless $buildroot;
+usage(1) unless $tempdir;
 
 sub rm_rf {
   my ($dir) = @_;
@@ -109,7 +109,7 @@ sub rm_rf {
 sub run_source_update {
   my ($cgi, $projid, $packid) = @_;
 
-  my $myworkdir = $buildroot."/".$$;
+  my $myworkdir = $tempdir."/".$$;
   BSUtil::cleandir($myworkdir);
   mkdir_p($myworkdir);
   die("$myworkdir not writable for me") unless -w $myworkdir;
