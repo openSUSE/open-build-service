@@ -53,9 +53,8 @@
             <% end %>
           </td>
           <td class="nowrap">
-            <% if req.has_element? :state %>
-              <span title="<%= req.state.who %>"><%= link_to(elide(req.state.who, 12), :controller => :home, :user => req.state.who) %></span>
-            <% end %>
+            <% creator = BsRequest.creator(req) %>
+            <%= link_to(elide(creator, 12), :controller => :home, :user => creator) %>
           </td>
           <td class="nowrap">
             <%= reqtype(req) %>
