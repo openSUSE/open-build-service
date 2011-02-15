@@ -1,4 +1,7 @@
 class Person < ActiveXML::Base
+
+  class ListError < Exception; end
+
   default_find_parameter :login
 
   handles_xml_element 'person'
@@ -134,6 +137,24 @@ class Person < ActiveXML::Base
     return true if is_admin?
     return true if package and package.user_has_role?(login, role)
     return project.user_has_role?(login, role)
+  end
+
+  def self.list(prefix=nil)
+    user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
+      transport ||= ActiveXML::Config::transport_for(:person)
+      path = "/person?prefix=#{prefix}"
+      begin
+        logger.debug "Fetching user list from API"
+        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        logins = []
+        Collection.new(response).each {|user| logins << user.login}
+        logins
+      rescue ActiveXML::Transport::Error => e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        raise ListError, message
+      end
+    end
+    return user_list
   end
 
 end

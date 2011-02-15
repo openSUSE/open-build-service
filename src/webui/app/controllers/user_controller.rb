@@ -54,7 +54,6 @@ class UserController < ApplicationController
     redirect_to :controller => "home"
   end
 
-
   def register
     valid_http_methods(:post)
     begin
@@ -149,7 +148,12 @@ class UserController < ApplicationController
     end
 
     redirect_to :controller => :user, :action => :change_my_password
-
   end 
+
+  def autocomplete_users
+    required_parameters :q
+    @users = Person.list(params[:q])
+    render :text => @users.join("\n")
+  end
 
 end
