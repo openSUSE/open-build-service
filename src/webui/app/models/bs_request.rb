@@ -163,14 +163,10 @@ class BsRequest < ActiveXML::Base
 
     def creator(req)
       if req.has_element?(:history)
-        e = req.history('@name="new"')
-        e = req.history('@name="review"') if e.nil?
+        return req.history[0][:who]
       else
-        e = req.state
+        return req.state.who
       end
-      raise RuntimeError, 'broken request: no state/history named "new" or "review"' if e.nil?
-      raise RuntimeError, 'broken request: no attribute named "who"' unless e.has_attribute?(:who)
-      return e.who
     end
   end
 
