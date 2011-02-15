@@ -144,11 +144,11 @@ class BsRequest < ActiveXML::Base
       request_list = Rails.cache.fetch("request_list:#{opts.to_s}", :expires_in => 10.minutes) do
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request?view=collection"
-        path << "&state=#{opts[:state]}" if opts[:state]
-        path << "&type=#{opts[:type]}" if opts[:type]
-        path << "&user=#{opts[:user]}" if opts[:user]
-        path << "&project=#{opts[:project]}" if opts[:project]
-        path << "&package=#{opts[:package]}" if opts[:package]
+        path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
+        path << "&type=#{CGI.escape(opts[:type])}" if opts[:type]
+        path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
+        path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
+        path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
         begin
           logger.debug "Fetching request list from api"
           response = transport.direct_http URI("https://#{path}"), :method => "GET"
