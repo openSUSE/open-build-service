@@ -201,7 +201,9 @@
           <span id="review_user_span">
             <b>User:</b><br/>
             <%= text_field_tag("review_user") %><br/>
-            <% #TODO: Add user autocompletion %>
+            <script type="text/javascript">
+              $("#review_user").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
+            </script>
           </span>
           <span id="review_group_span" class="hidden">
             <b>Group:</b><br/>
