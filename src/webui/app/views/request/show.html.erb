@@ -17,13 +17,13 @@
 
 <div>
   <h3>Actions</h3>
-  <table style="width: 95%">
+  <table id="actions_table" class="tablesorter" style="width: 95%">
     <thead>
       <tr>
-        <th class="header">Type</th>
-        <th class="header">Source</th>
-        <th class="header">Target</th>
-        <th class="header">Info</th>
+        <th>Type</th>
+        <th>Source</th>
+        <th>Target</th>
+        <th>Info</th>
       </tr>
     </thead>
     <tbody>
@@ -78,6 +78,9 @@
       <% end %>
     </tbody>
   </table>
+  <script type="text/javascript">
+    $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
+  </script>
 </div>
 <% unless @req.value('description').empty? %>
   <p><%= format_comment(@req.value('description')) %></p>
@@ -85,7 +88,7 @@
 
 <div>
   <h3>History</h3>
-  <table style="width: 95%">
+  <table id="history_table" class="tablesorter" style="width: 95%">
     <thead>
       <tr>
         <th>Date</th>
@@ -105,6 +108,9 @@
       <% end %>
     </tbody>
   </table>
+  <script type="text/javascript">
+    $('#history_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
+  </script>
 </div>
 
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
@@ -131,53 +137,58 @@
 
   <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author) %>
     <% if @req.each_review.length > 0 %>
-      <h3>Reviews</h3>
-      <table id="review_table">
-        <tr>
-          <th style="width: 1%">State</th>
-          <th style="width: 1%">Type</th>
-          <th style="width: 8%">Reviewer</th>
-          <th style="width: 90%">Reviewer Comment</th>
-          <th style="width: 1%">Actions</th>
-        </tr>
-        <% @req.each_review do |r| %>
-          <%- comment = r.comment if r.has_element? :comment or nil%>
+      <div>
+        <h3>Reviews</h3>
+        <table id="review_table" class="tablesorter" style="width: 95%">
           <tr>
-            <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
-            <% if r.has_attribute? :by_user %>
-              <td id="review_type_<%= r.id %>">user</td>
-              <td id="review_name_<%= r.id %>"><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
-            <% elsif r.has_attribute? :by_group %>
-              <td id="review_type_<%= r.id %>">group</td>
-              <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
-            <% elsif r.has_attribute? :by_project %>
-              <% if r.has_attribute? :by_package %>
-                <td id="review_type_<%= r.id %>">package</td>
-                <td id="review_name_<%= r.id %>" class ="nowrap">
-                  <%= link_to(r.by_project.to_s + ' / ' + r.by_package.to_s, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %>
+            <th style="width: 1%">State</th>
+            <th style="width: 1%">Type</th>
+            <th style="width: 8%">Reviewer</th>
+            <th style="width: 89%">Reviewer Comment</th>
+            <th style="width: 1%">Actions</th>
+          </tr>
+          <% @req.each_review do |r| %>
+            <%- comment = r.comment if r.has_element? :comment or nil%>
+            <tr>
+              <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
+              <% if r.has_attribute? :by_user %>
+                <td id="review_type_<%= r.id %>">user</td>
+                <td id="review_name_<%= r.id %>"><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
+              <% elsif r.has_attribute? :by_group %>
+                <td id="review_type_<%= r.id %>">group</td>
+                <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
+              <% elsif r.has_attribute? :by_project %>
+                <% if r.has_attribute? :by_package %>
+                  <td id="review_type_<%= r.id %>">package</td>
+                  <td id="review_name_<%= r.id %>" class ="nowrap">
+                    <%= link_to(r.by_project.to_s + ' / ' + r.by_package.to_s, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %>
+                  </td>
+                <% else %>
+                  <td id="review_type_<%= r.id %>">project</td>
+                  <td id="review_name_<%= r.id %>"><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
+                <% end %>
+              <% end %>
+
+              <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and
+                    ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
+                     (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
+                     (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
+                <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
+                <td id="review_buttons_<%= r.id %>">
+                  <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted')") %>
+                  <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{r.id}, 'declined')") %>
                 </td>
               <% else %>
-                <td id="review_type_<%= r.id %>">project</td>
-                <td id="review_name_<%= r.id %>"><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
+                <td><%= comment %></td>
+                <td></td>
               <% end %>
-            <% end %>
-
-            <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and
-                  ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
-                   (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
-                   (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
-              <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
-              <td id="review_buttons_<%= r.id %>">
-                <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted')") %>
-                <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{r.id}, 'declined')") %>
-              </td>
-            <% else %>
-              <td><%= comment %></td>
-              <td></td>
-            <% end %>
-          </tr>
-        <%end%>
-      </table>
+            </tr>
+          <%end%>
+        </table>
+        <script type="text/javascript">
+          $('#review_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}, 4: {sorter: false}}});
+        </script>
+      </div>
     <% end %>
 
     <% if (@req.state.name == "review" || @req.state.name == "new") %>
