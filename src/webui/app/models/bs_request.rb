@@ -163,6 +163,8 @@ class BsRequest < ActiveXML::Base
 
     def creator(req)
       if req.has_element?(:history)
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
+        return req.history.who if req.history.class == ActiveXML::LibXMLNode
         return req.history[0][:who]
       else
         return req.state.who
