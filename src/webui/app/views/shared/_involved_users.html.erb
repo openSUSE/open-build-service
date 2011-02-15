@@ -3,7 +3,7 @@
 <% end %>
 
 <div id="involved_users">
-  <h3><%= @pagetitle %></h3>
+  <h3><%= @pagetitle %> <%= image_tag 'ajax-loader.gif', :id => 'spinner_users_table', :class => 'spinner hidden' %></h3>
 
   <% if @users and @users.length > 0 %>
     <table cellspacing='1' id="users_table" class="tablesorter">
@@ -17,15 +17,7 @@
       <tbody>
         <% @users.each do |user| %>
           <tr>
-            <td>
-              <%= gravatar_image(@emails[user]) %>
-              <% realname = Person.realname_for_login(user) %>
-              <% unless realname.empty? %>
-                <%= link_to(realname + ' (' + user + ')', :controller => 'home', :user => user) %>
-              <% else %>
-                <%= link_to(user, :controller => 'home', :user => user) %>
-              <% end %>
-            </td>
+            <td><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => user}%></td>
             <% @roles.each do |role| %>
               <td>
                 <% if defined? @package %>
@@ -68,6 +60,7 @@
   <% end %>
 
   <% if @groups and @groups.length > 0 %>
+    <h4>Groups <%= image_tag 'ajax-loader.gif', :id => 'spinner_groups_table', :class => 'spinner hidden' %></h3>
     <table cellspacing='1' id="groups_table" class="tablesorter">
       <thead>
         <tr>

@@ -104,8 +104,6 @@ class PackageController < ApplicationController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = @project.groups
     @roles = Role.local_roles
-    @emails = Hash.new
-    @users.each {|u| @emails[u] = Person.email_for_login(u)}
   end
 
   def list_requests

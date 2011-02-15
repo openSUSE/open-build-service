@@ -52,13 +52,8 @@
               <% end %>
             <% end %>
           </td>
-          <td class="nowrap">
-            <% creator = BsRequest.creator(req) %>
-            <%= link_to(elide(creator, 12), :controller => :home, :user => creator) %>
-          </td>
-          <td class="nowrap">
-            <%= reqtype(req) %>
-          </td>
+          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req)}%></td>
+          <td class="nowrap"><%= reqtype(req) %></td>
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle Request'), :controller => :request, :action => :show, :id => req.value(:id)) -%>
             <% if ae.has_element? :source %> 

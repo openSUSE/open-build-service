@@ -114,8 +114,6 @@ class ProjectController < ApplicationController
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
-    @emails = Hash.new
-    @users.each {|u| @emails[u] = Person.email_for_login(u)}
   end
 
   def subprojects

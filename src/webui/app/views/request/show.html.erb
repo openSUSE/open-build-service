@@ -102,7 +102,7 @@
         <tr>
           <td class="nowrap"><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
           <td><%= h[:name] %></td>
-          <td><%= link_to(h[:who], :controller => :home, :user => h[:who]) %></td>
+          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => h[:who]}%></td>
           <td><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
         </tr>
       <% end %>
@@ -153,7 +153,7 @@
               <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
               <% if r.has_attribute? :by_user %>
                 <td id="review_type_<%= r.id %>">user</td>
-                <td id="review_name_<%= r.id %>"><%= link_to(r.by_user, :controller => :home, :user => r.by_user) %></td>
+                <td id="review_name_<%= r.id %>"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => r.by_user}%></td>
               <% elsif r.has_attribute? :by_group %>
                 <td id="review_type_<%= r.id %>">group</td>
                 <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
