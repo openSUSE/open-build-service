@@ -158,8 +158,11 @@ sub runservice {
 
   # Run the source update in own process (do not wait for it)
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
-  # add _service file from project with different name
-  push @send, {'name' => '_serviceproject', 'filename' => "$srcrep/_project/$projectfiles->{'_service'}-_service"} if $projectfiles->{'_service'};
+  # add _service file from projects with different name
+  my ($projectservices, undef) = getprojectservices($cgi, $projid, $packid);
+  if ($projectservices) {
+    push @send, {'name' => '_serviceproject', 'data' => $projectservices};
+  };
   # run update as background job
   my $pid = xfork();
   return $BSStdServer::return_ok if $pid;
@@ -1750,6 +1753,62 @@ sub readpack {
   }
   return $pack;
 }
+
+# collect all globale source services via all package and project links
+sub getprojectservices {
+  my ($cgi, $projid, $packid, $projectloop) = @_;
+  my $servicelist;
+
+  # protection against loops and double matches
+  $projectloop = {} unless $projectloop;
+  return ({}, $BSXML::servicelist) if $projectloop->{$projid};
+  $projectloop->{$projid}=1;
+
+  # get source services from this project
+  my $projectrev = getrev($projid, '_project');
+  my $projectfiles = lsrev($projectrev);
+  if ($projectfiles->{'_service'}) {
+    $servicelist = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::servicelist, 1);
+  }
+
+  # find further projects via project link
+  my $proj = readproj($projid, 1);
+  for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+    my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
+    if (defined($as) && defined($as->{'service'})) {
+      push @{$servicelist->{'service'}}, @{$as->{'service'}};
+    }
+  }
+
+  # find further projects via package link
+  my $packagerev = getrev($projid, $packid);
+  my $packagefiles = lsrev($packagerev);
+  if ($packagefiles->{'_link'}) {
+    my $l = repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1);
+    my $lprojid=$projid;
+    my $lpackid=$packid;
+    $lprojid=$l->{'project'} if $l->{'project'};
+    $lpackid=$l->{'package'} if $l->{'package'};
+
+    # honor project links
+    my ($lpack, undef) = getpackage($cgi, $lprojid, $lpackid);
+    if ($lprojid ne $lpack->{'project'}) {
+      my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
+      if (defined($as) && defined($as->{'service'})) {
+        push @{$servicelist->{'service'}}, @{$as->{'service'}};
+      }
+      $lprojid = $lpack->{'project'};
+    }
+
+    my ($as, undef) = getprojectservices($cgi, $lprojid, $lpackid, $projectloop);
+    if (defined($as) && defined($as->{'service'})) {
+      push @{$servicelist->{'service'}}, @{$as->{'service'}};
+    }
+  }
+
+  $servicelist = {} unless $servicelist;
+  return ($servicelist, $BSXML::servicelist);
+};
 
 # find matching .spec/.dsc/.kiwi file depending on packid and/or repoid
 sub findfile {
@@ -5573,6 +5632,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
   'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&runservice,
+  'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete

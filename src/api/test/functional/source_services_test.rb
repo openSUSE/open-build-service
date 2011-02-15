@@ -30,12 +30,41 @@ class SourceServicesTest < ActionController::IntegrationTest
       end
     end
     puts "This test suite needs the source service \"set_version\" installed !"    unless set_version
-#    puts "This test suite needs the source service \"download_url\" installed !"   unless download_url
-#    puts "This test suite needs the source service \"download_files\" installed !" unless download_files
+    puts "This test suite needs the source service \"download_url\" installed !"   unless download_url
+    puts "This test suite needs the source service \"download_files\" installed !" unless download_files
   
     assert_tag :tag => "service", :attributes => { :name => "set_version" }
-#    assert_tag :tag => "service", :attributes => { :name => "download_url" }
-#    assert_tag :tag => "service", :attributes => { :name => "download_files" }
+    assert_tag :tag => "service", :attributes => { :name => "download_url" }
+    assert_tag :tag => "service", :attributes => { :name => "download_files" }
   end
+
+  def test_combine_project_service_list
+    prepare_request_with_user "king", "sunflower"
+
+    put "/source/BaseDistro2/_project/_service", '<servicelist> <service name="set_version" /> </servicelist>'
+    assert_response :success
+    put "/source/BaseDistro2:LinkedUpdateProject/_project/_service", '<servicelist> <service name="download_files" /> </servicelist>'
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "branch"
+    assert_response :success
+    put "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/_project/_service", '<servicelist> <service name="download_url" /> </servicelist>'
+    assert_response :success
+
+    post "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/pack2", :cmd => "getprojectservices"
+    assert_response :success
+
+    # cleanup
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject"
+    assert_response :success
+    delete "/source/BaseDistro2/_project/_service"
+    assert_response :success
+    delete "/source/BaseDistro2:LinkedUpdateProject/_project/_service"
+    assert_response :success
+  end
+
+#FIXME: test source service execution
 
 end

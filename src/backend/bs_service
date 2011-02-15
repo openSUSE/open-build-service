@@ -131,7 +131,7 @@ sub run_source_update {
   for my $sf ('_service', '_serviceproject') {
     next unless -e $sf;
     my $infoxml = readstr($sf);
-    my $serviceinfo = XMLin($BSXML::services, $infoxml);
+    my $serviceinfo = XMLin($BSXML::servicetypes, $infoxml);
     for my $service (@{$serviceinfo->{'service'}}) {
       if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled')) {
         print "Skip ".$service->{'name'}."\n";

@@ -229,10 +229,10 @@ class SourceController < ApplicationController
     # valid post commands
     valid_commands=['diff', 'branch', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
                     'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
-                    'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch']
+                    'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'getprojectservices']
     # list of commands which are allowed even when the project has the package only via a project link
-    read_commands = ['diff', 'linkdiff', 'showlinked']
-    source_untouched_commands = ['diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag']
+    read_commands = ['diff', 'linkdiff', 'showlinked', 'getprojectservices']
+    source_untouched_commands = ['diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
     # list of cammands which create the target package
     package_creating_commands = [ 'branch', 'copy', 'undelete' ]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
@@ -1384,6 +1384,16 @@ class SourceController < ApplicationController
 
     binaries.uniq!
     return binaries
+  end
+
+  # Collect all project source services for a package
+  # POST /source/<project>/<package>?cmd=getprojectservices
+  def index_package_getprojectservices
+    valid_http_methods :post
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd])
+    pass_to_backend path
   end
 
   # create a id collection of all packages doing a package source link to this one

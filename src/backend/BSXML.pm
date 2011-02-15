@@ -1027,16 +1027,6 @@ our $quota = [
      ]],
 ];
 
-our $services = [
-    'services' =>
-    [[ 'service' =>
-       'name',
-       'mode', # "localonly" is skipping this service on server side, "trylocal" is trying to merge changes directly in local files, "disabled" is just skipping it
-       [],
-       [[ 'param' => 'name', '_content' ]],
-    ]],
-];
-
 our $schedulerinfo = [
   'schedulerinfo' =>
 	'arch',
@@ -1107,6 +1097,16 @@ our $dispatchprios = [
 	    'arch',
 	    'adjust',
      ]],
+];
+
+our $servicetypes = [
+    'services' =>
+    [[ 'service' =>
+       'name',
+       'mode', # "localonly" is skipping this service on server side, "trylocal" is trying to merge changes directly in local files, "disabled" is just skipping it
+       [],
+       [[ 'param' => 'name', '_content' ]],
+    ]],
 ];
 
 our $service = [
