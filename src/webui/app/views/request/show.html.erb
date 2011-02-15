@@ -212,16 +212,14 @@
             <b>Project:</b><br/>
             <%= text_field_tag("review_project") %><br/>
             <script type="text/javascript">
-              $("#project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
-                minChars: 2, matchCase: true, max: 50
-              });
+              $("#review_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {minChars: 2, matchCase: true, max: 50});
             </script>
           </span>
           <span id="review_package_span" class="hidden">
             <b>Package:</b><br/>
             <%= text_field_tag("review_package") %><br/>
             <script type="text/javascript">
-              $("#package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+              $("#review_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
                 minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#project").val(); }}
               });
             </script>
