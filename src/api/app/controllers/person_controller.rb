@@ -8,6 +8,21 @@ class PersonController < ApplicationController
   validate_action :register => {:method => :put, :request => :user, :response => :status}
   validate_action :register => {:method => :post, :response => :status}
 
+  # Returns a list of all users (that optionally start with a prefix)
+  def index
+    if params[:prefix]
+      list = User.find(:all, :conditions => ["login LIKE ?", params[:prefix] + '%'])
+    else
+      list = User.all()
+    end
+
+    builder = Builder::XmlMarkup.new(:indent => 2)
+    xml = builder.directory(:count => list.length) do |dir|
+      list.each {|user| dir.entry(:login => user.login)}
+    end
+    render :text => xml, :content_type => "text/xml"
+  end
+
   def userinfo
     valid_http_methods :get, :put
 

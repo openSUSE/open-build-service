@@ -18,6 +18,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /person
 
+  map.connect 'person', :controller => 'person', :action => 'index'
   # FIXME: this is no clean namespace, a person "register" could exist ...
   #        suggested solution is POST person/:login?cmd=register
   map.connect 'person/register', :controller => 'person', :action => 'register'
