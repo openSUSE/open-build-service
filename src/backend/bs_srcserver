@@ -3870,6 +3870,43 @@ sub sourcecommitfilelist {
   return getfilelist($cgi, $projid, $packid);
 }
 
+# copy sources of entire project, project exists ensured by api.
+sub copyproject {
+  my ($cgi, $projid) = @_;
+  my $oproj ||= readproj($cgi->{'oproject'}, 1) || {};
+  my $proj ||= readproj($projid, 1) || {};
+  local *D;
+
+  if (opendir(D, "$projectsdir/$oproj->{'name'}.pkg")) {
+    mkdir_p("$projectsdir/$projid.pkg");
+    for my $pack (grep {s/\.xml$//} readdir(D)) {
+      my $opackxml = readxml("$projectsdir/$oproj->{'name'}.pkg/$pack.xml", $BSXML::pack, 1);
+      # copy meta parts by positive list
+      my $packxml = {}; 
+      $packxml->{'project'} = $projid;
+      $packxml->{'name'} = $pack;
+      $packxml->{'title'} = $opackxml->{'title'};
+      $packxml->{'description'} = $opackxml->{'description'};
+      # don't copy flags, maintainer and devel package on purpose
+      writexml("$projectsdir/$projid.pkg/.$pack.xml", "$projectsdir/$projid.pkg/$pack.xml", $packxml, $BSXML::pack);
+       
+      # copy source with latest revision, but not complete history
+      if (-e "$projectsdir/$oproj->{'name'}.pkg/$pack.rev") {
+        my @orevs = BSFileDB::fdb_getall("$projectsdir/$oproj->{'name'}.pkg/$pack.rev", $srcrevlay);
+        my $last = @orevs -1;
+        my $prev = {'srcmd5' => $orevs[$last]->{'srcmd5'}, 'time' => time(), 'user' => $cgi->{'user'}, 'version' => $orevs[$last]->{'version'}, 
+                    'rev' => $orevs[$last]->{'rev'}, 'vrev' => $orevs[$last]->{'vrev'}};
+        BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$pack.rev", $srcrevlay, $prev);
+      }
+
+      #FIXME2.3: update package links to local project
+    }
+    closedir(D);
+  }
+
+  notify_repservers('project', $projid);
+}
+
 sub sourcecopy {
   my ($cgi, $projid, $packid) = @_;
   die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload';
@@ -5606,6 +5643,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project deleted:bool?' => \&getpackagelist,
 

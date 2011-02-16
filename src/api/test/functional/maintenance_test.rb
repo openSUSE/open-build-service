@@ -238,4 +238,24 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_copy_project_for_release
+    prepare_request_with_user "tom", "thunder"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
+    assert_response :success
+    get "/source/CopyOfBaseDistro/_meta"
+    assert_response :success
+    get "/source/BaseDistro"
+    assert_response :success
+    opackages = ActiveXML::XMLNode.new(@response.body)
+    get "/source/CopyOfBaseDistro"
+    assert_response :success
+    packages = ActiveXML::XMLNode.new(@response.body)
+    assert_equal opackages.to_s, packages.to_s
+
+  end
+
 end

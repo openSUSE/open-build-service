@@ -70,7 +70,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_http_methods :get, :post, :delete
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -189,7 +189,7 @@ class SourceController < ApplicationController
         return
       end
 
-      if 'release' == command
+      if 'copy' == command
         unless @http_user.can_create_project?(project_name) and pro.nil?
           render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
             :message => "no permission to execute command '#{command}'"
@@ -1263,8 +1263,6 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login
     project_name = params[:project]
 
-    pro = DbProject.find_by_name project_name
-
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
     pass_to_backend path
@@ -1281,8 +1279,8 @@ class SourceController < ApplicationController
     end
   end
 
-  # POST /source/<project>?cmd=release
-  def index_project_release
+  # POST /source/<project>?cmd=copy
+  def index_project_copy
     valid_http_methods :post
     params[:user] = @http_user.login
     project_name = params[:project]
@@ -1290,20 +1288,23 @@ class SourceController < ApplicationController
     repository = params[:repository]
 
     # create new project object based on oproject
+    unless DbProject.find_by_name project_name
+      oprj = DbProject.get_by_name( oproject )
+      p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
+#FIXME set build disabled ?
+      p.save
+    end
 
+    # copy entire project in the backend
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject])
     pass_to_backend path
-
-    # read meta data from backend to restore database object
-    path = request.path + "/_meta"
-    Project.new(backend_get(path)).save
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"
     backend_pkgs.each_package do |package|
       path = request.path + "/" + package.name + "/_meta"
-      Package.new(backend_get(path), :project => params[:project]).save
+      Package.new(backend_get(path), :project => project_name).save
     end
   end
 

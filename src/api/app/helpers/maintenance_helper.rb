@@ -98,5 +98,7 @@ module MaintenanceHelper
     cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :keeplink])
     Suse::Backend.post cp_path, nil
 
+    # create package link
+
   end
 end
