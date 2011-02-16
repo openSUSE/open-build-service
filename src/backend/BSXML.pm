@@ -1099,7 +1099,8 @@ our $dispatchprios = [
      ]],
 ];
 
-our $servicetypes = [
+# list of used services for a package or project
+our $services = [
     'services' =>
     [[ 'service' =>
        'name',
@@ -1109,7 +1110,8 @@ our $servicetypes = [
     ]],
 ];
 
-our $service = [
+# service type definitions
+our $servicetype = [
     'service' =>
         'name',
         [],
@@ -1124,10 +1126,9 @@ our $service = [
                      [[ 'allowedvalue' => '_content' ]], # list of possible values
         ]],
 ];
-
 our $servicelist = [
     'servicelist' =>
-        [ $service ],
+        [ $servicetype ],
 ];
 
 1;

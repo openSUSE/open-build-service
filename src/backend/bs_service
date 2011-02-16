@@ -131,7 +131,7 @@ sub run_source_update {
   for my $sf ('_service', '_serviceproject') {
     next unless -e $sf;
     my $infoxml = readstr($sf);
-    my $serviceinfo = XMLin($BSXML::servicetypes, $infoxml);
+    my $serviceinfo = XMLin($BSXML::services, $infoxml);
     for my $service (@{$serviceinfo->{'service'}}) {
       if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled')) {
         print "Skip ".$service->{'name'}."\n";
@@ -216,7 +216,7 @@ sub list_service {
   
   for my $servicefile (ls($rootservicedir)){
      next unless $servicefile =~ /.service$/;
-     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::service, 1);
+     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::servicetype, 1);
      next unless $service;
      next unless $service->{'name'};
      next unless -x "$rootservicedir/$service->{'name'}";

@@ -1757,18 +1757,18 @@ sub readpack {
 # collect all globale source services via all package and project links
 sub getprojectservices {
   my ($cgi, $projid, $packid, $projectloop) = @_;
-  my $servicelist;
+  my $services;
 
   # protection against loops and double matches
   $projectloop = {} unless $projectloop;
-  return ({}, $BSXML::servicelist) if $projectloop->{$projid};
+  return ({}, $BSXML::services) if $projectloop->{$projid};
   $projectloop->{$projid}=1;
 
   # get source services from this project
   my $projectrev = getrev($projid, '_project');
   my $projectfiles = lsrev($projectrev);
   if ($projectfiles->{'_service'}) {
-    $servicelist = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::servicelist, 1);
+    $services = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::services, 1);
   }
 
   # find further projects via project link
@@ -1776,7 +1776,7 @@ sub getprojectservices {
   for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
     my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
     if (defined($as) && defined($as->{'service'})) {
-      push @{$servicelist->{'service'}}, @{$as->{'service'}};
+      push @{$services->{'service'}}, @{$as->{'service'}};
     }
   }
 
@@ -1795,19 +1795,19 @@ sub getprojectservices {
     if ($lprojid ne $lpack->{'project'}) {
       my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
       if (defined($as) && defined($as->{'service'})) {
-        push @{$servicelist->{'service'}}, @{$as->{'service'}};
+        push @{$services->{'service'}}, @{$as->{'service'}};
       }
       $lprojid = $lpack->{'project'};
     }
 
     my ($as, undef) = getprojectservices($cgi, $lprojid, $lpackid, $projectloop);
     if (defined($as) && defined($as->{'service'})) {
-      push @{$servicelist->{'service'}}, @{$as->{'service'}};
+      push @{$services->{'service'}}, @{$as->{'service'}};
     }
   }
 
-  $servicelist = {} unless $servicelist;
-  return ($servicelist, $BSXML::servicelist);
+  $services = {} unless $services;
+  return ($services, $BSXML::services);
 };
 
 # find matching .spec/.dsc/.kiwi file depending on packid and/or repoid

@@ -29,37 +29,34 @@ class SourceServicesTest < ActionController::IntegrationTest
         set_version = 1
       end
     end
+    puts "This test suite needs the source service \"set_version\" installed !"    unless set_version
+    puts "This test suite needs the source service \"download_url\" installed !"   unless download_url
+    puts "This test suite needs the source service \"download_files\" installed !" unless download_files
 
-    missing_services = []
-    missing_services << "set_version" unless set_version
-    missing_services << "download_url" unless download_url
-    missing_services << "download_files" unless download_files
-
-    unless missing_services.empty?
-      puts "Some tests where skipped, this test suite needs the source services #{missing_services.join(', ')} installed!"
-    else
-      assert_tag :tag => "service", :attributes => { :name => "set_version" }
-      assert_tag :tag => "service", :attributes => { :name => "download_url" }
-      assert_tag :tag => "service", :attributes => { :name => "download_files" }
-    end
+    assert_tag :tag => "service", :attributes => { :name => "set_version" }
+    assert_tag :tag => "service", :attributes => { :name => "download_url" }
+    assert_tag :tag => "service", :attributes => { :name => "download_files" }
   end
 
   def test_combine_project_service_list
     prepare_request_with_user "king", "sunflower"
 
-    put "/source/BaseDistro2/_project/_service", '<servicelist> <service name="set_version" /> </servicelist>'
+    put "/source/BaseDistro2/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
-    put "/source/BaseDistro2:LinkedUpdateProject/_project/_service", '<servicelist> <service name="download_files" /> </servicelist>'
+    put "/source/BaseDistro2:LinkedUpdateProject/_project/_service", '<services> <service name="download_files" /> </services>'
     assert_response :success
 
     prepare_request_with_user "tom", "thunder"
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
-    put "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/_project/_service", '<servicelist> <service name="download_url" /> </servicelist>'
+    put "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/_project/_service", '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
     assert_response :success
 
     post "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/pack2", :cmd => "getprojectservices"
     assert_response :success
+    assert_tag( :tag => "service", :attributes => { :name => "download_files" } )
+    assert_tag( :parent => { :tag => "service", :attributes => { :name => "download_url" } }, :tag => "param", :attributes => { :name => "host"}, :content => "blahfasel" )
+    assert_tag( :parent => { :tag => "service", :attributes => { :name => "set_version" } }, :tag => "param", :attributes => { :name => "version"}, :content => "0815" )
 
     # cleanup
     prepare_request_with_user "king", "sunflower"
