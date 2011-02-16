@@ -26,10 +26,11 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
   map.connect 'person/:login/group', :controller => 'person', :action => 'grouplist', :login => /[^\/]*/
 
-
   ### /group
   map.connect 'group', :controller => 'group', :action => 'index'
-  map.connect 'group/:group', :controller => 'group', :action => 'grouplist', :group => /[^\/]*/
+  map.connect 'group/:title', :controller => 'group', :action => 'grouplist', :title => /[^\/]*/
+  map.connect 'group/show/:title', :controller => 'group', :action => 'show', :title => /[^\/]*/
+  map.connect 'group/users/:title', :controller => 'group', :action => 'users', :title => /[^\/]*/
 
   ### /repository
 
