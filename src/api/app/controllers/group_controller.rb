@@ -37,8 +37,12 @@ class GroupController < ApplicationController
           end
         end
       else 
-        # list all groups
-        list = Group.find(:all)
+        if params[:prefix]
+          list = Group.find(:all, :conditions => ["title LIKE ?", params[:prefix] + '%'])
+        else
+          # list all groups
+          list = Group.find(:all)
+        end
 
         xml = builder.directory( :count => list.length ) do |dir|
           list.each do |g|
