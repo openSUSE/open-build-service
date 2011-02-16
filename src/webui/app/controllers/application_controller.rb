@@ -267,7 +267,8 @@ class ApplicationController < ActionController::Base
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
       begin
         @nr_involved_requests = @user.involved_requests(:cache => !discard_cache?).size
-      rescue
+      # add all temporary errors here, but no catch all
+      rescue Timeout::Error
       end
     end
   end
