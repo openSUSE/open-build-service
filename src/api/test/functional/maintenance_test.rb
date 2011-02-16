@@ -256,6 +256,31 @@ class MaintenanceTests < ActionController::IntegrationTest
     packages = ActiveXML::XMLNode.new(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
+    # compare revisions
+    get "/source/BaseDistro/pack2/_history"
+    assert_response :success
+    history = ActiveXML::XMLNode.new(@response.body)
+    srcmd5 = history.each_revision.last.srcmd5.text
+    version = history.each_revision.last.version.text
+    time = history.each_revision.last.time.text
+    vrev = history.each_revision.last.vrev
+    assert_not_nil srcmd5
+    get "/source/CopyOfBaseDistro/pack2/_history"
+    assert_response :success
+    copyhistory = ActiveXML::XMLNode.new(@response.body)
+    copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
+    copyversion = copyhistory.each_revision.last.version.text
+    copytime = copyhistory.each_revision.last.time.text
+    copyrev = copyhistory.each_revision.last.rev
+    copyvrev = copyhistory.each_revision.last.vrev
+    assert_equal srcmd5, copysrcmd5
+    assert_equal vrev, copyvrev
+    assert_equal version, copyversion
+    assert_not_equal time, copytime
+    assert_equal copyhistory.each_revision.last.user.text, "king"
+
+    delete "/source/CopyOfBaseDistro"
+    assert_response :success
   end
 
 end

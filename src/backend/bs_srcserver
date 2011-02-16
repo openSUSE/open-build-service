@@ -3896,7 +3896,7 @@ sub copyproject {
         my @orevs = BSFileDB::fdb_getall("$projectsdir/$oproj->{'name'}.pkg/$pack.rev", $srcrevlay);
         my $last = @orevs -1;
         my $prev = {'srcmd5' => $orevs[$last]->{'srcmd5'}, 'time' => time(), 'user' => $cgi->{'user'}, 'version' => $orevs[$last]->{'version'}, 
-                    'rev' => $orevs[$last]->{'rev'}, 'vrev' => $orevs[$last]->{'vrev'}};
+                    'vrev' => $orevs[$last]->{'vrev'}};
         BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$pack.rev", $srcrevlay, $prev);
       }
 
