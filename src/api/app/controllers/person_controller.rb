@@ -10,6 +10,16 @@ class PersonController < ApplicationController
 
   # Returns a list of all users (that optionally start with a prefix)
   def index
+    valid_http_methods :get
+
+    if !@http_user
+      logger.debug "No user logged in, permission to index denied"
+      @errorcode = 401
+      @summary = "No user logged in, permission to index denied"
+      render :template => 'error', :status => 401
+      return
+    end
+
     if params[:prefix]
       list = User.find(:all, :conditions => ["login LIKE ?", params[:prefix] + '%'])
     else
