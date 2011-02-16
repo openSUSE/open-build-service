@@ -15,14 +15,14 @@ class UserController < ApplicationController
   end
 
   def login
-    @return_to_path = params['return_to_path'] || "/"
+    @return_to_path = CGI::escapeHTML(params['return_to_path'] || "/")
   end
   
   def edit
   end
 
   def do_login
-    @return_to_path = params['return_to_path'] || "/"
+    @return_to_path = CGI::escapeHTML(params['return_to_path'] || "/")
     if params[:username] and params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
       session[:login] = params[:username]
@@ -37,7 +37,7 @@ class UserController < ApplicationController
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
       end
       flash[:success] = "You are logged in now"
-      redirect_to params[:return_to_path]
+      redirect_to CGI::escapeHTML(params[:return_to_path])
     end
   end
 
