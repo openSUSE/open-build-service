@@ -75,10 +75,10 @@ class SourceServicesTest < ActionController::IntegrationTest
       assert_response :success
       node = ActiveXML::XMLNode.new(@response.body)
       return if node.each_revision.last.user.text == "_service"
-      i++
+      i=i+1
       if i > 10
         puts "ERROR in wait_for_service: service did not run until time limit"
-        assert_fail
+        exit 1
       end
       sleep 0.5
     end
