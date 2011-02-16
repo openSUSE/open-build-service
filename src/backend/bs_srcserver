@@ -161,7 +161,7 @@ sub runservice {
   # add _service file from projects with different name
   my ($projectservices, undef) = getprojectservices($cgi, $projid, $packid);
   if ($projectservices) {
-    push @send, {'name' => '_serviceproject', 'data' => $projectservices};
+    push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)};
   };
   # run update as background job
   my $pid = xfork();
