@@ -868,5 +868,43 @@ end
   ## show !
   ## search !
   ### 
+
+  def test_special_chars
+    prepare_request_with_user "Iggy", "asdfasdf"
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:Iggy' package='TestPack' />
+              <target project='c++' package='TestPack'/>
+            </action>
+            <description/>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    
+    node = ActiveXML::XMLNode.new(@response.body)
+    id = node.value :id
+    get "/request/#{id}"    
+    assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+
+    get "/request?view=collection&user=Iggy&state=pending"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+
+    get "/request?view=collection&project=c%2b%2b&state=pending"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+
+    get "/request?view=collection&project=c%2b%2b&package=TestPack&state=pending"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+
+  end
+
 end
 

@@ -36,33 +36,33 @@ class RequestController < ApplicationController
 
       unless params[:project].blank?
         if params[:package].blank?
-          str = "action/target/@project='#{CGI.escape(params[:project])}'"
-          str += " or (review[@by_project='#{CGI.escape(params[:project])}' and @state='new'])"
+          str = "action/target/@project='#{params[:project]}'"
+          str += " or (review[@by_project='#{params[:project]}' and @state='new'])"
         else
-          str = "action/target/@project='#{CGI.escape(params[:project])}' and action/target/@package='#{CGI.escape(params[:package])}'"
-          str += " or (review[@by_project='#{CGI.escape(params[:project])}' and @by_package='#{CGI.escape(params[:package])}' and @state='new'])"
+          str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
+          str += " or (review[@by_project='#{params[:project]}' and @by_package='#{params[:package]}' and @state='new'])"
         end
         predicates << str
       end
 
       if params[:user] # should be set in almost all cases
         # user's own submitted requests
-        str = "(state/@who='#{CGI.escape(params[:user])}'"
+        str = "(state/@who='#{params[:user]}'"
         # requests where the user is reviewer or own requests that are in review by someone else
-        str += " or review[@by_user='#{CGI.escape(params[:user])}' and @state='new'] or history[@who='#{CGI.escape(params[:user])}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
+        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         maintained_projects_hash = Hash.new
         u = User.find_by_login(params[:user])
         u.involved_projects.each do |ip|
-          maintained_projects += ["action/target/@project='#{CGI.escape(ip.name)}'"]
+          maintained_projects += ["action/target/@project='#{ip.name}'"]
           maintained_projects_hash[ip.id] = true
         end
         str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
         ## find request where user is maintainer in target package, except we have to project already
         maintained_packages = Array.new
         u.involved_packages.each do |ip|
-          maintained_packages += ["(action/target/@project='#{CGI.escape(ip.db_project.name)}' and action/target/@package='#{CGI.escape(ip.name)}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
+          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
           #FIXME2.3: This code causes heavy load in the backend source server, to be re-evaluated.
           #str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
         end
@@ -80,9 +80,9 @@ class RequestController < ApplicationController
         # TODO: Backend XPath engine needs better range support
       end
 
-      pr = "match=" + predicates.join(" and ")
+      pr = predicates.join(" and ")
       logger.debug "running backend query at #{Time.now}"
-      c = Suse::Backend.post("/search/request?" + URI.escape(pr), nil)
+      c = Suse::Backend.post("/search/request?match=" + CGI.escape(pr), nil)
       render :text => c.body, :content_type => "text/xml"
     else
       # directory list of all requests. not very usefull but for backward compatibility...
@@ -97,7 +97,7 @@ class RequestController < ApplicationController
     # ACL(show) TODO: check this leaks no information that is prevented by ACL
     # parse and rewrite the request to latest format
 
-    data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
+    data = Suse::Backend.get("/request/#{CGI.escape params[:id]}").body
     req = BsRequest.new(data)
 
     send_data(req.dump_xml, :type => "text/xml")
@@ -327,9 +327,9 @@ class RequestController < ApplicationController
           begin
             pr = ""
             if action.source.has_attribute?('rev')
-              pr = "rev=#{action.source.rev}"
+              pr = "rev=#{CGI.escape(action.source.rev)}"
             end
-            url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1&" + URI.escape(pr)
+            url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1&" + pr
             c = Suse::Backend.get(url)
           rescue ActiveXML::Transport::Error => e
             render_error :status => 400, :errorcode => "expand_error",
