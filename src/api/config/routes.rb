@@ -28,6 +28,7 @@ ActionController::Routing::Routes.draw do |map|
 
 
   ### /group
+  map.connect 'group', :controller => 'group', :action => 'index'
   map.connect 'group/:group', :controller => 'group', :action => 'grouplist', :group => /[^\/]*/
 
   ### /repository
