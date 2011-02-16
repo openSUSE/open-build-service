@@ -321,10 +321,6 @@ class Project < ActiveXML::Base
     return groups.sort.uniq
   end
 
-  def person_count
-    @person_count ||= each_person.length
-  end
-
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
