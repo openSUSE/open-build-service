@@ -78,8 +78,14 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-     data = Rails.cache.fetch('workerstatus') do
-       update_workerstatus_cache
+     begin
+       data = Rails.cache.read('workerstatus')
+     rescue Zlib::GzipFile::Error
+       data = nil
+     end
+     unless data
+       data = update_workerstatus_cache 
+       Rails.cache.write('workerstatus', data)
      end
      send_data data
   end
