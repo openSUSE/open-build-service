@@ -1,0 +1,11 @@
+<service name="download_files">
+  <summary>Download files as specified in spec file</summary>
+  <description>This service is parsing all spec files and downloads all Source files which are specified via a http, https or ftp url.
+               Files which are identical to committed files get skipped. It can optionally also recompress the file if needed.</description>
+  <parameter name="recompress">
+    <description>In case the right compression is not available on server, do recompress the file as needed.</description>
+    <allowedvalue>yes</allowedvalue>
+  </parameter>
+
+</service>
+
