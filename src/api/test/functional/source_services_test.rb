@@ -29,13 +29,19 @@ class SourceServicesTest < ActionController::IntegrationTest
         set_version = 1
       end
     end
-    puts "This test suite needs the source service \"set_version\" installed !"    unless set_version
-    puts "This test suite needs the source service \"download_url\" installed !"   unless download_url
-    puts "This test suite needs the source service \"download_files\" installed !" unless download_files
-  
-    assert_tag :tag => "service", :attributes => { :name => "set_version" }
-    assert_tag :tag => "service", :attributes => { :name => "download_url" }
-    assert_tag :tag => "service", :attributes => { :name => "download_files" }
+
+    missing_services = []
+    missing_services << "set_version" unless set_version
+    missing_services << "download_url" unless download_url
+    missing_services << "download_files" unless download_files
+
+    unless missing_services.empty?
+      puts "Some tests where skipped, this test suite needs the source services #{missing_services.join(', ')} installed!"
+    else
+      assert_tag :tag => "service", :attributes => { :name => "set_version" }
+      assert_tag :tag => "service", :attributes => { :name => "download_url" }
+      assert_tag :tag => "service", :attributes => { :name => "download_files" }
+    end
   end
 
   def test_combine_project_service_list
