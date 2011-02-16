@@ -208,7 +208,9 @@
           <span id="review_group_span" class="hidden">
             <b>Group:</b><br/>
             <%= text_field_tag("review_group") %><br/>
-            <% #TODO: Add group autocompletion %>
+            <script type="text/javascript">
+              $("#review_group").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
+            </script>
           </span>
           <span id="review_project_span" class="hidden">
             <b>Project:</b><br/>
