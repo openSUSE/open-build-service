@@ -1290,15 +1290,29 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     unless DbProject.find_by_name project_name
       oprj = DbProject.get_by_name( oproject )
-      p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
-#FIXME set build disabled ?
-      p.save
+      p = DbProject.new :name => project_name, :title => oprj.title, :description => oprj.description
+      p.add_user @http_user, "maintainer"
+      p.flags.create( :status => "disable", :flag => 'build')
+      p.flags.create( :status => "disable", :flag => 'publish')
+      oprj.flags.each do |f|
+        p.flags.create(:status => f.status, :flag => f.flag) if f.flag == "access" or f.flag == "sourceaccess"
+      end
+      oprj.repositories.each do |repo|
+        r = p.repositories.create :name => repo.name
+        r.architectures = repo.architectures
+        r.path_elements << PathElement.new(:link => repo, :position => 1)
+      end
+      p.store
     end
 
     # copy entire project in the backend
-    path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject])
-    pass_to_backend path
+    begin
+      path = request.path
+      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject])
+      pass_to_backend path
+    rescue
+      # we need to check results of backend in any case (also timeout error eg)
+    end
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"

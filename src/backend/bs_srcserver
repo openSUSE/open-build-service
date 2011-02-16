@@ -3887,6 +3887,7 @@ sub copyproject {
       $packxml->{'name'} = $pack;
       $packxml->{'title'} = $opackxml->{'title'};
       $packxml->{'description'} = $opackxml->{'description'};
+      $packxml->{'sourceaccess'} = $opackxml->{'sourceaccess'} if defined($opackxml->{'sourceaccess'});
       # don't copy flags, maintainer and devel package on purpose
       writexml("$projectsdir/$projid.pkg/.$pack.xml", "$projectsdir/$projid.pkg/$pack.xml", $packxml, $BSXML::pack);
        

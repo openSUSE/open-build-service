@@ -850,25 +850,50 @@ end
 
   end
 
-  # FIXME: to be implemented:
-  # For source access:
-  # * test write operations on a project or package
-  # * test package link creation
-  # * test public controller
-  # * test tag controller
-  # For binary access
-  # * test project repository path setup
-  # * test aggregate creation
-  # * test kiwi live image file creation
-  # * test kiwi product file creation
-  # Everything needs to be tested as user with various roles and as a group member with various roles
-  # the very same must be tested also for public project, but protected package
+  def test_copy_project_of_hidden_project
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfProject?cmd=copy&oproject=HiddenProject"
+    assert_response :success
+    get "/source/CopyOfProject/_meta"
+    assert_response :success
+    assert_tag( :tag => "disable", :parent => { :tag => "access" } )
 
+    delete "/source/CopyOfProject"
+    assert_response :success
+  end
 
-  # Done
-  # * test search for hidden objects - in search controller test
-  # * test read operations on a project or package
-  # * test creation and "accept" of requests
-  # * test project link creation
+  def test_copy_project_of_source_protected_project
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfProject?cmd=copy&oproject=SourceprotectedProject"
+    assert_response :success
+    get "/source/CopyOfProject/_meta"
+    assert_response :success
+    assert_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+
+    delete "/source/CopyOfProject"
+    assert_response :success
+  end
+
+  def test_copy_project_of_source_protected_package
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:tom/ProtectedPackage/_meta",
+        '<package project="home:tom" name="ProtectedPackage"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
+    assert_response :success
+    
+    post "/source/CopyOfProject?cmd=copy&oproject=home:tom"
+    assert_response :success
+    get "/source/CopyOfProject/_meta"
+    assert_response :success
+    assert_no_tag( :tag => "disable", :parent => { :tag => "access" } )
+    assert_no_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+    get "/source/CopyOfProject/ProtectedPackage/_meta"
+    assert_response :success
+    assert_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+
+    delete "/source/CopyOfProject"
+    assert_response :success
+    delete "/source/home:tom/ProtectedPackage"
+    assert_response :success
+  end
 
 end
