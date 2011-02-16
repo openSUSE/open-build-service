@@ -68,6 +68,80 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
   end
 
-#FIXME: test source service execution
+  def wait_for_service( project, package )
+    i=0
+    while true
+      get "/source/#{project}/#{package}/_history"
+      assert_response :success
+      node = ActiveXML::XMLNode.new(@response.body)
+      return if node.each_revision.last.user.text == "_service"
+      i++
+      if i > 10
+        puts "ERROR in wait_for_service: service did not run until time limit"
+        assert_fail
+      end
+      sleep 0.5
+    end
+  end
+
+  def test_run_source_service
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    put "/source/home:tom/service/_service", '<services> <service name="not_existing" /> </services>'
+    assert_response :success
+    post "/source/home:tom/service?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+    get "/source/home:tom/service/_service_error"
+    assert_response :success
+
+    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
+    assert_response :success
+    post "/source/home:tom/service?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+    get "/source/home:tom/service/_service_error"
+    assert_response 404
+    get "/source/home:tom/service/_service:set_version:pack.spec"
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:tom/service"
+    assert_response :success
+  end
+
+  def test_run_project_source_service
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    put "/source/home:tom/_project/_service", '<services> <service name="not_existing" /> </services>'
+    assert_response :success
+    post "/source/home:tom/service?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+    get "/source/home:tom/service/_service_error"
+    assert_response :success
+
+    put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
+    assert_response :success
+    post "/source/home:tom/service?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+    get "/source/home:tom/service/_service_error"
+    assert_response 404
+    get "/source/home:tom/service/_service:set_version:pack.spec"
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:tom/service"
+    assert_response :success
+  end
 
 end
