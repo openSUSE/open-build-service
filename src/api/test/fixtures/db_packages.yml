@@ -184,6 +184,18 @@ hidden_pack:
   update_counter: 1
   created_at: 2007-05-16 14:19:18
 
+hidden_packCopy:
+  name: packCopy
+  updated_at: 2007-05-16 14:19:18
+  activity_index: 10
+  title: full copy including binaries of pack
+  db_project_id: 3000
+  url: ""
+  id: 11017
+  description: ""
+  update_counter: 1
+  created_at: 2007-05-16 14:19:18
+
 hidden_pack1:
   name: target
   updated_at: 2007-05-16 14:19:18

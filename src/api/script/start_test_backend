@@ -143,6 +143,7 @@ Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_a
 Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack2").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
+Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "second commit")
 Suse::Backend.put( '/source/BaseDistro/pack3/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack3").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack3/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro2/_meta', DbProject.find_by_name('BaseDistro2').to_axml)
@@ -161,6 +162,7 @@ Suse::Backend.put( '/source/HiddenProject/_config', "Type: spec")
 Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
 Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
 Suse::Backend.put( '/source/HiddenProject/pack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put( '/source/HiddenProject/packCopy/_meta', DbPackage.find_by_project_and_name("HiddenProject", "packCopy").to_axml)
 Suse::Backend.put( '/source/HiddenProject/target/_meta', DbPackage.find_by_project_and_name("HiddenProject", "target").to_axml)
 Suse::Backend.put( '/source/HiddenProject/target/my_file', "Protected Content target")
 # BinaryprotectedProject
@@ -285,6 +287,15 @@ system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586
 Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read() )
 
 # run scheduler again to handle the build result
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+   # just for waiting until scheduler finishes
+   io.each {|line| logger.debug line.strip unless line.blank? }
+end
+
+# copy build result 
+Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )
+
+# run scheduler again to handle the copy build event
 IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
    # just for waiting until scheduler finishes
    io.each {|line| logger.debug line.strip unless line.blank? }
