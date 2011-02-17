@@ -32,7 +32,7 @@ class CreateProjectTest < ActionController::IntegrationTest
      assert_response :success
   
      assert_contain 'No subprojects found'
-     click_link 'Create a new subproject'
+     click_link 'Create subproject'
      fill_in 'name', :with => 'coolstuff'     
      click_button 'Create Project'
      assert_response :success 
