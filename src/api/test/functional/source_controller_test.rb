@@ -101,7 +101,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success 
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
-      :children => { :count => 2, :only => { :tag => "entry" } }
+      :children => { :count => 3, :only => { :tag => "entry" } }
     assert_match(/entry name="pack"/, @response.body)
     assert_match(/entry name="target"/, @response.body)
   end

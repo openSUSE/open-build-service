@@ -274,7 +274,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     copyrev = copyhistory.each_revision.last.rev
     copyvrev = copyhistory.each_revision.last.vrev
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev, copyvrev
+    assert_equal vrev.to_i, copyvrev.to_i - 1  #the copy gets always an additional commit
     assert_equal version, copyversion
     assert_not_equal time, copytime
     assert_equal copyhistory.each_revision.last.user.text, "king"
