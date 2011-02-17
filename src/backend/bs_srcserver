@@ -3874,6 +3874,7 @@ sub sourcecommitfilelist {
 sub copyproject {
   my ($cgi, $projid) = @_;
   my $oprojid = $cgi->{'oproject'};
+  return $BSStdServer::return_ok if $oprojid eq $projid;
 
   my $proj = readproj($projid);
   my $oproj = readproj($oprojid);
@@ -3906,6 +3907,18 @@ sub copyproject {
 	    for my $rev (@allrevs) {
 	      $rev->{'rev'} += $lastrev->{'rev'};
 	    }
+	  }
+	}
+        # make trees available in new project
+        my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+        if ($BSConfig::nosharedtrees) {
+          my $treedir = "$treesdir/$projid/$packid";
+	  for my $rev (@allrevs) {
+	    next if -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
+	    my $xrev = { %$rev, 'project' => $oprojid, 'package' => $packid };
+            my $files = lsrev($xrev);
+	    copyfiles($projid, $packid, $oprojid, $packid, $files);
+	    addmeta($projid, $packid, $files);
 	  }
 	}
         BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
@@ -3943,6 +3956,7 @@ sub copyproject {
     }
   }
   notify_repservers('project', $projid);
+  return $BSStdServer::return_ok;
 }
 
 sub sourcecopy {
