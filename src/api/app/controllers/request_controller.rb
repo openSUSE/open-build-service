@@ -979,12 +979,12 @@ class RequestController < ApplicationController
         action.target.data["project"] = incident.db_project.name
         req.save
 
-      elsif action.data.attributes["type"] == "merge"
+      elsif action.data.attributes["type"] == "release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
         tprj = DbProject.get_by_name(action.target.project)
 
 #FIXME2.3: support limiters to specified repositories
-        merge_package(pkg, tprj, action.target.package, action.source.rev, req)
+        release_package(pkg, tprj, action.target.package, action.source.rev, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"

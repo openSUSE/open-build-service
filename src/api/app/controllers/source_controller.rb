@@ -705,6 +705,36 @@ class SourceController < ApplicationController
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
 
+      # find linking repos which get deleted
+      removedRepositories = Array.new
+      if prj
+        prj.repositories.each do |repo|
+          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0
+            repo.linking_repositories.each do |lrep|
+              removedRepositories << lrep
+            end
+          end
+        end
+      end
+      if removedRepositories.length > 0
+        if params[:force] and not params[:force].empty?
+          # replace links to this projects with links to the "deleted" project
+          del_repo = DbProject.find_by_name("deleted").repositories[0]
+          removedRepositories.each do |link_rep|
+            link_rep.path_elements.find(:all).each { |pe| pe.destroy }
+            link_rep.path_elements.create(:link => del_repo, :position => 1)
+            link_rep.save
+            # update backend
+            link_rep.db_project.store
+          end
+        else
+          lrepstr = removedRepositories.map{|l| l.db_project.name+'/'+l.name}.join "\n"
+          render_error :status => 400, :errorcode => "repo_dependency",
+            :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
+          return
+        end
+      end
+
       # exec
       p.add_person(:userid => @http_user.login) unless prj
       p.save
@@ -1308,7 +1338,7 @@ class SourceController < ApplicationController
     # copy entire project in the backend
     begin
       path = request.path
-      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject])
+      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject]) # supported in backend, but not yet permitted via api: :withbinaries, :withhistory
       pass_to_backend path
     rescue
       # we need to check results of backend in any case (also timeout error eg)
