@@ -3879,7 +3879,7 @@ sub copyproject {
   my $oproj = readproj($oprojid);
 
   # use {} as we do not want to copy project linked packages
-  my @pkgs = findpackages($oproj, {});
+  my @pkgs = findpackages($oprojid, {});
   for my $packid (@pkgs) {
     if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
       # new package, create. hopefully the API can deal with this
@@ -4431,13 +4431,14 @@ sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   die("illageal package '$packid'\n") if $packid =~ /^_/;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $oproject=$projid;
-  my $opackage=$packid;
-  my $orepository=$repoid;
-  $oproject=$cgi->{'oproject'} if $cgi->{'oproject'};
-  $opackage=$cgi->{'opackage'} if $cgi->{'opackage'};
-  $orepository=$cgi->{'orepository'} if $cgi->{'orepository'};
-  die("same source and target") if "$oproject/$opackage/$orepository" eq "$projid/$packid/$repoid";
+  my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
+  my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
+  die("nothing to do\n") if "$oproject/$opackage/$orepository" eq "$projid/$packid/$repoid";
+  checkprojrepoarch($oprojid, $orepoid, $arch);
+  # make sure the packages exist. not cheap, but does everything we need
+  getrev($projid, $packid);
+  getrev($oprojid, $packid);
   my @args;
   push @args, "cmd=copy";
   push @args, "oproject=$oproject";
@@ -5726,7 +5727,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? withhistory:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? force:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
