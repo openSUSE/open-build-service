@@ -25,7 +25,7 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/(our \$bsuser)/, '#\1')
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
-    line.gsub!(/our \$servicedir = .*/, "our $bsdir = '#{RAILS_ROOT}/test/fixtures/backend/services';")
+    line.gsub!(/our \$servicedir = .*/, "our $servicedir = '#{RAILS_ROOT}/test/fixtures/backend/services';")
     line.gsub!(/:5352/, ":#{SOURCE_PORT}")
     line.gsub!(/:5252/, ":3201") # repservier, used via source server
     line.gsub!(/:5152/, ":3202") # source service, used via source server
