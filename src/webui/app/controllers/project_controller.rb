@@ -43,7 +43,7 @@ class ProjectController < ApplicationController
     @filterstring = params[:searchtext] || ''
     @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
     get_filtered_projectlist @filterstring, @excludefilter
-    if request.xhr?
+    if request.xhr? && !mobile_request?
       render :partial => 'search_project' and return
     end
     render :list, :status => params[:nextstatus]
@@ -111,10 +111,8 @@ class ProjectController < ApplicationController
   private :get_filtered_packagelist
 
   def users
-    @email_hash = Hash.new
-    @project.each_person do |person|
-      @email_hash[person.userid.to_s] = find_cached(Person, person.userid, :expires_in => 30.minutes ).email.to_s
-    end
+    @users = @project.users
+    @groups = @project.groups
     @roles = Role.local_roles
   end
 
@@ -176,6 +174,8 @@ class ProjectController < ApplicationController
 
     load_packages_mainpage
 
+    @nr_packages = 0
+    @nr_packages = @packages.each.size if @packages
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
@@ -189,6 +189,7 @@ class ProjectController < ApplicationController
 
     linking_projects
     load_buildresult
+
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
@@ -260,23 +261,6 @@ class ProjectController < ApplicationController
     end
     load_buildresult false
     render :partial => 'buildstatus'
-  end
-
-  def delete_request_dialog
-    render :template => 'shared/delete_request_dialog'
-  end
-
-  def delete_request
-    req = BsRequest.new(:type => "delete", :targetproject => params[:project])
-    begin
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      return
-    end
-    Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def delete

@@ -32,6 +32,7 @@ our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
 our $serviceserver = "http://$hostname:5152";
 our $servicedir = "/usr/lib/obs/service/";
+#our $servicetempdir = "/var/temp/";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
 
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
@@ -94,6 +95,7 @@ our $relsync_pool = {
  "armv5el" => "armv5el",
  "armv6el" => "armv6el",
  "armv7el" => "armv7el",
+ "armv7hl" => "armv7hl",
  "armv8el" => "armv8el",
  "sparcv9" => "sparcv9",
  "sparc64" => "sparcv9",

@@ -6,25 +6,12 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :except => [:add_person, :submit_request,
-    :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
-    :remove_url, :save, :save_modified_file, :save_person,
-    :set_url, :set_url_form, :update_build_log]
-  before_filter :require_package, :except => [:submit_request, :edit_file, :rawlog,
-    :save_modified_file, :save_new, :save_new_link, :update_build_log]
-  before_filter :load_requests, :except => [:add_person, :edit_file, :rawlog, :save_new, :submit_request]
+  before_filter :require_project, :except => [:rawlog, :submit_request]
+  before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new ]
+  # make sure it's after the require_, it requires both
+  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new ]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
-
-  def fill_email_hash
-    @email_hash = Hash.new
-    persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
-    persons.each do |person|
-      @email_hash[person] = Person.email_for_login(person)
-    end
-    @roles = Role.local_roles
-  end
-  private :fill_email_hash
 
   def show
     begin 
@@ -114,7 +101,9 @@ class PackageController < ApplicationController
   end
 
   def users
-    fill_email_hash
+    @users = [@project.users, @package.users].flatten.uniq
+    @groups = @project.groups
+    @roles = Role.local_roles
   end
 
   def list_requests
@@ -163,9 +152,14 @@ class PackageController < ApplicationController
   end
 
   def submit_request
-    params[:type] = "submit"
-    req = BsRequest.new(params)
+    if params[:targetproject].nil? or params[:targetproject].empty?
+      flash[:error] = "Please provide a target for the submit request"
+      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+    end
+
     begin
+      params[:type] = "submit"
+      req = BsRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
@@ -175,24 +169,6 @@ class PackageController < ApplicationController
     Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
-
-  def delete_request_dialog
-    render :template => 'shared/delete_request_dialog'
-  end
-
-  def delete_request
-    req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
-    begin
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      return
-    end
-    Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
-  end
-
 
   def service_parameter
     begin
@@ -791,12 +767,6 @@ class PackageController < ApplicationController
     }
   end
 
-  def escape_log(log)
-    log = CGI.escapeHTML(log)
-    log.gsub(/[\t]/, '    ').gsub(/[\n\r]/n,"<br/>\n").gsub(' ', '&ensp;')
-  end
-  private :escape_log
-
   def live_build_log
     @arch = params[:arch]
     @repo = params[:repository]
@@ -811,7 +781,7 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
-    @initiallog = escape_log(@initiallog)
+    @initiallog = escape_and_transform_nonprintables(@initiallog)
     @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
       if $1[0].to_i < 32
         ''
@@ -839,7 +809,7 @@ class PackageController < ApplicationController
         @finished = true
       else
         @offset += log_chunk.length
-        log_chunk = escape_log(log_chunk)
+        log_chunk = escape_and_transform_nonprintables(log_chunk)
       end
 
     rescue Timeout::Error => ex
@@ -1053,6 +1023,7 @@ class PackageController < ApplicationController
   end
 
   def require_package
+    params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     unless valid_package_name_read? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"
       flash[:error] = "\"#{params[:package]}\" is not a valid package name"

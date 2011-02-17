@@ -7,6 +7,14 @@ class PersonControllerTest < ActionController::IntegrationTest
   def setup
     prepare_request_valid_user
   end
+
+  def test_index
+    get "/person"
+    assert_response :success
+
+    get "/person?prefix=s"
+    assert_response :success
+  end
  
   def test_ichain
     get "/person/tom", nil, { "username" => "fred" }

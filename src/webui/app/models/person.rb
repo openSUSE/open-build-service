@@ -1,4 +1,7 @@
 class Person < ActiveXML::Base
+
+  class ListError < Exception; end
+
   default_find_parameter :login
 
   handles_xml_element 'person'
@@ -42,7 +45,7 @@ class Person < ActiveXML::Base
     return p.value(:realname) if p
     return ''
   end
-  
+
   def to_s
     login.to_s
   end
@@ -86,7 +89,7 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
 
-    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) { BsRequest.list({:state => 'pending', :user => login}) }
+    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) { BsRequest.list({:state => 'pending', :user => login.to_s}) }
   end
 
   def groups
@@ -124,8 +127,34 @@ class Person < ActiveXML::Base
   # if package is nil, returns project maintainership
   def is_maintainer?(project, package=nil)
     return true if is_admin?
+    package = Package.find_cached(package) if package.class == String
     return true if package and package.is_maintainer?(login)
+    project = Project.find_cached(project) if project.class == String
     return project.is_maintainer?(login)
+  end
+
+  def has_role?(role, project, package=nil)
+    return true if is_admin?
+    return true if package and package.user_has_role?(login, role)
+    return project.user_has_role?(login, role)
+  end
+
+  def self.list(prefix=nil)
+    user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
+      transport ||= ActiveXML::Config::transport_for(:person)
+      path = "/person?prefix=#{prefix}"
+      begin
+        logger.debug "Fetching user list from API"
+        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        logins = []
+        Collection.new(response).each {|user| logins << user.login}
+        logins
+      rescue ActiveXML::Transport::Error => e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        raise ListError, message
+      end
+    end
+    return user_list
   end
 
 end

@@ -4,7 +4,7 @@
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
-RAILS_GEM_VERSION = '>=2.3.8' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
@@ -113,8 +113,16 @@ begin
 rescue Errno::ENOENT
 end
 
-#DOWNLOAD_URL = "http://download.opensuse.org/repositories"
-#BUGZILLA_HOST = nil
+if defined? CONFIG['download_url']
+  DOWNLOAD_URL = CONFIG['download_url']
+else
+  DOWNLOAD_URL = nil
+end
+if defined? CONFIG['bugzilla_host']
+  BUGZILLA_HOST = CONFIG['bugzilla_host']
+else
+  BUGZILLA_HOST = nil
+end
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|

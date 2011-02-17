@@ -134,6 +134,7 @@ class DbProject < ActiveRecord::Base
           options[:joins] += " LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id"
           options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = db_projects.id"
           options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
+          options[:group] = "db_projects.id" unless options[:group] # is creating a DISTINCT select to have uniq results
 
           if options[:conditions].nil?
             options[:conditions] = ["ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}'"]
@@ -145,8 +146,7 @@ class DbProject < ActiveRecord::Base
             end
           end
         end
-        ret = find_every(options)
-        return ret
+        return find_every(options)
       end
 
       def securedfind_last(options)

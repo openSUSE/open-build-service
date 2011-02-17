@@ -2,6 +2,7 @@
     Architecture.create :name => "armv5el"
     Architecture.create :name => "armv6el"
     Architecture.create :name => "armv7el"
+    Architecture.create :name => "armv7hl"
     Architecture.create :name => "armv8el"
     Architecture.create :name => "hppa"
     Architecture.create :name => "i586"

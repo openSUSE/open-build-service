@@ -68,14 +68,29 @@ class DbPackage < ActiveRecord::Base
       end
 
       def securedfind_every(options)
-        ret = find_every(options)
-        return if ret.nil?
-        ret.each do |dbpkg|
-          unless DbPackage.check_access?(dbpkg)
-              ret.delete(dbpkg) unless User.currentAdmin
+        options[:joins] = "" if options[:joins].nil?
+        options[:joins] += " LEFT OUTER JOIN db_projects prj ON db_packages.db_project_id = prj.id"
+        options[:group] = "db_packages.id" unless options[:group] # is creating a DISTINCT select to have uniq results
+
+        unless User.currentAdmin
+          # limit to projects which have no "access" flag, except user has any role inside
+          # FIXME2.2: this is not a complete check, but we are on the save side so far
+          #
+          options[:joins] += " LEFT OUTER JOIN flags f ON f.db_project_id = prj.id"
+          options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
+          options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
+
+          if options[:conditions].nil?
+            options[:conditions] = ["(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login})'"]
+          else
+            if options[:conditions].class == String
+              options[:conditions] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions] + ")"
+            else
+              options[:conditions][0] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions][0] + ")"
+            end
           end
         end
-        return ret
+        return find_every(options)
       end
 
       def securedfind_last(options)
@@ -124,8 +139,12 @@ class DbPackage < ActiveRecord::Base
     # use_source=false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name( project, package, use_source=true, follow_project_links=true )
-      return nil if DbProject.is_remote_project?( project )
-      prj = DbProject.get_by_name( project )
+      if project.class == DbProject
+        prj = project
+      else
+        return nil if DbProject.is_remote_project?( project )
+        prj = DbProject.get_by_name( project )
+      end
       raise UnknownObjectError, "#{project}/#{package}" unless prj
       if follow_project_links
         pkg = prj.find_package(package)
@@ -155,9 +174,13 @@ class DbPackage < ActiveRecord::Base
     end
 
     # to check existens of a project (local or remote)
-    def exists_by_project_and_name( project, package )
+    def exists_by_project_and_name( project, package, follow_project_links=true )
       prj = DbProject.get_by_name( project )
-      pkg = prj.find_package(package)
+      if follow_project_links
+        pkg = prj.find_package(package)
+      else
+        pkg = prj.db_packages.find_by_name(package)
+      end
       if pkg.nil?
 # FIXME: how to handle remote ?
 #        return true if find_remote_project(name)

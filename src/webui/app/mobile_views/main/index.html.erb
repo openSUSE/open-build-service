@@ -1,0 +1,24 @@
+
+<h3 class="centered">Welcome to the openSUSE Build Service</h3>
+
+
+<% if !session[:login] -%>
+  <p class="centered">Please <%= link_to 'login', {:controller => :main, :action => :login}, 'data-rel' => "dialog", 'data-transition' => "slideup" %> with your openSUSE account.</p>
+<% end %>
+
+
+<% if session[:login] -%>
+  <%= link_to 'My Projects', {:controller => "home", :action => :list_my}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <%= link_to "Requests (#{@nr_involved_requests})", {:controller => "home", :action => :list_requests}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+<% end %>
+
+
+<% if @anonymous_forbidden.nil? %>
+  <%= link_to 'List of All Projects', {:controller => "project", :action => :list_public}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <!-- <%= link_to 'Search', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <%= link_to 'Status Monitor', {:controller => "monitor", :action => :index}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %> -->
+<% end %>
+
+<p/>
+<%= link_to "Switch To Desktop View", {:controller => "main", :action => :index, :force_view => 'normal'}, :rel => "external", 'data-role' => "button" %>
+

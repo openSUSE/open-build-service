@@ -85,6 +85,7 @@ my $eventlay = [qw{number time type project package repository arch}];
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 my $uploaddir = "$srcrep/:upload";
 
+my $repoid;
 my %packagequota;
 
 sub notify_repservers {
@@ -112,14 +113,17 @@ sub notify_repservers {
 sub runservice {
   my ($cgi, $projid, $packid) = @_;
 
+  return if $packid eq "_project";
   return unless $BSConfig::serviceserver;
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
 
   # collect current sources to POST them
+  my $projectrev = getrev($projid, '_project');
+  my $projectfiles = lsrev($projectrev);
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);
-  unless ($files->{'_service'}){
+  unless ($files->{'_service'} || $projectfiles->{'_service'}){
     # drop all existing service files
     my $dirty;
     for my $pfile (keys %$files) {
@@ -154,6 +158,11 @@ sub runservice {
 
   # Run the source update in own process (do not wait for it)
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
+  # add _service file from projects with different name
+  my ($projectservices, undef) = getprojectservices($cgi, $projid, $packid);
+  if ($projectservices) {
+    push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)};
+  };
   # run update as background job
   my $pid = xfork();
   return $BSStdServer::return_ok if $pid;
@@ -534,6 +543,7 @@ sub getrev {
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
 	  addmeta($projid, $packid, $files) if $BSConfig::nosharedtrees;
 	  $lrev->{'originproject'} ||= $lprojid;
+	  $lrev->{'project'} = $projid;
 	  return $lrev;
 	}
       }
@@ -651,8 +661,9 @@ sub addrev {
   die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
-    my $filename = (keys %$files)[0];
-    BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filename, user => $user});
+    my $filenames = join( ', ', keys %$files );
+    BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filenames, comment => $comment, 
+                                       target => $target, request_id => $requestid, user => $user});
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -720,7 +731,7 @@ sub addrev {
     extract_old_prjsource($projid, $rev);
     unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
     notify_repservers('project', $projid);
-    BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => $user });
+    BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "files" => $filestr, "comment" => $comment, "sender" => $user });
     return $rev;
   }
 
@@ -1743,6 +1754,62 @@ sub readpack {
   return $pack;
 }
 
+# collect all globale source services via all package and project links
+sub getprojectservices {
+  my ($cgi, $projid, $packid, $projectloop) = @_;
+  my $services;
+
+  # protection against loops and double matches
+  $projectloop = {} unless $projectloop;
+  return ({}, $BSXML::services) if $projectloop->{$projid};
+  $projectloop->{$projid}=1;
+
+  # get source services from this project
+  my $projectrev = getrev($projid, '_project');
+  my $projectfiles = lsrev($projectrev);
+  if ($projectfiles->{'_service'}) {
+    $services = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::services, 1);
+  }
+
+  # find further projects via project link
+  my $proj = readproj($projid, 1);
+  for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+    my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
+    if (defined($as) && defined($as->{'service'})) {
+      push @{$services->{'service'}}, @{$as->{'service'}};
+    }
+  }
+
+  # find further projects via package link
+  my $packagerev = getrev($projid, $packid);
+  my $packagefiles = lsrev($packagerev);
+  if ($packagefiles->{'_link'}) {
+    my $l = repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1);
+    my $lprojid=$projid;
+    my $lpackid=$packid;
+    $lprojid=$l->{'project'} if $l->{'project'};
+    $lpackid=$l->{'package'} if $l->{'package'};
+
+    # honor project links
+    my ($lpack, undef) = getpackage($cgi, $lprojid, $lpackid);
+    if ($lprojid ne $lpack->{'project'}) {
+      my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
+      if (defined($as) && defined($as->{'service'})) {
+        push @{$services->{'service'}}, @{$as->{'service'}};
+      }
+      $lprojid = $lpack->{'project'};
+    }
+
+    my ($as, undef) = getprojectservices($cgi, $lprojid, $lpackid, $projectloop);
+    if (defined($as) && defined($as->{'service'})) {
+      push @{$services->{'service'}}, @{$as->{'service'}};
+    }
+  }
+
+  $services = {} unless $services;
+  return ($services, $BSXML::services);
+};
+
 # find matching .spec/.dsc/.kiwi file depending on packid and/or repoid
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
@@ -2205,7 +2272,7 @@ sub getprojpack {
     $jinfo->{'package'} = \@pinfo;
     push @res, $jinfo;
   }
-  my $ret = {'project' => \@res};
+  my $ret = {'repoid' => $repoid, 'project' => \@res};
   #print Dumper($remotemap);
   if ($remotemap && %$remotemap) {
     for my $p (sort keys %$remotemap) {
@@ -2430,7 +2497,7 @@ sub delproject {
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
 
-  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
+  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -2465,6 +2532,8 @@ sub undeleteproject {
     }
   }
   notify_repservers('project', $projid);
+  BSNotify::notify("SRCSRV_UNDELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
+
   return $BSStdServer::return_ok;
 }
 
@@ -2605,7 +2674,7 @@ sub delpackage {
     expandproduct($projid, $packid, undef);
   }
   notify_repservers('package', $projid, $packid);
-  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown") });
+  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
   return $BSStdServer::return_ok;
 }
 
@@ -2647,6 +2716,8 @@ sub undeletepackage {
     updatelinkinfodb($projid, $packid, $nrev, lsrev($nrev));
   }
   notify_repservers('package', $projid, $packid);
+  BSNotify::notify("SRCSRV_UNDELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
+
   return $BSStdServer::return_ok;
 }
 
@@ -3741,8 +3812,12 @@ sub sourcecommit {
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'});
-  if ($files->{'_service'} && !$cgi->{'noservice'}) {
-    runservice($cgi, $projid, $packid);
+  if (!$cgi->{'noservice'}) {
+    my $prev = getrev($projid, '_project');
+    my $pfiles = lsrev($prev);
+    if ($files->{'_service'} || $pfiles->{'_service'}) {
+      runservice($cgi, $projid, $packid);
+    }
   }
   delete $rev->{'project'};
   delete $rev->{'package'};
@@ -3783,12 +3858,89 @@ sub sourcecommitfilelist {
   }
   my $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, undef, $cgi->{'requestid'});
 
-  if ($files->{'_service'} && !$cgi->{'noservice'}) {
-    runservice($cgi, $projid, $packid);
+  if (!$cgi->{'noservice'}) {
+    my $prev = getrev($projid, '_project');
+    my $pfiles = lsrev($prev);
+    if ($files->{'_service'} || $pfiles->{'_service'}) {
+      runservice($cgi, $projid, $packid);
+    }
   }
 
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
+}
+
+# copy sources of entire project, project exists ensured by api.
+sub copyproject {
+  my ($cgi, $projid) = @_;
+  my $oproj ||= readproj($cgi->{'oproject'}, 1) || {};
+  my $proj ||= readproj($projid, 1) || {};
+  local *D;
+
+  if (opendir(D, "$projectsdir/$oproj->{'name'}.pkg")) {
+    mkdir_p("$projectsdir/$projid.pkg");
+    for my $pack (grep {s/\.xml$//} readdir(D)) {
+      my $opackxml = readxml("$projectsdir/$oproj->{'name'}.pkg/$pack.xml", $BSXML::pack, 1);
+      # copy meta parts by positive list
+      my $packxml = {}; 
+      $packxml->{'project'} = $projid;
+      $packxml->{'name'} = $pack;
+      $packxml->{'title'} = $opackxml->{'title'};
+      $packxml->{'description'} = $opackxml->{'description'};
+      $packxml->{'sourceaccess'} = $opackxml->{'sourceaccess'} if defined($opackxml->{'sourceaccess'});
+      # don't copy flags, maintainer and devel package on purpose
+      writexml("$projectsdir/$projid.pkg/.$pack.xml", "$projectsdir/$projid.pkg/$pack.xml", $packxml, $BSXML::pack);
+       
+      # copy source with latest revision, but not complete history
+      if (-e "$projectsdir/$oproj->{'name'}.pkg/$pack.rev") {
+        if (defined($cgi->{'withhistory'})) {
+          my @res = BSFileDB::fdb_getall("$projectsdir/$oproj->{'name'}.pkg/$pack.rev", $srcrevlay );
+          BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$pack.rev", $srcrevlay, @res);
+        } else {
+          my @orevs = BSFileDB::fdb_getall("$projectsdir/$oproj->{'name'}.pkg/$pack.rev", $srcrevlay);
+          my $last = @orevs -1;
+          my $prev = {'srcmd5' => $orevs[$last]->{'srcmd5'}, 'time' => time(), 'user' => $cgi->{'user'}, 'version' => $orevs[$last]->{'version'}, 
+                      'vrev' => $orevs[$last]->{'vrev'}, 'comment' => $cgi->{'comment'}};
+          BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$pack.rev", $srcrevlay, $prev);
+        };
+        # add another commit with the comment
+        my $rev = getrev($cgi->{'oproject'}, $pack, 'latest');
+        my $files = lsrev($rev);
+        my $prev = addrev($projid, $pack, $files, $cgi->{'user'}, $cgi->{'comment'});
+
+        #FIXME2.3: update package links to local project
+
+        # copy binaries
+        if (defined($cgi->{'withbinaries'})) {
+          for my $repo (@{$proj->{'repository'} || []}) {
+            my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
+            next unless $orepo;
+            for my $arch (@{$repo->{'arch'} || []}) {
+              next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
+
+              # same source and target repo/arch in both projects exists
+              my @args;
+              push @args, "cmd=copy";
+              push @args, "oproject=$oproj->{'name'}";
+              push @args, "opackage=$pack"; # same package name
+              push @args, "orepository=$repo->{'name'}"; # same repo name
+              my $param = {
+                'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$pack",
+                'request' => 'POST',
+              };
+              eval {
+                # ignore failures when no build result exists in oproject
+                BSWatcher::rpc($param, undef, @args);
+              }
+            }
+          }
+        }
+      }
+    }
+    closedir(D);
+  }
+
+  notify_repservers('project', $projid);
 }
 
 sub sourcecopy {
@@ -4271,6 +4423,30 @@ sub delbinary {
     'request' => 'DELETE',
   };
   return BSWatcher::rpc($param, undef);
+}
+
+sub copybuild {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  die("illageal package '$packid'\n") if $packid =~ /^_/;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $oproject=$projid;
+  my $opackage=$packid;
+  my $orepository=$repoid;
+  $oproject=$cgi->{'oproject'} if $cgi->{'oproject'};
+  $opackage=$cgi->{'opackage'} if $cgi->{'opackage'};
+  $orepository=$cgi->{'orepository'} if $cgi->{'orepository'};
+  die("same source and target") if "$oproject/$opackage/$orepository" eq "$projid/$packid/$repoid";
+  my @args;
+  push @args, "cmd=copy";
+  push @args, "oproject=$oproject";
+  push @args, "opackage=$opackage";
+  push @args, "orepository=$orepository";
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+    'request' => 'POST',
+  };
+  # XXX add return type checking
+  return BSWatcher::rpc($param, undef, @args);
 }
 
 sub uploadbuild {
@@ -4944,13 +5120,21 @@ sub createrequest {
   for my $r (@{$req->{'review'} || []}) {
     my $notification = BSNotify::requestParams($req, $cgi->{'user'});
     my $hermes_type;
-    if ($r->{'by_user'}) {
+    if ($r->{'by_package'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED";
+      $notification->{'newreviewer_project'} = $r->{'by_project'};
+      $notification->{'newreviewer_package'} = $r->{'by_package'};
+    }elsif ($r->{'by_project'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED";
+      $notification->{'newreviewer_project'} = $r->{'by_project'};
+    } elsif ($r->{'by_user'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
       $notification->{'newreviewer'} = $r->{'by_user'};
     } elsif ($r->{'by_group'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
-      $notification->{'newreviewer'} = $r->{'by_group'};
+      $notification->{'newreviewer_group'} = $r->{'by_group'};
     }
+    $notification->{'comment'} = $r->{'comment'};
     BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
    }
 
@@ -5067,13 +5251,21 @@ sub postrequest {
   my $hermes_type;
   my $notification = BSNotify::requestParams($req, $cgi->{'user'});
   if ($cmd eq 'addreview') {
-    if ($cgi->{'by_user'}) {
+    if ($cgi->{'by_package'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED";
+      $notification->{'newreviewer_project'} = $cgi->{'by_project'};
+      $notification->{'newreviewer_package'} = $cgi->{'by_package'};
+    }elsif ($cgi->{'by_project'}) {
+      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED";
+      $notification->{'newreviewer_project'} = $cgi->{'by_project'};
+    } elsif ($cgi->{'by_user'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
       $notification->{'newreviewer'} = $cgi->{'by_user'};
     } elsif ($cgi->{'by_group'}) {
       $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
-      $notification->{'newreviewer'} = $cgi->{'by_group'};
+      $notification->{'newreviewer_group'} = $cgi->{'by_group'};
     }
+    $notification->{'comment'} = $cgi->{'comment'};
   } else {
     if( $cgi->{'newstate'} eq "accepted" ) {
       $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
@@ -5492,8 +5684,8 @@ sub getdispatchprios {
 
 sub hello {
   my ($cgi) = @_;
-  return "<hello name=\"Source Repository Ajax Server\" />\n" if $BSStdServer::isajax;
-  return "<hello name=\"Source Repository Server\" />\n";
+  return "<hello name=\"Source Repository Ajax Server\" repoid=\"$repoid\" />\n" if $BSStdServer::isajax;
+  return "<hello name=\"Source Repository Server\" repoid=\"$repoid\" />\n";
 }
 
 ####################################################################
@@ -5511,6 +5703,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project? withbinaries:bool? withhistory:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project deleted:bool?' => \&getpackagelist,
 
@@ -5537,6 +5730,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
   'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&runservice,
+  'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
@@ -5603,6 +5797,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,
@@ -5658,6 +5853,14 @@ my $aconf = {
   'getrequest_recvfd' => \&BSHandoff::receive,
   'setkeepalive' => 1,
 };
+
+# set a repoid for identification of this data repository
+mkdir_p("$projectsdir") unless -d "$projectsdir";
+if ( ! -e "$projectsdir/_repoid" ) {
+  my $randomid = int(rand(1000000000));
+  writestr("$projectsdir/._repoid", "$projectsdir/_repoid", sprintf("%09d", $randomid)) || die ("Unable to initialize the project repository");
+}
+$repoid = readstr("$projectsdir/_repoid");
 
 BSNotify::notify("SRCSRV_START", $conf);
 

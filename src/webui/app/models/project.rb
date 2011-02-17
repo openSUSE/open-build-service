@@ -158,7 +158,7 @@ class Project < ActiveXML::Base
     if not opt.empty?
       opt_arr = []
       opt.each do |k,v|
-        opt_arr << "@#{k}='#{v}'"
+        opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?
       end
       xpath += "[#{opt_arr.join ' and '}]"
     end
@@ -295,8 +295,30 @@ class Project < ActiveXML::Base
     return ret
   end
 
-  def person_count
-    @person_count ||= each_person.length
+  def user_has_role?(userid, role)
+    each_person do |p|
+      return true if p.role == role and p.userid == userid
+    end
+    return false
+  end
+
+  def group_has_role?(groupid, role)
+    each_group do |g|
+      return true if g.role == role and g.groupid == groupid
+    end
+    return false
+  end
+
+  def users
+    users = []
+    each_person {|p| users.push(p.userid)}
+    return users.sort.uniq
+  end
+
+  def groups
+    groups = []
+    each_group {|g| groups.push(g.groupid)}
+    return groups.sort.uniq
   end
 
   def is_maintainer? userid

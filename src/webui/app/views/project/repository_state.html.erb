@@ -1,7 +1,7 @@
 <%
-project_bread_crumb( 'Repository States' )
-@pagetitle = "Repository States of #{@project.name}"
+@pagetitle = "Repository State of #{@project.name}"
 @metarobots = 'noindex'
+project_bread_crumb("Repository State")
 -%>
 
 <%= render :partial => "tabs" %>
@@ -11,10 +11,9 @@ project_bread_crumb( 'Repository States' )
 <% @repositories.each do |repository| %>
   <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository) %>" >
 
-    <h3>Repository State of <%= repository %></h3>
+    <h3><%= @pagetitle %></h3>
 
-    <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository ) %> Go to download <%= link_to 'repository', repo_url( @project, repository ) %>
-    </p>
+    <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => repository} %>
 
     <div style="margin-top: 1em">
       <h4>Build Dependendency Cycles</h4>
@@ -26,7 +25,8 @@ project_bread_crumb( 'Repository States' )
         <h5>Cycles for <%= arch %> (#<%= @repocycles[repository][arch].length %>)</h5>
         <ul>
           <% @repocycles[repository][arch].each do |cycle| %>
-            <li> <% cycle.each do |package| -%>
+            <li>
+              <% cycle.each do |package| -%>
                 <%= link_to package, :project => @project, :package => package, :controller => :package, :action => :show -%>
                 <% if package == cycle.last %><% else %>,<% end -%>
               <% end -%>

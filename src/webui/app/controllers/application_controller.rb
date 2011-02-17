@@ -15,6 +15,7 @@ class ApplicationController < ActionController::Base
   after_filter :set_charset
   after_filter :validate_xhtml
   protect_from_forgery
+  has_mobile_views
 
   if Rails.env.test?
      prepend_before_filter :start_test_api
@@ -266,7 +267,8 @@ class ApplicationController < ActionController::Base
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
       begin
         @nr_involved_requests = @user.involved_requests(:cache => !discard_cache?).size
-      rescue
+      # add all temporary errors here, but no catch all
+      rescue Timeout::Error
       end
     end
   end
@@ -328,6 +330,7 @@ class ApplicationController < ActionController::Base
     #return unless (Rails.env.development? || Rails.env.test?)
     return unless Rails.env.development?
     return if request.xhr?
+    return if mobile_request?
   
     return if !(response.status =~ /200/ &&
         response.headers['Content-Type'] =~ /text\/html/i)

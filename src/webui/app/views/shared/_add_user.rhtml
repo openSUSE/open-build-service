@@ -1,9 +1,17 @@
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+
 <h3><%= @pagetitle %></h3>
 
 <% form_tag :action => :save_person do %>
   <p>
-    <strong>User ID:</strong><br/>
-    <%= text_field_tag 'userid', params[:userid], :size => '25' %><br/>
+    <strong>User:</strong><br/>
+    <%= text_field_tag 'userid', params[:userid] %><br/>
+    <script type="text/javascript">
+      $("#userid").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
+    </script>
     <strong>Role:</strong><br/>
     <%= select_tag 'role', options_for_select(@roles, params[:role]) %><br/>
     <%= hidden_field_tag 'package', @package %>

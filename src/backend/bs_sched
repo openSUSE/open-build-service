@@ -260,8 +260,11 @@ sub addrepo_scan {
       my $doddata = $doddata[0];
       eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $myarch ] })};
       if ($@) {
-	warn("download on demand: cannot read metadata: $@");
+	print "    download on demand: cannot read metadata: $@\n";
 	return undef;
+      } elsif (!$cache) {
+        print "    download on demand: cannot read metadata: unknown mtype attribute\n";
+        return undef;
       }
       for (values %$cache) {
 	$_->{'id'} = 'dod';
@@ -1474,6 +1477,17 @@ sub get_projpacks {
     }
     last;
   }
+
+  # Be sure that this is the right source server for my binary packages
+  die("ERROR: source server did not report a repoid") unless $projpacksin->{'repoid'};
+  if (! -e "$reporoot/_repoid") {
+    mkdir_p("$reporoot") unless -d "$reporoot";
+    writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'});
+  }
+  my $buildrepoid = readstr("$reporoot/_repoid");
+  die("ERROR: My repository id($buildrepoid) has wrong length(".length($buildrepoid).")") unless length($buildrepoid) == 9;
+  die("ERROR: source server repository id($projpacksin->{'repoid'}) does not match my repository id($buildrepoid)") unless $buildrepoid eq $projpacksin->{'repoid'};
+
   for my $proj (@{$projpacksin->{'project'} || []}) {
     if (@packids) {
       die("bad projpack answer\n") unless $proj->{'name'} eq $projid;
@@ -2299,7 +2313,10 @@ sub importevent {
   my %all = map {$_ => 1} @all;
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
+  my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
   my $useforbuildenabled = 1;
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
+ $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
@@ -3694,13 +3711,20 @@ while(1) {
       if ($ev->{'type'} eq 'rebuild' || $ev->{'type'} eq 'recheck') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
-	for my $prp (@prps) {
-	  if ((split('/', $prp, 2))[0] eq $projid) {
-	    $changed_high{$prp} ||= 1;
-	    $changed_dirty{$prp} = 1;
-	  }
-	}
-	$changed_high{$projid} ||= 1;
+	my $repoid = $ev->{'repository'};
+        if (defined($repoid)) {
+          my $prp = "$projid/$repoid";
+          $changed_high{$prp} ||= 1;
+          $changed_dirty{$prp} = 1;
+        } else {
+          for my $prp (@prps) {
+            if ((split('/', $prp, 2))[0] eq $projid) {
+              $changed_high{$prp} ||= 1;
+              $changed_dirty{$prp} = 1;
+            }
+          }
+	  $changed_high{$projid} ||= 1;
+        }
 	next;
       }
 
@@ -3744,6 +3768,12 @@ while(1) {
 	print F Dumper($repodata);
 	close F;
 	next;
+      }
+
+      if ($ev->{'type'} eq 'wipenotyet') {
+        my $prp = "$ev->{'project'}/$ev->{'repository'}";
+        delete $nextmed{$prp};
+        next;
       }
 
       if ($ev->{'type'} eq 'wipe') {

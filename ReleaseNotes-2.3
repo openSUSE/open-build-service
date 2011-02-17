@@ -1,5 +1,5 @@
 #
-# openSUSE Build Service 2.2
+# openSUSE Build Service 2.3
 #
 
 Please read the README.SETUP file for initial installation
@@ -16,11 +16,31 @@ their appliance image without data loss. The migration will
 happen automatically.
 
 
-Existing problems which need to be fixed before 2.2 final release
-=================================================================
+Security aspects
+================
 
-* webui is generating corrupt project meta data -> add repo is failing
-* webui is caching also secret data, exposing hidden projects.
+Former OBS releases lack protection against XSS attacks. Esp. public instances
+should update to OBS 2.3, which is using rails plugins to protect against XSS
+attempts. This fixes (CVE-2011-0462).
+
+To be considered regarding read access checks
+=============================================
+
+* "access" flag is hiding and protecting entire project. This includes binaries
+  and sources. It can only be used at project creation time and can just be
+  globally enabled (aka make it public again) afterwards.
+   This flag can only be used on projects.
+
+* "sourceaccess" flag is hiding the sources to non maintainers, this includes also debug packages
+  in case the distribution is supporting this correctly.
+    This flag can also only be used at package creation time. There is no code
+  yet which is checking for possible references to this package.
+  This flag can be used on projects or packages.
+
+* "downloadbinary" permission still exists like before. However, unlike "access" 
+  and "sourceaccess" this is not a security feature. It is just a convinience feature, which
+  makes it impossible to get the binaries via the API directly. But it still possible
+  to get the binaries via build time in any case.
 
 
 Known Regressions to 2.1:
@@ -48,6 +68,7 @@ Changes:
 
 * web interface
   - bug reporting for projects/packages is only possible if a bugowner is set
+  - XSS protection plugins are used now (CVE-2011-0462)
 
 * api
   - It was not possible so far to create submit requests from packages where no write access exists.

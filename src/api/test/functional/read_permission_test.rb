@@ -290,7 +290,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   protected :do_test_copy_package
 
   def test_copy_hidden_project
-    return unless $ENABLE_BROKEN_TEST
     # invalid
     ActionController::IntegrationTest::reset_auth 
     srcprj="HiddenProject"
@@ -312,9 +311,8 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # flag not inherited
     resp=:success
     delresp=:success
-    debug=true
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     debug=false
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # admin has special permission
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
@@ -336,7 +334,11 @@ class ReadPermissionTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     resp=404
     delresp=404
+    if $ENABLE_BROKEN_TEST
+#FIXME2.2
+    debug=true
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+end
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
     # flag not inherited - should we inherit in any case to be on the safe side ?
@@ -349,7 +351,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   end
 
   def test_copy_sourceaccess_protected_project
-    return unless $ENABLE_BROKEN_TEST
     # invalid
     ActionController::IntegrationTest::reset_auth 
     srcprj="SourceprotectedProject"
@@ -444,10 +445,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
-    # special user cannot link unprotected to protected package
-    put url, '<link project="HiddenProject" package="target" />'
-    assert_response 403 if $ENABLE_BROKEN_TEST
-
     # check this works with remote projects also
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4")
     assert_response 404
@@ -509,6 +506,24 @@ class ReadPermissionTest < ActionController::IntegrationTest
         '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "change_package_protection_level" }
+    delete "/source/home:adrian:Project"
+    assert_response :success
+    delete "/source/home:adrian:PublicProject"
+    assert_response :success
+  end
+
+  def test_alter_access_flags
+    # Create public project with protected package
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> <access><disable/></access> </project>'
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+    delete "/source/home:adrian:Project"
+    assert_response :success
   end
 
   def test_project_links_to_sourceaccess_protected_package
@@ -539,31 +554,25 @@ class ReadPermissionTest < ActionController::IntegrationTest
     end
     post "/source/home:tom:temp/ProtectedPackage", :cmd => :copy, :oproject => "home:tom:temp", :opackage => "ProtectedPackage"
     assert_response 403
-if $ENABLE_BROKEN_TEST
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response 403
     assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
-    assert_match(/<summary>no read access to package/, @response.body)  # api is talking
-    assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
-end
+    assert_tag :tag => "status", :attributes => { :code => "source_access_no_permission" } # api is talking
     # public controller
     get "/public/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response 403
     get "/public/source/home:tom:temp/ProtectedPackage"
     assert_response 403
-    # Admin can bypass api, but backend would still not build it
+    # Admin can bypass api
     prepare_request_with_user "king", "sunflower"
     get "/source/home:tom:temp/ProtectedPackage"
-    assert_response 403
-    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    assert_response 403 # FIXME2.2: this is inconsistend, why is the bachend saying a 403 here ?
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
-    assert_response 403
-    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    assert_response :success
     get "/source/home:tom:temp/ProtectedPackage/non_existing_file"
-    assert_response 403
-    assert_match(/<summary>source access denied<\/summary>/, @response.body)  # backend is talking
+    assert_response 404
 
     # check access to deleted package
     prepare_request_with_user "adrian", "so_alone"
@@ -618,7 +627,7 @@ end
     assert_response 403
     [ :branch, :diff, :linkdiff, :copy ].each do |c|
       # would not work, but needs to return with 403 in any case
-      post "/source/home:tom:temp/Package", :cmd => c
+      post "/source/home:tom:temp/Package", :cmd => c, :oproject => "home:tom:temp", :opackage => "Package"
       assert_response 403
     end
     # public controller
@@ -841,25 +850,50 @@ end
 
   end
 
-  # FIXME: to be implemented:
-  # For source access:
-  # * test write operations on a project or package
-  # * test package link creation
-  # * test public controller
-  # * test tag controller
-  # For binary access
-  # * test project repository path setup
-  # * test aggregate creation
-  # * test kiwi live image file creation
-  # * test kiwi product file creation
-  # Everything needs to be tested as user with various roles and as a group member with various roles
-  # the very same must be tested also for public project, but protected package
+  def test_copy_project_of_hidden_project
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfProject?cmd=copy&oproject=HiddenProject"
+    assert_response :success
+    get "/source/CopyOfProject/_meta"
+    assert_response :success
+    assert_tag( :tag => "disable", :parent => { :tag => "access" } )
 
+    delete "/source/CopyOfProject"
+    assert_response :success
+  end
 
-  # Done
-  # * test search for hidden objects - in search controller test
-  # * test read operations on a project or package
-  # * test creation and "accept" of requests
-  # * test project link creation
+  def test_copy_project_of_source_protected_project
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfProject?cmd=copy&oproject=SourceprotectedProject"
+    assert_response :success
+    get "/source/CopyOfProject/_meta"
+    assert_response :success
+    assert_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+
+    delete "/source/CopyOfProject"
+    assert_response :success
+  end
+
+  def test_copy_project_of_source_protected_package
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:tom/ProtectedPackage/_meta",
+        '<package project="home:tom" name="ProtectedPackage"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
+    assert_response :success
+    
+    post "/source/CopyOfProject?cmd=copy&oproject=home:tom"
+    assert_response :success
+    get "/source/CopyOfProject/_meta"
+    assert_response :success
+    assert_no_tag( :tag => "disable", :parent => { :tag => "access" } )
+    assert_no_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+    get "/source/CopyOfProject/ProtectedPackage/_meta"
+    assert_response :success
+    assert_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+
+    delete "/source/CopyOfProject"
+    assert_response :success
+    delete "/source/home:tom/ProtectedPackage"
+    assert_response :success
+  end
 
 end

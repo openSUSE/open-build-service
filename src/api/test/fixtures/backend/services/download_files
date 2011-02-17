@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# downloads files specified in spec files
+
+DORECOMPRESS=""
+while test $# -gt 0; do
+  case $1 in
+    *-recompress)
+      if [ "$2" == "yes" ]; then
+        DORECOMPRESS="yes"
+      fi
+      shift
+    ;;
+    *-outdir)
+      MYOUTDIR="$2"
+      shift
+    ;;
+    *)
+      echo Unknown parameter $1.
+      echo 'this service is not accepting parameters currently'
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+if [ ! -d "$MYOUTDIR" ]; then
+  echo "ERROR: output directory does not exist"
+  exit 1
+fi
+
+function uncompress_file() {
+  local input=$1
+  local output=$2
+
+  UNCOMPRESS="cat"
+  BASENAME="$input"
+  if [ "${input%.gz}" != "$input" ]; then
+    UNCOMPRESS="gunzip -c"
+    BASENAME="${input%.gz}"
+  elif [ "${input%.tgz}" != "$input" ]; then
+    UNCOMPRESS="gunzip -c"
+    BASENAME="${input%.tgz}.tar"
+  elif [ "${input%.bz2}" != "$input" ]; then
+    UNCOMPRESS="bunzip2 -c"
+    BASENAME="${input%.bz2}"
+  elif [ "${FILE%.xz}" != "$input" ]; then
+    UNCOMPRESS="xz -dc"
+    BASENAME="${input%.xz}"
+  fi
+
+  $UNCOMPRESS "$input" > "$output"
+  echo $BASENAME
+}
+
+RETURN=0
+for i in *.spec; do
+  [ "$i" == "*.spec" ] && exit 0
+  NAME=`sed -n 's/^Name:[ ]*\(.*\)/\1/p' "$i"`
+  VERSION=`sed -n 's/^Version:[ ]*\(.*\)/\1/p' "$i"`
+
+  for u in `sed -n 's,^Source[^:]*:[ ]*\(.*://.*\),\1,p' "$i"` `sed -n 's,^Patch[^:]*:[ ]*\(.*://.*\),\1,p' "$i"`; do
+    PROTOCOL="${u%%:*}"
+    if [ "$PROTOCOL" != "http" -a "$PROTOCOL" != "https" -a "$PROTOCOL" != "ftp" ]; then
+      continue
+    fi
+    cd "$MYOUTDIR"
+    url="$u"
+    url="${url//%\{name\}/$NAME}"
+    url="${url//%name/$NAME}"
+    url="${url//%\{version\}/$VERSION}"
+    url="${url//%version/$VERSION}"
+    if [ -z "$DORECOMPRESS" ]; then
+      /usr/bin/wget -4 --no-check-certificate -q "$url" || exit 1
+      RECOMPRESS=""
+    else
+      FORMAT="${url##*\.}"
+      if /usr/bin/wget -4 --no-check-certificate -q "$url"; then
+        RECOMPRESS=""
+        FILE="${url}"
+      elif /usr/bin/wget -4 --no-check-certificate -q "${url%$FORMAT}gz"; then
+        RECOMPRESS="$FORMAT"
+        FILE="${url%$FORMAT}gz"
+      elif /usr/bin/wget -4 --no-check-certificate -q "${url%$FORMAT}bz2"; then
+        RECOMPRESS="$FORMAT"
+        FILE="${url%$FORMAT}bz2"
+      elif /usr/bin/wget -4 --no-check-certificate -q "${url%$FORMAT}xz"; then
+        RECOMPRESS="$FORMAT"
+        FILE="${url%$FORMAT}xz"
+      else
+        RECOMPRESS=""
+        RETURN=1
+      fi
+      FILE="${FILE##*/}"
+    fi
+
+    # remove all file files which are indendical to committed files
+    [ -f "$OLDPWD/$FILE" ] && cmp "$FILE" "$OLDPWD/$FILE" && rm "$FILE"
+
+    if [ -n "$RECOMPRESS" ]; then
+      tempfile=`mktemp`
+      file_name=`uncompress_file "$FILE" "$tempfile"`
+
+      # uncompress the old file also to compare
+      tempoldfile=`mktemp`
+      uncompress_file "$OLDPWD/${url##*/}" "$tempoldfile" > /dev/null
+
+      # do not create new file, if identical
+      if ! cmp "$tempfile" "$tempoldfile"; then
+        if [ "$RECOMPRESS" == "gz" ]; then
+          COMPRESS="gzip -c -"
+          SUFFIX=".gz"
+        elif [ "$RECOMPRESS" == "bz2" ]; then
+          COMPRESS="bzip2 -c -"
+          SUFFIX=".bz2"
+        elif [ "$RECOMPRESS" == "xz" ]; then
+          COMPRESS="xz -c -"
+          SUFFIX=".xz"
+        elif [ "$RECOMPRESS" == "none" ]; then
+          COMPRESS="cat -"
+          SUFFIX=""
+        else
+          echo "ERROR: Unknown compression $RECOMPRESS"
+          RETURN=1
+        fi
+
+        # do the compression
+        cat "$tempfile" | $COMPRESS > "$file_name$SUFFIX" || RETURN=1
+        rm "$FILE" # remove downloaded file
+      fi
+
+      # cleanup
+      rm -f "$tempfile" "$tempoldfile"
+    fi
+    cd -
+  done
+done
+
+exit $RETURN
+

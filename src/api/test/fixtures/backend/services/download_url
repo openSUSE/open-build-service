@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Just the very first example OBS service, written by adrian
+# we should build a bash lib for some of this stuff
+
+# defaults
+MYPROTOCOL="http"
+MYHOST=""
+MYPORT=""
+
+while test $# -gt 0; do
+  case $1 in
+    *-host)
+      MYHOST="$2"
+      shift
+    ;;
+    *-port)
+      MYPORT=":$2"
+      shift
+    ;;
+    *-protocol)
+      MYPROTOCOL="$2"
+      shift
+    ;;
+    *-path)
+      MYPATH="${2#/}"
+      shift
+    ;;
+    *-filename)
+      MYFILENAME="${2#/}"
+      shift
+    ;;
+    *-outdir)
+      MYOUTDIR="$2"
+      shift
+    ;;
+    *)
+      echo Unknown parameter $1.
+      echo 'Usage: http_download --host $HOST --path $PATH --outdir $OUT'
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+FILE="${MYPATH##*/}"
+
+if [ -z "$MYHOST" ]; then
+  echo "ERROR: no hostname is given via --host parameter!"
+  exit 1
+fi
+if [ -z "$MYPATH" ]; then
+  echo "ERROR: no path is given via --path parameter!"
+  exit 1
+fi
+if [ -z "$MYOUTDIR" ]; then
+  echo "ERROR: no output directory is given via --outdir parameter!"
+  exit 1
+fi
+if [ -z "$FILE" ]; then
+  echo "ERROR: no file name was stripped from $MYPATH"
+  exit 1
+fi
+
+cd "$MYOUTDIR"
+# yes, not nice, but too many broken servers out there who either break with IPv6 or have broken certificates :/
+# let's use verify service to validate the downloaded source
+if [ -n "$MYFILENAME" ]; then
+  exec /usr/bin/wget -4 --no-check-certificate -q -O "$MYFILENAME" "$MYPROTOCOL://${MYHOST}${MYPORT}/$MYPATH"
+else
+  exec /usr/bin/wget -4 --no-check-certificate -q "$MYPROTOCOL://${MYHOST}${MYPORT}/$MYPATH"
+fi
+

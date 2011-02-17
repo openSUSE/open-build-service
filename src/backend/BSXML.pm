@@ -230,6 +230,7 @@ our $patchinfo = [
 
 our $projpack = [
     'projpack' =>
+    'repoid',
      [[ 'project' =>
 	    'name',
 	     [],
@@ -922,17 +923,19 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
-	'type',		# obsolete in future, type will be defined per action
+	'type',		# obsolete, still here to handle OBS pre-1.5 requests
      [[ 'action' =>
-	    'type',	# currently submit, delete, change_devel, add_role
+	    'type',	# currently submit, delete, change_devel, add_role, merge, maintenance (obsolete: set_bugowner)
 	  [ 'source' =>
 	        'project',
 	        'package',
-	        'rev',
+	        'rev',        # belongs to package attribute
+	        'repository', # for merge request
 	  ],
 	  [ 'target' =>
 		'project',
 		'package',
+	        'repository', # for merge request
 	  ],
 	  [ 'person' =>
 		'name',
@@ -1024,15 +1027,6 @@ our $quota = [
      ]],
 ];
 
-our $services = [
-    'services' =>
-    [[ 'service' =>
-       'name',
-       [],
-       [[ 'param' => 'name', '_content' ]],
-    ]],
-];
-
 our $schedulerinfo = [
   'schedulerinfo' =>
 	'arch',
@@ -1105,7 +1099,19 @@ our $dispatchprios = [
      ]],
 ];
 
-our $service = [
+# list of used services for a package or project
+our $services = [
+    'services' =>
+    [[ 'service' =>
+       'name',
+       'mode', # "localonly" is skipping this service on server side, "trylocal" is trying to merge changes directly in local files, "disabled" is just skipping it
+       [],
+       [[ 'param' => 'name', '_content' ]],
+    ]],
+];
+
+# service type definitions
+our $servicetype = [
     'service' =>
         'name',
         [],
@@ -1120,10 +1126,9 @@ our $service = [
                      [[ 'allowedvalue' => '_content' ]], # list of possible values
         ]],
 ];
-
 our $servicelist = [
     'servicelist' =>
-        [ $service ],
+        [ $servicetype ],
 ];
 
 1;

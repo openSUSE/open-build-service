@@ -49,7 +49,7 @@ case "$1" in
 		echo -n "Initializing obsservice"
 		mkdir -p "$rundir" "$logdir" "$workdir"
 		chown obsrun:obsrun "$logdir" "$rundir" "$workdir"
-		startproc -l "$logdir"/src_service.log "$obsdir"/bs_service --root "$workdir"
+		startproc -l "$logdir"/src_service.log "$obsdir"/bs_service --tempdir "$workdir"
 		rc_status -v
 	;;
 	stop)

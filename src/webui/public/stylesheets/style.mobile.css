@@ -1,0 +1,20 @@
+img {
+    vertical-align: middle;
+}
+
+.ui-li-has-thumb .ui-btn-inner {
+    min-height: 25px;
+    padding-left: 30px;
+}
+
+.ui-li-thumb, .ui-li-icon, .ui-li-content {
+    margin: 3px;
+}
+
+.centered {
+    text-align:center;
+}
+
+.ui-li .ui-btn-inner {
+    padding-right: 35px;
+}

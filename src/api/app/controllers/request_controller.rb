@@ -1,13 +1,95 @@
+
+include MaintenanceHelper
+include ProductHelper
+
 class RequestController < ApplicationController
   #TODO: request schema validation
 
   # the simple writing action.type instead of action.data.attributes['type'] can not be used, since it is a rails function
 
-  # GET /request
-  alias_method :index, :pass_to_backend
-
   # POST /request?cmd=create
   alias_method :create, :dispatch_command
+
+  # GET /request
+  def index
+    valid_http_methods :get
+
+    if params[:view] == "collection"
+      predicates = []
+
+      # Do not allow a full collection to avoid server load
+      if params[:project].blank? and params[:user].blank?
+       render_error :status => 404, :errorcode => 'require_filter',
+         :message => "This call requires at least one filter, either by user, project or package"
+       return
+      end
+
+      # pending requests are new or in review requests
+      if params[:state] == "pending"
+        predicates << "(state/@name='new' or state/@name='review')"
+      elsif params[:state]
+        predicates << "state/@name='#{params[:state]}'"
+      end
+
+      # Filter by request type (submit, delete, ...)
+      predicates << "action/@type='#{params[:action_type]}'" if params[:action_type]
+
+      unless params[:project].blank?
+        if params[:package].blank?
+          str = "action/target/@project='#{params[:project]}'"
+          str += " or (review[@by_project='#{params[:project]}' and @state='new'])"
+        else
+          str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
+          str += " or (review[@by_project='#{params[:project]}' and @by_package='#{params[:package]}' and @state='new'])"
+        end
+        predicates << str
+      end
+
+      if params[:user] # should be set in almost all cases
+        # user's own submitted requests
+        str = "(state/@who='#{params[:user]}'"
+        # requests where the user is reviewer or own requests that are in review by someone else
+        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
+        # find requests where user is maintainer in target project
+        maintained_projects = Array.new
+        maintained_projects_hash = Hash.new
+        u = User.find_by_login(params[:user])
+        u.involved_projects.each do |ip|
+          maintained_projects += ["action/target/@project='#{ip.name}'"]
+          maintained_projects_hash[ip.id] = true
+        end
+        str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+        ## find request where user is maintainer in target package, except we have to project already
+        maintained_packages = Array.new
+        u.involved_packages.each do |ip|
+          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
+          #FIXME2.3: This code causes heavy load in the backend source server, to be re-evaluated.
+          #str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
+        end
+        str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        str += ")"
+        predicates << str
+      end
+
+      # Pagination: Discard 'offset' most recent requests (useful with 'count')
+      if params[:offset]
+        # TODO: Backend XPath engine needs better range support
+      end
+      # Pagination: Return only 'count' requests
+      if params[:count]
+        # TODO: Backend XPath engine needs better range support
+      end
+
+      pr = predicates.join(" and ")
+      logger.debug "running backend query at #{Time.now}"
+      c = Suse::Backend.post("/search/request?match=" + CGI.escape(pr), nil)
+      render :text => c.body, :content_type => "text/xml"
+    else
+      # directory list of all requests. not very usefull but for backward compatibility...
+      # OBS3: make this more usefull
+      pass_to_backend
+    end
+  end
 
   # GET /request/:id
   def show
@@ -15,7 +97,7 @@ class RequestController < ApplicationController
     # ACL(show) TODO: check this leaks no information that is prevented by ACL
     # parse and rewrite the request to latest format
 
-    data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
+    data = Suse::Backend.get("/request/#{CGI.escape params[:id]}").body
     req = BsRequest.new(data)
 
     send_data(req.dump_xml, :type => "text/xml")
@@ -26,7 +108,6 @@ class RequestController < ApplicationController
 
   # PUT /request/:id
   def update
-    # ACL(update) TODO: check this leaks no information that is prevented by ACL
     params[:user] = @http_user.login if @http_user
     
     #TODO: allow PUT for non-admins
@@ -106,10 +187,56 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create_create
-    # ACL(create_create) TODO: check this leaks no information that is prevented by ACL
-    # ACL(create_create) TODO: how to handle if permissions in source and target project are different
     req = BsRequest.new(request.body.read)
 
+    # expand merge and submit request targets if not specified
+    req.each_action do |action|
+      if [ "submit", "merge" ].include?(action.data.attributes["type"])
+        unless action.has_element? 'target'
+          packages = Array.new
+          if action.source.has_attribute? 'package'
+            packages << DbPackage.get_by_project_and_name( action.source.project, action.source.package )
+          else
+            prj = DbProject.get_by_name action.source.project
+            packages = prj.db_packages
+          end
+
+          packages.each do |pkg|
+            # find target via linkinfo or fail
+            data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
+            e = data.elements["directory/linkinfo"]
+            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
+              render_error :status => 400, :errorcode => 'unknown_target_package',
+                :message => "target package does not exist"
+              return
+            end
+            newAction = action.clone
+            newAction.add_element 'target' unless newAction.has_element? 'target'
+            newAction.source.data.attributes["package"] = pkg.name
+            newAction.target.data.attributes["project"] = e.attributes["project"]
+            newAction.target.data.attributes["package"] = e.attributes["package"]
+            if action.data.attributes["type"] == "merge" and not newAction.source.has_attribute? 'rev'
+              # merge needs the binaries, so we always use the current source
+              rev=nil
+              if e.attributes["xsrcmd5"]
+                rev=e.attributes["xsrcmd5"]
+              elsif e.attributes["srcmd5"]
+                rev=e.attributes["srcmd5"]
+              else
+                render_error :status => 400, :errorcode => 'broken_source',
+                  :message => "Current sources are broken"
+                return
+              end
+              newAction.source.data.attributes["rev"] = rev
+            end
+            req.add_node newAction.data
+          end
+          req.delete_element action
+        end
+      end
+    end
+
+    # permission checks
     req.each_action do |action|
       # find objects if specified or report error
       role=nil
@@ -141,36 +268,26 @@ class RequestController < ApplicationController
         end
       end
       if action.has_element?('source') and action.source.has_attribute?('project')
-        sprj = DbProject.find_by_name action.source.project
+        sprj = DbProject.get_by_name action.source.project
         unless sprj
           render_error :status => 404, :errorcode => 'unknown_project',
             :message => "Unknown source project #{action.source.project}"
           return
         end
+        unless sprj.class == DbProject
+          render_error :status => 400, :errorcode => 'not_supported',
+            :message => "Source project #{action.source.project} is not a local project. This is not supported yet."
+          return
+        end
         if action.source.has_attribute? 'package'
-          spkg = sprj.db_packages.find_by_name action.source.package
-          unless spkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown source package #{action.source.package} in project #{action.source.project}"
-            return
-          end
+          spkg = DbPackage.get_by_project_and_name sprj.name, action.source.package
         end
       end
 
       if action.has_element?('target') and action.target.has_attribute?('project')
-        tprj = DbProject.find_by_name action.target.project
-        unless tprj
-          render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown target project #{action.target.project}"
-          return
-        end
+        tprj = DbProject.get_by_name action.target.project
         if action.target.has_attribute? 'package' and action.data.attributes["type"] != "submit"
-          tpkg = tprj.db_packages.find_by_name action.target.package
-          unless tpkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown target package #{action.target.package} in project #{action.target.project}"
-            return
-          end
+          tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
         end
       end
 
@@ -178,23 +295,18 @@ class RequestController < ApplicationController
       if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
         #check existence of target
         unless tprj
-          if DbProject.find_remote_project(action.target.project)
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Project is on remote instance, #{action.data.attributes["type"]} not possible  #{action.target.project}"
-            return
-          end
           render_error :status => 404, :errorcode => 'unknown_project',
             :message => "No target project specified"
           return
         end
-	if action.data.attributes["type"] == "add_role"
-	  unless role
+        if action.data.attributes["type"] == "add_role"
+          unless role
             render_error :status => 404, :errorcode => 'unknown_role',
               :message => "No role specified"
             return
           end
         end
-      elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
+      elsif [ "submit", "change_devel", "merge", "maintenance" ].include?(action.data.attributes["type"])
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -210,9 +322,57 @@ class RequestController < ApplicationController
               :message => "No source package specified"
             return
           end
+
+          # validate that the sources are not broken
+          begin
+            pr = ""
+            if action.source.has_attribute?('rev')
+              pr = "rev=#{CGI.escape(action.source.rev)}"
+            end
+            url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1&" + pr
+            c = Suse::Backend.get(url)
+          rescue ActiveXML::Transport::Error => e
+            render_error :status => 400, :errorcode => "expand_error",
+              :message => "The source of package #{action.source.project}/#{action.source.package} rev=#{action.source.rev} are broken"
+            return
+          end
+        end
+
+        if action.data.attributes["type"] == "maintenance"
+          if spkg
+            render_error :status => 400, :errorcode => 'illegal_request',
+              :message => "Maintenance requests accept only entire projects as source"
+            return
+          end
+          # find target project via attribute, if not specified
+          unless action.has_element? 'target' 
+            action.add_element 'target'
+          end
+          if action.target.has_attribute?(:package)
+            render_error :status => 400, :errorcode => 'illegal_request',
+              :message => "Maintenance requests accept only projects as target"
+            return
+          end
+          unless action.target.has_attribute?(:project)
+            # hardcoded default. frontends can lookup themselfs a different target via attribute search
+            at = AttribType.find_by_name("OBS:Maintenance")
+            unless at
+              render_error :status => 404, :errorcode => 'not_found',
+                :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
+              return
+            end
+            prj = DbProject.find_by_attribute_type( at ).first()
+            unless prj
+              render_error :status => 404, :errorcode => 'project_not_found',
+                :message => "There is no project flagged as maintenance project on server and no target in request defined."
+              return
+            end
+            action.target.data.attributes["project"] = prj.name
+          end
         end
 
         # source update checks
+#FIXME2.3: support this also for maintenance requests
         if action.data.attributes["type"] == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
@@ -275,15 +435,7 @@ class RequestController < ApplicationController
         elsif action.has_element? 'source' and action.source.has_attribute? 'package'
           tpkg = tprj.db_packages.find_by_name action.source.package
         end
-      elsif action.has_element? 'source'
-        # find target via linkinfo or fail
-        data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}") )
-        data.elements.each("directory/linkinfo") do |e|
-          tprj = DbProject.find_by_name e.attributes["project"]
-          tpkg = tprj.db_packages.find_by_name e.attributes["package"]
-        end
       end
-
       if action.has_element? 'source'
         # Creating submit request from packages where no maintainer right exists will enforce a maintainer review
         # to avoid that random people can submit versions without talking to the maintainers 
@@ -293,7 +445,7 @@ class RequestController < ApplicationController
             review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
           end
         else
-          sprj = DbPackage.find_by_name action.source.project
+          sprj = DbProject.find_by_name action.source.project
           if sprj and not @http_user.can_modify_project? sprj
             review_packages.push({ :by_project => action.source.project })
           end
@@ -334,7 +486,7 @@ class RequestController < ApplicationController
       review_packages.each do |p|
         e = req.add_element "review"
         e.data.attributes["by_project"] = p[:by_project]
-        e.data.attributes["by_package"] = p[:by_package]
+        e.data.attributes["by_package"] = p[:by_package] if p[:by_package]
         e.data.attributes["state"] = "new"
       end
     end
@@ -358,7 +510,7 @@ class RequestController < ApplicationController
   def command_diff
     valid_http_methods :post
 
-    data = Suse::Backend.get("/request/#{URI.escape params[:id]}").body
+    data = Suse::Backend.get("/request/#{CGI.escape params[:id]}").body
     req = BsRequest.new(data)
 
     diff_text = ""
@@ -386,42 +538,28 @@ class RequestController < ApplicationController
             path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
           end
         else
-          spkg = DbPackage.find_by_project_and_name( action.source.project, action.source.package )
-          tpkg = DbPackage.find_by_project_and_name( action.target.project, action.target.package )
-          unless spkg
-              render_error :status => 404, :errorcode => "unknown_package",
-                 :message => "Source package #{action.source.package}, project #{action.source.project} does not exist"
-              return
-          end
-          # ACL: show diff only if user has either read access rights in source or has maintainer rights in target
-          if spkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.can_source_access?(spkg)
-            isTargetMaintainer = false
-            if @http_user
-              if tpkg
-                isTargetMaintainer = true if @http_user.can_modify_package?(tpkg)
-              else
-                tprj = DbProject.find_by_name( action.target.project ) unless tpkg
-                if tprj and @http_user.can_create_package_in?(tprj)
-                  isTargetMaintainer = true
-                end
-              end
-            end
-            if @http_user.nil? or not isTargetMaintainer
-              render_error :status => 403, :errorcode => "source_access_no_permission",
-                 :message => "user #{@http_user.login} has no read access to package #{action.source.package}, project #{action.source.project} and is not a maintainer of package #{action.target.package}, project #{action.target.project}"
-              return
-            end
+          # for requests not yet accepted or accepted with OBS 2.0 and before
+          spkg = DbPackage.get_by_project_and_name( action.source.project, action.source.package )
+          tpkg = linked_tpkg = nil
+          if DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = false )
+            tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+          elsif DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = true )
+            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+          else
+            tprj = DbProject.get_by_name( action.target.project )
           end
 
-          # for requests not yet accepted or accepted with OBS 2.0 and before
           if tpkg
             path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
                    [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
             if action.source.data['rev']
               path += "&rev=#{action.source.rev}"
             end
+            if linked_tpkg
+              diff_text = "New package instance: " + action.target.project + "/" + action.target.package + " following diff contains diff to package from linked project.\n" + diff_text
+            end
           else
-            diff_text = "New package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
+            diff_text = "Additional package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
           end
         end
 
@@ -507,7 +645,7 @@ class RequestController < ApplicationController
     if params[:newstate] == "accepted"
        if params[:cmd] == "changestate" and req.state.name == "review" and not params[:force]
           render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "Request is in review state."
+            :message => "Request is in review state. You may use the force parameter to ignore this."
           return
        end
     end
@@ -523,15 +661,12 @@ class RequestController < ApplicationController
                 :message => "Group #{params[:by_group]} is unkown"
        return
     end
-    if params[:by_project] and DbProject.find_by_name(params[:by_project]).nil?
-       render_error :status => 404, :errorcode => "unknown_project",
-                :message => "Project #{params[:by_project]} is unkown"
-       return
-    end
-    if params[:by_package] and DbPackage.find_by_project_and_name(params[:by_project], params[:by_package]).nil?
-       render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Package params[:by_project] / #{params[:by_package]} is unkown"
-       return
+
+    # valid project or package ?
+    if params[:by_project] and params[:by_package]
+      pkg = DbPackage.get_by_project_and_name(params[:by_project], params[:by_package])
+    elsif params[:by_project]
+      prj = DbProject.get_by_name(params[:by_project])
     end
 
     # generic permission check
@@ -554,11 +689,9 @@ class RequestController < ApplicationController
       permission_granted = true if params[:by_user] == @http_user.login
       if params[:by_project] 
         if params[:by_package]
-          spkg = DbPackage.find_by_project_and_name params[:by_project], params[:by_package]
-          permission_granted = true if spkg and @http_user.can_modify_package? spkg
+          permission_granted = true if @http_user.can_modify_package? pkg
         else
-          sprj = DbProject.find_by_name params[:by_project]
-          permission_granted = true if prj and @http_user.can_modify_project? prj
+          permission_granted = true if @http_user.can_modify_project? prj
         end
       end
       unless permission_granted
@@ -579,37 +712,37 @@ class RequestController < ApplicationController
 
     # permission and validation check for each request inside
     req.each_action do |action|
-      if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
-        source_project = DbProject.find_by_name(action.source.project)
-        target_project = DbProject.find_by_name(action.target.project)
-        if params[:newstate] != "declined" and params[:newstate] != "revoked"
-          if target_project.nil?
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-            return
-          end
-          if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
+      if [ "submit", "change_devel", "merge", "maintenance" ].include? action.data.attributes["type"]
+        source_package = nil
+        target_package = nil
+        if params[:newstate] == "declined" or params[:newstate] == "revoked"
+          # relaxed access checks for getting rid of request
+          source_project = DbProject.find_by_name(action.source.project)
+          target_project = DbProject.find_by_name(action.target.project)
+        else
+          # full access checks
+          source_project = DbProject.get_by_name(action.source.project)
+          target_project = DbProject.get_by_name(action.target.project)
+          if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
             return
           end
-          if source_project.nil?
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Source project is missing for request #{req.id} (type #{action.data.attributes['type']})"
-            return
-          else
-            source_package = source_project.db_packages.find_by_name(action.source.package)
+          if action.source.has_attribute? :package
+            source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
-          if source_package.nil? and params[:newstate] != "revoked"
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
-            return
+          if [ "submit", "change_devel" ].include? action.data.attributes["type"]
+            unless source_package
+              render_error :status => 404, :errorcode => "unknown_package",
+                :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+              return
+            end
           end
         end
         if target_project
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
-          else
+          elsif [ "submit", "change_devel" ].include? action.data.attributes["type"]
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
         end
@@ -693,15 +826,15 @@ class RequestController < ApplicationController
           bugowner = Role.find_by_title("bugowner")
           if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
- 	     PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
-		r.destroy
+              PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
+                r.destroy
              end
-	  else
- 	     ProjectUserRoleRelationship.find(:all, :conditions => ["db_project_id = ? AND role_id = ?", object, bugowner]).each do |r|
-		r.destroy
+          else
+              ProjectUserRoleRelationship.find(:all, :conditions => ["db_project_id = ? AND role_id = ?", object, bugowner]).each do |r|
+                r.destroy
              end
           end
-	  object.add_user( action.person.name, bugowner )
+          object.add_user( action.person.name, bugowner )
           object.store
       elsif action.data.attributes["type"] == "add_role"
           object = DbProject.find_by_name(action.target.project)
@@ -710,15 +843,15 @@ class RequestController < ApplicationController
           end
           if action.has_element? 'person'
              role = Role.find_by_title(action.person.role)
-	     object.add_user( action.person.name, role )
+             object.add_user( action.person.name, role )
           end
           if action.has_element? 'group'
              role = Role.find_by_title(action.group.role)
-	     object.add_group( action.group.name, role )
+             object.add_group( action.group.name, role )
           end
           object.store
       elsif action.data.attributes["type"] == "change_devel"
-          target_project = DbProject.find_by_name(action.target.project)
+          target_project = DbProject.get_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
           target_package.develpackage = DbPackage.find_by_project_and_name(action.source.project, action.source.package)
           begin
@@ -751,7 +884,7 @@ class RequestController < ApplicationController
           end
 
           #create package unless it exists already
-          target_project = DbProject.find_by_name(action.target.project)
+          target_project = DbProject.get_by_name(action.target.project)
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
           else
@@ -775,7 +908,7 @@ class RequestController < ApplicationController
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
-              r = Suse::Backend.post "/source/#{action.target.project}/#{action.target.package}?cmd=branch&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+              r = Suse::Backend.post "/source/#{CGI.escape(action.target.project)}/#{CGI.escape(action.target.package)}?cmd=branch&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
             end
           end
 
@@ -811,9 +944,11 @@ class RequestController < ApplicationController
                 end
               end
 
-              # remove source project, if this is the only package
-              source_project.destroy
-              Suse::Backend.delete "/source/#{action.source.project}"
+              if source_project.name != "home:" + user.login
+                # remove source project, if this is the only package and not the user's home project
+                source_project.destroy
+                Suse::Backend.delete "/source/#{action.source.project}"
+              end
             else
               # just remove package
               source_package.destroy
@@ -821,17 +956,39 @@ class RequestController < ApplicationController
             end
           end
       elsif action.data.attributes["type"] == "delete"
-          project = DbProject.find_by_name(action.target.project)
           if not action.target.has_attribute? :package
+            project = DbProject.get_by_name(action.target.project)
             project.destroy
             Suse::Backend.delete "/source/#{action.target.project}"
           else
             DbPackage.transaction do
-              package = project.db_packages.find_by_name(action.target.package)
+              package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
               package.destroy
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
+      elsif action.data.attributes["type"] == "maintenance"
+
+        # create incident project
+        source_project = DbProject.get_by_name(action.source.project)
+        target_project = DbProject.get_by_name(action.target.project)
+        incident = create_new_maintenance_incident(target_project, source_project, req )
+
+        # update request with real target project
+        # FIXME2.3: Discuss this, changing the target on state change is not nice, but avoids an extra element/attribute
+        action.target.data["project"] = incident.db_project.name
+        req.save
+
+      elsif action.data.attributes["type"] == "merge"
+        pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
+        tprj = DbProject.get_by_name(action.target.project)
+
+#FIXME2.3: support limiters to specified repositories
+        merge_package(pkg, tprj, action.target.package, action.source.rev, req)
+      end
+
+      if action.target.has_attribute? :package and action.target.package == "_product"
+        update_product_autopackages action.target.project
       end
     end
     pass_to_backend path

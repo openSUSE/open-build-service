@@ -10,7 +10,6 @@
   <tr>
     <td class="reponame"><strong>All</strong></td>
     <td class="allcow"><%= flag_status(flags, nil, nil) %></td>
-
     <% @project.architectures.each do |a| %>
       <td class="allcow"><%= flag_status(flags, nil, a) %></td>
     <% end %>
@@ -18,7 +17,15 @@
   <!-- renders each line in flag table, excepting the 'all' row -->
   <% @project.repositories.each do |repo| %>
     <tr>
-      <td class="reponame"><strong title="<%=h repo %>"><%= h(elide(repo, 18)) %></strong></td>
+      <td class="reponame">
+        <strong title="<%=h repo %>">
+          <% if defined? @package %>
+            <%= link_to(h(elide(repo, 18)), :action => "binaries", :project => @project, :package => @package, :repository => repo) %>
+          <% else %>
+            <%= link_to(h(elide(repo, 18)), :action => "repository_state", :project => @project, :repository => repo) %>
+          <% end %>
+        </strong>
+      </td>
       <td class="allrow"><%= flag_status(flags, repo, nil) -%></td>
       <% @project.architectures.each do |a| %>
         <td><%= flag_status(flags, repo, a) -%></td>

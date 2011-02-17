@@ -69,13 +69,13 @@ $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 my %cando = (
 # this code sucks and is on the list to be rewritten
 # switch on next 3 lines if you want arm, mips, ppc and sh4 qemu emulated builds on a x86 worker
-#  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
-#  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
-#  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
+#  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
+#  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
+#  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel', 'mips64', 'mips64el', 'ppc', 'ppc64', 'sh4'],
 # switch on next 3 lines if you want only arm qemu emulated builds on a x86 worker
-  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel',       'sh4'],
-  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel',       'sh4'],
-  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el', 'mips', 'mipsel',       'sh4'],
+  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
+  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
+  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
 #
   'ppc'     => [                                                                                        'ppc'                ],
   'ppc64'   => [                                                                                        'ppc', 'ppc64',      ],
@@ -83,7 +83,8 @@ my %cando = (
   'armv5el' => [                          'armv4l', 'armv5el',                                                               ],
   'armv6el' => [                          'armv4l', 'armv5el', 'armv6el'                                                     ],
   'armv7el' => [                          'armv4l', 'armv5el', 'armv6el', 'armv7el'                                          ],
-  'armv8el' => [                          'armv4l', 'armv5el', 'armv6el', 'armv7el', 'armv8el'                               ],
+  'armv7hl' => [                                                                     'armv7hl'                               ],
+  'armv8el' => [                          'armv4l', 'armv5el', 'armv6el', 'armv7el',            'armv8el'                    ],
   'sh4'     => [                                                                                                        'sh4'],
   'parisc'  => ['hppa', 'hppa64:linux64'],
   'parisc64'=> ['hppa64', 'hppa:linux32'],

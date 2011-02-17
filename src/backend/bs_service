@@ -50,7 +50,7 @@ use strict;
 undef $BSConfig::bsuser;	# need to stay root
 undef $BSConfig::bsgroup;
 
-my $buildroot;
+my $tempdir = $BSConfig::servicetempdir || "/var/tmp";
 my $port = 5152;
 $port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
 my $silent;
@@ -66,9 +66,9 @@ sub usage {
   my ($ret) = @_;
 
 print <<EOF;
-Usage: $0 [OPTION] [--root <directory>]
+Usage: $0 [OPTION] [--tempdir <directory>]
 
-       --root      : buildroot directory (switches to daemon mode)
+       --tempdir   : temp dir directory (switches to daemon mode)
 
        --port      : fixed port number
 
@@ -85,9 +85,9 @@ my @argv = @ARGV;	# need to make copy for restart feature
 while (@argv) {
   usage(0) if $argv[0] eq '--help';
   exit 0 if $argv[0] eq '--test'; # just for self-startup test
-  if ($argv[0] eq '--root') {
+  if ($argv[0] eq '--root' || $argv[0] eq '--tempdir') {
     shift @argv;
-    $buildroot = shift @argv;
+    $tempdir = shift @argv;
     next;
   }
   if ($argv[0] eq '--port') {
@@ -98,7 +98,7 @@ while (@argv) {
   last;
 }
 
-usage(1) unless $buildroot;
+usage(1) unless $tempdir;
 
 sub rm_rf {
   my ($dir) = @_;
@@ -109,7 +109,7 @@ sub rm_rf {
 sub run_source_update {
   my ($cgi, $projid, $packid) = @_;
 
-  my $myworkdir = $buildroot."/".$$;
+  my $myworkdir = $tempdir."/".$$;
   BSUtil::cleandir($myworkdir);
   mkdir_p($myworkdir);
   die("$myworkdir not writable for me") unless -w $myworkdir;
@@ -118,7 +118,7 @@ sub run_source_update {
   # unpack source data
   my $uploaded = BSServer::read_cpio($myworkdir);
 
-  die("no _service file !") unless -e "_service";
+  die("no _service file !") unless -e "_service" || -e "_serviceproject";
 
   # remove all files from former service run
   for my $file (grep {/^_service[:_]/} ls(".")) {
@@ -128,56 +128,63 @@ sub run_source_update {
 
   # run all services
   mkdir_p($myworkdir."/.tmp");
-  my $infoxml = readstr('_service');
-  my $serviceinfo = XMLin($BSXML::services, $infoxml);
-  for my $service (@{$serviceinfo->{'service'}}) {
-    print "Run for ".$service->{'name'}."\n";
-    my @run;
-    if (defined $BSConfig::service_wrapper->{$service->{'name'}} ) {
-      push @run, $BSConfig::service_wrapper->{$service->{'name'}};
-    } else {
-      if (defined $BSConfig::service_wrapper->{'*'}) {
-        push @run, $BSConfig::service_wrapper->{'*'};
+  for my $sf ('_service', '_serviceproject') {
+    next unless -e $sf;
+    my $infoxml = readstr($sf);
+    my $serviceinfo = XMLin($BSXML::services, $infoxml);
+    for my $service (@{$serviceinfo->{'service'}}) {
+      if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled')) {
+        print "Skip ".$service->{'name'}."\n";
+        next;
       }
-    }
-    push @run, "$servicedir/$service->{'name'}";
-    for my $param (@{$service->{'param'}}) {
-      next if $param->{'name'} eq 'outdir';
-      next unless $param->{'_content'};
-      push @run, "--$param->{'name'}";
-      push @run, $param->{'_content'};
-    }
-    push @run, "--outdir";
-    push @run, "$myworkdir/.tmp";
-    BSUtil::cleandir("$myworkdir/.tmp");
-
-    if (!open(SERVICE, '-|')) {
-      open(STDERR, ">&STDOUT");
-      exec(@run);
-      die("$run[0]: $!\n");
-    }
-
-    my $output = "";
-    while (<SERVICE>) {
-      $output .= $_;
-    }
-
-    if (close SERVICE) {
-      # SUCCESS, copy files inside and add prefix
-      for my $file (grep {!/^[:\.]/} ls("$myworkdir/.tmp")) {
-        my $tfile = "_service:".$service->{'name'}.":".$file;
-        rename("$myworkdir/.tmp/".$file, $tfile);
+      print "Run for ".$service->{'name'}."\n";
+      my @run;
+      if (defined $BSConfig::service_wrapper->{$service->{'name'}} ) {
+        push @run, $BSConfig::service_wrapper->{$service->{'name'}};
+      } else {
+        if (defined $BSConfig::service_wrapper->{'*'}) {
+          push @run, $BSConfig::service_wrapper->{'*'};
+        }
       }
-    } else { 
-      # FAILURE, Create error file
-      BSUtil::cleandir(".");
-      local *F;
-      if (open(F, '>>', "_service_error")) {
-         print F "service $service->{'name'} failed:\n";
-         print F $output;
-         close F;
+      push @run, "$servicedir/$service->{'name'}";
+      for my $param (@{$service->{'param'}}) {
+        next if $param->{'name'} eq 'outdir';
+        next unless $param->{'_content'};
+        push @run, "--$param->{'name'}";
+        push @run, $param->{'_content'};
       }
-      last;
+      push @run, "--outdir";
+      push @run, "$myworkdir/.tmp";
+      BSUtil::cleandir("$myworkdir/.tmp");
+    
+      if (!open(SERVICE, '-|')) {
+        open(STDERR, ">&STDOUT");
+        exec(@run);
+        die("$run[0]: $!\n");
+      }
+    
+      my $output = "";
+      while (<SERVICE>) {
+        $output .= $_;
+      }
+    
+      if (close SERVICE) {
+        # SUCCESS, copy files inside and add prefix
+        for my $file (grep {!/^[:\.]/} ls("$myworkdir/.tmp")) {
+          my $tfile = "_service:".$service->{'name'}.":".$file;
+          rename("$myworkdir/.tmp/".$file, $tfile);
+        }
+      } else { 
+        # FAILURE, Create error file
+        BSUtil::cleandir(".");
+        local *F;
+        if (open(F, '>>', "_service_error")) {
+           print F "service $service->{'name'} failed:\n";
+           print F $output;
+           close F;
+        }
+        last;
+      }
     }
   }
   BSUtil::cleandir("$myworkdir/.tmp");
@@ -209,7 +216,7 @@ sub list_service {
   
   for my $servicefile (ls($rootservicedir)){
      next unless $servicefile =~ /.service$/;
-     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::service, 1);
+     my $service = readxml($rootservicedir."/".$servicefile, $BSXML::servicetype, 1);
      next unless $service;
      next unless $service->{'name'};
      next unless -x "$rootservicedir/$service->{'name'}";

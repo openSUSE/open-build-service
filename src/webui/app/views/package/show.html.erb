@@ -8,12 +8,12 @@
   <div class="box show_left">
     <h3 style="display: inline"><%=h @package %></h3>
 
-    <% if (@bugowners_mail and defined? BUGZILLA_HOST) or session[:login] %>
+    <% if (@bugowners_mail and !BUGZILLA_HOST.nil?) or session[:login] %>
       <div id="local-actions">
         <div id="local-actions-items">
           <a href="#" class="dropdown-menu"><strong>Actions</strong></a>
           <ul class="dropdown-menu-content">
-            <% if @bugowners_mail and defined? BUGZILLA_HOST %>
+            <% if @bugowners_mail and !BUGZILLA_HOST.nil? %>
               <li>
                 <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
                 <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
@@ -31,20 +31,24 @@
                 </li>
               <% else %>
                 <li>
-                  <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
-                  <%= link_to_remote 'Request Deletion', :url => { :action => :delete_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Request Deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
+                </li>
+                <li>
+                  <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request Role Addition"), :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
+                  <%= link_to_remote("Request Role Addition", :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
                 </li>
               <% end %>
-              <li>
-                <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch Package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Branch Package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
-              </li>
-            <% end %>
-            <% if Package.current_rev(@project, @package) %>
-              <li>
-                <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Submit Package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-              </li>
+              <% if Package.current_rev(@project, @package) %>
+                <li>
+                  <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit Package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Submit Package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+                </li>
+                <li>
+                  <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch Package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
+                  <%= link_to_remote 'Branch Package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
+                </li>
+              <% end %>
             <% end %>
           </ul>
         </div>

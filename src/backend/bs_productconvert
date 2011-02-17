@@ -294,6 +294,9 @@ sub createProductOptions($$$)
     
     my $mediaStyle = "suse-11.1"; # fallback value
     $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
+    $mediaStyle = "suse-11.3" if defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} eq "suse-11.4"; # there is no kiwi plugin for 11.4
+    $options{'IGNORE_MISSING_REPO_PACKAGES'} = "true" if (defined($medium->{'ignore_missing_packages'}) && $medium->{'ignore_missing_packages'} eq "true");
+    $options{'IGNORE_MISSING_META_PACKAGES'} = "true" if (defined($medium->{'ignore_missing_meta_packages'}) && $medium->{'ignore_missing_meta_packages'} eq "true");
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
@@ -388,7 +391,10 @@ sub createMetadata( $$$ )
           die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
           push @onlyarch, $archSets{$ref}->{productarch} unless grep { $_ eq $archSets{$ref}->{productarch} } @onlyarch;
         }
-        push @onlyarch, "noarch" unless grep { $_ eq "noarch" } @onlyarch;
+        # In 11.4 and later noarch metapackages need explicit a onlyarch="noarch" in config because we do now fail on missing packages
+	if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+          push @onlyarch, "noarch" unless grep { $_ eq "noarch" } @onlyarch;
+        }
       }
       my $h = { name => $pack->{name},
                 medium => $metadata_medium,
@@ -821,7 +827,7 @@ sub writeMigrationSPECfile( $$$$$ )
 
 sub writeProductSPECfile( $$$$ )
 {
-    my( $file, $infile, $prodRef,$product ) = @_;
+    my( $file, $infile, $prodRef, $product ) = @_;
     my $product_flavors="";
     ### A product may obsolete packages.
     my $obsoletepackage="";
@@ -921,7 +927,17 @@ sub writeProductSPECfile( $$$$ )
      } else {
        $str =~ s/___BETA_VERSION___//g;
      }
-     $str =~ s/___RELEASE___/0%{?release}/g; # should not be used anymore
+     # take media style from first media. not nice, but we can only have one product package for all of them.
+     my $medium = $prodRef->{mediasets}->{media}[0];
+     if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+        # this is the product release, not a package release. should not be used anymore.
+        # this old way is a problem because it can produce leading zeros in product provides
+        $str =~ s/___RELEASE___/0%{?release}/g;
+     } else {
+        # product release is not really used so far, but defined in zypp stack. So let's
+        # support it. But it is so far 0 on all our products
+        $str =~ s/___RELEASE___/$product->{release}/g;
+     }
      $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
      $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
      $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
@@ -953,7 +969,14 @@ sub createSPECfileFlavors ( $$ ) {
       }
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
-      $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
+      # take media style from first media. not nice, but we can only have one product package for all of them.
+      my $medium = $prodRef->{mediasets}->{media}[0];
+      if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+        $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
+      } else {
+        # this is the product version and release, not a package release.
+        $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{version}-$product->{release}\n";
+      }
       if (defined($flavor->{'productdependency'})){
 	foreach my $dependency (@{$flavor->{'productdependency'}}){
 	    my ($relship, $version, $patchlevel, $flavor, $release, $flag);

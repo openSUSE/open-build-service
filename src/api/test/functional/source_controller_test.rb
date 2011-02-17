@@ -4,8 +4,6 @@ require 'source_controller'
 class SourceControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
-  #TODO index_package : additional testcases for 'createSpecFileTemplate', 'runservice', needed
-  
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -103,7 +101,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success 
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
-      :children => { :count => 2, :only => { :tag => "entry" } }
+      :children => { :count => 3, :only => { :tag => "entry" } }
     assert_match(/entry name="pack"/, @response.body)
     assert_match(/entry name="target"/, @response.body)
   end
@@ -198,7 +196,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/pack"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" } if $ENABLE_BROKEN_TEST
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -234,7 +232,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject/pack/_meta"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" } if $ENABLE_BROKEN_TEST
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
     ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
@@ -255,6 +253,25 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/SourceprotectedProject/pack/_meta"
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "pack" , :project => "SourceprotectedProject"}
+  end
+
+  def test_invalid_project_and_package_name
+    prepare_request_with_user "king", "sunflower"
+    [ "..", "_blah" ].each do |n|
+      put "/source/#{n}/_meta", "<project name='#{n}'> <title /> <description /> </project>"
+      assert_response 400
+      put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
+      assert_response 400
+      post "/source/kde4/kdebase", :cmd => "branch", :target_package => n
+      assert_response 400
+      post "/source/kde4/#{n}", :cmd => "copy", :opackage => "kdebase", :oproject => "kde4"
+      if n == ".."
+        # this is failing already at routing
+        assert_response 403
+      else
+        assert_response 400
+      end
+    end
   end
 
   # project_meta does not require auth
@@ -361,6 +378,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/kde4:subproject"
     assert_response :success
+
+    # create illegal project 
+    prepare_request_with_user "fred", "geröllheimer"
+    subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
+    put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
+    assert_response 400
+    aresp={:tag => "status", :attributes => { :code => "project_name_mismatch" } }
   end
 
   def test_put_project_meta_hidden_project
@@ -394,6 +418,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     match=nil
     prepare_request_with_user "tom", "thunder"
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+    # same with set_flag command ?
+    post "/source/SourceprotectedProject?cmd=set_flag&flag=sourceaccess&status=enable"
+    assert_response 403
+    assert_match(/no permission to execute command/, @response.body)
     # admin
     resp1=:success
     resp2=:success
@@ -543,7 +571,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"foo\"><title></title><description></description></package>"
+    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"pack\"><title></title><description></description></package>"
     assert_response 404
   end
 
@@ -661,8 +689,11 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kdelibs2' ) 
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2"), doc.to_s
-    assert_response 200
+    assert_response :success
     assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    # do not allow to create it with invalid name
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), doc.to_s
+    assert_response 400
     
     # Get data again and check that the maintainer was added
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2")
@@ -670,6 +701,32 @@ class SourceControllerTest < ActionController::IntegrationTest
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["/package"]
     assert_equal(d.attribute('name').value(), 'kdelibs2', message="Project name was not set to kdelibs2")
+
+    # check for lacking permission to create a package
+    prepare_request_with_user "tom", "thunder"
+    d.delete_attribute( 'name' )   
+    d.add_attribute( 'name', 'kdelibs3' ) 
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), newdoc.to_s
+    assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => "create_package_no_permission"} )
+  end
+
+  def test_devel_package_cycle
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
+    assert_response :success
+    put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
+    assert_response :success
+    # create a cycle via new package
+    put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "devel_cycle"} )
+    # create a cycle via existing package
+    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "devel_cycle"} )
   end
 
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
@@ -1162,7 +1219,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response 404
-    assert_tag :tag => 'status', :attributes => { :code => "unknown_project"} if $ENABLE_BROKEN_TEST
+    assert_tag :tag => 'status', :attributes => { :code => "unknown_project"}
     #reverse
     post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
     assert_response 404
@@ -1329,9 +1386,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
-    assert_response 404
-    assert_match(/package_exists/, @response.body)
 
     # test permitted commands
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
@@ -1353,33 +1407,151 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # create package and remove it again
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response 404
-    if $ENABLE_BROKEN_TEST
     post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
     assert_response :success
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
+    assert_response 404
+    assert_match(/package_exists/, @response.body)
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response :success
-    end
+    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
+    assert_response :success
   end
 
-  def test_source_commands_tests
+  def test_linktobranch
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
+    assert_response :success
+
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
+    assert_response 403
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
+    assert_response :success
+    get "/source/home:Iggy/TestLinkPack/_link"
+    assert_response :success
+    assert_tag( :tag => "link", :attributes => { :baserev => "1ac07842727acaf13d0e2b3213b47785" } )
+    assert_tag( :parent => { :tag => "patches", :content => nil }, :tag => "branch", :content => nil )
+
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
+
+  def test_source_commits
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
     assert_response 403
     put "/source/home:Iggy/TestPack/filename", 'CONTENT'
     assert_response 403
 
+    # fred has maintainer permissions in this single package of Iggys home
+    # this is the osc way
     prepare_request_with_user "fred", "geröllheimer"
-    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    put "/source/home:Iggy/TestPack/filename?rev=repository", 'CONTENT'
     assert_response :success
-    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response 404
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_no_tag( :tag => "revision", :attributes => { :rev => "3"} )
+    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+
+    # delete file with commit
+    delete "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response 404
+
+    # this is the future webui way
+    prepare_request_with_user "fred", "geröllheimer"
+    put "/source/home:Iggy/TestPack/filename?rev=upload", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename?rev=latest"
+    assert_response 404
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_no_tag( :tag => "revision", :attributes => { :rev => "5"} )
+    post "/source/home:Iggy/TestPack?cmd=commit"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/filename?rev=latest"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+
+
+    # test deleteuploadrev
+    put "/source/home:Iggy/TestPack/anotherfilename?rev=upload", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/TestPack/anotherfilename"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/anotherfilename?rev=latest"
+    assert_response 404
+    post "/source/home:Iggy/TestPack?cmd=deleteuploadrev"
+    assert_response :success
+    get "/source/home:Iggy/TestPack/anotherfilename"
+    assert_response 404
+
+    #
+    # Test commits to special packages
+    #
+    prepare_request_with_user "Iggy", "asdfasdf"
+    # _product must be created
+    put "/source/home:Iggy/_product/_meta", "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/_product/filename?rev=repository", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/_product/filename"
+    assert_response :success
+    put "/source/home:Iggy/_product/filename2", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/_product/filename2"
     assert_response :success
 
-    prepare_request_with_user "Iggy", "asdfasdf"
-    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    # _pattern exists always
+    put "/source/home:Iggy/_pattern/filename", 'CONTENT'
+    assert_response 400 # illegal content
+    put "/source/home:Iggy/_pattern/filename?rev=repository", load_backend_file("pattern/digiKam.xml")
     assert_response :success
-    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="9da8213efd566be4c7f5ebfa8d83af9a" /> </directory> '
+    post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="d23e402af68579c3b30ff00f8c8424e0" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/_pattern/filename"
+    assert_response :success
+    put "/source/home:Iggy/_pattern/filename2", load_backend_file("pattern/digiKam.xml")
+    assert_response :success
+    get "/source/home:Iggy/_pattern/filename2"
+    assert_response :success
+
+    # _project exists always
+    put "/source/home:Iggy/_project/filename?rev=repository", 'CONTENT'
+    assert_response :success
+    post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    assert_response :success
+    get "/source/home:Iggy/_project/filename"
+    assert_response :success
+    put "/source/home:Iggy/_project/filename2", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/_project/filename2"
     assert_response :success
   end
 
@@ -1481,9 +1653,88 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # cleanup
     delete "/source/kde4/temporary"
+    assert_response :success
     delete "/source/kde4/temporary2"
+    assert_response :success
     prepare_request_with_user "king", "sunflower"
     delete "/source/TEMPORARY"
+    assert_response :success
+  end
+
+  def test_use_project_link_as_non_maintainer
+    prepare_request_with_user "tom", "thunder"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
+    assert_response :success
+    get "/source/home:tom:temporary"
+    assert_response :success
+    get "/source/home:tom:temporary/kdelibs"
+    assert_response :success
+    get "/source/home:tom:temporary/kdelibs/_history"
+    assert_response :success
+    delete "/source/home:tom:temporary/kdelibs"
+    assert_response 404
+    post "/source/home:tom:temporary/kdelibs", :cmd => :copy, :oproject => "home:tom:temporary", :opackage => "kdelibs"
+    assert_response :success
+    get "/source/home:tom:temporary/kdelibs/_meta"
+    meta = @response.body
+    assert_response :success
+    delete "/source/home:tom:temporary/kdelibs"
+    assert_response :success
+    delete "/source/home:tom:temporary/kdelibs"
+    assert_response 404
+
+    # check if package creation is doing the right thing
+    put "/source/home:tom:temporary/kdelibs/_meta", meta
+    assert_response :success
+    delete "/source/home:tom:temporary/kdelibs"
+    assert_response :success
+    delete "/source/home:tom:temporary/kdelibs"
+    assert_response 404
+
+    # cleanup
+    delete "/source/home:tom:temporary"
+    assert_response :success
+  end
+
+  def test_delete_and_undelete_permissions
+    ActionController::IntegrationTest::reset_auth 
+    delete "/source/kde4/kdelibs"
+    assert_response 401
+    delete "/source/kde4"
+    assert_response 401
+
+    prepare_request_with_user "tom", "thunder"
+    delete "/source/kde4/kdelibs"
+    assert_response 403
+    delete "/source/kde4"
+    assert_response 403
+
+    prepare_request_with_user "adrian", "so_alone"
+    delete "/source/kde4/kdelibs"
+    assert_response :success
+    delete "/source/kde4"
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/kde4", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/kde4", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    post "/source/kde4", :cmd => :undelete
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/kde4/kdelibs", :cmd => :undelete
+    assert_response 403
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/kde4/kdelibs", :cmd => :undelete
+    assert_response :success
   end
 
   def test_branch_package_delete_and_undelete
@@ -1496,10 +1747,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match(/no permission to create project/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 403
-    assert_match(/no permission to/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_match(/no permission to/, @response.body)
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1" 
     assert_response 403
-    assert_match(/no permission to/, @response.body) if $ENABLE_BROKEN_TEST
+    assert_match(/no permission to/, @response.body)
  
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
@@ -1795,51 +2046,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get "/source/home:Iggy/TestPack/bnc#620675.diff"
     assert_response :success
-  end
-
-  def test_create_aggregates_projects
-    # he can hidden protected project
-    prepare_request_with_user "adrian", "so_alone"
-
-    get url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA")
-    assert_response 404
-
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProjectA"),
-        '<project name="home:adrian:ProjectA"> <title/> <description/> </project>'
-    assert_response 200
-
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProjectB"),
-        '<project name="home:adrian:ProjectB"> <title/> <description/> </project>'
-    assert_response 200
-
-    get url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA", :package => "aggregate")
-    assert_response 404
-
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProjectA", :package => "aggregate"), 
-        '<package project="home:adrian:ProjectA" name="aggregate"> <title/> <description/> </package>'
-    assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
-
-    url1 = "/source/home:adrian:ProjectA/aggregate/_aggregate"
-
-    put url1, '<aggregatelist> <aggregate project="UnknownProject"> <repository target="UnknownProjectRepo" source="nada" /> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 404 if $ENABLE_BROKEN_TEST
-
-    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 200
-
-    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> <aggregate project="home:adrian:ProjectB"> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 200
-
-    put url1, '<aggregatelist> <aggregate project="kde4"> <repository target="ProjectRepo" source="openSUSE_11.3" /> </aggregate> <aggregate project="RemoteInstance:BaseDistro"> </aggregate> </aggregatelist>'
-    #STDERR.puts(@response.body)
-    assert_response 200
-
-    # cleanup
-    delete url1
   end
 
 end

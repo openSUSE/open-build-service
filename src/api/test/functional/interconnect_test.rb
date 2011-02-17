@@ -95,13 +95,10 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/RemoteInstance:BaseDistro/pack1/my_file"
     assert_response :success
-    if $ENABLE_BROKEN_TEST
     post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "showlinked"
-    puts @response.body
     assert_response :success
     post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "branch"
     assert_response :success
-    end
     # test binary operations
     prepare_request_with_user "king", "sunflower"
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"
@@ -144,13 +141,10 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/UseRemoteInstance/pack1/my_file"
     assert_response :success
-if $ENABLE_BROKEN_TEST
     post "/source/UseRemoteInstance/pack1", :cmd => "showlinked"
-    puts @response.body
     assert_response :success
     post "/source/UseRemoteInstance/pack1", :cmd => "branch"
     assert_response :success
-end
     get "/source/UseRemoteInstance/NotExisting"
     assert_response 404
     get "/source/UseRemoteInstance/NotExisting/_meta"
@@ -204,7 +198,34 @@ end
     assert_response :success
     post "/build/LocalProject", :cmd => "rebuild"
     assert_response :success
+  end
 
+  def test_submit_requests_from_remote
+    prepare_request_with_user "tom", "thunder"
+if $ENABLE_BROKEN_TEST
+# FIXME2.2: we have regressions for the UseRemoteInstance at least
+    [ "RemoteInstance:BaseDistro", "UseRemoteInstance", "LocalProject" ].each do |prj|
+      post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="' + prj + '" package="pack1" rev="1"/>
+                                     <source project="home:tom" package="pack1"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+print @response.body
+      assert_response :success
+      node = ActiveXML::XMLNode.new(@response.body)
+      assert_equal node.has_attribute?(:id), true
+      id = node.data['id']
+
+      # ignores the review state
+      post "/request/#{id}?cmd=changestate&newstate=accepted"
+      assert_response :success
+
+      delete "/source/home:tom/pack1"
+      assert_response :success
+    end
+end
   end
 
   def test_copy_and_diff_package

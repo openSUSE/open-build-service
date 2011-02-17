@@ -1,23 +1,25 @@
 class RequestController < ApplicationController
 
   def addreviewer
-    @therequest = find_cached(BsRequest, params[:id]) if params[:id]
-    BsRequest.free_cache(params[:id])
+    @therequest = find_cached(BsRequest, params[:request_id]) if params[:request_id]
+    BsRequest.free_cache(params[:request_id])
 
     begin
-      if params[:user]
-        r = BsRequest.addReviewByUser( params[:id], params[:user], params[:comment] )
-      elsif params[:group]
-        r = BsRequest.addReviewByGroup( params[:id], params[:group], params[:comment] )
-      else
-        render :text => "ERROR: don't know how to add reviewer"
-        return
+      opts = {}
+      case params[:review_type]
+        when "user" then opts[:user] = params[:review_user]
+        when "group" then opts[:group] = params[:review_group]
+        when "project" then opts[:project] = params[:review_project]
+        when "package" then opts[:project] = params[:review_package]
+                            opts[:package] = params[:review_package]
       end
+      opts[:comment] = params[:review_comment] if params[:review_comment]
+
+      BsRequest.addReview(params[:request_id], opts)
     rescue BsRequest::ModifyError => e
-      render :text => e.message
-      return
+      flash[:error] = e.message
     end
-    render :text => "added"
+    redirect_to :action => "show", :id => params[:request_id] and return
   end
 
   def modifyreviewer
@@ -25,17 +27,11 @@ class RequestController < ApplicationController
     BsRequest.free_cache(params[:id])
 
     begin
-      if params[:group].blank?
-        r = BsRequest.modifyReviewByUser( params[:id], params[:new_state], params[:comment], session[:login] )
-      else
-        r = BsRequest.modifyReviewByGroup( params[:id], params[:new_state], params[:comment], params[:group] )
-      end
-
+      BsRequest.modifyReview(params[:id], params[:new_state], params)
+      render :text => params[:new_state]
     rescue BsRequest::ModifyError => e
       render :text => e.message
-      return
     end
-    render :text => params[:new_state]
   end
 
   def show
@@ -47,9 +43,7 @@ class RequestController < ApplicationController
 
     @id = @req.data.attributes["id"]
     @state = @req.state.data.attributes["name"]
-    # FIXME: actually also the history should be checked here
-    @is_author = @req.has_element? "//state[@name='new' and @who='#{session[:login]}']" 
-    @is_author = @req.has_element? "//state[@name='review' and @who='#{session[:login]}']" unless @is_author
+    @is_author = @req.creator
     @superseded_by = @req.state.data.attributes["superseded_by"] if @req.state.has_attribute? :superseded_by and not @req.state.data.attributes["superseded_by"].empty?
     @newpackage = []
 
@@ -62,13 +56,12 @@ class RequestController < ApplicationController
         end
       end
 
-      if review.has_attribute? :by_group
-        if session[:login]
-          user = Person.find_cached(session[:login])
-          if user.is_in_group? review.by_group
-            @is_reviewer = true
-            break
-          end
+      if session[:login]
+        user = Person.find_cached(session[:login])
+        if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
+           (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
+           (review.has_attribute? :by_project and user.is_maintainer? review.by_project and revoke.has_attribute? :by_package and user.is_maintainer? review.by_package)
+          @is_reviewer = true and break
         end
       end
     end
@@ -77,9 +70,7 @@ class RequestController < ApplicationController
   
     @is_maintainer = nil
     @req.each_action do |action|
-      # FIXME: this can't handle multiple actions in a request
-      @type = action.data.attributes["type"]
-      if @type=="submit"
+      if action.data.attributes["type"] == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
       end
@@ -104,15 +95,13 @@ class RequestController < ApplicationController
       @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
       logger.debug "Can't get diff for request: #{@diff_error}"
     end
-
   end
  
   def change_request(changestate, params)
     BsRequest.free_cache( params[:id] )
     begin
       if BsRequest.modify( params[:id], changestate, params[:reason] )
-        flash[:note] = "Request #{changestate}!"
-        return true
+        flash[:note] = "Request #{changestate}!" and return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end
@@ -176,6 +165,44 @@ class RequestController < ApplicationController
   def list
     redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
-    render :partial => 'shared/list_requests', :locals => { :requests => requests }
+    render :partial => 'shared/list_requests', :locals => {:requests => requests, :elide_len => params[:elide_len].to_i ||= 44}
+  end
+
+  def delete_request_dialog
+    @project = params[:project]
+    @package = params[:package] if params[:package]
+  end
+
+  def delete_request
+    begin
+      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
+      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+  end
+
+  def add_role_request_dialog
+    @project = params[:project]
+    @package = params[:package] if params[:package]
+  end
+
+  def add_role_request
+    begin
+      req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user])
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
+      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 end

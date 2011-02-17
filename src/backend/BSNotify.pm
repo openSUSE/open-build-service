@@ -91,6 +91,8 @@ sub requestParams( $$ )
         $reqinfo{'targetpackage'}  = $a->{'target'}->{'package'};
         $reqinfo{'deleteproject'}  = undef;
         $reqinfo{'deletepackage'}  = undef;
+        $reqinfo{'person'} = undef;
+        $reqinfo{'role'} = undef;
     }elsif( $a->{'type'} eq 'change_devel' && $a->{'source'} &&
             $a->{'target'}) {
         $reqinfo{'sourceproject'}  = $a->{'source'}->{'project'};
@@ -100,6 +102,18 @@ sub requestParams( $$ )
         $reqinfo{'deleteproject'}  = undef;
         $reqinfo{'deletepackage'}  = undef;
         $reqinfo{'sourcerevision'} = undef;
+        $reqinfo{'person'} = undef;
+        $reqinfo{'role'} = undef;
+    }elsif( $a->{'type'} eq 'add_role' &&  $a->{'target'}->{'project'}) {
+        $reqinfo{'targetproject'}  = $a->{'target'}->{'project'};
+        $reqinfo{'targetpackage'}  = $a->{'target'}->{'package'};
+        $reqinfo{'sourceproject'}  = undef;
+        $reqinfo{'sourcepackage'}  = undef;
+        $reqinfo{'deleteproject'}  = undef;
+        $reqinfo{'deletepackage'}  = undef;
+        $reqinfo{'sourcerevision'} = undef;
+        $reqinfo{'person'} = $a->{'person'}->{'name'};
+        $reqinfo{'role'} = $a->{'person'}->{'role'};
     }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
         $reqinfo{'deleteproject'}  = $a->{'target'}->{'project'};
         $reqinfo{'deletepackage'}  = $a->{'target'}->{'package'};
@@ -108,6 +122,8 @@ sub requestParams( $$ )
         $reqinfo{'targetproject'}  = undef;
         $reqinfo{'targetpackage'}  = undef;
         $reqinfo{'sourcerevision'} = undef;
+        $reqinfo{'person'} = undef;
+        $reqinfo{'role'} = undef;
     }
   }
   if( $req->{'oldstate'} ) {

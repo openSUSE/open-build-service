@@ -6,6 +6,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'envi
 Thread.abort_on_exception = true
 srcsrv_out = nil
 reposrv_out = nil
+servicesrv_out = nil
 logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
@@ -24,8 +25,10 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/(our \$bsuser)/, '#\1')
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
+    line.gsub!(/our \$servicedir = .*/, "our $bsdir = '#{RAILS_ROOT}/test/fixtures/backend/services';")
     line.gsub!(/:5352/, ":#{SOURCE_PORT}")
-    line.gsub!(/:5252/, ":3201") # used via source server
+    line.gsub!(/:5252/, ":3201") # repservier, used via source server
+    line.gsub!(/:5152/, ":3202") # source service, used via source server
     file.print line
   end
 end
@@ -33,7 +36,7 @@ file.close
 
 perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
 
-%w{bs_srcserver bs_repserver bs_sched}.each do |srv|
+%w{bs_srcserver bs_repserver bs_service bs_sched}.each do |srv|
   FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
   unless system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
     puts "ERROR: syntax broken of #{srv}"
@@ -81,6 +84,26 @@ reposrv = Thread.new do
   end
 end
 
+puts "Starting backend serviceserver..."
+servicesrv = Thread.new do
+  servicesrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_service 2>&1")
+  puts "Started backend service server with pid #{servicesrv_out.pid}"
+  begin
+    Process.setpgid servicesrv_out.pid, 0
+  rescue Errno::EACCES
+    # what to do?
+    puts "Could not set backend serviceserver group to root"
+  end
+  while servicesrv_out
+    begin
+      line = servicesrv_out.gets
+      logger.debug line.strip unless line.blank?
+    rescue IOError
+      break
+    end
+  end
+end
+
 while true
   puts "Connecting to srcserver..."
   begin
@@ -103,12 +126,24 @@ while true
   break
 end
 
+while true
+  puts "Connecting to serviceserver..."
+  begin
+    Net::HTTP.start(SOURCE_HOST, 3202) {|http| http.get('/') }
+  rescue Errno::ECONNREFUSED
+    sleep 0.5
+    next
+  end
+  break
+end
+
 system("rake db:fixtures:load")
 Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack1").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack2").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
+Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "second commit")
 Suse::Backend.put( '/source/BaseDistro/pack3/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack3").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack3/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro2/_meta', DbProject.find_by_name('BaseDistro2').to_axml)
@@ -117,6 +152,7 @@ Suse::Backend.put( '/source/BaseDistro2/pack2/myfile', "DummyContent of BaseDist
 Suse::Backend.put( '/source/BaseDistro2:LinkedUpdateProject/_meta', DbProject.find_by_name('BaseDistro2:LinkedUpdateProject').to_axml)
 Suse::Backend.put( '/source/BaseDistro3/_meta', DbProject.find_by_name('BaseDistro3').to_axml)
 Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', DbPackage.find_by_id('10094').to_axml)
+Suse::Backend.put( '/source/BaseDistro3/pack2/myfile', "DummyContent of BaseDistro3/pack2")
 Suse::Backend.put( '/source/BaseDistro:Update/_meta', DbProject.find_by_name('BaseDistro:Update').to_axml)
 Suse::Backend.put( '/source/BaseDistro:Update/pack2/_meta', DbPackage.find_by_id(10098).to_axml)
 Suse::Backend.put( '/source/BaseDistro:Update/pack2/_link', "<link project=\"BaseDistro\" package=\"pack2\" />")
@@ -126,6 +162,7 @@ Suse::Backend.put( '/source/HiddenProject/_config', "Type: spec")
 Suse::Backend.put( '/source/HiddenProject/pack/_meta', DbPackage.find_by_project_and_name("HiddenProject", "pack").to_axml)
 Suse::Backend.put( '/source/HiddenProject/pack/my_file', "Protected Content")
 Suse::Backend.put( '/source/HiddenProject/pack/package.spec', File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put( '/source/HiddenProject/packCopy/_meta', DbPackage.find_by_project_and_name("HiddenProject", "packCopy").to_axml)
 Suse::Backend.put( '/source/HiddenProject/target/_meta', DbPackage.find_by_project_and_name("HiddenProject", "target").to_axml)
 Suse::Backend.put( '/source/HiddenProject/target/my_file', "Protected Content target")
 # BinaryprotectedProject
@@ -180,6 +217,7 @@ Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
 Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs').to_axml)
 Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
 Suse::Backend.put( '/source/home:tom/_meta', DbProject.find_by_name('home:tom').to_axml)
+Suse::Backend.put( '/source/c%2b%2b/_meta', DbProject.find_by_name('c++').to_axml)
 
 # manual placing of files
 FileUtils.cp("#{RAILS_ROOT}/test/fixtures/backend/source/_pubkey", "#{RAILS_ROOT}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
@@ -254,6 +292,15 @@ IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched 
    io.each {|line| logger.debug line.strip unless line.blank? }
 end
 
+# copy build result 
+Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )
+
+# run scheduler again to handle the copy build event
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+   # just for waiting until scheduler finishes
+   io.each {|line| logger.debug line.strip unless line.blank? }
+end
+
 @http_user = nil
 User.current = nil
 User.currentID = nil
@@ -273,6 +320,8 @@ puts "kill #{srcsrv_out.pid}"
 Process.kill "INT", -srcsrv_out.pid
 puts "kill #{reposrv_out.pid}"
 Process.kill "INT", -reposrv_out.pid
+puts "kill #{servicesrv_out.pid}"
+Process.kill "INT", -servicesrv_out.pid
 
 
 srcsrv_out.close
@@ -281,6 +330,9 @@ srcsrv.join
 reposrv_out.close
 reposrv_out = nil
 reposrv.join
+servicesrv_out.close
+servicesrv_out = nil
+servicesrv.join
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
 

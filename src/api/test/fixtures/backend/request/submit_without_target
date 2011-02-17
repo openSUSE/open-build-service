@@ -1,7 +1,7 @@
-  <request>
+<request>
   <action type='submit'>
     <source project='home:Iggy' package='TestPack' />
   </action>
   <description/>
-  </request>
+</request>
 

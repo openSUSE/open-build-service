@@ -18,6 +18,7 @@ module ActiveRbacMixins
   # class provides and you can now write some custom lines below it).
 module UserMixins
     module Core
+      @@ldap_search_con = nil
       # This method is called when the module is included.
       #
       # On inclusion, we do a nifty bit of meta programming and make the
@@ -336,7 +337,10 @@ module UserMixins
           def self.update_entry_ldap(login, newlogin, newemail, newpassword)
             logger.debug( " Modifying #{login} to #{newlogin} #{newemail} using ldap" )
             
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return "Unable to connect to LDAP server"
@@ -382,7 +386,6 @@ module UserMixins
               end
             end
 
-            ldap_con.unbind()
             return
           end
 
@@ -391,7 +394,10 @@ module UserMixins
           def self.new_entry_ldap(login, password, mail)
             require 'ldap'
             logger.debug( "Add new entry for #{login} using ldap" )
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return "Unable to connect to LDAP server"
@@ -421,7 +427,6 @@ module UserMixins
               logger.debug("Error #{ldap_con.err} for #{login}")
               return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
             end
-            ldap_con.unbind()  
             return
           end
 
@@ -429,7 +434,10 @@ module UserMixins
           # active directory server.  Return the error msg if any error occured
           def self.delete_entry_ldap(login)
             logger.debug( "Deleting #{login} using ldap" )
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return "Unable to connect to LDAP server"
@@ -449,7 +457,6 @@ module UserMixins
               logger.debug( "Failed to delete: error #{ldap_con.err} for #{login}" )
               return "Failed to delete the entry #{login}: error #{ldap_con.err}"
             end
-            ldap_con.unbind()  
             return
           end
 
@@ -482,7 +489,10 @@ module UserMixins
 
           # This static method performs the search with the given search_base, filter
           def self.search_ldap(search_base, filter, required_attr = nil)
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return nil
@@ -496,7 +506,6 @@ module UserMixins
                 result << entry.vals(required_attr)
               end
             end
-            ldap_con.unbind()
             if result.empty?
               return nil
             else
@@ -507,7 +516,10 @@ module UserMixins
           # This static method performs the search with the given grouplist, user to return the groups that the user in 
           def self.render_grouplist_ldap(grouplist, user = nil)
             result = Array.new
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return result
@@ -591,14 +603,16 @@ module UserMixins
               logger.debug("#{user} is not in #{group}")
             end
 
-            ldap_con.unbind()
             return result
           end
 
           # This static method tries to update the password with the given login in the 
           # active directory server.  Return the error msg if any error occured
           def self.change_password_ldap(login, password)
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return "Unable to connect to LDAP server"
@@ -631,7 +645,6 @@ module UserMixins
               return "#{ldap_con.err}"
             end
 
-            ldap_con.unbind()
             return
           end
 
@@ -641,7 +654,23 @@ module UserMixins
           # credentials are correctly found using LDAP.
           def self.find_with_ldap(login, password)
             logger.debug( "Looking for #{login} using ldap" )
-            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            ldap_info = Array.new
+            # use cache to check the password firstly
+            key="ldap_cache_userpasswd:" + login
+            if Rails.cache.exist?(key)
+              cache_password = Rails.cache.read(key)
+              if cache_password == password
+                ldap_info[0] =  'fake@email.ldap'
+                ldap_info[1] = login
+                logger.debug("login success for checking with ldap cache")
+                return ldap_info
+              end 
+            end
+
+            if @@ldap_search_con.nil?
+              @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            end
+            ldap_con = @@ldap_search_con
             if ldap_con.nil?
               logger.debug( "Unable to connect to LDAP server" )
               return nil
@@ -654,45 +683,55 @@ module UserMixins
             end
             logger.debug( "Search for #{user_filter}" )
             dn = String.new
-            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
-              dn = entry.dn
+            ldap_password = String.new
+            begin
+              ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+                dn = entry.dn
+                if defined?( LDAP_AUTHENTICATE ) && LDAP_AUTHENTICATE == :local
+                  if entry[LDAP_AUTH_ATTR] then
+                    ldap_password = entry[LDAP_AUTH_ATTR][0]
+                    logger.debug( "Get auth_attr:#{ldap_password}" )
+                  else
+                    logger.debug( "Failed to get attr:#{LDAP_AUTH_ATTR}" )
+                  end
+                end
+              end
+            rescue
+              logger.debug( "Search failed:  error #{ @@ldap_search_con.err}" )
+              @@ldap_search_con.unbind
+              @@ldap_search_con = nil
+              return nil
             end
-            ldap_con.unbind()
-              
             if dn.empty?
               logger.debug( "User not found in ldap" )
               return nil
             end
-
             # Attempt to authenticate user
             case LDAP_AUTHENTICATE
             when :local then
               authenticated = false
               case LDAP_AUTH_MECH
               when :cleartext then
-                if entry[LDAP_AUTH_ATTR][0] == password then
+                if ldap_password == password then
                   authenticated = true
                 end
               when :md5 then
                 require 'digest/md5'
                 require 'base64'
-                if entry[LDAP_AUTH_ATTR][0] == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
+                if ldap_password == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
                   authenticated = true
                 end
               end
               if authenticated == true
-                ldap_info = Array.new
                 ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
                 ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][0])
               end
-                
             when :ldap then
               # Don't match the passwd locally, try to bind to the ldap server
               user_con= initialize_ldap_con(dn,password)
               if user_con.nil?
                 logger.debug( "Unable to connect to LDAP server as #{dn} using credentials supplied" )
               else
-                ldap_info = Array.new
                 # Redo the search as the user for situations where the anon search may not be able to see attributes
                 user_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
                   if entry[LDAP_MAIL_ATTR] then 
@@ -709,7 +748,8 @@ module UserMixins
                 user_con.unbind()
               end
             end
-            logger.debug( "login success = #{ldap_info}" )
+            Rails.cache.write(key, password, :expires_in => 2.minute)
+            logger.debug( "login success for checking with ldap server" )
             ldap_info
           end
 

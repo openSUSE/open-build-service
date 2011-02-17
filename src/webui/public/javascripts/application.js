@@ -123,14 +123,6 @@ function fillEmptyFields() {
     }
 }
 
-function googleTracker() {
-    try {
-        var pageTracker = _gat._getTracker("UA-3367212-3");
-        pageTracker._setDomainName(".opensuse.org");
-        pageTracker._trackPageview();
-    } catch(err) {}
-}
-
 function toggleBox(link, box) {
     //calculating offset for displaying popup message
     leftVal=link.position().left + "px";

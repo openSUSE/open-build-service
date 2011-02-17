@@ -1,5 +1,6 @@
 class BsRequest < ActiveXML::Base
 
+  class ListError < Exception; end
   class ModifyError < Exception; end
 
   default_find_parameter :id
@@ -7,99 +8,98 @@ class BsRequest < ActiveXML::Base
   class << self
     def make_stub(opt)
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
-      
+
       ret = nil
-      case opt[:type]
-        when "submit" then
-          option = ""
-          option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
-          opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
-          opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
-          reply = <<-EOF
-            <request>
-              <action type="submit">
-                <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}" rev="#{opt[:rev]}"/>
-                <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
-                #{option}
-              </action>
-              <state name="new"/>
-              <description>#{opt[:description].to_xs}</description>
-            </request>
-          EOF
-          ret = XML::Parser.string(reply).parse.root
-          ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
-        when "delete" then
-          pkg_option = ""
-          pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
-          reply = <<-EOF
-            <request>
-              <action type="delete">
-                <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
-              </action>
-              <state name="new"/>
-              <description>#{opt[:description].to_xs}</description>
-            </request>
-          EOF
-          ret = XML::Parser.string(reply).parse.root
+      if opt[:type] == "submit" then
+        option = ""
+        option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+        opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
+        opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
+        reply = <<-EOF
+          <request>
+            <action type="submit">
+              <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
+              <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
+              #{option}
+            </action>
+            <state name="new"/>
+            <description>#{opt[:description].to_xs}</description>
+          </request>
+        EOF
+        ret = XML::Parser.string(reply).parse.root
+        ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
+      else
+        # set request-specific options
+        option = ""
+        case opt[:type]
+          when "add_role" then
+            option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :group and not opt[:group].nil?
+            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :person and not opt[:person].nil?
+          when "set_bugowner" then
+            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
+          when "change_devel" then
+            option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+        end
+        # build the request XML
+        pkg_option = ""
+        pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
+        reply = <<-EOF
+          <request>
+            <action type="#{opt[:type]}">
+              <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
+              #{option}
+            </action>
+            <state name="new"/>
+            <description>#{opt[:description].to_xs}</description>
+          </request>
+        EOF
+        ret = XML::Parser.string(reply).parse.root
       end
       return ret
     end
 
-    def addReviewByGroup(id, group, comment = nil)
-      addReview(id, nil, group, comment)
-    end
-    def addReviewByUser(id, user, comment = nil)
-      addReview(id, user, nil, comment)
-    end
-    def addReview(id, user=nil, group=nil, comment = nil)
+    def addReview(id, opts)
+      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
+
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?cmd=addreview"
-      if user
-        path << "&by_user=#{CGI.escape(user)}"
-      end
-      if group
-        path << "&by_group=#{CGI.escape(group)}"
-      end
+      path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
+      path << "&by_group=#{CGI.escape(opts[:group])}" if opts[:group]
+      path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
+      path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment
+        r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
         # FIXME add a full error handler here
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       rescue ActiveXML::Transport::NotFoundError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       end
     end
 
-    def modifyReviewByGroup(id, changestate, comment, group)
-      modifyReview(id, changestate, comment, nil, group)
-    end
-    def modifyReviewByUser(id, changestate, comment, user)
-      modifyReview(id, changestate, comment, user)
-    end
-    def modifyReview(id, changestate, comment, user=nil, group=nil)
+    def modifyReview(id, changestate, opts)
+      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
       unless (changestate=="accepted" || changestate=="declined")
         raise ModifyError, "unknown changestate #{changestate}"
       end
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?newstate=#{changestate}&cmd=changereviewstate"
-      if user
-        path << "&by_user=#{CGI.escape(user)}"
-      end
-      if group
-        path << "&by_group=#{CGI.escape(group)}"
-      end
+      path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
+      path << "&by_group=#{CGI.escape(opts[:group])}" if opts[:group]
+      path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
+      path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => comment.to_s
+        transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       rescue ActiveXML::Transport::NotFoundError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ModifyError, message
       end
     end
@@ -112,10 +112,10 @@ class BsRequest < ActiveXML::Base
           transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason.to_s
           return true
         rescue ActiveXML::Transport::ForbiddenError => e
-          message, code, api_exception = ActiveXML::Transport.extract_error_message e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
           raise ModifyError, message
         rescue ActiveXML::Transport::NotFoundError => e
-          message, code, api_exception = ActiveXML::Transport.extract_error_message e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
           raise ModifyError, message
         end
       end
@@ -128,86 +128,54 @@ class BsRequest < ActiveXML::Base
       end
       pred = "(action/target/@package='#{opts[:targetpackage]}' and action/target/@project='#{opts[:targetproject]}' and action/source/@project='#{opts[:sourceproject]}' and action/source/@package='#{opts[:sourcepackage]}' and action/@type='submit')"
       requests = Collection.find_cached :what => :request, :predicate => pred
-      last=nil
+      last = nil
       requests.each_request do |r|
-        if not last or Integer(r.data[:id]) > Integer(last.data[:id])
-          last=r
-        end
+        last = r if not last or Integer(r.data[:id]) > Integer(last.data[:id])
       end
       return last
     end
 
-    def find_open_review_requests(user)
-      unless user
+    def list(opts)
+      unless opts[:state] or opts[:type] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
       end
-      pred = "state/@name='review' and review/@state='new' and review/@by_user='#{user}'"
-      requests = Collection.find_cached :what => :request, :predicate => pred
-      return requests
+
+      # try to find request list in cache first before asking the OBS API
+      request_list = Rails.cache.fetch("request_list:#{opts.to_s}", :expires_in => 10.minutes) do
+        transport ||= ActiveXML::Config::transport_for :bsrequest
+        path = "/request?view=collection"
+        path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
+        path << "&type=#{CGI.escape(opts[:type])}" if opts[:type]
+        path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
+        path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
+        path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
+        begin
+          logger.debug "Fetching request list from api"
+          response = transport.direct_http URI("https://#{path}"), :method => "GET"
+          Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
+        rescue ActiveXML::Transport::Error => e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
+          raise ListError, message
+        end
+      end
+      return request_list
     end
 
-    def list(opts)
-      unless (opts[:state] or opts[:type]) and (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
-        raise RuntimeError, "missing parameters"
+    def creator(req)
+      if req.has_element?(:history)
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
+        return req.history.who if req.history.class == ActiveXML::LibXMLNode
+        return req.history[0][:who]
+      else
+        return req.state.who
       end
-
-      predicate = ""
-      case opts[:state]
-        when "pending" then    predicate += "(state/@name='new' or state/@name='review') and "
-        when "new" then        predicate += "state/@name='new' and "
-        when "deleted" then    predicate += "state/@name='deleted' and "
-        when "declined" then   predicate += "state/@name='declined' and "
-        when "accepted" then   predicate += "state/@name='accepted' and "
-        when "review" then     predicate += "state/@name='review' and "
-        when "revoked"  then   predicate += "state/@name='revoked' and "
-        when "superseded" then predicate += "state/@name='superseded' and "
-      end
-
-      # Filter by request type (submit, delete, ...)
-      predicate += "action/@type='#{opts[:type]}' and " if opts[:type]
-
-      if opts[:project] and not opts[:project].empty?
-        if opts[:package] and not opts[:package].empty?
-          predicate += "action/target/@project='#{opts[:project]}' and action/target/@package='#{opts[:package]}'"
-        else
-          predicate += "action/target/@project='#{opts[:project]}'"
-        end
-      elsif opts[:user] # should be set in almost all cases
-        # user's own submitted requests
-        predicate += "(state/@who='#{opts[:user]}'"
-        # requests where the user is reviewer or own requests that are in review by someone else
-        predicate += " or review[@by_user='#{opts[:user]}' and @state='new'] or history[@who='#{opts[:user]}' and position() = 1]" if opts[:state] == "pending" or opts[:state] == "review"
-        # find requests where user is maintainer in target project
-        maintained_projects = Array.new
-        coll = Collection.find_cached(:id, :what => 'project', :predicate => "person/@userid='#{opts[:user]}'")
-        coll.each {|mp| maintained_projects += ["action/target/@project='#{mp.name}'"]}
-        predicate += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
-        # find request where user is maintainer in target package
-        maintained_packages = Array.new
-        maintained_projects_hash = Hash.new
-        coll.each {|prj| maintained_projects_hash[prj.name] = true}
-        coll = Collection.find(:id, :what => 'package', :predicate => "person/@userid='#{opts[:user]}'")
-        coll.each do |mp|
-          maintained_packages += ["(action/target/@project='#{mp.project}' and action/target/@package='#{mp.name}')"] unless maintained_projects_hash.has_key?(mp.project.to_s)
-        end
-        predicate += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-        predicate += ")"
-      end
-
-      return Collection.find_cached(:what => :request, :predicate => predicate).each
     end
   end
 
   def creator
-    if self.has_element?(:history)
-      e = self.history('@name="new"')
-    else
-      e = self.state
-    end
-    return "unknown" if e.nil?
-    return e.value(:who)
+    return BsRequest.creator(self)
   end
-  
+
   def history
     ret = []
     self.each_history do |h|

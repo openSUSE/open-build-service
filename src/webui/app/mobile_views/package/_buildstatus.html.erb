@@ -1,0 +1,20 @@
+
+<% @buildresult.each do |repo, archarray| %>
+
+  <div data-role="collapsible" data-collapsed="true">
+    <h3><%= h repo %>
+      <% if archarray.flatten.select{|state| ['failed', 'unresolvable'].include? state }.empty? %>
+        <%= image_tag 'icons/accept.png' %>
+      <% else %>
+        <%= image_tag 'icons/exclamation.png' %>
+      <% end -%>
+    </h3>
+    <% archarray.each do |arch| -%>
+      <%= repo_status_icon @repostatushash[repo][arch] %> <b><%= h(arch) %>:</b>
+      <%= status_for( repo, arch, @package.name ).code %>
+      <br/>
+    <% end %>
+  </div>
+<% end %>
+
+

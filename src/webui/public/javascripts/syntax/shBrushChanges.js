@@ -25,7 +25,7 @@
     {
         this.regexList = [
             { regex: /^-+$/gm, css: 'changeheader' },
-            { regex: /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)  ?\d{1,2} \d{2}:\d{2}:\d{2} [A-Z]{3,4} \d{4}/gm, css: 'changeheader' },
+            { regex: /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)  ?\d{1,2} \d{2}:\d{2}(:\d{2})? [A-Z]{3,4} \d{4}/gm, css: 'changeheader' },
             { regex: /[\w+.-]+@[\w.-]+/gm, css: 'email'}
         ];
     };

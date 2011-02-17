@@ -2,6 +2,8 @@
 require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
+User.current = User.find_by_login('_nobody_')
+
 proj = ARGV[0]
 if ! proj
    puts "usage: update_project <project>"

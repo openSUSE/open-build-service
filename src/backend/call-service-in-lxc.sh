@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#FSDIR="/opt/obs/Source-Service.System"
+#FSDIR="/opt/obs/SourceServiceSystem"
 FSDIR="/"
-MOUNTDIR="/opt/obs/Source-Service-System.mounts"
+MOUNTDIR="/opt/obs/SourceServiceSystem.mounts/"
 TEMPDIR="/lxc.tmp"
 
 INNEROUTDIR="$TEMPDIR/out"
@@ -43,7 +43,7 @@ while [ $# -gt 0 ]; do
      COMMAND="$COMMAND \"${1/\"/_}\" "
      if [ -z "$MODE" ]; then
         case "$1" in
-          */download_url|*/tar_scm|*/download_src_package)
+          */download_url|*/tar_scm|*/download_src_package|*/update_source|*/download_files)
             WITH_NET="1"
             ;;
         esac
