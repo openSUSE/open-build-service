@@ -29,14 +29,15 @@
           <% end -%>
         <% rescue; end %>
 
-        <% if @project.can_edit?( session[:login] ) %>
-          <div style="margin-top: 1em">
+        <div style="margin-top: 1em">
+          <% if @project.can_edit?( session[:login] ) %>
             <%= image_tag('icons/drive_edit.png') + ' ' + link_to_remote("Edit Repository", :update => valid_xml_id(repository.name),
               :url => {:action => :edit_repository, :project => @project, :repository => repository.name}) -%>
             <%= image_tag('icons/drive_delete.png') + ' ' + link_to('Remove Repository', {:action => :remove_target, :project => @project, :target => repository.name},
               {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) -%>
-          </div>
-        <% end %>
+            <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => repository} %>
+          <% end %>
+        </div>
       </div>
     </div>
   <% end %>
