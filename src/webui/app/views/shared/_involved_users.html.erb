@@ -6,8 +6,8 @@
   function change_role() {
     str = $(this).attr('id');
 
-    // The user/group name as found in the element id can contain also underscores, therefore we have
-    // to split of substrings, because the JavaScript split() function is useless. Motivation:
+    // The user/group name as found in the element id can contain underscores, therefore we have
+    // to split off substrings, because the JavaScript split() function is useless. Motivation:
     // "A_B_C_D".split('_', 2); returns ['A','B'], and not ['A','B','C_D'] as sane languages do.
     type = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
     role = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
