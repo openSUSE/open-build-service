@@ -3908,7 +3908,7 @@ sub copyproject {
         # history copying is a bit tricky, as it renumbers the revisions
         my @allrevs = BSFileDB::fdb_getall("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
 	if (-e "$projectsdir/$projid.pkg/$packid.rev") {
-	  my $lastrev = fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+	  my $lastrev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
 	  if ($lastrev && $lastrev->{'rev'}) {
 	    for my $rev (@allrevs) {
 	      $rev->{'rev'} += $lastrev->{'rev'};
@@ -3929,7 +3929,7 @@ sub copyproject {
         BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
 	$lastorev = $allrevs[-1];
       } else {
-	$lastorev = fdb_getlast("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
+	$lastorev = BSFileDB::fdb_getlast("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
       }
       next unless $lastorev && $lastorev->{'rev'};
       # always do one new commit, we don't use addrev to have full control over vrev
