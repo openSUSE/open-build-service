@@ -7,7 +7,9 @@
 
 <h3><%= @pagetitle %></h3>
 
-<%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
+<p>
+  <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
+</p>
 
 <% @buildresult.data.find('result').each do |result|
      code='unknown'
