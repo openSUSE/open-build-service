@@ -8,12 +8,12 @@
   <div class="show_left box">
     <h3 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
     
-    <% if (@bugowners_mail and defined? BUGZILLA_HOST) or session[:login] %>
+    <% if (@bugowners_mail and !BUGZILLA_HOST.nil?) or session[:login] %>
       <div id="local-actions">
         <div id="local-actions-items">
           <a href="#" class="dropdown-menu" id="actions-trigger"><strong>Actions</strong></a>
           <ul class="dropdown-menu-content">
-            <% if @bugowners_mail and defined? BUGZILLA_HOST%>
+            <% if @bugowners_mail and !BUGZILLA_HOST.nil? %>
               <li>
                 <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
                 <%= link_to('Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>

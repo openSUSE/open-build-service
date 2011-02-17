@@ -113,6 +113,7 @@ module ApplicationHelper
   end
 
   def bugzilla_url(email_list="", desc="")
+    return '' if BUGZILLA_HOST.nil?
     assignee = email_list.first if email_list
     if email_list.length > 1
       cc = ("&cc=" + email_list[1..-1].join("&cc=")) if email_list

@@ -115,9 +115,13 @@ end
 
 if defined? CONFIG['download_url']
   DOWNLOAD_URL = CONFIG['download_url']
+else
+  DOWNLOAD_URL = nil
 end
 if defined? CONFIG['bugzilla_host']
   BUGZILLA_HOST = CONFIG['bugzilla_host']
+else
+  BUGZILLA_HOST = nil
 end
 
 ActiveXML::Base.config do |conf|
