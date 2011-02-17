@@ -3901,6 +3901,32 @@ sub copyproject {
       }
 
       #FIXME2.3: update package links to local project
+
+      # copy binaries
+      if (defined($cgi->{'withbinaries'})) {
+        for my $repo (@{$proj->{'repository'} || []}) {
+          my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
+          next unless $orepo;
+          for my $arch (@{$repo->{'arch'} || []}) {
+            next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
+
+            # same source and target repo/arch in both projects exists
+            my @args;
+            push @args, "cmd=copy";
+            push @args, "oproject=$oproj->{'name'}";
+            push @args, "opackage=$pack"; # same package name
+            push @args, "orepository=$repo->{'name'}"; # same repo name
+            my $param = {
+              'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$pack",
+              'request' => 'POST',
+            };
+	    eval {
+              # ignore failures when no build result exists in oproject
+              BSWatcher::rpc($param, undef, @args);
+            }
+          }
+        }
+      }
     }
     closedir(D);
   }
@@ -5668,7 +5694,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project? withbinaries:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project deleted:bool?' => \&getpackagelist,
 
