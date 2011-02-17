@@ -4469,7 +4469,7 @@ sub copybuild {
   checkprojrepoarch($oprojid, $orepoid, $arch);
   # make sure the packages exist. not cheap, but does everything we need
   getrev($projid, $packid);
-  getrev($oprojid, $packid);
+  getrev($oprojid, $opackid);
   my @args;
   push @args, "cmd=copy";
   push @args, "oproject=$oprojid";

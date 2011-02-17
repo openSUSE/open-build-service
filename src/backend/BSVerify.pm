@@ -314,10 +314,12 @@ sub verify_request {
       die("delete action has a source element\n") if $r->{'source'};
     } elsif ($r->{'type'} eq 'maintenancerelease') {
       die("maintenancerelease source missing\n") unless $r->{'source'};
+      die("maintenancerelease target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
+      verify_projid($r->{'target'}->{'project'});
     } elsif ($r->{'type'} eq 'maintenanceincident') {
       die("maintenanceincident source missing\n") unless $r->{'source'};
-      die("maintenanceincident target missing\n") unless $r->{'source'};
+      die("maintenanceincident target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
       verify_projid($r->{'target'}->{'project'});
     } elsif ($r->{'type'} eq 'set_bugowner') {
