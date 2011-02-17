@@ -12,22 +12,34 @@
     type = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
     role = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
 
-    if (type == "user") {
+    if (type == 'user') {
       if ($(this).attr('checked')) {
-        url = "<%= url_for(:action => "save_person", :project => @project, :package => @package) %>";
+        url = '<%= url_for(:action => "save_person", :project => @project, :package => @package) %>';
       } else {
-        url = "<%= url_for(:action => "remove_person", :project => @project, :package => @package) %>";
+        url = '<%= url_for(:action => "remove_person", :project => @project, :package => @package) %>';
       }
-    } else if (type == "group") {
+    } else if (type == 'group') {
       if ($(this).attr('checked')) {
-        url = "<%= url_for(:action => "save_group", :project => @project, :package => @package) %>";
+        url = '<%= url_for(:action => "save_group", :project => @project, :package => @package) %>';
       } else {
-        url = "<%= url_for(:action => "remove_group", :project => @project, :package => @package) %>";
+        url = '<%= url_for(:action => "remove_group", :project => @project, :package => @package) %>';
       }
     }
 
-    url += ";" + type + "id=" + str + ";role=" + role;
-    $.ajax({url: url, type: "POST"});
+    $('#' + type + '_spinner').show();
+    $('#' + type + '_table').animate({opacity: 0.2}, 500);
+    $('#' + type + '_table input').disable();
+
+    url += ';' + type + 'id=' + str + ';role=' + role;
+    $.ajax({
+      url: url,
+      type: 'POST',
+      complete: function() {
+        $('#' + type + '_spinner').hide();
+        $('#' + type + '_table').animate({opacity: 1}, 200);
+        $('#' + type + '_table input').enable();
+      }
+    });
   }
 <% end -%>
 
@@ -35,10 +47,10 @@
 <% end -%>
 
 <div id="involved_users">
-  <h3><%= @pagetitle %> <%= image_tag 'ajax-loader.gif', :id => 'spinner_users_table', :class => 'spinner hidden' %></h3>
+  <h3><%= @pagetitle %> <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
 
   <% if @users and @users.length > 0 %>
-    <table cellspacing='1' id="users_table" class="tablesorter">
+    <table cellspacing='1' id="user_table" class="tablesorter">
       <thead>
         <tr>
           <th>User</th>
@@ -88,8 +100,8 @@
   <% end %>
 
   <% if @groups and @groups.length > 0 %>
-    <h3>Groups <%= image_tag 'ajax-loader.gif', :id => 'spinner_groups_table', :class => 'spinner hidden' %></h3>
-    <table cellspacing='1' id="groups_table" class="tablesorter">
+    <h3>Groups <%= image_tag 'ajax-loader.gif', :id => 'group_spinner', :class => 'hidden' %></h3>
+    <table cellspacing='1' id="group_table" class="tablesorter">
       <thead>
         <tr>
           <th>Group</th>
