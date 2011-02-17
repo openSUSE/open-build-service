@@ -2,6 +2,38 @@
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
 <% end %>
 
+<% content_for :head_javascript do %>
+  function change_role() {
+    str = $(this).attr('id');
+
+    // The user/group name as found in the element id can contain also underscores, therefore we have
+    // to split of substrings, because the JavaScript split() function is useless. Motivation:
+    // "A_B_C_D".split('_', 2); returns ['A','B'], and not ['A','B','C_D'] as sane languages do.
+    type = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
+    role = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
+
+    if (type == "user") {
+      if ($(this).attr('checked')) {
+        url = "<%= url_for(:action => "save_person", :project => @project, :package => @package) %>";
+      } else {
+        url = "<%= url_for(:action => "remove_person", :project => @project, :package => @package) %>";
+      }
+    } else if (type == "group") {
+      if ($(this).attr('checked')) {
+        url = "<%= url_for(:action => "save_group", :project => @project, :package => @package) %>";
+      } else {
+        url = "<%= url_for(:action => "remove_group", :project => @project, :package => @package) %>";
+      }
+    }
+
+    url += ";" + type + "id=" + str + ";role=" + role;
+    $.ajax({url: url, type: "POST"});
+  }
+<% end -%>
+
+<% content_for :ready_function do %>
+<% end -%>
+
 <div id="involved_users">
   <h3><%= @pagetitle %> <%= image_tag 'ajax-loader.gif', :id => 'spinner_users_table', :class => 'spinner hidden' %></h3>
 
@@ -22,19 +54,11 @@
               <td>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
                   <% if defined? @package %>
-                    <%= check_box_tag("role_" + user + "_" + role, '', @package.user_has_role?(user, role) || @project.user_has_role?(user, role)) %><%= role.capitalize %>
+                    <%= check_box_tag("user_" + role + "_" + user, '', @package.user_has_role?(user, role) || @project.user_has_role?(user, role), :class => "trigger") %><%= role.capitalize %>
                   <% else %>
-                    <%= check_box_tag("role_" + user + "_" + role, '', @project.user_has_role?(user, role)) %><%= role.capitalize %>
+                    <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :class => "trigger") %><%= role.capitalize %>
                   <% end %>
-                  <script type="text/javascript">
-                    $('#role_<%= user %>_<%= role %>').change(function() {
-                      if ($('#role_<%= user %>_<%= role %>').attr('checked')) {
-                        <%= remote_function(:update => "", :url => {:action => "save_person", :project => @project, :package => @package, :userid => user, :role => role}) %>
-                      } else {
-                        <%= remote_function(:update => "", :url => {:action => "remove_person", :project => @project, :package => @package, :userid => user, :role => role}) %>
-                      }
-                    });
-                  </script>
+                  <script type="text/javascript">$('#user_<%= role %>_<%= user %>').change(change_role);</script>
                 <% else %>
                   <%= role.capitalize %>
                 <% end %>
@@ -76,25 +100,17 @@
       <tbody>
         <% @groups.each do |group| %>
           <tr>
-            <td><%= group %></td/>
+            <td><%= group %></td>
             <% @roles.each do |role| %>
               <td>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
                   <% if defined? @package %>
-                    <%= check_box_tag("role_" + group + "_" + role, '', @package.group_has_role?(group, role) || @project.group_has_role?(group, role)) %><%= role.capitalize %>
+                    <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role) || @project.group_has_role?(group, role), :class => :trigger) %><%= role.capitalize %>
                   <% else %>
-                    <%= check_box_tag("role_" + group + "_" + role, '', @project.group_has_role?(group, role)) %><%= role.capitalize %>
+                    <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :class => :trigger) %><%= role.capitalize %>
                   <% end %>
                   <% #TODO: Add respective controller actions to support group addition / removal %>
-                  <script type="text/javascript">
-                    $('#role_<%= group %>_<%= role %>').change(function() {
-                      if ($('#role_<%= group %>_<%= role %>').attr('checked')) {
-                        <%= remote_function(:update => "", :url => {:action => "save_group", :project => @project, :package => @package, :groupid => user, :role => role}) %>
-                      } else {
-                        <%= remote_function(:update => "", :url => {:action => "remove_group", :project => @project, :package => @package, :groupid => user, :role => role}) %>
-                      }
-                    });
-                  </script>
+                  <script type="text/javascript">$('#group_<%= role %>_<%= group %>').change(change_role);</script>
                 <% else %>
                   <%= role.capitalize %>
                 <% end %>
@@ -103,8 +119,6 @@
             <td>
               <% if @user and @user.is_maintainer?(@project, @package) %>
                 <% #TODO: Add respective controller actions to support group addition / removal %>
-                <%= image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group") %>
-
                 <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => user}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
               <% end %>
             </td>
@@ -115,5 +129,11 @@
     <script type="text/javascript">
       $('#groups_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {1: {sorter: false}, 2: {sorter: false}} });
     </script>
+  <% end %>
+  <% if @user and @user.is_maintainer?(@project, @package) %>
+    <p>
+      <%= link_to image_tag('icons/group_add.png', :alt => "Add group", :title => "Add group"), :action => :add_group, :package => @package, :project => @project %>
+      <%= link_to 'Add group', :action => :add_group, :package => @package, :project => @project %>
+    </p>
   <% end %>
 </div>
