@@ -4434,16 +4434,16 @@ sub copybuild {
   my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
-  die("nothing to do\n") if "$oproject/$opackage/$orepository" eq "$projid/$packid/$repoid";
+  die("nothing to do\n") if "$oprojid/$opackid/$orepoid" eq "$projid/$packid/$repoid";
   checkprojrepoarch($oprojid, $orepoid, $arch);
   # make sure the packages exist. not cheap, but does everything we need
   getrev($projid, $packid);
   getrev($oprojid, $packid);
   my @args;
   push @args, "cmd=copy";
-  push @args, "oproject=$oproject";
-  push @args, "opackage=$opackage";
-  push @args, "orepository=$orepository";
+  push @args, "oproject=$oprojid";
+  push @args, "opackage=$opackid";
+  push @args, "orepository=$orepoid";
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
