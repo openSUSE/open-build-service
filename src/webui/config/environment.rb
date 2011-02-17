@@ -55,7 +55,7 @@ init = Rails::Initializer.run do |config|
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'libxml-ruby'
-  config.gem 'exception_notification', :version => '<= 1.1'
+  config.gem 'exception_notification', :version => '>= 1.1'
   config.gem 'erubis'
   config.gem 'rails_xss'
 
