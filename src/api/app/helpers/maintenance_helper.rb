@@ -69,7 +69,7 @@ module MaintenanceHelper
     return mi
   end
 
-  def merge_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
+  def release_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
@@ -79,17 +79,17 @@ module MaintenanceHelper
       new.save
     end
 
-    # merge binaries
+    # copy binaries
 #FIXME2.3: find out about used revision of binaries
 
-    # merge sources
+    # copy sources
     # backend copy of current sources
     cp_params = {
       :cmd => "copy",
       :user => @http_user.login,
       :oproject => sourcePackage.db_project.name,
       :opackage => sourcePackage.name,
-      :comment => "Merge from project " + sourcePackage.db_project.name,
+      :comment => "Copy from project " + sourcePackage.db_project.name,
       :keeplink => "1",
 #      :keeprevision => "1", #FIXME2.3: needs to be supported by backend
     }

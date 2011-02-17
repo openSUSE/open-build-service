@@ -29,10 +29,6 @@ class SourceServicesTest < ActionController::IntegrationTest
         set_version = 1
       end
     end
-    puts "This test suite needs the source service \"set_version\" installed !"    unless set_version
-    puts "This test suite needs the source service \"download_url\" installed !"   unless download_url
-    puts "This test suite needs the source service \"download_files\" installed !" unless download_files
-
     assert_tag :tag => "service", :attributes => { :name => "set_version" }
     assert_tag :tag => "service", :attributes => { :name => "download_url" }
     assert_tag :tag => "service", :attributes => { :name => "download_files" }
