@@ -1,51 +1,50 @@
 <% @pagetitle = "Subprojects of #{@project}"
    @metarobots = 'noindex'
    project_bread_crumb 'Subprojects'
--%>
+%>
 
 <%= render :partial => "tabs" %>
 
-<%- if !@parentprojects.blank? -%>
+<% unless @parentprojects.blank? %>
   <div class="section">
-    <h3>Parent projects of <%= @project %>:</h3>
+    <h3>Parent projects of <%= @project %></h3>
     <ul>
-      <%- @parentprojects.each do |key, value| -%>
-        <li><%= link_to key, :action => :show, :project => key %>
-          <% if value.title && !value.title.text.blank? %>
-            <i>(<%= value.title  %>)</i>
-          <% else %>
-            <i>(no title set)</i>
+      <% @parentprojects.each do |key, value| %>
+        <li>
+          <%= link_to key, :action => :show, :project => key %>
+          <% if value.has_element?(:title) and not value.title.text.empty? %>
+            <i>(<%= value.title %>)</i>
           <% end %>
         </li>
-      <%- end -%>
+      <% end %>
     </ul>
   </div>
 <% end %>
 
 <div class="section">
   <h3><%= @pagetitle %></h3>
-  <% if @project.can_edit?( session[:login] ) %>
-    <p>
-      <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new %>
-      <%= link_to 'Create a new subproject', :controller => :project, :action => :new, :ns => @project.name %>
-    </p>
-  <% end -%>
 
   <% prjlen = @project.name.length %>
-  <%- if !@subprojects.blank? -%>
+  <% if !@subprojects.blank? %>
     <ul>
-      <%- @subprojects.each do |key, value| -%>
-        <li><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
-          <% if defined? value.title && !value.title.text.blank? %>
-            <i>(<%= value.title  %>)</i>
-          <% else %>
-            <i>(no title set)</i>
+      <% @subprojects.each do |key, value| %>
+        <li>
+        <%= link_to key.slice(prjlen + 1, key.length), :action => :show, :project => key %>
+          <% if value.has_element?(:title) and not value.title.text.empty? %>
+            <i>(<%= value.title %>)</i>
           <% end %>
         </li>
-      <%- end -%>
+      <% end %>
     </ul>
-  <%- else -%>
+  <% else %>
     <p><i>No subprojects found</i></p>
-  <%- end -%>
+  <% end %>
+
+  <% if @project.can_edit?(session[:login]) %>
+    <p>
+      <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new %>
+      <%= link_to 'Create subproject', :controller => :project, :action => :new, :ns => @project.name %>
+    </p>
+  <% end %>
 </div>
 
