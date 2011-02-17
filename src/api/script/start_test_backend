@@ -139,6 +139,7 @@ end
 
 system("rake db:fixtures:load")
 Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
+Suse::Backend.put( '/source/BaseDistro/_config', "# Empty project config" )
 Suse::Backend.put( '/source/BaseDistro/pack1/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack1").to_axml)
 Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro/pack2/_meta', DbPackage.find_by_project_and_name("BaseDistro", "pack2").to_axml)
@@ -294,6 +295,7 @@ end
 
 # copy build result 
 Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )
+Suse::Backend.post( '/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack', nil )
 
 # run scheduler again to handle the copy build event
 IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|

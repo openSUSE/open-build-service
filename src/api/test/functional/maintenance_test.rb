@@ -239,10 +239,16 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_copy_project_for_release
+    # as user
     prepare_request_with_user "tom", "thunder"
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
     assert_response 403
+    post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
+    assert_response :success
+    delete "/source/home:tom:CopyOfBaseDistro"
+    assert_response :success
 
+    # as admin
     prepare_request_with_user "king", "sunflower"
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
     assert_response :success
@@ -278,6 +284,62 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal version, copyversion
     assert_not_equal time, copytime
     assert_equal copyhistory.each_revision.last.user.text, "king"
+
+    delete "/source/CopyOfBaseDistro"
+    assert_response :success
+  end
+
+  def test_copy_project_for_release_with_history_and_binaries
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withbinaries=1"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
+
+    # as admin
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1"
+    assert_response :success
+    get "/source/CopyOfBaseDistro/_meta"
+    assert_response :success
+    get "/source/BaseDistro"
+    assert_response :success
+    opackages = ActiveXML::XMLNode.new(@response.body)
+    get "/source/CopyOfBaseDistro"
+    assert_response :success
+    packages = ActiveXML::XMLNode.new(@response.body)
+    assert_equal opackages.to_s, packages.to_s
+
+    # compare revisions
+    get "/source/BaseDistro/pack2/_history"
+    assert_response :success
+    history = ActiveXML::XMLNode.new(@response.body)
+    srcmd5 = history.each_revision.last.srcmd5.text
+    version = history.each_revision.last.version.text
+    time = history.each_revision.last.time.text
+    vrev = history.each_revision.last.vrev
+    assert_not_nil srcmd5
+    get "/source/CopyOfBaseDistro/pack2/_history"
+    assert_response :success
+    copyhistory = ActiveXML::XMLNode.new(@response.body)
+    copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
+    copyversion = copyhistory.each_revision.last.version.text
+    copytime = copyhistory.each_revision.last.time.text
+    copyrev = copyhistory.each_revision.last.rev
+    copyvrev = copyhistory.each_revision.last.vrev
+    assert_equal srcmd5, copysrcmd5
+    assert_equal vrev.to_i, copyvrev.to_i - 1  #the copy gets always an additional commit
+    assert_equal version, copyversion
+    assert_not_equal time, copytime
+    assert_equal copyhistory.each_revision.last.user.text, "king"
+
+    # compare binaries
+    get "/build/BaseDistro/BaseDistro_repo/i586/pack2"
+    assert_response :success
+    assert_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
 
     delete "/source/CopyOfBaseDistro"
     assert_response :success

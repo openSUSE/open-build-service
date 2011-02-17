@@ -1317,6 +1317,19 @@ class SourceController < ApplicationController
     oproject = params[:oproject]
     repository = params[:repository]
 
+    unless @http_user.is_admin?
+      if params[:withbinaries]
+        render_error :status => 403, :errorcode => "project_copy_no_permission",
+          :message => "no permission to copy project with binaries for non admins"
+        return
+      end
+      if params[:withhistory]
+        render_error :status => 403, :errorcode => "project_copy_no_permission",
+          :message => "no permission to copy project with source history for non admins"
+        return
+      end
+    end
+
     # create new project object based on oproject
     unless DbProject.find_by_name project_name
       oprj = DbProject.get_by_name( oproject )
@@ -1338,7 +1351,7 @@ class SourceController < ApplicationController
     # copy entire project in the backend
     begin
       path = request.path
-      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject]) # supported in backend, but not yet permitted via api: :withbinaries, :withhistory
+      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory])
       pass_to_backend path
     rescue
       # we need to check results of backend in any case (also timeout error eg)
