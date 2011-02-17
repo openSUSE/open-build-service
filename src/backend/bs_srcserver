@@ -3879,6 +3879,11 @@ sub copyproject {
   my $proj = readproj($projid);
   my $oproj = readproj($oprojid);
 
+  my $user = defined($cgi->{'user'}) && $cgi->{'user'} ne '' ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  $user = str2utf8xml($user);
+  $comment = str2utf8xml($comment);
+
   # use {} as we do not want to copy project linked packages
   my @pkgs = findpackages($oprojid, {});
   for my $packid (@pkgs) {
@@ -3896,7 +3901,8 @@ sub copyproject {
       writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
       addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
     }
-    if (-e "$projectsdir/$oprojid.pkg/$packid.rev") {
+    if (-s "$projectsdir/$oprojid.pkg/$packid.rev") {
+      my $lastorev;
       if ($cgi->{'withhistory'}) {
         # FIXME: races ahead
         # history copying is a bit tricky, as it renumbers the revisions
@@ -3915,18 +3921,29 @@ sub copyproject {
           my $treedir = "$treesdir/$projid/$packid";
 	  for my $rev (@allrevs) {
 	    next if -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
-	    my $xrev = { %$rev, 'project' => $oprojid, 'package' => $packid };
-            my $files = lsrev($xrev);
+            my $files = lsrev({ %$rev, 'project' => $oprojid, 'package' => $packid });
 	    copyfiles($projid, $packid, $oprojid, $packid, $files);
 	    addmeta($projid, $packid, $files);
 	  }
 	}
         BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
+	$lastorev = $allrevs[-1];
+      } else {
+	$lastorev = fdb_getlast("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
       }
-      # always do one new commit
-      my $rev = getrev($oprojid, $packid, 'latest');
-      my $files = lsrev($rev);
-      addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'});
+      next unless $lastorev && $lastorev->{'rev'};
+      # always do one new commit, we don't use addrev to have full control over vrev
+      my $files = lsrev({ %$lastorev, 'project' => $oprojid, 'package' => $packid });
+      copyfiles($projid, $packid, $oprojid, $packid, $files);
+      addmeta($projid, $packid, $files);
+      $lastorev->{'user'} = $user;
+      $lastorev->{'comment'} = $comment;
+      $lastorev->{'requestid'} = $cgi->{'requestid'};
+      $lastorev->{'time'} = time();
+      $lastorev->{'vrev'} += 1;
+      delete $lastorev->{'rev'};
+      $lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
+      updatelinkinfodb($projid, $packid, { %$lastorev, 'project' => $oprojid, 'package' => $packid }, $files);
     }
     # XXX: does this make any sense?
     if ($cgi->{'withbinaries'}) {
