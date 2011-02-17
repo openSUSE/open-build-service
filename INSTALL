@@ -73,7 +73,7 @@ have to change into its subdirectory and create the initial config like this:
 
 Afterwards you can simply start the webui like this:
 
- $ ./scripts/server
+ $ ./script/server
 
 Open up your favorite browser and enter the address http://127.0.0.1:3000/
 and you should see your own Build Service webui instance. Thats it, actually.
