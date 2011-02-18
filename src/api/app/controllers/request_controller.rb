@@ -200,8 +200,11 @@ class RequestController < ApplicationController
             prj = DbProject.get_by_name action.source.project
             packages = prj.db_packages
           end
-          # The maintenance ID is always the sub project name of the maintenance project
-          incident = prj.name.gsub(/.*:/, "")
+          incident_suffix = ""
+          if action.data.attributes["type"] == "maintenancerelease"
+            # The maintenance ID is always the sub project name of the maintenance project
+            incident_suffix = "." + action.source.project.gsub(/.*:/, "")
+          end
 
           packages.each do |pkg|
             # find target via linkinfo or fail
@@ -216,8 +219,7 @@ class RequestController < ApplicationController
             newAction.add_element 'target' unless newAction.has_element? 'target'
             newAction.source.data.attributes["package"] = pkg.name
             newAction.target.data.attributes["project"] = e.attributes["project"]
-            newAction.target.data.attributes["package"] = e.attributes["package"]
-            newAction.target.data.attributes["package"] += "." + incident
+            newAction.target.data.attributes["package"] = e.attributes["package"] + incident_suffix
             if action.data.attributes["type"] == "maintenancerelease" and not newAction.source.has_attribute? 'rev'
               # maintenancerelease needs the binaries, so we always use the current source
               rev=nil
