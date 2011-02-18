@@ -89,7 +89,7 @@
       </tbody>
     </table>
     <script type="text/javascript">
-      $('#user_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {1: {sorter: false}, 2: {sorter: false}} });
+      $('#user_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {1: {sorter: false}, 2: {sorter: false}} });
     </script>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
@@ -138,7 +138,7 @@
       </tbody>
     </table>
     <script type="text/javascript">
-      $('#group_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {1: {sorter: false}, 2: {sorter: false}} });
+      $('#group_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {1: {sorter: false}, 2: {sorter: false}} });
     </script>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
