@@ -664,11 +664,25 @@ class ProjectController < ApplicationController
       flash[:note] = "User removal aborted, no user id given!"
       redirect_to :action => :show, :project => params[:project] and return
     end
-    @project.remove_persons( :userid => params[:userid], :role => params[:role] )
+    @project.remove_persons(:userid => params[:userid], :role => params[:role])
     if @project.save
-      flash[:note] = "Removed user #{params[:userid]}"
+      flash[:note] = "Removed user '#{params[:userid]}'"
     else
       flash[:error] = "Failed to remove user '#{params[:userid]}'"
+    end
+    redirect_to :action => :users, :project => params[:project]
+  end
+
+  def remove_group
+    if params[:groupid].blank?
+      flash[:note] = "Group removal aborted, no group id given!"
+      redirect_to :action => :show, :project => params[:project] and return
+    end
+    @project.remove_group(:groupid => params[:groupid], :role => params[:role])
+    if @project.save
+      flash[:note] = "Removed group '#{params[:groupid]}'"
+    else
+      flash[:note] = "Failed to remove group '#{params[:groupid]}'"
     end
     redirect_to :action => :users, :project => params[:project]
   end

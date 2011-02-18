@@ -126,7 +126,7 @@
             <% end %>
             <td>
               <% if @user and @user.is_maintainer?(@project, @package) %>
-                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => user}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
               <% end %>
             </td>
           </tr>
