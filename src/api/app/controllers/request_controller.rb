@@ -56,15 +56,17 @@ class RequestController < ApplicationController
         u = User.find_by_login(params[:user])
         u.involved_projects.each do |ip|
           maintained_projects += ["action/target/@project='#{ip.name}'"]
+          maintained_projects += ["review[@state='new' and @by_project='#{ip.name}']"]
           maintained_projects_hash[ip.id] = true
         end
         str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
         ## find request where user is maintainer in target package, except we have to project already
         maintained_packages = Array.new
         u.involved_packages.each do |ip|
-          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
-          #FIXME2.3: This code causes heavy load in the backend source server, to be re-evaluated.
-          #str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
+          unless maintained_projects_hash.has_key?(ip.db_project_id)
+            maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+            maintained_packages += ["review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}']"]
+          end
         end
         str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
         str += ")"
