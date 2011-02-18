@@ -748,7 +748,7 @@ class SourceController < ApplicationController
       end
 
       p = Project.new(request_data, :name => project_name)
-      if @project and not @project.disabled_for?('sourceaccess', nil, nil)
+      if @project and not @project.disabled_for?('sourceaccess', nil, nil) and not @http_user.is_admin?
         if p.disabled_for? :sourceaccess
            render_error :status => 403, :errorcode => "change_project_protection_level",
              :message => "admin rights are required to raise the source protection level of a project"
@@ -756,7 +756,7 @@ class SourceController < ApplicationController
         end
       end
 
-      if @project and not @project.disabled_for?('access', nil, nil)
+      if @project and not @project.disabled_for?('access', nil, nil) and not @http_user.is_admin?
         if p.disabled_for? :access
            render_error :status => 403, :errorcode => "change_project_protection_level",
              :message => "admin rights are required to raise the protection level of a project"
