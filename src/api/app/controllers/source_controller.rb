@@ -1153,7 +1153,7 @@ class SourceController < ApplicationController
 
     @package = Package.new( request_data, :project => project_name, :name => package_name )
 
-    if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
+    if pkg and not pkg.disabled_for?('sourceaccess', nil, nil) and not @http_user.is_admin?
       if @package.disabled_for? :sourceaccess
 	 render_error :status => 403, :errorcode => "change_package_protection_level",
 	   :message => "admin rights are required to raise the protection level of a package"
@@ -1161,7 +1161,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if pkg and not pkg.disabled_for?('access', nil, nil)
+    if pkg and not pkg.disabled_for?('access', nil, nil) and not @http_user.is_admin?
       if @package.disabled_for? :access
 	 render_error :status => 403, :errorcode => "change_package_protection_level",
 	   :message => "admin rights are required to raise the protection level of a package"
