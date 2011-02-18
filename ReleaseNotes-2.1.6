@@ -1,0 +1,26 @@
+#
+# openSUSE Build Service 2.1.6
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backport:
+=================
+
+None
+
+Changes:
+========
+
+* openSUSE 11.4 and Debian 6.0 got added as default target.
+
+Bugfixes:
+=========
+
+* api: allow admins to raise "sourceaccess" permissions on existing projects or packages
+* api: do not allow to create packages with invalid chars via branch command
+* webui: Fix possible XSS attacks in login page
+* api and webui: Do not use (and fail) rails 3 environment
+
