@@ -27,7 +27,7 @@
     }
 
     $('#' + type + '_spinner').show();
-    $('#' + type + '_table').animate({opacity: 0.2}, 500);
+    $('#' + type + '_table input').animate({opacity: 0.2}, 500);
     $('#' + type + '_table input').disable();
 
     url += ';' + type + 'id=' + str + ';role=' + role;
@@ -36,7 +36,7 @@
       type: 'POST',
       complete: function() {
         $('#' + type + '_spinner').hide();
-        $('#' + type + '_table').animate({opacity: 1}, 200);
+        $('#' + type + '_table input').animate({opacity: 1}, 200);
         $('#' + type + '_table input').enable();
       }
     });
