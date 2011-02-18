@@ -1201,8 +1201,8 @@ class SourceController < ApplicationController
           branch_target_package = pa.name
         else
           # package exists not yet in update project, but it may have a project link ?
-    	  uprj = DbProject.find_by_name(a.values[0].value)
-    	  if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
+          uprj = DbProject.find_by_name(a.values[0].value)
+          if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
           end
         end
@@ -1726,14 +1726,16 @@ class SourceController < ApplicationController
         # We have a package in the update project already, take that
         pkg = pa
         prj = pkg.db_project
-    	logger.debug "branch call found package in update project #{prj.name}"
+        logger.debug "branch call found package in update project #{prj.name}"
       else
         update_prj = DbProject.find_by_name( a.values[0].value )
-        update_pkg = update_prj.find_package( pkg.name )
-        if update_pkg
-          # We have no package in the update project yet, but sources are reachable via project link
-          pkg = update_pkg
-          prj = update_prj
+        if update_prj
+          update_pkg = update_prj.find_package( pkg.name )
+          if update_pkg
+            # We have no package in the update project yet, but sources are reachable via project link
+            pkg = update_pkg
+            prj = update_prj
+          end
         end
       end
     end
