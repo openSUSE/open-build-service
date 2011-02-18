@@ -143,7 +143,7 @@ ActiveXML::Base.config do |conf|
       :tags_by_object => "rest:///source/:project/:package/_tags"
 
     map.connect :person, "rest:///person/:login"
-    map.connect :group, "rest:///group/show/:title",
+    map.connect :group, "rest:///group/show/:name",
       :all => "rest:///group/"
     map.connect :unregisteredperson, "rest:///person/register"
     map.connect :userchangepasswd, "rest:///person/changepasswd"
