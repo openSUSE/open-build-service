@@ -226,8 +226,10 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
+    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
+    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2.2011-1" } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2.2011-1" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
@@ -236,6 +238,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
+
+    # validate result
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
+    assert_response :success
+    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.2011-1" }
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2.2011-1/_link"
+    assert_response 404
   end
 
   def test_copy_project_for_release
