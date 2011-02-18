@@ -9,7 +9,6 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 require File.join(File.dirname(__FILE__), 'boot')
 
 require "common/libxmlactivexml"
-require 'custom_logger'
 require 'fileutils'
 
 # create important directories that are needed at runtime
@@ -76,8 +75,6 @@ init = Rails::Initializer.run do |config|
   config.cache_store = :domain_cache_store, :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient'}
 
   # See Rails::Configuration for more options
-
-  config.logger = NiceLogger.new(config.log_path)
 
 end
 

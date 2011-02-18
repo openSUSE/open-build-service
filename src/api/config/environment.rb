@@ -13,7 +13,6 @@ APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 require "common/libxmlactivexml"
-require 'custom_logger'
 require 'fileutils'
 
 # create important directories that are needed at runtime
@@ -84,7 +83,6 @@ Rails::Initializer.run do |config|
   unless ENV['FCGI_INSTANCE_NAME'].nil?
     config.log_path = "#{RAILS_ROOT}/log/#{ENV['FCGI_INSTANCE_NAME']}.log"
   end
-  config.logger = NiceLogger.new(config.log_path)
 
   # See Rails::Configuration for more options
 end
