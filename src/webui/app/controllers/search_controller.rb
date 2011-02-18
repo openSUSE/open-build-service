@@ -3,16 +3,13 @@ class SearchController < ApplicationController
   before_filter :set_attribute_list
 
   def index
-    @search_what = %w{ package project }
+    @search_what = %w{package project}
   end
 
-
   def search
-
     required_parameters :search_text
 
     @search_text = params[:search_text]
-
     if @search_text.starts_with?("obs://")
       # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
       disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
@@ -27,7 +24,7 @@ class SearchController < ApplicationController
       redirect_to :action => 'index' and return
     end
 
-    @search_what = %w{ package project }
+    @search_what = %w{package project}
     if params[:advanced]
       @search_what = []
       @search_what << 'package' if params[:package]
@@ -50,7 +47,6 @@ class SearchController < ApplicationController
 
     @results = []
     @search_what.each do |s_what|
-
       # build xpath predicate
       if params[:advanced]
         p = []
@@ -74,12 +70,10 @@ class SearchController < ApplicationController
         predicate = "contains(@name,'#{@search_text}')"
       end
 
-
-      collection = find_cached(Collection, :what => s_what, :predicate => predicate, :expires_in => 5.minutes )
+      collection = find_cached(Collection, :what => s_what, :predicate => predicate, :expires_in => 5.minutes)
 
       # collect all results and give them some weight
       collection.send("each_#{s_what}") do |data|
-
         s = @search_text
         weight = 0
 
@@ -133,19 +127,17 @@ class SearchController < ApplicationController
           log_weight(log_prefix, 'description_contained', weight)
         end
 
-        @results << { :type => s_what, :data => data, :weight => weight }
+        @results << {:type => s_what, :data => data, :weight => weight}
       end
     end
 
     # reorder results by weight
-    @results.sort! { |a,b| b[:weight] <=> a[:weight] }
+    @results.sort! {|a,b| b[:weight] <=> a[:weight]}
   end
-
 
   def log_weight(log_prefix, reason, new_weight)
     logger.debug "#{log_prefix} #{reason}, new weight=#{new_weight}"
   end
-
 
 end
 
@@ -160,12 +152,7 @@ def set_attribute_list
   end
   attributes.each do |d|
     if d.has_element? :entry
-      d.each do |f|
-        @attribute_list << "#{d.init_options[:namespace]}:#{f.data[:name]}"
-      end
+      d.each {|f| @attribute_list << "#{d.init_options[:namespace]}:#{f.data[:name]}"}
     end
   end
-  
 end
-
-
