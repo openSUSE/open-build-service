@@ -680,7 +680,6 @@ class PackageController < ApplicationController
     redirect_to :action => :users, :project => @project, :package => @package
   end
 
-
   def remove_person
     valid_http_methods(:post)
     @package.remove_persons(:userid => params[:userid], :role => params[:role])

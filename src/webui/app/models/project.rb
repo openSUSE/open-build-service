@@ -152,7 +152,7 @@ class Project < ActiveXML::Base
     merge_data elem_cache
   end
 
-  def set_remoteurl( url )
+  def set_remoteurl(url)
     logger.debug "set remoteurl"
 
     delete_element 'remoteurl'
@@ -162,42 +162,33 @@ class Project < ActiveXML::Base
       add_element 'remoteurl'
       remoteurl.text = url
     end
-
     merge_data elem_cache
   end
 
   #removes persons based on attributes
-  def remove_persons( opt={} )
+  def remove_persons(opt={})
     xpath="//person"
     if not opt.empty?
       opt_arr = []
-      opt.each do |k,v|
-        opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?
-      end
+      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.find(xpath.to_s).each do |e|
-      e.remove!
-    end
+    data.find(xpath.to_s).each {|e| e.remove!}
   end
 
   def remove_group(opt={})
     xpath="//group"
     if not opt.empty?
       opt_arr = []
-      opt.each do |k,v|
-        opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?
-      end
+      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing groups using xpath '#{xpath}'"
-    data.find(xpath.to_s).each do |e| 
-      e.remove!
-    end
+    data.find(xpath.to_s).each {|e| e.remove!}
   end
 
-  def add_path_to_repository( opt={} )
+  def add_path_to_repository(opt={})
     return nil if opt == {}
     repository = data.find("//repository[@name='#{opt[:reponame]}']").first
 
@@ -255,9 +246,7 @@ class Project < ActiveXML::Base
     end
     archs = Hash.new
     self.each_repository do |repo|
-      repo.each_arch do |arch|
-        archs[arch.to_s] = nil
-      end
+      repo.each_arch {|arch| archs[arch.to_s] = nil}
     end
     #hash to array
     self.my_architectures = archs.keys.sort
@@ -266,17 +255,13 @@ class Project < ActiveXML::Base
 
   def repositories
     ret = Array.new
-    self.each_repository do |repo|
-      ret << repo.name.to_s
-    end
+    self.each_repository {|repo| ret << repo.name.to_s}
     ret
   end
 
   def repository
     repo_hash = Hash.new
-    self.each_repository do |repo|
-      repo_hash[repo.name] = repo
-    end
+    self.each_repository {|repo| repo_hash[repo.name] = repo}
     return repo_hash
   end
     
