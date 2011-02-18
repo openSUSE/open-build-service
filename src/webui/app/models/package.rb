@@ -58,24 +58,48 @@ class Package < ActiveXML::Base
     logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to package #{self.name}"
 
     #add the new person
-    add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
+    add_element('person', 'userid' => opt[:userid], 'role' => opt[:role])
+  end
+
+  def add_group(opt={})
+    return false unless opt[:groupid] and opt[:role]
+    logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
+
+    if has_element?(:remoteurl)
+      elem_cache = split_data_after :remoteurl
+    else
+      elem_cache = split_data_after :description
+    end
+
+    # add the new group
+    add_element('group', 'groupid' => opt[:groupid], 'role' => opt[:role])
+    merge_data elem_cache
   end
 
   #removes persons based on attributes
   def remove_person(person, role=nil)
-
   end
+
   def remove_persons( opt={} )
     xpath="//person"
     if not opt.empty?
       opt_arr = []
-      opt.each do |k,v|
-        opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?
-      end
+      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.find(xpath).each {|e| e.remove! }
+    data.find(xpath).each {|e| e.remove!}
+  end
+
+  def remove_group(opt={})
+    xpath="//group"
+    if not opt.empty?
+      opt_arr = []
+      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
+      xpath += "[#{opt_arr.join ' and '}]"
+    end
+    logger.debug "removing groups using xpath '#{xpath}'"
+    data.find(xpath.to_s).each {|e| e.remove!}
   end
 
   def set_url( new_url )

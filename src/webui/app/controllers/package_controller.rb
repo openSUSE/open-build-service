@@ -239,6 +239,11 @@ class PackageController < ApplicationController
     Package.free_cache :project => @project, :package => @package
   end
 
+  def add_group
+    @roles = Role.local_roles
+    Package.free_cache :project => @project, :package => @package
+  end
+
   def rdiff
     required_parameters :project, :package
     if params[:commit]
@@ -659,18 +664,47 @@ class PackageController < ApplicationController
     redirect_to :action => :users, :package => @package, :project => @project
   end
 
+  def save_group
+    valid_http_methods(:post)
+    group = find_cached(Group, params[:groupid])
+    unless group
+      flash[:error] = "Unknown group with id '#{params[:groupid]}'"
+      redirect_to :action => :add_group, :project => @project, :package => @package, :role => params[:role] and return
+    end
+    @package.add_group(:groupid => group.title.to_s, :role => params[:role])
+    if @package.save
+      flash[:note] = "Added group #{group.title} with role #{params[:role]} to package #{@package}"
+    else
+      flash[:error] = "Failed to add group '#{params[:groupid]}'"
+    end
+    redirect_to :action => :users, :project => @project, :package => @package
+  end
+
 
   def remove_person
     valid_http_methods(:post)
-    @package.remove_persons( :userid => params[:userid], :role => params[:role] )
+    @package.remove_persons(:userid => params[:userid], :role => params[:role])
     if @package.save
       flash[:note] = "Removed user #{params[:userid]}"
     else
       flash[:note] = "Failed to remove user '#{params[:userid]}'"
     end
-    redirect_to :action => :users, :package => @package, :project => @project
+    redirect_to :action => :users, :project => @project, :package => @package
   end
 
+  def remove_group
+    if params[:groupid].blank?
+      flash[:note] = "Group removal aborted, no group id given!"
+      redirect_to :action => :show, :project => params[:project] and return
+    end
+    @project.remove_group(:groupid => params[:groupid], :role => params[:role])
+    if @project.save
+      flash[:note] = "Removed group '#{params[:groupid]}'"
+    else
+      flash[:note] = "Failed to remove group '#{params[:groupid]}'"
+    end
+    redirect_to :action => :users, :project => @project, :package => @package
+  end
 
   def edit_file
     @project = params[:project]
