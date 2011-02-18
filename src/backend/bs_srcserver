@@ -3873,74 +3873,107 @@ sub sourcecommitfilelist {
 # copy sources of entire project, project exists ensured by api.
 sub copyproject {
   my ($cgi, $projid) = @_;
-  my $oproj ||= readproj($cgi->{'oproject'}, 1) || {};
-  my $proj ||= readproj($projid, 1) || {};
-  local *D;
+  my $oprojid = $cgi->{'oproject'};
+  return $BSStdServer::return_ok if $oprojid eq $projid;
 
-  if (opendir(D, "$projectsdir/$oproj->{'name'}.pkg")) {
-    mkdir_p("$projectsdir/$projid.pkg");
-    for my $pack (grep {s/\.xml$//} readdir(D)) {
-      my $opackxml = readxml("$projectsdir/$oproj->{'name'}.pkg/$pack.xml", $BSXML::pack, 1);
-      # copy meta parts by positive list
-      my $packxml = {}; 
-      $packxml->{'project'} = $projid;
-      $packxml->{'name'} = $pack;
-      $packxml->{'title'} = $opackxml->{'title'};
-      $packxml->{'description'} = $opackxml->{'description'};
-      $packxml->{'sourceaccess'} = $opackxml->{'sourceaccess'} if defined($opackxml->{'sourceaccess'});
-      # don't copy flags, maintainer and devel package on purpose
-      writexml("$projectsdir/$projid.pkg/.$pack.xml", "$projectsdir/$projid.pkg/$pack.xml", $packxml, $BSXML::pack);
-       
-      # copy source with latest revision, but not complete history
-      if (-e "$projectsdir/$oproj->{'name'}.pkg/$pack.rev") {
-        if (defined($cgi->{'withhistory'})) {
-          my @res = BSFileDB::fdb_getall("$projectsdir/$oproj->{'name'}.pkg/$pack.rev", $srcrevlay );
-          BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$pack.rev", $srcrevlay, @res);
-        } else {
-          my @orevs = BSFileDB::fdb_getall("$projectsdir/$oproj->{'name'}.pkg/$pack.rev", $srcrevlay);
-          my $last = @orevs -1;
-          my $prev = {'srcmd5' => $orevs[$last]->{'srcmd5'}, 'time' => time(), 'user' => $cgi->{'user'}, 'version' => $orevs[$last]->{'version'}, 
-                      'vrev' => $orevs[$last]->{'vrev'}, 'comment' => $cgi->{'comment'}};
-          BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$pack.rev", $srcrevlay, $prev);
-        };
-        # add another commit with the comment
-        my $rev = getrev($cgi->{'oproject'}, $pack, 'latest');
-        my $files = lsrev($rev);
-        my $prev = addrev($projid, $pack, $files, $cgi->{'user'}, $cgi->{'comment'});
+  my $proj = readproj($projid);
+  my $oproj = readproj($oprojid);
 
-        #FIXME2.3: update package links to local project
+  my $user = defined($cgi->{'user'}) && $cgi->{'user'} ne '' ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  $user = str2utf8xml($user);
+  $comment = str2utf8xml($comment);
 
-        # copy binaries
-        if (defined($cgi->{'withbinaries'})) {
-          for my $repo (@{$proj->{'repository'} || []}) {
-            my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
-            next unless $orepo;
-            for my $arch (@{$repo->{'arch'} || []}) {
-              next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
+  # use {} as we do not want to copy project linked packages
+  my @pkgs = findpackages($oprojid, {});
+  for my $packid (@pkgs) {
+    if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
+      # new package, create. hopefully the API can deal with this
+      my $opack = readpack($oprojid, $packid);
+      my $pack = {
+	'project' => $projid,
+	'name' => $packid,
+      };
+      for (qw{title description sourceaccess}) {
+        $pack->{$_} = $opack->{$_} if defined $opack->{$_};
+      }
+      mkdir_p($uploaddir);
+      writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
+      addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+    }
+    if (-s "$projectsdir/$oprojid.pkg/$packid.rev") {
+      my $lastorev;
+      if ($cgi->{'withhistory'}) {
+        # FIXME: races ahead
+        # history copying is a bit tricky, as it renumbers the revisions
+        my @allrevs = BSFileDB::fdb_getall("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
+	if (-e "$projectsdir/$projid.pkg/$packid.rev") {
+	  my $lastrev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+	  if ($lastrev && $lastrev->{'rev'}) {
+	    for my $rev (@allrevs) {
+	      $rev->{'rev'} += $lastrev->{'rev'};
+	    }
+	  }
+	}
+        # make trees available in new project
+        my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+        if ($BSConfig::nosharedtrees) {
+          my $treedir = "$treesdir/$projid/$packid";
+	  for my $rev (@allrevs) {
+	    next if -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
+            my $files = lsrev({ %$rev, 'project' => $oprojid, 'package' => $packid });
+	    copyfiles($projid, $packid, $oprojid, $packid, $files);
+	    addmeta($projid, $packid, $files);
+	  }
+	}
+        BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
+	$lastorev = $allrevs[-1];
+      } else {
+	$lastorev = BSFileDB::fdb_getlast("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
+      }
+      next unless $lastorev && $lastorev->{'rev'};
+      # always do one new commit, we don't use addrev to have full control over vrev
+      my $files = lsrev({ %$lastorev, 'project' => $oprojid, 'package' => $packid });
+      copyfiles($projid, $packid, $oprojid, $packid, $files);
+      addmeta($projid, $packid, $files);
+      $lastorev->{'user'} = $user;
+      $lastorev->{'comment'} = $comment;
+      $lastorev->{'requestid'} = $cgi->{'requestid'};
+      $lastorev->{'time'} = time();
+      $lastorev->{'vrev'} += 1;
+      delete $lastorev->{'rev'};
+      $lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
+      updatelinkinfodb($projid, $packid, { %$lastorev, 'project' => $oprojid, 'package' => $packid }, $files);
+    }
+    # XXX: does this make any sense?
+    if ($cgi->{'withbinaries'}) {
+      for my $repo (@{$proj->{'repository'} || []}) {
+	my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
+	next unless $orepo;
+	for my $arch (@{$repo->{'arch'} || []}) {
+	  next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
 
-              # same source and target repo/arch in both projects exists
-              my @args;
-              push @args, "cmd=copy";
-              push @args, "oproject=$oproj->{'name'}";
-              push @args, "opackage=$pack"; # same package name
-              push @args, "orepository=$repo->{'name'}"; # same repo name
-              my $param = {
-                'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$pack",
-                'request' => 'POST',
-              };
-              eval {
-                # ignore failures when no build result exists in oproject
-                BSWatcher::rpc($param, undef, @args);
-              }
-            }
-          }
-        }
+	  # same source and target repo/arch in both projects exists
+	  my @args;
+	  push @args, "cmd=copy";
+	  push @args, "oproject=$oprojid";
+	  push @args, "opackage=$packid"; # same package name
+	  push @args, "orepository=$repo->{'name'}"; # same repo name
+	  my $param = {
+	    'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
+	    'request' => 'POST',
+	  };
+	  eval {
+	    # ignore failures for now
+	    BSWatcher::rpc($param, undef, @args);
+	  };
+          warn($@) if $@;
+	}
       }
     }
-    closedir(D);
   }
-
   notify_repservers('project', $projid);
+  return $BSStdServer::return_ok;
 }
 
 sub sourcecopy {
@@ -4427,20 +4460,21 @@ sub delbinary {
 
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  die("illageal package '$packid'\n") if $packid =~ /^_/;
+  die("illegal package '$packid'\n") if $packid =~ /^_/;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $oproject=$projid;
-  my $opackage=$packid;
-  my $orepository=$repoid;
-  $oproject=$cgi->{'oproject'} if $cgi->{'oproject'};
-  $opackage=$cgi->{'opackage'} if $cgi->{'opackage'};
-  $orepository=$cgi->{'orepository'} if $cgi->{'orepository'};
-  die("same source and target") if "$oproject/$opackage/$orepository" eq "$projid/$packid/$repoid";
+  my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
+  my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
+  die("nothing to do\n") if "$oprojid/$opackid/$orepoid" eq "$projid/$packid/$repoid";
+  checkprojrepoarch($oprojid, $orepoid, $arch);
+  # make sure the packages exist. not cheap, but does everything we need
+  getrev($projid, $packid);
+  getrev($oprojid, $opackid);
   my @args;
   push @args, "cmd=copy";
-  push @args, "oproject=$oproject";
-  push @args, "opackage=$opackage";
-  push @args, "orepository=$orepository";
+  push @args, "oproject=$oprojid";
+  push @args, "opackage=$opackid";
+  push @args, "orepository=$orepoid";
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
@@ -5703,7 +5737,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project? withbinaries:bool? withhistory:bool?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project deleted:bool?' => \&getpackagelist,
 
@@ -5724,7 +5758,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? withhistory:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? force:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,

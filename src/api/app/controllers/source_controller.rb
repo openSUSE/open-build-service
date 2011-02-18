@@ -705,6 +705,36 @@ class SourceController < ApplicationController
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
 
+      # find linking repos which get deleted
+      removedRepositories = Array.new
+      if prj
+        prj.repositories.each do |repo|
+          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0
+            repo.linking_repositories.each do |lrep|
+              removedRepositories << lrep
+            end
+          end
+        end
+      end
+      if removedRepositories.length > 0
+        if params[:force] and not params[:force].empty?
+          # replace links to this projects with links to the "deleted" project
+          del_repo = DbProject.find_by_name("deleted").repositories[0]
+          removedRepositories.each do |link_rep|
+            link_rep.path_elements.find(:all).each { |pe| pe.destroy }
+            link_rep.path_elements.create(:link => del_repo, :position => 1)
+            link_rep.save
+            # update backend
+            link_rep.db_project.store
+          end
+        else
+          lrepstr = removedRepositories.map{|l| l.db_project.name+'/'+l.name}.join "\n"
+          render_error :status => 400, :errorcode => "repo_dependency",
+            :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
+          return
+        end
+      end
+
       # exec
       p.add_person(:userid => @http_user.login) unless prj
       p.save
@@ -1171,8 +1201,8 @@ class SourceController < ApplicationController
           branch_target_package = pa.name
         else
           # package exists not yet in update project, but it may have a project link ?
-    	  uprj = DbProject.find_by_name(a.values[0].value)
-    	  if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
+          uprj = DbProject.find_by_name(a.values[0].value)
+          if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
           end
         end
@@ -1287,6 +1317,19 @@ class SourceController < ApplicationController
     oproject = params[:oproject]
     repository = params[:repository]
 
+    unless @http_user.is_admin?
+      if params[:withbinaries]
+        render_error :status => 403, :errorcode => "project_copy_no_permission",
+          :message => "no permission to copy project with binaries for non admins"
+        return
+      end
+      if params[:withhistory]
+        render_error :status => 403, :errorcode => "project_copy_no_permission",
+          :message => "no permission to copy project with source history for non admins"
+        return
+      end
+    end
+
     # create new project object based on oproject
     unless DbProject.find_by_name project_name
       oprj = DbProject.get_by_name( oproject )
@@ -1308,7 +1351,7 @@ class SourceController < ApplicationController
     # copy entire project in the backend
     begin
       path = request.path
-      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject])
+      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory])
       pass_to_backend path
     rescue
       # we need to check results of backend in any case (also timeout error eg)
@@ -1683,14 +1726,16 @@ class SourceController < ApplicationController
         # We have a package in the update project already, take that
         pkg = pa
         prj = pkg.db_project
-    	logger.debug "branch call found package in update project #{prj.name}"
+        logger.debug "branch call found package in update project #{prj.name}"
       else
         update_prj = DbProject.find_by_name( a.values[0].value )
-        update_pkg = update_prj.find_package( pkg.name )
-        if update_pkg
-          # We have no package in the update project yet, but sources are reachable via project link
-          pkg = update_pkg
-          prj = update_prj
+        if update_prj
+          update_pkg = update_prj.find_package( pkg.name )
+          if update_pkg
+            # We have no package in the update project yet, but sources are reachable via project link
+            pkg = update_pkg
+            prj = update_prj
+          end
         end
       end
     end

@@ -711,6 +711,33 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "status", :attributes => { :code => "create_package_no_permission"} )
   end
 
+  def test_repository_dependencies
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    assert_response :success
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    assert_response :success
+    # delete a repo
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "repo_dependency"} )
+    delete "/source/home:tom:projectA"
+    assert_response 403
+    put "/source/home:tom:projectA/_meta?force=1", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    assert_response :success
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "gone" }
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> </project>"
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:tom:projectA"
+    assert_response :success
+    delete "/source/home:tom:projectB"
+    assert_response :success
+  end
+
   def test_devel_package_cycle
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"

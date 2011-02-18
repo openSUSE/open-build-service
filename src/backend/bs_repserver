@@ -1323,6 +1323,10 @@ sub putjob {
 
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
+  my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
+  my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  return $BSStdServer::return_ok if $oprojid eq $projid && $orepoid eq $repoid && $opackid eq $packid;
   my $job = "copy-".Digest::MD5::md5_hex("$$/$projid/$repoid/$arch/$packid".time());
   local *F;
   my $jobstatus = {
@@ -1333,17 +1337,11 @@ sub copybuild {
     die("job lock failed\n");
   }
   my $dir = "$jobsdir/$arch/$job:dir";
-  my $odir = "$reporoot/$cgi->{'oproject'}/$cgi->{'orepository'}/$arch/$cgi->{'opackage'}";
-  if (!-d $odir) {
-    unlink("$jobsdir/$arch/$job:status");
-    close F;
-    die("copy failed\n");
-  }
+  my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
   for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls($odir)) {
-    link("$odir/$bin", "$dir/$bin") || die("copy failed for $bin\n");
+    link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
   }
-
   my $info = {
     'project' => $projid,
     'repository' => $repoid,
@@ -1352,7 +1350,6 @@ sub copybuild {
     'job' => $job,
   };
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
-  
   dirty($projid, $repoid, $arch);
   mkdir_p("$eventdir/$arch");
   my $ev = {'type' => 'uploadbuild', 'job' => $job};

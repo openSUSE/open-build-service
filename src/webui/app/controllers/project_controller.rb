@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
     :rebuild_time_png]
   before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
-    :remove_person, :save_person, :add_person, :remove_target,
+    :remove_person, :save_person, :add_person, :add_group, :remove_target,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
@@ -217,6 +217,10 @@ class ProjectController < ApplicationController
 
 
   def add_person
+    @roles = Role.local_roles
+  end
+
+  def add_group
     @roles = Role.local_roles
   end
 
@@ -639,17 +643,46 @@ class ProjectController < ApplicationController
     redirect_to :action => :users, :project => @project
   end
 
+  def save_group
+    valid_http_methods(:post)
+    group = find_cached(Group, params[:groupid])
+    unless group
+      flash[:error] = "Unknown group with id '#{params[:groupid]}'"
+      redirect_to :action => :add_group, :project => @project, :role => params[:role] and return
+    end
+    @project.add_group(:groupid => group.title.to_s, :role => params[:role])
+    if @project.save
+      flash[:note] = "Added group #{group.title} with role #{params[:role]} to project #{@project}"
+    else
+      flash[:error] = "Failed to add group '#{params[:groupid]}'"
+    end
+    redirect_to :action => :users, :project => @project
+  end
 
   def remove_person
     if params[:userid].blank?
       flash[:note] = "User removal aborted, no user id given!"
       redirect_to :action => :show, :project => params[:project] and return
     end
-    @project.remove_persons( :userid => params[:userid], :role => params[:role] )
+    @project.remove_persons(:userid => params[:userid], :role => params[:role])
     if @project.save
-      flash[:note] = "Removed user #{params[:userid]}"
+      flash[:note] = "Removed user '#{params[:userid]}'"
     else
       flash[:error] = "Failed to remove user '#{params[:userid]}'"
+    end
+    redirect_to :action => :users, :project => params[:project]
+  end
+
+  def remove_group
+    if params[:groupid].blank?
+      flash[:note] = "Group removal aborted, no group id given!"
+      redirect_to :action => :show, :project => params[:project] and return
+    end
+    @project.remove_group(:groupid => params[:groupid], :role => params[:role])
+    if @project.save
+      flash[:note] = "Removed group '#{params[:groupid]}'"
+    else
+      flash[:note] = "Failed to remove group '#{params[:groupid]}'"
     end
     redirect_to :action => :users, :project => params[:project]
   end

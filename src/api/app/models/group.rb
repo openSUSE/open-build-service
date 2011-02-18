@@ -19,7 +19,7 @@ class Group < ActiveRecord::Base
     def render_group_list(user=nil)
        builder = Builder::XmlMarkup.new( :indent => 2 )
        xml = ""
-   
+
        if user
          user = User.find_by_login(user)
          return nil if user.nil?
@@ -31,7 +31,7 @@ class Group < ActiveRecord::Base
            end
          else
            list = user.groups
-         end         
+         end
        else
          if User.ldapgroup_enabled?
            begin
@@ -43,15 +43,25 @@ class Group < ActiveRecord::Base
            list = Group.find(:all)
          end
        end
-   
+
        xml = builder.directory( :count => list.length ) do |dir|
          list.each do |g|
            dir.entry( :name => g.title )
          end
        end
-   
+
        return xml
     end
+  end
+
+  def render_axml
+    builder = FasterBuilder::XmlMarkup.new(:indent => 2)
+    logger.debug "----------------- rendering group #{self.title} ------------------------"
+    xml = builder.group() do |group|
+      group.title(self.title)
+      group.parent_id(self.parent_id)
+    end
+    xml.target!
   end
 
 end

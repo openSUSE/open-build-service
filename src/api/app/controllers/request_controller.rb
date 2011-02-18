@@ -189,9 +189,9 @@ class RequestController < ApplicationController
   def create_create
     req = BsRequest.new(request.body.read)
 
-    # expand merge and submit request targets if not specified
+    # expand release and submit request targets if not specified
     req.each_action do |action|
-      if [ "submit", "merge" ].include?(action.data.attributes["type"])
+      if [ "submit", "maintenancerelease" ].include?(action.data.attributes["type"])
         unless action.has_element? 'target'
           packages = Array.new
           if action.source.has_attribute? 'package'
@@ -199,6 +199,11 @@ class RequestController < ApplicationController
           else
             prj = DbProject.get_by_name action.source.project
             packages = prj.db_packages
+          end
+          incident_suffix = ""
+          if action.data.attributes["type"] == "maintenancerelease"
+            # The maintenance ID is always the sub project name of the maintenance project
+            incident_suffix = "." + action.source.project.gsub(/.*:/, "")
           end
 
           packages.each do |pkg|
@@ -214,9 +219,9 @@ class RequestController < ApplicationController
             newAction.add_element 'target' unless newAction.has_element? 'target'
             newAction.source.data.attributes["package"] = pkg.name
             newAction.target.data.attributes["project"] = e.attributes["project"]
-            newAction.target.data.attributes["package"] = e.attributes["package"]
-            if action.data.attributes["type"] == "merge" and not newAction.source.has_attribute? 'rev'
-              # merge needs the binaries, so we always use the current source
+            newAction.target.data.attributes["package"] = e.attributes["package"] + incident_suffix
+            if action.data.attributes["type"] == "maintenancerelease" and not newAction.source.has_attribute? 'rev'
+              # maintenancerelease needs the binaries, so we always use the current source
               rev=nil
               if e.attributes["xsrcmd5"]
                 rev=e.attributes["xsrcmd5"]
@@ -286,7 +291,7 @@ class RequestController < ApplicationController
 
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
-        if action.target.has_attribute? 'package' and action.data.attributes["type"] != "submit"
+        if action.target.has_attribute? 'package' and not ["submit", "maintenancerelease"].include? action.data.attributes["type"]
           tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
         end
       end
@@ -306,7 +311,7 @@ class RequestController < ApplicationController
             return
           end
         end
-      elsif [ "submit", "change_devel", "merge", "maintenance" ].include?(action.data.attributes["type"])
+      elsif [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include?(action.data.attributes["type"])
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -338,7 +343,7 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] == "maintenance"
+        if action.data.attributes["type"] == "maintenanceincident"
           if spkg
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
@@ -712,7 +717,7 @@ class RequestController < ApplicationController
 
     # permission and validation check for each request inside
     req.each_action do |action|
-      if [ "submit", "change_devel", "merge", "maintenance" ].include? action.data.attributes["type"]
+      if [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include? action.data.attributes["type"]
         source_package = nil
         target_package = nil
         if params[:newstate] == "declined" or params[:newstate] == "revoked"
@@ -967,7 +972,7 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-      elsif action.data.attributes["type"] == "maintenance"
+      elsif action.data.attributes["type"] == "maintenanceincident"
 
         # create incident project
         source_project = DbProject.get_by_name(action.source.project)
@@ -979,12 +984,12 @@ class RequestController < ApplicationController
         action.target.data["project"] = incident.db_project.name
         req.save
 
-      elsif action.data.attributes["type"] == "merge"
+      elsif action.data.attributes["type"] == "maintenancerelease"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
         tprj = DbProject.get_by_name(action.target.project)
 
 #FIXME2.3: support limiters to specified repositories
-        merge_package(pkg, tprj, action.target.package, action.source.rev, req)
+        release_package(pkg, tprj, action.target.package, action.source.rev, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"

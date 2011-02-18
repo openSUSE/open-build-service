@@ -27,7 +27,7 @@
     }
 
     $('#' + type + '_spinner').show();
-    $('#' + type + '_table').animate({opacity: 0.2}, 500);
+    $('#' + type + '_table input').animate({opacity: 0.2}, 500);
     $('#' + type + '_table input').disable();
 
     url += ';' + type + 'id=' + str + ';role=' + role;
@@ -36,7 +36,7 @@
       type: 'POST',
       complete: function() {
         $('#' + type + '_spinner').hide();
-        $('#' + type + '_table').animate({opacity: 1}, 200);
+        $('#' + type + '_table input').animate({opacity: 1}, 200);
         $('#' + type + '_table input').enable();
       }
     });
@@ -118,7 +118,6 @@
                   <% else %>
                     <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :class => :trigger) %><%= role.capitalize %>
                   <% end %>
-                  <% #TODO: Add respective controller actions to support group addition / removal %>
                   <script type="text/javascript">$('#group_<%= role %>_<%= group %>').change(change_role);</script>
                 <% else %>
                   <%= role.capitalize %>
@@ -127,8 +126,7 @@
             <% end %>
             <td>
               <% if @user and @user.is_maintainer?(@project, @package) %>
-                <% #TODO: Add respective controller actions to support group addition / removal %>
-                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => user}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
               <% end %>
             </td>
           </tr>

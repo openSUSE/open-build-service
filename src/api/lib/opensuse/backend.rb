@@ -70,7 +70,12 @@ module Suse
           backend_request.body = data
         end
         response = Net::HTTP.start(host, port) do |http|
-          http.read_timeout = 1000
+          if method == "POST"
+            # POST requests can be quite complicate and take some time ..
+            http.read_timeout = 100000
+          else
+            http.read_timeout = 1000
+          end
           http.request backend_request
         end
         write_backend_log method, host, port, path, response, data

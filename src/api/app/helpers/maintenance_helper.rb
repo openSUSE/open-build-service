@@ -60,7 +60,7 @@ module MaintenanceHelper
           :comment => "Maintenance copy from project " + baseProject.name
         }
         cp_params[:requestid] = request.id if request
-        cp_path = "/source/#{tprj.name}/#{pkg.name}"
+        cp_path = "/source/#{CGI.escape(tprj.name)}/#{CGI.escape(pkg.name)}"
         cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid])
         Suse::Backend.post cp_path, nil
       end
@@ -69,7 +69,7 @@ module MaintenanceHelper
     return mi
   end
 
-  def merge_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
+  def release_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
@@ -79,26 +79,32 @@ module MaintenanceHelper
       new.save
     end
 
-    # merge binaries
+    # copy binaries
 #FIXME2.3: find out about used revision of binaries
 
-    # merge sources
+    # copy sources
     # backend copy of current sources
     cp_params = {
       :cmd => "copy",
       :user => @http_user.login,
       :oproject => sourcePackage.db_project.name,
       :opackage => sourcePackage.name,
-      :comment => "Merge from project " + sourcePackage.db_project.name,
-      :keeplink => "1",
-#      :keeprevision => "1", #FIXME2.3: needs to be supported by backend
+      :comment => "Copy from project " + sourcePackage.db_project.name,
+      :expand => "1",
     }
     cp_params[:requestid] = request.id if request
-    cp_path = "/source/#{targetProject.name}/#{targetPackageName}"
-    cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :keeplink])
+    cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
+    cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand])
     Suse::Backend.post cp_path, nil
 
-    # create package link
-
+    # create main package linking to incident package
+    basePackageName = targetPackageName.gsub(/\..*/, '')
+    unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
+      new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      new.flags = sourcePackage.flags
+      targetProject.db_packages << new
+      new.save
+    end
+    Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
   end
 end

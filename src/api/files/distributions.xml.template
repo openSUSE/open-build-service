@@ -9,6 +9,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
+ <distribution vendor="openSUSE" version="11.4" id="opensuse-11.4">
+  <name>openSUSE 11.4</name>
+  <project>openSUSE.org:openSUSE:11.4</project>
+  <reponame>openSUSE_11.4</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.4-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.4-16.png"/>
+  <link>http://www.opensuse.org/</link>
+ </distribution>
  <distribution vendor="openSUSE" version="11.3" id="opensuse-11.3">
   <name>openSUSE 11.3</name>
   <project>openSUSE.org:openSUSE:11.3</project>
