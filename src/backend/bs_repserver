@@ -724,7 +724,7 @@ sub getlogfile {
     # no longer building, use local logfile
   }
   my $logfile = "$reporoot/$projid/$repoid/$arch/$packid/logfile";
-  if ($jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'finished') {
+  if ($jobstatus && $jobstatus->{'code'} && ($jobstatus->{'code'} eq 'finished'||$jobstatus->{'code'} eq 'signing')) {
     $logfile = "$jobsdir/$arch/$status->{'job'}:dir/logfile";
   }
   my @s = stat($logfile);
