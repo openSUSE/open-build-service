@@ -1182,6 +1182,7 @@ class SourceController < ApplicationController
     @packages.each do |p|
       # is a update project defined and a package there ?
       pac = p[:package]
+      prj = pac.db_project
       aname = params[:update_project_attribute]
       name_parts = aname.split(/:/)
       if name_parts.length != 2
@@ -1196,15 +1197,16 @@ class SourceController < ApplicationController
 
       # check for update project
       if not params[:request] and a = p[:target_project].find_attribute(name_parts[0], name_parts[1]) and a.values[0]
-        if pa = DbPackage.find_by_project_and_name( a.values[0].value, p[:package].name )
-          # check permissions
-          DbPackage.get_by_project_and_name( a.values[0].value, p[:package].name )
-          branch_target_project = pa.db_project.name
-          branch_target_package = pa.name
+        if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=false )
+          pac = DbPackage.get_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=false )
+          prj = pac.db_project
+          branch_target_project = pac.db_project.name
+          branch_target_project = pac.db_project.name
+          branch_target_package = pac.name
         else
           # package exists not yet in update project, but it may have a project link ?
-          uprj = DbProject.find_by_name(a.values[0].value)
-          if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
+          if DbProject.exists_by_name(a.values[0].value)
+            prj = DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
           end
         end
@@ -1222,7 +1224,7 @@ class SourceController < ApplicationController
       end
 
       # create repositories, if missing
-      pac.db_project.repositories.each do |repo|
+      prj.repositories.each do |repo|
         repoName = proj_name+"_"+repo.name
         unless tprj.repositories.find_by_name(repoName)
           trepo = tprj.repositories.create :name => repoName
