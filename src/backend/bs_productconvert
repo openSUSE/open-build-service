@@ -264,6 +264,7 @@ sub createProductOptions($$$)
     $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
     $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no" && $medium->{'run_media_check'} eq "false";
+    $varsH{RUN_ISOHYBRID} = "true" if (defined($medium->{'run_hybridiso'})) && $medium->{'run_hybridiso'} eq "true";
     $varsH{CREATE_REPOMD} = "true" if (defined($medium->{'create_repomd'})) && $medium->{'create_repomd'} ne "no" && $medium->{'create_repomd'} ne "false";
     $varsH{MAKE_LISTINGS} = 'false' if (defined($medium->{'run_make_listings'})) && $medium->{'run_make_listings'} ne "yes" && $medium->{'run_make_listings'} ne "true";
     $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
