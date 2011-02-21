@@ -4,3 +4,12 @@ test_builds_against_home:
  repository_id: 82
  position: 1
  
+UpdateRepoAgainstBaseDistro:
+ parent_id: 91
+ repository_id: 95
+ position: 1
+
+LinkedUpdateRepoAgainstBaseDistro2:
+ parent_id: 86
+ repository_id: 92
+ position: 1

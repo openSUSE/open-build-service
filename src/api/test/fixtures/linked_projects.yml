@@ -1,4 +1,4 @@
-updateprojectlink:
+basedistro2_updateprojectlink:
   id: 42
   db_project_id: 2046
   linked_db_project_id: 2045
@@ -10,3 +10,9 @@ interconnectprojectlink:
   linked_db_project_id: nil
   position: 1
   linked_remote_project_name: "RemoteInstance:BaseDistro"
+basedistro_updateprojectlink:
+  id: 44
+  db_project_id: 2043
+  linked_db_project_id: 2042
+  position: 1
+  linked_remote_project_name: nil

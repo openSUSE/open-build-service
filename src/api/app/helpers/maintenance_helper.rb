@@ -80,10 +80,35 @@ module MaintenanceHelper
     end
 
     # copy binaries
-#FIXME2.3: find out about used revision of binaries
+    targetProject.repositories.each do |targetRepo|
+      targetRepo.architectures.each do |arch|
+        # copy all binaries, which got build for our target repo from maintenance project
+        sourceRepo=nil
+        sourcePackage.db_project.repositories.each do |r|
+          if r.path_elements and r.path_elements.find_by_repository_id(targetRepo)
+            if sourceRepo
+               raise
+            end
+            sourceRepo=r
+          end
+        end
+        if sourceRepo
+          cp_params = {
+            :cmd => "copy",
+            :oproject => sourcePackage.db_project.name,
+            :opackage => sourcePackage.name,
+            :orepository => sourceRepo.name,
+          }
+          cp_path = "/build/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetRepo.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
+          cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository])
+          Suse::Backend.post cp_path, nil
+        end
+      end
+    end
 
     # copy sources
-    # backend copy of current sources
+    # backend copy of current sources as full copy
+    # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
       :cmd => "copy",
       :user => @http_user.login,
@@ -97,7 +122,7 @@ module MaintenanceHelper
     cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand])
     Suse::Backend.post cp_path, nil
 
-    # create main package linking to incident package
+    # create or update main package linking to incident package
     basePackageName = targetPackageName.gsub(/\..*/, '')
     unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
       new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)

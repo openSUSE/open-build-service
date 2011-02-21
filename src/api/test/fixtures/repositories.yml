@@ -24,7 +24,7 @@ home_Iggy_102:
   db_project_id: 502
   id: 85
 BaseDistro2:LinkedUpdateProject:
-  name: pop
+  name: BaseDistro2LinkedUpdateProject_repo
   db_project_id: 2046
   id: 86
 UseRemoteInstance:
@@ -48,7 +48,7 @@ BaseDistro:
   db_project_id: 2042
   id: 91
 BaseDistro2:
-  name: BaseDistro_repo
+  name: BaseDistro2_repo
   db_project_id: 2045
   id: 92
 SourceprotectedProject:
@@ -59,5 +59,9 @@ homeadrianProtectionTest:
   name: repo
   db_project_id: 3005
   id: 94
+BaseDistro:UpdateProject:
+  name: BaseDistroUpdateProject_repo
+  db_project_id: 2043
+  id: 95
 
 

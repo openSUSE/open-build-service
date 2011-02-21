@@ -1205,9 +1205,13 @@ class SourceController < ApplicationController
           branch_target_package = pac.name
         else
           # package exists not yet in update project, but it may have a project link ?
-          if DbProject.exists_by_name(a.values[0].value)
+          if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=true )
             prj = DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
+          else
+            render_error :status => 404, :errorcode => "unknown_package",
+              :message => "branch source package does not exist in UpdateProject #{a.values[0].value}. Missing project link ?"
+            return
           end
         end
       end

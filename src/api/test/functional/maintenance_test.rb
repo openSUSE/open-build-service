@@ -8,14 +8,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
 
-    # branch a package which does not exist in update project
+    # branch a package which does not exist in update project via project link
     post "/source/BaseDistro/pack1", :cmd => :branch
     assert_response :success
     # check source link
-    get "/source/home:tom:branches:BaseDistro/pack1/_link"
+    get "/source/home:tom:branches:BaseDistro:Update/pack1/_link"
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.project, "BaseDistro"
+    assert_equal ret.project, "BaseDistro:Update"
     assert_equal ret.package, "pack1"
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
@@ -30,6 +30,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "BaseDistro:Update"
     assert_equal ret.package, "pack2"
+    assert_not_nil ret.baserev
+    assert_not_nil ret.patches
+    assert_not_nil ret.patches.branch
 
     # branch a package which does not exist in update project, but update project is linked
     post "/source/BaseDistro2/pack2", :cmd => :branch
@@ -119,21 +122,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => "build" }, :tag => "disable"
 
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
-               :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro2" }
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro_repo" } }, 
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo" } }, 
+               :tag => "path", :attributes => { :repository => "BaseDistro2LinkedUpdateProject_repo", :project => "BaseDistro2:LinkedUpdateProject" }
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo" } }, 
                :tag => "arch", :content => "i586"
 
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistro_repo" } }, 
-               :tag => "path", :attributes => { :repository => "BaseDistro_repo", :project => "BaseDistro" }
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistro_repo" } }, 
-               :tag => "arch", :content => "i586"
+    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistroUpdateProject_repo" } }, 
+               :tag => "path", :attributes => { :repository => "BaseDistroUpdateProject_repo", :project => "BaseDistro:Update" }
 
     # validate created package meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_meta"
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "pack2.BaseDistro2", :project => "home:tom:branches:OBS_Maintained:pack2" }
-    assert_tag :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2_BaseDistro_repo" }
+    assert_tag :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo" }
 
     # and branch same package again and expect error
     post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
@@ -195,7 +196,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/My:Maintenance:#{Time.now.utc.year}-1/pack2.BaseDistro2/_meta"
     assert_response :success
-    assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2_BaseDistro_repo" } )
+    assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo" } )
   end
 
   def test_create_maintenance_project_and_release_packages
@@ -203,6 +204,8 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # setup a maintained distro
     post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+    post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2:LinkedUpdateProject</value> </attribute> </attributes>"
     assert_response :success
     post "/source/BaseDistro3/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
@@ -217,6 +220,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
     assert_response :success
+    # correct branched ?
+    get "/source/"+maintenanceProject+"/pack2.BaseDistro2/_link"
+    assert_response :success
+    assert_tag( :tag => "link", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
+    get "/source/"+maintenanceProject+"/_meta"
+    assert_response :success
+    assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
 
     # create release request
     post "/request?cmd=create", '<request>
@@ -233,6 +243,34 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
+
+    # FIXME2.3: not yet working
+    return unless $ENABLE_BROKEN
+
+    ### the backend is now building the packages, injecting results
+    perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
+    # run scheduler once to create job file
+    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+       # just for waiting until scheduler finishes
+       io.each {|line| line.strip unless line.blank? }
+    end
+    # find out about the triggered build job and write back dispatching data
+    findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/i586/ -name #{maintenanceProject}*")
+    maintJob=findMaintJob.readlines.first.chomp
+    jobid=""
+    IO.popen("md5sum #{maintJob}|cut -d' ' -f 1") do |io|
+       jobid = io.readlines.first.chomp
+    end
+    f = File.open("#{maintJob}:status", 'w')
+    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+    f.close
+    # upload build result as a worker would do
+    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
+    # run scheduler again to collect result
+    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+       # just for waiting until scheduler finishes
+       io.each {|line| line.strip unless line.blank? }
+    end
 
     # release packages
     prepare_request_with_user "king", "sunflower"
