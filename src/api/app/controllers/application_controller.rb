@@ -48,18 +48,15 @@ class ApplicationController < ActionController::Base
   @@backend = nil
   def start_test_backend
     return if @@backend
-    puts "Starting test backend..."
-    @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend 2>&1")
-    puts "Test backend started with pid: #{@@backend.pid}"
+    logger.debug "Starting test backend..."
+    @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
+    logger.debug "Test backend started with pid: #{@@backend.pid}"
     while true do
-      line = @@backend.gets 
-      puts "test_backend: " + line.strip
-      if (!line || line =~ /ActiveRecord::RecordNotFound/)
-        puts "**** Backend did not start up correctly. "
-      end
+      line = @@backend.gets
+      raise RuntimeError.new('Backend died') unless line
       break if line =~ /DONE NOW/
+      logger.debug line.strip
     end
-
     ActiveXML::Config.global_write_through = true
     at_exit do
       logger.debug "kill #{@@backend.pid}"
