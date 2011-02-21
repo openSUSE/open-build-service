@@ -1257,12 +1257,14 @@ class SourceController < ApplicationController
         if params[:package]
           projects = DbProject.find_by_attribute_type( at )
           projects.each do |prj|
-            prj.linkedprojects.each do |lprj|
-              if lprj.linked_db_project
-                if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                  @packages.push({ :target_project => prj, :package => pkg })
-                else
-                  # FIXME: add support for branching from remote projects
+            unless @packages.map {|p| p[:target_project] }.include? prj # avoid double instance from direct found packages
+              prj.linkedprojects.each do |lprj|
+                if lprj.linked_db_project
+                  if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
+                    @packages.push({ :target_project => prj, :package => pkg })
+                  else
+                    # FIXME: add support for branching from remote projects
+                  end
                 end
               end
             end
