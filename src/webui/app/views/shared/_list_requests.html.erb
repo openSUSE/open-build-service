@@ -36,8 +36,7 @@
           <td>
             <% if ae.has_element?(:target) %>
               <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
-                <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and package_exists?(ae.source.project, ae.source.package)
-                                                                  and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and package_exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
                   <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
                   <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
                   <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
