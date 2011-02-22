@@ -1465,7 +1465,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:Iggy/TestLinkPack/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :baserev => "1ac07842727acaf13d0e2b3213b47785" } )
+    assert_tag( :tag => "link", :attributes => { :package => "TestPack" } )
     assert_tag( :parent => { :tag => "patches", :content => nil }, :tag => "branch", :content => nil )
 
     delete "/source/home:Iggy/TestLinkPack"
@@ -1488,15 +1488,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_no_tag( :tag => "revision", :attributes => { :rev => "3"} )
+    node = ActiveXML::XMLNode.new(@response.body)
+    revision = node.each_revision.last.value :rev
+    revision = revision.to_i + 1
     post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "user", :content => "fred" )
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "srcmd5" )
 
     # delete file with commit
     delete "/source/home:Iggy/TestPack/filename"
@@ -1517,12 +1519,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_no_tag( :tag => "revision", :attributes => { :rev => "5"} )
     post "/source/home:Iggy/TestPack?cmd=commit"
     assert_response :success
+    revision = revision.to_i + 1
     get "/source/home:Iggy/TestPack/filename?rev=latest"
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "user", :content => "fred" )
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "srcmd5" )
 
 
     # test deleteuploadrev

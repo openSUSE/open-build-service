@@ -583,8 +583,9 @@ end
     assert_response :success
 
     # Validate the executed actions
-    get "/source/home:Iggy:branches:kde4"
-    assert_response 404
+    get "/source/home:Iggy:branches:kde4/BranchPack/_link"
+    assert_response :success
+    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "Testing" }
     get "/source/home:Iggy/ToBeDeletedTestPack"
     assert_response 404
     get "/source/home:Iggy:OldProject"
@@ -602,6 +603,11 @@ end
     assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
     assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
     assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+
+    # cleanup
+    prepare_request_with_user "Iggy", "asdfasdf"
+    delete "/source/home:Iggy:branches:kde4"
+    assert_response :success
   end
 
   def test_submit_with_review

@@ -919,6 +919,7 @@ class RequestController < ApplicationController
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
 
+          relinkSource=false
           unless target_package
             # check for target project attributes
             initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
@@ -926,12 +927,19 @@ class RequestController < ApplicationController
             linked_package = target_project.find_package(action.target.package)
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
-            target_package = Package.new(source_package.to_axml, :project => action.target.project)
-            target_package.name = action.target.package
+            if linked_package
+              target_package = Package.new(linked_package.to_axml, :project => action.target.project)
+            else
+              target_package = Package.new(source_package.to_axml, :project => action.target.project)
+              target_package.remove_all_flags
+              target_package.remove_devel_project
+              if initialize_devel_package
+                target_package.set_devel( :project => source_project.name, :package => source_package.name )
+                relinkSource=true
+              end
+            end
             target_package.remove_all_persons
-            target_package.remove_all_flags
-            target_package.remove_devel_project
-            target_package.set_devel( :project => source_project.name, :package => source_package.name ) if initialize_devel_package
+            target_package.name = action.target.package
             target_package.save
 
             # check if package was available via project link and create a branch from it in that case
@@ -945,11 +953,29 @@ class RequestController < ApplicationController
           Suse::Backend.post cp_path, nil
 
           # cleanup source project
-          if sourceupdate == "cleanup"
+          if relinkSource and not sourceupdate == "noupdate"
+            # source package got used as devel package, link it to the target
+            # remove it ...
+            cp_path = "/source/#{action.source.project}/#{action.source.package}"
+            cp_path << build_query_from_hash(cp_params, [:user, :comment])
+            Suse::Backend.delete cp_path, nil
+            # create again via branch ...
+            h = {}
+            h[:cmd] = "branch"
+            h[:user] = params[:user]
+            h[:comment] = "initialized devel package after accepting #{params[:id]}"
+            h[:oproject] = action.target.project
+            h[:opackage] = action.target.package
+            cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
+            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage])
+            Suse::Backend.post cp_path, nil
+
+          elsif sourceupdate == "cleanup"
+            # cleanup source project
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
             if source_project.db_packages.count == 1
-              #find linking repos
+              # find linking repos
               lreps = Array.new
               source_project.repositories.each do |repo|
                 repo.linking_repositories.each do |lrep|
