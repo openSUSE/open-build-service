@@ -1381,14 +1381,14 @@ class SourceController < ApplicationController
 
     name=nil
     maintenanceID=nil
+    pkg_name = "_patchinfo"
     if params[:name]
-      name=params[:name] if params[:name]
+      name=params[:name]
       pkg_name = "_patchinfo:" + name
     else
       if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
         # this is a maintenance project, the sub project name is the maintenance ID
         maintenanceID = pro.name.gsub(/.*:/, '')
-        pkg_name = "_patchinfo"
       end
     end
     patchinfo_path = "#{request.path}/#{pkg_name}"
