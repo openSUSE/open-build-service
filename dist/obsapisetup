@@ -30,6 +30,15 @@ webuidir=/srv/www/obs/webui
 
 FQHOSTNAME=`hostname -f`
 
+if [ "$?" != "0" ]; then
+  # Fallback to IP of the VM/host
+  FQHOSTNAME=`LANG=C ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
+  if [ "$?" != "0" ]; then
+    echo "    Can't determine hostname or IP - Network setup failed!"
+    echo "    Check if networking is up and dhcp is working!"
+    FQHOSTNAME="localhost"
+  fi
+fi
 . /etc/sysconfig/obs-server
 
 if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
