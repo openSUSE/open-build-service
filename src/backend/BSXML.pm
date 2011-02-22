@@ -214,7 +214,6 @@ our $patchinfo = [
             'incident',	# id
             'name',
             'version',	# optional, defaults to 1
-            'release',	# optional, defaults to 1
             [],
 	  [ 'package' ],# optional
 	  [ 'binary' ],	# optional
