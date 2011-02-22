@@ -10,15 +10,6 @@ class BuildController < ApplicationController
       prj = DbProject.get_by_name params[:project]
     end
 
-    # returns <binarylist /> on unkown package !
-    # normally we'd do e.g.: raise DbPackage::ReadAccessError.new "" unless pkg
-
-# FIXME2.2: This breaks repository download and no test case is showing why it is needed.
-#    if prj and params[:package] and pkg.nil?
-#      render :text => "<binarylist />", :content_type => "text/xml"
-#      return
-#    end
-
     pass_to_backend 
   end
 
