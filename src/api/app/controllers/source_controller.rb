@@ -1379,11 +1379,18 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
 
-    name=""
+    name=nil
+    maintenanceID=nil
     if params[:name]
       name=params[:name] if params[:name]
+      pkg_name = "_patchinfo:" + name
+    else
+      if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
+        # this is a maintenance project, the sub project name is the maintenance ID
+        maintenanceID = pro.name.gsub(/.*:/, '')
+        pkg_name = "_patchinfo"
+      end
     end
-    pkg_name = "_patchinfo:#{name.gsub(/\W/, '_')}"
     patchinfo_path = "#{request.path}/#{pkg_name}"
 
     # request binaries in project from backend
@@ -1403,29 +1410,28 @@ class SourceController < ApplicationController
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
       Package.find(pkg_name, :project => params[:project]).save
-      if name==""
-        name=pkg_name
-      end
     else
       # shall we do a force check here ?
     end
 
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
-    xml = node.patchinfo(:name => name) do |n|
+    attrs = { }
+    attrs[:incident] = maintenanceID if maintenanceID 
+    attrs[:name] = name if name 
+    xml = node.patchinfo(attrs) do |n|
       binaries.each do |binary|
         node.binary(binary)
       end
       node.packager    @http_user.login
       node.bugzilla    ""
-      node.swampid     ""
       node.category    ""
       node.rating      ""
       node.summary     ""
       node.description ""
       # FIXME add all bugnumbers from attributes
     end
-    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", xml )
+    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20patchinfo", xml )
 
     render_ok
   end
@@ -1964,6 +1970,8 @@ class SourceController < ApplicationController
     return true if name == "_project"
     return true if name == "_product"
     return true if name =~ /^_product:[-_+\w\.:]*$/
+    return true if name =~ /^_patchinfo$/
+    return true if name =~ /^_patchinfo[.:][-_+\w\.:]*$/
     name =~ /^\w[-_+\w\.:]*$/
   end
 end

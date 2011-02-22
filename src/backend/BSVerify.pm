@@ -35,9 +35,9 @@ sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
   $packid =~ s/^_product://s;
-  $packid =~ s/^_patchinfo://s;
+  $packid =~ s/^_patchinfo\.//s;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern' and $packid ne '_project';
+  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern' and $packid ne '_project' and $packid ne '_patchinfo';
 }
 
 sub verify_repoid {

@@ -208,15 +208,23 @@ class RequestController < ApplicationController
             incident_suffix = "." + action.source.project.gsub(/.*:/, "")
           end
 
+          newPackages = Array.new
+          newTargets = Array.new
           packages.each do |pkg|
-            # find target via linkinfo or fail
+            # find target via linkinfo or submit to all
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
             e = data.elements["directory/linkinfo"]
             unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
-              render_error :status => 400, :errorcode => 'unknown_target_package',
-                :message => "target package does not exist"
-              return
+              if action.data.attributes["type"] == "maintenancerelease"
+                newPackages << pkg.name
+                next
+              else
+                render_error :status => 400, :errorcode => 'unknown_target_package',
+                  :message => "target package does not exist"
+                return
+              end
             end
+            newTargets << e.attributes["project"]
             newAction = action.clone
             newAction.add_element 'target' unless newAction.has_element? 'target'
             newAction.source.data.attributes["package"] = pkg.name
@@ -238,6 +246,19 @@ class RequestController < ApplicationController
             end
             req.add_node newAction.data
           end
+
+          # new packages (eg patchinfos) go to all target projects by default in maintenance requests
+          newPackages.each do |pkg|
+            newTargets.each do |prj|
+              newAction = action.clone
+              newAction.add_element 'target' unless newAction.has_element? 'target'
+              newAction.source.data.attributes["package"] = pkg
+              newAction.target.data.attributes["project"] = prj
+              newAction.target.data.attributes["package"] = pkg + incident_suffix
+              req.add_node newAction.data
+            end
+          end
+
           req.delete_element action
         end
       end

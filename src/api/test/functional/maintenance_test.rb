@@ -216,6 +216,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     maintenanceProject=data.elements["/status/data"].text
+    maintenanceID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
 
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
@@ -228,6 +229,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
 
+    # FIXME: test with binaries
+    post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1"
+    assert_response :success
+    get "/source/#{maintenanceProject}/_patchinfo/_patchinfo"
+    assert_response :success
+    assert_tag( :tag => "patchinfo", :attributes => { :incident => maintenanceID } )
+
     # create release request
     post "/request?cmd=create", '<request>
                                    <action type="maintenancerelease">
@@ -238,8 +246,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2.2011-1" } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2.2011-1" } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2." + maintenanceID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + maintenanceID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "_patchinfo." + maintenanceID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "_patchinfo." + maintenanceID } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']

@@ -207,11 +207,17 @@ our $aggregatelist = [
      ]],
 ];
 
+# former: kernel - 123 - 1   123: incident
+# now:    sec-123 - 1 -1
 our $patchinfo = [
     'patchinfo' => 
+            'incident',	# id
             'name',
+            'version',	# optional, defaults to 1
+            'release',	# optional, defaults to 1
             [],
-	  [ 'binary' ],
+	  [ 'package' ],# optional
+	  [ 'binary' ],	# optional
          [[ 'bugzilla' =>
 		'name',
 		'_content',
@@ -221,7 +227,7 @@ our $patchinfo = [
             'rating',
             'summary',
             'description',
-            'swampid',
+            'swampid',	# obsolete
             'packager',
             'zypp_restart_needed',
             'reboot_needed',
