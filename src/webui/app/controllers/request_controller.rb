@@ -43,7 +43,7 @@ class RequestController < ApplicationController
 
     @id = @req.data.attributes["id"]
     @state = @req.state.data.attributes["name"]
-    @is_author = @req.creator
+    @is_author = @req.creator == session[:login]
     @superseded_by = @req.state.data.attributes["superseded_by"] if @req.state.has_attribute? :superseded_by and not @req.state.data.attributes["superseded_by"].empty?
     @newpackage = []
 
