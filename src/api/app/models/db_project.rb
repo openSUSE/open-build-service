@@ -128,21 +128,22 @@ class DbProject < ActiveRecord::Base
       def securedfind_every(options)
         unless User.currentAdmin
           # limit to projects which have no "access" flag, except user has any role inside
-          # FIXME2.2: this is not a complete check, but we are on the save side so far
+          # FIXME2.2: we should limit this to maintainer and reader role only ?
           #            
           options[:joins] = "" if options[:joins].nil?
-          options[:joins] += " LEFT OUTER JOIN flags f ON f.db_project_id = db_projects.id"
+          options[:joins] += " LEFT JOIN flags f ON f.db_project_id = db_projects.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag
           options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = db_projects.id"
           options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
           options[:group] = "db_projects.id" unless options[:group] # is creating a DISTINCT select to have uniq results
 
+          cond = "((f.flag = 'access' AND u.login = '#{User.current.login}') OR ISNULL(f.flag))"
           if options[:conditions].nil?
-            options[:conditions] = ["ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}'"]
+            options[:conditions] = cond
           else
             if options[:conditions].class == String
-              options[:conditions] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions] + ")"
+              options[:conditions] = options[:conditions]
             else
-              options[:conditions][0] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions][0] + ")"
+              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")"
             end
           end
         end

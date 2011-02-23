@@ -69,24 +69,25 @@ class DbPackage < ActiveRecord::Base
 
       def securedfind_every(options)
         options[:joins] = "" if options[:joins].nil?
-        options[:joins] += " LEFT OUTER JOIN db_projects prj ON db_packages.db_project_id = prj.id"
+        options[:joins] += " LEFT JOIN db_projects prj ON db_packages.db_project_id = prj.id"
         options[:group] = "db_packages.id" unless options[:group] # is creating a DISTINCT select to have uniq results
 
         unless User.currentAdmin
           # limit to projects which have no "access" flag, except user has any role inside
-          # FIXME2.2: this is not a complete check, but we are on the save side so far
+          # FIXME2.2: we should limit this to maintainer and reader role only ?
           #
-          options[:joins] += " LEFT OUTER JOIN flags f ON f.db_project_id = prj.id"
-          options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
-          options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
+          options[:joins] += " LEFT JOIN flags f ON f.db_project_id = prj.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag
+          options[:joins] += " LEFT JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
+          options[:joins] += " LEFT JOIN users u ON ur.bs_user_id = u.id"
 
+          cond = "((f.flag = 'access' AND u.login = '#{User.current.login}') OR ISNULL(f.flag))"
           if options[:conditions].nil?
-            options[:conditions] = ["(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login})'"]
+            options[:conditions] = cond
           else
             if options[:conditions].class == String
-              options[:conditions] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions] + ")"
+              options[:conditions] = options[:conditions]
             else
-              options[:conditions][0] = "(ISNULL(f.flag) or f.flag != 'access' or u.login = '#{User.current.login}') AND (" + options[:conditions][0] + ")"
+              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")"
             end
           end
         end
