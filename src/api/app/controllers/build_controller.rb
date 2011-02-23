@@ -126,6 +126,16 @@ class BuildController < ApplicationController
     pass_to_backend path
   end
 
+  def builddepinfo
+    valid_http_methods :get
+    required_parameters :project, :repository, :arch
+
+    # just for permission checking
+    DbProject.get_by_name params[:project]
+
+    pass_to_backend
+  end
+
   # /build/:prj/:repo/:arch/:pkg
   def package_index
     valid_http_methods :get

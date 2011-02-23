@@ -215,7 +215,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/:filename',
     :controller => "build", :action => "file", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/, :filename => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/_builddepinfo',
-    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "builddepinfo", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package',
     :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/_buildconfig',

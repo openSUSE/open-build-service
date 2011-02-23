@@ -159,6 +159,19 @@ class BuildControllerTest < ActionController::IntegrationTest
     
   end
 
+  def test_builddepinfo
+    get "/build/home:Iggy/10.2/i586/_builddepinfo"
+    assert_response :success
+    assert_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source", :content => "TestPack"
+    assert_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg", :content => "TestPack"
+
+    # the webui is calling this with invalid package name to get the cycles only
+    get "/build/home:Iggy/10.2/i586/_builddepinfo?package=-"
+    assert_response :success
+    assert_no_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source"
+    assert_no_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg"
+  end
+
   # FIXME2.2: test buildinfo for hidden packages, too.
 
   def test_package_index
