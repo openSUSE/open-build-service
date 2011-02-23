@@ -1281,15 +1281,13 @@ foreach my $medium ( @$media ){
           $buildflags->{'enable'} = \@archs;
 
           # add implicit the release packages to media
-#          if ( $SPECtemplateFile ne "" && $kiwi->{instsource}->{repopackages}[0] ){
           if ( $kiwi->{instsource}->{repopackages}[0] ){
             my %product_pack;
             my $addarch = join( ",", @productarch );
-            # FIXME: Shouldn't we simply use local $product here ?
-            my $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
+            my $name = $product."-release";
             push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
             # add the flavor package
-            $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release-".$flavor;
+            $name .= "-".$flavor;
             push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
           }
 
@@ -1300,9 +1298,24 @@ foreach my $medium ( @$media ){
           my $pkgName = "_product:$file";
           my $kiwiDir = "$outdir/$pkgName/";
           my $outFile = "$kiwiDir/$file.kiwi";
+          my $metaFile= "$kiwiDir/_meta";
       
           mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
           writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
+
+          # Create meta file to have a default bcntsynctag
+          if ( $project ) {
+            my $pkgmeta;
+            $pkgmeta->{'name'} = $pkgName;
+            $pkgmeta->{'project'} = $project;
+            $pkgmeta->{'title'} = "KIWI image build" ;
+            $pkgmeta->{'description'} = "Automatically generate from _product" ;
+            $pkgmeta->{'bcntsynctag'} = "_product:".$product ;
+            writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
+          } else {
+            print "metafile SKIPPED ! (need project name argument for it)\n";
+          }
+
           print "$outFile written.\n";
       }
     }
