@@ -210,7 +210,7 @@ module SpiderIntegrator
   def consume_page( html, url )
     body = HTML::Document.new html
     body.find_all(:tag=>'a').each do |tag|
-      queue_link( tag, url )
+      queue_link( tag, url ) unless tag['onclick']
     end
     body.find_all(:tag=>'link').each do |tag|
       # Strip appended browser-caching numbers from asset paths like ?12341234
