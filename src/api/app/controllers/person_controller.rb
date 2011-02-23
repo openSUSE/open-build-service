@@ -28,7 +28,7 @@ class PersonController < ApplicationController
 
     builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.directory(:count => list.length) do |dir|
-      list.each {|user| dir.entry(:login => user.login)}
+      list.each {|user| dir.entry(:name => user.login)}
     end
     render :text => xml, :content_type => "text/xml"
   end
