@@ -1136,4 +1136,57 @@ our $servicelist = [
         [ $servicetype ],
 ];
 
+our $updateinfo = [
+    'updates' =>
+     [[ 'update' =>
+	    'from',
+	    'status',
+	    'type',
+	    'version',
+	    [],
+	    'id',
+	    'title',
+	    'release',
+	  [ 'issued' =>
+		'date',
+	  ],
+	  [ 'updated' =>
+		'date',
+	  ],
+	    'reboot_suggested',
+	  [ 'references' =>
+	     [[ 'reference' =>
+		    'href',
+		    'id',
+		    'title',
+		    'type',
+	     ]],
+	  ],
+	    'description',
+	  [ 'pkglist',
+	     [[	'collection' =>
+		    'short',
+		    [],
+		    'name',
+		 [[ 'package' =>
+			'name',
+			'epoch',
+			'version',
+			'release',
+			'arch',
+			'src',
+			[],
+			'filename',
+		      [ 'sum' =>	# obsolete?
+			    'type',
+			    '_content',
+		      ],
+			'reboot_suggested',
+			'restart_suggested',
+			'relogin_suggested',
+		 ]],
+	     ]],
+	  ],
+     ]],
+];
 1;
