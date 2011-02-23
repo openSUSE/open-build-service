@@ -330,50 +330,49 @@ class ProjectController < ApplicationController
     elsif @project.has_element? :repository
       @project.each_repository { |repository| @repositories << repository.name }
     end
-   
+
     @project.each_repository do |repository| 
       next unless @repositories.include? repository.name
       @repocycles[repository.name] = Hash.new
-         
-      repository.each_arch do |arch|
 
+      repository.each_arch do |arch|
         cycles = Array.new
-	# skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-	deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
-	nr_cycles = 0
-	if deps and deps.has_element? :cycle
-	  packages = Hash.new
-	  deps.each_cycle do |cycle|
-	    current_cycles = Array.new
-	    cycle.each_package do |p|
-	      p = p.text
-	      if packages.has_key? p
-		current_cycles << packages[p]
-	      end
-	    end
-	    current_cycles.uniq!
-	    if current_cycles.empty?
-	      nr_cycles += 1
-	      nr_cycle = nr_cycles
-	    elsif current_cycles.length == 1
-	      nr_cycle = current_cycles[0]
-	    else
-	      logger.debug "HELP! #{current_cycles.inspect}"
-	    end
-	    cycle.each_package do |p|
-	      packages[p.text] = nr_cycle
-	    end
-	  end
-	end
-	cycles = Array.new
-	1.upto(nr_cycles) do |i|
-	  list = Array.new
-	  packages.each do |package,cycle|
-	    list.push(package) if cycle == i
-	  end
-	  cycles << list.sort
-	end
-	@repocycles[repository.name][arch.text] = cycles unless cycles.empty?
+        # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+        deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
+        nr_cycles = 0
+        if deps and deps.has_element? :cycle
+          packages = Hash.new
+          deps.each_cycle do |cycle|
+            current_cycles = Array.new
+            cycle.each_package do |p|
+              p = p.text
+              if packages.has_key? p
+                current_cycles << packages[p]
+              end
+            end
+            current_cycles.uniq!
+            if current_cycles.empty?
+              nr_cycles += 1
+              nr_cycle = nr_cycles
+            elsif current_cycles.length == 1
+              nr_cycle = current_cycles[0]
+            else
+              logger.debug "HELP! #{current_cycles.inspect}"
+            end
+            cycle.each_package do |p|
+              packages[p.text] = nr_cycle
+            end
+          end
+        end
+        cycles = Array.new
+        1.upto(nr_cycles) do |i|
+          list = Array.new
+          packages.each do |package,cycle|
+            list.push(package) if cycle == i
+          end
+          cycles << list.sort
+        end
+        @repocycles[repository.name][arch.text] = cycles unless cycles.empty?
       end
     end
   end
@@ -1108,17 +1107,17 @@ class ProjectController < ApplicationController
       currentpack['version'] = p.version
       if upstream_versions.has_key? p.name
         upstream_version = upstream_versions[p.name]
-	begin
-	  gup = Gem::Version.new(p.version)
-	  guv = Gem::Version.new(upstream_version)
-	rescue ArgumentError
-	  # if one of the versions can't be parsed we simply can't say
-	end
+        begin
+          gup = Gem::Version.new(p.version)
+          guv = Gem::Version.new(upstream_version)
+        rescue ArgumentError
+          # if one of the versions can't be parsed we simply can't say
+        end
 
         if gup && guv && gup < guv
           currentpack['upstream_version'] = upstream_version
           currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
-	end
+        end
       end
 
       currentpack['md5'] = p.value 'verifymd5'
@@ -1138,7 +1137,7 @@ class ProjectController < ApplicationController
         if p.develpack.has_element? 'package'
           currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
           currentpack['develmd5'] ||= p.develpack.package.srcmd5
-      
+
           if p.develpack.package.has_element? :error
              currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
           end
@@ -1168,17 +1167,17 @@ class ProjectController < ApplicationController
           currentpack['lpackage'] = p.link.package
         end
       end
-      
+
       next if !currentpack['requests_from'].empty? && @ignore_pending
       if @limit_to_fails
         next if !currentpack['firstfail']
       else
         next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
             !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
-	if @limit_to_old
-	  next if (currentpack['firstfail'] or currentpack['failedcomment'] or
-		       !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
-	end
+        if @limit_to_old
+          next if (currentpack['firstfail'] or currentpack['failedcomment'] or
+            !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+        end
       end
       @packages << currentpack
     end
