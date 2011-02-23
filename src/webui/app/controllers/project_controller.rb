@@ -338,7 +338,7 @@ class ProjectController < ApplicationController
       repository.each_arch do |arch|
         cycles = Array.new
         # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-        deps = find_cached(BuilddepInfo, :project => @project.name, :repository => repository.name, :arch => arch)
+        deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
         nr_cycles = 0
         if deps and deps.has_element? :cycle
           packages = Hash.new
