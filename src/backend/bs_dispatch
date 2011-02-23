@@ -512,6 +512,10 @@ while (1) {
     for my $job (@b) {
       $ic->{$job} ||= readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1) || {};
       my $info = $ic->{$job};
+      # clean up job a bit
+      for (qw{bdep, subpack, imagetype}) {
+        delete $info->{$_};
+      }
       if (!$info->{'readytime'}) {
 	my @s = stat("$jobsdir/$arch/$job");
 	$info->{'readytime'} = $s[9];
