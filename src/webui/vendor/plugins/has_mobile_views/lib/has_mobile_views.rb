@@ -35,9 +35,7 @@ module ActionController
       end
 
       def mobile_browser?
-        # enable when ready
-        # request.env["HTTP_USER_AGENT"] && !!request.env["HTTP_USER_AGENT"][/(iPhone|iPod|Android)/]
-        false
+        request.env["HTTP_USER_AGENT"] && !!request.env["HTTP_USER_AGENT"][/(iPhone|iPod|Android)/]
       end
     end
   end
