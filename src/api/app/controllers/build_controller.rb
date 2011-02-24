@@ -43,6 +43,7 @@ class BuildController < ApplicationController
     if request.get?
       pass_to_backend path
     elsif request.post?
+      #check if user has project modify rights
       allowed = false
       allowed = true if permissions.global_project_change
 
@@ -50,12 +51,6 @@ class BuildController < ApplicationController
       if params[:cmd].nil?
         render_error :status => 400, :errorcode => "missing_parameter",
           :message => "Missing parameter 'cmd'"
-        return
-      end
-
-      unless ["wipe", "restartbuild", "killbuild", "abortbuild", "rebuild"].include? params[:cmd]
-        render_error :status => 400, :errorcode => "illegal_request",
-          :message => "unsupported POST command #{params[:cmd]} to #{request.request_uri}"
         return
       end
 
@@ -69,6 +64,12 @@ class BuildController < ApplicationController
 
         #check if user has project modify rights
         allowed = true if permissions.project_change? prj
+      end
+
+      unless ["wipe", "restartbuild", "killbuild", "abortbuild", "rebuild"].include? params[:cmd]
+        render_error :status => 400, :errorcode => "illegal_request",
+          :message => "unsupported POST command #{params[:cmd]} to #{request.request_uri}"
+        return
       end
 
       if not allowed and not params[:package].nil?
