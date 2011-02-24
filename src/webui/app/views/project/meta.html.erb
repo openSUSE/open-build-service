@@ -7,7 +7,7 @@
 
 <h3><%= @pagetitle %></h3>
 
-<% if @user %>
+<% if @project.can_edit?(session[:login]) %>
   <p>
     <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit raw configuration' ), :action => :edit_meta, :project => @project) %>
     <%= link_to('Edit raw configuration', :action => :edit_meta, :project => @project) %>
