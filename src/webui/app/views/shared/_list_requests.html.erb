@@ -6,7 +6,7 @@
   <table cellspacing="1" id="request_table" class="tablesorter" style="width: 95%">
     <thead>
       <tr>
-        <th style="width: 1%">Date</th>
+        <th style="width: 1%">Modified</th>
         <th style="width: 40%">Source</th>
         <th style="width: 40%">Target</th>
         <th style="width: 5%">Requester</th>
@@ -20,7 +20,7 @@
         ae = req.action if req.has_element? :action %>
         <tr>
           <% if req.has_element? :state %>
-            <td class="nowrap"><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
+            <td class="nowrap"><!-- <%= req.state.when.tr('-T:','') %> --><%= fuzzy_time_string(req.state.value :when) %></td>
           <% end %>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
