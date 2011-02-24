@@ -1069,7 +1069,14 @@ sub createProductFile ( $$ ) {
     $zypp_product->{'register'} = $d;
 
     # Release package number shall go with the package release
-    $zypp_product->{'release'} = "%{release}";
+    $zypp_product->{'release'} = $product->{release};
+
+    my $mediaStyle = "suse-11.1"; # fallback value
+    my $medium = $prodRef->{mediasets}->{media}[0];
+    $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
+    if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+      $zypp_product->{'release'} = "%{release}";
+    }
 
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
     die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
@@ -1229,6 +1236,11 @@ foreach my $medium ( @$media ){
     my $product = $medium->{product};  # note: this needs to reference a product from the products section 
     $product = $prodRef->{'products'}->{'product'}[0]->{'name'} unless $product; # use global name as fallback
     my $name = $medium->{name};
+
+    # bug compatibility for 11.3 and before (ignoring product name definition per media)
+    if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+      $product = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
+    }
    
     next if( $opt_m && $name ne $opt_m );
 
