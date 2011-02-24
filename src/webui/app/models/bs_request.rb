@@ -140,12 +140,14 @@ class BsRequest < ActiveXML::Base
         raise RuntimeError, "missing parameters"
       end
 
+      opts.delete(:type) if opts[:type] == 'all' # All types means don't pass 'type' to backend
+
       # try to find request list in cache first before asking the OBS API
       request_list = Rails.cache.fetch("request_list:#{opts.to_s}", :expires_in => 10.minutes) do
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request?view=collection"
         path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
-        path << "&type=#{CGI.escape(opts[:type])}" if opts[:type]
+        path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
         path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
         path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
         path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]

@@ -11,7 +11,8 @@
       url: '<%= url_for(:controller => :request, :action => :list) %>',
       type: 'post',
       data: {
-        'state': $('#request_select')[0].value,
+        'state': $('#request_state_select')[0].value,
+        'type': $('#request_type_select')[0].value,
         <%= "'user': '" + user.to_s + "'," unless not defined?(user)  %>
         <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
         <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
@@ -25,9 +26,10 @@
 <% end %>
 
 <p>
-  Display all
-  <%= select_tag("request_select", options_for_select([['new or review', 'pending'], 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>
-  requests:
+  Display
+  <%= select_tag("request_type_select", options_for_select(['all', 'submit', 'delete', 'add_role', 'change_devel']), :onchange => "updateRequestDisplay();") %>
+  requests in state
+  <%= select_tag("request_state_select", options_for_select([['new or review', 'pending'], 'new', 'deleted', 'declined', 'accepted', 'review', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>:
   <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>
 
