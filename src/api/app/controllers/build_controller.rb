@@ -25,8 +25,10 @@ class BuildController < ApplicationController
       pass_to_backend
       return
     elsif request.post?
+      #check if user has project modify rights
       allowed = false
       allowed = true if permissions.global_project_change
+      allowed = true if permissions.project_change? prj
 
       #check for cmd parameter
       if params[:cmd].nil?
@@ -39,13 +41,6 @@ class BuildController < ApplicationController
         render_error :status => 400, :errorcode => "illegal_request",
           :message => "unsupported POST command #{params[:cmd]} to #{request.request_uri}"
         return
-      end
-
-      if not allowed
-        prj = DbProject.get_by_name( params[:project] ) 
-
-        #check if user has project modify rights
-        allowed = true if permissions.project_change? prj
       end
 
       if not allowed and not params[:package].nil?
