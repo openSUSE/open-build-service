@@ -32,6 +32,8 @@ class RequestController < ApplicationController
       end
 
       # Filter by request type (submit, delete, ...)
+      #FIXME/FIXME2.3: This should be params[:type] instead but for whatever reason, all
+      # webui controllers already set params[:type] to 'request' (always).
       predicates << "action/@type='#{params[:action_type]}'" if params[:action_type]
 
       unless params[:project].blank?
