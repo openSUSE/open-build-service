@@ -153,7 +153,7 @@
               <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
               <% if r.has_attribute? :by_user %>
                 <td id="review_type_<%= r.id %>">user</td>
-                <td id="review_name_<%= r.id %>"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => r.by_user}%></td>
+                <td id="review_name_<%= r.id %>" class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => r.by_user}%></td>
               <% elsif r.has_attribute? :by_group %>
                 <td id="review_type_<%= r.id %>">group</td>
                 <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
