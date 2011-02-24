@@ -146,9 +146,9 @@ class Person < ActiveXML::Base
       begin
         logger.debug "Fetching user list from API"
         response = transport.direct_http URI("https://#{path}"), :method => "GET"
-        logins = []
-        Collection.new(response).each {|user| logins << user.login}
-        logins
+        names = []
+        Collection.new(response).each {|user| names << user.name}
+        names
       rescue ActiveXML::Transport::Error => e
         message, _, _ = ActiveXML::Transport.extract_error_message e
         raise ListError, message
