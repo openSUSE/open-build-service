@@ -16,23 +16,17 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
     assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
-end
 
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
     assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
       :name => "kde4",
       :created => Time.local(2008, 04, 28, 05, 05, 05).xmlschema
     }
-end
 
     prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
@@ -44,11 +38,8 @@ end
 
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
     assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
-end
   end
 
 
@@ -63,23 +54,17 @@ end
 
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
    assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
-end
 
    prepare_request_with_user 'tom', 'thunder'
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
    assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
    assert_tag :tag => 'project', :attributes => {
      :name => "kde4",
      :updated => Time.local(2008, 04, 28, 06, 06, 06).xmlschema,
    }
-end
 
    prepare_request_with_user "fred", "geröllheimer"
    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
@@ -91,11 +76,8 @@ end
 
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
    assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
-end
  end
 
 

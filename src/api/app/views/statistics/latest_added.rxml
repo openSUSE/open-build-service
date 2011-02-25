@@ -7,7 +7,7 @@ xml.latest_added do
     if item.instance_of? DbPackage
       xml.package(
         :name => item.name,
-        :project => item.project_name,
+        :project => item.db_project.name,
         :created => item.created_at.xmlschema
       )
     end
