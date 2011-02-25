@@ -544,8 +544,7 @@ class PackageController < ApplicationController
         redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
 
-      # extra escaping of filename (workaround for rails bug)
-      @package.save_file :file => file, :filename => URI.escape(filename, "+")
+      @package.save_file :file => file, :filename => filename
     elsif not file_url.blank?
       # we have a remote file uri
       @services = find_cached(Service, :project => @project, :package => @package )
