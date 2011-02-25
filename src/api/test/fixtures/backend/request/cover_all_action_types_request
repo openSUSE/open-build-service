@@ -12,7 +12,7 @@
     <target project="home:Iggy" package="ToBeDeletedTestPack" />
   </action>
   <action type="delete">
-    <target project="home:Iggy:OldProject"/>
+    <target project="home:fred:DeleteProject"/>
   </action>
   <action type="add_role">
     <target project="kde4" />

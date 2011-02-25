@@ -258,6 +258,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=addreview&by_user=adrian"
     assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => 'addreview_not_permitted' } )
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=addreview&by_user=tom"
@@ -323,7 +324,26 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
 
-    # Successful accept request
+    # validate our existing test data and fixtures
+    get "/source/home:Iggy/ToBeDeletedTestPack/_meta"
+    assert_response :success
+    get "/source/home:fred:DeleteProject/_meta"
+    assert_response :success
+    get "/source/kde4/Testing/myfile"
+    assert_response 404
+    get "/source/kde4/_meta"
+    assert_response :success
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_no_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    assert_no_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_no_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+
+    # Successful accept the request
     prepare_request_with_user "fred", "geröllheimer"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
@@ -333,7 +353,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/source/home:Iggy/ToBeDeletedTestPack"
     assert_response 404
-    get "/source/home:Iggy:OldProject"
+    get "/source/home:fred:DeleteProject"
     assert_response 404
     get "/source/kde4/Testing/myfile"
     assert_response :success
@@ -369,10 +389,10 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_match(/Request is in review state./, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response 403
-    assert_match(/No permission to change state of request/, @response.body)
+    assert_match(/You have no role in request/, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 403
-    assert_match(/No permission to change state of request/, @response.body)
+    assert_match(/You have no role in request/, @response.body)
     post "/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 404
     assert_match(/No such request/, @response.body)
@@ -480,8 +500,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     # accept the other request, what will fail
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id2}?cmd=changestate&newstate=accepted"
-    assert_response 400
-    assert_match(/Unable to delete package/, @response.body)
+    assert_response 404
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     # decline the request
     prepare_request_with_user "king", "sunflower"
@@ -608,5 +628,42 @@ class RequestControllerTest < ActionController::IntegrationTest
   ## show !
   ## search !
   ### 
+
+  # bugreport bnc #674760
+  def test_try_to_delete_project_without_permissions
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    put "/source/home:Iggy:Test/_meta", "<project name='home:Iggy:Test'> <title /> <description /> </project>"
+    assert_response :success
+
+    # first action is permitted, but second not
+    post "/request?cmd=create", '<request>
+                                   <action type="delete">
+                                     <target project="home:Iggy:Test"/>
+                                   </action>
+                                   <action type="delete">
+                                     <target project="kde4"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # accept this request without permissions
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response 403
+
+    # everything still there
+    get "/source/home:Iggy:Test/_meta"
+    assert_response :success
+    get "/source/kde4/_meta"
+    assert_response :success
+
+    delete "/source/home:Iggy:Test"
+    assert_response :success
+  end
+
 end
 

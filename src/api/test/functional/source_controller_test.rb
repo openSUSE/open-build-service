@@ -568,7 +568,7 @@ end
     assert_select "project[name=kde5]"
     assert_select "person[userid=king][role=maintainer]", {}, "Creator was not added as project maintainer"
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    prepare_request_with_user "maintenance_coord", "power"
     delete "/source/kde5"
     assert_response 403
     prepare_request_with_user "fred", "geröllheimer"

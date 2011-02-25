@@ -20,3 +20,9 @@ kdelibs_in_kde4_adrian_reviewer:
   db_package_id: 1
   bs_user_id: 42
   role_id: 6
+
+ToBeDeleted_fred_maintainer:
+  db_package_id: 10195
+  bs_user_id: 1
+  role_id: 3
+
