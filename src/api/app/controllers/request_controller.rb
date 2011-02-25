@@ -102,7 +102,6 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   def create_create
     req = BsRequest.new(request.body.read)
-
     req.each_action do |action|
       # find objects if specified or report error
       role=nil
@@ -472,10 +471,18 @@ class RequestController < ApplicationController
               package = project.db_packages.find_by_name(action.target.package)
               if @http_user.can_modify_package? package
                  permission_granted = true
+              elsif params[:newstate] == "accepted"
+                render_error :status => 403, :errorcode => "post_request_no_permission",
+                  :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+                return
               end
 	   else
               if @http_user.can_modify_project? project
                  permission_granted = true
+              elsif params[:newstate] == "accepted"
+                render_error :status => 403, :errorcode => "post_request_no_permission",
+                  :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+                return
               end
            end
            unless permission_granted == true
