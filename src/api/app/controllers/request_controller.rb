@@ -531,108 +531,116 @@ class RequestController < ApplicationController
     end
 
     # permission and validation check for each action inside
-    unless permission_granted
-      write_permission_in_some_source = false
-      write_permission_in_some_target = false
+    write_permission_in_some_source = false
+    write_permission_in_some_target = false
 
-      req.each_action do |action|
+    req.each_action do |action|
 
-        # all action types need a target project in any case for accept
-        target_project = DbProject.find_by_name(action.target.project)
-        target_package = source_package = nil
-        if not target_project and params[:newstate] == "accepted"
-          render_error :status => 400, :errorcode => 'not_existing_target',
-            :message => "Unable to process project #{action.target.project}; it does not exist."
-          return
-        end
+      # all action types need a target project in any case for accept
+      target_project = DbProject.find_by_name(action.target.project)
+      target_package = source_package = nil
+      if not target_project and params[:newstate] == "accepted"
+        render_error :status => 400, :errorcode => 'not_existing_target',
+          :message => "Unable to process project #{action.target.project}; it does not exist."
+        return
+      end
 
-        if [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include? action.data.attributes["type"]
-          source_project = DbProject.find_by_name(action.source.project)
-          source_package = nil
-          unless [ "declined", "revoked", "superseded" ].include? params[:newstate]
-            # source must exist
-            target_project = DbProject.find_by_name(action.target.project)
-            if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
-              render_error :status => 403, :errorcode => "post_request_no_permission",
-                :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+      if [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include? action.data.attributes["type"]
+        source_project = DbProject.find_by_name(action.source.project)
+        source_package = nil
+        unless [ "declined", "revoked", "superseded" ].include? params[:newstate]
+          # source must exist
+          target_project = DbProject.find_by_name(action.target.project)
+          if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+            return
+          end
+          if action.source.has_attribute? :package
+            source_package = DbPackage.find_by_project_and_name source_project.name, action.source.package
+          end
+          if [ "submit", "change_devel" ].include? action.data.attributes["type"]
+            unless source_package
+              render_error :status => 404, :errorcode => "unknown_package",
+                :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
               return
             end
-            if action.source.has_attribute? :package
-              source_package = DbPackage.find_by_project_and_name source_project.name, action.source.package
-            end
-            if [ "submit", "change_devel" ].include? action.data.attributes["type"]
-              unless source_package
-                render_error :status => 404, :errorcode => "unknown_package",
-                  :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
-                return
-              end
-            end
           end
-          if target_project
-            if action.target.has_attribute? :package
-              target_package = target_project.db_packages.find_by_name(action.target.package)
-            elsif [ "submit", "change_devel" ].include? action.data.attributes["type"]
-              # fallback for old requests, new created ones get this one added in any case.
-              target_package = target_project.db_packages.find_by_name(action.source.package)
-            end
-          end
-          if source_project and req.state.name == "new" and params[:newstate] == "revoked" 
-             # source project owners should be able to revoke submit requests as well
-             source_package = source_project.db_packages.find_by_name(action.source.package)
-             if ( source_package and not @http_user.can_modify_package? source_package ) or
-                ( not source_package and not @http_user.can_modify_project? source_project )
-               render_error :status => 403, :errorcode => "post_request_no_permission",
-                 :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
-               return
-             end
-          end
-
-        elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
-          # target must exist
+        end
+        if target_project
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
-            if params[:newstate] == "accepted" and not target_package
+          elsif [ "submit", "change_devel" ].include? action.data.attributes["type"]
+            # fallback for old requests, new created ones get this one added in any case.
+            target_package = target_project.db_packages.find_by_name(action.source.package)
+          end
+        end
+        if source_project and req.state.name == "new" and params[:newstate] == "revoked" 
+           # source project owners should be able to revoke submit requests as well
+           source_package = source_project.db_packages.find_by_name(action.source.package)
+           if ( source_package and not @http_user.can_modify_package? source_package ) or
+              ( not source_package and not @http_user.can_modify_project? source_project )
+             render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
+             return
+           end
+        end
+
+      elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
+        # target must exist
+        if params[:newstate] == "accepted"
+          if action.target.has_attribute? :package
+            target_package = target_project.db_packages.find_by_name(action.target.package)
+            unless  target_package
               render_error :status => 400, :errorcode => 'not_existing_target',
                 :message => "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
               return
             end
-          end
-        else
-          render_error :status => 400, :errorcode => "post_request_no_permission",
-            :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
-          return
-        end
-
-        # general source write permission check (for revoke)
-        if ( source_package and @http_user.can_modify_package? source_package ) or
-           ( not source_package and source_project and @http_user.can_modify_project? source_project )
-             write_permission_in_some_source = true
-        end
-      
-        # general write permission check on the target on accept
-        write_permission_in_this_action = false
-        if target_package 
-          if @http_user.can_modify_package? target_package
-            write_permission_in_some_target = true
-            write_permission_in_this_action = true
-          end
-        else
-          if target_project and @http_user.can_create_package_in? target_project
-            write_permission_in_some_target = true
-            write_permission_in_this_action = true
+          else
+            unless target_project
+              render_error :status => 400, :errorcode => 'not_existing_target',
+                :message => "Unable to delete project #{action.target.project}; it does not exist."
+              return
+            end
           end
         end
+      else
+        render_error :status => 400, :errorcode => "post_request_no_permission",
+          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+        return
+      end
 
-        # abort immediatly if we want to write and can't.
-        if params[:cmd] == "changestate" and [ "accepted", "superseded" ].include? params[:newstate] and not write_permission_in_this_action
-          msg = "No permission to modify target of request #{req.id} (type #{action.data.attributes['type']}): project #{action.target.project}"
-          msg += ", package #{action.target.package}" if action.target.has_attribute? :package
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => msg
-          return
+      # general source write permission check (for revoke)
+      if ( source_package and @http_user.can_modify_package? source_package ) or
+         ( not source_package and source_project and @http_user.can_modify_project? source_project )
+           write_permission_in_some_source = true
+      end
+    
+      # general write permission check on the target on accept
+      write_permission_in_this_action = false
+      if target_package 
+        if @http_user.can_modify_package? target_package
+          write_permission_in_some_target = true
+          write_permission_in_this_action = true
         end
-      end # end of each action check
+      else
+        if target_project and @http_user.can_create_package_in? target_project
+          write_permission_in_some_target = true
+          write_permission_in_this_action = true
+        end
+      end
 
+      # abort immediatly if we want to write and can't.
+      if params[:cmd] == "changestate" and [ "accepted", "superseded" ].include? params[:newstate] and not write_permission_in_this_action
+        msg = "No permission to modify target of request #{req.id} (type #{action.data.attributes['type']}): project #{action.target.project}"
+        msg += ", package #{action.target.package}" if action.target.has_attribute? :package
+        render_error :status => 403, :errorcode => "post_request_no_permission",
+          :message => msg
+        return
+      end
+    end # end of each action check
+
+    unless permission_granted
       # General permission checks if a write access in any location is enough
       if params[:cmd] == "addreview"
         # Is the user involved in any project or package ?
