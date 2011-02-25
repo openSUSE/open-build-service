@@ -556,13 +556,15 @@ class PackageController < ApplicationController
          Service.free_cache :project => @project, :package => @package
       else
          flash[:error] = "Failed to add URL #{file_url} to service."
-         redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
-         return
+         redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
     else
-      flash[:error] = 'No file or URI given.'
-      redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
-      return
+      if filename.blank?
+        flash[:error] = 'No file or URI given.'
+        redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+      else
+        @package.save_file :filename => filename
+      end
     end
 
     flash[:success] = "The file #{filename} has been added."
