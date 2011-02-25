@@ -3820,9 +3820,8 @@ sub getrepositorylist {
   my ($cgi, $projid) = @_;
   my $proj = checkprojrepoarch($projid, undef, undef, 1);
   if ($proj->{'remoteurl'}) {
-    return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir;
+    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir);
   }
-
   my @res = map {{'name' => $_->{'name'}}} @{$proj->{'repository'} || []};
   return ({'entry' => \@res}, $BSXML::dir);
 }
@@ -3839,7 +3838,7 @@ sub getarchlist {
   my ($cgi, $projid, $repoid) = @_;
   my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
   if ($proj->{'remoteurl'}) {
-    return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir;
+    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir);
   }
   my @repo = grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []};
   die("404 $repoid: no such repository\n") unless @repo;

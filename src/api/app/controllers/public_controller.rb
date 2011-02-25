@@ -9,23 +9,7 @@ class PublicController < ApplicationController
   # GET /public/build/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
-    required_parameters :prj, :pkg, :repo, :arch
-    
-    prj = DbProject.find_by_name(params[:prj])
-    nobody=User.find_by_login "_nobody_"
-    # ACL(build): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if prj and prj.disabled_for?('access', params[:repo], params[:arch]) and not nobody.can_access?(prj)
-      render_error :message => "Unknown project '#{params[:prj]}'",
-      :status => 404, :errorcode => "unknown_project"
-      return
-    end
-
-    # ACL(build): binarydownload denies access to build files
-    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not nobody.can_download_binaries?(prj)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from project #{params[:prj]}"
-      return
-    end
+    required_parameters :prj
 
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
