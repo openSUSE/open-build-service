@@ -155,7 +155,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # create maintenance request
     # without specifing target, the default target must get found via attribute
     post "/request?cmd=create", '<request>
-                                   <action type="maintenanceincident">
+                                   <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" />
                                    </action>
                                    <state name="new" />
@@ -238,7 +238,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # create release request
     post "/request?cmd=create", '<request>
-                                   <action type="maintenancerelease">
+                                   <action type="maintenance_release">
                                      <source project="' + maintenanceProject + '" />
                                    </action>
                                    <state name="new" />

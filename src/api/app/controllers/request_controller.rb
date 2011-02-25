@@ -195,7 +195,7 @@ class RequestController < ApplicationController
 
     # expand release and submit request targets if not specified
     req.each_action do |action|
-      if [ "submit", "maintenancerelease" ].include?(action.data.attributes["type"])
+      if [ "submit", "maintenance_release" ].include?(action.data.attributes["type"])
         unless action.has_element? 'target'
           packages = Array.new
           if action.source.has_attribute? 'package'
@@ -205,7 +205,7 @@ class RequestController < ApplicationController
             packages = prj.db_packages
           end
           incident_suffix = ""
-          if action.data.attributes["type"] == "maintenancerelease"
+          if action.data.attributes["type"] == "maintenance_release"
             # The maintenance ID is always the sub project name of the maintenance project
             incident_suffix = "." + action.source.project.gsub(/.*:/, "")
           end
@@ -217,7 +217,7 @@ class RequestController < ApplicationController
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
             e = data.elements["directory/linkinfo"]
             unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
-              if action.data.attributes["type"] == "maintenancerelease"
+              if action.data.attributes["type"] == "maintenance_release"
                 newPackages << pkg.name
                 next
               else
@@ -232,8 +232,8 @@ class RequestController < ApplicationController
             newAction.source.data.attributes["package"] = pkg.name
             newAction.target.data.attributes["project"] = e.attributes["project"]
             newAction.target.data.attributes["package"] = e.attributes["package"] + incident_suffix
-            if action.data.attributes["type"] == "maintenancerelease" and not newAction.source.has_attribute? 'rev'
-              # maintenancerelease needs the binaries, so we always use the current source
+            if action.data.attributes["type"] == "maintenance_release" and not newAction.source.has_attribute? 'rev'
+              # maintenance_release needs the binaries, so we always use the current source
               rev=nil
               if e.attributes["xsrcmd5"]
                 rev=e.attributes["xsrcmd5"]
@@ -316,7 +316,7 @@ class RequestController < ApplicationController
 
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
-        if action.target.has_attribute? 'package' and not ["submit", "maintenancerelease"].include? action.data.attributes["type"]
+        if action.target.has_attribute? 'package' and not ["submit", "maintenance_release"].include? action.data.attributes["type"]
           tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
         end
       end
@@ -336,7 +336,7 @@ class RequestController < ApplicationController
             return
           end
         end
-      elsif [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include?(action.data.attributes["type"])
+      elsif [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include?(action.data.attributes["type"])
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -368,7 +368,7 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] == "maintenanceincident"
+        if action.data.attributes["type"] == "maintenance_incident"
           if spkg
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
@@ -757,7 +757,7 @@ class RequestController < ApplicationController
         return
       end
 
-      if [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include? action.data.attributes["type"]
+      if [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include? action.data.attributes["type"]
         source_package = nil
         if [ "declined", "revoked", "superseded" ].include? params[:newstate]
           # relaxed access checks for getting rid of request
@@ -1070,7 +1070,7 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-      elsif action.data.attributes["type"] == "maintenanceincident"
+      elsif action.data.attributes["type"] == "maintenance_incident"
 
         # create incident project
         source_project = DbProject.get_by_name(action.source.project)
@@ -1082,7 +1082,7 @@ class RequestController < ApplicationController
         action.target.data["project"] = incident.db_project.name
         req.save
 
-      elsif action.data.attributes["type"] == "maintenancerelease"
+      elsif action.data.attributes["type"] == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
         tprj = DbProject.get_by_name(action.target.project)
 

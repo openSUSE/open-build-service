@@ -312,14 +312,14 @@ sub verify_request {
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
       die("delete action has a source element\n") if $r->{'source'};
-    } elsif ($r->{'type'} eq 'maintenancerelease') {
-      die("maintenancerelease source missing\n") unless $r->{'source'};
-      die("maintenancerelease target missing\n") unless $r->{'target'};
+    } elsif ($r->{'type'} eq 'maintenance_release') {
+      die("maintenance_release source missing\n") unless $r->{'source'};
+      die("maintenance_release target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
       verify_projid($r->{'target'}->{'project'});
-    } elsif ($r->{'type'} eq 'maintenanceincident') {
-      die("maintenanceincident source missing\n") unless $r->{'source'};
-      die("maintenanceincident target missing\n") unless $r->{'target'};
+    } elsif ($r->{'type'} eq 'maintenance_incident') {
+      die("maintenance_incident source missing\n") unless $r->{'source'};
+      die("maintenance_incident target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
       verify_projid($r->{'target'}->{'project'});
     } elsif ($r->{'type'} eq 'set_bugowner') {
