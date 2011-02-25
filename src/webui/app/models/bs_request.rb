@@ -142,25 +142,21 @@ class BsRequest < ActiveXML::Base
 
       opts.delete(:type) if opts[:type] == 'all' # All types means don't pass 'type' to backend
 
-      # try to find request list in cache first before asking the OBS API
-      request_list = Rails.cache.fetch("request_list:#{opts.to_s}", :expires_in => 10.minutes) do
-        transport ||= ActiveXML::Config::transport_for :bsrequest
-        path = "/request?view=collection"
-        path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
-        path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
-        path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
-        path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
-        path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
-        begin
-          logger.debug "Fetching request list from api"
-          response = transport.direct_http URI("https://#{path}"), :method => "GET"
-          Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
-        rescue ActiveXML::Transport::Error => e
-          message, _, _ = ActiveXML::Transport.extract_error_message e
-          raise ListError, message
-        end
+      transport ||= ActiveXML::Config::transport_for :bsrequest
+      path = "/request?view=collection"
+      path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
+      path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
+      path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
+      path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
+      path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
+      begin
+        logger.debug "Fetching request list from api"
+        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
+      rescue ActiveXML::Transport::Error => e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        raise ListError, message
       end
-      return request_list
     end
 
     def creator(req)
