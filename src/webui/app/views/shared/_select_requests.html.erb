@@ -27,7 +27,7 @@
 
 <p>
   Display
-  <%= select_tag("request_type_select", options_for_select(['all', 'submit', 'delete', 'add_role', 'change_devel']), :onchange => "updateRequestDisplay();") %>
+  <%= select_tag("request_type_select", options_for_select(['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release']), :onchange => "updateRequestDisplay();") %>
   requests in state
   <%= select_tag("request_state_select", options_for_select([['new or review', 'pending'], 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>:
   <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>

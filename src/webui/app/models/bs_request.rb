@@ -39,6 +39,10 @@ class BsRequest < ActiveXML::Base
             option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
           when "change_devel" then
             option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+          when "maintenance_incident" then
+            option = "<source project=\"#{opt[:project]}\"/>"
+          when "maintenance_release" then
+            option = "<source project=\"#{opt[:project]}\"/>"
         end
         # build the request XML
         pkg_option = ""

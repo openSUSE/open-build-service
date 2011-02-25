@@ -10,9 +10,11 @@ module RequestHelper
     else
       type = req.value :type
     end
-    type = "chgdev" if type == "change_devel"
+    type = "chgdev"   if type == "change_devel"
     type = "bugowner" if type == "set_bugowner"
-    type = "addrole" if type == "add_role"
+    type = "addrole"  if type == "add_role"
+    type = "incident" if type == "maintenance_incident"
+    type = "release"  if type == "maintenance_release"
     type
   end
 
