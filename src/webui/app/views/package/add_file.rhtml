@@ -1,27 +1,30 @@
 <% @pagetitle = "Add File" %>
-<% package_bread_crumb( 'Add File' ) -%>
+<% package_bread_crumb(@pagetitle) -%>
 
 <%= render :partial => "tabs" %>
 
-<h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
+<h3>Add File to <%= h(@package.name) %> (Project <%= h(@project.name) %>)</h3>
+
+<p>The filename is taken from the uploaded file if none is provided. Alternatively, if only a filename is provided, a new empty file is created (i.e. touched).</p>
 
 <% form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
-  <div>
-    <p>
-      <strong>Filename (leave empty to take from upload or uri):</strong><br/>
-      <%= text_field_tag 'filename', '', :size => 80 %><br/>
-    </p>
-    <p>
-      <strong>Local File:</strong><br/>
-      <%= file_field_tag 'file', :size => 70 %><br/>
-    </p>
-    <p>
-      <strong>OR</strong><br/>
-    </p>
-    <p>
-      <strong>Remote File URI:</strong><br/>
-      <%= text_field_tag 'file_url', '', :size => 70 %><br/>
-    </p>
-    <p><%= submit_tag %></p>
-  </div>
+  <p>
+    <b>Filename (taken from uploaded file if empty):</b><br/>
+    <%= text_field_tag('filename', '', :size => 80) %><br/>
+    <b>Upload from</b> <%= select_tag('file_type', options_for_select([['local file', 'local'], ['remote URL', 'remote']])) %> :<br/>
+    <script type="text/javascript"> /* <![CDATA[ */
+      $('#file_type').change(function() {
+        if ($('#file_type option:selected').attr('value') == 'local') {
+          $('#file').show();
+          $('#file_url').hide();
+        } else {
+          $('#file').hide();
+          $('#file_url').show();
+        }
+      }); /* ]]> */
+    </script>
+    <%= file_field_tag('file') %>
+    <%= text_field_tag('file_url', '', :size => 80, :class => "hidden") %>
+  </p>
+  <p><%= submit_tag %></p>
 <% end %>
