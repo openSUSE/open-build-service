@@ -468,13 +468,8 @@ class SourceControllerTest < ActionController::IntegrationTest
   private :do_change_project_meta_test
 
 
-  def test_create_project_meta
-    do_create_project_meta_test("king", "sunflower")
-  end
-  
-  
-  def do_create_project_meta_test (name, pw)
-    prepare_request_with_user( name, pw)
+  def test_create_and_delete_project
+    prepare_request_with_user("king", "sunflower")
     # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
     assert_response :success
@@ -494,10 +489,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_select "project[name=kde5]"
     assert_select "person[userid=king][role=maintainer]", {}, "Creator was not added as project maintainer"
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    delete "/source/kde5"
+    assert_response 403
+    prepare_request_with_user "fred", "geröllheimer"
+    delete "/source/kde5"
+    assert_response :success
   end
-  private :do_create_project_meta_test
-  
-  
   
   
   def test_put_invalid_project_meta
