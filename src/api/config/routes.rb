@@ -277,6 +277,10 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /public
     
+  map.connect '/public/build/:prj',
+    :controller => 'public', :action => 'build', :prj => /[^\/]*/
+  map.connect '/public/build/:prj/:repo',
+    :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/
   map.connect '/public/build/:prj/:repo/:arch/:pkg',
     :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/
   map.connect '/public/source/:prj',
