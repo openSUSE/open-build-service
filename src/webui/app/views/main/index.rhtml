@@ -87,9 +87,10 @@
        </p>
 
       <p class="description">
-        The openSUSE Build Service hosts <strong><%= number_with_delimiter @global_counters.projects -%></strong> projects, with
+        According to <%= link_to 'the statistics', :controller => "statistics" %> this openSUSE Build Service instance hosts
+        <strong><%= number_with_delimiter @global_counters.projects -%></strong> projects, with
         <strong><%= number_with_delimiter @global_counters.packages -%></strong> packages, in <strong><%= number_with_delimiter @global_counters.repos -%></strong> repositories
-        and is used by <strong><%= number_with_delimiter @global_counters.users -%></strong> confirmed developer.
+        and is used by <strong><%= number_with_delimiter @global_counters.users -%></strong> confirmed developers.
       </p>
 
     </div>

@@ -34,6 +34,7 @@
         <% elsif item.data.to_s =~ /^<project / %>
           <%= link_to_project_view( item.name, title, length ) -%>
         <% end %>
+      </li>
     <% end %>
   </ol>
 

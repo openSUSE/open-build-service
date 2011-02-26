@@ -24,25 +24,31 @@
     <% length=15 %>
   <% end %>
 
+  <% if @most_active_pac.each.length > 0 %>
   <h5>Packages</h5>
   <ol>
     <% @most_active_pac.each do |package| %>
       <li>
         <% title = "activity = #{number_with_precision package.activity}%" %>
         <%= link_to_package_view( package.name, package.project, title, length ) -%>
+      </li>
     <% end %>
   </ol>
+  <% end %>
 
   <%= '</td><td valign="top">' if params[:more] -%>
 
+  <% if @most_active_prj.each.length > 0 %>
   <h5>Projects</h5>
   <ol>
     <% @most_active_prj.each do |project| %>
       <li>
         <% title = "activity = #{number_with_precision project.activity}%" %>
         <%= link_to_project_view( project.name, title, length ) -%>
+      </li>
     <% end %>
   </ol>
+  <% end %>
 
   <% if params[:more] -%>
     </td></tr></table>

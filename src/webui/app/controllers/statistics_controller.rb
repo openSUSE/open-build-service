@@ -7,10 +7,10 @@ class StatisticsController < ApplicationController
 
 
   def index
-    #@latest_added    = LatestAdded.find( :limit => 10 )
-    #@latest_updated  = LatestUpdated.find( :limit => 10 )
-    #@most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
-    #@most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
+    @latest_added    = LatestAdded.find( :limit => 10 )
+    @latest_updated  = LatestUpdated.find( :limit => 10 )
+    @most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
+    @most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
     @global_counters = GlobalCounters.find( :all )
     #@limit = 3
     #@most_downloaded = get_download_stats
