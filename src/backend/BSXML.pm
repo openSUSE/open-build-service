@@ -1119,6 +1119,7 @@ our $services = [
 our $servicetype = [
     'service' =>
         'name',
+        'hidden', # "true" to suppress it from service list in GUIs
         [],
         'summary',
         'description',
