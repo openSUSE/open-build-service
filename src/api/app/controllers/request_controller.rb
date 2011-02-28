@@ -715,10 +715,20 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
       return
-    elsif params[:cmd] == "addreview" and (req.creator == @http_user.login or req.is_reviewer? @http_user)
+    elsif params[:cmd] == "addreview" 
+      unless [ "review", "new" ].include? req.state.name
+        render_error :status => 403, :errorcode => "add_review_no_permission",
+              :message => "The request is not in state new or review"
+        return
+      end
       # allow request creator to add further reviewers
-      permission_granted = true
-    elsif (params[:cmd] == "changereviewstate")
+      permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
+    elsif params[:cmd] == "changereviewstate"
+      unless req.state.name == "review"
+        render_error :status => 403, :errorcode => "review_change_state_no_permission",
+              :message => "The request is not in state review"
+        return
+      end
       permission_granted = true if @http_user.is_in_group?(params[:by_group])
       permission_granted = true if params[:by_user] == @http_user.login
       if params[:by_project] 
