@@ -631,7 +631,7 @@ class RequestController < ApplicationController
       end
 
       # abort immediatly if we want to write and can't.
-      if params[:cmd] == "changestate" and [ "accepted", "superseded" ].include? params[:newstate] and not write_permission_in_this_action
+      if params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] and not write_permission_in_this_action
         msg = "No permission to modify target of request #{req.id} (type #{action.data.attributes['type']}): project #{action.target.project}"
         msg += ", package #{action.target.package}" if action.target.has_attribute? :package
         render_error :status => 403, :errorcode => "post_request_no_permission",
@@ -649,11 +649,14 @@ class RequestController < ApplicationController
             :message => "You have no role in request #{req.id}"
           return
         end
-      elsif params[:cmd] == "changereviewstate"
-        render_error :status => 403, :errorcode => "changereviewstate_not_permitted",
-          :message => "You have no role in request #{req.id}"
-        return
-      elsif params[:cmd] == "changestate" and [ "accepted", "superseded" ].include? params[:newstate] 
+      elsif params[:cmd] == "changestate" and [ "superseded" ].include? params[:newstate]
+        # Is the user involved in any project or package ?
+        unless write_permission_in_some_target or write_permission_in_some_source
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "You have no role in request #{req.id}"
+          return
+        end
+      elsif params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] 
         # requires write permissions in all targets, this is already handled in each action check
       elsif params[:cmd] == "changestate" and [ "revoked" ].include? params[:newstate] 
         # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request

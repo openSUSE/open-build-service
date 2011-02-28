@@ -155,6 +155,51 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
   end
 
+  def test_create_request_and_supersede
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
+    assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => "post_request_no_permission" } )
+
+    # target says supersede it due to another existing request
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
+  end
+
+  def test_create_request_and_supersede_as_creator
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
+    assert_response :success
+  end
+
   def test_create_request_and_decline_review
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
