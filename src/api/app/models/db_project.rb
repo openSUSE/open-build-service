@@ -926,9 +926,9 @@ class DbProject < ActiveRecord::Base
     # get all packages including activity values, we may not have access
     begin
       @packages = DbPackage.find :all,
-        :from => 'db_packages pac, db_projects pro',
-        :conditions => "pac.db_project_id = pro.id AND pro.id = #{self.id}",
-        :select => 'pro.*,' +
+        :from => 'db_packages, db_projects',
+        :conditions => "db_packages.db_project_id = db_projects.id AND db_projects.id = #{self.id}",
+        :select => 'db_projects.*,' +
         "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
         'IF( @activity<0, 0, @activity ) AS activity_value'
       # count packages and sum up activity values
