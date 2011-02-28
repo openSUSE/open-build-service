@@ -62,7 +62,7 @@ class RequestController < ApplicationController
         u = User.find_by_login(params[:user])
         u.involved_projects.each do |ip|
           maintained_projects += ["action/target/@project='#{ip.name}'"]
-          maintained_projects += ["review[@state='new' and @by_project='#{ip.name}']"] if params[:state] == "pending" or params[:state] == "review"
+          maintained_projects += ["(review[@state='new' and @by_project='#{ip.name}'] and not(review[@state='declined']))"] if params[:state] == "pending" or params[:state] == "review"
           maintained_projects_hash[ip.id] = true
         end
         str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
@@ -71,7 +71,7 @@ class RequestController < ApplicationController
         u.involved_packages.each do |ip|
           unless maintained_projects_hash.has_key?(ip.db_project_id)
             maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
-            maintained_packages += ["review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}']"] if params[:state] == "pending" or params[:state] == "review"
+            maintained_packages += ["(review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and not(review[@state='declined']))"] if params[:state] == "pending" or params[:state] == "review"
           end
         end
         str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
