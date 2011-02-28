@@ -208,15 +208,32 @@ class StatisticsControllerTest < ActionController::IntegrationTest
       :project => "kde4",
       :update_count => 0
     }
+    assert_no_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
 
     # get most active projects
     get url_for(:controller => :statistics, :action => :most_active_projects)
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
-      :name => "home:dmayr",
-      :packages => 1
+      :name => "kde4",
+      :packages => 2
     }
+    assert_no_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
+
+    # redo as user, seeing the hidden project
+    prepare_request_with_user 'hidden_homer', 'homer'
+    # get most active packages
+    get url_for(:controller => :statistics, :action => :most_active_packages)
+    assert_response :success
+
+    assert_tag :tag => 'most_active', :child => { :tag => 'package' }
+    assert_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
+
+    # get most active projects
+    get url_for(:controller => :statistics, :action => :most_active_projects)
+    assert_response :success
+    assert_tag :tag => 'most_active', :child => { :tag => 'project' }
+    assert_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
   end
 
 

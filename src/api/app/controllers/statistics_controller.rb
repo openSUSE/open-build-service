@@ -142,7 +142,11 @@ class StatisticsController < ApplicationController
       :group => 'object_id, object_type',
       :order => 'score_calculated DESC'
     ratings = ratings.delete_if { |r| r.count.to_i < min_votes_for_rating }
-    @ratings = ratings[0..@limit-1]
+    if @limit
+      @ratings = ratings[0..@limit-1]
+    else
+      @ratings = ratings
+    end
   end
 
   def rating
@@ -422,7 +426,12 @@ class StatisticsController < ApplicationController
     list.concat packages
     list.sort! { |a,b| b.created_at <=> a.created_at }
 
-    @list = list[0..@limit-1]
+
+    if @limit
+      @list = list[0..@limit-1]
+    else
+      @list = list
+    end
   end
 
 
@@ -446,7 +455,7 @@ class StatisticsController < ApplicationController
     list.concat packages
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
-    @list = list[0..@limit-1]
+    @list = list[0..@limit-1] if @limit
   end
 
 
@@ -476,7 +485,7 @@ class StatisticsController < ApplicationController
 
 
   def get_limit
-
+    return @limit = nil if not params[:limit].nil? and params[:limit].to_i == 0
     @limit = 10 if (@limit = params[:limit].to_i) == 0
   end
 
