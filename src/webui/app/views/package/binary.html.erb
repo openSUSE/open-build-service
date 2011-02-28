@@ -8,12 +8,12 @@
 
 <%= render :partial => "tabs" %>
 
-<h1>Detailed Information About
+<h3>Detailed Information About
   <% if @durl -%>
     <%= link_to(@filename, @durl) -%>
   <% else -%>
     <%= @filename -%>
-  <% end -%></h1>
+  <% end -%></h3>
 
 <div>
   <p><strong>Title:</strong> <%= @fileinfo.value('summary') %></p>
