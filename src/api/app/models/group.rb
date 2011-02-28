@@ -59,7 +59,6 @@ class Group < ActiveRecord::Base
     logger.debug "----------------- rendering group #{self.title} ------------------------"
     xml = builder.group() do |group|
       group.title(self.title)
-      group.parent_id(self.parent_id)
     end
     xml.target!
   end

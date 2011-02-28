@@ -19,7 +19,7 @@ ActionController::Routing::Routes.draw do |map|
   ### /person
 
   map.connect 'person', :controller => 'person', :action => 'index'
-  # FIXME: this is no clean namespace, a person "register" could exist ...
+  # FIXME: this is no clean namespace, a person "register" or "changepasswd" could exist ...
   #        suggested solution is POST person/:login?cmd=register
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/changepasswd', :controller => 'person', :action => 'change_my_password'
@@ -29,6 +29,7 @@ ActionController::Routing::Routes.draw do |map|
   ### /group
   map.connect 'group', :controller => 'group', :action => 'index'
   map.connect 'group/:title', :controller => 'group', :action => 'grouplist', :title => /[^\/]*/
+  # FIXME3.0: this can conflict with :title
   map.connect 'group/show/:title', :controller => 'group', :action => 'show', :title => /[^\/]*/
   map.connect 'group/users/:title', :controller => 'group', :action => 'users', :title => /[^\/]*/
 

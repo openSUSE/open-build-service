@@ -38,19 +38,20 @@ class GroupController < ApplicationController
         render :text => @render_group.render_axml(), :content_type => "text/xml"
       end
     elsif request.put?
-      group = Group.find_by_title(title)
-      if group and @http_user.is_in_group(group)
-        logger.debug "User has no permission to change group"
+      unless @http_user.is_admin?
         render_error :status => 403, :errorcode => 'change_group_no_permission',
-          :message => "No permission to change group for user #{@http_user.login}" and return
-      elsif !group and @http_user.is_admin?
+          :message => "No permission to change group for user #{@http_user.login}" 
+        return
+      end
+
+      group = Group.find_by_title(title)
+      if group.nil?
         group = Group.create(:title => title)
       end
 
       xml = REXML::Document.new(request.raw_post)
       logger.debug("XML: #{request.raw_post}")
       group.title = xml.elements["/group/title"].text
-      update_watchlist(group, xml)
       group.save!
       render_ok
     end
@@ -60,10 +61,15 @@ class GroupController < ApplicationController
     valid_http_methods :get
 
     unless params[:title]
-      render_error :status => 400, :errorcode => 'missing_parameters', :message => "Missing parameter 'title'" and return
+      render_error :status => 400, :errorcode => 'missing_parameters', :message => "Missing parameter 'title'" 
+      return
     end
 
     group = Group.find_by_title(URI.unescape(params[:title]))
+    unless group
+      render_error :status => 404, :errorcode => 'unknown_group', :message => "Group is not existing" 
+      return
+    end
     list = GroupsUser.find(:all, :conditions => ["group_id = ?", group])
     builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.directory(:count => list.length) do |dir|
@@ -73,7 +79,7 @@ class GroupController < ApplicationController
   end
 
   def grouplist
-    valid_http_methods :get, :put
+    valid_http_methods :get
 
     if request.get?
       builder = Builder::XmlMarkup.new(:indent => 2)
@@ -82,10 +88,9 @@ class GroupController < ApplicationController
         group = URI.unescape(params[:title])
         logger.debug "Generating user listing for group  #{group}"
         group = Group.find_by_title( group )
-        if group.blank?
-          logger.debug "Group is not valid!"
-          render_error :status => 404, :errorcode => 'unknown_group',
-            :message => "Unknown group: #{group}" and return
+        unless group
+          render_error :status => 404, :errorcode => 'unknown_group', :message => "Group is not existing" 
+          return
         end
         # list all users of the group
         list = GroupsUser.find(:all, :conditions => ["group_id = ?", group])
