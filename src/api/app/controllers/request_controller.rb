@@ -18,9 +18,9 @@ class RequestController < ApplicationController
       predicates = []
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank?
+      if params[:project].blank? and params[:user].blank? and params[:state].blank? and params[:action_type].blank?
        render_error :status => 404, :errorcode => 'require_filter',
-         :message => "This call requires at least one filter, either by user, project or package"
+         :message => "This call requires at least one filter, either by user, project or package or state or action_type"
        return
       end
 
