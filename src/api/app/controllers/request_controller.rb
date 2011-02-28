@@ -39,10 +39,14 @@ class RequestController < ApplicationController
       unless params[:project].blank?
         if params[:package].blank?
           str = "action/target/@project='#{params[:project]}'"
-          str += " or (review[@state='new' and @by_project='#{params[:project]}'])" if params[:state] == "pending" or params[:state] == "review"
+          if params[:state] == "pending" or params[:state] == "review"
+            str += " or (review[@state='new' and @by_project='#{params[:project]}'] and not(review[@state='declined']))"
+          end
         else
           str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
-          str += " or (review[@state='new' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'])" if params[:state] == "pending" or params[:state] == "review"
+          if params[:state] == "pending" or params[:state] == "review"
+            str += " or (review[@state='new' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'] and not(review[@state='declined']))"
+          end
         end
         predicates << str
       end
