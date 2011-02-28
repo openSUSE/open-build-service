@@ -9,44 +9,50 @@ class StatisticsController < ApplicationController
   def index
     @latest_added    = LatestAdded.find( :limit => 10 )
     @latest_updated  = LatestUpdated.find( :limit => 10 )
-    @most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
-    @most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
+    @most_active_packages = MostActivePackages.find( :limit => 5 )
+    @most_active_projects = MostActiveProjects.find( :limit => 5 )
     @global_counters = GlobalCounters.find( :all )
-    #@limit = 3
+    @limit = 5
     #@most_downloaded = get_download_stats
   end
 
 
   def latest_added
-    limit = params[:limit]
+    @limit = params[:limit] or 5
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
-    @latest_added = LatestAdded.find( :limit => limit )
+    @latest_added = LatestAdded.find( :limit => @limit )
     render :partial => 'latest_added', :layout => layout, :more => true
   end
 
 
   def latest_updated
-    limit = params[:limit]
+    @limit = params[:limit] or 5
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
-    @latest_updated = LatestUpdated.find( :limit => limit )
+    @latest_updated = LatestUpdated.find( :limit => @limit )
     render :partial => 'latest_updated', :layout => layout, :more => true
   end
 
 
-  def most_active
-    limit = params[:limit]
+  def most_active_projects
+    @limit = params[:limit] or 5
+    @most_active_projects = MostActiveProjects.find( :limit => @limit )
+    render :partial => 'most_active_projects', :layout => true, :more => true
+  end
+
+
+  def most_active_packages
+    @limit = params[:limit] or 5
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
-    @most_active_pac = MostActive.find( :limit => limit, :type => 'packages' )
-    @most_active_prj = MostActive.find( :limit => limit, :type => 'projects' )
-    render :partial => 'most_active', :layout => layout, :more => true
+    @most_active_packages = MostActivePackages.find( :limit => @limit )
+    render :partial => 'most_active_packages', :layout => true, :more => true
   end
 
 
   def most_downloaded
-    @limit = params[:limit]
+    @limit = params[:limit] or 5
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
     @most_downloaded = get_download_stats
@@ -55,7 +61,7 @@ class StatisticsController < ApplicationController
 
 
   def download_details
-    @limit = params[:limit]
+    @limit = params[:limit] or 5
     @project = params[:project]
     @package = params[:package]
     @repo = params[:repo]
@@ -98,9 +104,14 @@ class StatisticsController < ApplicationController
       text += '<h4>Latest Updated <img src="/images/info.png" /></h4>'
       text += 'Here you can see which are the packages and projects last '
       text += 'updated.'
-    when 'most_active'
+    when 'most_active_packages'
       text += '<h4>Most Active <img src="/images/info.png" /></h4>'
-      text += 'Here you can see the most active packages and projects. '
+      text += 'Here you can see the most active packages. '
+      text += 'Activity is mainly measured by the update frequency and count'
+      text += 'of updates.'
+    when 'most_active_projects'
+      text += '<h4>Most Active <img src="/images/info.png" /></h4>'
+      text += 'Here you can see the most active projects. '
       text += 'Activity is mainly measured by the update frequency and count'
       text += 'of updates.'
     else

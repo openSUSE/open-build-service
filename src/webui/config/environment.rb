@@ -193,7 +193,9 @@ ActiveXML::Base.config do |conf|
       '?:project&:package&:arch&:repo&:group_by&:limit'
     map.connect :rating, 'rest:///statistics/rating/:project/:package',
       :all => 'rest:///statistics/highest_rated?:limit'
-    map.connect :mostactive, 'rest:///statistics/most_active?:type&:limit',
+    map.connect :mostactiveprojects, 'rest:///statistics/most_active_projects?:limit',
+      :specific => 'rest:///statistics/activity/:project'
+    map.connect :mostactivepackages, 'rest:///statistics/most_active_packages?:limit',
       :specific => 'rest:///statistics/activity/:project/:package'
     map.connect :globalcounters, 'rest:///statistics/global_counters',
       :all => 'rest:///statistics/global_counters'

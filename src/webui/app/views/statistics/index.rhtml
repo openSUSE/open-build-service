@@ -11,9 +11,12 @@
     <strong><%= @global_counters.users -%></strong> confirmed developer.
   </div>
 
-    <%= render :partial => 'most_active' -%>
+    <%= render :partial => 'most_active_projects' -%>
     <%= link_to 'more...', { :controller => 'statistics',
-      :action => 'most_active', :more => true, :limit => 25 } -%>
+      :action => 'most_active_projects', :more => true, :limit => 25 } -%>
+    <%= render :partial => 'most_active_packages' -%>
+    <%= link_to 'more...', { :controller => 'statistics',
+      :action => 'most_active_packages', :more => true, :limit => 25 } -%>
     <%= render :partial => 'latest_added' -%>
     <%= link_to 'more...', { :controller => 'statistics',
       :action => 'latest_added', :more => true, :limit => 25 } -%>
