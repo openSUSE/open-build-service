@@ -199,7 +199,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
   def test_most_active
     prepare_request_with_user 'tom', 'thunder'
     # get most active packages
-    get url_for(:controller => :statistics, :action => :most_active_packages)
+    get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
     assert_response :success
 
     assert_tag :tag => 'most_active', :child => { :tag => 'package' }
@@ -211,7 +211,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     assert_no_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
 
     # get most active projects
-    get url_for(:controller => :statistics, :action => :most_active_projects)
+    get url_for(:controller => :statistics, :action => :most_active_projects, :limit => 0)
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
@@ -223,14 +223,14 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     # redo as user, seeing the hidden project
     prepare_request_with_user 'hidden_homer', 'homer'
     # get most active packages
-    get url_for(:controller => :statistics, :action => :most_active_packages)
+    get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
     assert_response :success
 
     assert_tag :tag => 'most_active', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
 
     # get most active projects
-    get url_for(:controller => :statistics, :action => :most_active_projects)
+    get url_for(:controller => :statistics, :action => :most_active_projects, :limit => 0)
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
