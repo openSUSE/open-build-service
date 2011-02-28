@@ -20,7 +20,7 @@
     <% @most_active_packages.each do |package| %>
       <li>
         <% title = "activity = #{number_with_precision package.activity}%" %>
-        <%= link_to_package_view( package.name, package.project, title, @limit.to_i ) -%>
+        <%= link_to_package_view( package.name, package.project, title, 50 ) -%>
       </li>
     <% end %>
   </ol>
