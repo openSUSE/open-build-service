@@ -263,6 +263,7 @@ our $projpack = [
 		'error',
 		[ $packinfo ],
 		$aggregatelist,
+		$patchinfo,
 		@flags,
 		'bcntsynctag',
 	 ]],

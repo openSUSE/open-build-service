@@ -272,7 +272,7 @@ sub getpatterns {
 ##########################################################################
 
 sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $repotag = "obsrepository://$obsname/$projid/$repoid";
@@ -305,6 +305,14 @@ sub createrepo_rpmmd {
       print "    re-running without extra options\n";
       qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && print("    createrepo failed again: $?\n");
     }
+  }
+  if ($updateinfos && @$updateinfos) {
+    print "    adding updateinfo.xml to repodata\n";
+    writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
+    qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+    unlink("$extrep/repodata/updateinfo.xml");
+  } else {
+    unlink("$extrep/repodata/updateinfo.xml.gz");
   }
   if (-d "$extrep/repocache") {
     my $now = time;
@@ -817,6 +825,8 @@ sub publish {
   my %bins_id;
   my $binaryorigins = {};
 
+  my @updateinfos;
+  my $updateinfos_state;
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
@@ -826,6 +836,13 @@ sub publish {
     $repoinfo->{'binaryorigins'} ||= {};
     for my $rbin (sort(ls($r))) {
       my $bin = $rbin;
+      if ($bin =~ /:updateinfo.xml$/) {
+        # collect updateinfo data
+        my $updateinfoxml = readstr("$r/$bin", 1) || '';
+	$updateinfos_state .= Digest::MD5::md5_hex($updateinfoxml);
+	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
+	push @updateinfos, @{$updateinfo->{'update'} || []};
+      }
       $bin =~ s/^.*?:://;	# strip package name for now
       #next unless $bin =~ /\.(?:rpm|deb)$/;
       my $p;
@@ -995,6 +1012,7 @@ sub publish {
   $state .= "\0".($proj->{'title'} || '') if %bins;
   $state .= "\0".join(',', @{$config->{'patterntype'} || []}) if $proj->{'patternmd5'};
   $state .= "\0".join('/', map {"$_->{'project'}/$_->{'repository'}"} @{$prpsearchpath || []}) if $proj->{'patternmd5'};
+  $state .= "\0".$updateinfos_state if $updateinfos_state;
   $state = Digest::MD5::md5_hex($state) if $state ne '';
 
   # get us the old repoinfo, so we can compare the state
@@ -1138,7 +1156,7 @@ sub publish {
   }
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'});
+    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos);
   } else {
     deleterepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }

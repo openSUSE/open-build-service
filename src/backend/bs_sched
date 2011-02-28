@@ -893,9 +893,10 @@ sub prpfinished {
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess'} @all;
     for my $bin (@all) {
+     next if $bin eq '.updateinfodata';
       my $rbin = $bin;
       # XXX: should be source name instead?
-      $rbin = "${packid}::$bin" if $debian;
+      $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml';
       next if exists $origin{$rbin};	# first one wins
       if ($nosourceaccess) {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
@@ -2652,12 +2653,14 @@ sub checkkiwiproduct {
 	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
       }
       $ps = ($ps || {})->{'packstatus'} || {};
+      my $blockedarch;
       for my $apackid (@apackids) {
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
 	  if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	    push @blocked, "$aprp/$arch/$apackid";
+	    $blockedarch = 1;
 	    last if @blocked > $maxblocked;
 	    next;
 	  }
@@ -2705,10 +2708,17 @@ sub checkkiwiproduct {
 	my $code = $ps->{$apackid} || 'unknown';
 	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	  push @blocked, "$aprp/$arch/$apackid";
+	  $blockedarch = 1;
 	  last if @blocked > $maxblocked;
 	  next;
         }
 	push @rpms, @got;
+      }
+      if ($blockedarch) {
+        mkdir_p("$reporoot/$projid/$repoid/$arch/$packid");
+        BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch") unless -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
+      } else {
+	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
       }
       last if @blocked > $maxblocked;
     }
@@ -2724,15 +2734,18 @@ sub checkkiwiproduct {
   if ($archs[0] ne $myarch) {
     # looks good from our side. tell master arch
     # to check it
-    my $ev = {
-      'type' => 'unblocked',
-      'project' => $projid,
-      'repository' => $repoid,
-    };
-    my $evname = "unblocked::${projid}::${repoid}";
-    sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
-    print "      - $packid (kiwi-product)\n";
-    print "        unblocked\n";
+    if (-e "$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch") {
+      unlink("$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch");
+      my $ev = {
+        'type' => 'unblocked',
+        'project' => $projid,
+        'repository' => $repoid,
+      };
+      my $evname = "unblocked::${projid}::${repoid}";
+      sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
+      print "      - $packid (kiwi-product)\n";
+      print "        unblocked\n";
+    }
     return ('excluded');
   }
 
@@ -2899,6 +2912,312 @@ sub rebuildkiwiproduct {
 ##########################################################################
 ##########################################################################
 ##
+##  patchinfo package type handling
+##
+sub checkpatchinfo {
+  my ($projid, $repoid, $packid, $pdata, $info, $packstatus) = @_;
+
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  return ('broken', 'missing repo') unless $repo;	# can't happen
+  my @archs = @{$repo->{'arch'}};
+  return ('broken', 'missing archs') unless @archs;	# can't happen
+  my $patchinfo = $pdata->{'patchinfo'};
+
+  my $broken;
+  # find packages
+  my @packages;
+  if ($patchinfo->{'package'}) {
+    @packages = @{$patchinfo->{'package'}};
+    my $pdatas = ($projpacks->{$projid} || {})->{'package'} || {};
+    my @missing;
+    for my $apackid (@packages) {
+      if (!$pdatas->{$apackid}) {
+	push @missing, $_;
+      }
+    }
+    $broken = 'missing packages: '.join(', ', @missing) if @missing;
+  } else {
+    my $pdatas = ($projpacks->{$projid} || {})->{'package'} || {};
+    @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
+  }
+  if (!@packages && !$broken) {
+    $broken = 'no packages found';
+  }
+
+  if ($archs[0] ne $myarch) {
+    # XXX wipe just in case! remove when we do that elsewhere...
+    if (-d "$reporoot/$projid/$repoid/$myarch/$packid") {
+      # (patchinfo packages will not be in :full)
+      unlink("$reporoot/$projid/$repoid/$myarch/:meta/$packid");
+      unlink("$reporoot/$projid/$repoid/$myarch/:logfiles.fail/$packid");
+      unlink("$reporoot/$projid/$repoid/$myarch/:logfiles.success/$packid");
+      unlink("$reporoot/$projid/$repoid/$myarch/:logfiles.success/$packid");
+      BSUtil::cleandir("$reporoot/$projid/$repoid/$myarch/$packid");
+      rmdir("$reporoot/$projid/$repoid/$myarch/$packid");
+    }
+    # check if we go from blocked to unblocked
+    my $blocked;
+    for my $apackid (@packages) {
+      my $code = $packstatus->{$apackid} || '';
+      if ($code eq 'excluded' || $code eq 'disabled') {
+	next;
+      }
+      if ($code ne 'done') {
+	$blocked = 1;
+        last;
+      }
+      if (-e "$reporoot/$projid/$repoid/$myarch/:logfiles.fail/$apackid") {
+	$blocked = 1;
+        last;
+      }
+      if (! -e "$reporoot/$projid/$repoid/$myarch/:logfiles.success/$apackid") {
+	$blocked = 1;
+        last;
+      }
+    }
+    if (!$blocked) {
+      if (-e "$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch") {
+        unlink("$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch");
+        my $ev = {
+          'type' => 'unblocked',
+          'project' => $projid,
+          'repository' => $repoid,
+        };
+        my $evname = "unblocked::${projid}::${repoid}";
+        sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
+        print "      - $packid (patchinfo)\n";
+        print "        unblocked\n";
+      }
+    }
+    return ('excluded');
+  }
+
+  return ('broken', $broken) if $broken;
+
+  # is this a new one?
+  my @meta;
+  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+    @meta = <F>;
+    close F;
+    chomp @meta;
+  }
+  if (@meta && $meta[0] eq "$pdata->{'srcmd5'}  $packid") {
+    print "      - $packid (patchinfo)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  my @new_meta;
+  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+
+  # collect em
+  my $apackstatus;
+  my @blocked;
+  my @tocopy;
+  for my $arch (@archs) {
+    if ($arch eq $myarch) {
+      $apackstatus = $packstatus;
+    } else {
+      my $ps = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:packstatus", 1);
+      if (!$ps) {
+	$ps = (readxml("$reporoot/$projid/$repoid/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+      }
+      $apackstatus = ($ps || {})->{'packstatus'} || {};
+    }
+    my $blockedarch;
+    for my $apackid (@packages) {
+      my $code = $apackstatus->{$apackid} || '';
+      if ($code eq 'excluded' || $code eq 'disabled') {
+	next;
+      }
+      if ($code ne 'done') {
+	$blockedarch = 1;
+	push @blocked, "$arch/$apackid";
+        next;
+      }
+      if (-e "$reporoot/$projid/$repoid/$arch/:logfiles.fail/$apackid") {
+	push @blocked, "$arch/$apackid";
+	$blockedarch = 1;
+      }
+      if (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+	push @blocked, "$arch/$apackid";
+	$blockedarch = 1;
+      }
+      push @tocopy, "$arch/$apackid";
+    }
+    if ($blockedarch) {
+      mkdir_p("$reporoot/$projid/$repoid/$arch/$packid");
+      BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch") unless -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
+    } else {
+      unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
+    }
+  }
+  if (@blocked) {
+    print "      - $packid (patchinfo)\n";
+    print "        blocked (@blocked)\n";
+    return ('blocked', join(', ', @blocked));
+  }
+  # now collect...
+  return ('scheduled', [ \@tocopy]);
+}
+
+sub rebuildpatchinfo {
+  my ($projid, $repoid, $packid, $pdata, $info, $data) = @_;
+  my @tocopy = @{$data->[0]};
+  
+  print "      - $packid (patchinfo)\n";
+  print "        rebuilding\n";
+  my $now = time();
+  my $prp = "$projid/$repoid";
+  my $job = jobname($prp, $packid);
+  return ('scheduled', $job) if -s "$myjobsdir/$job";
+
+  my $patchinfo = $pdata->{'patchinfo'};
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  unlink "$jobdatadir/$_" for ls($jobdatadir);
+  mkdir_p($jobdatadir);
+  my $jobrepo = {};
+  my %jobbins;
+  my $error;
+  my %donebins;
+  my @upackages;
+  my $broken;
+  my %metas;
+  my $bininfo = '';
+  my $updateinfodata;
+  my %updateinfodata_tocopy;
+  
+  if (-s "$reporoot/$prp/$myarch/$packid/.updateinfodata") {
+    $updateinfodata = BSUtil::retrieve("$reporoot/$prp/$myarch/$packid/.updateinfodata");
+    %updateinfodata_tocopy = map {$_ => 1} @{$updateinfodata->{'packages'} || []};
+  }
+  for my $tocopy (@tocopy) {
+    my ($arch, $apackid) = split('/', $tocopy, 2);
+    my @bins;
+    my $meta;
+    my $from;
+    if ($updateinfodata_tocopy{$tocopy}) {
+      print "        reusing old packages for '$tocopy'\n";
+      $from = "$reporoot/$projid/$repoid/$myarch/$packid";
+      $meta = $updateinfodata->{'metas'}->{$apackid};
+      @bins = grep {$updateinfodata->{'binaryorigins'}->{$_} eq $tocopy} keys(%{$updateinfodata->{'binaryorigins'}});
+    } else {
+      $from = "$reporoot/$projid/$repoid/$tocopy";
+      @bins = grep {/\.rpm$/} ls ($from);
+      ($meta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
+      print "$from @bins";
+    }
+    if (!$meta) {
+      $broken = "$tocopy has no meta";
+      last;
+    }
+    $metas{$apackid} ||= $meta;
+    if ($metas{$apackid} ne $meta) {
+      $broken = "$apackid has different sources";
+      last;
+    }
+    for my $bin (@bins) {
+      next if $donebins{$bin};
+      
+      if (!link("$from/$bin", "$jobdatadir/$bin")) {
+        my $error = "link $from/$bin $jobdatadir/$bin: $!\n";
+        return ('broken', $error);
+      }
+      $donebins{$bin} = $tocopy;
+      my $d;
+      eval {
+        $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
+	BSVerify::verify_nevraquery($d);
+      };
+      if (@$ || !$d) {
+        return ('broken', "$bin: bad rpm");
+      }
+      $bininfo .= "$d->{'hdrmd5'}  $bin\n";
+      my $upd = {
+	'name' => $d->{'name'},
+	'version' => $d->{'version'},
+	'release' => $d->{'release'},
+	'epoch' => $d->{'epoch'} || 0,
+	'arch' => $d->{'arch'},
+	'filename' => $bin,
+      };
+      $upd->{'src'} = $d->{'source'} if $d->{'source'};
+      $upd->{'reboot_suggested'} = 'True' if exists $patchinfo->{'reboot_needed'};
+      $upd->{'relogin_suggested'} = 'True' if exists $patchinfo->{'relogin_needed'};
+      $upd->{'restart_suggested'} = 'True' if exists $patchinfo->{'zypp_restart_needed'};
+      push @upackages, $upd;
+    }
+  }
+  my $update = {};
+  $update->{'status'} = 'stable';
+  $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
+  $update->{'type'} = $patchinfo->{'category'} || 'bugfix';
+  $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
+  $update->{'id'} = $patchinfo->{'name'};
+  $update->{'title'} = $patchinfo->{'summary'};
+  # XXX
+  $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;
+  $update->{'release'} =~ s/[_:]+/ /g;
+  $update->{'issued'} = { 'date' => $now };
+  my @references;
+  for my $b (@{$patchinfo->{'bugzilla'} || []}) {
+    # XXX: title should actually be the bugzilla bug title
+    push @references, {'href' => "$b->{'name'}/show_bug.cgi?id=$b->{'_content'}", 'id' => $b->{'_content'}, 'title' => "bug number $b->{'_content'}", 'type' => 'bugzilla'};
+  }
+  for my $b (@{$patchinfo->{'CVE'} || []}) {
+    push @references, {'href' => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=$b", 'id' => $b, 'title' => $b, 'type' => 'cve'};
+  }
+  $update->{'description'} = $patchinfo->{'description'};
+  # XXX: set name and short
+  my $col = {
+    'package' => \@upackages,
+  };
+  $update->{'pkglist'} = {'collection' => [ $col ] };
+  writexml("$jobdatadir/updateinfo.xml", undef, {'update' => [$update]}, $BSXML::updateinfo);
+  writestr("$jobdatadir/logfile", undef, "update built succeeded ".localtime($now)."\n");
+  $updateinfodata = {
+    'packages' => \@tocopy,
+    'metas' => \%metas,
+    'binaryorigins' => \%donebins,
+  };
+  BSUtil::store("$jobdatadir/.updateinfodata", undef, $updateinfodata);
+  if ($broken) {
+    BSUtil::cleandir($jobdatadir);
+    writestr("$jobdatadir/logfile", undef, "update built failed".localtime($now)."\n\n$broken\n");
+  }
+  writestr("$jobdatadir/meta", undef, "$pdata->{'srcmd5'}  $packid\n");
+  # XXX write reason
+
+  # now commit it...
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  mkdir_p("$gdst/:meta");
+  mkdir_p("$gdst/:logfiles.fail");
+  mkdir_p("$gdst/:logfiles.success");
+  unlink("$reporoot/$prp/$myarch/:repodone");
+  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+  if ($broken) {
+    rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+  } else {
+    rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
+    unlink("$gdst/:logfiles.fail/$packid");
+  }
+  BSUtil::cleandir($dst);
+  rename("$jobdatadir/meta", "$gdst/:meta/$packid");
+  for my $f (ls($jobdatadir)) {
+    rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
+  }
+  BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
+  BSUtil::cleandir($jobdatadir);
+  rmdir($jobdatadir);
+  writestr("$dst/.bininfo.new", "$dst/.bininfo", $bininfo) if $bininfo;
+  return ('done');
+}
+
+##########################################################################
+##########################################################################
+##
 ##  aggregate package type handling
 ##
 
@@ -2959,10 +3278,13 @@ sub checkaggregate {
       }
       next if $remoteprojs{$aprojid} || $prpfinished->{$aprp};
       # notready/prpnotready is indexed with source binary names, so we cannot use it here...
-      my $ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-      my %ps = map {$_->{'name'} => $_} @$ps;
+      my $ps = BSUtil::retrieve("$reporoot/$aprp/$myarch/:packstatus", 1);
+      if (!$ps) {
+	$ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+      }
       for my $apackid (@apackids) {
-	my $s = ($ps{$apackid} || {})->{'status'} || '';
+	my $s = $ps->{$apackid} || '';
         if ($s eq 'scheduled' || $s eq 'blocked' || $s eq 'finished') {
 	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
 	  push @blocked, "$aprp/$apackid";
@@ -3419,6 +3741,7 @@ if (!$projpacks) {
   # get project and package information from src server
   print "cold start, scanning all projects\n";
   get_projpacks();
+  get_projpacks('opensuse_org') if $testprojid;
   get_projpacks_postprocess();
   # look at everything
   @lookat_low = sort keys %$projpacks;
@@ -4315,9 +4638,11 @@ while(1) {
   my %pdeps;
   my %pkg2src;
   my %pkgdisabled;
+  my %havepatchinfos;
   for my $packid (@packs) {
     my $pdata = $packs->{$packid};
 
+    $havepatchinfos{$packid} = 1 if $pdata->{'patchinfo'};
     if ($pdata->{'error'} && $pdata->{'error'} eq 'excluded') {
       $pdeps{$packid} = [];
       next;
@@ -4368,6 +4693,12 @@ while(1) {
   print "    sorting ".@packs." packages\n";
   my @cycles;
   @packs = sortpacks(\%pdeps, \%dep2src, \@cycles, @packs);
+  if (%havepatchinfos) {
+    # bring patchinfos to back
+    my @packs_patchinfos = grep {$havepatchinfos{$_}} @packs;
+    @packs = grep {!$havepatchinfos{$_}} @packs;
+    push @packs, @packs_patchinfos;
+  }
 
   # write dependency information
   if (%pkgdisabled) {
@@ -4558,6 +4889,8 @@ while(1) {
     my $packtype;
     if ($pdata->{'aggregatelist'}) {
       $packtype = 'aggregate';
+    } elsif ($pdata->{'patchinfo'}) {
+      $packtype = 'patchinfo';
     } elsif ($info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
       $packtype = $1;
     }
@@ -4593,6 +4926,25 @@ while(1) {
       if ($astatus eq 'blocked' || $astatus eq 'scheduled') {
         my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
         $notready{$pname} = 1 if $useforbuildenabled;
+        $unfinished{$pname} = 1;
+      }
+      next;
+    }
+
+    if ($packtype eq 'patchinfo') {
+      my ($astatus, $aerror) = checkpatchinfo($projid, $repoid, $packid, $pdata, $info, \%packstatus);
+      if ($astatus eq 'scheduled') {
+	# aerror contains rebuild data in this case
+	($astatus, $aerror) = rebuildpatchinfo($projid, $repoid, $packid, $pdata, $info, $aerror);
+	if ($astatus eq 'scheduled') {
+	  $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
+	  undef $aerror;
+	}
+	unlink("$reporoot/$prp/$myarch/:repodone");
+      }
+      $packstatus{$packid} = $astatus;
+      $packerror{$packid} = $aerror if defined $aerror;
+      if ($astatus eq 'blocked' || $astatus eq 'scheduled') {
         $unfinished{$pname} = 1;
       }
       next;

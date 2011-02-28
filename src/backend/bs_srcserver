@@ -2167,6 +2167,34 @@ sub getprojpack {
 	    }
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
+	} elsif ($files->{'_patchinfo'}) {
+	  my $patchinfo = repreadxml($rev, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo, 1);
+          if (!$patchinfo) {
+	    $pinfo->{'error'} = "bad patchinfo data";
+	    next;
+	  }
+          eval {
+	    BSVerify::verify_patchinfo($patchinfo);
+          };
+	  if ($@) {
+	    my $err = $@;
+	    $err =~ s/\n$//s;
+	    $pinfo->{'error'} = "bad patchinfo: $err";
+	    next;
+	  }
+	  $pinfo->{'patchinfo'} = $patchinfo;
+	  if (($enable && %$enable) || ($disable && %$disable)) {
+	    my @dinfo = ();
+	    for my $repo (@{$proj->{'repository'} || []}) {
+	      my $repoid = $repo->{'name'};
+	      next if $repoids && !$repoids->{$repoid};
+	      if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
+	        push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+		next;
+	      }
+	    }
+	    $pinfo->{'info'} = \@dinfo if @dinfo;
+	  }
         } elsif ($cgi->{'withdeps'}) {
 	  my @dinfo;
 

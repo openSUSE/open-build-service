@@ -68,11 +68,10 @@ sub verify_packid_repository {
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
-  die("No patch name defined in _patchinfo") unless defined($p->{'name'}) and $p->{'name'} ne "";
+  die("No patch name defined in _patchinfo\n") unless defined($p->{'name'}) and $p->{'name'} ne "";
   verify_filename($p->{'name'});
-  die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
-                                                    || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature'
-                                                    || $p->{'category'} eq ''; # empty is allowed here
+  my %allowed_categories = map {$_ => 1} qw{security normal optional feature};
+  die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) && !$allowed_categories{$p->{'category'}};
 }
 
 sub verify_patchinfo_complete {
