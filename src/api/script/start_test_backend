@@ -7,6 +7,7 @@ Thread.abort_on_exception = true
 srcsrv_out = nil
 reposrv_out = nil
 servicesrv_out = nil
+publishsrv_out = nil
 logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
@@ -36,7 +37,7 @@ file.close
 
 perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
 
-%w{bs_srcserver bs_repserver bs_service bs_sched}.each do |srv|
+%w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
   FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
   unless system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
     puts "ERROR: syntax broken of #{srv}"
@@ -97,6 +98,26 @@ servicesrv = Thread.new do
   while servicesrv_out
     begin
       line = servicesrv_out.gets
+      logger.debug line.strip unless line.blank?
+    rescue IOError
+      break
+    end
+  end
+end
+
+puts "Starting backend publisher..."
+publishsrv = Thread.new do
+  publishsrv_out = IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_publish 2>&1")
+  puts "Started backend publish server with pid #{publishsrv_out.pid}"
+  begin
+    Process.setpgid publishsrv_out.pid, 0
+  rescue Errno::EACCES
+    # what to do?
+    puts "Could not set backend publish server group to root"
+  end
+  while publishsrv_out
+    begin
+      line = publishsrv_out.gets
       logger.debug line.strip unless line.blank?
     rescue IOError
       break
@@ -324,6 +345,8 @@ puts "kill #{reposrv_out.pid}"
 Process.kill "INT", -reposrv_out.pid
 puts "kill #{servicesrv_out.pid}"
 Process.kill "INT", -servicesrv_out.pid
+puts "kill #{publishsrv_out.pid}"
+Process.kill "INT", -publishsrv_out.pid
 
 
 srcsrv_out.close
@@ -335,6 +358,9 @@ reposrv.join
 servicesrv_out.close
 servicesrv_out = nil
 servicesrv.join
+publishsrv_out.close
+publishsrv_out = nil
+publishsrv.join
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
 
