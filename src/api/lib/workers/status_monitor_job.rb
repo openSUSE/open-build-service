@@ -1,4 +1,3 @@
-#require File.join(RAILS_ROOT, 'app/controllers/status_controller.rb')
 
 class StatusMonitorJob
 

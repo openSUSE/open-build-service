@@ -199,31 +199,29 @@ class StatisticsControllerTest < ActionController::IntegrationTest
   def test_most_active
     prepare_request_with_user 'tom', 'thunder'
     # get most active packages
-    get url_for(:controller => :statistics, :action => :most_active, :type => 'packages')
+    get url_for(:controller => :statistics, :action => :most_active_packages)
     assert_response :success
 
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
-# fixture data is actually there, this test case looks broken anyway, but it became
-# different broken now. The statistic stuff need anyway a big overhowl and is not usable atm :/
     assert_tag :tag => 'most_active', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => {
-      :name => "x11vnc",
-      :project => "home:dmayr",
+      :name => "kdelibs",
+      :project => "kde4",
       :update_count => 0
     }
+
     # get most active projects
-    get url_for(:action => :most_active, :type => 'projects')
+    get url_for(:controller => :statistics, :action => :most_active_projects)
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
       :name => "home:dmayr",
       :packages => 1
     }
-end
   end
 
 
+  # FIXME: works, but does not do anything usefull since 2.0 anymore
+  #        we need a working rating mechanism, but this one is too simple.
   def test_highest_rated
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :highest_rated)
