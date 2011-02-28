@@ -228,6 +228,56 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+
+    # add review not permitted anymore
+    post "/request/#{id}?cmd=addreview&by_user=king"
+    assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
+  end
+
+  def test_change_review_state_after_leaving_review_phase
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # add reviewer
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    # add reviewer group
+    post "/request/#{id}?cmd=addreview&by_group=test_group"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+    assert_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "tom" } )
+    assert_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" } )
+
+    # change review not permitted anymore
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_group=test_group"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
   end
 
   def test_revoke_when_packages_dont_exist
@@ -434,10 +484,10 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_match(/Request is in review state./, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response 403
-    assert_match(/You have no role in request/, @response.body)
+    assert_match(/review_change_state_no_permission/, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 403
-    assert_match(/You have no role in request/, @response.body)
+    assert_match(/review_change_state_no_permission/, @response.body)
     post "/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 404
     assert_match(/No such request/, @response.body)

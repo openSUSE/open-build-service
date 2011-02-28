@@ -512,10 +512,36 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
       return
-    elsif params[:cmd] == "addreview" and (req.creator == @http_user.login or req.is_reviewer? @http_user)
+    elsif params[:cmd] == "addreview" 
+      unless [ "review", "new" ].include? req.state.name
+        render_error :status => 403, :errorcode => "add_review_no_permission",
+              :message => "The request is not in state new or review"
+        return
+      end
       # allow request creator to add further reviewers
-      permission_granted = true
+      permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
     elsif (params[:cmd] == "changereviewstate" and @http_user.is_in_group?(params[:by_group]))
+      unless req.state.name == "review"
+        render_error :status => 403, :errorcode => "review_change_state_no_permission",
+              :message => "The request is not in state review"
+        return
+      end
+      permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
+    elsif params[:cmd] == "changereviewstate"
+      unless req.state.name == "review"
+        render_error :status => 403, :errorcode => "review_change_state_no_permission",
+              :message => "The request is not in state review"
+        return
+      end
+      permission_granted = true if @http_user.is_in_group?(params[:by_group])
+      permission_granted = true if params[:by_user] == @http_user.login
+      unless permission_granted
+        render_error :status => 403, :errorcode => "review_change_state_no_permission",
+              :message => "Changing review state for request #{req.id} not permitted"
+        return
+      end
+    elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
+      # allow new -> revoked state change to creators of request
       permission_granted = true
     elsif (params[:cmd] == "changereviewstate" and params[:by_user] == @http_user.login)
       permission_granted = true
