@@ -4133,6 +4133,7 @@ sub linktobranch {
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'} || "converted link to branch");
   delete $rev->{'project'};
   delete $rev->{'package'};
+  runservice($projid, $packid) if $files->{'_service'};
   return ($rev, $BSXML::revision);
 }
 
