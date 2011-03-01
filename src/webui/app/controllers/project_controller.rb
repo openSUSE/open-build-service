@@ -535,12 +535,13 @@ class ProjectController < ApplicationController
   def save_targets
     valid_http_methods :post
 
+    target_repo = params['target_repo'].blank? ? params['target_repo_txt'] : params['target_repo']
     # extend an existing repository with a path
     if (params['torepository'])
-      repo_path = "#{params['target_project']}/#{params['target_repo']}"
+      repo_path = "#{params['target_project']}/#{target_repo}"
       @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
       @project.save
-      flash[:success] = "Repository #{params['target_project']}/#{params['target_repo']} added successfully"
+      flash[:success] = "Repository #{params['target_project']}/#{target_repo} added successfully"
       redirect_to :action => :repositories, :project => @project
       return
     elsif params.has_key? :repo
@@ -550,7 +551,7 @@ class ProjectController < ApplicationController
           flash[:error] = "Illegal target name #{repo}."
           redirect_to :action => :add_repository_from_default_list, :project => @project and return
         end
-        repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
+        repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{target_repo}"
         repo_archs = params[repo + '_arch'] || params['arch']
         logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
         @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
