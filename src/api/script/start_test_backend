@@ -340,13 +340,13 @@ while !dienow do
 end
 
 puts "kill #{srcsrv_out.pid}"
-Process.kill "INT", -srcsrv_out.pid
+Process.kill "TERM", -srcsrv_out.pid
 puts "kill #{reposrv_out.pid}"
-Process.kill "INT", -reposrv_out.pid
+Process.kill "TERM", -reposrv_out.pid
 puts "kill #{servicesrv_out.pid}"
-Process.kill "INT", -servicesrv_out.pid
+Process.kill "TERM", -servicesrv_out.pid
 puts "kill #{publishsrv_out.pid}"
-Process.kill "INT", -publishsrv_out.pid
+Process.kill "TERM", -publishsrv_out.pid
 
 
 srcsrv_out.close
