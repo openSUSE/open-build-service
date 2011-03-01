@@ -617,11 +617,11 @@ class RequestController < ApplicationController
 
   def command_addreview
      command_changestate# :cmd => "addreview",
-                       # :by_user => params[:by_user], :by_group => params[:by_group]
+                       # :by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
   def command_changereviewstate
      command_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
-                        #:by_user => params[:by_user], :by_group => params[:by_group]
+                        #:by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
   def command_changestate
     if params[:id].nil? or params[:id].to_i == 0
