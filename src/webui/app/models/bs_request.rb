@@ -7,59 +7,42 @@ class BsRequest < ActiveXML::Base
 
   class << self
     def make_stub(opt)
+      option = source_package = target_package = ""
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
+      target_package = "package=\"#{opt[:targetpackage].to_xs}\"" if opt[:targetpackage] and not opt[:targetpackage].empty?
 
-      ret = nil
-      if opt[:type] == "submit" then
-        option = ""
-        option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
-        opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
-        opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
-        reply = <<-EOF
-          <request>
-            <action type="submit">
-              <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
-              <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
-              #{option}
-            </action>
-            <state name="new"/>
-            <description>#{opt[:description].to_xs}</description>
-          </request>
-        EOF
-        ret = XML::Parser.string(reply).parse.root
-        ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
-      else
-        # set request-specific options
-        option = ""
-        case opt[:type]
-          when "add_role" then
-            option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :group and not opt[:group].nil?
-            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :person and not opt[:person].nil?
-          when "set_bugowner" then
-            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
-          when "change_devel" then
-            option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
-          when "maintenance_incident" then
-            option = "<source project=\"#{opt[:project]}\"/>"
-          when "maintenance_release" then
-            option = "<source project=\"#{opt[:project]}\"/>"
-        end
-        # build the request XML
-        pkg_option = ""
-        pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
-        reply = <<-EOF
-          <request>
-            <action type="#{opt[:type]}">
-              <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
-              #{option}
-            </action>
-            <state name="new"/>
-            <description>#{opt[:description].to_xs}</description>
-          </request>
-        EOF
-        ret = XML::Parser.string(reply).parse.root
+      # set request-specific options
+      case opt[:type]
+        when "submit" then
+          # set target package is the same as the source package if no target package is specified
+          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
+
+          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+        when "add_role" then
+          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt[:group] and not opt[:group].empty?
+          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt[:person] and not opt[:person].empty?
+        when "set_bugowner" then
+          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
+        when "change_devel" then
+          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+        when "maintenance_incident" then
+          option = "<source project=\"#{opt[:project]}\"/>"
+        when "maintenance_release" then
+          option = "<source project=\"#{opt[:project]}\"/>"
       end
-      return ret
+      # build the request XML
+      reply = <<-EOF
+        <request>
+          <action type="#{opt[:type]}">
+            #{option}
+            <target project="#{opt[:targetproject].to_xs}" #{target_package}/>
+          </action>
+          <state name="new"/>
+          <description>#{opt[:description].to_xs}</description>
+        </request>
+      EOF
+      return XML::Parser.string(reply).parse.root
     end
 
     def addReview(id, opts)
