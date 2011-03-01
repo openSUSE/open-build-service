@@ -7,7 +7,7 @@ class SearchController < ApplicationController
   end
 
   def search
-    required_parameters :search_text
+    redirect_to :action => "index" and return unless params.has_key?(:search_text)
 
     @search_text = params[:search_text]
     if @search_text.starts_with?("obs://")
