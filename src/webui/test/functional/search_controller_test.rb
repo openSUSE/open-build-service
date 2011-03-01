@@ -8,8 +8,7 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_search
     get '/search/search'
-    assert_response 400
-    assert_match(/Required Parameter search_text missing/, @response.body)
+    assert_response 302
 
     get '/search/search?search_text=Base'
     assert_response :success
