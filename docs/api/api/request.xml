@@ -27,6 +27,14 @@
    <source project="home:kfreitag" package="kraft" />
    <target project="openSUSE:10.3" package="kraft" />
  </action>
+ <action type="maintenance_incident">
+   <source project="home:foobar:kraft" />
+   <target project="openSUSE:Maintenance" /> <!-- NOTE: Changed by the API to, i.e., openSUSE:Maintenance:ID123, where 123 is the assigned incident ID -->
+ </action>
+ <action type="maintenance_release">
+   <source project="openSUSE:Maintenance:ID123" package="kraft" />
+   <target project="openSUSE:11.4" package="kraft" />
+ </action>
  <state name="declined" who="adrian" when="2007-12-30T09:00:00">
    <comment>Forgetit!</comment>
  </state>
