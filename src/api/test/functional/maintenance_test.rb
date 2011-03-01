@@ -190,6 +190,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal node.repository.data, oprojectmeta.repository.data
     assert_equal node.build.data, oprojectmeta.build.data
 
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_attribute/OBS:MaintenanceVersion"
+    assert_response :success
+    assert_tag( :tag => "value", :content => "_unreleased_" )
+
     get "/source/My:Maintenance:#{Time.now.utc.year}-1"
     assert_response :success
     assert_tag( :tag => "directory", :attributes => { :count => "7" } )
@@ -217,6 +221,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     data = REXML::Document.new(@response.body)
     maintenanceProject=data.elements["/status/data"].text
     maintenanceID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
+
+    # attribute set ?
+    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceVersion"
+    assert_response :success
+    assert_tag( :tag => "value", :content => "_unreleased_" )
 
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
@@ -293,6 +302,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.2011-1" }
     get "/source/BaseDistro2:LinkedUpdateProject/pack2.2011-1/_link"
     assert_response 404
+
+    # attribute changed ?
+    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceVersion"
+    assert_response :success
+    assert_tag( :tag => "value", :content => "0" )
+dd
   end
 
   def test_copy_project_for_release

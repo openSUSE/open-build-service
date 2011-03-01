@@ -42,6 +42,12 @@ module MaintenanceHelper
       mi.save!
     end
 
+    # set empty attribute to allow easy searches of active incidents
+    at = AttribType.find_by_name("OBS:MaintenanceVersion")
+    a = Attrib.new(:db_project => tprj, :attrib_type => at)
+    a.values << AttribValue.new(:value => "_unreleased_", :position => 0)
+    a.save
+
     # copy all packages and project source files from base project
     # we don't branch from it to keep the link target.
     if baseProject
@@ -69,7 +75,7 @@ module MaintenanceHelper
     return mi
   end
 
-  def release_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
+  def release_package(sourcePackage, targetProject, targetPackageName, revision, maintenanceVersion, request = nil)
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
@@ -131,5 +137,13 @@ module MaintenanceHelper
       new.save
     end
     Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
+
+    # update attribute to current version
+    at = AttribType.find_by_name("OBS:MaintenanceVersion")
+    a = Attrib.find(:db_project => targetProject, :attrib_type => at)
+    a.values = []
+    a.values << AttribValue.new(:value => maintenanceVersion, :position => 0)
+    a.save
+
   end
 end
