@@ -6,8 +6,14 @@ Updaters from any OBS 2.1 release can just ugrade the packages and restart
 all services. Updaters from former releases should read the
 README.UPDATERS file.
 
-Feature backport:
-=================
+Security fixes:
+===============
+* api: fix security leak which allowed to modify packages or projects without write access (CVE-2011-0466)
+* api: change password in LDAP mode was possible for foreign user (bnc #648982)
+* webui: Fix possible XSS attack leaks in login page (bnc #669909, CVE-2011-0462)
+
+Feature backports:
+==================
 
 None
 
@@ -15,12 +21,16 @@ Changes:
 ========
 
 * openSUSE 11.4 and Debian 6.0 got added as default target.
+* adding reviewers or changing the review state is only allowed for requests which are in review state now.
 
 Bugfixes:
 =========
 
+* webui: Fix link to moved OBS web forums
+* webui: Fix adding of repositories from remote projects in advanced repository interface
+* api and webui: Do not use (and fail with) rails 3 environment
 * api: allow admins to raise "sourceaccess" permissions on existing projects or packages
 * api: do not allow to create packages with invalid chars via branch command
-* webui: Fix possible XSS attacks in login page
-* api and webui: Do not use (and fail) rails 3 environment
+* api: do not fail on "mbranch" when a package gets found directly and indirectly via project link
+* backend: Allow browsing of repositories of remote projects (fixes advanced webui view for adding repos)
 
