@@ -78,7 +78,6 @@ sub verify_patchinfo_complete {
   # This verifies all necessary content to create a patchinfo repo
   my $p = $_[0];
   verify_patchinfo( $p );
-  die("No swampid defined in _patchinfo") unless $p->{'swampid'} and $p->{'swampid'} =~ /^[0-9]+$/; # this will become optional later
   die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
   for my $id (@{$p->{'bugzilla'}}){
     die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]+$/;
