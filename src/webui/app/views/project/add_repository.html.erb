@@ -17,32 +17,31 @@
   { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
 
   $('#target_project').change(function() {
-  $('#target_repo').hide();
-  $('#target_repo_txt').show();
-  $('#loader-repo').show();
-  $('#target_repo').html('');
-  $.ajax({
-    url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
-    data: {project: $("#target_project").attr('value')},
-    success: function(data){
-      $('#target_repo').removeAttr('disabled');
-      // suggest a name:
-      $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
-      $.each(data.split('\n'), function(idx, val) {
-        $('#target_repo').append( new Option( val ) );
-        $('#target_repo').show();
-        $('#target_repo_txt').hide();
-      });
-    },
-    complete: function(data){
-      $('#loader-repo').hide();
-    }
+    $('#target_repo').hide();
+    $('#target_repo_txt').show();
+    $('#loader-repo').show();
+    $('#target_repo').html('');
+    $.ajax({
+      url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
+      data: {project: $("#target_project").attr('value')},
+      success: function(data){
+        $('#target_repo').removeAttr('disabled');
+        // suggest a name:
+        $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
+        $.each(data.split('\n'), function(idx, val) {
+          $('#target_repo').append( new Option( val ) );
+          $('#target_repo').show();
+          $('#target_repo_txt').hide();
+        });
+      },
+      complete: function(data){
+        $('#loader-repo').hide();
+      }
+    });
   });
-  });
-
 
   $('#target_repo').change(function() {
-  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
+    $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
   });
 <% end -%>
 
