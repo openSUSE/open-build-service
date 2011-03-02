@@ -1381,10 +1381,10 @@ class SourceController < ApplicationController
 
     name=nil
     maintenanceID=nil
-    pkg_name = "_patchinfo"
+    pkg_name = "patchinfo"
     if params[:name]
       name=params[:name]
-      pkg_name = "_patchinfo:" + name
+      pkg_name = "patchinfo:" + name
     else
       if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
         # this is a maintenance project, the sub project name is the maintenance ID
@@ -1970,8 +1970,6 @@ class SourceController < ApplicationController
     return true if name == "_project"
     return true if name == "_product"
     return true if name =~ /^_product:[-_+\w\.:]*$/
-    return true if name =~ /^_patchinfo$/
-    return true if name =~ /^_patchinfo[.:][-_+\w\.:]*$/
     name =~ /^\w[-_+\w\.:]*$/
   end
 end

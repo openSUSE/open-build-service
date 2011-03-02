@@ -32,8 +32,7 @@ Maintenance:
   name: Maintenance
   value_count: 0
   attrib_namespace_id: 9
-MaintenanceVersion:
+MaintenanceReleaseDate:
   id: 63
-  name: MaintenanceVersion
-  value_count: 1
+  name: MaintenanceReleaseDate
   attrib_namespace_id: 9

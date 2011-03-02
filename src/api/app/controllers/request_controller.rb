@@ -921,6 +921,9 @@ class RequestController < ApplicationController
       return
     end
 
+    # have a unique time stamp for release
+    acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
+
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
       if action.data.attributes["type"] == "set_bugowner"
@@ -1111,11 +1114,8 @@ class RequestController < ApplicationController
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
         tprj = DbProject.get_by_name(action.target.project)
 
-        # FIXME2.3: get release number from _patchinfo. what shall we do if we have multiple ?
-        maintenanceVersion="0"
-
 #FIXME2.3: support limiters to specified repositories
-        release_package(pkg, tprj, action.target.package, action.source.rev, maintenanceVersion, req)
+        release_package(pkg, tprj, action.target.package, action.source.rev, acceptTimeStamp, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"

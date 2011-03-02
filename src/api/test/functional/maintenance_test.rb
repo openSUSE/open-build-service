@@ -190,9 +190,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal node.repository.data, oprojectmeta.repository.data
     assert_equal node.build.data, oprojectmeta.build.data
 
-    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_attribute/OBS:MaintenanceVersion"
+    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_attribute/OBS:MaintenanceReleaseDate"
     assert_response :success
-    assert_tag( :tag => "value", :content => "_unreleased_" )
+    assert_no_tag( :tag => "value" )
 
     get "/source/My:Maintenance:#{Time.now.utc.year}-1"
     assert_response :success
@@ -223,9 +223,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     maintenanceID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
 
     # attribute set ?
-    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceVersion"
+    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
     assert_response :success
-    assert_tag( :tag => "value", :content => "_unreleased_" )
+    assert_no_tag( :tag => "value" )
 
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
@@ -241,7 +241,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # FIXME: test with binaries
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1"
     assert_response :success
-    get "/source/#{maintenanceProject}/_patchinfo/_patchinfo"
+    get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag( :tag => "patchinfo", :attributes => { :incident => maintenanceID } )
 
@@ -257,14 +257,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2." + maintenanceID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + maintenanceID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "_patchinfo." + maintenanceID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "_patchinfo." + maintenanceID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + maintenanceID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + maintenanceID } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
-
-    # FIXME2.3: not yet working
-    return unless $ENABLE_BROKEN
 
     ### the backend is now building the packages, injecting results
     perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
@@ -291,6 +288,12 @@ class MaintenanceTests < ActionController::IntegrationTest
        io.each {|line| line.strip unless line.blank? }
     end
 
+    # not permitted release
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
+
     # release packages
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -304,10 +307,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 404
 
     # attribute changed ?
-    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceVersion"
+    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
     assert_response :success
-    assert_tag( :tag => "value", :content => "0" )
-dd
+    assert_tag( :tag => "attribute", :children => { :count => 1 } )
   end
 
   def test_copy_project_for_release
