@@ -432,6 +432,7 @@ class ProjectController < ApplicationController
   end
 
   def rebuild_time_png
+    redirect_to :action => "list_public" and return unless request.xhr?
     key = params[:key]
     data = Rails.cache.read("rebuild-%s.png" % key)
     headers['Content-Type'] = 'image/png'
