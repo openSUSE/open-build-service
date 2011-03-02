@@ -1970,6 +1970,7 @@ class SourceController < ApplicationController
     return true if name == "_project"
     return true if name == "_product"
     return true if name =~ /^_product:[-_+\w\.:]*$/
+    return true if name =~ /^_patchinfo:[-_+\w\.:]*$/ # obsolete, just for backward compatibility
     name =~ /^\w[-_+\w\.:]*$/
   end
 end

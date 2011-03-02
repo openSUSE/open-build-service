@@ -302,9 +302,17 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate result
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.2011-1" }
-    get "/source/BaseDistro2:LinkedUpdateProject/pack2.2011-1/_link"
+    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{Time.now.utc.year}-1" }
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2.#{Time.now.utc.year}-1/_link"
     assert_response 404
+    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo"
+    assert_response 404
+    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo.#{Time.now.utc.year}-1"
+    assert_response :success
+    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo.#{Time.now.utc.year}-1/_patchinfo"
+    assert_response :success
+    assert_tag :tag => "patchinfo", :attributes => { :incident => "2011-1" }
+    assert_tag :tag => "packager", :content => "maintenance_coord"
 
     # attribute changed ?
     get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
