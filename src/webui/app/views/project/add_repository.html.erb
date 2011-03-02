@@ -48,22 +48,20 @@
 <div class="clear"></div>
 <h2>Advanced Search for Build Targets</h2>
 
-<% form_tag( {:action => :save_targets, :project => @project} ) do -%>
+<% form_tag({:action => :save_targets, :project => @project}) do -%>
   <p>
     <strong>Project: </strong><br/>
     <%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %><i>(gets auto-completed)</i><br/>
     <strong>Repository: </strong><br/>
-    <%= text_field_tag "target_repo_txt", "", :id => 'target_repo_txt', :size => 40 %>
+    <%= text_field_tag "target_repo_txt", "", :id => 'target_repo_txt', :size => 60 %>
     <%= image_tag('ajax-loader.gif', :id => 'loader-repo', :class => 'hidden') %>
-    <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %>
-  </p>
-
+    <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %><br/>
     <!-- Don't offer new name if we add this repo to an existing one as path -->
     <% if @torepository %>
       <%= hidden_field_tag( "torepository", @torepository ) %><br/>
     <% else %>
       <strong>New name: </strong><br/>
-      <%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %><br/>
+      <%= text_field_tag 'repo', '', :size => 60, :id => 'repo_name' %><br/>
       <strong>Architectures: </strong><br/>
       <% VISIBLE_ARCHITECTURES.each do |arch| %>
         <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
@@ -77,4 +75,4 @@
       <%= submit_tag "Add repository" %>
     <% end %>
   </p>
-<% end-%>
+<% end %>
