@@ -36,6 +36,7 @@ use XML::Structured ':bytes';
 
 use Build;
 
+our $nosharedtrees;
 use BSConfig;
 use BSFileDB;
 use BSWatcher;
@@ -46,11 +47,13 @@ use BSProductXML;
 use BSDB;
 use BSDBIndex;
 
+$nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
+
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrepdir = "$BSConfig::bsdir/sources";
-my $treesdir = $BSConfig::nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
+my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $sourcedb = "$BSConfig::bsdir/db/source";
 
 
