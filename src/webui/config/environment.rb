@@ -110,15 +110,15 @@ begin
 rescue Errno::ENOENT
 end
 
-if defined? CONFIG['download_url']
+if CONFIG.has_key?('download_url')
   DOWNLOAD_URL = CONFIG['download_url']
 else
-  DOWNLOAD_URL = nil
+  DOWNLOAD_URL = "http://download.opensuse.org/repositories"
 end
-if defined? CONFIG['bugzilla_host']
+if CONFIG.has_key?('bugzilla_host')
   BUGZILLA_HOST = CONFIG['bugzilla_host']
 else
-  BUGZILLA_HOST = nil
+  BUGZILLA_HOST = "http://bugzilla.novell.com"
 end
 
 ActiveXML::Base.config do |conf|

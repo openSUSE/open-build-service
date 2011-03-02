@@ -30,10 +30,6 @@ EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
-BUGZILLA_HOST = "http://bugzilla.novell.com"
-DOWNLOAD_URL = "http://download.opensuse.org/repositories"
-
-
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "on"
 ICHAIN_HOST = "https://build.opensuse.org"
