@@ -26,6 +26,7 @@ home_Iggy_102:
 BaseDistro2:LinkedUpdateProject:
   name: BaseDistro2LinkedUpdateProject_repo
   db_project_id: 2046
+  rebuild: 'local'
   id: 86
 UseRemoteInstance:
   name: pop

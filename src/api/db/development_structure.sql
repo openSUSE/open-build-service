@@ -235,7 +235,7 @@ CREATE TABLE `maintenance_incidents` (
   `day` int(11) DEFAULT NULL,
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
-  `updateinfo_id` int(11) DEFAULT NULL,
+  `updateinfo_id` varchar(255) DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

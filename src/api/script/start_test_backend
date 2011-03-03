@@ -350,7 +350,7 @@ trap("INT") { dienow = true }
 while !dienow do
   sleep 1
 end
-#exit
+
 puts "kill #{srcsrv_out.pid}"
 Process.kill "TERM", -srcsrv_out.pid
 puts "kill #{reposrv_out.pid}"

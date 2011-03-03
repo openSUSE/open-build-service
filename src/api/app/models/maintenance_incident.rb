@@ -34,6 +34,7 @@ class MaintenanceIncident < ActiveRecord::Base
 
       # Get a unique, but readable id
       year_counter = MaintenanceIncident.count( :conditions => ["maintenance_db_project_id = BINARY ? and year = BINARY ?", self.maintenance_db_project_id, self.year] )
+      year_counter = year_counter + 1
       
       my_id = "%Y-%C"
       my_id = id_template if id_template
@@ -42,7 +43,6 @@ class MaintenanceIncident < ActiveRecord::Base
       my_id.gsub!( /%M/, self.month.to_s )
       my_id.gsub!( /%D/, self.day.to_s )
       my_id.gsub!( /%g/, self.id.to_s )
-
       self.updateinfo_id = my_id
       self.save!
     end

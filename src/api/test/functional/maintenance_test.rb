@@ -238,12 +238,33 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
 
-    # FIXME: test with binaries
+    # Create patchinfo informations
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1"
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag( :tag => "patchinfo", :attributes => { :incident => maintenanceID } )
+    assert_tag( :tag => "category", :content => nil )
+    # add required informations about the update
+    pi = REXML::Document.new( @response.body )
+    pi.elements["//category"].text = "security"
+    put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
+    assert_response :success
+
+    # disable build of project
+    post "/source/"+maintenanceProject+"?cmd=set_flag&flag=build&status=disable"
+    assert_response :success
+    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=x86_64&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=disable"
+    assert_response :success
+#FIXME: the flag handling is currently broken
+    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=remove_flag&flag=build&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'"
+    assert_response :success
+    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=i586&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=enable"
+    assert_response :success
+#FIXME END
+    # but enable the patchinfo
+    post "/source/"+maintenanceProject+"/patchinfo?cmd=set_flag&flag=build&status=enable"
+    assert_response :success
 
     # create release request
     post "/request?cmd=create", '<request>
@@ -261,17 +282,22 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + maintenanceID } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    reqid = node.data['id']
 
     ### the backend is now building the packages, injecting results
     perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
+    # run scheduler once to create job file. x86_64 scheduler gets no work
+    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
+       # just for waiting until scheduler finishes
+       io.each {|line| line.strip.chomp unless line.blank? }
+    end
     # run scheduler once to create job file
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
        # just for waiting until scheduler finishes
-       io.each {|line| line.strip unless line.blank? }
+       io.each {|line| line.strip.chomp unless line.blank? }
     end
     # find out about the triggered build job and write back dispatching data
-    findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/i586/ -name #{maintenanceProject}*")
+    findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/i586/ -name #{maintenanceProject}::BaseDistro2_BaseDistro2LinkedUpdateProject_repo::pack2.BaseDistro2-*")
     maintJob=findMaintJob.readlines.first.chomp
     jobid=""
     IO.popen("md5sum #{maintJob}|cut -d' ' -f 1") do |io|
@@ -281,26 +307,35 @@ class MaintenanceTests < ActionController::IntegrationTest
     f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
     f.close
     # upload build result as a worker would do
-    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
+    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
+    system("echo \"1acf9baa96c2cee07035b2b156020d9b  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
     # run scheduler again to collect result
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
        # just for waiting until scheduler finishes
-       io.each {|line| line.strip unless line.blank? }
+       io.each {|line| line.strip.chomp unless line.blank? }
     end
+
+    # check updateinfo
+    get "/build/#{maintenanceProject}/BaseDistro2_BaseDistro2LinkedUpdateProject_repo/i586/patchinfo/updateinfo.xml"
+    assert_response :success
+    assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "1"
 
     # not permitted release
     prepare_request_with_user "adrian", "so_alone"
-    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
 
     # release packages
     prepare_request_with_user "king", "sunflower"
-    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response :success
+    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+       # just for waiting until scheduler finishes
+       io.each {|line| line.strip.chomp unless line.blank? }
+    end
 
     # validate result
-    get "/source/BaseDistro2:LinkedUpdateProject"
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.1" }
@@ -318,12 +353,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.1"
     assert_response :success
-if $ENABLE_BROKEN
-# FIXME2.3: 
-    assert_tag :tag => "file", :attributes => { :name => "updateinfo.xml" }
+    assert_tag :tag => "binary", :attributes => { :filename => "updateinfo.xml" }
     get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.1/updateinfo.xml"
     assert_response :success
-end
+    # check for changed updateinfoid 
+    assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "2011-1"
 
     # attribute changed ?
     get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"

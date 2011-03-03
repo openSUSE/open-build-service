@@ -1,6 +1,6 @@
 class AddUpdateinfoId < ActiveRecord::Migration
   def self.up
-    add_column :maintenance_incidents, :updateinfo_id, :integer
+    add_column :maintenance_incidents, :updateinfo_id, :string
     add_column :maintenance_incidents, :incident_id, :integer
   end
 
