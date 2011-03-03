@@ -55,11 +55,12 @@ class SearchController < ApplicationController
         p << "contains(description,'#{@search_text}')" if params[:description]
         predicate = p.join(' or ')
 
-        if predicate.empty?
-          predicate = "contains(attribute/@name,'#{@attribute}')" if !@attribute.blank?
-        else
-          predicate << ' and ' if predicate
-          predicate << "contains(attribute/@name,'#{@attribute}')" if !@attribute.blank?
+        unless @attribute.blank?
+          if predicate.empty?
+            predicate = "contains(attribute/@name,'#{@attribute}')"
+          else
+            predicate << "and contains(attribute/@name,'#{@attribute}')"
+          end
         end
 
         if predicate.empty?
