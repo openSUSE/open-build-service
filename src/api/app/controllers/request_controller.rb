@@ -808,7 +808,7 @@ class RequestController < ApplicationController
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
         end
-        if source_project and req.state.name == "new" and params[:newstate] == "revoked" 
+        if source_project and req.state.name == "new" and params[:newstate] == "revoked"  and not permission_granted
            # source project owners should be able to revoke submit requests as well
            source_package = source_project.db_packages.find_by_name(action.source.package)
            if ( source_package and not @http_user.can_modify_package? source_package ) or
@@ -829,12 +829,6 @@ class RequestController < ApplicationController
                 :message => "Unable to process package #{action.target.project}/#{action.target.package}; it does not exist."
               return
             end
-          end
-        else
-          unless target_project
-            render_error :status => 400, :errorcode => 'not_existing_target',
-              :message => "Unable to process project #{action.target.project}; it does not exist."
-            return
           end
         end
       else

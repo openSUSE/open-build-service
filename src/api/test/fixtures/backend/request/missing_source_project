@@ -1,0 +1,12 @@
+<request id="997">
+  <action type='submit'>
+    <source project='NotExisiting' package='notthere' rev='1' />
+    <target project='kde4' package='kdelibs' />
+    <options>
+      <sourceupdate>cleanup</sourceupdate>
+    </options>
+  </action>
+  <description/>
+  <state who="tom" name="new"/>
+</request>
+

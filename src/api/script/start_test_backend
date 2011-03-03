@@ -246,6 +246,12 @@ Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs
 Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
 Suse::Backend.put( '/source/home:tom/_meta', DbProject.find_by_name('home:tom').to_axml)
 Suse::Backend.put( '/source/c%2b%2b/_meta', DbProject.find_by_name('c++').to_axml)
+# inject broken requests
+system("mkdir -p #{RAILS_ROOT}/tmp/backend_data/requests")
+system("echo 1 > #{RAILS_ROOT}/tmp/backend_data/requests/.nextid")
+system("cp #{RAILS_ROOT}/test/fixtures/backend/request/missing_source_project #{RAILS_ROOT}/tmp/backend_data/requests/997")
+system("cp #{RAILS_ROOT}/test/fixtures/backend/request/missing_target_project #{RAILS_ROOT}/tmp/backend_data/requests/998")
+system("cp #{RAILS_ROOT}/test/fixtures/backend/request/missing_projects #{RAILS_ROOT}/tmp/backend_data/requests/999")
 
 # manual placing of files
 FileUtils.cp("#{RAILS_ROOT}/test/fixtures/backend/source/_pubkey", "#{RAILS_ROOT}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
@@ -344,7 +350,7 @@ trap("INT") { dienow = true }
 while !dienow do
   sleep 1
 end
-
+#exit
 puts "kill #{srcsrv_out.pid}"
 Process.kill "TERM", -srcsrv_out.pid
 puts "kill #{reposrv_out.pid}"

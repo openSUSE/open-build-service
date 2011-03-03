@@ -10,6 +10,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request"
     dir = ActiveXML::XMLNode.new(@response.body)
     dir.each do |p|
+      next if [ "997", "998", "999" ].include? p.value(:name) # skip fixture data
       Suse::Backend.delete "/request/#{p.value(:name)}"
       assert_response :success
     end
@@ -515,6 +516,25 @@ end
     # test decline and revoke
     prepare_request_with_user 'adrian', 'so_alone'
     post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response :success
+  end
+
+  def test_revoke_and_decline_when_projects_are_not_existing_anymore
+    prepare_request_with_user 'tom', 'thunder'
+
+    # test revoke, the request is part of fixtures
+    post "/request/999?cmd=changestate&newstate=revoked"
+    assert_response :success
+    # missing target project
+    post "/request/998?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # missing source project
+    post "/request/997?cmd=changestate&newstate=declined"
+    assert_response 403
+
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/997?cmd=changestate&newstate=declined"
     assert_response :success
   end
 
