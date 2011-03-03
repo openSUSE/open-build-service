@@ -2962,10 +2962,10 @@ sub checkpatchinfo {
     my $blocked;
     for my $apackid (@packages) {
       my $code = $packstatus->{$apackid} || '';
-      if ($code eq 'excluded' || $code eq 'disabled') {
+      if ($code eq 'excluded') {
 	next;
       }
-      if ($code ne 'done') {
+      if ($code ne 'done' && $code ne 'disabled') {
 	$blocked = 1;
         last;
       }
@@ -2974,6 +2974,7 @@ sub checkpatchinfo {
         last;
       }
       if (! -e "$reporoot/$projid/$repoid/$myarch/:logfiles.success/$apackid") {
+	next if $code eq 'disabled';
 	$blocked = 1;
         last;
       }
@@ -3030,10 +3031,10 @@ sub checkpatchinfo {
     my $blockedarch;
     for my $apackid (@packages) {
       my $code = $apackstatus->{$apackid} || '';
-      if ($code eq 'excluded' || $code eq 'disabled') {
+      if ($code eq 'excluded') {
 	next;
       }
-      if ($code ne 'done') {
+      if ($code ne 'done' && $code ne 'disabled') {
 	$blockedarch = 1;
 	push @blocked, "$arch/$apackid";
         next;
@@ -3043,6 +3044,7 @@ sub checkpatchinfo {
 	$blockedarch = 1;
       }
       if (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+	next if $code eq 'disabled';
 	push @blocked, "$arch/$apackid";
 	$blockedarch = 1;
       }
