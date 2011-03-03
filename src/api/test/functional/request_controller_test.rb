@@ -507,9 +507,14 @@ end
     assert_response :success
 
     # test decline and revoke
-    post "/request/#{id1}?cmd=changestate&newstate=revoked"
-    assert_response :success
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response 403
     post "/request/#{id2}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # test decline and revoke
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
     assert_response :success
   end
 
@@ -851,7 +856,6 @@ end
     assert_match( /set state to declined from a final state is not allowed./, @response.body )
 
     # revoke the request
-    prepare_request_with_user "king", "sunflower"
     post "/request/#{id3}?cmd=changestate&newstate=revoked"
     assert_response :success
     get "/request/#{id3}"
@@ -942,7 +946,6 @@ end
     assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
 
-  ## FIXME: what else
   ### bugowner
   ### role 
   def test_hidden_add_role_request
@@ -955,16 +958,6 @@ end
     post "/request?cmd=create", load_backend_file('request/hidden_add_role')
     assert_response :success
   end
-  ### all action types for read access case (positive + negative)
-  ### submit review for read access case (positive + negative)
-  # request workflow on Hidden project / pkg
-  ## revoke
-  ## accept
-  ## decline
-  ## (re)new
-  ## show !
-  ## search !
-  ### 
 
   # bugreport bnc #674760
   def test_try_to_delete_project_without_permissions

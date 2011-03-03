@@ -902,7 +902,7 @@ class RequestController < ApplicationController
         unless write_permission_in_some_target
           # at least on one target the permission must be granted on decline
           render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "No permission to change decline request #{req.id} (type #{action.data.attributes['type']})"
+            :message => "No permission to change decline request #{req.id}"
           return
         end
       else
