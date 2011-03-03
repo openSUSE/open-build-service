@@ -845,6 +845,10 @@ end
     get "/request/#{id2}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'declined' } )
+    # do not allow to do it again
+    post "/request/#{id2}?cmd=changestate&newstate=declined"
+    assert_response 403
+    assert_match( /set state to declined from a final state is not allowed./, @response.body )
 
     # revoke the request
     prepare_request_with_user "king", "sunflower"
