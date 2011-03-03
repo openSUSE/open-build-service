@@ -73,7 +73,7 @@
                 <% if defined? @package %>
                   <%= check_box_tag("user_" + role + "_" + user, '', @package.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
                   <% if @project.user_has_role?(user, role) %>
-                    <%= link_to(image_tag('icons/project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                    <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
                   <% end %>
                 <% else %>
                   <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
