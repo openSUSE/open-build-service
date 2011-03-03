@@ -1241,6 +1241,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_meta_diff_package
+    prepare_request_with_user "tom", "thunder" 
+    post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff&meta=1"
+    assert_response :success
+    assert_match(/<\/package>/, @response.body)
+
+    post "/source/home:Iggy/_project?oproject=kde4&opackage=_project&cmd=diff&meta=1"
+    assert_response :success
+    assert_match(/<\/project>/, @response.body)
+  end
+
   def test_diff_package_hidden_project
     prepare_request_with_user "tom", "thunder"
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
