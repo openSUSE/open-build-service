@@ -105,7 +105,7 @@ class ProjectController < ApplicationController
     predicate += "@project = '#{@project}'"
     result = find_cached Collection, :id, :what => "package", :predicate => predicate, :expires_in => 2.minutes
     @packages = Array.new
-    unless result.empty?
+    unless result.blank?
       result.each { |p| @packages << p }
       @packages =  @packages.sort_by { |a| a.name }
     end
