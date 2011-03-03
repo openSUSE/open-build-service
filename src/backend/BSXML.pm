@@ -212,7 +212,7 @@ our $aggregatelist = [
 our $patchinfo = [
     'patchinfo' => 
             'incident',	# id
-            'name',
+            'name',     # optional
             'version',	# optional, defaults to 1
             [],
 	  [ 'package' ],# optional

@@ -1340,7 +1340,15 @@ sub copybuild {
   my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
   for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls($odir)) {
-    link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
+    if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
+      my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
+      for (@{$updateinfo->{'update'} || []}) {
+        $_->{'id'} = $cgi->{'setupdateinfoid'};
+      }
+      writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
+    } else {
+      link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
+    }
   }
   my $info = {
     'project' => $projid,
@@ -2769,7 +2777,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,

@@ -52,6 +52,11 @@ adrian_reviewer_for_kde4:
   bs_user_id: 42
   role_id: 6
 
+Apache_fred_maintainer:
+  db_project_id: 226
+  bs_user_id: 1
+  role_id: 3
+
 # for read access permissions
 # HiddenProject
 adrian_maintainer:

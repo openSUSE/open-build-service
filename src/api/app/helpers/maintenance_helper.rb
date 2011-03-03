@@ -4,26 +4,7 @@ module MaintenanceHelper
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil )
     mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
 
-    # Get unique, but readable id
-    myTime = Time.now.utc
-    mi.day   = myTime.day
-    mi.month = myTime.month
-    mi.year  = myTime.year
-    mi.save!
-
-    year_counter = MaintenanceIncident.count( :conditions => ["maintenance_db_project_id = BINARY ? and year = BINARY ?", maintenanceProject.id, mi.year] )
-
-    id_template = "%Y-%C"
-    if a = maintenanceProject.find_attribute("OBS", "MaintenanceIdTemplate")
-       id_template = a.values[0]
-    end
-
-    id_template.gsub!( /%Y/, mi.year.to_s )
-    id_template.gsub!( /%M/, mi.month.to_s )
-    id_template.gsub!( /%D/, mi.day.to_s )
-    id_template.gsub!( /%C/, year_counter.to_s )
-    id_template.gsub!( /%g/, mi.id.to_s )
-    name = maintenanceProject.name + ":" + id_template
+    name = maintenanceProject.name + ":" + mi.createIncidentId.to_s
 
     tprj = nil
     DbProject.transaction do
@@ -74,6 +55,7 @@ module MaintenanceHelper
   end
 
   def release_package(sourcePackage, targetProject, targetPackageName, revision, timestamp, request = nil)
+
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
@@ -81,6 +63,17 @@ module MaintenanceHelper
 #FIXME2.3 validate that there are no build enable flags
       targetProject.db_packages << new
       new.save
+    end
+
+    # get updateinfo id in case the source package comes from a maintenance project
+    mi = MaintenanceIncident.find_by_db_project_id( sourcePackage.db_project_id ) 
+    updateinfoId = nil
+    if mi
+      id_template = nil
+      if a = mi.maintenance_db_project.find_attribute("OBS", "MaintenanceIdTemplate")
+         id_template = a.values[0]
+      end
+      updateinfoId = mi.getUpdateinfoId( id_template )
     end
 
     # copy sources
@@ -91,9 +84,10 @@ module MaintenanceHelper
       :user => @http_user.login,
       :oproject => sourcePackage.db_project.name,
       :opackage => sourcePackage.name,
-      :comment => "Copy from project " + sourcePackage.db_project.name,
+      :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
       :expand => "1",
     }
+    cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand])
@@ -118,9 +112,11 @@ module MaintenanceHelper
             :oproject => sourcePackage.db_project.name,
             :opackage => sourcePackage.name,
             :orepository => sourceRepo.name,
+            :setupdateinfoid => updateinfoId,
           }
+          cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
           cp_path = "/build/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetRepo.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository])
+          cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
           Suse::Backend.post cp_path, nil
         end
       end

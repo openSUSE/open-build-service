@@ -364,24 +364,30 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_match(/unknown package: DoesNotExist/, @response.body)
   
-    post "/build/home:Iggy?cmd=wipe"
-    assert_response :success
-    post "/build/home:Iggy?cmd=wipe&package=TestPack"
-    assert_response :success
-
-    post "/build/home:Iggy?cmd=abortbuild"
-    assert_response :success
-    post "/build/home:Iggy?cmd=abortbuild&package=TestPack"
-    assert_response :success
-
-    prepare_request_with_user "adrian", "so_alone" 
-    post "/build/home:Iggy?cmd=wipe"
+    post "/build/Apache?cmd=wipe"
     assert_response 403
     assert_match(/No permission to execute command on project/, @response.body)
-    post "/build/home:Iggy?cmd=wipe&package=TestPack"
+    post "/build/Apache?cmd=wipe&package=apache2"
     assert_response 403
     assert_match(/No permission to execute command on package/, @response.body)
 
+    post "/build/Apache?cmd=abortbuild"
+    assert_response 403
+    assert_match(/No permission to execute command on project/, @response.body)
+    post "/build/Apache?cmd=abortbuild&package=apache2"
+    assert_response 403
+    assert_match(/No permission to execute command on package/, @response.body)
+
+    prepare_request_with_user "fred", "geröllheimer" 
+    post "/build/Apache?cmd=wipe"
+    assert_response :success
+    post "/build/Apache?cmd=wipe&package=apache2"
+    assert_response :success
+
+    post "/build/Apache?cmd=abortbuild"
+    assert_response :success
+    post "/build/Apache?cmd=abortbuild&package=apache2"
+    assert_response :success
   end
 
   def test_read_access_hidden_project_index

@@ -176,13 +176,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     data = REXML::Document.new(@response.body)
     maintenanceProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
     assert_not_equal maintenanceProject, "My:Maintenance"
-    assert_match(/^My:Maintenance:#{Time.now.utc.year}-1/, maintenanceProject)
+    assert_match(/^My:Maintenance:1/, maintenanceProject)
 
     # validate created project
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     oprojectmeta = ActiveXML::XMLNode.new(@response.body)
     assert_response :success
-    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_meta"
+    get "/source/My:Maintenance:1/_meta"
     assert_response :success
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     node = ActiveXML::XMLNode.new(@response.body)
@@ -190,15 +190,15 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal node.repository.data, oprojectmeta.repository.data
     assert_equal node.build.data, oprojectmeta.build.data
 
-    get "/source/My:Maintenance:#{Time.now.utc.year}-1/_attribute/OBS:MaintenanceReleaseDate"
+    get "/source/My:Maintenance:1/_attribute/OBS:MaintenanceReleaseDate"
     assert_response :success
     assert_no_tag( :tag => "value" )
 
-    get "/source/My:Maintenance:#{Time.now.utc.year}-1"
+    get "/source/My:Maintenance:1"
     assert_response :success
     assert_tag( :tag => "directory", :attributes => { :count => "7" } )
 
-    get "/source/My:Maintenance:#{Time.now.utc.year}-1/pack2.BaseDistro2/_meta"
+    get "/source/My:Maintenance:1/pack2.BaseDistro2/_meta"
     assert_response :success
     assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo" } )
   end
@@ -300,19 +300,30 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
 
     # validate result
+    get "/source/BaseDistro2:LinkedUpdateProject"
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{Time.now.utc.year}-1" }
-    get "/source/BaseDistro2:LinkedUpdateProject/pack2.#{Time.now.utc.year}-1/_link"
+    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.1" }
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2.1/_link"
     assert_response 404
     get "/source/BaseDistro2:LinkedUpdateProject/patchinfo"
     assert_response 404
-    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo.#{Time.now.utc.year}-1"
+    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo.1"
     assert_response :success
-    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo.#{Time.now.utc.year}-1/_patchinfo"
+    get "/source/BaseDistro2:LinkedUpdateProject/patchinfo.1/_patchinfo"
     assert_response :success
-    assert_tag :tag => "patchinfo", :attributes => { :incident => "2011-1" }
+    assert_tag :tag => "patchinfo", :attributes => { :incident => "1" }
     assert_tag :tag => "packager", :content => "maintenance_coord"
+    get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
+    assert_response :success
+    get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.1"
+    assert_response :success
+if $ENABLE_BROKEN
+# FIXME2.3: 
+    assert_tag :tag => "file", :attributes => { :name => "updateinfo.xml" }
+    get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.1/updateinfo.xml"
+    assert_response :success
+end
 
     # attribute changed ?
     get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
