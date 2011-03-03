@@ -605,7 +605,7 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls("$reporoot/$prp/$arch/$packid");
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
   @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
@@ -1339,7 +1339,7 @@ sub copybuild {
   my $dir = "$jobsdir/$arch/$job:dir";
   my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
-  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls($odir)) {
+  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
     if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
       my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
       for (@{$updateinfo->{'update'} || []}) {
@@ -1544,7 +1544,7 @@ sub getresult {
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
-	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || $_ eq '.bininfo' || $_ eq '.nosourceaccess';
+	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || /^\./;
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
 	  next unless @s;
 	  next if -d _;
