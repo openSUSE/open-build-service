@@ -17,6 +17,10 @@ module MaintenanceHelper
         tprj.description = baseProject.description
         tprj.flags = baseProject.flags
         tprj.repositories = baseProject.repositories
+      else
+        # mbranch call is enabling selected packages
+        tprj.store
+        tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
       end
       tprj.store
       mi.db_project_id = tprj.id

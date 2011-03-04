@@ -217,6 +217,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     data = REXML::Document.new(@response.body)
     maintenanceProject=data.elements["/status/data"].text
     maintenanceID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
+    get "/source/#{maintenanceProject}/_meta"
+    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
 
     # attribute set ?
     get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
@@ -236,7 +238,6 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # Create patchinfo informations
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1&new_format=1"
-print @response.body
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
     assert_response :success
