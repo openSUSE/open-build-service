@@ -1376,31 +1376,25 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
     project_name = params[:project]
+    new_format = params[:new_format]
 
     pro = DbProject.find_by_name project_name
 
     name=nil
     maintenanceID=nil
-    pkg_name = "patchinfo"
+    pkg_name = "_patchinfo"
+    pkg_name = "patchinfo" if new_format
     if params[:name]
       name=params[:name]
-      pkg_name = "patchinfo:" + name
-    else
+      pkg_name = "_patchinfo:" + name
+      pkg_name = "patchinfo:" + name if new_format
+    elsif new_format
       if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
         # this is a maintenance project, the sub project name is the maintenance ID
         maintenanceID = pro.name.gsub(/.*:/, '')
       end
     end
     patchinfo_path = "#{request.path}/#{pkg_name}"
-
-    # request binaries in project from backend
-    binaries = list_all_binaries_in_path("/build/#{params[:project]}")
-
-    if binaries.length < 1 and not params[:force]
-      render_error :status => 400, :errorcode => "no_matched_binaries",
-        :message => "No binary packages were found in project repositories"
-      return
-    end
 
     # FIXME: check for still building packages
 
@@ -1412,6 +1406,18 @@ class SourceController < ApplicationController
       Package.find(pkg_name, :project => params[:project]).save
     else
       # shall we do a force check here ?
+    end
+
+    # request binaries in project from backend
+    binaries = Array.new
+    unless new_format
+      binaries = list_all_binaries_in_path("/build/#{params[:project]}")
+
+      if binaries.length < 1 and not params[:force]
+        render_error :status => 400, :errorcode => "no_matched_binaries",
+          :message => "No binary packages were found in project repositories"
+        return
+      end
     end
 
     # create patchinfo XML file
