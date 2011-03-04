@@ -1595,6 +1595,9 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
 
+    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack.update_timestamp if pack # in case of _project package
+
     if params[:package] == "_product"
       update_product_autopackages params[:project]
     end
@@ -1611,6 +1614,9 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
     
+    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack.update_timestamp if pack # in case of _project package
+
     if params[:package] == "_product"
       update_product_autopackages params[:project]
     end
@@ -1660,6 +1666,8 @@ class SourceController < ApplicationController
           :message => "Unknown package #{spackage} in project #{sproject}"
         return
       end
+    else
+      tpkg.update_timestamp
     end
 
     # We need to use the project name of package object, since it might come via a project linked project
@@ -1672,6 +1680,9 @@ class SourceController < ApplicationController
   def index_package_runservice
     valid_http_methods :post
     params[:user] = @http_user.login
+
+    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack.update_timestamp
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment])
@@ -1698,6 +1709,7 @@ class SourceController < ApplicationController
     pkg_linkrev = params[:linkrev]
 
     pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
+    pkg.update_timestamp
 
     #convert link to branch
     rev = ""
