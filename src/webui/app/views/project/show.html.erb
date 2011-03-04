@@ -79,7 +79,7 @@
       <% if @nr_of_problem_packages > 0 %>
         <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@nr_of_problem_packages, "is", "are") %> <%= @nr_of_problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
             <%= plural(@nr_of_problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
-      <% elsif @nr_packages > 0 %>
+      <% elsif @nr_packages > 0 and not @is_maintenance_project %>
         <p><%= image_tag 'icons/accept.png' %> All <%= @nr_packages %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
       <% elsif not @project.is_remote? %>
         <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
@@ -102,6 +102,7 @@
 
 <div class="grid_7 omega"> <!-- no extra margins -->
 
+  <% unless @is_maintenance_project %>
   <div class="show_right box">
 
     <div class="box-header aligncenter">
@@ -117,6 +118,7 @@
       <%=  render :partial => 'buildstatus' %>
     </div>
   </div>
+  <% end %>
 </div>
 
 

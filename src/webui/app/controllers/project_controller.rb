@@ -157,6 +157,27 @@ class ProjectController < ApplicationController
     end
   end
 
+  def new_incident
+    valid_http_methods(:post)
+
+    begin
+      path = "/source?cmd=createmaintenanceincident"
+      path += "?attribute=#{params[:attribute]}" if params[:attribute]
+      result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
+      target_project = result.find_first( "/status/data[@name='targetproject']" ).content
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => 'project', :action => 'show',
+        :project => params[:project]
+      return
+    end
+    flash[:success] = "Created maintenance incident project #{target_project}"
+    redirect_to :controller => 'project', :action => 'show', :project => target_project
+
+    return
+  end
+
   def load_packages_mainpage
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
@@ -1236,6 +1257,10 @@ class ProjectController < ApplicationController
         render :text => "Project not found: #{params[:project]}", :status => 404 and return
       end
     end
+    # Is this a maintenance master project ?
+    attributes = find_cached(Attribute, :namespace => 'OBS', :name => 'Maintenance', :project => @project, :expires_in => 30.minutes)
+    @is_maintenance_project = nil
+    @is_maintenance_project = true if attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']")
   end
 
   def require_prjconf

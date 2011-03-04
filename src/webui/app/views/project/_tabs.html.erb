@@ -12,8 +12,12 @@
 <div class="box-header header-tabs">
   <ul>
     <%= tab 'Overview', :controller => :project, :action => :show %>
-    <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
-    <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? %>
+    <% if @is_maintenance_project -%>
+      <%= tab 'Incidents', :controller => :project, :action => :incidents %>
+    <% else %>
+      <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
+      <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? %>
+    <% end %>
     <% if @project.has_element?(:repository) -%>
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
