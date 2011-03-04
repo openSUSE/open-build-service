@@ -248,20 +248,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.elements["//category"].text = "security"
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
+    get "/source/#{maintenanceProject}/patchinfo/_meta"
+    assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
 
-    # disable build of project
-    post "/source/"+maintenanceProject+"?cmd=set_flag&flag=build&status=disable"
-    assert_response :success
+    # disable the packages we do not like to test here
     post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=x86_64&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=disable"
     assert_response :success
 #FIXME: the flag handling is currently broken
     post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=remove_flag&flag=build&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'"
     assert_response :success
     post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=i586&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=enable"
-    assert_response :success
-#FIXME END
-    # but enable the patchinfo
-    post "/source/"+maintenanceProject+"/patchinfo?cmd=set_flag&flag=build&status=enable"
     assert_response :success
 
     # create release request
