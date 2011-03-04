@@ -160,6 +160,10 @@ class SourceController < ApplicationController
         end
       end
 
+      # FIXME: find requests that have this project as a source or target and remove them
+      # FIXME: find all requests which have a by_project review and remove them
+      # FIXME: same for by_package review of all packages in this project
+
       DbProject.transaction do
         logger.info "destroying project object #{pro.name}"
         pro.destroy
@@ -394,6 +398,9 @@ class SourceController < ApplicationController
           :message => msg
         return
       end
+
+      #FIXME: Check for all requests that have this packae as either source or target
+      #FIXME: Checkk all requests in state review that have a by_package review on this one
 
       # exec
       DbPackage.transaction do

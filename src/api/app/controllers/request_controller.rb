@@ -15,6 +15,7 @@ class RequestController < ApplicationController
     valid_http_methods :get
 
     if params[:view] == "collection"
+      #FIXME: Move this code into a model so that it can be reused in other controllers
       predicates = []
 
       # Do not allow a full collection to avoid server load
