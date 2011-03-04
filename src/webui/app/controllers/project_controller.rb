@@ -1260,7 +1260,13 @@ class ProjectController < ApplicationController
     # Is this a maintenance master project ?
     attributes = find_cached(Attribute, :namespace => 'OBS', :name => 'Maintenance', :project => @project, :expires_in => 30.minutes)
     @is_maintenance_project = nil
-    @is_maintenance_project = true if attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']")
+    @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']").length > 0
+    # Is this a maintenance incident project ?
+    @is_incident_project = nil
+    if parentProject = @project.name.gsub( /:[^:]*$/, '' )
+      attributes = find_cached(Attribute, :namespace => 'OBS', :name => 'Maintenance', :project => parentProject, :expires_in => 30.minutes)
+      @is_incident_project = true if attributes and attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']").length > 0
+    end
   end
 
   def require_prjconf
