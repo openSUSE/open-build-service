@@ -1197,7 +1197,7 @@ class ProjectController < ApplicationController
 
   def get_important_projects
     predicate = "[attribute/@name='OBS:VeryImportantProject']"
-    return find_cached Collection, :id, :what => "project", :predicate => predicate
+    return find_cached Collection, :what => "project", :predicate => predicate
   end
 
 
