@@ -498,7 +498,7 @@ class DbProject < ActiveRecord::Base
       #--- update repositories ---#
       repocache = Hash.new
       self.repositories.each do |repo|
-        repocache[repo.name] = repo
+        repocache[repo.name] = repo unless repo.remote_project_name
       end
 
       project.each_repository do |repo|

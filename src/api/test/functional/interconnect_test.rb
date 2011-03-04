@@ -77,6 +77,32 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_use_remote_repositories
+    prepare_request_with_user "tom", "thunder"
+
+    # use repo
+    put "/source/home:tom:testing/_meta", '<project name="home:tom:testing">
+	  <title />
+	  <description />
+	  <repository name="repo">
+	    <path project="RemoteInstance:BaseDistro" repository="BaseDistroUpdateProject_repo" />
+	    <arch>i586</arch>
+	  </repository>
+	</project> '
+    assert_response :success
+
+    # try to update remote project container
+    prepare_request_with_user "king", "sunflower"
+    get "/source/RemoteInstance/_meta"
+    assert_response :success
+    put "/source/RemoteInstance/_meta", @response.body
+    assert_response :success
+
+    # cleanup     
+    delete "/source/home:tom:testing"
+    assert_response :success
+  end
+
   def test_read_and_command_tests
     prepare_request_with_user "tom", "thunder"
     get "/source"

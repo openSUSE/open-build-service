@@ -709,7 +709,7 @@ class SourceController < ApplicationController
       removedRepositories = Array.new
       if prj
         prj.repositories.each do |repo|
-          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0
+          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0 and not repo.remote_project_name
             repo.linking_repositories.each do |lrep|
               removedRepositories << lrep
             end
