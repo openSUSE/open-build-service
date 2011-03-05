@@ -241,7 +241,10 @@ class ApplicationController < ActionController::Base
 
   def discard_cache?
     cc = request.headers['Cache-Control']
-    cc.blank? ? false : (['no-cache', 'max-age=0'].include? cc)
+    return false if cc.blank?
+    return true if cc == 'max-age=0'
+    return false unless cc == 'no-cache'
+    return !request.xhr?
   end
 
   def find_cached(classname, *args)
