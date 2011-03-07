@@ -1138,9 +1138,8 @@ our $servicelist = [
         [ $servicetype ],
 ];
 
-our $updateinfo = [
-    'updates' =>
-     [[ 'update' =>
+our $updateinfoitem = [
+     'update' =>
 	    'from',
 	    'status',
 	    'type',
@@ -1189,6 +1188,10 @@ our $updateinfo = [
 		 ]],
 	     ]],
 	  ],
-     ]],
 ];
+
+our $updateinfo = [
+    'updates' => [ $updateinfoitem ],
+];
+
 1;

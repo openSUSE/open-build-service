@@ -108,6 +108,9 @@ Job Controlling
    Enforces the check of an repository, even when it is currently blocked due to amount of
    calculating time.
 
+ --create-patchinfo-from-updateinfo
+   creates a patchinfo submission based on an updateinfo information.
+
 Maintenance Tasks
 =================
 
@@ -631,6 +634,37 @@ while (@ARGV) {
     my $arch = shift @ARGV;
     wipe_notyet($project, $repo, $arch);
     check_project($project, $repo, $arch);
+  } elsif ($arg eq "--create-patchinfo-from-updateinfo") {
+    my $uf = shift @ARGV;
+    my $pooldirecotory = shift @ARGV;
+    my $updateinfo = readxml($uf, $BSXML::updateinfoitem);
+    my $patchinfo= {};
+    $patchinfo->{'name'} = $updateinfo->{'id'};
+    $patchinfo->{'summary'} = $updateinfo->{'title'};
+    $patchinfo->{'description'} = $updateinfo->{'description'};
+    $patchinfo->{'version'} = $updateinfo->{'version'};
+    $patchinfo->{'category'} = $updateinfo->{'type'};
+    $patchinfo->{'packager'} = $updateinfo->{'from'};
+    $patchinfo->{'bugzilla'} = ();
+    $patchinfo->{'CVE'} = ();
+    for my $ref (@{$updateinfo->{'references'}->{'reference'} || []}) {
+      if ($ref->{'type'} eq 'bugzilla') {
+        my $b = { '_content' => $ref->{'id'} };
+        push @{$patchinfo->{'bugzilla'}}, $b;
+      } elsif ($ref->{'type'} eq 'cve') {
+        push @{$patchinfo->{'CVE'}}, $ref->{'id'};
+      } else {
+       die("Unhadled type $ref->{'type'}");
+      };
+    };
+
+    mkdir($patchinfo->{'name'});
+    writexml("$patchinfo->{'name'}/._patchinfo", "$patchinfo->{'name'}/_patchinfo", $patchinfo, $BSXML::patchinfo);
+
+    for my $file (@{$updateinfo->{'pkglist'}->{'collection'}[0]->{'package'} || []}) {
+      system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $patchinfo->{'name'}/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
+    }
+    system( "cp $uf $patchinfo->{'name'}/updateinfo.xml" );
   } else {
     echo_help();
     exit(1)
