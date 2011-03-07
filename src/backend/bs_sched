@@ -3961,8 +3961,9 @@ while(1) {
 
     my %fetchprojpacks;
     my %deepcheck;
+    my @lateevents;
 
-    while (@events || @remoteevents) {
+    while (@events || @remoteevents || @lateevents) {
       my $ev;
       if (@events) {
         my $event = shift @events;
@@ -3972,11 +3973,33 @@ while(1) {
         } else {
 	  $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
         }
-        unlink("$myeventdir/$event");
-      } else {
+	$ev->{'evfilename'} = "$myeventdir/$event";
+	if ($ev->{'type'} eq 'uploadbuild') {
+	  push @lateevents, $ev;
+	  next;
+	}
+      } elsif (@remoteevents) {
         $ev = shift @remoteevents;
+      } elsif (@lateevents) {
+        $ev = shift @lateevents;
       }
-      next unless $ev && $ev->{'type'};
+      next unless $ev;
+      $ev->{'type'} ||= 'unknown';
+
+      if ($ev->{'type'} eq 'uploadbuild' && $ev->{'job'}) {
+	# have to be extra careful with those. if the package is in
+        # (delayed)fetchprojpacks, delay event processing until we
+        # updated the projpack data.
+        my $info = readxml("$myjobsdir/$ev-{'job'}", $BSXML::buildinfo, 1) || {};
+	my $projid = $info->{'project'};
+	my $packid = $info->{'package'};
+	if (defined($projid) && defined($packid)) {
+	  next if grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks{$projid} || []}, @{$delayedfetchprojpacks{$projid} || []});
+	}
+      }
+
+      unlink($ev->{'evfilename'}) if $ev->{'evfilename'};
+      delete $ev->{'evfilename'};
 
       if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import' || $ev->{'type'} eq 'uploadbuild') {
 	my $job = $ev->{'job'};
