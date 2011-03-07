@@ -33,9 +33,10 @@ FQHOSTNAME=`hostname -f`
 if [ "$?" != "0" ]; then
   # Fallback to IP of the VM/host
   FQHOSTNAME=`LANG=C ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
-  if [ "$?" != "0" ]; then
+  if [ "$?" != "0" -o "$FQHOSTNAME" = "" ]; then
     echo "    Can't determine hostname or IP - Network setup failed!"
     echo "    Check if networking is up and dhcp is working!"
+    echo "    Using 'localhost' as FQHOSTNAME."
     FQHOSTNAME="localhost"
   fi
 fi
