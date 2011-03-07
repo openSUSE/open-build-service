@@ -645,8 +645,8 @@ while (@ARGV) {
     $patchinfo->{'version'} = $updateinfo->{'version'};
     $patchinfo->{'category'} = $updateinfo->{'type'};
     $patchinfo->{'packager'} = $updateinfo->{'from'};
-    $patchinfo->{'bugzilla'} = ();
-    $patchinfo->{'CVE'} = ();
+    $patchinfo->{'bugzilla'} = [];
+    $patchinfo->{'CVE'} = [];
     for my $ref (@{$updateinfo->{'references'}->{'reference'} || []}) {
       if ($ref->{'type'} eq 'bugzilla') {
         my $b = { '_content' => $ref->{'id'} };
@@ -657,14 +657,16 @@ while (@ARGV) {
        die("Unhadled type $ref->{'type'}");
       };
     };
-
-    mkdir($patchinfo->{'name'});
-    writexml("$patchinfo->{'name'}/._patchinfo", "$patchinfo->{'name'}/_patchinfo", $patchinfo, $BSXML::patchinfo);
+    delete $patchinfo->{'CVE'} unless @{$patchinfo->{'CVE'}} > 0;
+    delete $patchinfo->{'bugzilla'} unless @{$patchinfo->{'bugzilla'}} > 0;
+    my $id = "$patchinfo->{'name'}-$patchinfo->{'version'}";
+    mkdir($id);
+    writexml("._patchinfo", "$id/_patchinfo", $patchinfo, $BSXML::patchinfo);
 
     for my $file (@{$updateinfo->{'pkglist'}->{'collection'}[0]->{'package'} || []}) {
-      system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $patchinfo->{'name'}/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
+      system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $id/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
     }
-    system( "cp $uf $patchinfo->{'name'}/updateinfo.xml" );
+    system( "cp $uf $id/updateinfo.xml" );
   } else {
     echo_help();
     exit(1)
