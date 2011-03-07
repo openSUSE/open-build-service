@@ -681,8 +681,7 @@ class RequestController < ApplicationController
     end
 
     # Do not accept to skip the review, except force argument is given
-    # Do not accept to decline the review by other users when reviews are pending, except force argument is given
-    if params[:newstate] == "accepted" or (params[:newstate] == "declined" and params[:user] != req.creator)
+    if params[:newstate] == "accepted"
        if params[:cmd] == "changestate" and req.state.name == "review" and not params[:force]
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "Request is in review state. You may use the force parameter to ignore this."
