@@ -1151,11 +1151,11 @@ class SourceControllerTest < ActionController::IntegrationTest
     # check history
     get "/source/kde4/kdelibs/_history?deleted=1" 
     assert_response :success
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3" }}, :tag => "user", :content => "fredlibs" )
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3" }}, :tag => "comment", :content => "test deleted" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
     get "/source/kde4/kdelibs/_history?meta=1&deleted=1" 
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "2" }}, :tag => "user", :content => "fredlibs" )
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "2" }}, :tag => "comment", :content => "test deleted" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
     assert_response :success
 
     # list deleted packages
