@@ -117,29 +117,28 @@
   </script>
 </div>
 
-<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
-  <% content_for :head_javascript do %>
-    function modifyReview(id, new_state) {
-      var comment = $('#review_comment_' + id).attr('value');
-      var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
-      if ($('#review_type_' + id).text() == "package") {
-        project_and_package = $('#review_name_' + id).text().split(' / ');
-        path += "&project=" + encodeURIComponent(project_and_package[0].trim());
-        path += "&package=" + encodeURIComponent(project_and_package[1].trim());
-      } else {
-        path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
-      }
-      $.ajax({type: "POST", url: path,
-        success: function(data) {
-          $('#review_table td#review_state_' + id).text(data);
-          $('#review_table td#review_buttons_' + id).text("");
-          $('#review_table td #review_comment_' + id).parent().html(comment);
+<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && !@diff_error %>
+  <% if @is_maintainer || @is_reviewer || @is_author %>
+    <% content_for :head_javascript do %>
+      function modifyReview(id, new_state) {
+        var comment = $('#review_comment_' + id).attr('value');
+        var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
+        if ($('#review_type_' + id).text() == "package") {
+          project_and_package = $('#review_name_' + id).text().split(' / ');
+          path += "&project=" + encodeURIComponent(project_and_package[0].trim());
+          path += "&package=" + encodeURIComponent(project_and_package[1].trim());
+        } else {
+          path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
         }
-      })
-    }
-  <% end %>
-
-  <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author) %>
+        $.ajax({type: "POST", url: path,
+          success: function(data) {
+            $('#review_table td#review_state_' + id).text(data);
+            $('#review_table td#review_buttons_' + id).text("");
+            $('#review_table td #review_comment_' + id).parent().html(comment);
+          }
+        })
+      }
+    <% end %>
     <% if @req.each_review.length > 0 %>
       <div>
         <h3>Reviews</h3>
@@ -194,7 +193,8 @@
         </script>
       </div>
     <% end %>
-
+  <% end %>
+  <% if @is_maintainer || @is_author %>
     <% if (@req.state.name == "review" || @req.state.name == "new") %>
       <% form_tag(:action => "addreviewer") do %>
         <h3>Add Reviewer</h3>
@@ -268,35 +268,34 @@
         <p><%= submit_tag("Add reviewer") %></p>
       <% end %>
     <% end %>
-  <% end %>
-
-  <% form_tag(:action => "changerequest") do %>
-    <h3>Handle Request</h3>
-    <p>
-      <b>Comment for requester:</b><br/>
-      <%= text_field_tag(:reason, '' , :style => "width: 99%") %>
-    </p>
-    <p>
-      <%= hidden_field_tag("id", @id) %>
-      <% if @is_maintainer %>
-        <% linked = @target_pkg.linked_to if @target_pkg -%>
-        <% if !@diff_error -%>
-          <% if linked and not linked.empty? and @req.action.data["type"] == "submit" -%>
-            <%= hidden_field_tag("forward_project", linked[0]) %>
-            <%= hidden_field_tag("forward_package", linked[1]) %>
-            <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-          <% end -%>
-          <% if @req.state.name.to_s == "review" %>
-            <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
-          <% else %>
-            <%= submit_tag "Accept request ", :name => 'accepted' %>
+    <% form_tag(:action => "changerequest") do %>
+      <h3>Handle Request</h3>
+      <p>
+        <b>Comment for requester:</b><br/>
+        <%= text_field_tag(:reason, '' , :style => "width: 99%") %>
+      </p>
+      <p>
+        <%= hidden_field_tag("id", @id) %>
+        <% if @is_maintainer %>
+          <% linked = @target_pkg.linked_to if @target_pkg -%>
+          <% if !@diff_error -%>
+            <% if linked and not linked.empty? and @req.action.data["type"] == "submit" -%>
+              <%= hidden_field_tag("forward_project", linked[0]) %>
+              <%= hidden_field_tag("forward_package", linked[1]) %>
+              <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+            <% end -%>
+            <% if @req.state.name.to_s == "review" %>
+              <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
+            <% else %>
+              <%= submit_tag "Accept request ", :name => 'accepted' %>
+            <% end %>
           <% end %>
+          <%= submit_tag "Decline request", :name => 'declined' %>
+        <% elsif @is_author %>
+          <%= submit_tag "Revoke request", :name => 'revoked' %>
         <% end %>
-        <%= submit_tag "Decline request", :name => 'declined' %>
-      <% elsif @is_author %>
-        <%= submit_tag "Revoke request", :name => 'revoked' %>
-      <% end %>
-    </p>
+      </p>
+    <% end %>
   <% end %>
 <% end %>
 
