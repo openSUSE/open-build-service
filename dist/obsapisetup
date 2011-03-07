@@ -28,11 +28,15 @@ link=${base#*[SK][0-9][0-9]}
 apidir=/srv/www/obs/api
 webuidir=/srv/www/obs/webui
 
+# make parsed output predictable 
+export LC_ALL=C
+
 FQHOSTNAME=`hostname -f`
+
 
 if [ "$?" != "0" ]; then
   # Fallback to IP of the VM/host
-  FQHOSTNAME=`LANG=C ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
+  FQHOSTNAME=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
   if [ "$?" != "0" -o "$FQHOSTNAME" = "" ]; then
     echo "    Can't determine hostname or IP - Network setup failed!"
     echo "    Check if networking is up and dhcp is working!"
