@@ -122,7 +122,7 @@
     <% content_for :head_javascript do %>
       function modifyReview(id, new_state) {
         var comment = $('#review_comment_' + id).attr('value');
-        var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
+        var path = "/request/modify_reviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
         if ($('#review_type_' + id).text() == "package") {
           project_and_package = $('#review_name_' + id).text().split(' / ');
           path += "&project=" + encodeURIComponent(project_and_package[0].trim());
@@ -196,77 +196,10 @@
   <% end %>
   <% if @is_maintainer || @is_author %>
     <% if (@req.state.name == "review" || @req.state.name == "new") %>
-      <% form_tag(:action => "addreviewer") do %>
-        <h3>Add Reviewer</h3>
-        <p>
-          <%= hidden_field_tag("request_id", @id) %>
-          <b>Type:</b><br/>
-          <%= select_tag("review_type", options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
-          <span id="review_user_span">
-            <b>User:</b><br/>
-            <%= text_field_tag("review_user") %><br/>
-            <script type="text/javascript">
-              $("#review_user").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
-          </span>
-          <span id="review_group_span" class="hidden">
-            <b>Group:</b><br/>
-            <%= text_field_tag("review_group") %><br/>
-            <script type="text/javascript">
-              $("#review_group").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
-          </span>
-          <span id="review_project_span" class="hidden">
-            <b>Project:</b><br/>
-            <%= text_field_tag("review_project") %><br/>
-            <script type="text/javascript">
-              $("#review_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
-          </span>
-          <span id="review_package_span" class="hidden">
-            <b>Package:</b><br/>
-            <%= text_field_tag("review_package") %><br/>
-            <script type="text/javascript">
-              $("#review_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
-                minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#project").val(); }}
-              });
-            </script>
-          </span>
-          <b>Comment for reviewer:</b><br/>
-          <%= text_field_tag("review_comment") %>
-          <script type="text/javascript">
-            $('#review_type').change(function() {
-              switch($('#review_type option:selected').attr('value')) {
-                case "user": {
-                  $('#review_user_span').show();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').hide();
-                  $('#review_package_span').hide();
-                } break;
-                case "group": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').show();
-                  $('#review_project_span').hide();
-                  $('#review_package_span').hide();
-                } break;
-                case "project": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').show();
-                  $('#review_package_span').hide();
-                } break;
-                case "package": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').show();
-                  $('#review_package_span').show();
-                } break;
-              }
-            });
-          </script>
-        </p>
-        <p><%= submit_tag("Add reviewer") %></p>
-      <% end %>
+      <p>
+        <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :request_id => @id}) %>
+        <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :request_id => @id}) %>
+      </p>
     <% end %>
     <% form_tag(:action => "changerequest") do %>
       <h3>Handle Request</h3>

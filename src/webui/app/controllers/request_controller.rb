@@ -1,9 +1,10 @@
 class RequestController < ApplicationController
 
-  def addreviewer
-    @therequest = find_cached(BsRequest, params[:request_id]) if params[:request_id]
-    BsRequest.free_cache(params[:request_id])
+  def add_reviewer_dialog
+    @request_id = params[:request_id]
+  end
 
+  def add_reviewer
     begin
       opts = {}
       case params[:review_type]
@@ -16,18 +17,17 @@ class RequestController < ApplicationController
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
       BsRequest.addReview(params[:request_id], opts)
+      BsRequest.free_cache(params[:request_id])
     rescue BsRequest::ModifyError => e
       flash[:error] = e.message
     end
-    redirect_to :action => "show", :id => params[:request_id] and return
+    redirect_to :controller => :request, :action => "show", :id => params[:request_id]
   end
 
-  def modifyreviewer
-    @therequest = find_cached(BsRequest, params[:id]) if params[:id]
-    BsRequest.free_cache(params[:id])
-
+  def modify_reviewer
     begin
       BsRequest.modifyReview(params[:id], params[:new_state], params)
+      BsRequest.free_cache(params[:id])
       render :text => params[:new_state]
     rescue BsRequest::ModifyError => e
       render :text => e.message
@@ -148,8 +148,7 @@ class RequestController < ApplicationController
       @therequest.save(:create => true)
       Rails.cache.delete "requests_new"
       flash[:note] = "Request #{params[id]} accepted and forwarded"
-      redirect_to :controller => :request, :action => :show, :id => @therequest.data["id"]
-      return
+      redirect_to :controller => :request, :action => :show, :id => @therequest.data["id"] and return
     end
 
     change_request(changestate, params)
@@ -179,13 +178,13 @@ class RequestController < ApplicationController
     begin
       req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
       req.save(:create => true)
+      Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
@@ -198,13 +197,14 @@ class RequestController < ApplicationController
     begin
       req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user])
       req.save(:create => true)
+      Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    Rails.cache.delete "requests_new"
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
+
 end
