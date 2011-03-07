@@ -978,7 +978,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      path += build_query_from_hash(params, [:rev, :meta])
+      path += build_query_from_hash(params, [:rev, :meta, :deleted])
       pass_to_backend path
       return
     end
