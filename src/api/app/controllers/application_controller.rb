@@ -472,7 +472,7 @@ class ApplicationController < ActionController::Base
       end
     else
       if send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, CGI.unescapeHTML(request), {})
+        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
       end
       render_error :message => "Uncaught exception: #{exception.message}", :status => 400
     end
