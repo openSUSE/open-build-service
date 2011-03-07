@@ -1,7 +1,7 @@
 class RequestController < ApplicationController
 
   def add_reviewer_dialog
-    @request_id = params[:request_id]
+    @request_id = params[:id]
   end
 
   def add_reviewer
@@ -16,18 +16,16 @@ class RequestController < ApplicationController
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
-      BsRequest.addReview(params[:request_id], opts)
-      BsRequest.free_cache(params[:request_id])
+      BsRequest.addReview(params[:id], opts)
     rescue BsRequest::ModifyError => e
       flash[:error] = e.message
     end
-    redirect_to :controller => :request, :action => "show", :id => params[:request_id]
+    redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
 
-  def modify_reviewer
+  def modify_review
     begin
       BsRequest.modifyReview(params[:id], params[:new_state], params)
-      BsRequest.free_cache(params[:id])
       render :text => params[:new_state]
     rescue BsRequest::ModifyError => e
       render :text => e.message
@@ -98,7 +96,6 @@ class RequestController < ApplicationController
   end
  
   def change_request(changestate, params)
-    BsRequest.free_cache( params[:id] )
     begin
       if BsRequest.modify( params[:id], changestate, params[:reason] )
         flash[:note] = "Request #{changestate}!" and return true
