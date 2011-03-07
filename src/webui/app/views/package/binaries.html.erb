@@ -12,11 +12,11 @@
 </p>
 
 <% @buildresult.data.find('result').each do |result|
-     code='unknown'
+     repocode='unknown'
      status = result.find('status').first
-     code=status.attributes['code'] if status %>
+     repocode=result.attributes['state'] if status %>
 
-  <h3><%= repo_status_icon code %> Architecture: <%= result.attributes['arch'] %></h3>
+  <h3><%= repo_status_icon repocode %> Architecture: <%= result.attributes['arch'] %></h3>
 
   <% if result.find( 'binarylist/binary' ).blank? %>
     <p><i>No published binaries</i></p>
