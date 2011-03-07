@@ -1,7 +1,6 @@
 class RequestController < ApplicationController
 
   def addreviewer
-    redirect_to :controller => "home", :action => "list_requests" and return unless request.xhr?  # non-ajax request
     @therequest = find_cached(BsRequest, params[:request_id]) if params[:request_id]
     BsRequest.free_cache(params[:request_id])
 
@@ -24,7 +23,6 @@ class RequestController < ApplicationController
   end
 
   def modifyreviewer
-    redirect_to :controller => "home", :action => "list_requests" and return unless request.xhr?  # non-ajax request
     @therequest = find_cached(BsRequest, params[:id]) if params[:id]
     BsRequest.free_cache(params[:id])
 
