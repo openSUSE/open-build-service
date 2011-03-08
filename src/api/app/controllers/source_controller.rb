@@ -191,6 +191,7 @@ class SourceController < ApplicationController
     required_parameters :project, :package
     cmd = params[:cmd]
     deleted = params.has_key? :deleted
+    params[:user] = @http_user.login
 
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['diff', 'branch', 'linkdiff', 'showlinked']
@@ -357,7 +358,9 @@ class SourceController < ApplicationController
 
       DbPackage.transaction do
         pkg.destroy
-        Suse::Backend.delete "/source/#{target_project_name}/#{target_package_name}"
+        path = "/source/#{target_project_name}/#{target_package_name}"
+        path << build_query_from_hash(params, [:user, :comment])
+        Suse::Backend.delete path
         if target_package_name == "_product"
           update_product_autopackages params[:project]
         end
