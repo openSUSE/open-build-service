@@ -63,8 +63,9 @@ case "$1" in
 		for i in $OBS_SCHEDULER_ARCHITECTURES; do
 		 	obs_admin --shutdown-scheduler "$i"
 		done
-		for i in `seq 3000`; do
+		for i in `seq 600`; do
 			checkproc bs_sched || break
+                        sleep 1
 		done
 		if checkproc bs_sched ; then
 			killall bs_sched
