@@ -57,6 +57,11 @@ Apache_fred_maintainer:
   bs_user_id: 1
   role_id: 3
 
+Apache_fredlibs_maintainer:
+  db_project_id: 226
+  bs_user_id: 4
+  role_id: 3
+
 # for read access permissions
 # HiddenProject
 adrian_maintainer:

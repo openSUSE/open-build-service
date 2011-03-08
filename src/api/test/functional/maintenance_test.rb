@@ -147,6 +147,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo&new_format=1"
     assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "home:tom:branches:OBS_Maintained:pack2" )
 
     # create maintenance request
     # without specifing target, the default target must get found via attribute
@@ -239,10 +241,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     # Create patchinfo informations
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1&new_format=1"
     assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "My:Maintenance:1" )
     get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag( :tag => "patchinfo", :attributes => { :incident => maintenanceID } )
-    assert_tag( :tag => "category", :content => nil )
     # add required informations about the update
     pi = REXML::Document.new( @response.body )
     pi.elements["//category"].text = "security"
@@ -562,6 +565,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # FIXME: test with binaries
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo&force=1"
     assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "_patchinfo:pack2" )
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "home:tom:branches:OBS_Maintained:pack2" )
 
     #cleanup
     delete "/source/home:tom:branches:OBS_Maintained:pack2"

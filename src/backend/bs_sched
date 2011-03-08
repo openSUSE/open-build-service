@@ -3158,7 +3158,7 @@ sub rebuildpatchinfo {
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
   $update->{'type'} = $patchinfo->{'category'} || 'bugfix';
   $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
-  $update->{'id'} = $patchinfo->{'name'};
+  $update->{'id'} = $patchinfo->{'incident'} || $patchinfo->{'name'};
   $update->{'title'} = $patchinfo->{'summary'};
   # XXX
   $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;

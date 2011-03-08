@@ -680,13 +680,11 @@ sub addrev {
 
   if ($packid eq '_product') {
     expandproduct($projid, $packid, $files, $user, 1);
-  } elsif ($packid =~ /^_patchinfo:/) {
-    # FIXME: we may should allow source links (with diff) here
+  }
+  if ($files->{'_patchinfo'}) {
     die("bad files in patchinfo container\n") if grep {$_ ne '_patchinfo'} keys %$files;
-    if ($files->{'_patchinfo'}) {
-      my $p = repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
-      BSVerify::verify_patchinfo($p);
-    }
+    my $p = repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
+    BSVerify::verify_patchinfo($p);
   }
 
   my $srcmd5 = addmeta($projid, $packid, $files);
