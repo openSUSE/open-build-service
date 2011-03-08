@@ -2717,8 +2717,8 @@ sub checkkiwiproduct {
         }
 	push @rpms, @got;
       }
-      if ($blockedarch) {
-        mkdir_p("$reporoot/$projid/$repoid/$arch/$packid");
+      if ($blockedarch && $arch ne $myarch) {
+        mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
         BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch") unless -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
       } else {
 	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
@@ -3050,8 +3050,8 @@ sub checkpatchinfo {
       }
       push @tocopy, "$arch/$apackid";
     }
-    if ($blockedarch) {
-      mkdir_p("$reporoot/$projid/$repoid/$arch/$packid");
+    if ($blockedarch && $arch ne $myarch) {
+      mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
       BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch") unless -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
     } else {
       unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
