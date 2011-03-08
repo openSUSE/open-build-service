@@ -666,7 +666,10 @@ while (@ARGV) {
     for my $file (@{$updateinfo->{'pkglist'}->{'collection'}[0]->{'package'} || []}) {
       system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $id/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
     }
-    system( "cp $uf $id/updateinfo.xml" );
+    my $ufc;
+    $ufc->{'update'} = [];
+    push @{$ufc->{"update"}}, $updateinfo;
+    writexml("$id/.updateinfo.xml", "$id/updateinfo.xml", $ufc, $BSXML::updateinfo);
   } else {
     echo_help();
     exit(1)
