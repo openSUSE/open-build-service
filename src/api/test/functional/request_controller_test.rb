@@ -641,6 +641,74 @@ end
     assert_tag( :tag => "state", :attributes => { :name => "review" } )
   end
 
+  def test_reopen_revoked_and_declined_request
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/Apache/apache2", :cmd => :branch
+    assert_response :success
+
+    # do a commit
+    put "/source/home:Iggy:branches:Apache/apache2/file", "dummy"
+    assert_response :success
+
+    req = "<request>
+            <action type='submit'>
+              <source project='home:Iggy:branches:Apache' package='apache2' rev='1' />
+            </action>
+            <description/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # revoke it
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+
+    # and reopen it as a non-maintainer is not working
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response 403
+    # and reopen it as a non-source-maintainer is not working
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response 403
+
+    # reopen it again
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+
+    # target is declining it
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=declined"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+
+    # and reopen it as a non-maintainer is not working
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response 403
+
+    # and reopen it as a different maintainer from target
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+  end
+
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
     prepare_request_with_user "Iggy", "asdfasdf"

@@ -879,27 +879,47 @@ class RequestController < ApplicationController
             :message => "You have no role in request #{req.id}"
           return
         end
-      elsif params[:cmd] == "changestate" and [ "superseded" ].include? params[:newstate]
-        # Is the user involved in any project or package ?
-        unless write_permission_in_some_target or write_permission_in_some_source
+      elsif params[:cmd] == "changestate" 
+        if [ "superseded" ].include? params[:newstate]
+          # Is the user involved in any project or package ?
+          unless write_permission_in_some_target or write_permission_in_some_source
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "You have no role in request #{req.id}"
+            return
+          end
+        elsif [ "accepted" ].include? params[:newstate] 
+          # requires write permissions in all targets, this is already handled in each action check
+        elsif [ "revoked" ].include? params[:newstate] 
+          # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
+          unless write_permission_in_some_source
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to revoke request #{req.id}"
+            return
+          end
+        elsif req.state.name == "revoked" and [ "new" ].include? params[:newstate] 
+          unless write_permission_in_some_source
+            # at least on one target the permission must be granted on decline
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to reopen request #{req.id}"
+            return
+          end
+        elsif req.state.name == "declined" and [ "new" ].include? params[:newstate] 
+          unless write_permission_in_some_target
+            # at least on one target the permission must be granted on decline
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to reopen request #{req.id}"
+            return
+          end
+        elsif [ "declined" ].include? params[:newstate] 
+          unless write_permission_in_some_target
+            # at least on one target the permission must be granted on decline
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to change decline request #{req.id}"
+            return
+          end
+        else
           render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "You have no role in request #{req.id}"
-          return
-        end
-      elsif params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] 
-        # requires write permissions in all targets, this is already handled in each action check
-      elsif params[:cmd] == "changestate" and [ "revoked" ].include? params[:newstate] 
-        # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
-        unless write_permission_in_some_source
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "No permission to revoke request #{req.id}"
-          return
-        end
-      elsif params[:cmd] == "changestate" and [ "declined" ].include? params[:newstate] 
-        unless write_permission_in_some_target
-          # at least on one target the permission must be granted on decline
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "No permission to change decline request #{req.id}"
+            :message => "No permission to change request #{req.id} state"
           return
         end
       else
