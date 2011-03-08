@@ -197,8 +197,8 @@
   <% if @is_maintainer || @is_author %>
     <% if (@req.state.name == "review" || @req.state.name == "new") %>
       <p>
-        <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :request_id => @id}) %>
-        <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :request_id => @id}) %>
+        <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
+        <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
       </p>
     <% end %>
     <% form_tag(:action => "changerequest") do %>
