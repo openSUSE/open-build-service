@@ -1992,6 +1992,7 @@ class SourceController < ApplicationController
   end
 
   def valid_package_name? name
+    return true if name == "_patchinfo"
     return true if name == "_pattern"
     return true if name == "_project"
     return true if name == "_product"
