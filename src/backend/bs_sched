@@ -2620,6 +2620,13 @@ sub checkkiwiproduct {
 	# FIXME: this assumes packid == pname
 	push @blocked, grep {$ps->{$_} && ($ps->{$_} eq 'scheduled' || $ps->{$_} eq 'blocked' || $ps->{$_} eq 'finished')} sort keys %pnames;
       }
+      if (@blocked) {
+	next if -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch";
+        mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
+        BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
+      } else {
+	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
+      }
     } else {
       for my $bin (@kdeps) {
         my $p = $dep2pkg{$bin};
@@ -2640,6 +2647,7 @@ sub checkkiwiproduct {
   my $allpacks = $deps{'*'} ? 1 : 0;
 
   my $maxblocked = 20;
+  my %blockedarch;
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -2656,14 +2664,13 @@ sub checkkiwiproduct {
 	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
       }
       $ps = ($ps || {})->{'packstatus'} || {};
-      my $blockedarch;
       for my $apackid (@apackids) {
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
 	  if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	    push @blocked, "$aprp/$arch/$apackid";
-	    $blockedarch = 1;
+	    $blockedarch{$arch} = 1;
 	    last if @blocked > $maxblocked;
 	    next;
 	  }
@@ -2711,21 +2718,26 @@ sub checkkiwiproduct {
 	my $code = $ps->{$apackid} || 'unknown';
 	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	  push @blocked, "$aprp/$arch/$apackid";
-	  $blockedarch = 1;
+	  $blockedarch{$arch} = 1;
 	  last if @blocked > $maxblocked;
 	  next;
         }
 	push @rpms, @got;
       }
-      if ($blockedarch && $arch ne $myarch) {
-        mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
-        BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch") unless -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
-      } else {
-	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
-      }
       last if @blocked > $maxblocked;
     }
     last if @blocked > $maxblocked;
+  }
+  if ($archs[0] eq $myarch) {
+    for my $arch (grep {$_ ne $myarch} @archs) {
+      if ($blockedarch{$arch}) {
+	next if -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
+        mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
+        BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
+      } else {
+	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
+      }
+    }
   }
   if (@blocked) {
     push @blocked, '...' if @blocked > $maxblocked;
