@@ -9,7 +9,7 @@
       <p>Add a reviewer to <b>request #<%= @request_id %></b></p>
 
       <% form_tag(:action => "add_reviewer") do %>
-        <%= hidden_field_tag(:request_id, @request_id) %>
+        <%= hidden_field_tag(:id, @request_id) %>
         <p>
           <%= label_tag(:review_type, "Type:") %><br/>
           <%= select_tag(:review_type, options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
