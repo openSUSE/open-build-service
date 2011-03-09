@@ -35,10 +35,10 @@
     <ul>
       <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? %>
       <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-      <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? %>
+      <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
       <%= tab 'Attributes', :controller => :project, :action => :attributes %>
       <%= tab "Raw Config", :controller => :project, :action => :meta %>
-      <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? %>
+      <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
     </ul>
   </div>
 </div>
