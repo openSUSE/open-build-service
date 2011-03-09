@@ -107,21 +107,13 @@
 </div>
 
 <div class="grid_7 omega"> <!-- no extra margins -->
-
   <% unless @is_maintenance_project %>
   <div class="show_right box">
-
     <div class="box-header aligncenter">
-      Build Status
-      <%= link_to_remote(image_tag('arrow_refresh.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload') +
-          image_tag('ajax-loader.gif', :id => 'spinner_stat', :class => 'hidden'),
-        :url => { :action => :buildresult, :project => @project },
-        :update => 'buildstatus',
-        :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()") %>
+      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "buildresult", :project => @project}, :update => "buildstatus") %>
     </div>
-
     <div id='buildstatus'>
-      <%=  render :partial => 'buildstatus' %>
+      <%= render :partial => 'buildstatus' %>
     </div>
   </div>
   <% end %>

@@ -426,4 +426,15 @@ module ApplicationHelper
     return text
   end
 
+  def reload_to_remote(opts)
+    {:title => "Reload", :url => nil, :update => nil}.merge(opts)
+
+    id = valid_xml_id(opts[:title])
+    return link_to_remote(image_tag("arrow_refresh.png", :title => opts[:title], :title => opts[:title], :id => id + "_reload") +
+                          image_tag("ajax-loader.gif", :id => id + "_spinner", :class => "hidden"),
+                          :url => opts[:url], :update => opts[:update],
+                          :loading => "$('##{id}_spinner').show(); $('##{id}_reload').hide()",
+                          :complete => "$('##{id}_spinner').hide(); $('##{id}_reload').show()")
+  end
+
 end
