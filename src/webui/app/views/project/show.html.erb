@@ -110,11 +110,9 @@
   <% unless @is_maintenance_project %>
   <div class="show_right box">
     <div class="box-header aligncenter">
-      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "buildresult", :project => @project}, :update => "buildstatus") %>
+      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "buildresult", :project => @project}, :update => "project_buildstatus") %>
     </div>
-    <div id='buildstatus'>
-      <%= render :partial => 'buildstatus' %>
-    </div>
+    <%= render :partial => 'buildstatus' %>
   </div>
   <% end %>
 </div>
