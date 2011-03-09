@@ -1145,13 +1145,26 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # delete single package in project
     prepare_request_with_user "fredlibs", "geröllheimer"
-    delete "/source/kde4/kdelibs" 
+    put "/source/kde4/kdelibs/DUMMYFILE", "dummy"
+    assert_response :success
+    # to have different revision number in meta and plain files
+    delete "/source/kde4/kdelibs?user=illegal&comment=test%20deleted" 
     assert_response :success
 
     get "/source/kde4/kdelibs" 
     assert_response 404
     get "/source/kde4/kdelibs/_meta" 
     assert_response 404
+
+    # check history
+    get "/source/kde4/kdelibs/_history?deleted=1" 
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
+    get "/source/kde4/kdelibs/_history?meta=1&deleted=1" 
+    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
+    assert_response :success
 
     # list deleted packages
     get "/source/kde4", :deleted => 1
@@ -1218,6 +1231,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     get "/source/kde4/kdelibs/my_patch.diff"
+    assert_response :success
+    delete "/source/kde4/kdelibs/DUMMYFILE" # restore as before
     assert_response :success
 
     # undelete project again
