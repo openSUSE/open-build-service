@@ -223,21 +223,6 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 table.patchinfo td { vertical-align: middle; }
 
 
-#local-actions { /* Action for single project or package */
-                 width: 15em;
-                 float: right;
-}
-
-#local-actions span {
-    float: left;
-    margin-right: 0.5em;
-}
-
-.dropdown-menu {
-    background:url("../images/unfold-indicator-single.png") no-repeat scroll 4em 0.4em transparent;
-    padding-right:1.2em;
-}
-
 .flot_legend table { 
   display: inline;
 }
@@ -254,3 +239,7 @@ table.patchinfo td { vertical-align: middle; }
 }
 
 #advanced_tabs { display: none; }
+
+.clean_list {
+  list-style: none inside;
+}
