@@ -1259,12 +1259,12 @@ class ProjectController < ApplicationController
     # Is this a maintenance master project ?
     attributes = find_cached(Attribute, :project => @project, :expires_in => 30.minutes)
     @is_maintenance_project = nil
-    @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']").length > 0
+    @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='MaintenanceProject' and @namespace='OBS']").length > 0
     # Is this a maintenance incident project ?
     @is_incident_project = nil
     if parentProject = @project.name.gsub( /:[^:]*$/, '' )
       attributes = find_cached(Attribute, :project => parentProject, :expires_in => 30.minutes)
-      @is_incident_project = true if attributes and attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']").length > 0
+      @is_incident_project = true if attributes and attributes.data.find("/attributes/attribute[@name='MaintenanceProject' and @namespace='OBS']").length > 0
     end
   end
 
