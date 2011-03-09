@@ -117,19 +117,17 @@
 </div>
 
 <div class="grid_7 omega"> <!-- no extra margins -->
-  <% unless @is_maintenance_project %>
-    <div class="show_right box">
+  <div class="show_right box">
+    <% unless @is_maintenance_project %>
       <div class="box-header aligncenter">
         Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "buildresult", :project => @project}, :update => "project_buildstatus") %>
       </div>
       <%= render :partial => 'buildstatus' %>
-    </div>
-  <% else %>
-    <div class="show_right box">
+    <% else %>
       <div class="box-header aligncenter">
         Maintenance Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "maintenance_status", :project => @project}, :update => "maintenance_status") %>
       </div>
       <%#TODO: render :partial => "maintenance_status" %>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>
