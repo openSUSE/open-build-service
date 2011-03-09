@@ -213,7 +213,6 @@ class ProjectController < ApplicationController
     linking_projects
     load_buildresult
 
-
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
@@ -1258,13 +1257,13 @@ class ProjectController < ApplicationController
       end
     end
     # Is this a maintenance master project ?
-    attributes = find_cached(Attribute, :namespace => 'OBS', :name => 'Maintenance', :project => @project, :expires_in => 30.minutes)
+    attributes = find_cached(Attribute, :project => @project, :expires_in => 30.minutes)
     @is_maintenance_project = nil
     @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']").length > 0
     # Is this a maintenance incident project ?
     @is_incident_project = nil
     if parentProject = @project.name.gsub( /:[^:]*$/, '' )
-      attributes = find_cached(Attribute, :namespace => 'OBS', :name => 'Maintenance', :project => parentProject, :expires_in => 30.minutes)
+      attributes = find_cached(Attribute, :project => parentProject, :expires_in => 30.minutes)
       @is_incident_project = true if attributes and attributes.data.find("/attributes/attribute[@name='Maintenance' and @namespace='OBS']").length > 0
     end
   end
