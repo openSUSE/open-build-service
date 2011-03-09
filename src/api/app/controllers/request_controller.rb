@@ -396,7 +396,7 @@ class RequestController < ApplicationController
           end
           unless action.target.has_attribute?(:project)
             # hardcoded default. frontends can lookup themselfs a different target via attribute search
-            at = AttribType.find_by_name("OBS:Maintenance")
+            at = AttribType.find_by_name("OBS:MaintenanceProject")
             unless at
               render_error :status => 404, :errorcode => 'not_found',
                 :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
