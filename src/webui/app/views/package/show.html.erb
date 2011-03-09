@@ -4,7 +4,6 @@
 <%= render :partial => "tabs" %>
 
 <div class="grid_9 alpha">
-
   <div class="box show_left">
     <h3 style="display: inline"><%=h @package %></h3>
 
@@ -55,79 +54,51 @@
       </div>
     <% end %>
 
-    <!-- Package meta -->
-    <div id="package_meta">
+    <p><%=h @package.title %></p>
+    <%= render :partial => "shared/description", :locals => {:description => @package.description.text} %>
 
-      <p>
-        <%=h @package.title %>
+    <% if @package.has_element? :devel %>
+      <p id="develproject_note">
+        <strong>
+          <% dpackage = @package.devel.data["package"] || @package.name %>
+          This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
+        </strong>
       </p>
+    <% end %>
 
+    <% if @package.files.blank? %>
       <p>
-        <% description = @package.description.text %>
-        <% unless description.blank? %>
-          <% description.split( /\n/ ).each do |line| %>
-            <%=h line -%><br/>
-          <% end %>
-        <% else %>
-          <i>No description set</i>
-        <% end %>
+        <%= image_tag 'icons/information.png' %> This package doesn't contain any
+        <%= link_to 'files', :action => :files, :project => @project, :package => @package %> yet.
       </p>
+    <% end %>
 
-      <%- if @package.has_element? :devel %>
-        <p id="develproject_note">
-          <strong>
-            <% dpackage = @package.devel.data["package"] || @package.name %>
-            This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
-          </strong>
-        </p>
-      <%- end -%>
+    <%= render :partial => "shared/open_requests" %>
 
-      <%- if @package.files.blank?  %>
-        <p>
-          <%= image_tag 'icons/information.png' %> This package doesn't contain any
-          <%= link_to 'files', :action => :files, :project => @project, :package => @package %> yet.
-        </p>
-      <%- end -%>
+    <% if @failures and @failures > 0 %>
+      <p>
+        <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
+        <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+      </p>
+    <% end %>
 
-      <% unless @requests.blank? %>
-        <p>
-          <%= image_tag 'icons/information.png' %> There <%= plural(@requests.size, "is", "are") %>
-          <% if @requests.size == 1 -%>
-            1 open <%= link_to "request", :action => :show, :controller => :request, :id => @requests[0].value(:id) %>
-          <% else -%>
-            <%= @requests.size %> open <%= link_to "requests", :action => :list_requests, :project => @project, :package => @package %>
-          <% end -%>
-        </p>
-      <% end %>
+    <% if @package.name =~ %r{^_patchinfo} %>
+      <p>
+        <%= image_tag 'icons/information.png' %> This package creates a patchinfo used for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>.
+        Please use the <%= link_to 'wizard', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %> to edit it.
+      </p>
+    <% end %>
 
-      <% if @failures and @failures > 0 %>
-        <p>
-          <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
-          <%= @failures %> <%= link_to plural(@failures, "failure", "failures"), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
-        </p>
-      <% end %>
-
-      <% if @package.name =~ %r{^_patchinfo} %>
-        <p>
-          <%= image_tag 'icons/information.png' %> This package creates a patchinfo used for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>.
-          Please use the <%= link_to 'wizard', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %> to edit it.
-        </p>
-      <% end %>
-
-      <% if @linking_packages and @linking_packages.size > 0 %>
-        <p>
-          <%= image_tag 'icons/information.png' %> There <%= plural(@linking_packages.size, "is", "are") %>
-          <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
-          from this package.
-        </p>
-      <% end %>
-
-
-    </div>
+    <% if @linking_packages and @linking_packages.size > 0 %>
+      <p>
+        <%= image_tag 'icons/information.png' %> There <%= plural(@linking_packages.size, "is", "are") %>
+        <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+        from this package.
+      </p>
+    <% end %>
   </div>
-
 </div>
-<!-- Build status -->
+
 <div class="grid_7 omega">
   <div class="box show_right">
     <div class="box-header aligncenter">
@@ -136,4 +107,3 @@
     <%= render :partial => 'buildstatus' %>
   </div>
 </div>
-

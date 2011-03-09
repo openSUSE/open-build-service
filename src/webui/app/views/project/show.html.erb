@@ -62,61 +62,38 @@
         </div>
       </div>
     <% end %>
-    
-    <div class="description" id="description">
-      <p>
-        <% description = @project.description.text %>
-        <% if description %>
-          <% description.split( /\n/ ).each do |line| %>
-            <%=h line -%><br/>
-          <% end %>
-        <% else -%>
-          <i>No description set</i>
-        <% end -%>
-      </p>
-    </div>
 
-    <div>
-      <% unless @requests.blank? %>
-        <p>
-          <%= image_tag 'icons/information.png' %> There <%= plural(@requests.size, "is", "are") %>
-          <% if @requests.size == 1 -%>
-            1 open <%= link_to "request", :action => :show, :controller => :request, :id => @requests[0].value(:id) %>
-          <% else %>
-            <%= @requests.size %> open <%= link_to "request#{@requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project %>
-          <% end %>
-        </p>
+    <%= render :partial => "shared/description", :locals => {:description => @project.description.text} %>
+
+    <%= render :partial => "shared/open_requests" %>
+
+    <% if @is_maintenance_project %>
+      <p>TODO: This is a maintenance project</p>
+    <% else %>
+      <% if @nr_of_problem_packages > 0 %>
+        <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@nr_of_problem_packages, "is", "are") %> <%= @nr_of_problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+            <%= plural(@nr_of_problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
+      <% elsif @nr_packages > 0 and not @is_maintenance_project %>
+        <p><%= image_tag 'icons/accept.png' %> All <%= @nr_packages %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
+      <% elsif not @project.is_remote? %>
+        <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
       <% end %>
 
-      <% if @is_maintenance_project %>
-        <p>TODO: This is a maintenance project</p>
-      <% else %>
-        <% if @nr_of_problem_packages > 0 %>
-          <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@nr_of_problem_packages, "is", "are") %> <%= @nr_of_problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
-              <%= plural(@nr_of_problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
-        <% elsif @nr_packages > 0 and not @is_maintenance_project %>
-          <p><%= image_tag 'icons/accept.png' %> All <%= @nr_packages %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
-        <% elsif not @project.is_remote? %>
-          <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
-        <% end %>
-
-        <% if @project.is_remote? %>
-          <p><%= image_tag 'icons/information.png' %> This project is linking the remote obs instance at: <i>
-              <a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i></p>
-        <% end %>
-
-        <% if @linking_projects.size > 0 %>
-          <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@linking_projects.size, "is", "are") %> <%= @linking_projects.size %>
-              <%= link_to_remote(plural(@linking_projects.size, "project", "projects"), :url => { :action => :linking_projects, :project => @project } ) %>
-              linking this project. </p></div>
-        <% end %>
+      <% if @project.is_remote? %>
+        <p><%= image_tag 'icons/information.png' %> This project is linking the remote obs instance at: <i>
+            <a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i></p>
       <% end %>
-    </div>
+
+      <% if @linking_projects.size > 0 %>
+        <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@linking_projects.size, "is", "are") %> <%= @linking_projects.size %>
+            <%= link_to_remote(plural(@linking_projects.size, "project", "projects"), :url => { :action => :linking_projects, :project => @project } ) %>
+            linking this project. </p></div>
+      <% end %>
+    <% end %>
   </div>
-
 </div>
 
-<div class="grid_7 omega"> <!-- no extra margins -->
+<div class="grid_7 omega">
   <div class="show_right box">
     <% unless @is_maintenance_project %>
       <div class="box-header aligncenter">

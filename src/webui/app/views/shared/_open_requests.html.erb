@@ -1,0 +1,15 @@
+<% unless @requests.blank? %>
+  <p>
+    <%= image_tag("icons/information.png") %> There <%= plural(@requests.size, "is", "are") %>
+    <% if @requests.size == 1 %>
+      1 open <%= link_to("request", :action => "show", :controller => "request", :id => @requests[0].value(:id)) %>
+    <% else %>
+      <%= @requests.size %> open
+      <% if @package %>
+        <%= link_to("request#{@requests.size > 1 ? "s" : ""}", :action => "list_requests", :project => @project, :package => @package) %>
+      <% else %>
+        <%= link_to("request#{@requests.size > 1 ? "s" : ""}", :action => "list_requests", :project => @project) %>
+      <% end %>
+    <% end %>
+  </p>
+<% end %>
