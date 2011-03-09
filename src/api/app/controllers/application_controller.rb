@@ -10,6 +10,7 @@ require 'rexml/document'
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
 class IllegalRequestError < Exception; end
+class IllegalEncodingError < Exception; end
 class UserNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
 
@@ -404,6 +405,8 @@ class ApplicationController < ActionController::Base
       render_error :message => exception.message, :status => 400, :errorcode => 'validation_failed'
     when InvalidHttpMethodError
       render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
+    when IllegalEncodingError
+      render_error :message => exception.message, :errorcode => "invalid_text_encoding", :status => 400
     when DbPackage::SaveError
       render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
@@ -622,7 +625,16 @@ class ApplicationController < ActionController::Base
   def build_query_from_hash(hash, key_list=nil)
     key_list ||= hash.keys
     query = key_list.map do |key|
-      [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape hash[key].to_s}"}.join("&") if hash.has_key?(key)
+      if hash.has_key?(key)
+        str = hash[key].to_s
+        begin
+          Iconv.iconv( "UCS4", "UTF-8", str )
+        rescue
+          raise IllegalEncodingError.new('Illegal encoded parameter')
+        end
+
+        [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape(hash[key].to_s)}"}.join("&")
+      end
     end
 
     if query.empty?

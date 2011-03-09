@@ -141,6 +141,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_use_illegal_encoded_parameters
+    prepare_request_with_user "king", "sunflower"
+    put "/source/kde4/kdelibs/DUMMY?comment=working%20with%20Umläut", "WORKING"
+    assert_response :success
+    put "/source/kde4/kdelibs/DUMMY?comment=illegalchar#{0x96.chr}#{0x96.chr}asd", "NOTWORKING"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_text_encoding" }
+  end
 
   def test_get_project_meta
     prepare_request_with_user "tom", "thunder"
@@ -1137,26 +1145,13 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # delete single package in project
     prepare_request_with_user "fredlibs", "geröllheimer"
-    put "/source/kde4/kdelibs/DUMMYFILE", "dummy"
-    assert_response :success
-    # to have different revision number in meta and plain files
-    delete "/source/kde4/kdelibs?user=illegal&comment=test%20deleted" 
+    delete "/source/kde4/kdelibs" 
     assert_response :success
 
     get "/source/kde4/kdelibs" 
     assert_response 404
     get "/source/kde4/kdelibs/_meta" 
     assert_response 404
-
-    # check history
-    get "/source/kde4/kdelibs/_history?deleted=1" 
-    assert_response :success
-    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
-    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
-    get "/source/kde4/kdelibs/_history?meta=1&deleted=1" 
-    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
-    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
-    assert_response :success
 
     # list deleted packages
     get "/source/kde4", :deleted => 1
@@ -1223,8 +1218,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     get "/source/kde4/kdelibs/my_patch.diff"
-    assert_response :success
-    delete "/source/kde4/kdelibs/DUMMYFILE" # restore as before
     assert_response :success
 
     # undelete project again
