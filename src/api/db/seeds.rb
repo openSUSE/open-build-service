@@ -79,6 +79,8 @@
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceVersion", :value_count=>1 )
     at.attrib_type_modifiable_bies.create(p)
+    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceIdTemplate", :value_count=>1 )
+    at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "ScreenShots" )
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "RequestCloned", :value_count=>1 )
