@@ -1036,7 +1036,7 @@ class SourceController < ApplicationController
   def index_createmaintenanceincident
     # set defaults
     unless params[:attribute]
-      params[:attribute] = "OBS:Maintenance"
+      params[:attribute] = "OBS:MaintenanceProject"
     end
 
     # find maintenance project via attribute
