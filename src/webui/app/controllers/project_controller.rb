@@ -557,25 +557,32 @@ class ProjectController < ApplicationController
 
   def save_targets
     valid_http_methods :post
+    #FIXME: Typical WTF?!, a plethora of redundant arguments that may be empty (but public API?)
+    if (not params.has_key?(:target_project) or params[:target_project].empty?) or
+       (not params.has_key?(:torepository) or params[:torepository].empty?) and
+       (not params.has_key?(:repo) or params[:repo].empty?) or
+       (not params.has_key?(:target_repo) and not params.has_key?(:target_repo_txt) or params[:target_repo_txt].empty?)
+      flash[:error] = "Missing arguments for target project or repository" # Something for the _user_
+      redirect_to :action => "add_repository_from_default_list", :project => @project and return
+    end
+    target_repo = params[:target_repo].blank? ? params[:target_repo_txt] : params[:target_repo]
 
-    target_repo = params['target_repo'].blank? ? params['target_repo_txt'] : params['target_repo']
     # extend an existing repository with a path
-    if (params['torepository'])
-      repo_path = "#{params['target_project']}/#{target_repo}"
-      @project.add_path_to_repository :reponame => params['torepository'], :repo_path => repo_path
+    if params.has_key?(:torepository)
+      repo_path = "#{params[:target_project]}/#{target_repo}"
+      @project.add_path_to_repository :reponame => params[:torepository], :repo_path => repo_path
       @project.save
       flash[:success] = "Repository #{params['target_project']}/#{target_repo} added successfully"
-      redirect_to :action => :repositories, :project => @project
-      return
-    elsif params.has_key? :repo
+      redirect_to :action => :repositories, :project => @project and return
+    elsif params.has_key?(:repo)
       # add new repositories
-      params['repo'].each do |repo|
+      params[:repo].each do |repo|
         if !valid_target_name? repo
           flash[:error] = "Illegal target name #{repo}."
           redirect_to :action => :add_repository_from_default_list, :project => @project and return
         end
-        repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{target_repo}"
-        repo_archs = params[repo + '_arch'] || params['arch']
+        repo_path = params[repo + '_repo'] || "#{params[:target_project]}/#{target_repo}"
+        repo_archs = params[repo + '_arch'] || params[:arch]
         logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
         @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
 
@@ -588,9 +595,6 @@ class ProjectController < ApplicationController
           end
         end
       end
-    else
-      render :text => 'Missing argument, either torepository or repo', :status => 400
-      return
     end
 
     begin
