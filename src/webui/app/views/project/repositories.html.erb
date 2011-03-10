@@ -44,8 +44,8 @@
 <% end %>
 
 <% if @project.can_edit?( session[:login] ) %>
-  <p><%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_repository_from_default_list', :project => @project) %>
-  <%= link_to( 'Add', :action => 'add_repository_from_default_list', :project => @project) %> repositories</p>
+  <p><%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => "add_repository_from_default_list", :project => @project) %>
+  <%= link_to("Add repositories", :action => "add_repository_from_default_list", :project => @project) %></p>
 <% end %>
 
 <div class="clear" style="margin-bottom: 2em"></div>
