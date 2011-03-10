@@ -669,12 +669,12 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml(view = nil)
-    unless view
-      Rails.cache.fetch('meta_package_%d' % self.id) do
-        render_axml(view) 
-      end
-    else
+    if view
       render_axml(view)
+    else
+      Rails.cache.fetch('meta_package_%d' % self.id) do
+        render_axml
+      end
     end
   end
 
