@@ -45,6 +45,7 @@ use BSKiwiXML;
 use BSProductXML;
 use BSDB;
 use BSDBIndex;
+use BSSolv;
 
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
@@ -288,7 +289,22 @@ sub dump_nStore {
 
 sub dump_cache {
   my ($project, $repo, $arch) = @_;
-  dump_nStore("$reporoot/$project/$repo/$arch/:full.cache");
+  my $full = "$reporoot/$project/$repo/$arch/:full";
+  return dump_solv("$full.solv") if -e "$full.solv";
+  return dump_nStore("$full.cache") if -e "$full.cache";
+  die("neither $full.cache nor $full.solv exists\n");
+}
+
+sub dump_solv {
+  my ($fn) = @_;
+  my $pool = BSSolv::pool->new();
+  my $repo = $pool->repofromfile(0, $fn);
+  my %names = $repo->pkgnames();
+  my $r = {};
+  for my $p (values %names) {
+    $r->{$pool->pkg2name($p)} = $pool->pkg2data($p);
+  }
+  print Dumper($r);
 }
 
 sub clone_repository {
@@ -546,7 +562,10 @@ while (@ARGV) {
     print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
     if (@ARGV == 1) {
-      dump_nStore(shift @ARGV);
+      $fullfile = shift @ARGV;
+      die("ERROR: invalid filename (must end with .cache or .solv)\n") if $fullfile !~ /\.(?:solv|cache)$/;
+      dump_solv($fullfile) if $fullfile =~ /\.solv$/;
+      dump_nStore($fullfile) if $fullfile =~ /\.cache$/;
     } else {
       die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
       my $project = shift @ARGV;
