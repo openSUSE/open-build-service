@@ -14,17 +14,17 @@
       <ul class="clean_list">
         <% if @is_maintenance_project %>
           <li>
-            <% if @open_maintenance_incidents.length == 0 %>
+            <% if @open_maintenance_incidents == 0 %>
               <%= image_tag 'icons/accept.png' %>
             <% else %>
               <%= image_tag 'icons/exclamation.png' %>
             <% end %>
-            <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? "" : "s"}", :action => "incidents", :project => @project %>
+            <%= @open_maintenance_incidents %> <%= link_to "open incident#{@open_maintenance_incidents == 1 ? "" : "s"}", :action => "incidents", :project => @project %>
           </li>
-          <% if @closed_maintenance_incidents.length > 0 %>
+          <% if @closed_maintenance_incidents > 0 %>
             <li>
               <%= image_tag 'icons/accept.png' %>
-              <%= @closed_maintenance_incidents.length %> <%= link_to "closed incident#{@closed_maintenance_incidents.length == 1 ? "" : "s"}", :action => "incidents", :project => @project %>
+              <%= @closed_maintenance_incidents %> <%= link_to "closed incident#{@closed_maintenance_incidents == 1 ? "" : "s"}", :action => "incidents", :project => @project %>
             </li>
           <% end %>
         <% else %>

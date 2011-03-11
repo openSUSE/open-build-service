@@ -1276,16 +1276,21 @@ class ProjectController < ApplicationController
     @is_maintenance_project = nil
     @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='MaintenanceProject' and @namespace='OBS']").length > 0
     if @is_maintenance_project
-      @open_maintenance_incidents = []
-      @closed_maintenance_incidents = []
+      @open_maintenance_incidents = 0
+      @closed_maintenance_incidents = 0
+      @maintenance_incidents = []
 
-      # All sub-projects that have a MaintenanceReleaseDate are closed incidents, the others are open incidents
-      Collection.find(:id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')").each do |sub|
-        att = find_cached(Attribute, :project => sub, :expires_in => 30.minutes)
+      # All sub-projects that have a MaintenanceReleaseDate are incidents
+      # FIXME: This should be awesomely fast!
+      Collection.find(:id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')").each do |subproject|
+        att = find_cached(Attribute, :project => subproject, :expires_in => 30.minutes)
         if att and att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']").length > 0
-          @closed_maintenance_incidents << sub
-        else
-          @open_maintenance_incidents << sub
+          @maintenance_incidents << subproject # Found an incident!
+          if att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']/value").length > 0
+            @closed_maintenance_incidents += 1 # if they have a release data as a value then they're closed
+          else
+            @open_maintenance_incidents += 1 # if not, they're open
+          end
         end
       end
     end

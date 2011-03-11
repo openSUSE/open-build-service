@@ -1,0 +1,25 @@
+<% if incidents.blank? %>
+  <p>No maintenance incidents</p>
+<% else %>
+  <table cellspacing="1" id="incident_table" class="tablesorter" style="width: 95%">
+    <thead>
+      <tr>
+        <th>Incident</th>
+        <th>Patchinfo Id</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% incidents.each do |incident| %>
+        <tr>
+          <td>incident.name</td>
+          <td></td>
+          <td></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <script type="text/javascript">
+    $('#incident_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {2: {sorter: false}} });
+  </script>
+<% end %>
