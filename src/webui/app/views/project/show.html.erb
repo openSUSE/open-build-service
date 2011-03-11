@@ -12,20 +12,37 @@
     <div class="grid_4 alpha">
       <h4>Information</h4>
       <ul class="clean_list">
-        <li>
-          <% if @nr_packages == 0 %>
-            <%= image_tag 'icons/exclamation.png' %>
-          <% else %>
-            <%= image_tag 'icons/accept.png' %>
-          <% end %>
-          <%= @nr_packages %> <%= link_to "package#{@nr_packages == 1 ? "" : "s"}", :action => :packages, :project => @project %>
-        </li>
-        <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
+        <% if @is_maintenance_project %>
           <li>
-            <%= image_tag 'icons/exclamation.png' %>
-            <%= @nr_of_problem_packages %>
-            <%= link_to "build error#{@nr_of_problem_packages == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+            <% if @open_maintenance_incidents.length == 0 %>
+              <%= image_tag 'icons/accept.png' %>
+            <% else %>
+              <%= image_tag 'icons/exclamation.png' %>
+            <% end %>
+            <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? "" : "s"}", :action => "incidents", :project => @project %>
           </li>
+          <% if @closed_maintenance_incidents.length > 0 %>
+            <li>
+              <%= image_tag 'icons/accept.png' %>
+              <%= @closed_maintenance_incidents.length %> <%= link_to "closed incident#{@closed_maintenance_incidents.length == 1 ? "" : "s"}", :action => "incidents", :project => @project %>
+            </li>
+          <% end %>
+        <% else %>
+          <li>
+            <% if @nr_packages == 0 %>
+              <%= image_tag 'icons/exclamation.png' %>
+            <% else %>
+              <%= image_tag 'icons/accept.png' %>
+            <% end %>
+            <%= @nr_packages %> <%= link_to "package#{@nr_packages == 1 ? "" : "s"}", :action => :packages, :project => @project %>
+          </li>
+          <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
+            <li>
+              <%= image_tag 'icons/exclamation.png' %>
+              <%= @nr_of_problem_packages %>
+              <%= link_to "build error#{@nr_of_problem_packages == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+            </li>
+          <% end %>
         <% end %>
 
         <li><%= render :partial => "shared/open_requests" %></li>

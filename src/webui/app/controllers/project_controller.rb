@@ -1264,6 +1264,20 @@ class ProjectController < ApplicationController
     attributes = find_cached(Attribute, :project => @project, :expires_in => 30.minutes)
     @is_maintenance_project = nil
     @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='MaintenanceProject' and @namespace='OBS']").length > 0
+    if @is_maintenance_project
+      @open_maintenance_incidents = []
+      @closed_maintenance_incidents = []
+
+      # All sub-projects that have a MaintenanceReleaseDate are closed incidents, the others are open incidents
+      Collection.find(:id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')").each do |sub|
+        att = find_cached(Attribute, :project => sub, :expires_in => 30.minutes)
+        if att and att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']").length > 0
+          @closed_maintenance_incidents << sub
+        else
+          @open_maintenance_incidents << sub
+        end
+      end
+    end
     # Is this a maintenance incident project ?
     @is_incident_project = nil
     if parentProject = @project.name.gsub( /:[^:]*$/, '' )
