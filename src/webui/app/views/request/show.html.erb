@@ -86,9 +86,7 @@
     $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
   </script>
 </div>
-<% unless @req.value('description').empty? %>
-  <p><%= format_comment(@req.value('description')) %></p>
-<% end %>
+<p><%= format_comment(@req.value(:description)) %></p>
 
 <div>
   <h3>History</h3>
