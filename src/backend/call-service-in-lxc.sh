@@ -31,23 +31,21 @@ mount --bind "$PWD" "$MOUNTDIR/$INNERSRCDIR/"
 echo "#!/bin/bash" > "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR" >> "$MOUNTDIR/$INNERSCRIPT"
 
-MODE=""
-WITH_NET=""
-COMMAND=""
+WITH_NET="0"
+COMMAND="$1"
+shift
+case "$COMMAND" in
+  */download_url|*/tar_scm|*/download_src_package|*/update_source|*/download_files)
+    WITH_NET="1"
+    ;;
+esac
 
 while [ $# -gt 0 ]; do
   if [ "$1" == "--outdir" ] ; then
      shift
      OUTDIR="$1"
   else
-     COMMAND="$COMMAND \"${1/\"/_}\" "
-     if [ -z "$MODE" ]; then
-        case "$1" in
-          */download_url|*/tar_scm|*/download_src_package|*/update_source|*/download_files)
-            WITH_NET="1"
-            ;;
-        esac
-     fi
+     COMMAND="$COMMAND '${1//\'/_}'"
   fi
   shift
 done
@@ -63,12 +61,13 @@ chown -R $RUNUSER "$MOUNTDIR/$INNEROUTDIR"
 #if [ "$WITH_NET" == "1" ] ; then
 #  echo "rcnscd start" >> "$MOUNTDIR/$INNERSCRIPT"
 #fi
-echo -n "su $RUNUSER -c '" >> "$MOUNTDIR/$INNERSCRIPT"
-echo "$COMMAND --outdir $INNEROUTDIR'" >> "$MOUNTDIR/$INNERSCRIPT"
-chmod 0755 "$MOUNTDIR/$INNERSCRIPT"
+echo -n "su $RUNUSER -s ${INNERSCRIPT}.command" >> "$MOUNTDIR/$INNERSCRIPT"
+echo "#!/bin/bash"               >  "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "${COMMAND[@]} --outdir $OUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
+chmod 0755 "$MOUNTDIR/$INNERSCRIPT" "$MOUNTDIR/${INNERSCRIPT}.command"
 
 # construct jail
-LXC_CONF="/tmp/obs.service.$$"
+LXC_CONF="/obs.service.$$"
 echo "lxc.utsname = obs.service.$$" > $LXC_CONF
 if [ "$WITH_NET" == "1" ] ; then
   mount -t proc proc $MOUNTDIR/proc
