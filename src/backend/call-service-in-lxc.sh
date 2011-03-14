@@ -62,8 +62,8 @@ chown -R $RUNUSER "$MOUNTDIR/$INNEROUTDIR"
 #  echo "rcnscd start" >> "$MOUNTDIR/$INNERSCRIPT"
 #fi
 echo -n "su $RUNUSER -s ${INNERSCRIPT}.command" >> "$MOUNTDIR/$INNERSCRIPT"
-echo "#!/bin/bash"               >  "$MOUNTDIR/${INNERSCRIPT}.command"
-echo "${COMMAND[@]} --outdir $OUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "#!/bin/bash"                         >  "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 chmod 0755 "$MOUNTDIR/$INNERSCRIPT" "$MOUNTDIR/${INNERSCRIPT}.command"
 
 # construct jail
