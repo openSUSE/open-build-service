@@ -332,13 +332,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=404
-    delresp=404
-    if $ENABLE_BROKEN_TEST
-#FIXME2.2
+    resp=400       # axml store SaveError
+    delresp=404    # unknown prj
     debug=true
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
-end
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
     # flag not inherited - should we inherit in any case to be on the safe side ?
