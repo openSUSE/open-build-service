@@ -16,8 +16,8 @@ class BsRequest < ActiveXML::Base
         when "submit" then
           # set target package is the same as the source package if no target package is specified
           target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
-
-          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+          revision_option = "rev=\"#{opt[:rev].to_xs}\"" if opt[:rev] and not opt[:rev].empty?
+          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
           option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
         when "add_role" then
           option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt[:group] and not opt[:group].empty?
