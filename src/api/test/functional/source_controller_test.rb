@@ -523,7 +523,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
-    if $ENABLE_BROKEN_TEST
     put url_for(:controller => :source, :action => :project_meta, :project => "../source/bang"), doc.to_s
     assert_response( 404, "--> Was able to create project at illegal path")
     put url_for(:controller => :source, :action => :project_meta)
@@ -534,7 +533,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     #must not create a project with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
     assert_response( 400, "--> Was able to create project with different project-name in _meta.xml")    
-    end
     #TODO: referenced repository names must exist
     
     
@@ -859,7 +857,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
-    if $ENABLE_BROKEN_TEST
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "../bang"), doc.to_s
     assert_response( 404, "--> Was able to create package at illegal path")
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4"), doc.to_s
@@ -870,7 +867,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     #must not create a package with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
     assert_response( 400, "--> Was able to create package with different project-name in _meta.xml")     
-    end
     #verify data is unchanged: 
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
@@ -1175,7 +1171,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/_history", :deleted => 1
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    srcmd5 = node.each_revision.last.srcmd5.text if $ENABLE_BROKEN_TEST
+    srcmd5 = node.each_revision.last.srcmd5.text 
+    #if $ENABLE_BROKEN_TEST
 # FIXME: this is currently not working in backend
 #    get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
 #    assert_response :success
