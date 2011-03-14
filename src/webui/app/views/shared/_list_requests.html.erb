@@ -24,7 +24,7 @@
           <% end %>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
-              <% if ae.source.has_element? :package %> <!-- <%= ae.source.package %> -->
+              <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
                 <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, elide_len) %>
                 <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
                 <% if package_exists?(ae.source.project, ae.source.package) %>
@@ -34,6 +34,7 @@
                 <% end %>
               <% else %>
                 <%# Happens for maintenance requests, no source package there %>
+                <% debugger %>
                 <%= link_to(elide(ae.source.project, elide_len), :controller => :project, :action => :show, :project => ae.source.project) %>
               <% end %>
             <% end %>
@@ -61,7 +62,7 @@
           <td class="nowrap"><%= reqtype(req) %></td>
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle Request'), :controller => :request, :action => :show, :id => req.value(:id)) -%>
-            <% if ae.has_element? :source and ae.source.has_element? :package %>
+            <% if ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
               <script type="text/javascript">
                 setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
