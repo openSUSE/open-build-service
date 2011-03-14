@@ -203,6 +203,7 @@ sub runservice {
 	unlink($lockfile);
 	die("ERROR: bs_service returned a non-_service file\n");
       }
+      BSVerify::verify_filename($pfile);
       $files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
     }
   } else {
