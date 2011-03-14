@@ -127,16 +127,16 @@ class ReadPermissionTest < ActionController::IntegrationTest
     do_read_access_all_pathes( "adrian", :success )
   end
   def test_read_hidden_prj_reader
-    # Hidden project is not visible to reader
-    do_read_access_all_pathes( "adrian_reader", 404 , true) if $ENABLE_BROKEN_TEST  # no roles currently
+    # Hidden project is visible to all involved users
+    do_read_access_all_pathes( "adrian_reader", :success )
   end
   def test_read_hidden_prj_downloader
-    # FIXME: it looks like access is always possible atm
-    do_read_access_all_pathes( "adrian_downloader", 404 ) if $ENABLE_BROKEN_TEST  # no roles currently
+    # Visible to all involved users
+    do_read_access_all_pathes( "adrian_downloader", :success )
   end
   def test_read_hidden_prj_nobody
     # Hidden project not visible to external user
-    do_read_access_all_pathes( "adrian_nobody", 404 ) if $ENABLE_BROKEN_TEST  # no roles currently
+    do_read_access_all_pathes( "adrian_nobody", 404 )
   end
 
   def test_branch_package_hidden_project_new
@@ -334,7 +334,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     resp=400       # axml store SaveError
     delresp=404    # unknown prj
-    debug=true
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
