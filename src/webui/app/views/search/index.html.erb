@@ -1,15 +1,9 @@
 <% @pagetitle = "Search" %>
-<%
-@crumb_list = [
-  'Search'
-]
--%>
+<% @crumb_list = [@pagetitle] -%>
 
 <% content_for :ready_function do %>
-  <!-- Set Focus to the input box -->
   $('#search_text').focus();
 <% end %>
-
 
 <h3>Search for Buildservice Projects or Packages</h3>
 

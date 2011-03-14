@@ -1,5 +1,5 @@
 <% @pagetitle = "Search Results"
-   @crumb_list = [ link_to( 'Search', :action => :index ) + ' result' ]
+   @crumb_list = [link_to('Search', :action => :index), 'Results']
 -%>
 
 <h3><%= @pagetitle %>
@@ -9,4 +9,3 @@
 </h3>
 
 <%= render :partial => 'search_result' %>
-
