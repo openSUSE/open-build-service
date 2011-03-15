@@ -593,6 +593,22 @@ end
     assert_response :success
     assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
 
+    # invalid review, by_project is missing
+    post "/request/#{id}?cmd=addreview&by_package=kdelibs"
+    assert_response 400
+
+    post "/request/#{id}?cmd=addreview&by_project=kde4&by_package=kdelibs"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_project => "kde4", :by_package => "kdelibs" } )
+
+    post "/request/#{id}?cmd=addreview&by_project=home:tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_project => "home:tom", :by_package => nil } )
+
     # and revoke it
     ActionController::IntegrationTest::reset_auth
     post "/request/#{id}?cmd=changestate&newstate=revoked"
