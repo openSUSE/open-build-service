@@ -168,7 +168,7 @@
   <div id="add_repository" class="show_left box show_right" style="display: none">
     <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %> <i>(gets auto-completed)</i> </p>
     <p><strong>Repository: </strong>
-      <%= select_tag "target_repo", "<option value=''>Select Repository</option>", :id => 'target_repo', :disabled => true %>
+      <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %>
     </p>
     <div id="add_repo"><p>
         <%= image_tag("icons/drive_add.png", :title => "Add Repository") %>
@@ -193,8 +193,7 @@
   </div>
 
   <p><strong>Add package: </strong><br/>
-    <% default_projects = @repositories.map{|repo| "<option value='#{repo[:project]} / #{repo[:repo]}'>#{repo[:project]} / #{repo[:repo]}</option>"}.uniq %>
-    <%= select_tag "target_package_repo", "<option value=''>Select Project</option>" + default_projects.join(''), :id => 'target_package_repo' %>
+    <%= select_tag "target_package_repo", options_for_select(@repositories.map{|repo| repo[:project]}.uniq), :id => 'target_package_repo' %>
     Name:
     <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
   <div id="add_package"><p>
