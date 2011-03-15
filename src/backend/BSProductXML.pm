@@ -225,6 +225,7 @@ our $productdesc = [
             'ignore_missing_packages', # may be "true", default for mediastyle 11.3 and before
             'ignore_missing_meta_packages', # may be "true", default for mediastyle 11.3 and before
             'run_media_check',
+            'run_hybridiso',
             'run_make_listings',
             'use_recommended',
             'use_suggested',

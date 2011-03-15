@@ -19,8 +19,9 @@ ActionController::Routing::Routes.draw do |map|
   ### /person
 
   map.connect 'person', :controller => 'person', :action => 'index'
-  # FIXME: this is no clean namespace, a person "register" could exist ...
+  # FIXME: this is no clean namespace, a person "register" or "changepasswd" could exist ...
   #        suggested solution is POST person/:login?cmd=register
+  #        fix this for OBS 3.0
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/changepasswd', :controller => 'person', :action => 'change_my_password'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
@@ -29,8 +30,6 @@ ActionController::Routing::Routes.draw do |map|
   ### /group
   map.connect 'group', :controller => 'group', :action => 'index'
   map.connect 'group/:title', :controller => 'group', :action => 'grouplist', :title => /[^\/]*/
-  map.connect 'group/show/:title', :controller => 'group', :action => 'show', :title => /[^\/]*/
-  map.connect 'group/users/:title', :controller => 'group', :action => 'users', :title => /[^\/]*/
 
   ### /repository
 
@@ -215,7 +214,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/:filename',
     :controller => "build", :action => "file", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/, :filename => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/_builddepinfo',
-    :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "builddepinfo", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package',
     :controller => "build", :action => "index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/_buildconfig',
@@ -277,6 +276,10 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /public
     
+  map.connect '/public/build/:prj',
+    :controller => 'public', :action => 'build', :prj => /[^\/]*/
+  map.connect '/public/build/:prj/:repo',
+    :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/
   map.connect '/public/build/:prj/:repo/:arch/:pkg',
     :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/
   map.connect '/public/source/:prj',

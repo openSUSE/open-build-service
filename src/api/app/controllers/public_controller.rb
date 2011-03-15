@@ -34,17 +34,10 @@ class PublicController < ApplicationController
   # GET /public/build/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
-    required_parameters :prj, :pkg, :repo, :arch
+    required_parameters :prj
 
     # project visible/known ? 
     DbProject.get_by_name(params[:prj])
-
-# binary download is not a security feature...
-#    if prj and prj.disabled_for?('binarydownload', params[:repo], params[:arch]) and not @http_user.can_download_binaries?(prj)
-#      render_error :status => 403, :errorcode => "download_binary_no_permission",
-#      :message => "No permission to download binaries from project #{params[:prj]}"
-#      return
-#    end
 
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?

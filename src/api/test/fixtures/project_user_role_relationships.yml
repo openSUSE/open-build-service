@@ -37,6 +37,11 @@ tom_maintainer_tom:
   bs_user_id: 3
   role_id: 3
 
+fred_delete_project:
+  db_project_id: 503
+  bs_user_id: 1
+  role_id: 3
+
 maintenance_coord_to_my_maintenance:
   db_project_id: 2048
   bs_user_id: 172
@@ -46,6 +51,16 @@ adrian_reviewer_for_kde4:
   db_project_id: 2
   bs_user_id: 42
   role_id: 6
+
+Apache_fred_maintainer:
+  db_project_id: 226
+  bs_user_id: 1
+  role_id: 3
+
+Apache_fredlibs_maintainer:
+  db_project_id: 226
+  bs_user_id: 4
+  role_id: 3
 
 # for read access permissions
 # HiddenProject

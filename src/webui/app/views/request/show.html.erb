@@ -31,15 +31,19 @@
         <tr>
           <td><%= ae.data.attributes["type"] %></td>
           <td>
-          <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
-            <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 64) %>
-            <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
-            <% if package_exists?(ae.source.project, ae.source.package) %>
-              <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
-            <% else %>
-              <%= src_pack %>
+            <% if ae.has_element? :source %> <!-- <%= ae.source.project %> -->
+              <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
+                <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 64) %>
+                <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
+                <% if package_exists?(ae.source.project, ae.source.package) %>
+                  <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                <% else %>
+                  <%= src_pack %>
+                <% end %>
+              <% else %>
+                <%= link_to(elide(ae.source.project, 64), :controller => :project, :action => :show, :project => ae.source.project) %>
+              <% end %>
             <% end %>
-          <% end %>
           </td>
           <td>
           <% if ae.has_element?(:target) %>
@@ -67,12 +71,12 @@
               <% elsif ae.has_element? :person %>
                 Role <b><%= ae.person.role %></b> for user <b><%= ae.person.name %></b>
               <% end %>
-            <% elsif ae.has_element? :source %>
+            <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
               <script type="text/javascript">
                 setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
               </script>
-             <% end %>
+            <% end %>
           </td>
         </tr>
       <% end %>
@@ -82,9 +86,7 @@
     $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
   </script>
 </div>
-<% unless @req.value('description').empty? %>
-  <p><%= format_comment(@req.value('description')) %></p>
-<% end %>
+<p><%= format_comment(@req.value(:description)) %></p>
 
 <div>
   <h3>History</h3>
@@ -113,29 +115,28 @@
   </script>
 </div>
 
-<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && (@is_reviewer || @is_maintainer || @is_author) %>
-  <% content_for :head_javascript do %>
-    function modifyReview(id, new_state) {
-      var comment = $('#review_comment_' + id).attr('value');
-      var path = "/request/modifyreviewer/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
-      if ($('#review_type_' + id).text() == "package") {
-        project_and_package = $('#review_name_' + id).text().split(' / ');
-        path += "&project=" + encodeURIComponent(project_and_package[0].trim());
-        path += "&package=" + encodeURIComponent(project_and_package[1].trim());
-      } else {
-        path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
-      }
-      $.ajax({type: "POST", url: path,
-        success: function(data) {
-          $('#review_table td#review_state_' + id).text(data);
-          $('#review_table td#review_buttons_' + id).text("");
-          $('#review_table td #review_comment_' + id).parent().html(comment);
+<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && !@diff_error %>
+  <% if @is_maintainer || @is_reviewer || @is_author %>
+    <% content_for :head_javascript do %>
+      function modifyReview(id, new_state) {
+        var comment = $('#review_comment_' + id).attr('value');
+        var path = "/request/modify_review/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
+        if ($('#review_type_' + id).text() == "package") {
+          project_and_package = $('#review_name_' + id).text().split(' / ');
+          path += "&project=" + encodeURIComponent(project_and_package[0].trim());
+          path += "&package=" + encodeURIComponent(project_and_package[1].trim());
+        } else {
+          path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
         }
-      })
-    }
-  <% end %>
-
-  <% if !@diff_error && (@is_maintainer || @is_reviewer || @is_author) %>
+        $.ajax({type: "POST", url: path,
+          success: function(data) {
+            $('#review_table td#review_state_' + id).text(data);
+            $('#review_table td#review_buttons_' + id).text("");
+            $('#review_table td #review_comment_' + id).parent().html(comment);
+          }
+        })
+      }
+    <% end %>
     <% if @req.each_review.length > 0 %>
       <div>
         <h3>Reviews</h3>
@@ -153,7 +154,7 @@
               <td id="review_state_<%= r.id %>" class="nowrap"><%= r.state %></td>
               <% if r.has_attribute? :by_user %>
                 <td id="review_type_<%= r.id %>">user</td>
-                <td id="review_name_<%= r.id %>"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => r.by_user}%></td>
+                <td id="review_name_<%= r.id %>" class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => r.by_user}%></td>
               <% elsif r.has_attribute? :by_group %>
                 <td id="review_type_<%= r.id %>">group</td>
                 <td id="review_name_<%= r.id %>"><%= r.by_group %></td>
@@ -172,7 +173,8 @@
               <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and
                     ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
                      (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
-                     (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
+                     (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
+                     (r.has_attribute? :by_package and @user.is_maintainer?(r.by_project, r.by_package))) %>
                 <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
                 <td id="review_buttons_<%= r.id %>">
                   <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted')") %>
@@ -190,109 +192,42 @@
         </script>
       </div>
     <% end %>
-
-    <% if (@req.state.name == "review" || @req.state.name == "new") %>
-      <% form_tag(:action => "addreviewer") do %>
-        <h3>Add Reviewer</h3>
-        <p>
-          <%= hidden_field_tag("request_id", @id) %>
-          <b>Type:</b><br/>
-          <%= select_tag("review_type", options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
-          <span id="review_user_span">
-            <b>User:</b><br/>
-            <%= text_field_tag("review_user") %><br/>
-            <script type="text/javascript">
-              $("#review_user").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
-          </span>
-          <span id="review_group_span" class="hidden">
-            <b>Group:</b><br/>
-            <%= text_field_tag("review_group") %><br/>
-            <script type="text/javascript">
-              $("#review_group").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
-          </span>
-          <span id="review_project_span" class="hidden">
-            <b>Project:</b><br/>
-            <%= text_field_tag("review_project") %><br/>
-            <script type="text/javascript">
-              $("#review_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
-          </span>
-          <span id="review_package_span" class="hidden">
-            <b>Package:</b><br/>
-            <%= text_field_tag("review_package") %><br/>
-            <script type="text/javascript">
-              $("#review_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
-                minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#project").val(); }}
-              });
-            </script>
-          </span>
-          <b>Comment for reviewer:</b><br/>
-          <%= text_field_tag("review_comment") %>
-          <script type="text/javascript">
-            $('#review_type').change(function() {
-              switch($('#review_type option:selected').attr('value')) {
-                case "user": {
-                  $('#review_user_span').show();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').hide();
-                  $('#review_package_span').hide();
-                } break;
-                case "group": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').show();
-                  $('#review_project_span').hide();
-                  $('#review_package_span').hide();
-                } break;
-                case "project": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').show();
-                  $('#review_package_span').hide();
-                } break;
-                case "package": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').show();
-                  $('#review_package_span').show();
-                } break;
-              }
-            });
-          </script>
-        </p>
-        <p><%= submit_tag("Add reviewer") %></p>
-      <% end %>
-    <% end %>
   <% end %>
-
-  <% form_tag(:action => "changerequest") do %>
-    <h3>Handle Request</h3>
-    <p>
-      <b>Comment for requester:</b><br/>
-      <%= text_field_tag(:reason, '' , :style => "width: 99%") %>
-    </p>
-    <p>
-      <%= hidden_field_tag("id", @id) %>
-      <% if @is_maintainer %>
-        <% linked = @target_pkg.linked_to if @target_pkg -%>
-        <% if !@diff_error -%>
-          <% if linked and not linked.empty? and @req.action.data["type"] == "submit" -%>
-            <%= hidden_field_tag("forward_project", linked[0]) %>
-            <%= hidden_field_tag("forward_package", linked[1]) %>
-            <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-          <% end -%>
-          <% if @req.state.name.to_s == "review" %>
-            <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really wan't to approve this request, despite of open review requests ?" %>
-          <% else %>
-            <%= submit_tag "Accept request ", :name => 'accepted' %>
+  <% if @is_maintainer || @is_author %>
+    <% if (@req.state.name == "review" || @req.state.name == "new") %>
+      <p>
+        <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
+        <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
+      </p>
+    <% end %>
+    <% form_tag(:action => "changerequest") do %>
+      <h3>Handle Request</h3>
+      <p>
+        <b>Comment:</b><br/>
+        <%= text_field_tag(:reason, '', :style => "width: 99%") %>
+      </p>
+      <p>
+        <%= hidden_field_tag("id", @id) %>
+        <% if @is_maintainer %>
+          <% linked = @target_pkg.linked_to if @target_pkg -%>
+          <% if !@diff_error -%>
+            <% if linked and not linked.empty? and @req.action.data["type"] == "submit" -%>
+              <%= hidden_field_tag("forward_project", linked[0]) %>
+              <%= hidden_field_tag("forward_package", linked[1]) %>
+              <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+            <% end -%>
+            <% if @req.state.name.to_s == "review" %>
+              <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
+            <% else %>
+              <%= submit_tag "Accept request", :name => 'accepted' %>
+            <% end %>
           <% end %>
+          <%= submit_tag "Decline request", :name => 'declined' %>
+        <% elsif @is_author %>
+          <%= submit_tag "Revoke request", :name => 'revoked' %>
         <% end %>
-        <%= submit_tag "Decline request", :name => 'declined' %>
-      <% elsif @is_author %>
-        <%= submit_tag "Revoke request", :name => 'revoked' %>
-      <% end %>
-    </p>
+      </p>
+    <% end %>
   <% end %>
 <% end %>
 

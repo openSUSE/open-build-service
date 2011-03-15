@@ -235,6 +235,8 @@ CREATE TABLE `maintenance_incidents` (
   `day` int(11) DEFAULT NULL,
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
+  `updateinfo_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `incident_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -602,6 +604,14 @@ INSERT INTO schema_migrations (version) VALUES ('20110131100000');
 INSERT INTO schema_migrations (version) VALUES ('20110202100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110202110000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110301100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110302100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110303100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110309100000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

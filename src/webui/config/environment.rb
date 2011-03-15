@@ -9,7 +9,6 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 require File.join(File.dirname(__FILE__), 'boot')
 
 require "common/libxmlactivexml"
-require 'custom_logger'
 require 'fileutils'
 
 # create important directories that are needed at runtime
@@ -77,8 +76,6 @@ init = Rails::Initializer.run do |config|
 
   # See Rails::Configuration for more options
 
-  config.logger = NiceLogger.new(config.log_path)
-
 end
 
 ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG['relative_url_root']
@@ -113,15 +110,15 @@ begin
 rescue Errno::ENOENT
 end
 
-if defined? CONFIG['download_url']
+if CONFIG.has_key?('download_url')
   DOWNLOAD_URL = CONFIG['download_url']
 else
-  DOWNLOAD_URL = nil
+  DOWNLOAD_URL = "http://download.opensuse.org/repositories"
 end
-if defined? CONFIG['bugzilla_host']
+if CONFIG.has_key?('bugzilla_host')
   BUGZILLA_HOST = CONFIG['bugzilla_host']
 else
-  BUGZILLA_HOST = nil
+  BUGZILLA_HOST = "http://bugzilla.novell.com"
 end
 
 ActiveXML::Base.config do |conf|
@@ -196,7 +193,9 @@ ActiveXML::Base.config do |conf|
       '?:project&:package&:arch&:repo&:group_by&:limit'
     map.connect :rating, 'rest:///statistics/rating/:project/:package',
       :all => 'rest:///statistics/highest_rated?:limit'
-    map.connect :mostactive, 'rest:///statistics/most_active?:type&:limit',
+    map.connect :mostactiveprojects, 'rest:///statistics/most_active_projects?:limit',
+      :specific => 'rest:///statistics/activity/:project'
+    map.connect :mostactivepackages, 'rest:///statistics/most_active_packages?:limit',
       :specific => 'rest:///statistics/activity/:project/:package'
     map.connect :globalcounters, 'rest:///statistics/global_counters',
       :all => 'rest:///statistics/global_counters'

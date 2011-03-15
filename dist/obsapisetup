@@ -28,8 +28,22 @@ link=${base#*[SK][0-9][0-9]}
 apidir=/srv/www/obs/api
 webuidir=/srv/www/obs/webui
 
+# make parsed output predictable 
+export LC_ALL=C
+
 FQHOSTNAME=`hostname -f`
 
+
+if [ "$?" != "0" ]; then
+  # Fallback to IP of the VM/host
+  FQHOSTNAME=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
+  if [ "$?" != "0" -o "$FQHOSTNAME" = "" ]; then
+    echo "    Can't determine hostname or IP - Network setup failed!"
+    echo "    Check if networking is up and dhcp is working!"
+    echo "    Using 'localhost' as FQHOSTNAME."
+    FQHOSTNAME="localhost"
+  fi
+fi
 . /etc/sysconfig/obs-server
 
 if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
@@ -43,6 +57,26 @@ case "$1" in
                 if [ ! -d /obs/MySQL ]; then
 			mkdir -p /obs/MySQL
 		fi
+		echo -n "Adjust webui configuration for api"
+                # it would be better to solve this in lighttpd.conf to accept also localhost:81,
+                # but no idea how to solve this
+                sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
+		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
+		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i -e /webui_url:/d -e /webui_host:/d -e /allow_anonymous:/d \
+		    /srv/www/obs/api/config/options.yml
+                echo "# the following lines are always written by obsapisetup!" >> /srv/www/obs/api/config/options.yml
+                echo "allow_anonymous: true" >> /srv/www/obs/api/config/options.yml
+		if [ "$FQHOSTNAME" == "localhost" ] ; then
+			echo "webui_host: localhost" >> /srv/www/obs/api/config/options.yml
+		else
+			echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
+		fi
+                echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
+		echo
+		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
+		OS=`head -n 1 /etc/SuSE-release`
                 if [ ! -e /obs/MySQL/api_production ]; then
 			echo -n "Initialize OBS api database (first time only)"
 			mysqladmin -u root create api_production
@@ -94,22 +128,6 @@ case "$1" in
                 cd $apidir
 		chown -R lighttpd.lighttpd $apidir/log
 
-		echo -n "Adjust webui configuration for api"
-                # it would be better to solve this in lighttpd.conf to accept also localhost:81,
-                # but no idea how to solve this
-                sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
-		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
-		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i -e /webui_url:/d -e /webui_host:/d -e /allow_anonymous:/d \
-		    /srv/www/obs/api/config/options.yml
-                echo "# the following lines are always written by obsapisetup!" >> /srv/www/obs/api/config/options.yml
-                echo "allow_anonymous: true" >> /srv/www/obs/api/config/options.yml
-                echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
-                echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
-		echo
-		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
-		OS=`head -n 1 /etc/SuSE-release`
 		cat > /etc/issue <<EOF
 Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
 based on $OS

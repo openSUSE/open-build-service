@@ -16,23 +16,17 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
     assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
-end
 
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
     assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
       :name => "kde4",
       :created => Time.local(2008, 04, 28, 05, 05, 05).xmlschema
     }
-end
 
     prepare_request_with_user "fred", "geröllheimer"
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
@@ -44,11 +38,8 @@ end
 
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
     assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
-end
   end
 
 
@@ -63,23 +54,17 @@ end
 
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
    assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
-end
 
    prepare_request_with_user 'tom', 'thunder'
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
    assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
    assert_tag :tag => 'project', :attributes => {
      :name => "kde4",
      :updated => Time.local(2008, 04, 28, 06, 06, 06).xmlschema,
    }
-end
 
    prepare_request_with_user "fred", "geröllheimer"
    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
@@ -91,11 +76,8 @@ end
 
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
    assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
-end
  end
 
 
@@ -217,31 +199,46 @@ end
   def test_most_active
     prepare_request_with_user 'tom', 'thunder'
     # get most active packages
-    get url_for(:controller => :statistics, :action => :most_active, :type => 'packages')
+    get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
     assert_response :success
 
-if $ENABLE_BROKEN_TEST
-#FIXME2.2
-# fixture data is actually there, this test case looks broken anyway, but it became
-# different broken now. The statistic stuff need anyway a big overhowl and is not usable atm :/
     assert_tag :tag => 'most_active', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => {
-      :name => "x11vnc",
-      :project => "home:dmayr",
+      :name => "kdelibs",
+      :project => "kde4",
       :update_count => 0
     }
+    assert_no_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
+
     # get most active projects
-    get url_for(:action => :most_active, :type => 'projects')
+    get url_for(:controller => :statistics, :action => :most_active_projects, :limit => 0)
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
-      :name => "home:dmayr",
-      :packages => 1
+      :name => "kde4",
+      :packages => 2
     }
-end
+    assert_no_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
+
+    # redo as user, seeing the hidden project
+    prepare_request_with_user 'hidden_homer', 'homer'
+    # get most active packages
+    get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
+    assert_response :success
+
+    assert_tag :tag => 'most_active', :child => { :tag => 'package' }
+    assert_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
+
+    # get most active projects
+    get url_for(:controller => :statistics, :action => :most_active_projects, :limit => 0)
+    assert_response :success
+    assert_tag :tag => 'most_active', :child => { :tag => 'project' }
+    assert_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
   end
 
 
+  # FIXME: works, but does not do anything usefull since 2.0 anymore
+  #        we need a working rating mechanism, but this one is too simple.
   def test_highest_rated
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :highest_rated)

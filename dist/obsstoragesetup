@@ -360,7 +360,16 @@ EOF
 			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
 			# How many parallel jobs make sense ?
 			NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
-			echo "OBS_WORKER_JOBS=\"$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))\"" >> /etc/buildhost.config
+			MYJOBS=1
+			if [ "$OBS_WORKER_INSTANCES" -gt 1 ]; then
+				MYJOBS=$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))
+				# catch e.g. 1/2 and bad NUM to OBS_WORKER_INSTANCES ratio
+				if [ "$MYJOBS" == "0" ] ; then 
+					export MYJOBS=1
+				fi
+			fi
+			echo "OBS_WORKER_JOBS=\"$MYJOBS\"" >> /etc/buildhost.config
+			
 			# Memory which can be used
 			TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
 			INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))

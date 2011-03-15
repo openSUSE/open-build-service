@@ -37,7 +37,7 @@ sub verify_packid {
   $packid =~ s/^_product://s;
   $packid =~ s/^_patchinfo://s;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern' and $packid ne '_project';
+  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern' and $packid ne '_project' and $packid ne '_patchinfo';
 }
 
 sub verify_repoid {
@@ -68,29 +68,26 @@ sub verify_packid_repository {
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
-  die("No patch name defined in _patchinfo") unless defined($p->{'name'}) and $p->{'name'} ne "";
-  verify_filename($p->{'name'});
-  die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
-                                                    || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature'
-                                                    || $p->{'category'} eq ''; # empty is allowed here
+  die("Neither patch incident or name defined in _patchinfo\n") unless (defined($p->{'name'}) and $p->{'name'} ne "") or (defined($p->{'incident'}) and $p->{'incident'} ne "");
+  verify_filename($p->{'name'}) if defined($p->{'name'});
+  my %allowed_categories = map {$_ => 1} qw{security normal optional feature};
+  die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) and $p->{'category'} ne "" && !$allowed_categories{$p->{'category'}};
 }
 
 sub verify_patchinfo_complete {
   # This verifies all necessary content to create a patchinfo repo
   my $p = $_[0];
   verify_patchinfo( $p );
-  die("No swampid defined in _patchinfo") unless $p->{'swampid'} and $p->{'swampid'} =~ /^[0-9]+$/; # this will become optional later
   die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
   for my $id (@{$p->{'bugzilla'}}){
     die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]+$/;
   }
   die("No summary defined in _patchinfo") unless $p->{'summary'};
   die("No description defined in _patchinfo") unless $p->{'description'};
+  my %allowed_categories = map {$_ => 1} qw{security normal optional feature};
   die("No category defined in _patchinfo") unless $p->{'category'};
-  die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
-                                                    || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature';
-  die("No binaries are defined in _patchinfo") unless @{$p->{'binary'} || []};
-  for my $binary (@{$p->{'binary'}}) {
+  die("Invalid category defined in _patchinfo") unless !$allowed_categories{$p->{'category'}};
+  for my $binary (@{$p->{'binary'}||[]}) {
     verify_filename($binary);
   }
 
@@ -312,14 +309,14 @@ sub verify_request {
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
       die("delete action has a source element\n") if $r->{'source'};
-    } elsif ($r->{'type'} eq 'maintenancerelease') {
-      die("maintenancerelease source missing\n") unless $r->{'source'};
-      die("maintenancerelease target missing\n") unless $r->{'target'};
+    } elsif ($r->{'type'} eq 'maintenance_release') {
+      die("maintenance_release source missing\n") unless $r->{'source'};
+      die("maintenance_release target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
       verify_projid($r->{'target'}->{'project'});
-    } elsif ($r->{'type'} eq 'maintenanceincident') {
-      die("maintenanceincident source missing\n") unless $r->{'source'};
-      die("maintenanceincident target missing\n") unless $r->{'target'};
+    } elsif ($r->{'type'} eq 'maintenance_incident') {
+      die("maintenance_incident source missing\n") unless $r->{'source'};
+      die("maintenance_incident target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
       verify_projid($r->{'target'}->{'project'});
     } elsif ($r->{'type'} eq 'set_bugowner') {

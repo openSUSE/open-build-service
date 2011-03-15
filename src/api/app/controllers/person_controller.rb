@@ -28,7 +28,7 @@ class PersonController < ApplicationController
 
     builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.directory(:count => list.length) do |dir|
-      list.each {|user| dir.entry(:login => user.login)}
+      list.each {|user| dir.entry(:name => user.login)}
     end
     render :text => xml, :content_type => "text/xml"
   end
@@ -237,26 +237,26 @@ class PersonController < ApplicationController
 
     login = xml.elements["/userchangepasswd/login"].text
     password = xml.elements["/userchangepasswd/password"].text
+    login = URI.unescape(login)
 
     if !@http_user
       logger.debug "No user logged in, permission to changing password denied"
       @errorcode = 401
       @summary = "No user logged in, permission to changing password denied"
       render :template => 'error', :status => 401
-    else
-      if not login or not password
-        render_error :status => 404, :errorcode => 'failed to change password',
-              :message => "Failed to change password: missing parameter"
-        return
-      end
-      unless @http_user.is_admin? or login == @http_user.login
-        render_error :status => 403, :errorcode => 'failed to change password',
-              :message => "No sufficiend permissions to change password for others"
-        return
-      end
     end
 
-    login = URI.unescape(login)
+    if not login or not password
+      render_error :status => 404, :errorcode => 'failed to change password',
+            :message => "Failed to change password: missing parameter"
+      return
+    end
+    unless @http_user.is_admin? or login == @http_user.login
+      render_error :status => 403, :errorcode => 'failed to change password',
+            :message => "No sufficiend permissions to change password for others"
+      return
+    end
+
     newpassword = Base64.decode64(URI.unescape(password))
     
     #change password to LDAP if LDAP is enabled    

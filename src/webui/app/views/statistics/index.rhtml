@@ -3,7 +3,6 @@
 
 <div id="statistics">
 
-  <div class="clear">&nbsp;</div>
   <div class="global_counters">
     There are now
     <strong><%= @global_counters.projects -%></strong> projects,
@@ -11,6 +10,20 @@
     <strong><%= @global_counters.repos -%></strong> repositories and
     <strong><%= @global_counters.users -%></strong> confirmed developer.
   </div>
+
+    <%= render :partial => 'most_active_projects' -%>
+    <%= link_to 'more...', { :controller => 'statistics',
+      :action => 'most_active_projects', :more => true, :limit => 25 } -%>
+    <%= render :partial => 'most_active_packages' -%>
+    <%= link_to 'more...', { :controller => 'statistics',
+      :action => 'most_active_packages', :more => true, :limit => 25 } -%>
+    <%= render :partial => 'latest_added' -%>
+    <%= link_to 'more...', { :controller => 'statistics',
+      :action => 'latest_added', :more => true, :limit => 25 } -%>
+    <%= render :partial => 'latest_updated' -%>
+    <%= link_to 'more...', { :controller => 'statistics',
+      :action => 'latest_updated', :more => true, :limit => 25 } -%>
+
 </div>
 
 <div id="infobox"><span>&nbsp;</span></div>

@@ -1,0 +1,86 @@
+<div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Add Reviewer</b>
+      </div>
+
+      <p>Add a reviewer to <b>request #<%= @request_id %></b></p>
+
+      <% form_tag(:action => "add_reviewer") do %>
+        <%= hidden_field_tag(:id, @request_id) %>
+        <p>
+          <%= label_tag(:review_type, "Type:") %><br/>
+          <%= select_tag(:review_type, options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
+          <span id="review_user_span">
+            <%= label_tag(:review_user, "User:") %><br/>
+            <%= text_field_tag(:review_user) %><br/>
+            <script type="text/javascript">
+              $("#review_user").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
+            </script>
+          </span>
+          <span id="review_group_span" class="hidden">
+            <%= label_tag(:review_group, "Group:") %><br/>
+            <%= text_field_tag(:review_group) %><br/>
+            <script type="text/javascript">
+              $("#review_group").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
+            </script>
+          </span>
+          <span id="review_project_span" class="hidden">
+            <%= label_tag(:review_project, "Project:") %><br/>
+            <%= text_field_tag(:review_project) %><br/>
+            <script type="text/javascript">
+              $("#review_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {minChars: 2, matchCase: true, max: 50});
+            </script>
+          </span>
+          <span id="review_package_span" class="hidden">
+            <%= label_tag(:review_package, "Package:") %><br/>
+            <%= text_field_tag(:review_package) %><br/>
+            <script type="text/javascript">
+              $("#review_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
+                minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#review_project").val(); }}
+              });
+            </script>
+          </span>
+          <%= label_tag(:review_comment, "Comment for reviewer:") %><br/>
+          <%= text_field_tag("review_comment") %>
+          <script type="text/javascript">
+            $('#review_type').change(function() {
+              switch($('#review_type option:selected').attr('value')) {
+                case "user": {
+                  $('#review_user_span').show();
+                  $('#review_group_span').hide();
+                  $('#review_project_span').hide();
+                  $('#review_package_span').hide();
+                } break;
+                case "group": {
+                  $('#review_user_span').hide();
+                  $('#review_group_span').show();
+                  $('#review_project_span').hide();
+                  $('#review_package_span').hide();
+                } break;
+                case "project": {
+                  $('#review_user_span').hide();
+                  $('#review_group_span').hide();
+                  $('#review_project_span').show();
+                  $('#review_package_span').hide();
+                } break;
+                case "package": {
+                  $('#review_user_span').hide();
+                  $('#review_group_span').hide();
+                  $('#review_project_span').show();
+                  $('#review_package_span').show();
+                } break;
+              }
+            });
+          </script>
+        </p>
+        <div class="buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", "remove_dialog()") %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

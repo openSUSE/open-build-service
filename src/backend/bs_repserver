@@ -605,7 +605,7 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls("$reporoot/$prp/$arch/$packid");
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
   @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
@@ -619,7 +619,7 @@ sub getbinarylist {
 
 sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  my @history = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, $cgi->{'limit'} || 10000);
+  my @history = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, $cgi->{'limit'} || 100);
   @history = reverse @history;
   return ({'entry' => \@history}, $BSXML::buildhist);
 }
@@ -724,7 +724,7 @@ sub getlogfile {
     # no longer building, use local logfile
   }
   my $logfile = "$reporoot/$projid/$repoid/$arch/$packid/logfile";
-  if ($jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'finished') {
+  if ($jobstatus && $jobstatus->{'code'} && ($jobstatus->{'code'} eq 'finished'||$jobstatus->{'code'} eq 'signing')) {
     $logfile = "$jobsdir/$arch/$status->{'job'}:dir/logfile";
   }
   my @s = stat($logfile);
@@ -1339,8 +1339,16 @@ sub copybuild {
   my $dir = "$jobsdir/$arch/$job:dir";
   my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
-  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo' && $_ ne '.nosourceaccess'} ls($odir)) {
-    link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
+  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
+    if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
+      my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
+      for (@{$updateinfo->{'update'} || []}) {
+        $_->{'id'} = $cgi->{'setupdateinfoid'};
+      }
+      writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
+    } else {
+      link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
+    }
   }
   my $info = {
     'project' => $projid,
@@ -1536,7 +1544,7 @@ sub getresult {
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
-	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || $_ eq '.bininfo' || $_ eq '.nosourceaccess';
+	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || /^\./;
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
 	  next unless @s;
 	  next if -d _;
@@ -1663,7 +1671,7 @@ sub getjobhistory {
     my %code = map {$_ => 1} @{$cgi->{'code'}};
     $filter = sub {$code{$_[0]->{'code'}}};
   }
-  my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, $cgi->{'limit'} || 10000, $filter);
+  my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, $cgi->{'limit'} || 100, $filter);
   @hist = reverse @hist;
   my $ret = {jobhist => \@hist};
   return ($ret, $BSXML::jobhistlist);
@@ -2769,7 +2777,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,

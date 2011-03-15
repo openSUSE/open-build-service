@@ -34,8 +34,8 @@ home:Iggy:
   id: 502
   description: ""
   created_at: 2005-01-01 00:00:01
-home:Iggy:OldProject:
-  name: home:Iggy:OldProject
+home:fred:DeleteProject:
+  name: home:fred:DeleteProject
   updated_at: 2005-01-01 00:00:01
   title: This project gets deleted by request test
   id: 503

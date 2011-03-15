@@ -15,12 +15,13 @@ class RequestController < ApplicationController
     valid_http_methods :get
 
     if params[:view] == "collection"
+      #FIXME: Move this code into a model so that it can be reused in other controllers
       predicates = []
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank?
+      if params[:project].blank? and params[:user].blank? and params[:state].blank? and params[:action_type].blank?
        render_error :status => 404, :errorcode => 'require_filter',
-         :message => "This call requires at least one filter, either by user, project or package"
+         :message => "This call requires at least one filter, either by user, project or package or state or action_type"
        return
       end
 
@@ -32,43 +33,57 @@ class RequestController < ApplicationController
       end
 
       # Filter by request type (submit, delete, ...)
+      #FIXME/FIXME2.3: This should be params[:type] instead but for whatever reason, all
+      # webui controllers already set params[:type] to 'request' (always).
       predicates << "action/@type='#{params[:action_type]}'" if params[:action_type]
 
       unless params[:project].blank?
         if params[:package].blank?
           str = "action/target/@project='#{params[:project]}'"
-          str += " or (review[@by_project='#{params[:project]}' and @state='new'])"
+          if params[:state] == "pending" or params[:state] == "review"
+            str += " or (review[@state='new' and @by_project='#{params[:project]}'] and state/@name='review')"
+          end
         else
           str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
-          str += " or (review[@by_project='#{params[:project]}' and @by_package='#{params[:package]}' and @state='new'])"
+          if params[:state] == "pending" or params[:state] == "review"
+            str += " or (review[@state='new' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'] and state/@name='review')"
+          end
         end
         predicates << str
       end
 
       if params[:user] # should be set in almost all cases
-        # user's own submitted requests
-        str = "(state/@who='#{params[:user]}'"
-        # requests where the user is reviewer or own requests that are in review by someone else
-        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
-        # find requests where user is maintainer in target project
-        maintained_projects = Array.new
-        maintained_projects_hash = Hash.new
-        u = User.find_by_login(params[:user])
-        u.involved_projects.each do |ip|
-          maintained_projects += ["action/target/@project='#{ip.name}'"]
-          maintained_projects_hash[ip.id] = true
+        user = User.find_by_login(params[:user])
+        if user # make sure the user actually exists
+          # user's own submitted requests
+          str = "(state/@who='#{params[:user]}'"
+          # requests where the user is reviewer or own requests that are in review by someone else
+          str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
+          # find requests where user is maintainer in target project
+          maintained_projects = Array.new
+          maintained_projects_hash = Hash.new
+          user.involved_projects.each do |ip|
+            maintained_projects += ["action/target/@project='#{ip.name}'"]
+            if params[:state] == "pending" or params[:state] == "review"
+              maintained_projects += ["(review[@state='new' and @by_project='#{ip.name}'] and state/@name='review')"]
+            end
+            maintained_projects_hash[ip.id] = true
+          end
+          str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+          ## find request where user is maintainer in target package, except we have to project already
+          maintained_packages = Array.new
+          user.involved_packages.each do |ip|
+            unless maintained_projects_hash.has_key?(ip.db_project_id)
+              maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+              if params[:state] == "pending" or params[:state] == "review"
+                maintained_packages += ["(review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+              end
+            end
+          end
+          str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+          str += ")"
+          predicates << str
         end
-        str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
-        ## find request where user is maintainer in target package, except we have to project already
-        maintained_packages = Array.new
-        u.involved_packages.each do |ip|
-          maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"] unless maintained_projects_hash.has_key?(ip.db_project_id)
-          #FIXME2.3: This code causes heavy load in the backend source server, to be re-evaluated.
-          #str += " or (review[@by_project='#{ip.db_project.name}' and @by_package='#{ip.name}' and @state='new'])"
-        end
-        str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-        str += ")"
-        predicates << str
       end
 
       # Pagination: Discard 'offset' most recent requests (useful with 'count')
@@ -191,7 +206,7 @@ class RequestController < ApplicationController
 
     # expand release and submit request targets if not specified
     req.each_action do |action|
-      if [ "submit", "maintenancerelease" ].include?(action.data.attributes["type"])
+      if [ "submit", "maintenance_release" ].include?(action.data.attributes["type"])
         unless action.has_element? 'target'
           packages = Array.new
           if action.source.has_attribute? 'package'
@@ -201,27 +216,35 @@ class RequestController < ApplicationController
             packages = prj.db_packages
           end
           incident_suffix = ""
-          if action.data.attributes["type"] == "maintenancerelease"
+          if action.data.attributes["type"] == "maintenance_release"
             # The maintenance ID is always the sub project name of the maintenance project
             incident_suffix = "." + action.source.project.gsub(/.*:/, "")
           end
 
+          newPackages = Array.new
+          newTargets = Array.new
           packages.each do |pkg|
-            # find target via linkinfo or fail
+            # find target via linkinfo or submit to all
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
             e = data.elements["directory/linkinfo"]
             unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
-              render_error :status => 400, :errorcode => 'unknown_target_package',
-                :message => "target package does not exist"
-              return
+              if action.data.attributes["type"] == "maintenance_release"
+                newPackages << pkg.name
+                next
+              else
+                render_error :status => 400, :errorcode => 'unknown_target_package',
+                  :message => "target package does not exist"
+                return
+              end
             end
+            newTargets << e.attributes["project"]
             newAction = action.clone
             newAction.add_element 'target' unless newAction.has_element? 'target'
             newAction.source.data.attributes["package"] = pkg.name
             newAction.target.data.attributes["project"] = e.attributes["project"]
             newAction.target.data.attributes["package"] = e.attributes["package"] + incident_suffix
-            if action.data.attributes["type"] == "maintenancerelease" and not newAction.source.has_attribute? 'rev'
-              # maintenancerelease needs the binaries, so we always use the current source
+            if action.data.attributes["type"] == "maintenance_release" and not newAction.source.has_attribute? 'rev'
+              # maintenance_release needs the binaries, so we always use the current source
               rev=nil
               if e.attributes["xsrcmd5"]
                 rev=e.attributes["xsrcmd5"]
@@ -236,6 +259,19 @@ class RequestController < ApplicationController
             end
             req.add_node newAction.data
           end
+
+          # new packages (eg patchinfos) go to all target projects by default in maintenance requests
+          newPackages.each do |pkg|
+            newTargets.each do |prj|
+              newAction = action.clone
+              newAction.add_element 'target' unless newAction.has_element? 'target'
+              newAction.source.data.attributes["package"] = pkg
+              newAction.target.data.attributes["project"] = prj
+              newAction.target.data.attributes["package"] = pkg + incident_suffix
+              req.add_node newAction.data
+            end
+          end
+
           req.delete_element action
         end
       end
@@ -291,7 +327,7 @@ class RequestController < ApplicationController
 
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
-        if action.target.has_attribute? 'package' and not ["submit", "maintenancerelease"].include? action.data.attributes["type"]
+        if action.target.has_attribute? 'package' and not ["submit", "maintenance_release"].include? action.data.attributes["type"]
           tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
         end
       end
@@ -311,7 +347,7 @@ class RequestController < ApplicationController
             return
           end
         end
-      elsif [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include?(action.data.attributes["type"])
+      elsif [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include?(action.data.attributes["type"])
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -343,7 +379,7 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] == "maintenanceincident"
+        if action.data.attributes["type"] == "maintenance_incident"
           if spkg
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
@@ -360,7 +396,7 @@ class RequestController < ApplicationController
           end
           unless action.target.has_attribute?(:project)
             # hardcoded default. frontends can lookup themselfs a different target via attribute search
-            at = AttribType.find_by_name("OBS:Maintenance")
+            at = AttribType.find_by_name("OBS:MaintenanceProject")
             unless at
               render_error :status => 404, :errorcode => 'not_found',
                 :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
@@ -584,11 +620,11 @@ class RequestController < ApplicationController
 
   def command_addreview
      command_changestate# :cmd => "addreview",
-                       # :by_user => params[:by_user], :by_group => params[:by_group]
+                       # :by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
   def command_changereviewstate
      command_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
-                        #:by_user => params[:by_user], :by_group => params[:by_group]
+                        #:by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
   def command_changestate
     if params[:id].nil? or params[:id].to_i == 0
@@ -674,7 +710,7 @@ class RequestController < ApplicationController
       prj = DbProject.get_by_name(params[:by_project])
     end
 
-    # generic permission check
+    # generic permission checks
     permission_granted = false
     if @http_user.is_admin?
       permission_granted = true
@@ -682,14 +718,20 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
       return
-    elsif params[:newstate] == "superseded" and not params[:superseded_by]
-      render_error :status => 403, :errorcode => "post_request_missing_parameter",
-               :message => "Supersed a request requires a 'superseded_by' parameter with the request id."
-      return
-    elsif params[:cmd] == "addreview" and (req.creator == @http_user.login or req.is_reviewer? @http_user)
+    elsif params[:cmd] == "addreview" 
+      unless [ "review", "new" ].include? req.state.name
+        render_error :status => 403, :errorcode => "add_review_no_permission",
+              :message => "The request is not in state new or review"
+        return
+      end
       # allow request creator to add further reviewers
-      permission_granted = true
-    elsif (params[:cmd] == "changereviewstate")
+      permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
+    elsif params[:cmd] == "changereviewstate"
+      unless req.state.name == "review"
+        render_error :status => 403, :errorcode => "review_change_state_no_permission",
+              :message => "The request is not in state review"
+        return
+      end
       permission_granted = true if @http_user.is_in_group?(params[:by_group])
       permission_granted = true if params[:by_user] == @http_user.login
       if params[:by_project] 
@@ -715,17 +757,34 @@ class RequestController < ApplicationController
       permission_granted = true
     end
 
-    # permission and validation check for each request inside
+    if params[:newstate] == "superseded" and not params[:superseded_by]
+      render_error :status => 403, :errorcode => "post_request_missing_parameter",
+               :message => "Supersed a request requires a 'superseded_by' parameter with the request id."
+      return
+    end
+
+    # permission and validation check for each action inside
+    write_permission_in_some_source = false
+    write_permission_in_some_target = false
+
     req.each_action do |action|
-      if [ "submit", "change_devel", "maintenancerelease", "maintenanceincident" ].include? action.data.attributes["type"]
+
+      # all action types need a target project in any case for accept
+      target_project = DbProject.find_by_name(action.target.project)
+      target_package = source_package = nil
+      if not target_project and params[:newstate] == "accepted"
+        render_error :status => 400, :errorcode => 'not_existing_target',
+          :message => "Unable to process project #{action.target.project}; it does not exist."
+        return
+      end
+
+      if [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include? action.data.attributes["type"]
         source_package = nil
-        target_package = nil
-        if params[:newstate] == "declined" or params[:newstate] == "revoked"
+        if [ "declined", "revoked", "superseded" ].include? params[:newstate]
           # relaxed access checks for getting rid of request
           source_project = DbProject.find_by_name(action.source.project)
-          target_project = DbProject.find_by_name(action.target.project)
         else
-          # full access checks
+          # full read access checks
           source_project = DbProject.get_by_name(action.source.project)
           target_project = DbProject.get_by_name(action.target.project)
           if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
@@ -748,74 +807,129 @@ class RequestController < ApplicationController
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
           elsif [ "submit", "change_devel" ].include? action.data.attributes["type"]
+            # fallback for old requests, new created ones get this one added in any case.
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
         end
-        if ( target_package and @http_user.can_modify_package? target_package ) or
-           ( not target_package and target_project and @http_user.can_modify_project? target_project )
-           permission_granted = true
-        elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
+        if source_project and req.state.name == "new" and params[:newstate] == "revoked"  and not permission_granted
            # source project owners should be able to revoke submit requests as well
            source_package = source_project.db_packages.find_by_name(action.source.package)
-           if ( source_package and @http_user.can_modify_package? source_package ) or
-              ( not source_package and @http_user.can_modify_project? source_project )
-             permission_granted = true
-           elsif permission_granted != true
+           if ( source_package and not @http_user.can_modify_package? source_package ) or
+              ( not source_package and not @http_user.can_modify_project? source_project )
              render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
-        else
-          if permission_granted != true
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data.attributes['type']})"
-            return
+        end
+
+      elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
+        # target must exist
+        if params[:newstate] == "accepted"
+          if action.target.has_attribute? :package
+            target_package = target_project.db_packages.find_by_name(action.target.package)
+            unless target_package
+              render_error :status => 400, :errorcode => 'not_existing_target',
+                :message => "Unable to process package #{action.target.project}/#{action.target.package}; it does not exist."
+              return
+            end
           end
         end
+      else
+        render_error :status => 400, :errorcode => "post_request_no_permission",
+          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+        return
+      end
+
+      # general source write permission check (for revoke)
+      if ( source_package and @http_user.can_modify_package? source_package ) or
+         ( not source_package and source_project and @http_user.can_modify_project? source_project )
+           write_permission_in_some_source = true
+      end
     
-      elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
-        # check permissions for delete
-        project = DbProject.find_by_name(action.target.project)
-        if not project and params[:newstate] == "accepted"
-          msg = "Unable to delete project #{action.target.project}; it does not exist."
-          render_error :status => 400, :errorcode => 'not_existing_target',
-            :message => msg
+      # general write permission check on the target on accept
+      write_permission_in_this_action = false
+      if target_package 
+        if @http_user.can_modify_package? target_package
+          write_permission_in_some_target = true
+          write_permission_in_this_action = true
+        end
+      else
+        if target_project and @http_user.can_create_package_in? target_project
+          write_permission_in_some_target = true
+          write_permission_in_this_action = true
+        end
+      end
+
+      # abort immediatly if we want to write and can't.
+      if params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] and not write_permission_in_this_action
+        msg = "No permission to modify target of request #{req.id} (type #{action.data.attributes['type']}): project #{action.target.project}"
+        msg += ", package #{action.target.package}" if action.target.has_attribute? :package
+        render_error :status => 403, :errorcode => "post_request_no_permission",
+          :message => msg
+        return
+      end
+    end # end of each action check
+
+    # General permission checks if a write access in any location is enough
+    unless permission_granted
+      if params[:cmd] == "addreview"
+        # Is the user involved in any project or package ?
+        unless write_permission_in_some_target or write_permission_in_some_source
+          render_error :status => 403, :errorcode => "addreview_not_permitted",
+            :message => "You have no role in request #{req.id}"
           return
         end
-        package = nil
-        if action.target.has_attribute? :package
-           package = project.db_packages.find_by_name(action.target.package)
-           if not package and params[:newstate] == "accepted"
-             msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
-             render_error :status => 400, :errorcode => 'not_existing_target',
-               :message => msg
-             return
-           end
-           if package and @http_user.can_modify_package? package
-              permission_granted = true
-           end
-        end
-        if not permission_granted and project and @http_user.can_modify_project? project
-           permission_granted = true
-        end
-        unless permission_granted == true
+      elsif params[:cmd] == "changestate" 
+        if [ "superseded" ].include? params[:newstate]
+          # Is the user involved in any project or package ?
+          unless write_permission_in_some_target or write_permission_in_some_source
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "You have no role in request #{req.id}"
+            return
+          end
+        elsif [ "accepted" ].include? params[:newstate] 
+          # requires write permissions in all targets, this is already handled in each action check
+        elsif [ "revoked" ].include? params[:newstate] 
+          # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
+          unless write_permission_in_some_source
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to revoke request #{req.id}"
+            return
+          end
+        elsif req.state.name == "revoked" and [ "new" ].include? params[:newstate] 
+          unless write_permission_in_some_source
+            # at least on one target the permission must be granted on decline
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to reopen request #{req.id}"
+            return
+          end
+        elsif req.state.name == "declined" and [ "new" ].include? params[:newstate] 
+          unless write_permission_in_some_target
+            # at least on one target the permission must be granted on decline
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to reopen request #{req.id}"
+            return
+          end
+        elsif [ "declined" ].include? params[:newstate] 
+          unless write_permission_in_some_target
+            # at least on one target the permission must be granted on decline
+            render_error :status => 403, :errorcode => "post_request_no_permission",
+              :message => "No permission to change decline request #{req.id}"
+            return
+          end
+        else
           render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
+            :message => "No permission to change request #{req.id} state"
           return
         end
       else
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+        render_error :status => 400, :errorcode => "code_error",
+          :message => "PLEASE_REPORT: we lacked to handle this situation in our code !"
         return
       end
     end
 
-    # at this point permissions should be granted, but let's double check
-    unless permission_granted == true
-      render_error :status => 403, :errorcode => "post_request_no_permission",
-        :message => "No permission to change state of request #{req.id} (INTERNAL ERROR, PLEASE REPORT ! )"
-      return
-    end
+    # permission granted for the request at this point
 
     # All commands are process by the backend. Just the request accept is controlled by the api.
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :by_project, :by_package, :superseded_by, :comment])
@@ -823,6 +937,9 @@ class RequestController < ApplicationController
       pass_to_backend path
       return
     end
+
+    # have a unique time stamp for release
+    acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
@@ -896,6 +1013,7 @@ class RequestController < ApplicationController
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
 
+          relinkSource=false
           unless target_package
             # check for target project attributes
             initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
@@ -903,12 +1021,19 @@ class RequestController < ApplicationController
             linked_package = target_project.find_package(action.target.package)
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
-            target_package = Package.new(source_package.to_axml, :project => action.target.project)
-            target_package.name = action.target.package
+            if linked_package
+              target_package = Package.new(linked_package.to_axml, :project => action.target.project)
+            else
+              target_package = Package.new(source_package.to_axml, :project => action.target.project)
+              target_package.remove_all_flags
+              target_package.remove_devel_project
+              if initialize_devel_package
+                target_package.set_devel( :project => source_project.name, :package => source_package.name )
+                relinkSource=true
+              end
+            end
             target_package.remove_all_persons
-            target_package.remove_all_flags
-            target_package.remove_devel_project
-            target_package.set_devel( :project => source_project.name, :package => source_package.name ) if initialize_devel_package
+            target_package.name = action.target.package
             target_package.save
 
             # check if package was available via project link and create a branch from it in that case
@@ -922,11 +1047,29 @@ class RequestController < ApplicationController
           Suse::Backend.post cp_path, nil
 
           # cleanup source project
-          if sourceupdate == "cleanup"
+          if relinkSource and not sourceupdate == "noupdate"
+            # source package got used as devel package, link it to the target
+            # remove it ...
+            cp_path = "/source/#{action.source.project}/#{action.source.package}"
+            cp_path << build_query_from_hash(cp_params, [:user, :comment])
+            Suse::Backend.delete cp_path, nil
+            # create again via branch ...
+            h = {}
+            h[:cmd] = "branch"
+            h[:user] = params[:user]
+            h[:comment] = "initialized devel package after accepting #{params[:id]}"
+            h[:oproject] = action.target.project
+            h[:opackage] = action.target.package
+            cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
+            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage])
+            Suse::Backend.post cp_path, nil
+
+          elsif sourceupdate == "cleanup"
+            # cleanup source project
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
             if source_project.db_packages.count == 1
-              #find linking repos
+              # find linking repos
               lreps = Array.new
               source_project.repositories.each do |repo|
                 repo.linking_repositories.each do |lrep|
@@ -972,7 +1115,7 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
-      elsif action.data.attributes["type"] == "maintenanceincident"
+      elsif action.data.attributes["type"] == "maintenance_incident"
 
         # create incident project
         source_project = DbProject.get_by_name(action.source.project)
@@ -984,12 +1127,12 @@ class RequestController < ApplicationController
         action.target.data["project"] = incident.db_project.name
         req.save
 
-      elsif action.data.attributes["type"] == "maintenancerelease"
+      elsif action.data.attributes["type"] == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
         tprj = DbProject.get_by_name(action.target.project)
 
 #FIXME2.3: support limiters to specified repositories
-        release_package(pkg, tprj, action.target.package, action.source.rev, req)
+        release_package(pkg, tprj, action.target.package, action.source.rev, acceptTimeStamp, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"

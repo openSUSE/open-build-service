@@ -10,15 +10,6 @@ class BuildController < ApplicationController
       prj = DbProject.get_by_name params[:project]
     end
 
-    # returns <binarylist /> on unkown package !
-    # normally we'd do e.g.: raise DbPackage::ReadAccessError.new "" unless pkg
-
-# FIXME2.2: This breaks repository download and no test case is showing why it is needed.
-#    if prj and params[:package] and pkg.nil?
-#      render :text => "<binarylist />", :content_type => "text/xml"
-#      return
-#    end
-
     pass_to_backend 
   end
 
@@ -34,8 +25,10 @@ class BuildController < ApplicationController
       pass_to_backend
       return
     elsif request.post?
+      #check if user has project modify rights
       allowed = false
       allowed = true if permissions.global_project_change
+      allowed = true if permissions.project_change? prj
 
       #check for cmd parameter
       if params[:cmd].nil?
@@ -48,13 +41,6 @@ class BuildController < ApplicationController
         render_error :status => 400, :errorcode => "illegal_request",
           :message => "unsupported POST command #{params[:cmd]} to #{request.request_uri}"
         return
-      end
-
-      if not allowed
-        prj = DbProject.get_by_name( params[:project] ) 
-
-        #check if user has project modify rights
-        allowed = true if permissions.project_change? prj
       end
 
       if not allowed and not params[:package].nil?
@@ -124,6 +110,16 @@ class BuildController < ApplicationController
     end
 
     pass_to_backend path
+  end
+
+  def builddepinfo
+    valid_http_methods :get
+    required_parameters :project, :repository, :arch
+
+    # just for permission checking
+    DbProject.get_by_name params[:project]
+
+    pass_to_backend
   end
 
   # /build/:prj/:repo/:arch/:pkg

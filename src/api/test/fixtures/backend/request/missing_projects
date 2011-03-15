@@ -1,0 +1,12 @@
+<request id="999">
+  <action type='submit'>
+    <source project='NotExisiting' package='notthere' rev='1' />
+    <target project='NeitherExisting' package='unknown' />
+    <options>
+      <sourceupdate>cleanup</sourceupdate>
+    </options>
+  </action>
+  <description/>
+  <state who="tom" name="new"/>
+</request>
+

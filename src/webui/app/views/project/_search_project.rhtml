@@ -6,11 +6,12 @@
     <div>
       <% unless @important_projects.each.blank? %>
         <h3>Main Projects</h3>
-        <p>
-          <% for project in @important_projects -%>
-            <%= link_to project.name, :action => :show, :project => project %>
-          <% end -%>
-        </p>
+        <% for project in @important_projects -%>
+          <p>
+            <%= link_to project.name, :action => :show, :project => project %>:
+            <%= project.title %>
+          </p>
+        <% end -%>
     <% end %>
 
     <h3>

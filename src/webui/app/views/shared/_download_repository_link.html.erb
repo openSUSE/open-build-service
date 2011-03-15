@@ -1,7 +1,5 @@
 <% unless DOWNLOAD_URL.nil? %>
   <% url = "#{DOWNLOAD_URL}/#{project.to_s.gsub(/:/,':/')}/#{repository}" %>
-  <p>
-    <%= link_to(image_tag('icons/drive_web.png'), url) %>
-    <%= link_to('Go to download repository', url) %>
-  </p>
+  <%= link_to(image_tag('icons/drive_web.png'), url) %>
+  <%= link_to('Go to download repository', url) %>
 <% end %>

@@ -77,10 +77,22 @@ hide_project:
   flag: access
   position: 1
 
+no_publish_hide_project:
+  status: "disable"
+  db_project_id: 3000
+  flag: publish
+  position: 1
+
 hide_remoteurlproject:
   status: "disable"
   db_project_id: 3006
   flag: access
+  position: 1
+
+no_publish_hide_remoteurlproject:
+  status: "disable"
+  db_project_id: 3006
+  flag: publish
   position: 1
 
 source_protected_project:
@@ -89,9 +101,21 @@ source_protected_project:
   flag: sourceaccess
   position: 1
 
+no_publish_source_protected_project:
+  status: "disable"
+  db_project_id: 3001
+  flag: publish
+  position: 1
+
 binary_protected_project:
   status: "disable"
   db_project_id: 3002
   flag: binarydownload
+  position: 1
+
+no_publish_binary_protected_project:
+  status: "disable"
+  db_project_id: 3002
+  flag: publish
   position: 1
 

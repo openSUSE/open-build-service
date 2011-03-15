@@ -1,0 +1,34 @@
+<% @pagetitle = "Most Active Packages" %>
+<%
+  @crumb_list = [
+    link_to( 'Statistics', :action => :index),
+    'Most Active Packages'
+  ]
+%>
+
+<div id="most_active_packages">
+
+  <h4>
+    Most Active Packages:
+    <%= link_to_remote image_tag( 'info_light.png', :title => 'display info/help' ),
+      :url => { :action => 'display_info', :for => 'most_active_packages' } -%>
+  </h4>
+  <br/>
+
+  <% if @most_active_packages.each.length > 0 %>
+  <ol>
+    <% @most_active_packages.each do |package| %>
+      <li>
+        <% title = "activity = #{number_with_precision package.activity}%" %>
+        <%= link_to_package_view( package.name, package.project, title, 50 ) -%>
+      </li>
+    <% end %>
+  </ol>
+  <% end %>
+
+  <% if params[:more] -%>
+    <%= link_to_mainpage %>
+  <% end %>
+
+</div>
+

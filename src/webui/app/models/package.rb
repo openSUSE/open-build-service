@@ -22,9 +22,10 @@ class Package < ActiveXML::Base
     name.to_s
   end
 
-  def save_file( opt = {} )
-    file = opt[:file]
-    logger.debug "storing file: #{file.inspect}, filename: #{opt[:filename]}, comment: #{opt[:comment]}"
+  def save_file(opt = {})
+    content = "" # touch an empty file first
+    content = opt[:file].read if opt[:file]
+    logger.debug "storing file: #{content}, filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     put_opt = Hash.new
     put_opt[:package] = self.name
@@ -34,8 +35,8 @@ class Package < ActiveXML::Base
     put_opt[:keeplink] = opt[:expand] if opt[:expand]
 
     fc = FrontendCompat.new
-    fc.put_file file.read, put_opt
-    true
+    fc.put_file(content, put_opt)
+    return true
   end
 
   def remove_file( name, expand = nil )

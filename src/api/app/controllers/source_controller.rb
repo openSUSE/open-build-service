@@ -160,6 +160,10 @@ class SourceController < ApplicationController
         end
       end
 
+      # FIXME: find requests that have this project as a source or target and remove them
+      # FIXME: find all requests which have a by_project review and remove them
+      # FIXME: same for by_package review of all packages in this project
+
       DbProject.transaction do
         logger.info "destroying project object #{pro.name}"
         pro.destroy
@@ -394,6 +398,9 @@ class SourceController < ApplicationController
           :message => msg
         return
       end
+
+      #FIXME: Check for all requests that have this packae as either source or target
+      #FIXME: Checkk all requests in state review that have a by_package review on this one
 
       # exec
       DbPackage.transaction do
@@ -709,7 +716,7 @@ class SourceController < ApplicationController
       removedRepositories = Array.new
       if prj
         prj.repositories.each do |repo|
-          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0
+          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0 and not repo.remote_project_name
             repo.linking_repositories.each do |lrep|
               removedRepositories << lrep
             end
@@ -943,7 +950,7 @@ class SourceController < ApplicationController
       if pack # local package
         path = "/source/#{URI.escape(pack.db_project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
       end
-      path += build_query_from_hash(params, [:rev, :meta])
+      path += build_query_from_hash(params, [:rev, :meta, :deleted])
       pass_to_backend path
       return
     end
@@ -1029,7 +1036,7 @@ class SourceController < ApplicationController
   def index_createmaintenanceincident
     # set defaults
     unless params[:attribute]
-      params[:attribute] = "OBS:Maintenance"
+      params[:attribute] = "OBS:MaintenanceProject"
     end
 
     # find maintenance project via attribute
@@ -1111,12 +1118,14 @@ class SourceController < ApplicationController
         if params[:package]
           projects = DbProject.find_by_attribute_type( at )
           projects.each do |prj|
-            prj.linkedprojects.each do |lprj|
-              if lprj.linked_db_project
-                if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                  @packages.push({ :target_project => prj, :package => pkg }) unless pkg.db_project.disabled_for? 'access', nil, nil and not @http_user.can_access? pkg.db_project
-                else
-                  # FIXME: add support for branching from remote projects
+            unless @packages.map {|p| p[:target_project] }.include? prj # avoid double instance from direct found packages
+              prj.linkedprojects.each do |lprj|
+                if lprj.linked_db_project
+                  if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
+                    @packages.push({ :target_project => prj, :package => pkg }) unless pkg.db_project.disabled_for? 'access', nil, nil and not @http_user.can_access? pkg.db_project
+                  else
+                    # FIXME: add support for branching from remote projects
+                  end
                 end
               end
             end
@@ -1180,6 +1189,7 @@ class SourceController < ApplicationController
     @packages.each do |p|
       # is a update project defined and a package there ?
       pac = p[:package]
+      prj = pac.db_project
       aname = params[:update_project_attribute]
       name_parts = aname.split(/:/)
       if name_parts.length != 2
@@ -1194,16 +1204,21 @@ class SourceController < ApplicationController
 
       # check for update project
       if not params[:request] and a = p[:target_project].find_attribute(name_parts[0], name_parts[1]) and a.values[0]
-        if pa = DbPackage.find_by_project_and_name( a.values[0].value, p[:package].name )
-          # check permissions
-          DbPackage.get_by_project_and_name( a.values[0].value, p[:package].name )
-          branch_target_project = pa.db_project.name
-          branch_target_package = pa.name
+        if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=false )
+          pac = DbPackage.get_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=false )
+          prj = pac.db_project
+          branch_target_project = pac.db_project.name
+          branch_target_project = pac.db_project.name
+          branch_target_package = pac.name
         else
           # package exists not yet in update project, but it may have a project link ?
-          uprj = DbProject.find_by_name(a.values[0].value)
-          if uprj and uprj.find_package( pac.name ) and DbProject.get_by_name(a.values[0].value)
+          if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=true )
+            prj = DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
+          else
+            render_error :status => 404, :errorcode => "unknown_package",
+              :message => "branch source package does not exist in UpdateProject #{a.values[0].value}. Missing project link ?"
+            return
           end
         end
       end
@@ -1220,7 +1235,7 @@ class SourceController < ApplicationController
       end
 
       # create repositories, if missing
-      pac.db_project.repositories.each do |repo|
+      prj.repositories.each do |repo|
         repoName = proj_name+"_"+repo.name
         unless tprj.repositories.find_by_name(repoName)
           trepo = tprj.repositories.create :name => repoName
@@ -1368,58 +1383,77 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
     project_name = params[:project]
+    new_format = params[:new_format]
 
     pro = DbProject.find_by_name project_name
 
-    name=""
-    if params[:name]
-      name=params[:name] if params[:name]
+    name=nil
+    maintenanceID=nil
+    pkg_name = "_patchinfo:"
+    pkg_name = "patchinfo" if new_format
+    if new_format
+      if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
+        # this is a maintenance project, the sub project name is the maintenance ID
+        maintenanceID = pro.name.gsub(/.*:/, '')
+      end
+    elsif params[:name]
+      name=params[:name]
+      pkg_name = "_patchinfo:" + name
+    else
+      name=DbProject.find_by_name( params[:project] ).db_packages[0].name
+      name.gsub!(/\..*/, '')
+      pkg_name = "_patchinfo:" + name
     end
-    pkg_name = "_patchinfo:#{name.gsub(/\W/, '_')}"
     patchinfo_path = "#{request.path}/#{pkg_name}"
-
-    # request binaries in project from backend
-    binaries = list_all_binaries_in_path("/build/#{params[:project]}")
-
-    if binaries.length < 1 and not params[:force]
-      render_error :status => 400, :errorcode => "no_matched_binaries",
-        :message => "No binary packages were found in project repositories"
-      return
-    end
 
     # FIXME: check for still building packages
 
     # create patchinfo package
-    if not DbPackage.find_by_project_and_name( params[:project], pkg_name )
+    if not DbPackage.exists_by_project_and_name( params[:project], pkg_name )
       prj = DbProject.find_by_name( params[:project] )
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
-      Package.find(pkg_name, :project => params[:project]).save
-      if name==""
-        name=pkg_name
-      end
+      pkg.add_flag("build", "enable", nil, nil)
+      pkg.store
     else
       # shall we do a force check here ?
     end
 
+    # request binaries in project from backend
+    binaries = Array.new
+    unless new_format
+      binaries = list_all_binaries_in_path("/build/#{params[:project]}")
+
+      if binaries.length < 1 and not params[:force]
+        render_error :status => 400, :errorcode => "no_matched_binaries",
+          :message => "No binary packages were found in project repositories"
+        return
+      end
+    end
+
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
-    xml = node.patchinfo(:name => name) do |n|
+    attrs = { }
+    attrs[:incident] = maintenanceID if maintenanceID 
+    attrs[:name] = name if name 
+    xml = node.patchinfo(attrs) do |n|
       binaries.each do |binary|
         node.binary(binary)
       end
       node.packager    @http_user.login
       node.bugzilla    ""
-      node.swampid     ""
       node.category    ""
       node.rating      ""
       node.summary     ""
       node.description ""
       # FIXME add all bugnumbers from attributes
     end
-    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", xml )
+    p={ :user => @http_user.login, :comment => "generated by createpatchinfo call" }
+    patchinfo_path << "/_patchinfo"
+    patchinfo_path << build_query_from_hash(p, [:user, :comment])
+    backend_put( patchinfo_path, xml )
 
-    render_ok
+    render_ok :data => {:targetproject => pro.name, :targetpackage => pkg_name}
   end
 
   def list_all_binaries_in_path path
@@ -1567,6 +1601,9 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
 
+    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack.update_timestamp if pack # in case of _project package
+
     if params[:package] == "_product"
       update_product_autopackages params[:project]
     end
@@ -1583,6 +1620,9 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
     
+    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack.update_timestamp if pack # in case of _project package
+
     if params[:package] == "_product"
       update_product_autopackages params[:project]
     end
@@ -1595,7 +1635,7 @@ class SourceController < ApplicationController
     opackage_name = params[:opackage]
  
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok])
+    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok, :meta])
     pass_to_backend path
   end
 
@@ -1632,6 +1672,8 @@ class SourceController < ApplicationController
           :message => "Unknown package #{spackage} in project #{sproject}"
         return
       end
+    else
+      tpkg.update_timestamp
     end
 
     # We need to use the project name of package object, since it might come via a project linked project
@@ -1644,6 +1686,9 @@ class SourceController < ApplicationController
   def index_package_runservice
     valid_http_methods :post
     params[:user] = @http_user.login
+
+    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack.update_timestamp
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment])
@@ -1670,6 +1715,7 @@ class SourceController < ApplicationController
     pkg_linkrev = params[:linkrev]
 
     pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
+    pkg.update_timestamp
 
     #convert link to branch
     rev = ""
@@ -1952,10 +1998,12 @@ class SourceController < ApplicationController
   end
 
   def valid_package_name? name
+    return true if name == "_patchinfo"
     return true if name == "_pattern"
     return true if name == "_project"
     return true if name == "_product"
     return true if name =~ /^_product:[-_+\w\.:]*$/
+    return true if name =~ /^_patchinfo:[-_+\w\.:]*$/ # obsolete, just for backward compatibility
     name =~ /^\w[-_+\w\.:]*$/
   end
 end

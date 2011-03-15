@@ -7,7 +7,7 @@ class SearchController < ApplicationController
   end
 
   def search
-    required_parameters :search_text
+    redirect_to :action => "index" and return unless params.has_key?(:search_text)
 
     @search_text = params[:search_text]
     if @search_text.starts_with?("obs://")
@@ -55,11 +55,12 @@ class SearchController < ApplicationController
         p << "contains(description,'#{@search_text}')" if params[:description]
         predicate = p.join(' or ')
 
-        if predicate.empty?
-          predicate = "contains(attribute/@name,'#{@attribute}')" if !@attribute.blank?
-        else
-          predicate << ' and ' if predicate
-          predicate << "contains(attribute/@name,'#{@attribute}')" if !@attribute.blank?
+        unless @attribute.blank?
+          if predicate.empty?
+            predicate = "contains(attribute/@name,'#{@attribute}')"
+          else
+            predicate << "and contains(attribute/@name,'#{@attribute}')"
+          end
         end
 
         if predicate.empty?

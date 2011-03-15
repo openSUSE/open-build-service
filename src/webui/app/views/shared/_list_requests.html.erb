@@ -1,12 +1,12 @@
-<% elide_len ||= 44 %>
+<% elide_len ||= 40 %>
 
 <% if requests.blank? %>
-  <p><em>No requests.</em></p>
+  <p>No requests.</p>
 <% else %>
   <table cellspacing="1" id="request_table" class="tablesorter" style="width: 95%">
     <thead>
       <tr>
-        <th style="width: 1%">Date</th>
+        <th style="width: 1%">Modified</th>
         <th style="width: 40%">Source</th>
         <th style="width: 40%">Target</th>
         <th style="width: 5%">Requester</th>
@@ -20,23 +20,29 @@
         ae = req.action if req.has_element? :action %>
         <tr>
           <% if req.has_element? :state %>
-            <td class="nowrap"><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
+            <td class="nowrap"><!-- <%= req.state.when.tr('-T:','') %> --><%= fuzzy_time_string(req.state.value :when) %></td>
           <% end %>
           <td>
-            <% if ae.has_element? :source %> <!-- <%= ae.source.project %>/<%= ae.source.package %> -->
-              <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, elide_len) %>
-              <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
-              <% if package_exists?(ae.source.project, ae.source.package) %>
-                <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+            <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
+              <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
+                <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, elide_len) %>
+                <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
+                <% if package_exists?(ae.source.project, ae.source.package) %>
+                  <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                <% else %>
+                  <%= src_pack %>
+                <% end %>
               <% else %>
-                <%= src_pack %>
+                <%# Happens for maintenance requests, no source package there %>
+                <% debugger %>
+                <%= link_to(elide(ae.source.project, elide_len), :controller => :project, :action => :show, :project => ae.source.project) %>
               <% end %>
             <% end %>
           </td>
           <td>
             <% if ae.has_element?(:target) %>
               <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
-                <% if ae.target.has_attribute?(:package) and package_exists?(ae.target.project, ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and package_exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
                   <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
                   <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
                   <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
@@ -52,11 +58,11 @@
               <% end %>
             <% end %>
           </td>
-          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req)}%></td>
+          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req), :short => true}%></td>
           <td class="nowrap"><%= reqtype(req) %></td>
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle Request'), :controller => :request, :action => :show, :id => req.value(:id)) -%>
-            <% if ae.has_element? :source %> 
+            <% if ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
               <script type="text/javascript">
                 setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )

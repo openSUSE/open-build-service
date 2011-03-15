@@ -207,11 +207,16 @@ our $aggregatelist = [
      ]],
 ];
 
+# former: kernel - 123 - 1   123: incident
+# now:    sec-123 - 1 -1
 our $patchinfo = [
     'patchinfo' => 
-            'name',
+            'incident',	# id
+            'name',     # optional
+            'version',	# optional, defaults to 1
             [],
-	  [ 'binary' ],
+	  [ 'package' ],# optional
+	  [ 'binary' ],	# optional
          [[ 'bugzilla' =>
 		'name',
 		'_content',
@@ -221,7 +226,7 @@ our $patchinfo = [
             'rating',
             'summary',
             'description',
-            'swampid',
+            'swampid',	# obsolete
             'packager',
             'zypp_restart_needed',
             'reboot_needed',
@@ -258,6 +263,7 @@ our $projpack = [
 		'error',
 		[ $packinfo ],
 		$aggregatelist,
+		$patchinfo,
 		@flags,
 		'bcntsynctag',
 	 ]],
@@ -925,7 +931,7 @@ our $request = [
 	'id',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
      [[ 'action' =>
-	    'type',	# currently submit, delete, change_devel, add_role, maintenancerelease, maintenanceincident (obsolete: set_bugowner)
+	    'type',	# currently submit, delete, change_devel, add_role, maintenance_release, maintenance_incident (obsolete: set_bugowner)
 	  [ 'source' =>
 	        'project',
 	        'package',
@@ -1114,6 +1120,7 @@ our $services = [
 our $servicetype = [
     'service' =>
         'name',
+        'hidden', # "true" to suppress it from service list in GUIs
         [],
         'summary',
         'description',
@@ -1129,6 +1136,62 @@ our $servicetype = [
 our $servicelist = [
     'servicelist' =>
         [ $servicetype ],
+];
+
+our $updateinfoitem = [
+     'update' =>
+	    'from',
+	    'status',
+	    'type',
+	    'version',
+	    [],
+	    'id',
+	    'title',
+	    'release',
+	  [ 'issued' =>
+		'date',
+	  ],
+	  [ 'updated' =>
+		'date',
+	  ],
+	    'reboot_suggested',
+	  [ 'references' =>
+	     [[ 'reference' =>
+		    'href',
+		    'id',
+		    'title',
+		    'type',
+	     ]],
+	  ],
+	    'description',
+	  [ 'pkglist',
+	     [[	'collection' =>
+		    'short',
+		    [],
+		    'name',
+		 [[ 'package' =>
+			'name',
+			'epoch',
+			'version',
+			'release',
+			'arch',
+			'src',
+			[],
+			'filename',
+		      [ 'sum' =>	# obsolete?
+			    'type',
+			    '_content',
+		      ],
+			'reboot_suggested',
+			'restart_suggested',
+			'relogin_suggested',
+		 ]],
+	     ]],
+	  ],
+];
+
+our $updateinfo = [
+    'updates' => [ $updateinfoitem ],
 ];
 
 1;

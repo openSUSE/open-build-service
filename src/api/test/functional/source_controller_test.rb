@@ -141,6 +141,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_use_illegal_encoded_parameters
+    prepare_request_with_user "king", "sunflower"
+    put "/source/kde4/kdelibs/DUMMY?comment=working%20with%20Umläut", "WORKING"
+    assert_response :success
+    put "/source/kde4/kdelibs/DUMMY?comment=illegalchar#{0x96.chr}#{0x96.chr}asd", "NOTWORKING"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_text_encoding" }
+  end
 
   def test_get_project_meta
     prepare_request_with_user "tom", "thunder"
@@ -468,13 +476,8 @@ class SourceControllerTest < ActionController::IntegrationTest
   private :do_change_project_meta_test
 
 
-  def test_create_project_meta
-    do_create_project_meta_test("king", "sunflower")
-  end
-  
-  
-  def do_create_project_meta_test (name, pw)
-    prepare_request_with_user( name, pw)
+  def test_create_and_delete_project
+    prepare_request_with_user("king", "sunflower")
     # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
     assert_response :success
@@ -494,10 +497,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_select "project[name=kde5]"
     assert_select "person[userid=king][role=maintainer]", {}, "Creator was not added as project maintainer"
+
+    prepare_request_with_user "maintenance_coord", "power"
+    delete "/source/kde5"
+    assert_response 403
+    prepare_request_with_user "fred", "geröllheimer"
+    delete "/source/kde5"
+    assert_response :success
   end
-  private :do_create_project_meta_test
-  
-  
   
   
   def test_put_invalid_project_meta
@@ -513,21 +520,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     # Write corrupt data back
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s + "</xml>"
     assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "validation_failed" }
 
     prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
-    if $ENABLE_BROKEN_TEST
-    put url_for(:controller => :source, :action => :project_meta, :project => "../source/bang"), doc.to_s
-    assert_response( 404, "--> Was able to create project at illegal path")
     put url_for(:controller => :source, :action => :project_meta)
-    assert_response( 400, "--> Was able to create project at illegal path")
-    put url_for(:controller => :source, :action => :project_meta, :project => ".")
-    assert_response( 400, "--> Was able to create project at illegal path")
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "validation_failed" }
+    put url_for(:controller => :source, :action => :project_meta, :project => "."), doc.to_s
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_project_name" }
     
     #must not create a project with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
-    assert_response( 400, "--> Was able to create project with different project-name in _meta.xml")    
-    end
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "project_name_mismatch" }
     #TODO: referenced repository names must exist
     
     
@@ -852,18 +859,14 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
-    if $ENABLE_BROKEN_TEST
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "../bang"), doc.to_s
-    assert_response( 404, "--> Was able to create package at illegal path")
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4"), doc.to_s
-    assert_response( 404, "--> Was able to create package at illegal path")
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "."), doc.to_s
-    assert_response( 400, "--> Was able to create package at illegal path")
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
     
     #must not create a package with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
-    assert_response( 400, "--> Was able to create package with different project-name in _meta.xml")     
-    end
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "package_name_mismatch" }
     #verify data is unchanged: 
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
@@ -1138,13 +1141,26 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # delete single package in project
     prepare_request_with_user "fredlibs", "geröllheimer"
-    delete "/source/kde4/kdelibs" 
+    put "/source/kde4/kdelibs/DUMMYFILE", "dummy"
+    assert_response :success
+    # to have different revision number in meta and plain files
+    delete "/source/kde4/kdelibs?user=illegal&comment=test%20deleted" 
     assert_response :success
 
     get "/source/kde4/kdelibs" 
     assert_response 404
     get "/source/kde4/kdelibs/_meta" 
     assert_response 404
+
+    # check history
+    get "/source/kde4/kdelibs/_history?deleted=1" 
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
+    get "/source/kde4/kdelibs/_history?meta=1&deleted=1" 
+    assert_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
+    assert_response :success
 
     # list deleted packages
     get "/source/kde4", :deleted => 1
@@ -1155,7 +1171,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/_history", :deleted => 1
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    srcmd5 = node.each_revision.last.srcmd5.text if $ENABLE_BROKEN_TEST
+    srcmd5 = node.each_revision.last.srcmd5.text 
+    #if $ENABLE_BROKEN_TEST
 # FIXME: this is currently not working in backend
 #    get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
 #    assert_response :success
@@ -1212,6 +1229,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/my_patch.diff"
     assert_response :success
+    delete "/source/kde4/kdelibs/DUMMYFILE" # restore as before
+    assert_response :success
 
     # undelete project again
     post "/source/kde4", :cmd => :undelete
@@ -1240,6 +1259,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder" 
     post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
+  end
+
+  def test_meta_diff_package
+    prepare_request_with_user "tom", "thunder" 
+    post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff&meta=1"
+    assert_response :success
+    assert_match(/<\/package>/, @response.body)
+
+    post "/source/home:Iggy/_project?oproject=kde4&opackage=_project&cmd=diff&meta=1"
+    assert_response :success
+    assert_match(/<\/project>/, @response.body)
   end
 
   def test_diff_package_hidden_project
@@ -1465,7 +1495,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:Iggy/TestLinkPack/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :baserev => "1ac07842727acaf13d0e2b3213b47785" } )
+    assert_tag( :tag => "link", :attributes => { :package => "TestPack" } )
     assert_tag( :parent => { :tag => "patches", :content => nil }, :tag => "branch", :content => nil )
 
     delete "/source/home:Iggy/TestLinkPack"
@@ -1488,15 +1518,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_no_tag( :tag => "revision", :attributes => { :rev => "3"} )
+    node = ActiveXML::XMLNode.new(@response.body)
+    revision = node.each_revision.last.value :rev
+    revision = revision.to_i + 1
     post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "user", :content => "fred" )
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "3"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "srcmd5" )
 
     # delete file with commit
     delete "/source/home:Iggy/TestPack/filename"
@@ -1517,12 +1549,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_no_tag( :tag => "revision", :attributes => { :rev => "5"} )
     post "/source/home:Iggy/TestPack?cmd=commit"
     assert_response :success
+    revision = revision.to_i + 1
     get "/source/home:Iggy/TestPack/filename?rev=latest"
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "user", :content => "fred" )
-    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => "5"}, :content => nil }, :tag => "srcmd5", :content => "a88bcd3c19715020b590e29c832d9123" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "user", :content => "fred" )
+    assert_tag( :parent => { :tag => "revision", :attributes => { :rev => revision.to_s}, :content => nil }, :tag => "srcmd5" )
 
 
     # test deleteuploadrev

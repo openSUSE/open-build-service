@@ -10,6 +10,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request"
     dir = ActiveXML::XMLNode.new(@response.body)
     dir.each do |p|
+      next if [ "997", "998", "999" ].include? p.value(:name) # skip fixture data
       Suse::Backend.delete "/request/#{p.value(:name)}"
       assert_response :success
     end
@@ -247,6 +248,23 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
   end
 
+  def test_create_request_and_supersede_as_creator
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
+    assert_response :success
+  end
+
   def test_create_request_and_decline_review
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
@@ -275,6 +293,56 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+
+    # add review not permitted anymore
+    post "/request/#{id}?cmd=addreview&by_user=king"
+    assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
+  end
+
+  def test_change_review_state_after_leaving_review_phase
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # add reviewer
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    # add reviewer group
+    post "/request/#{id}?cmd=addreview&by_group=test_group"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+    assert_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "tom" } )
+    assert_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" } )
+
+    # change review not permitted anymore
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_group=test_group"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
   end
 
   def test_search_and_involved_requests
@@ -440,9 +508,33 @@ end
     assert_response :success
 
     # test decline and revoke
-    post "/request/#{id1}?cmd=changestate&newstate=revoked"
-    assert_response :success
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response 403
     post "/request/#{id2}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # test decline and revoke
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response :success
+  end
+
+  def test_revoke_and_decline_when_projects_are_not_existing_anymore
+    prepare_request_with_user 'tom', 'thunder'
+
+    # test revoke, the request is part of fixtures
+    post "/request/999?cmd=changestate&newstate=revoked"
+    assert_response :success
+    # missing target project
+    post "/request/998?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # missing source project
+    post "/request/997?cmd=changestate&newstate=declined"
+    assert_response 403
+
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/997?cmd=changestate&newstate=declined"
     assert_response :success
   end
 
@@ -485,6 +577,7 @@ end
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=addreview&by_user=adrian"
     assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => 'addreview_not_permitted' } )
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=addreview&by_user=tom"
@@ -548,6 +641,74 @@ end
     assert_tag( :tag => "state", :attributes => { :name => "review" } )
   end
 
+  def test_reopen_revoked_and_declined_request
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/Apache/apache2", :cmd => :branch
+    assert_response :success
+
+    # do a commit
+    put "/source/home:Iggy:branches:Apache/apache2/file", "dummy"
+    assert_response :success
+
+    req = "<request>
+            <action type='submit'>
+              <source project='home:Iggy:branches:Apache' package='apache2' rev='1' />
+            </action>
+            <description/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # revoke it
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+
+    # and reopen it as a non-maintainer is not working
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response 403
+    # and reopen it as a non-source-maintainer is not working
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response 403
+
+    # reopen it again
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+
+    # target is declining it
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=declined"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+
+    # and reopen it as a non-maintainer is not working
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response 403
+
+    # and reopen it as a different maintainer from target
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+  end
+
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -577,17 +738,37 @@ end
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
 
-    # Successful accept request
+    # validate our existing test data and fixtures
+    get "/source/home:Iggy/ToBeDeletedTestPack/_meta"
+    assert_response :success
+    get "/source/home:fred:DeleteProject/_meta"
+    assert_response :success
+    get "/source/kde4/Testing/myfile"
+    assert_response 404
+    get "/source/kde4/_meta"
+    assert_response :success
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_no_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    assert_no_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_no_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+
+    # Successful accept the request
     prepare_request_with_user "fred", "geröllheimer"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
 
     # Validate the executed actions
-    get "/source/home:Iggy:branches:kde4"
-    assert_response 404
+    get "/source/home:Iggy:branches:kde4/BranchPack/_link"
+    assert_response :success
+    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "Testing" }
     get "/source/home:Iggy/ToBeDeletedTestPack"
     assert_response 404
-    get "/source/home:Iggy:OldProject"
+    get "/source/home:fred:DeleteProject"
     assert_response 404
     get "/source/kde4/Testing/myfile"
     assert_response :success
@@ -602,6 +783,11 @@ end
     assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
     assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
     assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+
+    # cleanup
+    prepare_request_with_user "Iggy", "asdfasdf"
+    delete "/source/home:Iggy:branches:kde4"
+    assert_response :success
   end
 
   def test_submit_with_review
@@ -752,9 +938,12 @@ end
     get "/request/#{id2}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'declined' } )
+    # do not allow to do it again
+    post "/request/#{id2}?cmd=changestate&newstate=declined"
+    assert_response 403
+    assert_match( /set state to declined from a final state is not allowed./, @response.body )
 
     # revoke the request
-    prepare_request_with_user "king", "sunflower"
     post "/request/#{id3}?cmd=changestate&newstate=revoked"
     assert_response :success
     get "/request/#{id3}"
@@ -845,7 +1034,6 @@ end
     assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
 
-  ## FIXME: what else
   ### bugowner
   ### role 
   def test_hidden_add_role_request
@@ -858,16 +1046,42 @@ end
     post "/request?cmd=create", load_backend_file('request/hidden_add_role')
     assert_response :success
   end
-  ### all action types for read access case (positive + negative)
-  ### submit review for read access case (positive + negative)
-  # request workflow on Hidden project / pkg
-  ## revoke
-  ## accept
-  ## decline
-  ## (re)new
-  ## show !
-  ## search !
-  ### 
+
+  # bugreport bnc #674760
+  def test_try_to_delete_project_without_permissions
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    put "/source/home:Iggy:Test/_meta", "<project name='home:Iggy:Test'> <title /> <description /> </project>"
+    assert_response :success
+
+    # first action is permitted, but second not
+    post "/request?cmd=create", '<request>
+                                   <action type="delete">
+                                     <target project="home:Iggy:Test"/>
+                                   </action>
+                                   <action type="delete">
+                                     <target project="kde4"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    # accept this request without permissions
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response 403
+
+    # everything still there
+    get "/source/home:Iggy:Test/_meta"
+    assert_response :success
+    get "/source/kde4/_meta"
+    assert_response :success
+
+    delete "/source/home:Iggy:Test"
+    assert_response :success
+  end
 
   def test_special_chars
     prepare_request_with_user "Iggy", "asdfasdf"

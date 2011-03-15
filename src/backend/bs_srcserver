@@ -203,6 +203,7 @@ sub runservice {
 	unlink($lockfile);
 	die("ERROR: bs_service returned a non-_service file\n");
       }
+      BSVerify::verify_filename($pfile);
       $files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
     }
   } else {
@@ -680,13 +681,11 @@ sub addrev {
 
   if ($packid eq '_product') {
     expandproduct($projid, $packid, $files, $user, 1);
-  } elsif ($packid =~ /^_patchinfo:/) {
-    # FIXME: we may should allow source links (with diff) here
+  }
+  if ($files->{'_patchinfo'}) {
     die("bad files in patchinfo container\n") if grep {$_ ne '_patchinfo'} keys %$files;
-    if ($files->{'_patchinfo'}) {
-      my $p = repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
-      BSVerify::verify_patchinfo($p);
-    }
+    my $p = repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
+    BSVerify::verify_patchinfo($p);
   }
 
   my $srcmd5 = addmeta($projid, $packid, $files);
@@ -2155,6 +2154,34 @@ sub getprojpack {
 	    next;
 	  }
 	  $pinfo->{'aggregatelist'} = $aggregatelist;
+	  if (($enable && %$enable) || ($disable && %$disable)) {
+	    my @dinfo = ();
+	    for my $repo (@{$proj->{'repository'} || []}) {
+	      my $repoid = $repo->{'name'};
+	      next if $repoids && !$repoids->{$repoid};
+	      if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
+	        push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+		next;
+	      }
+	    }
+	    $pinfo->{'info'} = \@dinfo if @dinfo;
+	  }
+	} elsif ($files->{'_patchinfo'}) {
+	  my $patchinfo = repreadxml($rev, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo, 1);
+          if (!$patchinfo) {
+	    $pinfo->{'error'} = "bad patchinfo data";
+	    next;
+	  }
+          eval {
+	    BSVerify::verify_patchinfo($patchinfo);
+          };
+	  if ($@) {
+	    my $err = $@;
+	    $err =~ s/\n$//s;
+	    $pinfo->{'error'} = "bad patchinfo: $err";
+	    next;
+	  }
+	  $pinfo->{'patchinfo'} = $patchinfo;
 	  if (($enable && %$enable) || ($disable && %$disable)) {
 	    my @dinfo = ();
 	    for my $repo (@{$proj->{'repository'} || []}) {
@@ -4133,6 +4160,7 @@ sub linktobranch {
   $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'} || "converted link to branch");
   delete $rev->{'project'};
   delete $rev->{'package'};
+  runservice($projid, $packid) if $files->{'_service'};
   return ($rev, $BSXML::revision);
 }
 
@@ -4171,7 +4199,10 @@ sub delfile {
 
 sub getrepositorylist {
   my ($cgi, $projid) = @_;
-  my $proj = readproj($projid);
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir);
+  }
   my @res = map {{'name' => $_->{'name'}}} @{$proj->{'repository'} || []};
   return ({'entry' => \@res}, $BSXML::dir);
 }
@@ -4186,7 +4217,10 @@ sub getrepository {
 
 sub getarchlist {
   my ($cgi, $projid, $repoid) = @_;
-  my $proj = readproj($projid);
+  my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir);
+  }
   my @repo = grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []};
   die("404 $repoid: no such repository\n") unless @repo;
   my @res = map {{'name' => $_}} @{$repo[0]->{'arch'} || []};
@@ -4475,6 +4509,7 @@ sub copybuild {
   push @args, "oproject=$oprojid";
   push @args, "opackage=$opackid";
   push @args, "orepository=$orepoid";
+  push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
@@ -5831,7 +5866,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,

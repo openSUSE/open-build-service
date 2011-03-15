@@ -29,6 +29,10 @@ InitializeDevelPackage:
   attrib_namespace_id: 9
 Maintenance:
   id: 62
-  name: Maintenance
+  name: MaintenanceProject
   value_count: 0
+  attrib_namespace_id: 9
+MaintenanceReleaseDate:
+  id: 63
+  name: MaintenanceReleaseDate
   attrib_namespace_id: 9

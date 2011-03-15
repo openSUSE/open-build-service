@@ -77,6 +77,32 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_use_remote_repositories
+    prepare_request_with_user "tom", "thunder"
+
+    # use repo
+    put "/source/home:tom:testing/_meta", '<project name="home:tom:testing">
+	  <title />
+	  <description />
+	  <repository name="repo">
+	    <path project="RemoteInstance:BaseDistro" repository="BaseDistroUpdateProject_repo" />
+	    <arch>i586</arch>
+	  </repository>
+	</project> '
+    assert_response :success
+
+    # try to update remote project container
+    prepare_request_with_user "king", "sunflower"
+    get "/source/RemoteInstance/_meta"
+    assert_response :success
+    put "/source/RemoteInstance/_meta", @response.body
+    assert_response :success
+
+    # cleanup     
+    delete "/source/home:tom:testing"
+    assert_response :success
+  end
+
   def test_read_and_command_tests
     prepare_request_with_user "tom", "thunder"
     get "/source"
@@ -109,6 +135,26 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     post "/build/RemoteInstance:BaseDistro", :cmd => "rebuild"
     assert_response 404
+    # the webui requires this for repository browsing in advanced repo add mask
+    get "/build/RemoteInstance:BaseDistro"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo"
+    assert_response :success
+if $ENABLE_BROKEN
+    # FIXME: remote binaries access, or don't we want to support this ?
+    # backend is not forwarding
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response :success
+    # api code error
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository/package.rpm"
+    assert_response :success
+end
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
+    assert_response :success
 
     # direct access to remote instance, not existing project/package
     prepare_request_with_user "tom", "thunder"

@@ -131,6 +131,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
     wait_for_service( "home:tom", "service" )
     get "/source/home:tom/service/_service_error"
+print @response.body
     assert_response 404
     get "/source/home:tom/service/_service:set_version:pack.spec"
     assert_response :success

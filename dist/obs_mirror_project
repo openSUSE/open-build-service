@@ -109,7 +109,7 @@ check wether those files were correctly or completely downloaded
 before.
 
 When you restart the scheduler it will tell you about broken packages
-in it's log file in /srv/obs/log/ .  Simply remove the broken package
+in its log file in /srv/obs/log/ .  Simply remove the broken package
 and re-run this script to update the broken file.
 
 The paranoid may run rpm --checksig, like this:

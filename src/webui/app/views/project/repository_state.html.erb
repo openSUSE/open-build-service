@@ -13,7 +13,9 @@ project_bread_crumb("Repository State")
 
     <h3><%= @pagetitle %></h3>
 
-    <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => repository} %>
+    <p>
+      <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => repository} %>
+    </p>
 
     <div style="margin-top: 1em">
       <h4>Build Dependendency Cycles</h4>

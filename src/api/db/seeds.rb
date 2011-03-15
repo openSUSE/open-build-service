@@ -42,7 +42,6 @@
     StaticPermission.create :title => "set_download_counters"
     StaticPermission.create :title => "download_binaries"
     StaticPermission.create :title => "source_access"
-    StaticPermission.create :title => "private_view"
     StaticPermission.create :title => "access"
     StaticPermission.create :title => "global_change_project"
     StaticPermission.create :title => "global_create_project"
@@ -62,7 +61,6 @@
     maintainer_role.static_permissions << StaticPermission.find_by_title('create_package')
     reader_role.static_permissions     << StaticPermission.find_by_title('access')
     reader_role.static_permissions     << StaticPermission.find_by_title('source_access')
-    reader_role.static_permissions     << StaticPermission.find_by_title('private_view')
     downloader_role.static_permissions << StaticPermission.find_by_title('download_binaries')
 
     p={}
@@ -76,6 +74,12 @@
     at=AttribType.create( :attrib_namespace => ans, :name => "UpdateProject", :value_count=>1 )
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "Maintained", :value_count=>0 )
+    at.attrib_type_modifiable_bies.create(p)
+    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceProject", :value_count=>0 )
+    at.attrib_type_modifiable_bies.create(p)
+    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceVersion", :value_count=>1 )
+    at.attrib_type_modifiable_bies.create(p)
+    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceIdTemplate", :value_count=>1 )
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "ScreenShots" )
     at.attrib_type_modifiable_bies.create(p)

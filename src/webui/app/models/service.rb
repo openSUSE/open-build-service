@@ -19,6 +19,7 @@ class Service < ActiveXML::Base
        doc = XML::Parser.string(answer).parse.root
        doc.find("/servicelist/service").each do |s|
          serviceName = s.attributes["name"]
+         next if s.attributes["hidden"] == "true"
          hash = {}
          hash[:name]        = serviceName
          hash[:summary]     = s.find_first("summary").content

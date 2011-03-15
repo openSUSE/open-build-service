@@ -4,26 +4,7 @@ module MaintenanceHelper
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil )
     mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
 
-    # Get unique, but readable id
-    myTime = Time.now.utc
-    mi.day   = myTime.day
-    mi.month = myTime.month
-    mi.year  = myTime.year
-    mi.save!
-
-    year_counter = MaintenanceIncident.count( :conditions => ["maintenance_db_project_id = BINARY ? and year = BINARY ?", maintenanceProject.id, mi.year] )
-
-    id_template = "%Y-%C"
-    if a = maintenanceProject.find_attribute("OBS", "MaintenanceIdTemplate")
-       id_template = a.values[0]
-    end
-
-    id_template.gsub!( /%Y/, mi.year.to_s )
-    id_template.gsub!( /%M/, mi.month.to_s )
-    id_template.gsub!( /%D/, mi.day.to_s )
-    id_template.gsub!( /%C/, year_counter.to_s )
-    id_template.gsub!( /%g/, mi.id.to_s )
-    name = maintenanceProject.name + ":" + id_template
+    name = maintenanceProject.name + ":" + mi.createIncidentId.to_s
 
     tprj = nil
     DbProject.transaction do
@@ -36,11 +17,19 @@ module MaintenanceHelper
         tprj.description = baseProject.description
         tprj.flags = baseProject.flags
         tprj.repositories = baseProject.repositories
+      else
+        # mbranch call is enabling selected packages
+        tprj.store
+        tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
       end
       tprj.store
       mi.db_project_id = tprj.id
       mi.save!
     end
+
+    # set empty attribute to allow easy searches of active incidents
+    at = AttribType.find_by_name("OBS:MaintenanceReleaseDate")
+    Attrib.new(:db_project => tprj, :attrib_type => at).save
 
     # copy all packages and project source files from base project
     # we don't branch from it to keep the link target.
@@ -69,7 +58,8 @@ module MaintenanceHelper
     return mi
   end
 
-  def release_package(sourcePackage, targetProject, targetPackageName, revision, request = nil)
+  def release_package(sourcePackage, targetProject, targetPackageName, revision, timestamp, request = nil)
+
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
@@ -79,32 +69,89 @@ module MaintenanceHelper
       new.save
     end
 
-    # copy binaries
-#FIXME2.3: find out about used revision of binaries
+    # get updateinfo id in case the source package comes from a maintenance project
+    mi = MaintenanceIncident.find_by_db_project_id( sourcePackage.db_project_id ) 
+    updateinfoId = nil
+    if mi
+      id_template = nil
+      if a = mi.maintenance_db_project.find_attribute("OBS", "MaintenanceIdTemplate")
+         id_template = a.values[0]
+      end
+      updateinfoId = mi.getUpdateinfoId( id_template )
+    end
 
     # copy sources
-    # backend copy of current sources
+    # backend copy of current sources as full copy
+    # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
       :cmd => "copy",
       :user => @http_user.login,
       :oproject => sourcePackage.db_project.name,
       :opackage => sourcePackage.name,
-      :comment => "Copy from project " + sourcePackage.db_project.name,
+      :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
       :expand => "1",
     }
+    cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand])
     Suse::Backend.post cp_path, nil
 
-    # create main package linking to incident package
-    basePackageName = targetPackageName.gsub(/\..*/, '')
-    unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
-      new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-      new.flags = sourcePackage.flags
-      targetProject.db_packages << new
-      new.save
+    # copy binaries
+    targetProject.repositories.each do |targetRepo|
+      targetRepo.architectures.each do |arch|
+        # copy all binaries, which got build for our target repo from maintenance project
+        sourceRepo=nil
+        sourcePackage.db_project.repositories.each do |r|
+          if r.path_elements and r.path_elements.find_by_repository_id(targetRepo)
+            if sourceRepo
+               raise
+            end
+            sourceRepo=r
+          end
+        end
+        if sourceRepo
+          cp_params = {
+            :cmd => "copy",
+            :oproject => sourcePackage.db_project.name,
+            :opackage => sourcePackage.name,
+            :orepository => sourceRepo.name,
+            :setupdateinfoid => updateinfoId,
+          }
+          cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
+          cp_path = "/build/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetRepo.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
+          cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
+          Suse::Backend.post cp_path, nil
+        end
+      end
     end
-    Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
+
+    # create or update main package linking to incident package
+    basePackageName = targetPackageName.gsub(/\..*/, '')
+    answer = Suse::Backend.get "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
+    xml = REXML::Document.new(answer.body.to_s)
+    unless xml.elements["/directory/entry/@name='_patchinfo'"]
+      # only if package does not contain a _patchinfo file
+      unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
+        new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+        new.flags = sourcePackage.flags
+        targetProject.db_packages << new
+        new.save
+      end
+      Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
+    end
+
+    # update attribute to current version
+    at = AttribType.find_by_name("OBS:MaintenanceReleaseDate")
+    a = Attrib.find(:first, :conditions => ["attrib_type_id = ? AND db_project_id = ?", at.id, sourcePackage.db_project.id])
+    found=nil
+    a.values.each do |v|
+      found=1 if v.value.to_s == timestamp.to_s
+    end
+    unless found
+      a.values << AttribValue.new(:value => timestamp.to_s, :position => (a.values.count + 1))
+    end
+    a.save
+
   end
 end

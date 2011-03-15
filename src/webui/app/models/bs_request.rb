@@ -7,55 +7,42 @@ class BsRequest < ActiveXML::Base
 
   class << self
     def make_stub(opt)
+      option = source_package = target_package = ""
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
+      target_package = "package=\"#{opt[:targetpackage].to_xs}\"" if opt[:targetpackage] and not opt[:targetpackage].empty?
 
-      ret = nil
-      if opt[:type] == "submit" then
-        option = ""
-        option = "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
-        opt[:targetproject] = opt[:project] if !opt.has_key? :targetproject or opt[:targetproject].nil?
-        opt[:targetpackage] = opt[:package] if !opt.has_key? :targetpackage or opt[:targetpackage].nil?
-        reply = <<-EOF
-          <request>
-            <action type="submit">
-              <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
-              <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
-              #{option}
-            </action>
-            <state name="new"/>
-            <description>#{opt[:description].to_xs}</description>
-          </request>
-        EOF
-        ret = XML::Parser.string(reply).parse.root
-        ret.find_first("//source")["rev"] = opt[:rev] if opt[:rev]
-      else
-        # set request-specific options
-        option = ""
-        case opt[:type]
-          when "add_role" then
-            option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :group and not opt[:group].nil?
-            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt.has_key? :person and not opt[:person].nil?
-          when "set_bugowner" then
-            option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
-          when "change_devel" then
-            option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
-        end
-        # build the request XML
-        pkg_option = ""
-        pkg_option = "package=\"#{opt[:targetpackage].to_xs}\"" if opt.has_key? :targetpackage and not opt[:targetpackage].nil?
-        reply = <<-EOF
-          <request>
-            <action type="#{opt[:type]}">
-              <target project="#{opt[:targetproject].to_xs}" #{pkg_option}/>
-              #{option}
-            </action>
-            <state name="new"/>
-            <description>#{opt[:description].to_xs}</description>
-          </request>
-        EOF
-        ret = XML::Parser.string(reply).parse.root
+      # set request-specific options
+      case opt[:type]
+        when "submit" then
+          # set target package is the same as the source package if no target package is specified
+          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
+          revision_option = "rev=\"#{opt[:rev].to_xs}\"" if opt[:rev] and not opt[:rev].empty?
+          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
+          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+        when "add_role" then
+          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt[:group] and not opt[:group].empty?
+          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt[:person] and not opt[:person].empty?
+        when "set_bugowner" then
+          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
+        when "change_devel" then
+          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+        when "maintenance_incident" then
+          option = "<source project=\"#{opt[:project]}\"/>"
+        when "maintenance_release" then
+          option = "<source project=\"#{opt[:project]}\"/>"
       end
-      return ret
+      # build the request XML
+      reply = <<-EOF
+        <request>
+          <action type="#{opt[:type]}">
+            #{option}
+            <target project="#{opt[:targetproject].to_xs}" #{target_package}/>
+          </action>
+          <state name="new"/>
+          <description>#{opt[:description].to_xs}</description>
+        </request>
+      EOF
+      return XML::Parser.string(reply).parse.root
     end
 
     def addReview(id, opts)
@@ -69,6 +56,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
         r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
+        BsRequest.free_cache(id)
         # FIXME add a full error handler here
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -94,6 +82,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
         transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
+        BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
         message, _, _ = ActiveXML::Transport.extract_error_message e
@@ -110,6 +99,7 @@ class BsRequest < ActiveXML::Base
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
         begin
           transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason.to_s
+          BsRequest.free_cache(id)
           return true
         rescue ActiveXML::Transport::ForbiddenError => e
           message, _, _ = ActiveXML::Transport.extract_error_message e
@@ -140,25 +130,23 @@ class BsRequest < ActiveXML::Base
         raise RuntimeError, "missing parameters"
       end
 
-      # try to find request list in cache first before asking the OBS API
-      request_list = Rails.cache.fetch("request_list:#{opts.to_s}", :expires_in => 10.minutes) do
-        transport ||= ActiveXML::Config::transport_for :bsrequest
-        path = "/request?view=collection"
-        path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
-        path << "&type=#{CGI.escape(opts[:type])}" if opts[:type]
-        path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
-        path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
-        path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
-        begin
-          logger.debug "Fetching request list from api"
-          response = transport.direct_http URI("https://#{path}"), :method => "GET"
-          Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
-        rescue ActiveXML::Transport::Error => e
-          message, _, _ = ActiveXML::Transport.extract_error_message e
-          raise ListError, message
-        end
+      opts.delete(:type) if opts[:type] == 'all' # All types means don't pass 'type' to backend
+
+      transport ||= ActiveXML::Config::transport_for :bsrequest
+      path = "/request?view=collection"
+      path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
+      path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
+      path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
+      path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
+      path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
+      begin
+        logger.debug "Fetching request list from api"
+        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
+      rescue ActiveXML::Transport::Error => e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        raise ListError, message
       end
-      return request_list
     end
 
     def creator(req)
@@ -170,10 +158,24 @@ class BsRequest < ActiveXML::Base
         return req.state.who
       end
     end
+
+    def created_at(req)
+      if req.has_element?(:history)
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
+        return req.history.when if req.history.class == ActiveXML::LibXMLNode
+        return req.history[0][:when]
+      else
+        return req.state.when
+      end
+    end
   end
 
   def creator
     return BsRequest.creator(self)
+  end
+
+  def created_at
+    return BsRequest.created_at(self)
   end
 
   def history
