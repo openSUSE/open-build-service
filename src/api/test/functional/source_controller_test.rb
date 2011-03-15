@@ -520,19 +520,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     # Write corrupt data back
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s + "</xml>"
     assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "validation_failed" }
 
     prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :project_meta, :project => "../source/bang"), doc.to_s
-    assert_response( 404, "--> Was able to create project at illegal path")
     put url_for(:controller => :source, :action => :project_meta)
-    assert_response( 400, "--> Was able to create project at illegal path")
-    put url_for(:controller => :source, :action => :project_meta, :project => ".")
-    assert_response( 400, "--> Was able to create project at illegal path")
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "validation_failed" }
+    put url_for(:controller => :source, :action => :project_meta, :project => "."), doc.to_s
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_project_name" }
     
     #must not create a project with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
-    assert_response( 400, "--> Was able to create project with different project-name in _meta.xml")    
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "project_name_mismatch" }
     #TODO: referenced repository names must exist
     
     
@@ -857,16 +859,14 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     prepare_request_with_user "king", "sunflower"
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "../bang"), doc.to_s
-    assert_response( 404, "--> Was able to create package at illegal path")
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4"), doc.to_s
-    assert_response( 404, "--> Was able to create package at illegal path")
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "."), doc.to_s
-    assert_response( 400, "--> Was able to create package at illegal path")
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
     
     #must not create a package with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
-    assert_response( 400, "--> Was able to create package with different project-name in _meta.xml")     
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "package_name_mismatch" }
     #verify data is unchanged: 
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
