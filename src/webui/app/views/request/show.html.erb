@@ -173,7 +173,8 @@
               <% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" and
                     ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
                      (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
-                     (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project))) %>
+                     (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
+                     (r.has_attribute? :by_package and @user.is_maintainer?(r.by_project, r.by_package))) %>
                 <td><%= text_field_tag "review_comment_#{r.id}", comment, :style => "width: 99%" %></td>
                 <td id="review_buttons_<%= r.id %>">
                   <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{r.id}, 'accepted')") %>
