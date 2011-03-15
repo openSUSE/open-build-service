@@ -558,9 +558,9 @@ class ProjectController < ApplicationController
   def save_targets
     valid_http_methods :post
     #FIXME: Typical WTF?!, a plethora of redundant arguments that may be empty (but public API?)
-    if (not params.has_key?(:target_project) or params[:target_project].empty?) or
+    if (not params.has_key?(:target_project) or params[:target_project].empty?) and
        (not params.has_key?(:torepository) or params[:torepository].empty?) and
-       (not params.has_key?(:repo) or params[:repo].empty?) or
+       (not params.has_key?(:repo) or params[:repo].empty?) and
        (not params.has_key?(:target_repo) and not params.has_key?(:target_repo_txt) or params[:target_repo_txt].empty?)
       flash[:error] = "Missing arguments for target project or repository" # Something for the _user_
       redirect_to :action => "add_repository_from_default_list", :project => @project and return
