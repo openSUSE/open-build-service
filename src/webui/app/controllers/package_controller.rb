@@ -53,6 +53,9 @@ class PackageController < ApplicationController
     @fileinfo = find_cached(Fileinfo, :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
+    unless @fileinfo # avoid displaying an error for non-existing packages
+      redirect_back_or_to(:action => "binary", :project => params[:project], :package => params[:package], :repository => @repository, :arch => @arch, :filename => @filename)
+    end
   end
 
   def binary
