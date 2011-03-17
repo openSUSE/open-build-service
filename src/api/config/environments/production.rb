@@ -28,7 +28,7 @@ LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
 # If you're using LDAP_AUTHENTICATE=:ldap then you should ensure that 
 # ldaps is used to transfer the credentials over SSL
 LDAP_SSL = :on
-# LDAP port defaults to 389 for ldap and 686 for ldaps
+# LDAP port defaults to 389 for ldap and 636 for ldaps
 #LDAP_PORT=
 # Authentication with Windows 2003 AD requires
 LDAP_REFERRALS = :off
