@@ -349,7 +349,9 @@ sub getcommitinfo {
     # a moving target
     return ('unknown', '0');
   }
-  my $bconf = Build::read_config('noarch');
+  my $cfile;
+  $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+  my $bconf = Build::read_config('noarch', $cfile);
   for my $type ('spec', 'dsc', 'kiwi') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my (undef, $file) = findfile($rev, undef, $type, $files);
@@ -373,6 +375,11 @@ sub getcommitinfo {
     }
   }
   $release ||= '0';
+  if ($bconf->{'cicntstart'} && $bconf->{'cicntstart'} =~ /(\d+)$/) {
+    my $r = $release;
+    $release = $bconf->{'cicntstart'};
+    $release =~  s/\d+$/$r/ if $r > $1;
+  }
   return ($version, $release);
 }
 
@@ -737,12 +744,14 @@ sub addrev {
   # help a little with link<->nolink and singleversion<->multiversion changes
   if ($rev->{'version'} && $rev_old->{'version'}) {
     # if this is a known -> unknown version change, max with vrev of last commit
-    if ($rev->{'version'} eq 'unknown' && $rev_old->{'version'} ne 'unknown') {
-      $rev->{'vrev'} = $rev_old->{'vrev'} + 1 if $rev_old->{'vrev'} + 1 > $rev->{'vrev'};
-    }
     # same for unknown -> known
-    if ($rev->{'version'} ne 'unknown' && $rev_old->{'version'} eq 'unknown') {
-      $rev->{'vrev'} = $rev_old->{'vrev'} + 1 if $rev_old->{'vrev'} + 1 > $rev->{'vrev'};
+    if (($rev->{'version'} eq 'unknown' && $rev_old->{'version'} ne 'unknown') ||
+        ($rev->{'version'} ne 'unknown' && $rev_old->{'version'} eq 'unknown')) {
+      my $l_old = 0;
+      $l_old = $1 if $rev_old->{'vrev'} =~ /\d+$/;
+      my $l_new = 0;
+      $l_new = $1 if $rev->{'vrev'} =~ /\d+$/;
+      $rev->{'vrev'} =~ s/\d+$/$l_old + 1/e if $l_old + 1 > $l_new;
     }
   }
 
@@ -1332,7 +1341,7 @@ sub handlelinks {
   push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}, 'rev' => $rev->{'rev'}};
   delete $rev->{'srcmd5'};
   delete $rev->{'linkrev'};
-  my $vrev = $rev->{'vrev'};
+  my $oldvrev = 0;
   my $vrevdone;
   my $lrev = $rev;
   while ($files->{'_link'}) {
@@ -1376,15 +1385,18 @@ sub handlelinks {
     };
     return 'linked package is not in repository' unless $files;
     my $cicount = $l->{'cicount'} || 'add';
-    if ($cicount eq 'copy') {
-      $rev->{'vrev'} -= $vrev unless $vrevdone;
-    } elsif ($cicount eq 'local') {
-      $vrevdone = 1;
-    } elsif ($cicount ne 'add') {
-      return '_link is bad: illegal cicount';
+
+    return '_link is bad: illegal cicount' unless $cicount eq 'copy' || $cicount eq 'add' || $cicount eq 'local';
+    $rev->{'vrev'} = $oldvrev if $cicount eq 'copy';
+    $oldvrev = $rev->{'vrev'};
+    $vrevdone = 1 if $cicount eq 'local';
+    if (!$vrevdone) {
+      my $v = $rev->{'vrev'} || 0;
+      $v =~ s/^.*\D//;
+      $rev->{'vrev'} = $lrev->{'vrev'} || 0;
+      $rev->{'vrev'} =~ s/(\d+)$/$1+$v/e;
     }
-    $vrev = $lrev->{'vrev'};
-    $rev->{'vrev'} += $lrev->{'vrev'} unless $vrevdone;
+
     push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
   }
   my $md5;
@@ -3967,7 +3979,7 @@ sub copyproject {
       $lastorev->{'comment'} = $comment;
       $lastorev->{'requestid'} = $cgi->{'requestid'};
       $lastorev->{'time'} = time();
-      $lastorev->{'vrev'} += 1;
+      $lastorev->{'vrev'} =~ s/(\d+)$/$1+1/e;
       delete $lastorev->{'rev'};
       $lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
       updatelinkinfodb($projid, $packid, { %$lastorev, 'project' => $oprojid, 'package' => $packid }, $files);
