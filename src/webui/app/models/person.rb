@@ -140,6 +140,7 @@ class Person < ActiveXML::Base
   end
 
   def self.list(prefix=nil)
+    prefix = URI.encode(prefix)
     user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
       transport ||= ActiveXML::Config::transport_for(:person)
       path = "/person?prefix=#{prefix}"
