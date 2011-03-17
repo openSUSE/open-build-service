@@ -108,19 +108,19 @@ case "$1" in
 		fi
 
                 if [ ! -e /etc/ssl/private/lighttpd.key -a ! -e /etc/ssl/certs/lighttpd.crt -a ! -e /etc/ssl/private/lighttpd.pem ]; then
-                        if [ ! -e /OBS/certs/lighttpd.key ]; then
+                        if [ ! -e /obs/certs/lighttpd.key ]; then
                                # setup ssl certificates (NOT protected with a passphrase)
                                echo "Creating SSL certificate for the server..."
-                               install -d -m 0700 /OBS/certs
-                               openssl genrsa -out /OBS/certs/lighttpd.key 1024
-                               openssl req -new -key /OBS/certs/lighttpd.key -out /OBS/certs/lighttpd.csr
-                               openssl x509 -req -days 365 -in /OBS/certs/lighttpd.csr -signkey /OBS/certs/lighttpd.key -out /OBS/certs/lighttpd.crt
-                               cat /OBS/certs/lighttpd.key /OBS/certs/lighttpd.crt > /OBS/certs/lighttpd.pem
+                               install -d -m 0700 /obs/certs
+                               openssl genrsa -out /obs/certs/lighttpd.key 1024
+                               openssl req -new -key /obs/certs/lighttpd.key -out /obs/certs/lighttpd.csr
+                               openssl x509 -req -days 365 -in /obs/certs/lighttpd.csr -signkey /obs/certs/lighttpd.key -out /obs/certs/lighttpd.crt
+                               cat /obs/certs/lighttpd.key /obs/certs/lighttpd.crt > /obs/certs/lighttpd.pem
                         fi
-                        # use certificates from /OBS (LVM ?) partition
-                        ln -s /OBS/certs/lighttpd.key /etc/ssl/private/lighttpd.key
-                        ln -s /OBS/certs/lighttpd.crt /etc/ssl/certs/lighttpd.crt
-                        ln -s /OBS/certs/lighttpd.pem /etc/ssl/private/lighttpd.pem
+                        # use certificates from /obs (LVM ?) partition
+                        ln -s /obs/certs/lighttpd.key /etc/ssl/private/lighttpd.key
+                        ln -s /obs/certs/lighttpd.crt /etc/ssl/certs/lighttpd.crt
+                        ln -s /obs/certs/lighttpd.pem /etc/ssl/private/lighttpd.pem
                 fi
 
                 cd $webuidir
