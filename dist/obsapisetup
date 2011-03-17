@@ -58,7 +58,7 @@ case "$1" in
 			mkdir -p /obs/MySQL
 		fi
 		echo -n "Adjust webui configuration for api"
-                # it would be better to solve this in lighttpd.conf to accept also localhost:81,
+                # it would be better to solve this in lighttpd.conf to accept also localhost:444,
                 # but no idea how to solve this
                 sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/webui/config/environments/production.rb
@@ -73,7 +73,7 @@ case "$1" in
 		else
 			echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
 		fi
-                echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
+                echo "webui_url: https://$FQHOSTNAME:443" >> /srv/www/obs/api/config/options.yml
 		echo
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
@@ -144,8 +144,8 @@ EOF
 		if [ -n "$FQHOSTNAME" ]; then
 			cat >> /etc/issue <<EOF
 
-  Connect to the web interface via:     http://$FQHOSTNAME
-  Connect to the api interface via:     http://$FQHOSTNAME:81
+  Connect to the web interface via:     https://$FQHOSTNAME
+  Connect to the api interface via:     https://$FQHOSTNAME:444
   Browse the build packages via:        http://$FQHOSTNAME:82
 
  * "Admin" user password is "opensuse" by default.
