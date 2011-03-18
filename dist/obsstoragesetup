@@ -240,11 +240,20 @@ case "$1" in
                 if [ -e /dev/OBS/server ]; then
 			[ -L /obs ] && rm /obs
 			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
-			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
+# this fails on a configuration with OBS-server lvm on sdb
+#			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
+# using instead:
+			[ -L /srv/obs ] || { ln -sf /obs $backenddir ; }
 			mount /dev/OBS/server /obs
 			[ -d /obs/log ] || mkdir /obs/log
 			[ -d /obs/run ] || mkdir /obs/run
-			chown obsrun.obsrun /obs/{,log,run}
+			[ -d /obs/build ] || mkdir /obs/build
+			[ -d /obs/events ] || mkdir /obs/events
+			[ -d /obs/jobs ] || mkdir /obs/jobs
+			[ -d /obs/info ] || mkdir /obs/info
+			[ -d /obs/projects ] || mkdir /obs/projects
+			[ -d /obs/workers ] || mkdir /obs/workers
+			chown obsrun.obsrun /obs/{,log,run,build,events,jobs,info,projects,workers}
 		else
 			echo "Setup local storage"
                		if [ -e /obs -a ! -L /obs ]; then
