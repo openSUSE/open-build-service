@@ -109,7 +109,8 @@ CREATE TABLE `db_packages` (
   UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
   KEY `devel_project_id_index` (`develproject_id`),
   KEY `devel_package_id_index` (`develpackage_id`),
-  KEY `index_db_packages_on_db_project_id` (`db_project_id`)
+  KEY `index_db_packages_on_db_project_id` (`db_project_id`),
+  KEY `updated_at_index` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `db_projects` (
@@ -122,7 +123,8 @@ CREATE TABLE `db_projects` (
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `projects_name_index` (`name`(255))
+  UNIQUE KEY `projects_name_index` (`name`(255)),
+  KEY `updated_at_index` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `db_projects_tags` (
@@ -612,6 +614,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110302100000');
 INSERT INTO schema_migrations (version) VALUES ('20110303100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110309100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110318112742');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
