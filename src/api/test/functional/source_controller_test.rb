@@ -1531,11 +1531,11 @@ if $ENABLE_BROKEN_TEST
     get "/source/home:fred/DELETE/_history"
     assert_response :success
     assert_tag :tag => "revisionlist", :children => { :count => revision }
-end
 
     # cleanup
     delete "/source/home:fred/DELETE"
     assert_response :success
+end
     delete "/source/home:Iggy/TestPack/filename"
     assert_response :success
   end
