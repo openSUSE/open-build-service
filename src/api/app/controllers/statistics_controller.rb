@@ -446,12 +446,10 @@ class StatisticsController < ApplicationController
 
   def latest_updated
 
-    packages = DbPackage.find :all,
-      :order => 'updated_at DESC, name', :limit => @limit
-    projects = DbProject.find :all,
-      :order => 'updated_at DESC, name', :limit => @limit
+    packages = DbPackage.find :all, :order => 'updated_at DESC', :limit => @limit
+    projects = DbProject.find :all, :order => 'updated_at DESC', :limit => @limit
 
-    list = projects 
+    list = projects
     list.concat packages
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
