@@ -37,6 +37,11 @@ tom_maintainer_tom:
   bs_user_id: 3
   role_id: 3
 
+fred_home_project:
+  db_project_id: 505
+  bs_user_id: 1
+  role_id: 3
+
 fred_delete_project:
   db_project_id: 503
   bs_user_id: 1

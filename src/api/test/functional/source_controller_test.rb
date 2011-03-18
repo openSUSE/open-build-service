@@ -1502,6 +1502,41 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_copy_package
+    # fred has maintainer permissions in this single package of Iggys home
+    # this is the osc way
+    prepare_request_with_user "fred", "geröllheimer"
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    revision = node.each_revision.last.value :rev
+
+    # standard copy
+    post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack"
+    assert_response :success
+    get "/source/home:fred/DELETE/_history"
+    assert_response :success
+    assert_tag :tag => "revisionlist", :children => { :count => 1 }
+
+    delete "/source/home:fred/DELETE"
+    assert_response :success
+
+    # copy with history
+    post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack", :withhistory => "1"
+    assert_response :success
+    get "/source/home:fred/DELETE/_history"
+    assert_response :success
+    assert_tag :tag => "revisionlist", :children => { :count => revision }
+
+    # cleanup
+    delete "/source/home:fred/DELETE"
+    assert_response :success
+    delete "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+  end
+
   def test_source_commits
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
@@ -1512,6 +1547,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
     prepare_request_with_user "fred", "geröllheimer"
+    delete "/source/home:Iggy/TestPack/filename" # in case other tests created it
     put "/source/home:Iggy/TestPack/filename?rev=repository", 'CONTENT'
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
@@ -1533,6 +1569,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # delete file with commit
     delete "/source/home:Iggy/TestPack/filename"
     assert_response :success
+    revision = revision.to_i + 1
     get "/source/home:Iggy/TestPack/filename"
     assert_response 404
 
@@ -1546,10 +1583,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_no_tag( :tag => "revision", :attributes => { :rev => "5"} )
+    revision = revision.to_i + 1
+    assert_no_tag( :tag => "revision", :attributes => { :rev => revision.to_s} )
     post "/source/home:Iggy/TestPack?cmd=commit"
     assert_response :success
-    revision = revision.to_i + 1
     get "/source/home:Iggy/TestPack/filename?rev=latest"
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
