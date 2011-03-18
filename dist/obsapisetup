@@ -43,6 +43,7 @@ if [ "$?" != "0" ]; then
     echo "    Using 'localhost' as FQHOSTNAME."
     FQHOSTNAME="localhost"
   fi
+  USEIP=$FQHOSTNAME
 fi
 . /etc/sysconfig/obs-server
 
@@ -57,6 +58,12 @@ case "$1" in
                 if [ ! -d /obs/MySQL ]; then
 			mkdir -p /obs/MySQL
 		fi
+               if [ -n "$USEIP" ]; then
+                       #no proper hostname resolution, adapt BSConfig.pm
+                       echo "Adapting hostname in BSConfig.pm"
+                       sed -i 's,^my.*hostname.*=.*,my \$hostname = "'"$USEIP"'";,' \
+                           /usr/lib/obs/server/BSConfig.pm
+               fi
 		echo -n "Adjust webui configuration for api"
                 # it would be better to solve this in lighttpd.conf to accept also localhost:444,
                 # but no idea how to solve this
