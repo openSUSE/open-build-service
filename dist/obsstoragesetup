@@ -42,7 +42,11 @@ fi
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
+if [ -z "$OBS_BASE_DIR" ]; then
 backenddir=/srv/obs
+else
+backenddir="$OBS_BASE_DIR"
+fi
 
 if [ -z "$OBS_WORKER_DIRECTORY" ]; then
 	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
@@ -243,7 +247,7 @@ case "$1" in
 # this fails on a configuration with OBS-server lvm on sdb
 #			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
 # using instead:
-			[ -L /srv/obs ] || { ln -sf /obs $backenddir ; }
+			[ -L $backenddir ] || { ln -sf /obs $backenddir ; }
 			mount /dev/OBS/server /obs
 			[ -d /obs/log ] || mkdir /obs/log
 			[ -d /obs/run ] || mkdir /obs/run
