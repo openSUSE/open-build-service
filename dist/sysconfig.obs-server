@@ -49,6 +49,16 @@ OBS_RUN_DIR=""
 OBS_LOG_DIR=""
 
 ## Path:        Applications/OBS
+## Description: The base directory for OBS
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# An empty dir will lead to the fall back directory, typically /srv/obs
+#
+OBS_BASE_DIR=""
+
+## Path:        Applications/OBS
 ## Description: Automatically setup storage system for OBS server and api
 ## Type:        ("yes" | "no")
 ## Default:     "no"
