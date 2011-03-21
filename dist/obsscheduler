@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsscheduler
 # Required-Start:    $time $syslog obsrepserver
-# Should-Start:      obssrcserver $network $remote_fs
+# Should-Start:      obssrcserver $network $remote_fs obsapisetup
 # Should-Stop:       $none
 # Required-Stop:     $null
 # Default-Start:     3 5
