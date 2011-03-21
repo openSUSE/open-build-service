@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects, :only_path => false, :protocol => 'https' %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects, :only_path => false %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_packages, :only_path => false, :protocol => 'https' %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_packages, :only_path => false %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_users, :only_path => false, :protocol => 'https' %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_users, :only_path => false %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_attributes, :only_path => false, :protocol => 'https' %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_attributes, :only_path => false %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_requests, :only_path => false, :protocol => 'https' %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_requests, :only_path => false %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_prjconf, :only_path => false, :protocol => 'https' %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_prjconf, :only_path => false %></loc>
    </sitemap>
    <% %w{ show users files attributes meta repositories }.each do |act| %>
      <sitemap>
         <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'main', 
-                 :listaction => act, :only_path => false, :protocol => 'https' %></loc>
+                 :listaction => act, :only_path => false %></loc>
      </sitemap>
      <sitemap>
         <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'home', 
-                 :listaction => act, :only_path => false, :protocol => 'https' %></loc>
+                 :listaction => act, :only_path => false %></loc>
      </sitemap>
      <sitemap>
         <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'opensuse', 
-                 :listaction => act, :only_path => false, :protocol => 'https' %></loc>
+                 :listaction => act, :only_path => false %></loc>
      </sitemap>
    <% end %>
 </sitemapindex>
