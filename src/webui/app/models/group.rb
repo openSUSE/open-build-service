@@ -7,7 +7,7 @@ class Group < ActiveXML::Base
       path = "/group?prefix=#{prefix}"
       begin
         logger.debug "Fetching group list from API"
-        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        response = transport.direct_http URI("#{path}"), :method => "GET"
         names = []
         Collection.new(response).each {|group| names << group.name}
         names

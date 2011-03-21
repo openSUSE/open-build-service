@@ -146,7 +146,7 @@ class Person < ActiveXML::Base
       path = "/person?prefix=#{prefix}"
       begin
         logger.debug "Fetching user list from API"
-        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        response = transport.direct_http URI("#{path}"), :method => "GET"
         names = []
         Collection.new(response).each {|user| names << user.name}
         names

@@ -55,7 +55,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
+        r = transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         # FIXME add a full error handler here
         return true
@@ -81,7 +81,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
+        transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -98,7 +98,7 @@ class BsRequest < ActiveXML::Base
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
         begin
-          transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason.to_s
+          transport.direct_http URI("#{path}"), :method => "POST", :data => reason.to_s
           BsRequest.free_cache(id)
           return true
         rescue ActiveXML::Transport::ForbiddenError => e
@@ -141,7 +141,7 @@ class BsRequest < ActiveXML::Base
       path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
         logger.debug "Fetching request list from api"
-        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        response = transport.direct_http URI("#{path}"), :method => "GET"
         return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
       rescue ActiveXML::Transport::Error => e
         message, _, _ = ActiveXML::Transport.extract_error_message e
