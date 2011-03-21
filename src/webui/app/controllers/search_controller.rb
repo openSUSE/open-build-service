@@ -59,7 +59,7 @@ class SearchController < ApplicationController
           if predicate.empty?
             predicate = "contains(attribute/@name,'#{@attribute}')"
           else
-            predicate << "and contains(attribute/@name,'#{@attribute}')"
+            predicate << " and contains(attribute/@name,'#{@attribute}')"
           end
         end
 
