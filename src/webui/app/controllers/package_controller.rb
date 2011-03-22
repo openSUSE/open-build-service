@@ -741,6 +741,9 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = "Error: #{e}"
+      redirect_back_or_to :action => :show, :project => @project, :package => @package
     end
   end
 
