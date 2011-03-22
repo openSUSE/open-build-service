@@ -655,7 +655,7 @@ class SourceController < ApplicationController
         ignoreLock = 1 if rdata.elements["/project/lock/disable"]
 
         # project exists, change it
-        unless @http_user.can_modify_project? ( prj, ignoreLock )
+        unless @http_user.can_modify_project?(prj, ignoreLock)
           logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
