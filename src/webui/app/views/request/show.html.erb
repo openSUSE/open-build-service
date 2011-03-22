@@ -181,7 +181,7 @@
                   <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{r.id}, 'declined')") %>
                 </td>
               <% else %>
-                <td><%= comment %></td>
+                <td><%= format_comment(comment) %></td>
                 <td></td>
               <% end %>
             </tr>
