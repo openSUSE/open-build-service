@@ -59,8 +59,7 @@ class UserController < ApplicationController
     begin
       find_cached(Person, session[:login] )
       logger.info "User #{session[:login]} already exists..."
-      redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
-      return
+      redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}" and return
     rescue
     end
     login = ""
@@ -80,15 +79,13 @@ class UserController < ApplicationController
     if params[:password_first] != params[:password_second]
       logger.info "Password did not match"
       flash[:error] = "Given passwords are not the same"
-      redirect_to :controller => :project, :action => :show
-      return
+      redirect_back_or_to :controller => "main", :action => "index" and return
     end
 
-    if login.blank?
-      logger.info "No login name found"
+    if login.blank? or login.include?(" ")
+      logger.info "Illegal login name"
       flash[:error] = "Illegal login name"
-      redirect_to :controller => :project, :action => :show
-      return
+      redirect_back_or_to :controller => "main", :action => "index" and return
     end
 
     logger.debug "Creating new person #{login}"
@@ -98,7 +95,7 @@ class UserController < ApplicationController
       :realname => realname,
       :explanation => explanation
     }
-    unreg_person_opts[:password] = params[:password_first]    if params[:password_first]
+    unreg_person_opts[:password] = params[:password_first] if params[:password_first]
 
     person = Unregisteredperson.new(unreg_person_opts)
     person.save({:create => true})
