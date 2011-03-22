@@ -124,7 +124,6 @@ end
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
-    map.set_default_protocol "#{FRONTEND_PROTOCOL}"
 
     map.connect :project, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",
@@ -154,8 +153,7 @@ ActiveXML::Base.config do |conf|
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service"
     map.connect :file, "rest:///source/:project/:package/:filename?:expand&:rev"
-# Not used atm, :jobhislist sounds like a typo
-#    map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
+    map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository"
     map.connect :fileinfo, "rest:///build/:project/:repository/:arch/:package/:filename?:view"
