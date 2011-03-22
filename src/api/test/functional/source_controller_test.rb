@@ -583,7 +583,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # cleanup works now again
-    delete "/source/home:Iggy"
+    delete "/source/home:Iggy/TestLinkPack"
     assert_response :success
   end
   
