@@ -247,6 +247,7 @@ case "$1" in
 # this fails on a configuration with OBS-server lvm on sdb
 #			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
 # using instead:
+			[ -d $backenddir -a ! -L $backenddir ] && { rm -rf $backenddir ; }
 			[ -L $backenddir ] || { ln -sf /obs $backenddir ; }
 			mount /dev/OBS/server /obs
 			[ -d /obs/log ] || mkdir /obs/log
