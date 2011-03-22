@@ -587,6 +587,44 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
   
+  def test_lock_package
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+
+    # lock package
+    get "/source/home:Iggy/TestLinkPack/_meta"
+    assert_response :success
+    doc = REXML::Document.new( @response.body )
+    doc.elements["/package"].add_element "lock"
+    doc.elements["/package/lock"].add_element "enable"
+    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    assert_response :success
+    get "/source/home:Iggy/TestLinkPack/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "package" }, :tag => "lock" 
+    assert_tag :parent => { :tag => "lock" }, :tag => "enable" 
+
+    # modifications are not allowed anymore
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response 403
+    doc.elements["/package/description"].text = "new text"
+    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    assert_response 403
+    put "/source/home:Iggy/TestLinkPack/_link", ""
+    assert_response 403
+
+    # make package read-writable again
+    doc.elements["/package/lock"].delete_element "enable"
+    doc.elements["/package/lock"].add_element "disable"
+    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    assert_response :success
+
+    # cleanup works now again
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
+  
   def test_put_package_meta_with_invalid_permissions
     prepare_request_with_user "tom", "thunder"
     # The user is valid, but has weak permissions

@@ -274,8 +274,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def is_locked?
-# We do not support to make a package lock. Does it make sense at all to do this, since the repository would not be frozen then ?
-#      return true if flags.find_by_flag_and_status "lock", "enable"
+      return true if flags.find_by_flag_and_status "lock", "enable"
       return self.db_project.is_locked?
   end
 

@@ -77,6 +77,11 @@
         <ref name="group-element"/>
       </zeroOrMore>
       <optional>
+        <element ns="" name="lock">
+          <ref name="simple-flag-element"/>
+        </element>
+      </optional>
+      <optional>
         <element ns="" name="build">
           <ref name="flag-element"/>
         </element>
@@ -103,11 +108,6 @@
       </optional>
       <optional>
         <element ns="" name="sourceaccess">
-          <ref name="simple-flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="access">
           <ref name="simple-flag-element"/>
         </element>
       </optional>

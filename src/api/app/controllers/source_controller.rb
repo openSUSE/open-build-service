@@ -873,8 +873,13 @@ class SourceController < ApplicationController
 
       # check for project
       if DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links=false )
+        # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
+        rdata = REXML::Document.new(request.raw_post.to_s)
+        ignoreLock = nil
+        ignoreLock = 1 if rdata.elements["/package/lock/disable"]
+
         pkg = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false )
-        unless @http_user.can_modify_package?(pkg)
+        unless @http_user.can_modify_package?(pkg, ignoreLock)
           render_error :status => 403, :errorcode => "change_package_no_permission",
             :message => "no permission to modify package '#{pkg.db_project.name}'/#{pkg.name}"
           return
