@@ -15,7 +15,7 @@ module FlagHelper
    end
 
    TYPES = { 
-     'readonly' => :enable,
+     'inhibit' => :enable,
      'build' => :enable,
      'publish' => :enable,
      'debuginfo' => :disable,

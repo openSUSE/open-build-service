@@ -69,7 +69,7 @@ our @disableenable = (
 );
 
 our @flags = (
-      [ 'readonly' => @disableenable ],
+      [ 'inhibit' => @disableenable ],
       [ 'build' => @disableenable ],
       [ 'publish' => @disableenable ],
       [ 'debuginfo' => @disableenable ],

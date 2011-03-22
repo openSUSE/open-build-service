@@ -181,16 +181,16 @@ class User < ActiveRecord::Base
     return false
   end
 
-  def is_readonly? object
-    object.is_readonly?
+  def is_inhibit? object
+    object.is_inhibit?
   end
 
   # project is instance of DbProject
-  def can_modify_project?(project, ignoreReadonly=nil)
+  def can_modify_project?(project, ignoreInhibit=nil)
     unless project.kind_of? DbProject
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
-    return false if is_readonly? project and not ignoreReadonly
+    return false if is_inhibit? project and not ignoreInhibit
     return true if is_admin?
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
@@ -198,11 +198,11 @@ class User < ActiveRecord::Base
   end
 
   # package is instance of DbPackage
-  def can_modify_package?(package, ignoreReadonly=nil)
+  def can_modify_package?(package, ignoreInhibit=nil)
     unless package.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
-    return false if is_readonly? package and not ignoreReadonly
+    return false if is_inhibit? package and not ignoreInhibit
     return true if is_admin?
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package
@@ -215,7 +215,7 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
-    return false if is_readonly? project
+    return false if is_inhibit? project
     return true if is_admin?
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project

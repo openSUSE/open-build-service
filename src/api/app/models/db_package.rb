@@ -273,10 +273,10 @@ class DbPackage < ActiveRecord::Base
 
   end
 
-  def is_readonly?
-# We do not support to make a package readonly. Does it make sense at all to do this, since the repository would not be frozen then ?
-#      return true if flags.find_by_flag_and_status "readonly", "enable"
-      return self.db_project.is_readonly?
+  def is_inhibit?
+# We do not support to make a package inhibit. Does it make sense at all to do this, since the repository would not be frozen then ?
+#      return true if flags.find_by_flag_and_status "inhibit", "enable"
+      return self.db_project.is_inhibit?
   end
 
   def find_linking_packages

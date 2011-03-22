@@ -186,7 +186,7 @@ CREATE TABLE `flags` (
   `db_package_id` int(11) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
-  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','readonly') NOT NULL,
+  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','inhibit') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_flags_on_db_package_id` (`db_package_id`),
   KEY `index_flags_on_db_project_id` (`db_project_id`),

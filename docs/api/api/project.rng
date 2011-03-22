@@ -95,7 +95,7 @@
           <ref name="group-element"/>
         </zeroOrMore>
         <optional>
-          <element ns="" name="readonly">
+          <element ns="" name="inhibit">
             <ref name="simple-flag-element"/>
           </element>
         </optional>

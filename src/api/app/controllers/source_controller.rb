@@ -650,12 +650,12 @@ class SourceController < ApplicationController
       # Need permission
       logger.debug "Checking permission for the put"
       if prj
-        # is readonly explicit set to disable ? allow the un-freeze of the project in that case ...
-        ignoreReadonly = nil
-        ignoreReadonly = 1 if rdata.elements["/project/readonly/disable"]
+        # is inhibit explicit set to disable ? allow the un-freeze of the project in that case ...
+        ignoreInhibit = nil
+        ignoreInhibit = 1 if rdata.elements["/project/inhibit/disable"]
 
         # project exists, change it
-        unless @http_user.can_modify_project? ( prj, ignoreReadonly )
+        unless @http_user.can_modify_project? ( prj, ignoreInhibit )
           logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
