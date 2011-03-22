@@ -36,6 +36,7 @@ EXTENDED_BACKEND_LOG = false
 
 SOURCE_HOST = "storage"
 SOURCE_PORT = 5352
+SOURCE_PROTOCOL = "http"
 
 ActionController::AbstractRequest.relative_url_root = "/stage"
 

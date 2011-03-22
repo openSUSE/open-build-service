@@ -26,6 +26,7 @@ ActiveXML::Config.global_write_through = false
 
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 3200
+SOURCE_PROTOCOL = "http"
 
 ICHAIN_MODE=:off
 
