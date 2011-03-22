@@ -545,25 +545,25 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   
-  def test_inhibit_project
+  def test_lock_project
     prepare_request_with_user "Iggy", "asdfasdf"
     put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
     put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
     assert_response :success
 
-    # inhibit project
+    # lock project
     get "/source/home:Iggy/_meta"
     assert_response :success
     doc = REXML::Document.new( @response.body )
-    doc.elements["/project"].add_element "inhibit"
-    doc.elements["/project/inhibit"].add_element "enable"
+    doc.elements["/project"].add_element "lock"
+    doc.elements["/project/lock"].add_element "enable"
     put "/source/home:Iggy/_meta", doc.to_s
     assert_response :success
     get "/source/home:Iggy/_meta"
     assert_response :success
-    assert_tag :parent => { :tag => "project" }, :tag => "inhibit" 
-    assert_tag :parent => { :tag => "inhibit" }, :tag => "enable" 
+    assert_tag :parent => { :tag => "project" }, :tag => "lock" 
+    assert_tag :parent => { :tag => "lock" }, :tag => "enable" 
 
     # modifications are not allowed anymore
     delete "/source/home:Iggy"
@@ -577,8 +577,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 403
 
     # make project read-writable again
-    doc.elements["/project/inhibit"].delete_element "enable"
-    doc.elements["/project/inhibit"].add_element "disable"
+    doc.elements["/project/lock"].delete_element "enable"
+    doc.elements["/project/lock"].add_element "disable"
     put "/source/home:Iggy/_meta", doc.to_s
     assert_response :success
 

@@ -276,8 +276,8 @@ class DbProject < ActiveRecord::Base
       result = DbProject.find_by_sql [sql, self.name]
   end
 
-  def is_inhibit?
-      return true if flags.find_by_flag_and_status "inhibit", "enable"
+  def is_locked?
+      return true if flags.find_by_flag_and_status "lock", "enable"
       return false
   end
 
