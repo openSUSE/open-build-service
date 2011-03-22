@@ -181,11 +181,16 @@ class User < ActiveRecord::Base
     return false
   end
 
+  def is_readonly? object
+    object.is_readonly?
+  end
+
   # project is instance of DbProject
-  def can_modify_project?(project)
+  def can_modify_project?(project, ignoreReadonly=nil)
     unless project.kind_of? DbProject
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
+    return false if is_readonly? project and not ignoreReadonly
     return true if is_admin?
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
@@ -193,10 +198,11 @@ class User < ActiveRecord::Base
   end
 
   # package is instance of DbPackage
-  def can_modify_package?(package)
+  def can_modify_package?(package, ignoreReadonly=nil)
     unless package.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
+    return false if is_readonly? package and not ignoreReadonly
     return true if is_admin?
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package
@@ -209,6 +215,7 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
+    return false if is_readonly? project
     return true if is_admin?
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project

@@ -545,6 +545,47 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   
+  def test_readonly_project
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
+    assert_response :success
+
+    # readonly project
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    doc = REXML::Document.new( @response.body )
+    doc.elements["/project"].add_element "readonly"
+    doc.elements["/project/readonly"].add_element "enable"
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response :success
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "project" }, :tag => "readonly" 
+    assert_tag :parent => { :tag => "readonly" }, :tag => "enable" 
+
+    # modifications are not allowed anymore
+    delete "/source/home:Iggy"
+    assert_response 403
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response 403
+    doc.elements["/project/description"].text = "new text"
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response 403
+    put "/source/home:Iggy/TestLinkPack/_link", ""
+    assert_response 403
+
+    # make project read-writable again
+    doc.elements["/project/readonly"].delete_element "enable"
+    doc.elements["/project/readonly"].add_element "disable"
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response :success
+
+    # cleanup works now again
+    delete "/source/home:Iggy"
+    assert_response :success
+  end
   
   def test_put_package_meta_with_invalid_permissions
     prepare_request_with_user "tom", "thunder"

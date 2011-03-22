@@ -137,6 +137,20 @@
     <empty/>
   </define>
 
+  <define ns="" name="simple-flag-element">
+    <optional>
+      <element name="enable">
+        <empty/>
+      </element>
+    </optional>
+    <optional>
+      <element name="disable">
+        <empty/>
+      </element>
+    </optional>
+    <empty/>
+  </define>
+
   <define ns="" name="repository-element">
     <element name="repository">
       <attribute name="name">

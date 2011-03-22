@@ -186,7 +186,7 @@ CREATE TABLE `flags` (
   `db_package_id` int(11) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
-  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','privacy') NOT NULL,
+  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','readonly') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_flags_on_db_package_id` (`db_package_id`),
   KEY `index_flags_on_db_project_id` (`db_project_id`),
@@ -615,7 +615,11 @@ INSERT INTO schema_migrations (version) VALUES ('20110303100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110309100000');
 
+INSERT INTO schema_migrations (version) VALUES ('20110316000000');
+
 INSERT INTO schema_migrations (version) VALUES ('20110318112742');
+
+INSERT INTO schema_migrations (version) VALUES ('20110321000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

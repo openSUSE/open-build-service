@@ -103,12 +103,12 @@
       </optional>
       <optional>
         <element ns="" name="sourceaccess">
-          <ref name="flag-element"/>
+          <ref name="simple-flag-element"/>
         </element>
       </optional>
       <optional>
         <element ns="" name="access">
-          <ref name="flag-element"/>
+          <ref name="simple-flag-element"/>
         </element>
       </optional>
       <optional>

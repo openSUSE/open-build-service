@@ -69,13 +69,13 @@ our @disableenable = (
 );
 
 our @flags = (
+      [ 'readonly' => @disableenable ],
       [ 'build' => @disableenable ],
       [ 'publish' => @disableenable ],
       [ 'debuginfo' => @disableenable ],
       [ 'useforbuild' => @disableenable ],
       [ 'binarydownload' => @disableenable ],
       [ 'sourceaccess' => @disableenable ],
-      [ 'privacy' => @disableenable ],
       [ 'access' => @disableenable ],
 );
 

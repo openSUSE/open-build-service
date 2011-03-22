@@ -116,16 +116,13 @@ class DbPackage < ActiveRecord::Base
       end
     end
 
-
     def store_axml( package )
       dbp = nil
       DbPackage.transaction do
         project_name = package.parent_project_name
         if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
           pro = DbProject.find_by_name project_name
-          if pro.nil?
-            raise SaveError, "unknown project '#{project_name}'"
-          end
+          raise SaveError, "unknown project '#{project_name}'" unless pro
           dbp = DbPackage.new( :name => package.name.to_s )
           pro.db_packages << dbp
         end
@@ -274,6 +271,12 @@ class DbPackage < ActiveRecord::Base
       find :first, :conditions => ["name = BINARY ?", name]
     end
 
+  end
+
+  def is_readonly?
+# We do not support to make a package readonly. Does it make sense at all to do this, since the repository would not be frozen then ?
+#      return true if flags.find_by_flag_and_status "readonly", "enable"
+      return self.db_project.is_readonly?
   end
 
   def find_linking_packages

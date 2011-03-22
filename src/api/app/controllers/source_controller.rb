@@ -644,11 +644,18 @@ class SourceController < ApplicationController
         end
       end
 
+      # parse xml structure of uploaded data
+      rdata = REXML::Document.new(request.raw_post.to_s)
+
       # Need permission
       logger.debug "Checking permission for the put"
       if prj
+        # is readonly explicit set to disable ? allow the un-freeze of the project in that case ...
+        ignoreReadonly = nil
+        ignoreReadonly = 1 if rdata.elements["/project/readonly/disable"]
+
         # project exists, change it
-        unless @http_user.can_modify_project? prj
+        unless @http_user.can_modify_project? ( prj, ignoreReadonly )
           logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
@@ -681,7 +688,6 @@ class SourceController < ApplicationController
       end
 
       # the following code checks if the target project of a linked project exists or is not readable by user
-      rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
         # permissions check
         tproject_name = e.attributes["project"]

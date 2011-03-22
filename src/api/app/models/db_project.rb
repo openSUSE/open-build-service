@@ -276,6 +276,11 @@ class DbProject < ActiveRecord::Base
       result = DbProject.find_by_sql [sql, self.name]
   end
 
+  def is_readonly?
+      return true if flags.find_by_flag_and_status "readonly", "enable"
+      return false
+  end
+
   def store_axml( project, force=nil )
     DbProject.transaction do
       logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{project.name.to_s}"
@@ -467,6 +472,7 @@ class DbProject < ActiveRecord::Base
       #--- update flag group ---#
       update_all_flags( project )
 
+      #--- update repository download settings ---#
       dlcache = Hash.new
       self.downloads.each do |dl|
         dlcache["#{dl.architecture.name}"] = dl
@@ -623,7 +629,6 @@ class DbProject < ActiveRecord::Base
   def store
     # update timestamp and save
     self.save!
-
     # expire cache
     Rails.cache.delete('meta_project_%d' % id)
 
