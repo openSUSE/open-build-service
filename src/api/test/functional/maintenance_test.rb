@@ -242,7 +242,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1&new_format=1"
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "My:Maintenance:1" )
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => maintenanceProject )
     get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag( :tag => "patchinfo", :attributes => { :incident => maintenanceID } )
@@ -280,6 +280,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     reqid = node.data['id']
+
+    # source packages got locked
+    [ "pack2.BaseDistro2", "pack2.BaseDistro3", "patchinfo" ].each do |pack|
+      get "/source/#{maintenanceProject}/#{pack}/_meta"
+      assert_response :success
+      assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    end
 
     ### the backend is now building the packages, injecting results
     perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"

@@ -483,17 +483,29 @@ class RequestController < ApplicationController
           review_packages.push({ :by_project => tpkg.develpackage.db_project.name, :by_package => tpkg.develpackage.name })
         end
 
-        # Creating requests from packages where no maintainer right exists will enforce a maintainer review
-        # to avoid that random people can submit versions without talking to the maintainers 
-        if action.source.has_attribute? 'package'
+        if action.data.attributes["type"] == "maintenance_release"
+          # creating release requests is also lock the source package. therefore we do need write access there.
           spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
-          if spkg and not @http_user.can_modify_package? spkg
-            review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
+          unless spkg or not @http_user.can_modify_package? spkg
+            render_error :status => 403, :errorcode => "lacking_maintainership",
+              :message => "Creating a release request action requires maintainership in source package"
+            return
           end
+          spkg.flags.create(:status => "enable", :flag => "lock")
+          spkg.store
         else
-          sprj = DbProject.find_by_name action.source.project
-          if sprj and not @http_user.can_modify_project? sprj
-            review_packages.push({ :by_project => action.source.project })
+          # Creating requests from packages where no maintainer right exists will enforce a maintainer review
+          # to avoid that random people can submit versions without talking to the maintainers 
+          if action.source.has_attribute? 'package'
+            spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
+            if spkg and not @http_user.can_modify_package? spkg
+              review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
+            end
+          else
+            sprj = DbProject.find_by_name action.source.project
+            if sprj and not @http_user.can_modify_project? sprj
+              review_packages.push({ :by_project => action.source.project })
+            end
           end
         end
       end
