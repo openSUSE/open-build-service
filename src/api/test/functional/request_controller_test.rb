@@ -750,8 +750,15 @@ end
     prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response :success
-    prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response :success
+
+    # a review has been added because we are not maintainer of current devel package, accept it.
+    prepare_request_with_user "king", "sunflower"
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_project => "home:coolo:test", :by_package => "kdelibs_DEVEL_package" } )
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package"
     assert_response :success
 
     # validate our existing test data and fixtures

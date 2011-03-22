@@ -478,7 +478,12 @@ class RequestController < ApplicationController
         end
       end
       if action.has_element? 'source'
-        # Creating submit request from packages where no maintainer right exists will enforce a maintainer review
+        # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
+        if action.data.attributes["type"] == "change_devel" and tpkg.develpackage and not @http_user.can_modify_package? tpkg.develpackage
+          review_packages.push({ :by_project => tpkg.develpackage.db_project.name, :by_package => tpkg.develpackage.name })
+        end
+
+        # Creating requests from packages where no maintainer right exists will enforce a maintainer review
         # to avoid that random people can submit versions without talking to the maintainers 
         if action.source.has_attribute? 'package'
           spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
