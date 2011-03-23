@@ -319,8 +319,9 @@ class ProjectController < ApplicationController
 
   def edit_repository
     repo = @project.repository[params[:repository]]
-    @arch_list = arch_list
-    render :partial => 'edit_repository', :locals => { :repository => repo, :error => nil }
+    redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
+    @arch_list = arch_list()
+    render(:partial => 'edit_repository', :locals => {:repository => repo, :error => nil})
   end
 
   def update_target
