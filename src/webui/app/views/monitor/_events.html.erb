@@ -42,13 +42,13 @@
 
 <div class="grid_8 alpha">
   <div id="events" style="height:250px; margin-left: 20px; margin-right: 20px"></div>
-  <div class="centered">Scheduler events<span id="legend_events" class="flot_legend"></span></div>
+  <div class="centered">Repositories to recalculate<span id="legend_events" class="flot_legend"></span></div>
   <div class="plotspinner"><%= image_tag('ajax-loader.gif') %></div>
 </div>
 
 <div class="grid_8 omega">
   <div id="jobs" style="height:250px; margin-right: 20px"></div>
-  <div class="centered">Building packages<span id="legend_jobs" class="flot_legend"></span></div>
+  <div class="centered">Packages scheduled for building<span id="legend_jobs" class="flot_legend"></span></div>
   <div class="plotspinner"><%= image_tag('ajax-loader.gif') %></div>
 </div>
 
@@ -64,7 +64,7 @@
 
     var plot = $.plot($("#events"), [ { data: data['squeue_high'], label: "High", color: "red" },
              { data: data['squeue_med'], label: "Medium", color: 1 },
-             { data: data['squeue_low'], label: "Low", color: 2}
+             { data: data['squeue_low'], label: "Low Priority", color: 2}
              ], {
       series: {
         lines: { show: true, fill: true },
@@ -75,7 +75,7 @@
       yaxis: { min: 0, max: data['events_max'], position: "left", labelWidth: 25 }
     });
     
-    $.plot($("#building"), [ { data: data['building'], label: "Busy workers", color: 3},
+    $.plot($("#building"), [ { data: data['building'], label: "Currently building", color: 3},
                              {  data: data['idle'], label: "Idle workers", color: 4 } ],
       {
             series: {
@@ -88,7 +88,7 @@
       });
     $.plot($("#jobs"), [
              { data: data['waiting'], label: "Ready to build", color: 5},
-             {  data: data['blocked'], label: "Blocked", color: 6 } ],
+             {  data: data['blocked'], label: "Blocked build job", color: 6 } ],
         {
             series: {
                 stack: true,
