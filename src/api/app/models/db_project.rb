@@ -903,7 +903,7 @@ class DbProject < ActiveRecord::Base
             params = {}
             params[:project]    = rt.target_repository.db_project.name
             params[:repository] = rt.target_repository.name
-            params[:trigger]    = rt.trigger    if rt.trigger
+            params[:trigger]    = rt.trigger    unless rt.trigger.blank?
             r.releasetarget( params )
           end
           repo.path_elements.each do |pe|

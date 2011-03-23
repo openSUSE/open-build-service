@@ -130,6 +130,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_BaseDistroUpdateProject_repo" } }, 
                :tag => "path", :attributes => { :repository => "BaseDistroUpdateProject_repo", :project => "BaseDistro:Update" }
 
+    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro:Update", :repository => "BaseDistroUpdateProject_repo", :trigger => nil } )
+
+    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => nil } )
+
     # validate created package meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_meta"
     assert_response :success
@@ -237,6 +241,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/"+maintenanceProject+"/_meta"
     assert_response :success
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
+    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
 
     # Create patchinfo informations
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1&new_format=1"
@@ -551,6 +556,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
     assert_tag :parent => { :tag => "build" }, :tag => "disable"
+    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => nil } )
 
     # validate created package meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_meta"

@@ -1252,6 +1252,9 @@ class SourceController < ApplicationController
           trepo = tprj.repositories.create :name => repoName
           trepo.architectures = repo.architectures
           trepo.path_elements.create(:link => repo, :position => 1)
+          trigger = "manual"
+          trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
+          trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
         end
         tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
       end
