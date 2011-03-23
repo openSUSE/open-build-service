@@ -2765,6 +2765,12 @@ sub getpackagehistory {
   my @res;
   my $revfile;
   $packid = '_project' unless defined $packid;
+
+  if (!$cgi->{'deleted'}) {
+    die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+    die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
+  }
+
   $revfile = "$projectsdir/$projid.pkg";
   $revfile = "$projectsdir/_deleted/$projid.pkg" if $packid eq '_project' && $cgi->{'deleted'};
   $revfile .= $cgi->{'meta'} ? "/$packid.mrev" : "/$packid.rev";
