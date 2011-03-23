@@ -49,6 +49,11 @@ our $repo = [
 	'rebuild',
 	'block',
 	'linkedbuild',
+     [[ 'releasetarget' =>
+	    'project',
+	    'repository',
+	    'trigger',
+     ]],
      [[ 'path' =>
 	    'project',
 	    'repository',

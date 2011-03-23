@@ -484,7 +484,7 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "maintenance_release"
-          # creating release requests is also lock the source package. therefore we do need write access there.
+          # creating release requests is also locking the source package, therefore we require write access there.
           spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
           unless spkg or not @http_user.can_modify_package? spkg
             render_error :status => 403, :errorcode => "lacking_maintainership",

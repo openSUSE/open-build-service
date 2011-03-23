@@ -555,6 +555,25 @@ class DbProject < ActiveRecord::Base
         end
         #--- end of repository flags ---#
 
+        #destroy all current releasetargets
+        current_repo.release_targets.each { |rt| rt.destroy }
+
+        #recreate release targets from xml
+        repo.each_releasetarget do |rt|
+          target_repo = Repository.find_by_project_and_repo_name( rt.project, rt.repository )
+          unless target_repo
+            raise SaveError, "Unknown target repository '#{rt.project}/#{rt.repository}'"
+          end
+          unless target_repo.remote_project_name.nil?
+            raise SaveError, "Can not use remote repository as release target '#{rt.project}/#{rt.repository}'"
+          end
+          r = current_repo.release_targets.create :target_repository => target_repo
+          if rt.has_attribute? :trigger and rt.trigger != "manual"
+            r.trigger = rt.trigger
+          end
+          was_updated = true
+        end
+
         #destroy all current pathelements
         current_repo.path_elements.each { |pe| pe.destroy }
 
@@ -562,7 +581,7 @@ class DbProject < ActiveRecord::Base
         position = 1
         repo.each_path do |path|
           link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
-          if link_repo.nil?
+          unless link_repo
             raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
           end
           current_repo.path_elements.create :link => link_repo, :position => position
@@ -880,6 +899,13 @@ class DbProject < ActiveRecord::Base
         params[:block]       = repo.block       if repo.block
         params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
         project.repository( params ) do |r|
+          repo.release_targets.each do |rt|
+            params = {}
+            params[:project]    = rt.target_repository.db_project.name
+            params[:repository] = rt.target_repository.name
+            params[:trigger]    = rt.trigger    if rt.trigger
+            r.releasetarget( params )
+          end
           repo.path_elements.each do |pe|
             if pe.link.remote_project_name.blank?
               project_name = pe.link.db_project.name

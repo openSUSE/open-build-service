@@ -317,6 +317,15 @@ CREATE TABLE `ratings` (
   KEY `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `release_targets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `repository_id` int(11) NOT NULL,
+  `target_repository_id` int(11) NOT NULL,
+  `trigger` enum('finished','allsucceeded','maintenance') COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repository_id_index` (`repository_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -618,6 +627,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110309100000');
 INSERT INTO schema_migrations (version) VALUES ('20110318112742');
 
 INSERT INTO schema_migrations (version) VALUES ('20110321000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110322000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -67,6 +67,15 @@
     </choice>
   </define>
 
+  <define ns="" name="release-triggers">
+    <choice>
+      <value>manual</value>        <!-- DEFAULT: only on manual commands the release gets started -->
+      <value>finished</value>      <!-- Release when the repository has finished building -->
+      <value>allsucceeded</value>  <!-- Release when the repository has finished building and all jobs were successfull -->
+      <value>maintenance</value>   <!-- Release just once on maintenance release event. This attribute get removed at the same time -->
+    </choice>
+  </define>
+
   <define ns="" name="local-role">
     <choice>
       <value>maintainer</value>
@@ -172,6 +181,21 @@
         </attribute>
       </optional>
       <interleave>
+        <optional> <!-- limited to one currently. Could be extended later -->
+            <element name="releasetarget">
+              <attribute name="project">
+                <data type="string" />
+              </attribute>
+              <attribute name="repository">
+                <data type="string" />
+              </attribute>
+              <optional>
+                <attribute name="trigger">
+                  <ref name="release-triggers" />
+                </attribute>
+              </optional>
+            </element>
+        </optional>
         <zeroOrMore>
             <element name="path">
               <attribute name="repository">

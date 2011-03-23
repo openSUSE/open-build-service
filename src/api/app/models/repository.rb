@@ -2,6 +2,7 @@ class Repository < ActiveRecord::Base
 
   belongs_to :db_project
 
+  has_many :release_targets, :class_name => "ReleaseTarget", :foreign_key => 'repository_id'
   has_many :path_elements, :foreign_key => 'parent_id', :dependent => :delete_all, :order => "position"
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
   has_many :download_stats
