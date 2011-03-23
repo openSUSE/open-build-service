@@ -3010,25 +3010,11 @@ sub checkpatchinfo {
 
   return ('broken', $broken) if $broken;
 
-  # is this a new one?
-  my @meta;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
-    @meta = <F>;
-    close F;
-    chomp @meta;
-  }
-  if (@meta && $meta[0] eq "$pdata->{'srcmd5'}  $packid") {
-    print "      - $packid (patchinfo)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-  my @new_meta;
-  push @new_meta, "$pdata->{'srcmd5'}  $packid";
-
   # collect em
   my $apackstatus;
   my @blocked;
   my @tocopy;
+  my %metas;
   for my $arch (@archs) {
     if ($arch eq $myarch) {
       $apackstatus = $packstatus;
@@ -3060,6 +3046,18 @@ sub checkpatchinfo {
 	push @blocked, "$arch/$apackid";
 	$blockedarch = 1;
       }
+      my ($ameta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
+      if (!$ameta) {
+	push @blocked, "$arch/$apackid";
+	$blockedarch = 1;
+      } else {
+        if ($metas{$apackid} && $metas{$apackid} ne $ameta) {
+	  push @blocked, "meta/$apackid";
+	  $blockedarch = 1;
+	} else {
+	  $metas{$apackid} = $ameta;
+	}
+      }
       push @tocopy, "$arch/$apackid";
     }
     if ($blockedarch && $arch ne $myarch) {
@@ -3069,11 +3067,33 @@ sub checkpatchinfo {
       unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
     }
   }
+
   if (@blocked) {
     print "      - $packid (patchinfo)\n";
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
+
+  my @new_meta;
+  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+  for (sort(keys %metas)) {
+    push @new_meta, "$metas{$_}  $_";
+  }
+
+
+  # is this a new one?
+  my @meta;
+  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+    @meta = <F>;
+    close F;
+    chomp @meta;
+  }
+  if (@meta == @new_meta && join("\n", @meta) eq join("\n", @new_meta)) {
+    print "      - $packid (patchinfo)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+
   # now collect...
   return ('scheduled', [ \@tocopy]);
 }
@@ -3113,15 +3133,15 @@ sub rebuildpatchinfo {
     my @bins;
     my $meta;
     my $from;
-    if ($updateinfodata_tocopy{$tocopy}) {
+
+    ($meta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
+    if ($updateinfodata_tocopy{$tocopy} && $meta && $updateinfodata->{'metas'}->{$apackid} eq $meta) {
       print "        reusing old packages for '$tocopy'\n";
       $from = "$reporoot/$projid/$repoid/$myarch/$packid";
-      $meta = $updateinfodata->{'metas'}->{$apackid};
       @bins = grep {$updateinfodata->{'binaryorigins'}->{$_} eq $tocopy} keys(%{$updateinfodata->{'binaryorigins'}});
     } else {
       $from = "$reporoot/$projid/$repoid/$tocopy";
       @bins = grep {/\.rpm$/} ls ($from);
-      ($meta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
       print "$from @bins";
     }
     if (!$meta) {
@@ -3202,7 +3222,11 @@ sub rebuildpatchinfo {
     BSUtil::cleandir($jobdatadir);
     writestr("$jobdatadir/logfile", undef, "update built failed".localtime($now)."\n\n$broken\n");
   }
-  writestr("$jobdatadir/meta", undef, "$pdata->{'srcmd5'}  $packid\n");
+  my @new_meta = "$pdata->{'srcmd5'}  $packid";
+  for my $apackid (sort(keys %metas)) {
+    push @new_meta, "$metas{$apackid}  $apackid";
+  }
+  writestr("$jobdatadir/meta", undef, join("\n", @new_meta)."\n");
   # XXX write reason
 
   # now commit it...
