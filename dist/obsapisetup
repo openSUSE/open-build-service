@@ -87,6 +87,10 @@ case "$1" in
                 # but no idea how to solve this
                 sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^FRONTEND_PORT = .*,FRONTEND_PORT = 444,' \
+		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^FRONTEND_PROTOCOL = .*,FRONTEND_PROTOCOL = "'"https"'",' \
+		    /srv/www/obs/webui/config/environments/production.rb
                 sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
 		    /srv/www/obs/webui/config/environments/production.rb
                 sed -i -e /webui_url:/d -e /webui_host:/d -e /allow_anonymous:/d \
