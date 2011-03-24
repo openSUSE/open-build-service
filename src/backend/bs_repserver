@@ -43,7 +43,6 @@ use Storable ();
 use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
-use File::Basename;
 use Symbol;
 
 use BSConfig;
