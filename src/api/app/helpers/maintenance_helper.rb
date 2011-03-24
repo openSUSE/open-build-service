@@ -56,7 +56,9 @@ module MaintenanceHelper
     return mi
   end
 
-  def release_package(sourcePackage, targetProject, targetPackageName, revision, timestamp, request = nil)
+  def release_package(sourcePackage, targetProjectName, targetPackageName, revision, sourceRepository, releasetargetRepository, timestamp, request = nil)
+
+    targetProject = DbProject.get_by_name targetProjectName
 
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
@@ -96,30 +98,27 @@ module MaintenanceHelper
     Suse::Backend.post cp_path, nil
 
     # copy binaries
-    targetProject.repositories.each do |targetRepo|
-      targetRepo.architectures.each do |arch|
-        # copy all binaries, which got build for our target repo from maintenance project
-        sourceRepo=nil
-        sourcePackage.db_project.repositories.each do |r|
-          if r.path_elements and r.path_elements.find_by_repository_id(targetRepo)
-            if sourceRepo
-               raise
-            end
-            sourceRepo=r
+    sourcePackage.db_project.repositories.each do |sourceRepo|
+      sourceRepo.release_targets.each do |releasetarget|
+        #FIXME2.5: filter given release and/or target repos here
+        sourceRepo.architectures.each do |arch|
+          if releasetarget.target_repository.db_project == targetProject
+            cp_params = {
+              :cmd => "copy",
+              :oproject => sourcePackage.db_project.name,
+              :opackage => sourcePackage.name,
+              :orepository => sourceRepo.name,
+            }
+            cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
+            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{CGI.escape(releasetarget.target_repository.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
+            cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
+            Suse::Backend.post cp_path, nil
           end
         end
-        if sourceRepo
-          cp_params = {
-            :cmd => "copy",
-            :oproject => sourcePackage.db_project.name,
-            :opackage => sourcePackage.name,
-            :orepository => sourceRepo.name,
-            :setupdateinfoid => updateinfoId,
-          }
-          cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
-          cp_path = "/build/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetRepo.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
-          Suse::Backend.post cp_path, nil
+        # remove maintenance release trigger in source
+        if releasetarget.trigger == "maintenance"
+          releasetarget.trigger = "manual"
+          releasetarget.save!
         end
       end
     end

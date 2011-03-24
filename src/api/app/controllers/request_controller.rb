@@ -1146,10 +1146,9 @@ class RequestController < ApplicationController
 
       elsif action.data.attributes["type"] == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
-        tprj = DbProject.get_by_name(action.target.project)
 
 #FIXME2.3: support limiters to specified repositories
-        release_package(pkg, tprj, action.target.package, action.source.rev, acceptTimeStamp, req)
+        release_package(pkg, action.target.project, action.target.package, action.source.rev, nil, nil, acceptTimeStamp, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"
