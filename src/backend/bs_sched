@@ -2621,9 +2621,10 @@ sub checkkiwiproduct {
 	push @blocked, grep {$ps->{$_} && ($ps->{$_} eq 'scheduled' || $ps->{$_} eq 'blocked' || $ps->{$_} eq 'finished')} sort keys %pnames;
       }
       if (@blocked) {
-	next if -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch";
-        mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
-        BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
+	if (! -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch") {
+          mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
+          BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
+	}
       } else {
 	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
       }
