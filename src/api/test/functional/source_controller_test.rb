@@ -1634,8 +1634,12 @@ end
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
     assert_response 404
+    get "/source/home:Iggy/TestPack/_history?limit=1"
+    assert_response :success
+    assert_tag :tag => "revisionlist", :children => { :count => 1 }
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
+    assert_no_tag :tag => "revisionlist", :children => { :count => 1 }
     node = ActiveXML::XMLNode.new(@response.body)
     revision = node.each_revision.last.value :rev
     revision = revision.to_i + 1

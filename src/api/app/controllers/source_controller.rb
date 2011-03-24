@@ -961,7 +961,7 @@ class SourceController < ApplicationController
       if pack # local package
         path = "/source/#{URI.escape(pack.db_project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
       end
-      path += build_query_from_hash(params, [:rev, :meta, :deleted])
+      path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit])
       pass_to_backend path
       return
     end
