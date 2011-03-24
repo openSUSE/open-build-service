@@ -70,6 +70,7 @@ have to change into its subdirectory and create the initial config like this:
 
  $ cd src/webui
  $ cp config/database.yml.example config/database.yml
+ $ rake db:setup
 
 Afterwards you can simply start the webui like this:
 
