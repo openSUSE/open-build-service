@@ -258,7 +258,7 @@ case "$1" in
 			[ -d /obs/info ] || mkdir /obs/info
 			[ -d /obs/projects ] || mkdir /obs/projects
 			[ -d /obs/workers ] || mkdir /obs/workers
-			chown -R obsrun:obsrun /obs/{,build,db,events,info,jobs,log,projects,remotecache,repos,repos_sync,run,sources,trees,upload,workers}
+			chown obsrun.obsrun /obs/{,log,run,build,events,jobs,info,projects,workers}
 		else
 			echo "Setup local storage"
                		if [ -e /obs -a ! -L /obs ]; then
