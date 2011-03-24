@@ -65,6 +65,10 @@ class XpathEngine
           'join repositories r2 on r2.id=pe.repository_id',
           'join db_projects childs on childs.id=r2.db_project_id'
         ]},
+        'repository/releasetarget/@trigger' => {:cpart => 'rt.trigger', :joins => [
+          'join repositories r on r.db_project_id=db_projects.id',
+          'join release_targets rt on rt.repository_id=r.id'
+        ]},
         'package/@name' => {:cpart => 'packs.name', :joins => 
           ['LEFT JOIN db_packages AS packs ON packs.db_project_id = db_projects.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 

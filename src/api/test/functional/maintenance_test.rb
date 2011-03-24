@@ -242,6 +242,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
     assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
 
+    # search will find this new and not yet processed incident now.
+    get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
+    assert_response :success
+    assert_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
+
     # Create patchinfo informations
     post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1&new_format=1"
     assert_response :success
@@ -367,6 +372,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     # check for changed updateinfoid 
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "2011-1"
+
+    # search will find this incident not anymore
+    get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
+    assert_response :success
+    assert_no_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
 
     # attribute changed ?
     get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
