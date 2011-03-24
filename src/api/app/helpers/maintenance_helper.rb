@@ -4,11 +4,9 @@ module MaintenanceHelper
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil )
     mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
 
-    name = maintenanceProject.name + ":" + mi.createIncidentId.to_s
-
     tprj = nil
     DbProject.transaction do
-      tprj = DbProject.new :name => name
+      tprj = DbProject.new :name => mi.project_name
       tprj.project_user_role_relationships = maintenanceProject.project_user_role_relationships
       tprj.project_group_role_relationships = maintenanceProject.project_group_role_relationships
       if baseProject

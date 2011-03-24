@@ -219,6 +219,13 @@ CREATE TABLE `groups_users` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `incident_counter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `maintenance_db_project_id` int(11) DEFAULT NULL,
+  `counter` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -234,9 +241,6 @@ CREATE TABLE `maintenance_incidents` (
   `db_project_id` int(11) DEFAULT NULL,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
   `request` int(11) DEFAULT NULL,
-  `day` int(11) DEFAULT NULL,
-  `month` int(11) DEFAULT NULL,
-  `year` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -420,6 +424,16 @@ CREATE TABLE `tags` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `tags_name_unique_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `updateinfo_counter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `maintenance_db_project_id` int(11) DEFAULT NULL,
+  `day` int(11) DEFAULT NULL,
+  `month` int(11) DEFAULT NULL,
+  `year` int(11) DEFAULT NULL,
+  `counter` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `user_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -624,11 +638,15 @@ INSERT INTO schema_migrations (version) VALUES ('20110303100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110309100000');
 
+INSERT INTO schema_migrations (version) VALUES ('20110316000000');
+
 INSERT INTO schema_migrations (version) VALUES ('20110318112742');
 
 INSERT INTO schema_migrations (version) VALUES ('20110321000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110322000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110323000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
