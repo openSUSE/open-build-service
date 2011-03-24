@@ -2316,31 +2316,24 @@ sub abortbuild {
   return $BSStdServer::return_ok;
 }
 
+# XXX: does not make much sense, as the host architecture of the repo server
+# might be different than the worker architecture
+#
 sub getqemuinterpreters {
-  my @intrs;
-  my $l;
-  if (open(RegF, "<", "build/qemu-reg")) {
-    while ($l = <RegF>) {
-      my @f = split(':',$l);
-      if (exists $f[6]) {
-	if (-f "$f[6]") {
-	  push @intrs, "$f[6]";
-	}
-      }
-    }
-    close(RegF);
+  my @send;
+  for my $l (split("\n", readstr("build/qemu-reg", 1))) {
+    my @f = split(':', $l);
+    next unless $f[6] && -f $f[6];
+    next unless $f[6] =~ /([^\/]+)$/;
+    push @send, {'name' => $1, 'filename' => $f[6]};
   }
-  return @intrs;
+  return @send;
 }
 
 sub getcode {
   my ($cgi, $dir) = @_;
   my @send;
-  if ($dir eq 'build') {
-    for my $inter (getqemuinterpreters) {
-      push @send, {'name' => (basename("$inter")), 'filename' => "$inter"};
-    }
-  }
+  push @send, getqemuinterpreters() if $dir eq 'build';
   for my $file (grep {!/^\./} ls($dir)) {
     if ($file eq 'Build' && -d "$dir/$file") {
       for my $file2 (grep {!/^\./} ls("$dir/Build")) {
