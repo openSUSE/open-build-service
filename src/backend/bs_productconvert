@@ -1245,7 +1245,11 @@ foreach my $medium ( @$media ){
 
     # bug compatibility for 11.3 and before (ignoring product name definition per media)
     if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
-      $product = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
+      $product = $prodRef->{'products'}->{'product'}[0]->{'name'};
+      if ($medium->{'product'}) {
+        print "WARNING: own product type per media is used. This may create inconsistent medias!\n";
+        $product = $medium->{'product'};
+      }
     }
    
     next if( $opt_m && $name ne $opt_m );
