@@ -1,6 +1,11 @@
 <% short ||= false %>
-<%= gravatar_image(Person.email_for_login(user)) %>
+<% no_gravatar ||= false %>
 <% realname = Person.realname_for_login(user) %>
+
+<% unless no_gravatar %>
+  <%= gravatar_image(Person.email_for_login(user)) %>
+<% end %>
+
 <% unless realname.empty? or short == true %>
   <%= link_to(realname + ' (' + user + ')', :controller => 'home', :user => user) %>
 <% else %>
