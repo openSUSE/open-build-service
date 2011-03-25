@@ -139,10 +139,18 @@ case "$1" in
                 if [ ! -e /etc/ssl/private/lighttpd.key -a ! -e /etc/ssl/certs/lighttpd.crt -a ! -e /etc/ssl/private/lighttpd.pem ]; then
                         if [ ! -e /obs/certs/lighttpd.key ]; then
                                # setup ssl certificates (NOT protected with a passphrase)
-                               echo "Creating SSL certificate for the server..."
+                               echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
                                install -d -m 0700 /obs/certs
                                openssl genrsa -out /obs/certs/lighttpd.key 1024
-                               openssl req -new -key /obs/certs/lighttpd.key -out /obs/certs/lighttpd.csr
+                               # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
+			       echo "CC
+Test State or Province
+Test Locality
+Organization Name
+Organizational Unit Name
+$FQHOSTNAME
+test@email.address
+"                            | openssl req -new -key /obs/certs/lighttpd.key -out /obs/certs/lighttpd.csr >& /dev/null
                                openssl x509 -req -days 365 -in /obs/certs/lighttpd.csr -signkey /obs/certs/lighttpd.key -out /obs/certs/lighttpd.crt
                                cat /obs/certs/lighttpd.key /obs/certs/lighttpd.crt > /obs/certs/lighttpd.pem
                         fi
