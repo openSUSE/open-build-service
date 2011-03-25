@@ -120,6 +120,9 @@ if CONFIG.has_key?('bugzilla_host')
 else
   BUGZILLA_HOST = "http://bugzilla.novell.com"
 end
+unless defined?(FRONTEND_PROTOCOL) and not FRONTEND_PROTOCOL.blank?
+  FRONTEND_PROTOCOL = "http"
+end
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
