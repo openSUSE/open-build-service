@@ -1,5 +1,7 @@
 class UserController < ApplicationController
 
+  include ApplicationHelper
+
   before_filter :require_login, :only => [:edit, :save]
   before_filter :check_user, :only => [:edit, :save, :change_password]
 
@@ -81,12 +83,16 @@ class UserController < ApplicationController
       flash[:error] = "Given passwords are not the same"
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
-
+    if params[:password_first].length < 6 or params[:password_first].length > 64
+      flash[:error] = "Password is to short, it should have minimum 6 characters"
+      redirect_back_or_to :controller => "main", :action => "index" and return
+    end
     if login.blank? or login.include?(" ")
       logger.info "Illegal login name"
       flash[:error] = "Illegal login name"
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
+    #FIXME redirecting destroys form content, either send it or use AJAX form validation
 
     logger.debug "Creating new person #{login}"
     unreg_person_opts = {
