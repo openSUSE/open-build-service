@@ -111,8 +111,8 @@ class RequestController < ApplicationController
 
 
   def changerequest
-    @therequest = find_cached(BsRequest, params[:id] ) if params[:id]
-    unless @therequest
+    @req = find_cached(BsRequest, params[:id] ) if params[:id]
+    unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_to :action => :index and return
     end
@@ -126,30 +126,36 @@ class RequestController < ApplicationController
     end
 
     if changestate == 'forward' # special case
-      description = @therequest.description.text
-      logger.debug 'request ' +  @therequest.dump_xml
+      description = @req.description.text
+      logger.debug 'request ' +  @req.dump_xml
 
-      if @therequest.has_element? 'state'
-        who = @therequest.state.data["who"].to_s
+      if @req.has_element? 'state'
+        who = @req.state.data["who"].to_s
         description += " (forwarded request %d from %s)" % [params[:id], who]
       end
 
       if not change_request('accepted', params)
-        redirect_to :action => :show, :id => params[:id]
-        return
+        redirect_to :action => :show, :id => params[:id] and return
       end
 
-      rev = Package.current_rev(@therequest.action.target.project, @therequest.action.target.package)
-      @therequest = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
-        :project => @therequest.action.target.project, :package => @therequest.action.target.package, :rev => rev, :description => description)
-      @therequest.save(:create => true)
+      rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
+      @req = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
+        :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
+      @req.save(:create => true)
       Rails.cache.delete "requests_new"
       flash[:note] = "Request #{params[id]} accepted and forwarded"
-      redirect_to :controller => :request, :action => :show, :id => @therequest.data["id"] and return
+      redirect_to :controller => :request, :action => :show, :id => @req.data["id"] and return
     end
 
     change_request(changestate, params)
-    Directory.free_cache( :project => @therequest.action.target.project, :package => @therequest.action.target.value('package') )
+
+    if changestate == 'accepted' and params[:add_submitter_as_maintainer]
+      target_package = Package.find_cached(:project => @req.action.target.project, :package => @req.action.target.package)
+      target_package.add_person(:userid => BsRequest.creator(@req), :role => "maintainer")
+      target_package.save
+    end
+
+    Directory.free_cache( :project => @req.action.target.project, :package => @req.action.target.value('package') )
     redirect_to :action => :show, :id => params[:id]
   end
 
