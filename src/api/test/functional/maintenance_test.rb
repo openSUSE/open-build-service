@@ -334,12 +334,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     # FIXME2.3: we have an "id" tag, but without content. Shall this really exist here ?
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
 
-    # not permitted release
-    prepare_request_with_user "adrian", "so_alone"
-    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
-    assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
-
     # release packages
     prepare_request_with_user "king", "sunflower"
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
@@ -385,6 +379,72 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     #cleanup
     delete "/source/#{maintenanceProject}"
+    assert_response :success
+  end
+
+  def test_try_to_release_without_permissions_binary_permissions
+    prepare_request_with_user "tom", "thunder"
+    # create project
+    put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> 
+                                         <repository name='dummy'>
+                                           <releasetarget project='BaseDistro:Update' repository='BaseDistroUpdateProject_repo' trigger='maintenance' />
+                                          </repository>
+                                        </project>"
+    assert_response :success
+    put "/source/home:tom:test/pack/_meta", "<package name='pack'> <title/> <description/> </package>"
+    assert_response :success
+
+    # create release request
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:test" package="pack" />
+                                     <target project="home:tom:test" package="pack" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    reqid = node.data['id']
+
+    # fail ...
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "release_target_no_permission" }
+
+    # cleanup 
+    delete "/source/home:tom:test"
+    assert_response :success
+  end
+
+  def test_try_to_release_without_permissions_source_permissions
+    prepare_request_with_user "tom", "thunder"
+    # create project
+    put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> </project>" 
+    assert_response :success
+    put "/source/home:tom:test/pack/_meta", "<package name='pack'> <title/> <description/> </package>"
+    assert_response :success
+
+    # create release request
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:test" package="pack" />
+                                     <target project="BaseDistro" package="pack" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    reqid = node.data['id']
+
+    # fail ...
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
+
+    # cleanup 
+    delete "/source/home:tom:test"
     assert_response :success
   end
 

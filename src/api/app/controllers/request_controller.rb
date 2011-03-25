@@ -819,6 +819,18 @@ class RequestController < ApplicationController
               return
             end
           end
+          # write access check in release targets
+          if [ "maintenance_release" ].include? action.data.attributes["type"]
+            source_project.repositories.each do |repo|
+              repo.release_targets.each do |releasetarget|
+                unless @http_user.can_modify_project? releasetarget.target_repository.db_project
+                  render_error :status => 403, :errorcode => "release_target_no_permission",
+                    :message => "Release target project #{releasetarget.target_repository.db_project.name} is not writable by you"
+                  return
+                end
+              end
+            end
+          end
         end
         if target_project
           if action.target.has_attribute? :package
