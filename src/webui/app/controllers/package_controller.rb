@@ -92,12 +92,16 @@ class PackageController < ApplicationController
   def binaries
     required_parameters :repository
     @repository = params[:repository]
+    begin
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.message
+      redirect_back_or_to :controller => "package", :action => "show", :project => @project, :package => @package and return
+    end
     unless @buildresult
       flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}" 
-      redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404  
-      return
+      redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
     end
     # load the flag details to disable links for forbidden binary downloads
     @package = find_cached(Package, @package.name, :project => @project, :view => :flagdetails )
