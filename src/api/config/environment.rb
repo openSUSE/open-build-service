@@ -98,15 +98,15 @@ ActionController::Base.perform_caching = true
 
 ActiveRbac.controller_layout = "rbac"
 
-unless defined?(FRONTEND_PROTOCOL) and not FRONTEND_PROTOCOL.blank?
-  FRONTEND_PROTOCOL = "http"
+unless defined?(SOURCE_PROTOCOL) and not SOURCE_PROTOCOL.blank?
+  SOURCE_PROTOCOL = "http"
 end
 
 ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-    map.default_server :rest, "#{FRONTEND_PROTOCOL}://#{SOURCE_HOST}:#{SOURCE_PORT}"
+    map.default_server :rest, "#{SOURCE_PROTOCOL}://#{SOURCE_HOST}:#{SOURCE_PORT}"
 
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
