@@ -378,6 +378,33 @@ our $fileinfo = [
      ]],
 ];
 
+our $sourceinfo = [
+    'sourceinfo' =>
+	'package',
+	'rev',
+	'srcmd5',
+	'verifymd5',
+	[],
+	'filename',
+	'error',
+	'originproject',
+       [ $linked ],
+
+	'name',
+	'version',
+	'release',
+       [ 'subpacks' ],
+       [ 'deps' ],
+       [ 'prereqs' ],
+       [ 'exclarch' ],
+       [ 'badarch' ],
+];
+
+our $sourceinfolist = [
+    'sourceinfolist' =>
+      [ $sourceinfo ],
+];
+
 our $buildinfo = [
     'buildinfo' =>
 	'project',

@@ -5781,6 +5781,105 @@ sub getdispatchprios {
   return undef;
 }
 
+sub getprojectsourceinfo {
+  my ($cgi, $projid) = @_;
+  my @packages = @{$cgi->{'package'} || []};
+  @packages = findpackages($projid) unless @packages;
+  my $bconf;
+  if (!$cgi->{'repository'}) {
+    my $cfile;
+    $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
+  } else {
+    my @path = expandsearchpath($projid, $repoid);
+    my $c = concatconfigs($projid, $repoid, undef, @path);
+    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
+  }
+  my @res;
+  for my $packid (@packages) {
+    my $r = {'package' => $packid};
+    push @res, $r;
+    my $linked = [];
+    my $rev;
+    my $files;
+    eval {
+      $rev = getrev($projid, $packid, 'build', $linked);
+      $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
+      $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
+      die("no source uploaded\n") if !$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq 'd41d8cd98f00b204e9800998ecf8427e';
+      $files = lsrev($rev);
+      die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
+      die("source update failed\n") if $files->{'_service_error'};
+    };
+    $r->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
+    $r->{'linked'} = $linked if @$linked;
+    if ($@) {
+      $r->{'error'} = $@;
+      $r->{'error'} =~ s/\n$//s;
+      next;
+    }
+    if ($files->{'_link'}) {
+      my %li = ('linked' => $linked);
+      eval {
+	$files = handlelinks($rev, $files, \%li);
+      };
+      if ($@) {
+	$files = "$@";
+	$files =~ s/\n$//;
+      }
+      $r->{'linked'} = $linked if @$linked;
+      if (!ref $files) {
+	$r->{'error'} = $files || 'could not get file list';
+        next;
+      }
+      $r->{'srcmd5'} = $rev->{'srcmd5'};
+      my $meta = '';
+      $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+      $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+    }
+    next if $packid eq '_pattern';
+    if ($files->{'_aggregate'}) {
+      $r->{'filename'} = '_aggregate';
+      next;
+    } elsif ($files->{'_patchinfo'}) {
+      $r->{'filename'} = '_patchinfo';
+      next;
+    }
+    my $type = $bconf->{'type'};
+    my $file;
+    if (!$type || $type eq 'UNDEFINED') {
+      undef $type;
+      for my $t ('spec', 'dsc', 'kiwi') {
+        (undef, $file) = findfile($rev, $cgi->{'repository'}, $t, $files);
+        next unless defined $file;
+        $type = $t;
+        last;
+      }
+    } else {
+      (undef, $file) = findfile($rev, $cgi->{'repository'}, $type, $files);
+    }
+    if (!$type) {
+      $r->{'error'} = 'bad build configuration';
+      next;
+    }
+    if (!$file) {
+      $r->{'error'} = "no file found for build type '$type'";
+      next;
+    }
+    $r->{'filename'} = $file;
+    next unless $cgi->{'parse'};
+    my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
+    if (!$d) {
+      $r->{'error'} = "parse error";
+      next;
+    }
+    for (qw{name version release subpacks deps prereqs exclarch badarch}) {
+      $r->{$_} = $d->{$_} if defined $d->{$_};
+    }
+  }
+  return ({'sourceinfo' => \@res}, $BSXML::sourceinfolist);
+}
+
 ####################################################################
 
 sub hello {
@@ -5811,6 +5910,8 @@ my $dispatches = [
   'DELETE:/source/$project user:? comment:?' => \&delproject,
   '/source/$project/_meta rev?' => \&getproject,
   'PUT:/source/$project/_meta user:? comment:?' => \&putproject,
+
+  '/source/$project/_sourceinfo parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
 
   '/source/$project/_pubkey rev?' => \&getpubkey,
   'DELETE:/source/$project/_pubkey user:? comment:?' => \&deletekey,
