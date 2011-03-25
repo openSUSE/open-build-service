@@ -569,6 +569,12 @@ class DbProject < ActiveRecord::Base
           end
           r = current_repo.release_targets.create :target_repository => target_repo
           if rt.has_attribute? :trigger and rt.trigger != "manual"
+            if rt.trigger != "maintenance"
+              # automatic triggers are only allowed inside the same project
+              unless rt.project == project.name
+                raise SaveError, "Automatic release updates are only allowed into a project to the same project"
+              end
+            end
             r.trigger = rt.trigger
           end
           was_updated = true
