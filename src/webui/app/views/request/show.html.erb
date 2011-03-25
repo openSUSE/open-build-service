@@ -115,8 +115,8 @@
   </script>
 </div>
 
-<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) && !@diff_error %>
-  <% if @is_maintainer || @is_reviewer || @is_author %>
+<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) %>
+  <% if (@is_maintainer || @is_reviewer || @is_author) %>
     <% content_for :head_javascript do %>
       function modifyReview(id, new_state) {
         var comment = $('#review_comment_' + id).attr('value');
@@ -194,7 +194,7 @@
     <% end %>
   <% end %>
   <% if @is_maintainer || @is_author %>
-    <% if (@req.state.name == "review" || @req.state.name == "new") %>
+    <% if (@req.state.name == "review" || @req.state.name == "new") && !@diff_error %>
       <p>
         <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
         <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
