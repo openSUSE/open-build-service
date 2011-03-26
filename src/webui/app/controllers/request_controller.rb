@@ -125,6 +125,18 @@ class RequestController < ApplicationController
       end
     end
 
+    if params[:add_submitter_as_maintainer]
+      if not (changestate == 'forward' || changestate == 'accepted')
+         flash[:error] = "Will not add maintainer for not accepted requests"
+         redirect_to :action => :show, :id => params[:id] and return
+      end
+      target_package = find_cached(Package, @req.action.target.package, :project => @req.action.target.project)
+      target_package.add_person(:userid => BsRequest.creator(@req), :role => "maintainer")
+      target_package.save
+    end
+
+    Directory.free_cache( :project => @req.action.target.project, :package => @req.action.target.value('package') )
+
     if changestate == 'forward' # special case
       description = @req.description.text
       logger.debug 'request ' +  @req.dump_xml
@@ -148,14 +160,6 @@ class RequestController < ApplicationController
     end
 
     change_request(changestate, params)
-
-    if changestate == 'accepted' and params[:add_submitter_as_maintainer]
-      target_package = find_cached(Package, @req.action.target.package, :project => @req.action.target.project)
-      target_package.add_person(:userid => BsRequest.creator(@req), :role => "maintainer")
-      target_package.save
-    end
-
-    Directory.free_cache( :project => @req.action.target.project, :package => @req.action.target.value('package') )
     redirect_to :action => :show, :id => params[:id]
   end
 
