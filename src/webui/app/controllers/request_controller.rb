@@ -109,6 +109,13 @@ class RequestController < ApplicationController
   end
   private :change_request
 
+  def add_maintainer(req)
+     target_package = find_cached(Package, req.action.target.package, :project => req.action.target.project)
+     target_package.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
+     target_package.save
+     return true
+  end
+  private :add_maintainer
 
   def changerequest
     @req = find_cached(BsRequest, params[:id] ) if params[:id]
@@ -125,16 +132,6 @@ class RequestController < ApplicationController
       end
     end
 
-    if params[:add_submitter_as_maintainer]
-      if not (changestate == 'forward' || changestate == 'accepted')
-         flash[:error] = "Will not add maintainer for not accepted requests"
-         redirect_to :action => :show, :id => params[:id] and return
-      end
-      target_package = find_cached(Package, @req.action.target.package, :project => @req.action.target.project)
-      target_package.add_person(:userid => BsRequest.creator(@req), :role => "maintainer")
-      target_package.save
-    end
-
     Directory.free_cache( :project => @req.action.target.project, :package => @req.action.target.value('package') )
 
     if changestate == 'forward' # special case
@@ -149,7 +146,8 @@ class RequestController < ApplicationController
       if not change_request('accepted', params)
         redirect_to :action => :show, :id => params[:id] and return
       end
-
+    
+      add_maintainer(@req) if params[:add_submitter_as_maintainer]
       rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
       @req = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
         :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
@@ -159,7 +157,15 @@ class RequestController < ApplicationController
       redirect_to :controller => :request, :action => :show, :id => @req.data["id"] and return
     end
 
-    change_request(changestate, params)
+    if change_request(changestate, params)
+      if params[:add_submitter_as_maintainer]
+        if changestate != 'accepted'
+           flash[:error] = "Will not add maintainer for not accepted requests"
+        else
+           add_maintainer(@req)
+        end
+    end
+
     redirect_to :action => :show, :id => params[:id]
   end
 
