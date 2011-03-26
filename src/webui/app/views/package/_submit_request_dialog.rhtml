@@ -1,9 +1,41 @@
 <%= javascript_include_tag 'jquery.autocomplete.pack' %>
+<%= javascript_include_tag 'jquery.tablesorter.js' %>
 <%= stylesheet_link_tag 'jquery.autocomplete' %>
 
 <script type="text/javascript">
-  $("#targetproject").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
+  function updateSupersedeDisplay() {
+    if ($('#targetproject')[0].value.length > 0) {
+      $.ajax({
+        url: '<%= url_for(:controller => "request", :action => "list_small") %>',
+        data: {
+          project: $('#targetproject')[0].value,
+          package: $('#package')[0].value,
+          type: "submit",
+          state: "pending",
+        },
+        success: function(data) {
+          if (data.indexOf('No requests') == -1) {
+            $('#supersede_display').show();
+            $('#supersede').attr('checked', true);
+            $('#pending_requests').html(data);
+          } else {
+            $('#supersede_display').hide();
+            $('#supersede').attr('checked', false);
+          }
+        }
+      })
+    }
+  };
+
+  $('#targetproject').change(updateSupersedeDisplay);
+  $('#targetproject').keyup(updateSupersedeDisplay);
+
+  updateSupersedeDisplay();
+
+  $('#targetproject').autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
     minChars: 2, matchCase: true, max: 50
+  }).result(function(event, item) {
+    updateSupersedeDisplay();
   });
   /*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
     minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
@@ -34,9 +66,12 @@
           <%= text_field_tag(:targetproject, tprj, :size => 40) %><br/>
           <%= label_tag(:description, "Description:") %><br/>
           <%= text_area_tag(:description, "", :size => "40x3") %><br/>
-          <% default = "update" %>
-          <% default = "cleanup" if "home:#{session[:login]}:branches:#{tprj}" == @project.to_s %>
-          <%= check_box_tag(:sourceupdate, 'cleanup') %> Remove local package if request is accepted
+          <span id="supersede_display" class="hidden">
+            <%= label_tag(:pending_requests, "Pending requests:") %><br/>
+            <span id="pending_requests"></span>
+            <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
+          </span>
+          <%= check_box_tag(:sourceupdate) %> Remove local package if request is accepted
         </p>
         <div class="buttons">
           <%= submit_tag("Ok") %>

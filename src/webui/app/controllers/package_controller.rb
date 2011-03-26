@@ -157,7 +157,6 @@ class PackageController < ApplicationController
   def submit_request_dialog
     @revision = Package.current_rev(@project, @package)
   end
-
   def submit_request
     if params[:targetproject].nil? or params[:targetproject].empty?
       flash[:error] = "Please provide a target for the submit request"
@@ -169,12 +168,27 @@ class PackageController < ApplicationController
       req = BsRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message, _, _ = ActiveXML::Transport.extract_error_message(e)
       flash[:error] = message
-      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+      redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
     end
+
+    # Supersede logic has to be below addition as we need the new request id
+    if params[:supersede]
+      pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :state => "pending", :type => "submit")
+      pending_requests.each do |request|
+        next if request.data[:id] == req.data[:id] # ignore newly created request
+        begin
+          BsRequest.modify(request.data[:id], "superseded", "Superseded by request #{req.data[:id]}", req.data[:id])
+        rescue BsRequest::ModifyError => e
+          flash[:error] = e.message
+          redirect_to(:action => "list_requests", :project => params[:project], :package => params[:package]) and return
+        end
+      end
+    end
+
     Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+    redirect_to(:controller => "request", :action => "show", :id => req.data[:id])
   end
 
   def service_parameter

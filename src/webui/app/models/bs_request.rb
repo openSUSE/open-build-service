@@ -93,10 +93,11 @@ class BsRequest < ActiveXML::Base
       end
     end
 
-    def modify(id, changestate, reason)
-      if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
+    def modify(id, changestate, reason, superseded_by = nil)
+      if ["accepted", "declined", "revoked", "superseded"].include?(changestate)
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
+        path += "&superseded_by=#{superseded_by}" if superseded_by
         begin
           transport.direct_http URI("#{path}"), :method => "POST", :data => reason.to_s
           BsRequest.free_cache(id)
