@@ -113,7 +113,6 @@ class RequestController < ApplicationController
      target_package = find_cached(Package, req.action.target.package, :project => req.action.target.project)
      target_package.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
      target_package.save
-     return true
   end
   private :add_maintainer
 
@@ -164,6 +163,7 @@ class RequestController < ApplicationController
         else
            add_maintainer(@req)
         end
+      end
     end
 
     redirect_to :action => :show, :id => params[:id]
