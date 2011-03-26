@@ -205,7 +205,7 @@
       <p>
         <% if @is_maintainer %>
           <%= check_box_tag(:add_submitter_as_maintainer) %> Add
-          <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target<br/>
+          <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
         <% end %>
         <b>Comment:</b><br/>
         <%= text_field_tag(:reason, '', :style => "width: 99%") %>

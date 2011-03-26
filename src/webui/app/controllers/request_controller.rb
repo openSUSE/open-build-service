@@ -33,7 +33,7 @@ class RequestController < ApplicationController
   end
 
   def show
-    @req = BsRequest.find_cached(params[:id]) if params[:id]
+    @req = find_cached(BsRequest, params[:id]) if params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_to :action => :index and return
@@ -55,7 +55,7 @@ class RequestController < ApplicationController
       end
 
       if session[:login]
-        user = Person.find_cached(session[:login])
+        user = find_cached(Person, session[:login])
         if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
            (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
            (review.has_attribute? :by_project and review.has_attribute? :by_package and user.is_maintainer?(review.by_project, review.by_package))
@@ -150,7 +150,7 @@ class RequestController < ApplicationController
     change_request(changestate, params)
 
     if changestate == 'accepted' and params[:add_submitter_as_maintainer]
-      target_package = Package.find_cached(:project => @req.action.target.project, :package => @req.action.target.package)
+      target_package = find_cached(Package, @req.action.target.package, :project => @req.action.target.project)
       target_package.add_person(:userid => BsRequest.creator(@req), :role => "maintainer")
       target_package.save
     end
