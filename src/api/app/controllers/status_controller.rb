@@ -190,6 +190,21 @@ class StatusController < ApplicationController
      render :text => xml
   end
 
+  def bsrequest_repos_map(project)
+    ret = Hash.new
+    uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
+    xml = ActiveXML::Base.new( backend.direct_http( uri ) )
+    xml.project.each_repository do |repo|
+      repo.each_path do |path|
+        ret[path.project.to_s] ||= Array.new
+        ret[path.project.to_s] << repo
+      end
+    end
+
+    return ret
+  end
+  private :bsrequest_repos_map
+
   def bsrequest
     required_parameters :id
     req = BsRequest.find :id => params[:id]
@@ -197,36 +212,46 @@ class StatusController < ApplicationController
       render :text => '<status code="unknown">Not submit</status>' and return
     end
 
-    tproj = DbProject.get_by_name(req.action.target.project)
     sproj = DbProject.get_by_name(req.action.source.project)
-    
+    tproj = DbProject.get_by_name(req.action.target.project)
+
     tocheck_repos = Array.new
-    sproj.repositories.each do |srep| 
-      if srep.links_to_project?(tproj)
-	tocheck_repos << srep
+
+    targets = bsrequest_repos_map(tproj.name)
+    logger.debug targets.inspect
+    sources = bsrequest_repos_map(sproj.name)
+    logger.debug sources.inspect
+    sources.each do |key, value|
+      if targets.has_key?(key): 
+          tocheck_repos << sources[key]
       end
     end
+
+    tocheck_repos.flatten!
+
     if tocheck_repos.empty?
       render :text => '<status code="warning">No repositories build against target</status>'
       return
     end
-    dir = Directory.find(:project => req.action.source.project, 
-			 :package => req.action.target.package, 
+    dir = Directory.find(:project => req.action.source.project,
+			 :package => req.action.source.package,
 			 :expand => 1, :rev => req.action.source.value('rev'))
     unless dir
       render :text => '<status code="error">Source package does not exist</status>' and return
     end
     srcmd5 = dir.value('srcmd5')
 
-    everbuilt = 0
-    eversucceeded = 0
+    logger.debug tocheck_repos.inspect
 
+    outputxml = ''
     tocheck_repos.each do |srep|
-      srep.architectures.each do |arch|
+      srep.each_arch do |arch|
+        everbuilt = 0
+        eversucceeded = 0
 	hist = Jobhistory.find(:project => sproj.name, 
 			       :repository => srep.name, 
 			       :package => req.action.source.package,
-			       :arch => arch.name, :limit => 20 )
+			       :arch => arch.to_s, :limit => 20 )
 	next unless hist
 	hist.each_jobhist do |jh|
 	  next if jh.srcmd5 != srcmd5
@@ -235,12 +260,15 @@ class StatusController < ApplicationController
 	    eversucceeded = 1
 	  end
 	end
-	render :text => "<status code='what'>built=#{everbuilt} success=#{eversucceeded}</status>"
-	return
+        outputxml = outputxml + "<status id='#{params[:id]}' code='what'>built=#{everbuilt} success=#{eversucceeded} repo=#{srep.name} arch=#{arch.to_s}</status>\n"
       end
     end
 
-    render :text => tocheck_repos.to_xml
+    if outputxml.blank?
+      render :text => tocheck_repos.to_xml
+    else
+      render :text => outputxml
+    end
   end
 
 end
