@@ -673,14 +673,15 @@ class ProjectController < ApplicationController
 
   def save_group
     valid_http_methods(:post)
-    group = find_cached(Group, params[:groupid])
-    unless group
-      flash[:error] = "Unknown group with id '#{params[:groupid]}'"
-      redirect_to :action => :add_group, :project => @project, :role => params[:role] and return
-    end
-    @project.add_group(:groupid => group.title.to_s, :role => params[:role])
+    #FIXME: API Group controller routes don't support this currently.
+   #group = find_cached(Group, params[:groupid])
+   #unless group
+   #  flash[:error] = "Unknown group with id '#{params[:groupid]}'"
+   #  redirect_to :action => :add_group, :project => @project, :role => params[:role] and return
+   #end
+    @project.add_group(:groupid => params[:groupid], :role => params[:role])
     if @project.save
-      flash[:note] = "Added group #{group.title} with role #{params[:role]} to project #{@project}"
+      flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
     else
       flash[:error] = "Failed to add group '#{params[:groupid]}'"
     end
