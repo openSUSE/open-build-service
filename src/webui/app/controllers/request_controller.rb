@@ -182,6 +182,12 @@ class RequestController < ApplicationController
     render :partial => 'shared/list_requests', :locals => {:requests => requests, :elide_len => elide_len}
   end
 
+  def list_small
+    redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
+    requests = BsRequest.list(params)
+    render :partial => "shared/list_requests_small", :locals => {:requests => requests}
+  end
+
   def delete_request_dialog
     @project = params[:project]
     @package = params[:package] if params[:package]
