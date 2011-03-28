@@ -2140,9 +2140,8 @@ sub getprojpack {
  	  next;
         }
 	if ($files->{'_link'}) {
-	  my %li = ('linked' => $linked);
 	  eval {
-	    $files = handlelinks($rev, $files, \%li);
+	    $files = handlelinks($rev, $files, {'linked' => $linked});
 	  };
 	  if ($@) {
 	    $files = "$@";
@@ -5782,13 +5781,13 @@ sub getdispatchprios {
 }
 
 sub sourceinfo {
-  my ($cgi, $projid, $packid, $revid, $bconf) = @_;
+  my ($cgi, $projid, $packid, $bconf) = @_;
   my $r = {'package' => $packid};
   my $linked = [];
   my $rev;
   my $files;
   eval {
-    $rev = getrev($projid, $packid, $revid || 'build', $linked);
+    $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     die("no source uploaded\n") if !$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq 'd41d8cd98f00b204e9800998ecf8427e';
@@ -5804,9 +5803,9 @@ sub sourceinfo {
     return $r;
   }
   if ($files->{'_link'}) {
-    my %li = ('linked' => $linked);
+    $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
     eval {
-      $files = handlelinks($rev, $files, \%li);
+      $files = handlelinks($rev, $files, {'linked' => $linked});
     };
     if ($@) {
       $files = "$@";
@@ -5881,7 +5880,7 @@ sub getprojectsourceinfo {
   }
   my @res;
   for my $packid (@packages) {
-    push @res, sourceinfo($cgi, $projid, $packid, undef, $bconf);
+    push @res, sourceinfo($cgi, $projid, $packid, $bconf);
   }
   return ({'sourceinfo' => \@res}, $BSXML::sourceinfolist);
 }
@@ -5900,7 +5899,7 @@ sub getpackagesourceinfo {
     my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
     $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
   }
-  my $res = sourceinfo($cgi, $projid, $packid, $cgi->{'rev'}, $bconf);
+  my $res = sourceinfo($cgi, $projid, $packid, $bconf);
   return ($res, $BSXML::sourceinfo);
 }
 
@@ -5929,13 +5928,12 @@ my $dispatches = [
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
+  '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
   '/source/$project deleted:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:?' => \&delproject,
   '/source/$project/_meta rev?' => \&getproject,
   'PUT:/source/$project/_meta user:? comment:?' => \&putproject,
-
-  '/source/$project/_sourceinfo parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
 
   '/source/$project/_pubkey rev?' => \&getpubkey,
   'DELETE:/source/$project/_pubkey user:? comment:?' => \&deletekey,
@@ -5961,8 +5959,8 @@ my $dispatches = [
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
+  '/source/$project/$package view=info rev? linkrev? parse:bool? repository? arch?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
-  '/source/$project/$package/_sourceinfo parse:bool? repository? arch? rev?' => \&getpackagesourceinfo,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:?' => \&putpackage,
