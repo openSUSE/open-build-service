@@ -673,7 +673,7 @@ sub rpc_tossl {
 #  print "switching to https\n";
   fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
   eval {
-    ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'});
+    ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'}, $ev->{'param'}->{'ssl_keyfile'}, $ev->{'param'}->{'ssl_certfile'}, 1);
   };
   fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
   if ($@) {
