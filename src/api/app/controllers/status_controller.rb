@@ -2,7 +2,6 @@ require 'project_status_helper'
 
 class StatusController < ApplicationController
   
-
   def messages
     # this displays the status messages the Admin can enter for users.
     if request.get?
@@ -205,22 +204,40 @@ class StatusController < ApplicationController
   end
   private :bsrequest_repos_map
 
+  def bsrequest_repo_list(project, repo, arch)
+    ret = Hash.new
+    data = Rails.cache.fetch(CGI.escape("repo_list_%s_%s_%s" % [project, repo, arch]), :expires_in => 5.minutes) do
+      uri = URI( "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{CGI.escape(arch)}/_repository")
+      backend.direct_http( uri )
+    end
+
+    repo = ActiveXML::Base.new( data )
+    repo.each_binary do |b|
+      name=b.value(:filename).sub('.rpm', '')
+      ret[name] = 1
+    end
+    return ret
+  end
+  private :bsrequest_repo_list
+
   def bsrequest
     required_parameters :id
     req = BsRequest.find :id => params[:id]
     if req.action.value('type') != 'submit'
-      render :text => '<status code="unknown">Not submit</status>' and return
+      render :text => "<status id='#{params[:id]}' code='unknown'>Not submit</status>\n" and return
     end
 
-    sproj = DbProject.get_by_name(req.action.source.project)
-    tproj = DbProject.get_by_name(req.action.target.project)
+    begin
+      sproj = DbProject.get_by_name(req.action.source.project)
+      tproj = DbProject.get_by_name(req.action.target.project)
+    rescue DbProject::UnknownObjectError => e
+      render :text => "<status id='#{params[:id]}' code='error'>Can't find project #{e.message}k</status>\n" and return
+    end
 
     tocheck_repos = Array.new
 
     targets = bsrequest_repos_map(tproj.name)
-    logger.debug targets.inspect
     sources = bsrequest_repos_map(sproj.name)
-    logger.debug sources.inspect
     sources.each do |key, value|
       if targets.has_key?(key): 
           tocheck_repos << sources[key]
@@ -228,23 +245,39 @@ class StatusController < ApplicationController
     end
 
     tocheck_repos.flatten!
+    tocheck_repos.uniq!
 
     if tocheck_repos.empty?
-      render :text => '<status code="warning">No repositories build against target</status>'
+      render :text => "<status id='#{params[:id]}' code='warning'>No repositories build against target</status>\n"
       return
     end
-    dir = Directory.find(:project => req.action.source.project,
-			 :package => req.action.source.package,
-			 :expand => 1, :rev => req.action.source.value('rev'))
+    begin
+      dir = Directory.find(:project => req.action.source.project,
+			   :package => req.action.source.package,
+			   :expand => 1, :rev => req.action.source.value('rev'))
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}k</status>\n"
+      return
+    end
+
     unless dir
-      render :text => '<status code="error">Source package does not exist</status>' and return
+      render :text => '<status code="error">Source package does not exist</status>\n' and return
     end
     srcmd5 = dir.value('srcmd5')
 
-    logger.debug tocheck_repos.inspect
-
     outputxml = ''
     tocheck_repos.each do |srep|
+      trepo = []
+      srep.each_path do |p|
+	if p.project != sproj.name
+	  trepo << p
+	end
+      end
+      if trepo.empty?
+	render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
+      end
+      logger.debug trepo.inspect
       srep.each_arch do |arch|
         everbuilt = 0
         eversucceeded = 0
@@ -258,9 +291,34 @@ class StatusController < ApplicationController
 	  everbuilt = 1
 	  if jh.code == 'succeeded'
 	    eversucceeded = 1
+	    break
 	  end
 	end
-        outputxml = outputxml + "<status id='#{params[:id]}' code='what'>built=#{everbuilt} success=#{eversucceeded} repo=#{srep.name} arch=#{arch.to_s}</status>\n"
+	missingdeps=[]
+	if eversucceeded
+	  uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
+	  buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+	  packages = Hash.new
+	  trepo.each do |r|
+	    packages.merge!(bsrequest_repo_list(r.value(:project), r.value(:repository), arch.to_s))
+	  end
+
+	  buildinfo.each_bdep do |b|
+	    unless b.value(:preinstall)
+	      unless packages.has_key? b.value(:name)
+		missingdeps << b.name
+	      end
+	    end
+	  end
+	  #puts xml.dump_xml
+	end
+        outputxml << "<status id='#{params[:id]}' code='unknown'>\n"
+	outputxml << "  <repository name='#{srep.name}' arch='#{arch.to_s}'>\n"
+	outputxml << "     <result built='#{everbuilt}' success='#{eversucceeded}'"
+	outputxml << " missing='#{missingdeps.join(',')}'" if missingdeps.size > 0
+	outputxml << ">\n"
+	outputxml << "  </repository>\n"
+	outputxml << "</status>\n"
       end
     end
 
