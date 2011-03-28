@@ -127,20 +127,23 @@ class SourceServicesTest < ActionController::IntegrationTest
 
     put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
-    post "/source/home:tom/service?cmd=runservice"
+
+    put "/source/home:tom/service2/_meta", "<package project='home:tom' name='service2'> <title /> <description /> </package>"
     assert_response :success
-    wait_for_service( "home:tom", "service" )
-    get "/source/home:tom/service/_service_error"
-print @response.body
-if $ENABLE_BROKEN
-# this can fail randomly on slow systems, no idea why yet, but keep silence in test suite for now
+    put "/source/home:tom/service2/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+    post "/source/home:tom/service2?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service2" )
+    get "/source/home:tom/service2/_service_error"
     assert_response 404
-end
-    get "/source/home:tom/service/_service:set_version:pack.spec"
+    get "/source/home:tom/service2/_service:set_version:pack.spec"
     assert_response :success
 
     # cleanup
     delete "/source/home:tom/service"
+    assert_response :success
+    delete "/source/home:tom/service2"
     assert_response :success
   end
 
