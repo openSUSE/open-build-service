@@ -263,7 +263,11 @@ sub signjob {
   if (@signfiles) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
+    my $param = {
+      'uri' => "$BSConfig::srcserver/getsignkey",
+      'timeout' => 60,
+    };
+    my $signkey = BSRPC::rpc($param, undef, "project=$projid");
     if ($signkey) {
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
