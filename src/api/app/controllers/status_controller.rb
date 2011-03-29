@@ -329,7 +329,7 @@ class StatusController < ApplicationController
 	end
 	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
 	outputxml << " missing='#{missingdeps.join(',')}'" if missingdeps.size > 0
-	outputxml << ">\n"
+	outputxml << "/>\n"
       end
       outputxml << " </repository>\n"
     end
