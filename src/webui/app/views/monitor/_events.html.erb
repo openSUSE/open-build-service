@@ -8,27 +8,14 @@
 <div class="grid_7 prefix_1 alpha" >
  <div class="box box-shadow">
   <div class="box-header aligncenter">Options</div>
-  <form action="/">
+    <% form_tag(:controller => "main", :action => "index") do %>
       <p>
         <strong>Architecture:</strong>
-        <select id="architecture_display">
-        <option value="i586" selected="selected">i586</option>
-        <option value="x86_64">x86_64</option>
-        <option value="ppc">ppc</option>
-        <option value="ppc64">ppc64</option>
-        </select>
-      </p> 
-      <p>
+        <%= select_tag(:architecture_display, options_for_select(VISIBLE_ARCHITECTURES)) %><br/>
         <strong>Timeframe:</strong>
-        <select id="time_display">
-        <option value="24" selected="selected">1 day</option>
-        <option value="1">1 hour</option>
-        <option value="168">1 week</option>
-        <option value="700">1 month</option>
-        </select>
+        <%= select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "700"]], "24")) %>
       </p> 
-
- </form>
+    <% end %>
   </div>
 </div>
 
@@ -57,7 +44,7 @@
 
 <% content_for :head_javascript do %>
 
-   var arch_to_show = "i586";
+   var arch_to_show = <%= VISIBLE_ARCHITECTURES[0] %>
    var time_to_show = "24";
    
    function plotValues(data) {    
