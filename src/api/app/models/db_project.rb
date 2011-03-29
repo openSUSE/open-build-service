@@ -1017,7 +1017,9 @@ class DbProject < ActiveRecord::Base
     opts[:explicit] = '1' if expl
     ret = 'enable' if ret == :enabled
     ret = 'disable' if ret == :disabled
-    builder.tag! ret, opts
+    # we allow to only check the return value
+    builder.tag! ret, opts if builder
+    return ret
   end
 
   # give out the XML for all repos/arch combos

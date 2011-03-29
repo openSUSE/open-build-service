@@ -266,8 +266,10 @@ class StatusController < ApplicationController
     end
     srcmd5 = dir.value('srcmd5')
 
-    outputxml = ''
+    outputxml = "<status id='#{params[:id]}'>\n"
+    
     tocheck_repos.each do |srep|
+      outputxml << " <repository name='#{srep.name}'>\n"
       trepo = []
       srep.each_path do |p|
 	if p.project != sproj.name
@@ -281,6 +283,7 @@ class StatusController < ApplicationController
       srep.each_arch do |arch|
         everbuilt = 0
         eversucceeded = 0
+	buildcode='unknown'
 	hist = Jobhistory.find(:project => sproj.name, 
 			       :repository => srep.name, 
 			       :package => req.action.source.package,
@@ -289,7 +292,9 @@ class StatusController < ApplicationController
 	hist.each_jobhist do |jh|
 	  next if jh.srcmd5 != srcmd5
 	  everbuilt = 1
+	  buildcode='failed'
 	  if jh.code == 'succeeded'
+	    buildcode='succeeded'
 	    eversucceeded = 1
 	    break
 	  end
@@ -312,15 +317,23 @@ class StatusController < ApplicationController
 	  end
 	  #puts xml.dump_xml
 	end
-        outputxml << "<status id='#{params[:id]}' code='unknown'>\n"
-	outputxml << "  <repository name='#{srep.name}' arch='#{arch.to_s}'>\n"
-	outputxml << "     <result built='#{everbuilt}' success='#{eversucceeded}'"
+	# if the package does not appear in build history, check flags
+	if everbuilt == 0
+	  spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
+	  pkg_flags = spkg.type_flags("build")
+          buildflag=spkg.db_project.flag_status(nil, FlagHelper.default_for("build"), srep.name, 
+						arch.to_s, sproj.type_flags("build"), pkg_flags)
+	  if buildflag == 'disable'
+	    buildcode='disabled'
+	  end
+	end
+	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
 	outputxml << " missing='#{missingdeps.join(',')}'" if missingdeps.size > 0
 	outputxml << ">\n"
-	outputxml << "  </repository>\n"
-	outputxml << "</status>\n"
       end
+      outputxml << " </repository>\n"
     end
+    outputxml << "</status>\n"
 
     if outputxml.blank?
       render :text => tocheck_repos.to_xml
