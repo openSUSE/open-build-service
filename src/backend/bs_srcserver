@@ -3367,7 +3367,12 @@ sub getfile {
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  my $files = lsrev($rev);
+  my $files;
+  if ($cgi->{'expand'}) {
+    $files = lsrev_expanded($rev);
+  } else {
+    $files = lsrev($rev);
+  }
   die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = repstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
@@ -5965,7 +5970,7 @@ my $dispatches = [
   '/source/$project/$package/_meta rev?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:?' => \&delpackage,
-  '/source/$project/$package/$filename rev?' => \&getfile,
+  '/source/$project/$package/$filename rev? expand:bool?' => \&getfile,
   'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
 
