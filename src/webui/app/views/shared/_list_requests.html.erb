@@ -34,7 +34,6 @@
                 <% end %>
               <% else %>
                 <%# Happens for maintenance requests, no source package there %>
-                <% debugger %>
                 <%= link_to(elide(ae.source.project, elide_len), :controller => :project, :action => :show, :project => ae.source.project) %>
               <% end %>
             <% end %>
