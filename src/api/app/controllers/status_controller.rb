@@ -77,14 +77,15 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
+
+     key="workerstatus_#{@http_user.login}"
      begin
-       data = Rails.cache.read('workerstatus')
+       data = Rails.cache.read(key)
      rescue Zlib::GzipFile::Error
        data = nil
      end
      unless data
-       data = update_workerstatus_cache 
-       Rails.cache.write('workerstatus', data)
+       data = update_workerstatus_cache
      end
      send_data data
   end
@@ -110,21 +111,37 @@ class StatusController < ApplicationController
   end
 
   def update_workerstatus_cache
-    ret = backend_get('/build/_workerstatus')
 
-    data=REXML::Document.new(ret)
+    # fetch once in 5 minutes from backend
+    begin
+      raw = Rails.cache.read('workerstatus_raw')
+    rescue
+      raw = nil
+    end
+    unless raw
+      raw = backend_get('/build/_workerstatus')
+      Rails.cache.write('workerstatus_raw', raw, :expires_in => 5.minutes, :shared => true)
+    end
+
+    # only show what user is allowed to see.
+    data=REXML::Document.new(raw)
     # FIXME2.2: THIS WON'T WORK AS IT'S READ FROM CACHE ANYWAY
-    accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
-    accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
     data.root.each_element('building') do |b|
       prj = DbProject.find_by_name(b.attributes['project'])
-      pkg = prj.find_package(b.attributes['package']) if prj
-      b.remove if (prj and accessprjs and accessprjs.include?(prj) and not @http_user.can_access?(prj)) or (pkg and accesspkgs and accesspkgs.include?(pkg) and not @http_user.can_access?(pkg))
+      # no prj -> we are not allowed
+      if prj.nil?
+          logger.debug "workerstatus2clean: hiding #{b.attributes['project']} for user #{@http_user.login}"
+          b.attributes['project'] = "---"
+          b.attributes['repository'] = "---"
+          b.attributes['package'] = "---"
+      end
     end
     ret=data.to_s
 
     mytime = Time.now.to_i
-    Rails.cache.write('workerstatus', ret)
+    key="workerstatus_#{@http_user.login}"
+    Rails.cache.write(key, ret, :expires_in => 5.minutes, :shared => false)
+
     data.root.each_element('blocked') do |e|
       line = StatusHistory.new
       line.time = mytime
