@@ -130,7 +130,7 @@ class ApplicationController < ActionController::Base
           if @http_user == nil
             render_error :message => "Your user is not yet registered with iChain", :status => 403,
               :errorcode => "unregistered_ichain_user",
-              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
+              :details => "Please register."
           else
             if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
               render_error :message => "Your registed iChain user #{ichain_user} is not yet approved.", :status => 403,
@@ -187,7 +187,7 @@ class ApplicationController < ActionController::Base
           if @http_user.nil? and login
             render_error :message => "User not yet registered", :status => 403,
               :errorcode => "unregistered_user",
-              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
+              :details => "Please register."
             return false
           end
         end
