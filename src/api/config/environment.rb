@@ -24,7 +24,7 @@ FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
 FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
 
 # define our current api version
-api_version = '2.1.0'
+api_version = '2.3.0'
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
