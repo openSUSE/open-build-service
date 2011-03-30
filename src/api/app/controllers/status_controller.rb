@@ -325,6 +325,27 @@ class StatusController < ApplicationController
 						arch.to_s, sproj.type_flags("build"), pkg_flags)
 	  if buildflag == 'disable'
 	    buildcode='disabled'
+	  else
+	    begin
+	      uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(req.action.source.package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
+	      resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
+	      currentcode = resultlist.result.status.value(:code)
+	    rescue ActiveXML::Transport::Error
+	      currentcode = nil
+	    end
+	    if ['unresolvable', 'failed', 'broken'].include?(currentcode)
+	      buildcode='failed'
+	    end
+	    if ['building', 'scheduled', 'finished', 'signing', 'blocked'].include?(currentcode)
+	      buildcode='building'
+	    end
+	    if currentcode == 'excluded'
+	      buildcode='excluded'
+	    end
+	    # if it's currently succeeded but !everbuilt, it's old sources
+	    if currentcode == 'succeeded'
+	      buildcode='outdated'
+	    end
 	  end
 	end
 	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
