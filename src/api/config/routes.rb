@@ -89,6 +89,10 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'attribute/:namespace/:name/_meta', :controller => 'attribute',
     :action => 'attribute_definition'
 
+  ### /architecture
+  map.connect 'architecture', :controller => 'architecture', :action => 'index'
+  map.connect 'architecture/:name', :controller => 'architecture', :action => 'show'
+
   ### /tag
 
   #routes for tagging support
