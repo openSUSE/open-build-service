@@ -27,6 +27,44 @@ GET /about
 
 XmlResult: about
 
+
+== Architectures
+
+Host api.opensuse.org
+
+GET /architecture
+
+  Get the list of available architectures
+
+XmlResult: directory
+
+<name>: Architecture name
+
+GET /architecture/<name>
+
+  Read architecture data.
+
+XmlResult: architecture
+
+PUT /architecture/<name>
+
+  Update architecture data.
+
+XmlResult: status
+
+POST /architecture/<name>
+
+  Create new architecture.
+
+XmlResult: status
+
+DELETE /architecture/<name>
+
+  Delete architecture.
+
+XmlResult: status
+
+
 == Distribution List
 
 Host: api.opensuse.org
