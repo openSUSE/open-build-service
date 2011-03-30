@@ -257,7 +257,7 @@ class StatusController < ApplicationController
 			   :expand => 1, :rev => req.action.source.value('rev'))
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}k</status>\n"
+      render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}</status>\n"
       return
     end
 
@@ -292,7 +292,7 @@ class StatusController < ApplicationController
 	hist.each_jobhist do |jh|
 	  next if jh.srcmd5 != srcmd5
 	  everbuilt = 1
-	  buildcode='failed'
+	  buildcode='unknown'
 	  if jh.code == 'succeeded'
 	    buildcode='succeeded'
 	    eversucceeded = 1
