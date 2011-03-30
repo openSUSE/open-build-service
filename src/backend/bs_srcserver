@@ -5334,6 +5334,7 @@ sub postrequest {
       }
       $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
       $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
+      $req->{'state'}->{'comment'} = "All reviewers accepted request" if $go_new_state eq "accepted";
       $req->{'state'}->{'when'} = $mytime;
     }
   } elsif ($cmd eq 'changestate') {
