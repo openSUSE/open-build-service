@@ -90,8 +90,11 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'attribute_definition'
 
   ### /architecture
-  map.connect 'architecture', :controller => 'architecture', :action => 'index'
-  map.connect 'architecture/:name', :controller => 'architecture', :action => 'show'
+  map.connect 'architecture',       :controller => 'architecture', :action => 'index'
+  map.connect 'architecture/:name', :controller => 'architecture', :action => 'show',   :conditions => {:method => :get}
+  map.connect 'architecture/:name', :controller => 'architecture', :action => 'create', :conditions => {:method => :post}
+  map.connect 'architecture/:name', :controller => 'architecture', :action => 'update', :conditions => {:method => :put}
+  map.connect 'architecture/:name', :controller => 'architecture', :action => 'delete', :conditions => {:method => :delete}
 
   ### /tag
 
