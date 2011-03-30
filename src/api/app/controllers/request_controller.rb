@@ -479,7 +479,7 @@ class RequestController < ApplicationController
       end
       if action.has_element? 'source'
         # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-        if action.data.attributes["type"] == "change_devel" and tpkg.develpackage and not @http_user.can_modify_package? tpkg.develpackage
+        if action.data.attributes["type"] == "change_devel" and tpkg.develpackage and not @http_user.can_modify_package?(tpkg.develpackage, 1)
           review_packages.push({ :by_project => tpkg.develpackage.db_project.name, :by_package => tpkg.develpackage.name })
         end
 
