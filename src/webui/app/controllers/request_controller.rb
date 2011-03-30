@@ -85,6 +85,10 @@ class RequestController < ApplicationController
       end
     end
 
+    @submitter_is_target_maintainer = false
+    creator = Person.find_cached(@req.creator)
+    @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg) if creator
+
     # get the entire diff from the api
     begin
       transport ||= ActiveXML::Config::transport_for :bsrequest
