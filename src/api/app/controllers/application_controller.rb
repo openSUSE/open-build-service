@@ -658,7 +658,7 @@ class ApplicationController < ActionController::Base
   end
 
   def min_votes_for_rating
-    MIN_VOTES_FOR_RATING
+    return CONFIG["min_votes_for_rating"]
   end
 
   private

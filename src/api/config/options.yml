@@ -1,20 +1,36 @@
-#exception_recipients: ['webclient_noreply@opensuse.org']
+#
+# This file contains the default configuration of the openSUSE Build Service API.
+#
 
-# add also webui_host setting if you want allow anonymous read access via webui
+# Exceptions are mailed to these addresses:
+#exception_recipients: ["api_exceptions_noreply@opensuse.org"]
+exception_recipients: []
+# Exceptions mails are send by:
+exception_sender: "\"OBS API Admin\" <admin@opensuse.org>"
+
+# Add also webui_host setting if you want allow anonymous read access via webui
 #allow_anonymous: true
 #webui_host: build.opensuse.org
 
-# make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite
-# note that you need to enable the proxy-core option to allow this
+# Make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite.
+# Note that you need to enable the proxy-core option to allow this.
 #x_rewrite_host: localhost
 
-# Are new users allowed to register themself ? Valid options are:
-# allow: Everybody who can connect to api or webui can create an account and use the service
-# confirmation: Everybody who can connect to api or webui can create an account, but admin needs to approve the usage
-# deny: Only admin user can create new users
+# How to register new users, valid options are:
+#   allow:        Everybody who can connect to api or webui can create an
+#                 account and use the service.
+#   confirmation: Everybody who can connect to api or webui can create an
+#                 account, but admin needs to approve the usage.
+#   deny:         Only admin user can create new users.
 new_user_registration: allow
 
 # Allow user to create home projects, which is the default. Disable it here
 # via setting it to "false"
-# allow_user_to_create_home_project: true
+#allow_user_to_create_home_project: true
 
+# This URL points to the backend source server
+source_server_url: http://localhost:5352
+
+# Minimum count of rating votes a project/package needs to # be taken in account
+# for global statistics:
+min_votes_for_rating: 3

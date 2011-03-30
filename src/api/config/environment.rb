@@ -87,13 +87,6 @@ Rails::Initializer.run do |config|
   # See Rails::Configuration for more options
 end
 
-# Include your application configuration below
-
-
-# minimum count of rating votes a project/package needs to
-# be taken in account for global statistics
-MIN_VOTES_FOR_RATING = 3
-
 ActionController::Base.perform_caching = true
 
 ActiveRbac.controller_layout = "rbac"
@@ -130,8 +123,8 @@ ActiveXML::Base.config do |conf|
   end
 end
 
-ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
-ExceptionNotifier.sender_address = %("OBS API" <admin@opensuse.org>)
+ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
+ExceptionNotifier.sender_address = CONFIG["exception_sender"]
 
 if defined? API_DATE
   CONFIG['version'] = api_version + ".git" + API_DATE
