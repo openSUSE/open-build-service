@@ -48,26 +48,38 @@
       %>
     <tr>
         <td class="project">
-            <% project = b.project %>
-            <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
-            <% if (!@project_filter) || (@project_filter != project) %>
-            <span class="filter_by">
-                <%= link_to 'filter', { :controller => 'monitor' , :project => project } %>
-            </span>
+            <% if b.project.include? "---" %>
+-------
+            <% else %>
+                <% project = b.project %>
+                <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
+                <% if (!@project_filter) || (@project_filter != project) %>
+                    <span class="filter_by">
+                        <%= link_to 'filter', { :controller => 'monitor' , :project => project } %>
+                    </span>
+                <% end %>
             <% end %>
         </td>
         <td class="package">
-            <%= link_to b.package, :controller => 'package', :action => 'show', :project => project, :package => b.package %>
+            <% if b.package.include? "---" %>
+-------
+            <% else %>
+                <%= link_to b.package, :controller => 'package', :action => 'show', :project => project, :package => b.package %>
+            <% end %>
         </td>
         <td class="repository arch">
-            <%= link_to b.repository + ' - ' + b.arch,
-                  :controller => 'package',
-                  :action => 'live_build_log',
-                  :project => b.project,
-                  :package => b.package,
-                  :repository => b.repository,
-                  :arch => b.arch
-            %>
+            <% if b.repository.include? "---" %>
+-------
+            <% else %>
+                <%= link_to b.repository + ' - ' + b.arch,
+                      :controller => 'package',
+                      :action => 'live_build_log',
+                      :project => b.project,
+                      :package => b.package,
+                      :repository => b.repository,
+                      :arch => b.arch
+                %>
+            <% end %>
         </td>
         <%
           start_time = Time.at(b.starttime.to_i)
