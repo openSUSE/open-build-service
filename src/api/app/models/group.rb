@@ -52,6 +52,12 @@ class Group < ActiveRecord::Base
 
        return xml
     end
+
+    def get_by_title(title)
+      g = find :first, :conditions => ["title = BINARY ?", title]
+      raise GroupNotFoundError.new( "Error: Group '#{title}' not found." ) unless g
+      return g
+    end
   end
 
   def render_axml

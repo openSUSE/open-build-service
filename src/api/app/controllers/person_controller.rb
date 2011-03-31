@@ -49,13 +49,7 @@ class PersonController < ApplicationController
       if params[:login]
         login = URI.unescape( params[:login] )
         logger.debug "Generating for user from parameter #{login}"
-        @render_user = User.find_by_login( login )
-        if @render_user.blank?
-          logger.debug "User is not valid!"
-          render_error :status => 404, :errorcode => 'unknown_user',
-            :message => "Unknown user: #{login}"
-          return
-        end
+        @render_user = User.get_by_login( login )
       else 
         logger.debug "Generating user info for logged in user #{@http_user.login}"
         @render_user = @http_user
@@ -280,13 +274,7 @@ class PersonController < ApplicationController
     end
 
     #update password in users db
-    @user = User.find_by_login(login)
-    if @user.blank?
-      logger.debug "User is not valid!"
-      render_error :status => 404, :errorcode => 'unknown_user',
-        :message => "Unknown user: #{login}"
-      return
-    end
+    @user = User.get_by_login(login)
     logger.debug("find the user")
     @user.password = newpassword
     @user.password_confirmation = newpassword

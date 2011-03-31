@@ -7,10 +7,14 @@ class GroupController < ApplicationController
   def index
     valid_http_methods :get
 
-    if params[:prefix]
-      list = Group.find(:all, :conditions => ["title LIKE ?", params[:prefix] + '%'])
+    if params[:login]
+      user = User.get_by_login(params[:login])
+      list = user.groups
     else
       list = Group.find(:all)
+    end
+    if params[:prefix]
+      list = list.find_all{|l| l.match(/^#{params[:prefix]}/)}
     end
 
     builder = Builder::XmlMarkup.new(:indent => 2)
@@ -20,6 +24,7 @@ class GroupController < ApplicationController
     render :text => xml, :content_type => "text/xml"
   end
 
+  # OBSOLETE with 3.0
   def grouplist
     valid_http_methods :get
 
@@ -47,6 +52,14 @@ class GroupController < ApplicationController
     end
 
     render :text => xml, :content_type => "text/xml" and return
+  end
+
+  def show
+    valid_http_methods :get
+    required_parameters :title
+
+    @group = Group.get_by_title( params[:title] )
+    @involved_users = GroupsUser.find(:all, :conditions => ["group_id = ?", @group])
   end
 
   private

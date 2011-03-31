@@ -15,28 +15,36 @@ class User < ActiveRecord::Base
   has_many :status_messages
   has_many :messages
 
-  def self.current
-    Thread.current[:user]
-  end
-  
-  def self.currentID
-    Thread.current[:id]
-  end
-  
-  def self.currentAdmin
-    Thread.current[:admin]
-  end
+  class << self
+    def current
+      Thread.current[:user]
+    end
+    
+    def currentID
+      Thread.current[:id]
+    end
+    
+    def currentAdmin
+      Thread.current[:admin]
+    end
 
-  def self.current=(user)
-    Thread.current[:user] = user
-  end
+    def current=(user)
+      Thread.current[:user] = user
+    end
 
-  def self.currentID=(id)
-    Thread.current[:id] = id
-  end
+    def currentID=(id)
+      Thread.current[:id] = id
+    end
 
-  def self.currentAdmin=(isadmin)
-    Thread.current[:admin] = isadmin
+    def currentAdmin=(isadmin)
+      Thread.current[:admin] = isadmin
+    end
+
+    def get_by_login(login)
+      u = find :first, :conditions => ["login = BINARY ?", login]
+      raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
+      return u
+    end
   end
 
   def encrypt_password

@@ -73,7 +73,15 @@ Changes:
 * api
   - It was not possible so far to create submit requests from packages where no write access exists.
     This is possible now, but the source package maintainer will get asked for review the request.
+  - the route /group/$GROUP is showing correct xml description and no directory anymore
 
+Deprecated:
+===========
+
+The following calls have been marked as deprecated, they will get removed in OBS 3.0
+
+* api
+  - /person/$LOGIN/group   ->  use /group?login=$LOGIN   instead
 
 Requirements:
 =============

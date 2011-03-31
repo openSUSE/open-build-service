@@ -12,6 +12,7 @@ class MissingParameterError < Exception; end
 class IllegalRequestError < Exception; end
 class IllegalEncodingError < Exception; end
 class UserNotFoundError < Exception; end
+class GroupNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
@@ -471,6 +472,15 @@ class ApplicationController < ActionController::Base
           :message => "User not found"
       else
         render_error :status => 404, :errorcode => 'user_not_found',
+          :message => exception.message
+      end
+    when GroupNotFoundError
+      logger.error "GroupNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'group_not_found',
+          :message => "Group not found"
+      else
+        render_error :status => 404, :errorcode => 'group_not_found',
           :message => exception.message
       end
     else
