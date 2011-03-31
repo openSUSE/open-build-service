@@ -396,16 +396,13 @@ class DbPackage < ActiveRecord::Base
               raise SaveError, "illegal role name '#{person.role}'"
             end
             PackageUserRoleRelationship.create(
-              :user => User.find_by_login(person.userid),
+              :user => User.get_by_login(person.userid),
               :role => Role.rolecache[person.role],
               :db_package => self
             )
           end
         else
-          user = User.find_by_login(person.userid)
-          unless user
-            raise SaveError, "user #{person.userid} not known"
-          end
+          user = User.get_by_login(person.userid)
           begin
             PackageUserRoleRelationship.create(
               :user => user,
@@ -606,7 +603,7 @@ class DbPackage < ActiveRecord::Base
 
   def add_user( user, role )
     unless role.kind_of? Role
-      role = Role.find_by_title(role)
+      role = Role.get_by_title(role)
     end
 
     if role.global
@@ -615,7 +612,7 @@ class DbPackage < ActiveRecord::Base
     end
 
     unless user.kind_of? User
-      user = User.find_by_login(user.to_s)
+      user = User.get_by_login(user.to_s)
     end
 
     PackageUserRoleRelationship.create(
@@ -626,7 +623,7 @@ class DbPackage < ActiveRecord::Base
 
   def add_group( group, role )
     unless role.kind_of? Role
-      role = Role.find_by_title(role)
+      role = Role.get_by_title(role)
     end
 
     if role.global

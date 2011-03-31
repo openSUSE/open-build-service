@@ -53,37 +53,35 @@ class RequestController < ApplicationController
       end
 
       if params[:user] # should be set in almost all cases
-        user = User.find_by_login(params[:user])
-        if user # make sure the user actually exists
-          # user's own submitted requests
-          str = "(state/@who='#{params[:user]}'"
-          # requests where the user is reviewer or own requests that are in review by someone else
-          str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
-          # find requests where user is maintainer in target project
-          maintained_projects = Array.new
-          maintained_projects_hash = Hash.new
-          user.involved_projects.each do |ip|
-            maintained_projects += ["action/target/@project='#{ip.name}'"]
-            if params[:state] == "pending" or params[:state] == "review"
-              maintained_projects += ["(review[@state='new' and @by_project='#{ip.name}'] and state/@name='review')"]
-            end
-            maintained_projects_hash[ip.id] = true
+        user = User.get_by_login(params[:user])
+        # user's own submitted requests
+        str = "(state/@who='#{params[:user]}'"
+        # requests where the user is reviewer or own requests that are in review by someone else
+        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
+        # find requests where user is maintainer in target project
+        maintained_projects = Array.new
+        maintained_projects_hash = Hash.new
+        user.involved_projects.each do |ip|
+          maintained_projects += ["action/target/@project='#{ip.name}'"]
+          if params[:state] == "pending" or params[:state] == "review"
+            maintained_projects += ["(review[@state='new' and @by_project='#{ip.name}'] and state/@name='review')"]
           end
-          str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
-          ## find request where user is maintainer in target package, except we have to project already
-          maintained_packages = Array.new
-          user.involved_packages.each do |ip|
-            unless maintained_projects_hash.has_key?(ip.db_project_id)
-              maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
-              if params[:state] == "pending" or params[:state] == "review"
-                maintained_packages += ["(review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
-              end
-            end
-          end
-          str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-          str += ")"
-          predicates << str
+          maintained_projects_hash[ip.id] = true
         end
+        str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+        ## find request where user is maintainer in target package, except we have to project already
+        maintained_packages = Array.new
+        user.involved_packages.each do |ip|
+          unless maintained_projects_hash.has_key?(ip.db_project_id)
+            maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+            if params[:state] == "pending" or params[:state] == "review"
+              maintained_packages += ["(review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+            end
+          end
+        end
+        str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
+        str += ")"
+        predicates << str
       end
 
       # Pagination: Discard 'offset' most recent requests (useful with 'count')
@@ -157,7 +155,7 @@ class RequestController < ApplicationController
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_user_role_relationships
-        obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
           reviewers << User.find_by_id(r.bs_user_id)
         end
       end
@@ -167,7 +165,7 @@ class RequestController < ApplicationController
 
     # add reviewers of project in any case
     if defined? prj.project_user_role_relationships
-      prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+      prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
         reviewers << User.find_by_id(r.bs_user_id)
       end
     end
@@ -183,7 +181,7 @@ class RequestController < ApplicationController
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
-        obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
           review_groups << Group.find_by_id(r.bs_group_id)
         end
       end
@@ -193,7 +191,7 @@ class RequestController < ApplicationController
 
     # add reviewers of project in any case
     if defined? prj.project_group_role_relationships
-      prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+      prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
         review_groups << Group.find_by_id(r.bs_group_id)
       end
     end
@@ -286,27 +284,18 @@ class RequestController < ApplicationController
       tprj=nil
       tpkg=nil
       if action.has_element? 'person'
-        unless User.find_by_login(action.person.name)
-          render_error :status => 404, :errorcode => 'unknown_person',
-            :message => "Unknown person  #{action.person.data.attributes["name"]}"
-          return
-        end
+        # validate user object
+        User.get_by_login(action.person.name)
         role = action.person.role if action.person.has_attribute? 'role'
       end
       if action.has_element? 'group'
-        unless Group.find_by_title(action.group.data.attributes["name"])
-          render_error :status => 404, :errorcode => 'unknown_group',
-            :message => "Unknown group  #{action.group.data.attributes["name"]}"
-          return
-        end
+        # validate group object
+        Group.get_by_title(action.group.data.attributes["name"])
         role = action.group.role if action.group.has_attribute? 'role'
       end
       if role
-        unless Role.find_by_title(role)
-          render_error :status => 404, :errorcode => 'unknown_role',
-            :message => "Unknown role  #{role}"
-          return
-        end
+        # validate role object
+        Role.get_by_title(role)
       end
       if action.has_element?('source') and action.source.has_attribute?('project')
         sprj = DbProject.get_by_name action.source.project
@@ -722,15 +711,11 @@ class RequestController < ApplicationController
     end
 
     # valid users and groups ?
-    if params[:by_user] and User.find_by_login(params[:by_user]).nil?
-       render_error :status => 404, :errorcode => "unknown_user",
-                :message => "User #{params[:by_user]} is unkown"
-       return
+    if params[:by_user] 
+       User.get_by_login(params[:by_user])
     end
-    if params[:by_group] and Group.find_by_title(params[:by_group]).nil?
-       render_error :status => 404, :errorcode => "unknown_group",
-                :message => "Group #{params[:by_group]} is unkown"
-       return
+    if params[:by_group] 
+       Group.get_by_title(params[:by_group])
     end
 
     # valid project or package ?
@@ -987,7 +972,7 @@ class RequestController < ApplicationController
     req.each_action do |action|
       if action.data.attributes["type"] == "set_bugowner"
           object = DbProject.find_by_name(action.target.project)
-          bugowner = Role.find_by_title("bugowner")
+          bugowner = Role.get_by_title("bugowner")
           if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
               PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
@@ -1006,11 +991,11 @@ class RequestController < ApplicationController
              object = object.db_packages.find_by_name(action.target.package)
           end
           if action.has_element? 'person'
-             role = Role.find_by_title(action.person.role)
+             role = Role.get_by_title(action.person.role)
              object.add_user( action.person.name, role )
           end
           if action.has_element? 'group'
-             role = Role.find_by_title(action.group.role)
+             role = Role.get_by_title(action.group.role)
              object.add_group( action.group.name, role )
           end
           object.store

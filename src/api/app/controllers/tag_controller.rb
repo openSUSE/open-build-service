@@ -13,8 +13,7 @@ class TagController < ApplicationController
   
   def get_tagged_projects_by_user
     begin
-      @user = User.find_by_login(params[:user])
-      raise UserNotFoundError.new( "Error: User '#{params[:user]}' not found." ) unless @user
+      @user = User.get_by_login(params[:user])
       
       @taggings = Tagging.find(:all,
                                :conditions => ["taggable_type = ? AND user_id = ?","DbProject",@user.id])
@@ -41,8 +40,7 @@ class TagController < ApplicationController
   
   def get_tagged_packages_by_user
     begin
-      @user = User.find_by_login(params[:user])
-      raise UserNotFoundError.new( "Error: User '#{params[:user]}' not found." ) unless @user
+      @user = User.get_by_login(params[:user])
       @taggings = Tagging.find(:all,
                                :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",@user.id])
       @packages_tags = {}
@@ -148,8 +146,7 @@ class TagController < ApplicationController
   
   
   def get_tags_by_user_and_project( do_render=true )
-    user = User.find_by_login(params[:user])
-    raise UserNotFoundError.new( "Error: User '#{params[:user]}' not found." ) unless user
+    user = User.get_by_login(params[:user])
     @type = "project"
     @name = params[:project]
     @project = DbProject.get_by_name(params[:project])
@@ -164,8 +161,7 @@ class TagController < ApplicationController
   
   
   def get_tags_by_user_and_package( do_render=true  )
-    user = User.find_by_login(params[:user])
-    raise UserNotFoundError.new( "Error: User '#{params[:user]}' not found." ) unless user
+    user = User.get_by_login(params[:user])
     @type = "package" 
 
     @name = params[:package]
@@ -210,8 +206,7 @@ class TagController < ApplicationController
     
     if request.get?
       if params[:user]
-        user = User.find_by_login(params[:user])
-        raise UserNotFoundError.new( "Error: User '#{params[:user]}' not found." ) unless user
+        user = User.get_by_login(params[:user])
         tagcloud = Tagcloud.new(:scope => "user", :user => user, :limit => @limit)
       else
         tagcloud = Tagcloud.new(:scope => "global", :limit => @limit)
@@ -353,8 +348,7 @@ class TagController < ApplicationController
   
   
   def update_tags_by_object_and_user
-    @user = User.find_by_login(params[:user])
-    raise UserNotFoundError.new( "Error: User '#{params[:user]}' not found." ) unless @user
+    @user = User.get_by_login(params[:user])
     unless @user == @http_user
       render_error :status => 403, :errorcode => 'permission_denied',
         :message => "Editing tags for another user than the logged on user is not allowed."

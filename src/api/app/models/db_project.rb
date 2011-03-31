@@ -351,7 +351,7 @@ class DbProject < ActiveRecord::Base
             end
 
             ProjectUserRoleRelationship.create(
-              :user => User.find_by_login(person.userid),
+              :user => User.get_by_login(person.userid),
               :role => Role.rolecache[person.role],
               :db_project => self
             )
@@ -361,9 +361,7 @@ class DbProject < ActiveRecord::Base
             raise SaveError, "illegal role name '#{person.role}'"
           end
 
-          if not (user=User.find_by_login(person.userid))
-            raise SaveError, "unknown user '#{person.userid}'"
-          end
+          user=User.get_by_login(person.userid)
 
           begin
             ProjectUserRoleRelationship.create(
@@ -412,7 +410,7 @@ class DbProject < ActiveRecord::Base
             end
 
             ProjectGroupRoleRelationship.create(
-              :group => User.find_by_login(ge.groupid),
+              :group => Group.get_by_title(ge.groupid),
               :role => Role.rolecache[ge.role],
               :db_project => self
             )
@@ -778,7 +776,7 @@ class DbProject < ActiveRecord::Base
 
   def add_user( user, role )
     unless role.kind_of? Role
-      role = Role.find_by_title(role)
+      role = Role.get_by_title(role)
     end
     if role.global
       #only nonglobal roles may be set in a project
@@ -786,7 +784,7 @@ class DbProject < ActiveRecord::Base
     end
 
     unless user.kind_of? User
-      user = User.find_by_login(user)
+      user = User.get_by_login(user)
     end
 
     logger.debug "adding user: #{user.login}, #{role.title}"
@@ -798,7 +796,7 @@ class DbProject < ActiveRecord::Base
 
   def add_group( group, role )
     unless role.kind_of? Role
-      role = Role.find_by_title(role)
+      role = Role.get_by_title(role)
     end
     if role.global
       #only nonglobal roles may be set in a project

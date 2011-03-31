@@ -91,15 +91,15 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     post "/request?cmd=create", load_backend_file('request/no_such_user')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown person/
+    assert_tag( :tag => "status", :attributes => { :code => 'user_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_group')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown group/
+    assert_tag( :tag => "status", :attributes => { :code => 'group_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_role')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown role/
+    assert_tag( :tag => "status", :attributes => { :code => 'role_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_project')
     assert_response 404

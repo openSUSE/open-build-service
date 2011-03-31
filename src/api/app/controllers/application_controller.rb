@@ -13,6 +13,7 @@ class IllegalRequestError < Exception; end
 class IllegalEncodingError < Exception; end
 class UserNotFoundError < Exception; end
 class GroupNotFoundError < Exception; end
+class RoleNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
@@ -481,6 +482,15 @@ class ApplicationController < ActionController::Base
           :message => "Group not found"
       else
         render_error :status => 404, :errorcode => 'group_not_found',
+          :message => exception.message
+      end
+    when RoleNotFoundError
+      logger.error "RoleNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'role_not_found',
+          :message => "Role not found"
+      else
+        render_error :status => 404, :errorcode => 'role_not_found',
           :message => exception.message
       end
     else
