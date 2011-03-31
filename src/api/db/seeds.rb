@@ -73,6 +73,8 @@
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "UpdateProject", :value_count=>1 )
     at.attrib_type_modifiable_bies.create(p)
+    at=AttribType.create( :attrib_namespace => ans, :name => "RejectRequests", :value_count=>1 )
+    at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "Maintained", :value_count=>0 )
     at.attrib_type_modifiable_bies.create(p)
     at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceProject", :value_count=>0 )

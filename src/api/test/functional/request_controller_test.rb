@@ -421,6 +421,49 @@ if $ENABLE_BROKEN_TEST
 end
   end
 
+  def test_reject_request_creation
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    # block request creation in project
+    post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Go Away</value> </attribute> </attributes>"
+    assert_response :success
+
+    rq = '<request>
+           <action type="submit">
+             <source project="BaseDistro" package="pack1" rev="1"/>
+             <target project="home:Iggy" package="TestPack"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/Go Away/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    # block request creation in package
+    post "/source/home:Iggy/TestPack/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
+    assert_response :success
+
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/Go Away/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    # remove project attribute lock
+    delete "/source/home:Iggy/_attribute/OBS:RejectRequests"
+    assert_response :success
+
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/Package blocked/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    #cleanup
+    delete "/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests"
+    assert_response :success
+  end
+
   def test_submit_request_from_hidden_project_and_hidden_source
     prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", '<request>
