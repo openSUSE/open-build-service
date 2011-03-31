@@ -44,7 +44,7 @@
 
 <% content_for :head_javascript do %>
 
-   var arch_to_show = <%= VISIBLE_ARCHITECTURES[0] %>
+   var arch_to_show = "<%= VISIBLE_ARCHITECTURES[0] %>"
    var time_to_show = "24";
    
    function plotValues(data) {    
