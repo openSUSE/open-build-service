@@ -2,6 +2,7 @@ CREATE TABLE `architectures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `selectable` tinyint(1) DEFAULT '0',
+  `enabled` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `arch_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -643,6 +644,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110321000000');
 INSERT INTO schema_migrations (version) VALUES ('20110322000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110323000000');
+
+INSERT INTO schema_migrations (version) VALUES ('2011033000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
