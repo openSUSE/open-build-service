@@ -83,7 +83,7 @@ class UserController < ApplicationController
       flash[:error] = "Given passwords are not the same"
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
-    if params[:password_first].length < 6 or params[:password_first].length > 64
+    if params[:password_first] and (params[:password_first].length < 6 or params[:password_first].length > 64)
       flash[:error] = "Password is to short, it should have minimum 6 characters"
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
