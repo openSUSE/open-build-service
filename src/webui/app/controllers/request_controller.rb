@@ -36,7 +36,7 @@ class RequestController < ApplicationController
     @req = find_cached(BsRequest, params[:id]) if params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_to :action => :index and return
+      redirect_back_or_to :controller => "home", :action => "list_requests" and return
     end
 
     @id = @req.data.attributes["id"]
