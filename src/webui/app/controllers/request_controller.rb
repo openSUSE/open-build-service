@@ -87,7 +87,9 @@ class RequestController < ApplicationController
 
     @submitter_is_target_maintainer = false
     creator = Person.find_cached(@req.creator)
-    @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg) if creator
+    if creator and @target_project
+      @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg)
+    end
 
     # get the entire diff from the api
     begin
