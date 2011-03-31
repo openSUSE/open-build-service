@@ -3301,7 +3301,7 @@ sub getfilelist {
       writexml("$uploaddir/$$", undef, $l, $BSXML::link);
       $files = {};
       $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
-      $rev = addrev({}, $projid, $packid, $files);
+      $rev = addrev({}, $projid, $packid, $files, '');
     }
     my %lrev = %$rev;
     $lrev{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
