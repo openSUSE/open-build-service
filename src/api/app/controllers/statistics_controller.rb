@@ -447,10 +447,6 @@ class StatisticsController < ApplicationController
   def latest_updated
     require "benchmark"
 
-    packages = nil
-    projects = nil
-    list = nil
-
     key = "latestupdated_#{@http_user.login}"
     # authorization and caching:
     begin
@@ -459,19 +455,12 @@ class StatisticsController < ApplicationController
       @list = nil
     end
     unless @list
-      #TODO/FIXME: Remove this instrumentation again
-      logger.debug "LAST_UPDATED QUERY PACKAGES: #{Benchmark.measure {
-        packages = DbPackage.find :all, :order => 'updated_at DESC', :limit => @limit
-      }}"
-      logger.debug "LAST_UPDATED QUERY PROJECTS: #{Benchmark.measure {
-        projects = DbProject.find :all, :order => 'updated_at DESC', :limit => @limit
-      }}"
+      packages = DbPackage.find :all, :order => 'updated_at DESC', :limit => @limit
+      projects = DbProject.find :all, :order => 'updated_at DESC', :limit => @limit
 
-      logger.debug "LAST_UPDATED LIST CONCAT: #{Benchmark.measure {
-        list = projects
-        list.concat packages
-        list.sort! { |a,b| b.updated_at <=> a.updated_at }
-      }}"
+      list = projects
+      list.concat packages
+      list.sort! { |a,b| b.updated_at <=> a.updated_at }
       @list = list[0..@limit-1] if @limit
       Rails.cache.write(key, @list, :expires_in => 5.minutes)
     end
