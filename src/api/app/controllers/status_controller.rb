@@ -300,7 +300,7 @@ class StatusController < ApplicationController
       srep.each_arch do |arch|
         everbuilt = 0
         eversucceeded = 0
-	buildcode='unknown'
+	buildcode=nil
 	hist = Jobhistory.find(:project => sproj.name, 
 			       :repository => srep.name, 
 			       :package => req.action.source.package,
@@ -309,7 +309,6 @@ class StatusController < ApplicationController
 	hist.each_jobhist do |jh|
 	  next if jh.srcmd5 != srcmd5
 	  everbuilt = 1
-	  buildcode='unknown'
 	  if jh.code == 'succeeded'
 	    buildcode='succeeded'
 	    eversucceeded = 1
@@ -342,29 +341,32 @@ class StatusController < ApplicationController
 						arch.to_s, sproj.type_flags("build"), pkg_flags)
 	  if buildflag == 'disable'
 	    buildcode='disabled'
-	  else
-	    begin
-	      uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(req.action.source.package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
-	      resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
-	      currentcode = resultlist.result.status.value(:code)
-	    rescue ActiveXML::Transport::Error
-	      currentcode = nil
-	    end
-	    if ['unresolvable', 'failed', 'broken'].include?(currentcode)
-	      buildcode='failed'
-	    end
-	    if ['building', 'scheduled', 'finished', 'signing', 'blocked'].include?(currentcode)
-	      buildcode='building'
-	    end
-	    if currentcode == 'excluded'
-	      buildcode='excluded'
-	    end
-	    # if it's currently succeeded but !everbuilt, it's old sources
-	    if currentcode == 'succeeded'
-	      buildcode='outdated'
-	    end
 	  end
-	end
+        end
+
+        unless buildcode
+          buildcode='unknown'
+          begin
+            uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(req.action.source.package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
+            resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
+            currentcode = resultlist.result.status.value(:code)
+          rescue ActiveXML::Transport::Error
+            currentcode = nil
+          end
+          if ['unresolvable', 'failed', 'broken'].include?(currentcode)
+            buildcode='failed'
+          end
+          if ['building', 'scheduled', 'finished', 'signing', 'blocked'].include?(currentcode)
+            buildcode='building'
+          end
+          if currentcode == 'excluded'
+            buildcode='excluded'
+          end
+          # if it's currently succeeded but !everbuilt, it's old sources
+          if currentcode == 'succeeded'
+            buildcode='outdated'
+          end
+        end
 	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
 	outputxml << " missing='#{missingdeps.join(',')}'" if missingdeps.size > 0
 	outputxml << "/>\n"
