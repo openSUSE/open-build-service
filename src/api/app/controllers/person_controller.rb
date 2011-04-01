@@ -171,6 +171,10 @@ class PersonController < ApplicationController
       IchainNotifier.deliver_approval(newuser)
       render_ok
     end
+  rescue Exception => e
+    # Strip passwords from request environment and re-raise exception
+    request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")
+    raise e
   end
   
   def update_watchlist( user, xml )
