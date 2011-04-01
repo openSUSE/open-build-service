@@ -67,21 +67,33 @@ case "$1" in
                 if [ ! -d /obs/MySQL ]; then
 			mkdir -p /obs/MySQL
 		fi
-		if [ -n "$USEIP" ]; then
-			#no proper hostname resolution, adapt BSConfig.pm
+
+		# If we've proper hostname resolution all is fine. But if
+		# there's no proper hostname resolution, adapt BSConfig.pm et al.
+		### In case of the appliance, we never know where we boot up !
+		OLDFQHOSTNAME="NOTHING"
+		if [ -e /obs/.oldfqhostname ]; then
+			OLDFQHOSTNAME=`cat /obs/.oldfqhostname`
+		fi
+		if [ "$FQHOSTNAME" != "$OLDFQHOSTNAME" ]; then
+			echo "Appliance hostname changed from $OLDFQHOSTNAME to $FQHOSTNAME !"
 			echo "Adapting hostname in BSConfig.pm"
-			sed -i 's,^my.*hostname.*=.*,my \$hostname = "'"$USEIP"'";,' \
+			sed -i 's,^my.*hostname.*=.*,my \$hostname = "'"$FQHOSTNAME"'";,' \
 				/usr/lib/obs/server/BSConfig.pm
 			#changed IP means also that leftover jobs are invalid - cope with that
 			echo "Adapting present worker jobs"
-			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5352,server=\"http://$USEIP:5352,g" \
+			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5352,server=\"http://$FQHOSTNAME:5352,g" \
 				/$backenddir/jobs/*/* 2> /dev/null
-			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5252,server=\"http://$USEIP:5252,g" \
+			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5252,server=\"http://$FQHOSTNAME:5252,g" \
 				/$backenddir/jobs/*/* 2> /dev/null
 			#remove old workers status and idling/building markers
 			rm -f /$backenddir/jobs/*/*status 2> /dev/null
 			rm -f /$backenddir/workers/*/* 2> /dev/null
+			# rm cert links
+			rm -f /etc/ssl/private/lighttpd.* /etc/ssl/certs/lighttpd.crt &> /dev/null
 		fi
+		echo "$FQHOSTNAME" > /obs/.oldfqhostname
+
 		echo -n "Adjust webui configuration for api"
                 # it would be better to solve this in lighttpd.conf to accept also localhost:444,
                 # but no idea how to solve this
@@ -137,27 +149,35 @@ case "$1" in
 		fi
 
                 if [ ! -e /etc/ssl/private/lighttpd.key -a ! -e /etc/ssl/certs/lighttpd.crt -a ! -e /etc/ssl/private/lighttpd.pem ]; then
-                        if [ ! -e /obs/certs/lighttpd.key ]; then
+                        if [ ! -e /obs/certs/lighttpd.$FQHOSTNAME.pem ]; then
                                # setup ssl certificates (NOT protected with a passphrase)
                                echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
-                               install -d -m 0700 /obs/certs
-                               openssl genrsa -out /obs/certs/lighttpd.key 1024
-                               # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
-			       echo "CC
+                               # reuse signing key even if hostname changed
+                               if [ ! -e /obs/certs/lighttpd.key ]; then
+                                   install -d -m 0700 /obs/certs
+                                   openssl genrsa -out /obs/certs/lighttpd.key 1024
+                               fi
+                               # hostname specific certs - survive intermediate hostname changes
+                               if [ ! -e /obs/certs/lighttpd.$FQHOSTNAME.pem ] ; then
+                                   # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
+			           echo "CC
 Test State or Province
 Test Locality
 Organization Name
 Organizational Unit Name
 $FQHOSTNAME
 test@email.address
-"                            | openssl req -new -key /obs/certs/lighttpd.key -out /obs/certs/lighttpd.csr >& /dev/null
-                               openssl x509 -req -days 365 -in /obs/certs/lighttpd.csr -signkey /obs/certs/lighttpd.key -out /obs/certs/lighttpd.crt
-                               cat /obs/certs/lighttpd.key /obs/certs/lighttpd.crt > /obs/certs/lighttpd.pem
+
+
+"                                | openssl req -new -key /obs/certs/lighttpd.key -out /obs/certs/lighttpd.$FQHOSTNAME.csr >& /dev/null
+                                   openssl x509 -req -days 365 -in /obs/certs/lighttpd.$FQHOSTNAME.csr -signkey /obs/certs/lighttpd.key -out /obs/certs/lighttpd.$FQHOSTNAME.crt
+                                   cat /obs/certs/lighttpd.key /obs/certs/lighttpd.$FQHOSTNAME.crt > /obs/certs/lighttpd.$FQHOSTNAME.pem
+                               fi
                         fi
                         # use certificates from /obs (LVM ?) partition
                         ln -s /obs/certs/lighttpd.key /etc/ssl/private/lighttpd.key
-                        ln -s /obs/certs/lighttpd.crt /etc/ssl/certs/lighttpd.crt
-                        ln -s /obs/certs/lighttpd.pem /etc/ssl/private/lighttpd.pem
+                        ln -s /obs/certs/lighttpd.$FQHOSTNAME.crt /etc/ssl/certs/lighttpd.crt
+                        ln -s /obs/certs/lighttpd.$FQHOSTNAME.pem /etc/ssl/private/lighttpd.pem
                 fi
 
                 cd $webuidir
