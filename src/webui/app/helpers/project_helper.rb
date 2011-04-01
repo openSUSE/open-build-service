@@ -41,8 +41,7 @@ module ProjectHelper
   def project_bread_crumb( *args )
     @crumb_list = [
       link_to( 'Projects', :controller => 'project', :action => :list_public),
-      link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-    ] + args
+    ].concat(subproject_links_for_project @project.name) + args
   end
 
   def format_seconds( secs ) 

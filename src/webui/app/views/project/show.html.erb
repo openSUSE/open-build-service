@@ -1,5 +1,6 @@
 <% @pagetitle = "Show Project #{@project}" %>
-<% @crumb_list = [link_to( 'Projects', :action => :list_public), @project.name] -%>
+<% @crumb_list = [link_to( 'Projects', :action => :list_public)]
+   @crumb_list.concat(subproject_links_for_project @project.name)  -%>
 
 <%= render :partial => "tabs" %>
 
