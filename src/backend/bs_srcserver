@@ -5352,7 +5352,6 @@ sub postrequest {
   BSVerify::verify_request($req);
   writereq($oreq, $req);
   $req->{'oldstate'} = $oldstate;
-  BSNotify::notify("SRCSRV_REQUEST_STATECHANGE", BSNotify::requestParams($req, $cgi->{'user'}));
   # Additionally send type specific hermes notifications
   my $hermes_type;
   my $notification = BSNotify::requestParams($req, $cgi->{'user'});
@@ -5373,15 +5372,26 @@ sub postrequest {
     }
     $notification->{'comment'} = $cgi->{'comment'};
   } else {
-    if( $cgi->{'newstate'} eq "accepted" ) {
-      $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
-    } elsif( $cgi->{'newstate'} eq "rejected" ) {
-      $hermes_type = "SRCSRV_REQUEST_REJECTED";
-    } elsif( $cgi->{'newstate'} eq "revoked" ) {
-      $hermes_type = "SRCSRV_REQUEST_REVOKED";
+    if ($cmd eq 'changereviewstate') {
+      if( $cgi->{'newstate'} eq "accepted" ) {
+        $hermes_type = "SRCSRV_REVIEW_ACCEPTED";
+      } elsif( $cgi->{'newstate'} eq "declined" ) {
+        $hermes_type = "SRCSRV_REVIEW_DECLINED";
+      } elsif( $cgi->{'newstate'} eq "revoked" ) {
+        $hermes_type = "SRCSRV_REVIEW_REVOKED";
+      }
+    } else {
+      if( $cgi->{'newstate'} eq "accepted" ) {
+        $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
+      } elsif( $cgi->{'newstate'} eq "declined" ) {
+        $hermes_type = "SRCSRV_REQUEST_DECLINED";
+      } elsif( $cgi->{'newstate'} eq "revoked" ) {
+        $hermes_type = "SRCSRV_REQUEST_REVOKED";
+      }
     }
   }
   BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
+  BSNotify::notify("SRCSRV_REQUEST_STATECHANGE", BSNotify::requestParams($req, $cgi->{'user'})) unless $oldstate->{'name'} eq $req->{'state'}->{'name'};
 
   return $BSStdServer::return_ok;
 }
