@@ -5,7 +5,7 @@ class PersonController < ApplicationController
   validate_action :userinfo => {:method => :get, :response => :user}
   validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
   validate_action :grouplist => {:method => :get, :response => :group}
-  validate_action :register => {:method => :put, :request => :user, :response => :status}
+  validate_action :register => {:method => :put, :response => :status}
   validate_action :register => {:method => :post, :response => :status}
 
   # Returns a list of all users (that optionally start with a prefix)
