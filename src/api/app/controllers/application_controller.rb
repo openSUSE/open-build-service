@@ -385,12 +385,25 @@ class ApplicationController < ActionController::Base
   end
   public :pass_to_backend
 
+  def strip_sensitive_data_from(request)
+    # Strip HTTP_AUTHORIZATION header that contains the user's password
+    # try to get it where mod_rewrite might have put it
+    request.env["X-HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "X-HTTP_AUTHORIZATION"
+    # for Apace/mod_fastcgi with -pass-header Authorization
+    request.env["Authorization"] = "STRIPPED" if request.env.has_key? "Authorization"
+    # this is the regular location
+    request.env["HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "HTTP_AUTHORIZATION"
+    return request
+  end
+  private :strip_sensitive_data_from
+
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
   end
 
   def rescue_action_in_public( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
+
     case exception
     when Suse::Backend::HTTPError
       xml = REXML::Document.new( exception.message.body )
@@ -495,7 +508,7 @@ class ApplicationController < ActionController::Base
       end
     else
       if send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
+        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
       end
       render_error :message => "Uncaught exception: #{exception.message}", :status => 400
     end
