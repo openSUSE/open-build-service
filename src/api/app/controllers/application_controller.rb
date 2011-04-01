@@ -181,20 +181,30 @@ class ApplicationController < ActionController::Base
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and [ request.env['REMOTE_HOST'], request.env['REMOTE_ADDR'] ].include?( CONFIG['webui_host'] ) and request.env['HTTP_USER_AGENT'].match(/^obs-webui/)
-          @http_user = User.find_by_login( "_nobody_" )
-          @user_permissions = Suse::Permission.new( @http_user )
-          return true
-        else
-          if @http_user.nil? and login
+        if @http_user.nil? and CONFIG['allow_anonymous'] 
+          read_only_hosts = []
+          read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
+          read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
+          if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
+            # Fixed list of clients which do support the read only mode
+            if request.env['HTTP_USER_AGENT'].match(/^obs-webui/) or request.env['HTTP_USER_AGENT'].match(/^obs-software/)
+              @http_user = User.find_by_login( "_nobody_" )
+              @user_permissions = Suse::Permission.new( @http_user )
+              return true
+            end
+          end
+
+          if login
             render_error :message => "User not yet registered", :status => 403,
               :errorcode => "unregistered_user",
               :details => "Please register."
             return false
           end
         end
+
         logger.debug "no authentication string was sent"
-        render_error( :message => "Authentication required", :status => 401 ) and return false
+        render_error( :message => "Authentication required", :status => 401 ) 
+        return false
       end
 
       # disallow empty passwords to prevent LDAP lockouts
