@@ -33,8 +33,8 @@ class MainController < ApplicationController
       @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes, :shared => true) do
         GlobalCounters.find( :all )
       end
-
-      @latest_updates = Rails.cache.fetch('latest_updates', :expires_in => 5.minutes, :shared => true) do
+      key="latest_updates_#{@user}"
+      @latest_updates = Rails.cache.fetch(key, :expires_in => 5.minutes, :shared => true) do
         LatestUpdated.find( :limit => 6 )
       end
 
