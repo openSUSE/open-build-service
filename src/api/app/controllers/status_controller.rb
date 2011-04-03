@@ -278,6 +278,16 @@ class StatusController < ApplicationController
       return
     end
 
+    # check current srcmd5
+    begin
+      cdir = Directory.find(:project => req.action.source.project,
+                           :package => req.action.source.package,
+                           :expand => 1)
+      csrcmd5 = cdir.value('srcmd5')
+    rescue ActiveXML::Transport::Error => e
+      csrcmd5 = nil
+    end
+
     unless dir
       render :text => '<status code="error">Source package does not exist</status>\n' and return
     end
@@ -344,6 +354,10 @@ class StatusController < ApplicationController
 	  end
         end
 
+        if !buildcode && srcmd5 != csrmd5 && everbuilt == 1:
+          buildcode='failed' # has to be
+        end
+ 
         unless buildcode
           buildcode='unknown'
           begin
