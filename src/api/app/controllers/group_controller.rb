@@ -14,7 +14,7 @@ class GroupController < ApplicationController
       list = Group.find(:all)
     end
     if params[:prefix]
-      list = list.find_all{|l| l.match(/^#{params[:prefix]}/)}
+      list = list.find_all {|group| group.title.match(/^#{params[:prefix]}/)}
     end
 
     builder = Builder::XmlMarkup.new(:indent => 2)
