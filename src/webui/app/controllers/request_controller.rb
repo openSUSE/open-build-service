@@ -1,4 +1,5 @@
 class RequestController < ApplicationController
+  include ApplicationHelper
 
   def add_reviewer_dialog
     @request_id = params[:id]
