@@ -295,6 +295,7 @@ class StatusController < ApplicationController
 
     outputxml = "<status id='#{params[:id]}'>\n"
     
+    re_filename = Regexp.new('^(.*)-[^-]*-[^-]*\.([^-.]*).rpm')
     tocheck_repos.each do |srep|
       outputxml << " <repository name='#{srep.name}'>\n"
       trepo = []
@@ -305,7 +306,7 @@ class StatusController < ApplicationController
           if r.db_project = tproj
             r.architectures.each {|a| archs << a.name }
           end
-          trepo << r
+          trepo << [p.project, p.value(:repository)]
 	end
       end
       archs.uniq!
@@ -336,8 +337,8 @@ class StatusController < ApplicationController
 	  uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
 	  buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
 	  packages = Hash.new
-	  trepo.each do |r|
-	    packages.merge!(bsrequest_repo_list(r.db_project.name, r.name, arch.to_s))
+	  trepo.each do |p, r|
+	    packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
 	  end
 
 	  buildinfo.each_bdep do |b|
@@ -347,7 +348,25 @@ class StatusController < ApplicationController
 	      end
 	    end
 	  end
-	  #puts xml.dump_xml
+          
+          uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}")
+          binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
+          binaries.each_binary do |f|
+            # match to the repository filename
+            m = re_filename.match(f.value(:filename)) 
+            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{m[2]}/_repository/#{m[1]}.rpm?view=fileinfo_ext")
+            begin
+              fileinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+              fileinfo.each_requires_ext do |r|
+                unless r.has_element? :providedby
+                  missingdeps << "#{m[1]}:#{r.dep}"
+                end
+              end
+            rescue ActiveXML::Transport::NotFoundError
+	      # we ignore those we don't find atm
+              logger.debug "can't find #{uri.to_s}"
+            end
+          end
 	end
 	# if the package does not appear in build history, check flags
 	if everbuilt == 0
@@ -360,7 +379,7 @@ class StatusController < ApplicationController
 	  end
         end
 
-        if !buildcode && srcmd5 != csrmd5 && everbuilt == 1:
+        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1:
           buildcode='failed' # has to be
         end
  
