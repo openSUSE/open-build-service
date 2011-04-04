@@ -114,6 +114,12 @@ CREATE TABLE `db_packages` (
   KEY `updated_at_index` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `db_project_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `db_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` tinyblob NOT NULL,
@@ -124,6 +130,7 @@ CREATE TABLE `db_projects` (
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`)
@@ -650,7 +657,13 @@ INSERT INTO schema_migrations (version) VALUES ('2011033000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110331001200');
 
-INSERT INTO schema_migrations (version) VALUES ('20110405090700');
+INSERT INTO schema_migrations (version) VALUES ('20110404085232');
+
+INSERT INTO schema_migrations (version) VALUES ('20110404085325');
+
+INSERT INTO schema_migrations (version) VALUES ('20110404090700');
+
+INSERT INTO schema_migrations (version) VALUES ('20110405151201');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

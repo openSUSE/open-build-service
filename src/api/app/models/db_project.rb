@@ -26,6 +26,8 @@ class DbProject < ActiveRecord::Base
 
   has_many :flags, :dependent => :destroy
 
+  has_one :db_project_type
+
   # self-reference between projects and maintenance projects
   has_many :maintained_projects, :class_name => "DbProject", :foreign_key => "maintenance_project_id"
   belongs_to :maintenance_project, :class_name => "DbProject"

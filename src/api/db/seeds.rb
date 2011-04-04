@@ -76,3 +76,8 @@ at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "InitializeDevelPackage", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+
+puts "Seeding db_project_type table by loading test fixtures"
+DbProjectType.find_or_create_by_name("standard")
+DbProjectType.find_or_create_by_name("maintenance")
+DbProjectType.find_or_create_by_name("maintenance_incident")
