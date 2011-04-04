@@ -492,7 +492,12 @@ class SourceController < ApplicationController
     #--------------------------------------------------------
     elsif request.delete?
       # init
-      ac = @attribute_container.find_attribute(name_parts[0], name_parts[1],binary)
+      if params[:namespace].blank? or params[:name].blank?
+        render_error :status => 400, :errorcode => "missing_attribute",
+          :message => "No attribute got specified for delete"
+        return
+      end
+      ac = @attribute_container.find_attribute(params[:namespace], params[:name], binary)
 
       # checks
       unless ac
@@ -504,7 +509,7 @@ class SourceController < ApplicationController
           render_error :status => 403, :errorcode => "change_attribute_no_permission",
             :message => "user #{user.login} has no permission to change attribute"
           return
-    end
+        end
       end
 
       # exec
