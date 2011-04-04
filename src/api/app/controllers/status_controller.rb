@@ -99,7 +99,7 @@ class StatusController < ApplicationController
     logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
     data = Array.new
-    values = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
+    values = StatusHistory.find(:all, :conditions => [ "time >= ? AND \`key\` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
     builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
     xml = builder.history do
       StatusHelper.resample(values, samples).each do |time,val|
@@ -298,16 +298,22 @@ class StatusController < ApplicationController
     tocheck_repos.each do |srep|
       outputxml << " <repository name='#{srep.name}'>\n"
       trepo = []
+      archs = []
       srep.each_path do |p|
 	if p.project != sproj.name
-	  trepo << p
+	  r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
+          if r.db_project = tproj
+            r.architectures.each {|a| archs << a.name }
+          end
+          trepo << r
 	end
       end
+      archs.uniq!
       if trepo.empty?
 	render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
       end
       logger.debug trepo.inspect
-      srep.each_arch do |arch|
+      archs.each do |arch|
         everbuilt = 0
         eversucceeded = 0
 	buildcode=nil
@@ -331,7 +337,7 @@ class StatusController < ApplicationController
 	  buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
 	  packages = Hash.new
 	  trepo.each do |r|
-	    packages.merge!(bsrequest_repo_list(r.value(:project), r.value(:repository), arch.to_s))
+	    packages.merge!(bsrequest_repo_list(r.db_project.name, r.name, arch.to_s))
 	  end
 
 	  buildinfo.each_bdep do |b|
