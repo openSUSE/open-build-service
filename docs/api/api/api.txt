@@ -1,6 +1,6 @@
 = openSUSE API
 
-Version: 2.0
+Version: 2.1
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
