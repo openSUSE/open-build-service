@@ -70,7 +70,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_http_methods :get, :post, :delete
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -182,6 +182,8 @@ class SourceController < ApplicationController
     # POST /source/:project
     #----------------------
     elsif request.post?
+      params[:user] = @http_user.login
+
       # command: undelete
       if 'undelete' == command
         unless @http_user.can_create_project?(project_name) and pro.nil?
@@ -1298,7 +1300,6 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=extendkey
   def index_project_extendkey
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
 
     pro = DbProject.find_by_name project_name
@@ -1311,7 +1312,6 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=createkey
   def index_project_createkey
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
 
     pro = DbProject.find_by_name project_name
@@ -1321,10 +1321,25 @@ class SourceController < ApplicationController
     pass_to_backend path
   end
 
+  # POST /source/<project>?cmd=createmaintenanceincident
+  def index_project_createmaintenanceincident
+    valid_http_methods :post
+
+    prj = DbProject.get_by_name( params[:project] )
+    unless @http_user.can_modify_project?(prj)
+      render_error :status => 403, :errorcode => "modify_project_no_permission",
+        :message => "no permission to modify project '#{prj.name}'"
+      return
+    end
+
+    # create incident project
+    incident = create_new_maintenance_incident(prj)
+    render_ok :data => {:targetproject => incident.db_project.name}
+  end
+
   # POST /source/<project>?cmd=undelete
   def index_project_undelete
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
 
     path = request.path
@@ -1346,7 +1361,6 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=copy
   def index_project_copy
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
     oproject = params[:oproject]
     repository = params[:repository]

@@ -204,6 +204,27 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo" } )
   end
 
+  def test_create_maintenance_incident
+    ActionController::IntegrationTest::reset_auth 
+    post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
+    assert_response 401
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
+    assert_response 403
+
+    prepare_request_with_user "maintenance_coord", "power"
+    # create a maintenance incident
+    post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
+    assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    data = REXML::Document.new(@response.body)
+    maintenanceProject=data.elements["/status/data"].text
+    incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
+    get "/source/#{maintenanceProject}/_meta"
+    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+  end
+
   def test_create_maintenance_project_and_release_packages
     prepare_request_with_user "maintenance_coord", "power"
 
