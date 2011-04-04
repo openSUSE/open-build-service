@@ -4,9 +4,9 @@ Version: 2.3
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
-  
-  The /public routes are also accessible as anonymous user. 
 
+  Do NOT simply add api calls here without discussion before.
+  
 <project>: Project name
 <package>: Package name
 <platform>: Platform name
@@ -1488,4 +1488,9 @@ PUT /message/?project=<project>&package=<package>
 XmlBody :message
 XmlResult: message
 
+
+== Internal only routes
+
+/public shall not be used in any tools, it is for OBS remote support only and may
+change or disappear at any time.
 
