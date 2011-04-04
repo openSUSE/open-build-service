@@ -1,0 +1,26 @@
+#
+# openSUSE Build Service 2.1.7
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* bs_admin supports the dump of .solv files now
+
+Changes:
+========
+
+* Support building against OBS 2.3 using new project features (lock and releasetarget)
+
+Bugfixes:
+=========
+
+* api: fix diffing of package meta files
+* api: fix history access of deleted packages
+* api: fix logging of comment and user on package delete
+* backend: Fix argument handling in experimental LXC wrapper for source services
+
