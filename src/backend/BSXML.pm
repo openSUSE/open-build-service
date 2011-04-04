@@ -49,6 +49,11 @@ our $repo = [
 	'rebuild',
 	'block',
 	'linkedbuild',
+     [[ 'releasetarget' => # not supported in OBS 2.1, but to avoid failure when building against 2.3 projects using this feature
+            'project',
+            'repository',
+            'trigger',
+     ]],
      [[ 'path' =>
 	    'project',
 	    'repository',
