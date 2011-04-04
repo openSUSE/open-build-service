@@ -77,6 +77,7 @@ our @flags = (
       [ 'sourceaccess' => @disableenable ],
       [ 'privacy' => @disableenable ],
       [ 'access' => @disableenable ],
+      [ 'lock' => @disableenable ], # not supported in OBS 2.1, but to avoid failure when building against 2.3 projects using this flag
 );
 
 our $download = [
