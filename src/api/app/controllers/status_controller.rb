@@ -318,7 +318,14 @@ class StatusController < ApplicationController
 	missingdeps=[]
 	if eversucceeded
 	  uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
-	  buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+          begin
+	     buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+          rescue ActiveXML::Transport::Error => e
+             # if there is an error, we ignore
+             message, code, api_exception = ActiveXML::Transport.extract_error_message e
+             render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{message}</status>\n"
+             return
+          end
 	  packages = Hash.new
 	  trepo.each do |p, r|
 	    packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
