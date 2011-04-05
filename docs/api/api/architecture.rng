@@ -13,13 +13,13 @@
   <define ns="" name="architecture-element">
     <element name="architecture">
       <attribute name="name">
-        <data type="build-arch"%>
+        <ref name="build-arch"/>
       </attribute>
       <element name="available">
-        <data type="bool"/>
+        <data type="boolean"/>
       </element>
       <element name="recommended">
-        <data type="bool"/>
+        <data type="boolean"/>
       </element>
     </element>
   </define>
