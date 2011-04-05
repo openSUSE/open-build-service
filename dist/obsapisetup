@@ -90,7 +90,7 @@ case "$1" in
 			rm -f /$backenddir/jobs/*/*status 2> /dev/null
 			rm -f /$backenddir/workers/*/* 2> /dev/null
 			# rm cert links
-			rm -f /etc/ssl/private/lighttpd.* /etc/ssl/certs/lighttpd.crt &> /dev/null
+			rm -f /etc/ssl/private/lighttpd.* /etc/ssl/certs/server.crt &> /dev/null
 		fi
 		echo "$FQHOSTNAME" > /obs/.oldfqhostname
 
@@ -148,17 +148,17 @@ case "$1" in
 			echo
 		fi
 
-                if [ ! -e /etc/ssl/private/lighttpd.key -a ! -e /etc/ssl/certs/lighttpd.crt -a ! -e /etc/ssl/private/lighttpd.pem ]; then
-                        if [ ! -e /obs/certs/lighttpd.$FQHOSTNAME.pem ]; then
+                if [ ! -e /etc/ssl/private/server.key -a ! -e /etc/ssl/certs/server.crt -a ! -e /etc/ssl/private/server.pem ]; then
+                        if [ ! -e /obs/certs/server.$FQHOSTNAME.pem ]; then
                                # setup ssl certificates (NOT protected with a passphrase)
                                echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
                                # reuse signing key even if hostname changed
-                               if [ ! -e /obs/certs/lighttpd.key ]; then
+                               if [ ! -e /obs/certs/server.key ]; then
                                    install -d -m 0700 /obs/certs
-                                   openssl genrsa -out /obs/certs/lighttpd.key 1024
+                                   openssl genrsa -out /obs/certs/server.key 1024
                                fi
                                # hostname specific certs - survive intermediate hostname changes
-                               if [ ! -e /obs/certs/lighttpd.$FQHOSTNAME.pem ] ; then
+                               if [ ! -e /obs/certs/server.$FQHOSTNAME.pem ] ; then
                                    # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
 			           echo "CC
 Test State or Province
@@ -169,15 +169,15 @@ $FQHOSTNAME
 test@email.address
 
 
-"                                | openssl req -new -key /obs/certs/lighttpd.key -out /obs/certs/lighttpd.$FQHOSTNAME.csr >& /dev/null
-                                   openssl x509 -req -days 365 -in /obs/certs/lighttpd.$FQHOSTNAME.csr -signkey /obs/certs/lighttpd.key -out /obs/certs/lighttpd.$FQHOSTNAME.crt
-                                   cat /obs/certs/lighttpd.key /obs/certs/lighttpd.$FQHOSTNAME.crt > /obs/certs/lighttpd.$FQHOSTNAME.pem
+"                                | openssl req -new -key /obs/certs/server.key -out /obs/certs/server.$FQHOSTNAME.csr >& /dev/null
+                                   openssl x509 -req -days 365 -in /obs/certs/server.$FQHOSTNAME.csr -signkey /obs/certs/server.key -out /obs/certs/server.$FQHOSTNAME.crt
+                                   cat /obs/certs/server.key /obs/certs/server.$FQHOSTNAME.crt > /obs/certs/server.$FQHOSTNAME.pem
                                fi
                         fi
                         # use certificates from /obs (LVM ?) partition
-                        ln -s /obs/certs/lighttpd.key /etc/ssl/private/lighttpd.key
-                        ln -s /obs/certs/lighttpd.$FQHOSTNAME.crt /etc/ssl/certs/lighttpd.crt
-                        ln -s /obs/certs/lighttpd.$FQHOSTNAME.pem /etc/ssl/private/lighttpd.pem
+                        ln -s /obs/certs/server.key /etc/ssl/private/server.key
+                        ln -s /obs/certs/server.$FQHOSTNAME.crt /etc/ssl/certs/server.crt
+                        ln -s /obs/certs/server.$FQHOSTNAME.pem /etc/ssl/private/server.pem
                 fi
 
                 cd $webuidir
