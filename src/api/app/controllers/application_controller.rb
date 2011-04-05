@@ -277,8 +277,17 @@ class ApplicationController < ActionController::Base
   hide_action :forward_from_backend
   def forward_from_backend(path)
 
+    # apache & mod_xforward case
+    if CONFIG['x_use_xforward'] and CONFIG['x_use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "http://" + SOURCE_HOST + ":" + SOURCE_HOST + path
+      head(200)
+      return
+    end
+
+    # lighttpd 1.5 case
     if CONFIG['x_rewrite_host']
-      logger.debug "[backend] VOLLEY(light): #{path}"
+      logger.debug "[backend] VOLLEY(lighttpd): #{path}"
       headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
       head(200)

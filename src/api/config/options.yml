@@ -7,8 +7,11 @@
 # should be set always
 webui_url: http://localhost:3000
 
-# make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite
-# note that you need to enable the proxy-core option to allow this
+# Make use of mod_xforward module in apache
+#x_use_xforward: true
+
+# Make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite.
+# Note that you need to enable the proxy-core option to allow this.
 #x_rewrite_host: localhost
 
 # Are new users allowed to register themself ? Valid options are:
