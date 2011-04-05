@@ -12,6 +12,9 @@ exception_sender: "\"OBS API Admin\" <admin@your_instance.org>"
 #allow_anonymous: true
 #read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
 
+# Make use of mod_xforward module in apache
+#x_use_xforward: true
+
 # Make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite.
 # Note that you need to enable the proxy-core option to allow this.
 #x_rewrite_host: localhost
