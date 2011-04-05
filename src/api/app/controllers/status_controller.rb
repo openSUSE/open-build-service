@@ -384,9 +384,13 @@ class StatusController < ApplicationController
           if currentcode == 'excluded'
             buildcode='excluded'
           end
-          # if it's currently succeeded but !everbuilt, it's old sources
+          # if it's currently succeeded but !everbuilt, it's different sources
           if currentcode == 'succeeded'
-            buildcode='outdated'
+            if srcmd5 == csrcmd5
+              buildcode='building' # guesssing
+            else
+              buildcode='outdated'
+            end
           end
         end
 	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
