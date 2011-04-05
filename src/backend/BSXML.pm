@@ -96,6 +96,7 @@ our $download = [
 our $proj = [
     'project' =>
         'name',
+        'type', # to be compatible with OBS 2.3
 	 [],
         'title',
         'description',
