@@ -9,7 +9,7 @@ class ArchitectureController < ApplicationController
   def index
     architectures = Architecture.all()
     builder = Builder::XmlMarkup.new(:indent => 2)
-    xml = builder.directoryectory(:count => architectures.length) do |directory|
+    xml = builder.directory(:count => architectures.length) do |directory|
       architectures.each {|arch| directory.entry(:name => arch.name)}
     end
     render :text => xml, :content_type => "text/xml"
