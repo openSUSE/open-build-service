@@ -337,9 +337,10 @@ class StatusController < ApplicationController
           binaries.each_binary do |f|
             # match to the repository filename
             m = re_filename.match(f.value(:filename)) 
-            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{m[2]}/_repository/#{m[1]}.rpm?view=fileinfo_ext")
+            uri = "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{m[2]}/_repository/#{m[1]}.rpm?view=fileinfo_ext"
             begin
-              fileinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+              key = Digest::MD5.hexdigest(uri)
+              fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key) { backend.direct_http( URI( uri ) ) } )
               fileinfo.each_requires_ext do |r|
                 unless r.has_element? :providedby
                   missingdeps << "#{m[1]}:#{r.dep}"
