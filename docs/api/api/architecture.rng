@@ -15,10 +15,10 @@
       <attribute name="name">
         <data type="build-arch"%>
       </attribute>
-      <element name="selectable">
+      <element name="available">
         <data type="bool"/>
       </element>
-      <element name="enabled">
+      <element name="recommended">
         <data type="bool"/>
       </element>
     </element>

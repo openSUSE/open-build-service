@@ -10,7 +10,9 @@ class ArchitectureController < ApplicationController
     architectures = Architecture.all()
     builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.directory(:count => architectures.length) do |directory|
-      architectures.each {|arch| directory.entry(:name => arch.name)}
+      architectures.each do |arch|
+        directory.entry(:name => arch.name, :available => arch.available, :recommended => arch.recommended)
+      end
     end
     render :text => xml, :content_type => "text/xml"
   end
@@ -27,8 +29,8 @@ class ArchitectureController < ApplicationController
     builder = Builder::XmlMarkup.new(:indent => 2)
 
     xml = builder.architecture(:name => architecture.name) do |arch|
-      arch.selectable(architecture.selectable)
-      arch.enabled(architecture.enabled)
+      arch.available(architecture.available)
+      arch.recommended(architecture.recommended)
     end
     render :text => xml, :content_type => "text/xml"
   end
@@ -45,8 +47,8 @@ class ArchitectureController < ApplicationController
     xml = REXML::Document.new(request.raw_post)
     architecture = Architecture.new(
       :name => xml.elements["/architecture/@name"].value,
-      :selectable => xml.elements["/architecture/selectable"].text,
-      :enabled => xml.elements["/architecture/enabled"].text
+      :recommended => xml.elements["/architecture/recommended"].text,
+      :available => xml.elements["/architecture/available"].text
     )
     architecture.save!
     render_ok
@@ -68,8 +70,8 @@ class ArchitectureController < ApplicationController
     xml = REXML::Document.new(request.raw_post)
     logger.debug("XML: #{request.raw_post}")
     #architecture.name = xml.elements["/architecture/@name"].text # We don't want this!
-    architecture.selectable = xml.elements["/architecture/selectable"].text
-    architecture.enabled = xml.elements["/architecture/enabled"].text
+    architecture.recommended = xml.elements["/architecture/recommended"].text
+    architecture.available = xml.elements["/architecture/available"].text
     architecture.save!
     render_ok
   end
