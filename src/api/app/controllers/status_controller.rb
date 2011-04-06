@@ -344,6 +344,7 @@ class StatusController < ApplicationController
           binaries.each_binary do |f|
             # match to the repository filename
             m = re_filename.match(f.value(:filename)) 
+            next unless m
             uri = "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{m[2]}/_repository/#{m[1]}.rpm?view=fileinfo_ext"
             begin
               key = Digest::MD5.hexdigest(uri)
