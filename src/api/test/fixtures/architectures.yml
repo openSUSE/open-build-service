@@ -2,12 +2,12 @@
 i586:
   id: 1
   name: i586
-  selectable: 1
+  recommended: 1
 x86_64:
   id: 2
   name: x86_64
-  selectable: 1
+  recommended: 1
 ppc:
   id: 3
   name: ppc
-  selectable: 0
+  recommended: 0
