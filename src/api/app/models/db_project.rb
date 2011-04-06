@@ -911,10 +911,10 @@ class DbProject < ActiveRecord::Base
             r.releasetarget( params )
           end
           repo.path_elements.each do |pe|
-            if pe.link.remote_project_name.blank?
-              project_name = pe.link.db_project.name
-            else
+            if pe.link.remote_project_name
               project_name = pe.link.db_project.name+":"+pe.link.remote_project_name
+            else
+              project_name = pe.link.db_project.name
             end
             r.path( :project => project_name, :repository => pe.link.name )
           end
