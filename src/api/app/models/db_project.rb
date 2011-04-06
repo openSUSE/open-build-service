@@ -860,7 +860,13 @@ class DbProject < ActiveRecord::Base
     builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
-    xml = builder.project( :name => name ) do |project|
+
+    project_attributes = {:name => name}
+    # Check if the project has a special type defined (like maintenance)
+    type = DbProjectType.find(type_id) if type_id()
+    project_attributes[:type] = type.name if type
+
+    xml = builder.project( project_attributes ) do |project|
       project.title( title )
       project.description( description )
       

@@ -60,6 +60,15 @@
 
       <attribute name="name" />
       <optional>
+        <attribute name="type">
+          <choice>
+            <value>standard</value>
+            <value>maintenance</value>
+            <value>maintenance_incident</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="mountproject"/>
       </optional>
       <optional>
