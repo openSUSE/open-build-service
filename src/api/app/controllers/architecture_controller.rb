@@ -5,6 +5,8 @@ class ArchitectureController < ApplicationController
   validate_action :index => {:method => :get, :response => :directory}
   validate_action :show  => {:method => :get, :response => :architecture}
 
+  before_filter :update_architecture_state, :only => [:index, :show]
+
   # GET /architecture
   def index
     architectures = Architecture.all()
@@ -87,6 +89,28 @@ class ArchitectureController < ApplicationController
     architecture = Architecture.find_by_name(params[:name])
     architecture.destroy
     render_ok
+  end
+
+private
+  # Architecture availability is dependant on scheduler state. Therefore, the table is
+  # periodically updated to reflect the scheduler states. A cache key serves as the timer.
+  def update_architecture_state
+    Rails.cache.fetch("architecture_backend_state", :expires_in => 5.minutes, :shared => true) do
+      logger.debug "Updating architecture availability from backend..."
+
+      raw = backend_get("/build/_workerstatus")
+      data = REXML::Document.new(raw) # Parse backend XML
+      data.root.each_element("scheduler") do |scheduler|
+        arch_name = scheduler.attributes["arch"]
+        # We don't care for backend magic architecture values
+        next if ["local", "dispatcher", "publisher", "signer", "warden"].include? arch_name
+
+        # Update availability based on scheduler state for given arch
+        architecture = Architecture.find_by_name(arch_name)
+        architecture.available = ["idle", "running"].include? scheduler.attributes["state"]
+        architecture.save!
+      end
+    end
   end
 
 end
