@@ -145,6 +145,16 @@
           </element>
         </optional>
 
+        <optional>
+          <element ns="" name="maintenance">
+            <oneOrMore>
+              <element name="maintains">
+                <attribute name="project"/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+
         <zeroOrMore>
           <ref name="repository-element"/>
         </zeroOrMore>

@@ -936,6 +936,18 @@ class DbProject < ActiveRecord::Base
         end
       end
 
+      if type
+        if type.name == "maintenance"
+          project.maintenance do |maintenance|
+            DbProject.find(:all, :conditions => ["maintenance_project_id = ?", id]).each do |maintained_project|
+              maintenance.maintains(:project => maintained_project.name)
+            end
+          end
+        elsif type.name == "maintenance_incident"
+          #TODO: Add Meta XML for maintenance incident projects
+        end
+      end
+
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
