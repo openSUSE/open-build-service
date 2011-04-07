@@ -1,6 +1,7 @@
 class MonitorController < ApplicationController
 
   skip_before_filter :check_user, :only => [ :plothistory ]
+  before_filter :require_available_architectures, :only => [:index]
 
   def old
     get_settings
@@ -42,6 +43,7 @@ class MonitorController < ApplicationController
 	workers[hostname][subid] = id
       end
       @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] }
+      @available_arch_list = @available_architectures.each.map{|arch| arch.name}
     end
   end
 
@@ -189,6 +191,17 @@ private
     end if arr1
     ret << 0 if ret.length == 0
     return ret
+  end
+
+  def require_available_architectures
+    begin
+      transport = ActiveXML::Config::transport_for(:architecture)
+      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
+      @available_architectures = Collection.new(response)
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Available architectures not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
   end
 
 end

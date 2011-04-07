@@ -4,6 +4,8 @@ require 'models/latest_updated'
 
 class MainController < ApplicationController
 
+  before_filter :require_available_architectures, :only => [:index]
+
   def index
     @user ||= Person.find :login => session[:login] if session[:login]
 
@@ -18,15 +20,15 @@ class MainController < ApplicationController
       end
 
       @busy = nil
-      VISIBLE_ARCHITECTURES.map {|arch| map_to_workers(arch) }.uniq.each do |arch|
-	archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
-	if archret.length > 0
-	  if @busy
-	    @busy = MonitorController.addarrays(@busy, archret) 
-	  else
-	    @busy = archret
-	  end
-	end
+      @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
+        archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
+        if archret.length > 0
+          if @busy
+            @busy = MonitorController.addarrays(@busy, archret)
+          else
+            @busy = archret
+          end
+        end
       end
       logger.debug @busy.inspect
 
@@ -107,6 +109,17 @@ class MainController < ApplicationController
   def sitemap_packages
     load_packages(params[:category])
     render :template => 'main/sitemap_packages', :layout => false, :locals => { :action => params[:listaction] }
+  end
+
+  def require_available_architectures
+    begin
+      transport = ActiveXML::Config::transport_for(:architecture)
+      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
+      @available_architectures = Collection.new(response)
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Available architectures not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
   end
 
 end
