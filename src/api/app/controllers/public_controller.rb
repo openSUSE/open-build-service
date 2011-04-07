@@ -1,5 +1,5 @@
 class PublicController < ApplicationController
-  include PublicHelper
+
   # we need to fall back to _nobody_ (_public_)
   before_filter :extract_user_public
   skip_before_filter :extract_user
