@@ -13,6 +13,12 @@ class ArchitectureController < ApplicationController
     builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.directory(:count => architectures.length) do |directory|
       architectures.each do |arch|
+        # Check for 'recommended' or 'available' filters
+        next unless arch.recommended if ["1", "true"].include?(params[:recommended])
+        next if arch.recommended if ["0", "false"].include?(params[:recommended])
+        next unless arch.available if ["1", "true"].include?(params[:available])
+        next if arch.available if ["0", "false"].include?(params[:available])
+        # Add directory entry that survived filtering
         directory.entry(:name => arch.name, :available => arch.available, :recommended => arch.recommended)
       end
     end
