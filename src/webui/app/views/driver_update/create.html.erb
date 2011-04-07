@@ -139,9 +139,11 @@
 
   <tr>
     <td><strong>Architectures: </strong></td>
-    <td><% VISIBLE_ARCHITECTURES.each do |arch| %>
-      <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
-    <% end %></td>
+    <td>
+      <% @available_architectures.each do |arch| %>
+        <%= check_box_tag "arch[#{arch.name}]", "", arch.recommended %><%= arch.name %>
+      <% end %>
+    </td>
   </tr>
   </table>
 

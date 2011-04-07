@@ -2,7 +2,7 @@ class DriverUpdateController < PackageController
 
   before_filter :require_project
   before_filter :require_package
-
+  before_filter :require_available_architectures, :only => [:create]
 
   def create
     @repositories = @project.each_repository.map{|repo| {:project => @project.name,
@@ -67,6 +67,17 @@ class DriverUpdateController < PackageController
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
     @binaries = @buildresult.data.find('//binary').map{|binary| binary['filename']}
     render :partial => 'binary_packages'
+  end
+
+  def require_available_architectures
+    begin
+      transport = ActiveXML::Config::transport_for(:architecture)
+      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
+      @available_architectures = Collection.new(response)
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Available architectures not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
   end
 
 end
