@@ -9,15 +9,6 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 require File.join(File.dirname(__FILE__), 'boot')
 
 require "common/libxmlactivexml"
-require 'fileutils'
-
-# create important directories that are needed at runtime
-FileUtils.mkdir_p("#{RAILS_ROOT}/log")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/cache")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/pids")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
 
 init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
