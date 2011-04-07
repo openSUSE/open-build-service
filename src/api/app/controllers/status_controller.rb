@@ -223,6 +223,9 @@ class StatusController < ApplicationController
   def bsrequest
     required_parameters :id
     req = BsRequest.find :id => params[:id]
+    unless req
+      render_error :status => 403, :errorcode => "unknown request", :message => "request #{params[:id]} does not exist" and return
+    end
     if req.action.value('type') != 'submit'
       render :text => "<status id='#{params[:id]}' code='unknown'>Not submit</status>\n" and return
     end
