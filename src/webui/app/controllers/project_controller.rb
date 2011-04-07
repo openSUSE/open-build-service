@@ -12,7 +12,7 @@ class ProjectController < ApplicationController
 
   class NoChangesError < Exception; end
 
-  before_filter :require_project, :except => [:arch_list, 
+  before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png]
@@ -24,6 +24,7 @@ class ProjectController < ApplicationController
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
+  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, :edit_repository]
 
   def index
     redirect_to :action => 'list_public'
@@ -308,19 +309,23 @@ class ProjectController < ApplicationController
     end
   end
 
-  def arch_list
-    @arch_list = Hash.new
+  def repository_arch_list
+    @repository_arch_list = Hash.new
     @project.each_repository do |repo|
-      @arch_list[repo.name] = repo.archs.sort.uniq
+      @repository_arch_list[repo.name] = repo.archs.sort.uniq
     end
-    return @arch_list
+    return @repository_arch_list
   end
-  private :arch_list
+  private :repository_arch_list
 
   def edit_repository
     repo = @project.repository[params[:repository]]
     redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
-    @arch_list = arch_list()
+    # Merge project repo's arch list with currently available arches from API. This needed as you want
+    # to keep currently non-working arches in the project meta.
+    @repository_arch_list = (@available_architectures.each.map{|arch| arch.name} + repository_arch_list()[repo.name]).uniq
+    # Prepare a list of recommended architectures
+    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended}
     render(:partial => 'edit_repository', :locals => {:repository => repo, :error => nil})
   end
 
@@ -328,7 +333,11 @@ class ProjectController < ApplicationController
     valid_http_methods :post
     repo = @project.repository[params[:repo]]
     repo.archs = params[:arch].to_a
-    @arch_list = arch_list
+    # Merge project repo's arch list with currently available arches from API. This needed as you want
+    # to keep currently non-working arches in the project meta.
+    @repository_arch_list = (@available_architectures.each.map{|arch| arch.name} + repository_arch_list()[repo.name]).uniq
+    # Prepare a list of recommended architectures
+    @recommended_arch_list = @avail_status_values.each.map{|arch| arch.name if arch.recommended}
     begin
       @project.save
       render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
@@ -1302,6 +1311,17 @@ class ProjectController < ApplicationController
       @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _meta not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
+  end
+
+  def require_available_architectures
+    begin
+      transport = ActiveXML::Config::transport_for(:architecture)
+      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
+      @available_architectures = Collection.new(response)
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Available architectures not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
     end
   end

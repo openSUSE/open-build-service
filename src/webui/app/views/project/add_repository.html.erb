@@ -63,8 +63,8 @@
       <strong>New name: </strong><br/>
       <%= text_field_tag 'repo', '', :size => 60, :id => 'repo_name' %><br/>
       <strong>Architectures: </strong><br/>
-      <% VISIBLE_ARCHITECTURES.each do |arch| %>
-        <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
+      <% @available_architectures.each do |arch| %>
+        <%= check_box_tag "arch[#{arch.name}]", "", arch.recommended %><%= arch.name %>
       <% end %>
     <% end %>
   </p>
