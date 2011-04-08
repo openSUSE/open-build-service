@@ -153,7 +153,7 @@ class RequestController < ApplicationController
         redirect_to :action => :show, :id => params[:id] and return
       end
     
-      add_maintainer(@req) if params[:add_submitter_as_maintainer]
+      add_maintainer(@req) if params[:add_submitter_as_maintainer] and @req.action.target.package
       rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
       @req = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
         :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
