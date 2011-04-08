@@ -144,6 +144,18 @@ class ApplicationController < ActionController::Base
     transport.delete_additional_header 'Authorization'
   end
 
+  def strip_sensitive_data_from(request)
+    # Strip HTTP_AUTHORIZATION header that contains the user's password
+    # try to get it where mod_rewrite might have put it
+    request.env["X-HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "X-HTTP_AUTHORIZATION"
+    # for Apace/mod_fastcgi with -pass-header Authorization
+    request.env["Authorization"] = "STRIPPED" if request.env.has_key? "Authorization"
+    # this is the regular location
+    request.env["HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "HTTP_AUTHORIZATION"
+    return request
+  end
+  private :strip_sensitive_data_from
+
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
   end
@@ -166,7 +178,7 @@ class ApplicationController < ActionController::Base
       elsif code == "unconfirmed_user"
         render :template => "user/unconfirmed" and return
       else
-        #ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+        #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
         if @user
           render_error :status => 403, :message => message
         else
@@ -174,7 +186,7 @@ class ApplicationController < ActionController::Base
         end
       end
     when ActiveXML::Transport::UnauthorizedError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+      ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render_error :status => 401, :message => 'Unauthorized access'
     when ActionController::InvalidAuthenticityToken
       render_error :status => 401, :message => 'Invalid authenticity token'
@@ -183,7 +195,7 @@ class ApplicationController < ActionController::Base
     when Timeout::Error
       render :template => "timeout" and return
     when ValidationError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+      ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
     when MissingParameterError 
       render_error :status => 400, :message => message
@@ -194,7 +206,7 @@ class ApplicationController < ActionController::Base
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
     else
       if code != 404 && send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
+        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
       end
       render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
