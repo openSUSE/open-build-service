@@ -67,9 +67,9 @@
           <td>
             <% if ae.data.attributes["type"] == "add_role" %>
               <% if ae.has_element? :group %>
-                Role <b><%= ae.group.role %></b> for group <b><%= ae.group.name %></b>
+                Role <b><%= ae.group.role %></b> for <b><%= ae.group.name %></b>
               <% elsif ae.has_element? :person %>
-                Role <b><%= ae.person.role %></b> for user <b><%= ae.person.name %></b>
+                Role <b><%= ae.person.role %></b> for <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => ae.person.name, :no_gravatar => true} %>
               <% end %>
             <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
