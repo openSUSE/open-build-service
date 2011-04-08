@@ -8,7 +8,7 @@
 <p><strong>Profile picture:</strong></p>
 <table>
   <tr>
-    <td><a href="http://gravatar.com/emails"><%= gravatar_image(user.email.to_s, 60) %></a></td>
+    <td><a href="http://gravatar.com/emails"><%= gravatar_image(user.email.to_s, 60) if user.email %></a></td>
     <td>Profile pictures are provided by <a href="http://gravatar.com/">Gravatar</a>,<br/> and are based on your email address
       <a href="http://gravatar.com/emails" class="block avatar"><span>Update your picture...</span></a>
     </td>
