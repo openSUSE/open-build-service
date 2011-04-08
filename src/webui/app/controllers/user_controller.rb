@@ -33,9 +33,14 @@ class UserController < ApplicationController
       session[:passwd] = params[:password]
       authenticate_form_auth
       begin
-        Person.find( session[:login] )
+        p = Person.find( session[:login] )
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
+        reset_session
+        flash.now[:error] = "Authentication failed"
+        render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
+      end
+      unless p
         reset_session
         flash.now[:error] = "Authentication failed"
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
