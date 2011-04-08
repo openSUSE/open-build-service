@@ -54,16 +54,16 @@
           <% else -%>
             <%= proceed_link 'configure.png', 'Setup OBS', :controller => "admin", :action => :index %>
           <% end -%>
-          <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
+          <%= proceed_link 'list.png', 'All Projects', :controller => "project", :action => :list_public %>
       <% else -%>
           <% if session[:login] -%>
             <%= proceed_link 'start-here.png', 'My Projects', :controller => "home", :action => :list_my %>
           <% end %>
-          <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
+          <%= proceed_link 'list.png', 'All Projects', :controller => "project", :action => :list_public %>
           <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
 
           <% if session[:login] -%>
-            <%= proceed_link "document-new.png", 'Create New Project', :controller => "project", :action => :new, :ns => "home:#{session[:login]}" %>
+            <%= proceed_link "document-new.png", 'New Project', :controller => "project", :action => :new, :ns => "home:#{session[:login]}" %>
           <% end %>
       <% end %>
 
