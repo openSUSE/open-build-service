@@ -1,5 +1,13 @@
 <% elide_len ||= 40 %>
 
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% end %>
+
+<% content_for :ready_function do %>
+  $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
+<% end %>
+
 <% if requests.blank? %>
   <p>No requests.</p>
 <% else %>
@@ -20,7 +28,7 @@
         ae = req.action if req.has_element? :action %>
         <tr>
           <% if req.has_element? :state %>
-            <td class="nowrap"><!-- <%= req.state.when.tr('-T:','') %> --><%= fuzzy_time_string(req.state.value :when) %></td>
+            <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when.tr('T:',' ')).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
           <% end %>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
@@ -72,7 +80,4 @@
       <% end %>
     </tbody>
   </table>
-  <script type="text/javascript">
-    $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
-  </script>
 <% end %>

@@ -9,6 +9,11 @@
   <%= stylesheet_link_tag "jquery.tooltip" %>
 <% end %>
 
+<% content_for :ready_function do %>
+  $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
+  $('#history_table').tablesorter({widgets: ['zebra'], sortList: [[0,0]], headers: {3: {sorter: false}}});
+<% end %>
+
 <h3><%= @pagetitle %> (<%= @req.state.name %>)</h3>
 
 <% if @superseded_by %>
@@ -82,9 +87,6 @@
       <% end %>
     </tbody>
   </table>
-  <script type="text/javascript">
-    $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
-  </script>
 </div>
 <p><%= format_comment(@req.value(:description)) %></p>
 
@@ -102,7 +104,7 @@
     <tbody>
       <% @req.history.each do |h| %>
         <tr>
-          <td class="nowrap"><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
+          <td class="nowrap"><span class="hidden"><%= Time.parse(h[:when].to_s).to_i %></span><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
           <td><%= h[:name] %></td>
           <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => h[:who]}%></td>
           <td><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
@@ -110,9 +112,6 @@
       <% end %>
     </tbody>
   </table>
-  <script type="text/javascript">
-    $('#history_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
-  </script>
 </div>
 
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) %>
