@@ -1,6 +1,24 @@
 
+<%= javascript_include_tag :defaults %>
 
-<% @pagetitle = "Connect remote OBS instance" %>
+<% content_for :head_javascript do %>
+function useOpenSUSE(){
+	document.getElementById('name').value = "openSUSE.org";
+	document.getElementById('remoteurl').value = "https://api.opensuse.org/public";
+	document.getElementById('title').value = "Standard OBS instance at build.opensuse.org";
+	document.getElementById('description').value = "This instance delivers the default build targets for OBS.";
+}
+function useMeeGo(){
+	document.getElementById('name').value = "openSUSE.org";
+	document.getElementById('remoteurl').value = "https://api.opensuse.org/public";
+	document.getElementById('title').value = "Standard OBS instance at build.opensuse.org";
+	document.getElementById('description').value = "This instance delivers the default build targets for OBS.";
+}
+<% end %>
+
+
+
+<% @pagetitle = "Connect Remote OBS Instance" %>
 
 <% name = nil -%>
 <% remoteurl = nil -%>
@@ -8,30 +26,16 @@
 <h2>Connect a remote openSUSE Build Service instance</h2>
 
 <div>
-<p>
 <h3>Use a public OBS for default base distributions</h3>
-<% unless Project.exists? "openSUSE.org" -%>
-  <% form_tag    :controller => "project", :action => :save_new do -%>
-    <% name = "openSUSE.org" -%>
-    <% remoteurl = "https://api.opensuse.org/public" -%>
-    <%= hidden_field_tag( "name", "openSUSE.org" ) %>
-    <%= hidden_field_tag( "remoteurl", "https://api.opensuse.org/public" ) %>
-    <%= hidden_field_tag( "title", "Standard OBS instance at build.opensuse.org" ) %>
-    <%= hidden_field_tag( "description", "This instance delivers the default build targets for OBS." ) %>
-    <%= submit_tag "openSUSE.org" %>
-  <% end -%>
-<% end -%>
 
-<% unless Project.exists? "MeeGo.com" -%>
-  <% form_tag    :controller => "project", :action => :save_new do -%>
-    <%= hidden_field_tag( "name", "MeeGo.com" ) %>
-    <%= hidden_field_tag( "remoteurl", "https://api.meego.com/public" ) %>
-    <%= hidden_field_tag( "title", "OBS instance at build.meego.com" ) %>
-    <%= hidden_field_tag( "description", "This project is representing the remote build service instance." ) %>
-    <%= submit_tag "MeeGo.com" %>
-  <% end -%>
-<% end -%>
-</p>
+<%# unless Project.exists?("openSUSE.org") -%>
+  <% name = "openSUSE.org" -%>
+  <% remoteurl = "https://api.opensuse.org/public" -%>
+<%# end -%>
+
+<%= button_to_function "build.openSUSE.org", "useOpenSUSE()" %>
+<input type='button' onclick='javascript:useMeeGo()' value='build.MeeGo.com'/>
+
 </div>
 
 <h3>Add custom OBS instance</h3>
