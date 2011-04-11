@@ -202,6 +202,13 @@ class RequestController < ApplicationController
   def create_create
     req = BsRequest.new(request.body.read)
 
+    # refuse request creation for anonymous users
+    if @http_user == http_anonymous_user
+      render_error :status => 401, :errorcode => 'anonymous_user',
+        :message => "Anonymous user is not allowed to create requests"
+      return
+    end
+
     # expand release and submit request targets if not specified
     req.each_action do |action|
       if [ "submit", "maintenance_release" ].include?(action.data.attributes["type"])

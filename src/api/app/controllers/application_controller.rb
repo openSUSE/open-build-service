@@ -95,6 +95,10 @@ class ApplicationController < ActionController::Base
     return true
   end
 
+  def http_anonymous_user 
+    return User.find_by_login( "_nobody_" )
+  end
+
   def extract_user_public
     # to become _public_ special user 
     @http_user = User.find_by_login( "_nobody_" )

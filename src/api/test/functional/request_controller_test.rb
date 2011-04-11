@@ -141,6 +141,14 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  # FIXME: we need a way to test this with api anonymous config and without
+  def test_create_request_anonymous
+    ActionController::IntegrationTest::reset_auth
+    post "/request?cmd=create", load_backend_file('request/add_role')
+    print @response.body
+    assert_response 401
+  end
+
   def test_add_role_request
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role')
@@ -161,7 +169,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_clone_and_superseed_it
-    ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
