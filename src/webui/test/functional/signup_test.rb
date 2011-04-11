@@ -30,8 +30,8 @@ class WebratTest < ActionController::IntegrationTest
       assert_contain("You are logged in now")
       assert_contain("Welcome to the openSUSE Build Service")
 
-      #click_link "Setup OBS"
-      #assert_contain("Connect a remote openSUSE Build Service instance")
+      click_link "Setup OBS"
+      assert_contain("Connect a remote openSUSE Build Service instance")
 
       #click_button "Save changes"
       #assert_contain("Project 'openSUSE.org' was created successfully")
