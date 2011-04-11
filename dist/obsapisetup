@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
-# Start-Before:      lighttpd
+# Start-Before:      apache2
 # Should-Start:      obsstoragesetup
 # Should-Stop:       $none
 # Required-Start:    mysql
@@ -89,8 +89,9 @@ case "$1" in
 			#remove old workers status and idling/building markers
 			rm -f /$backenddir/jobs/*/*status 2> /dev/null
 			rm -f /$backenddir/workers/*/* 2> /dev/null
-			# rm cert links
-			rm -f /etc/ssl/private/lighttpd.* /etc/ssl/certs/server.crt &> /dev/null
+                        # create repo directory or apache fails when nothing got published
+			mkdir -p /$backenddir/repos
+			chown obsrun.obsrun /$backenddir/repos
 		fi
 		echo "$FQHOSTNAME" > /obs/.oldfqhostname
 
@@ -125,7 +126,8 @@ case "$1" in
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
-			chown lighttpd.lighttpd config/secret.key
+			chmod 0640 config/secret.key
+			chown root.www config/secret.key
 		else
 			echo
 			echo -n "Migrate OBS api database"
@@ -139,7 +141,8 @@ case "$1" in
         		cd $webuidir
 			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
-			chown lighttpd.lighttpd config/secret.key
+			chmod 0640 config/secret.key
+			chown root.www config/secret.key
 		else
 			echo
 			echo -n "Migrate OBS webui database"
@@ -186,9 +189,9 @@ test@email.address
                 fi
 
                 cd $webuidir
-		chown -R lighttpd.lighttpd $webuidir/log
+		chown -R wwwrun.www $webuidir/log
                 cd $apidir
-		chown -R lighttpd.lighttpd $apidir/log
+		chown -R wwwrun.www $apidir/log
 
 		cat > /etc/issue <<EOF
 Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
