@@ -324,7 +324,7 @@ class ApplicationController < ActionController::Base
   def forward_from_backend(path)
 
     # apache & mod_xforward case
-    if CONFIG['x_use_xforward'] and CONFIG['x_use_xforward'] != "false"
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "http://#{SOURCE_HOST}:#{SOURCE_PORT}#{path}"
       head(200)
