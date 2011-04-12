@@ -151,19 +151,18 @@ case "$1" in
 			echo
 		fi
 
-                if [ ! -e /etc/ssl/private/server.key -a ! -e /etc/ssl/certs/server.crt -a ! -e /etc/ssl/private/server.pem ]; then
-                        if [ ! -e /obs/certs/server.$FQHOSTNAME.created ]; then
-                               # setup ssl certificates (NOT protected with a passphrase)
-                               echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
-                               # reuse signing key even if hostname changed
-                               if [ ! -e /obs/certs/server.key ]; then
-                                   install -d -m 0700 /obs/certs
-                                   openssl genrsa -out /obs/certs/server.key 1024
-                               fi
-                               # hostname specific certs - survive intermediate hostname changes
-                               if [ ! -e /obs/certs/server.pem ] ; then
-                                   # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
-			           echo "CC
+                if [ ! -e /srv/obs/certs/server.$FQHOSTNAME.created ]; then
+                       # setup ssl certificates (NOT protected with a passphrase)
+                       echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
+                       # reuse signing key even if hostname changed
+                       if [ ! -e /srv/obs/certs/server.key ]; then
+                           install -d -m 0700 /srv/obs/certs
+                           openssl genrsa -out /srv/obs/certs/server.key 1024
+                       fi
+                       # hostname specific certs - survive intermediate hostname changes
+                       if [ ! -e /srv/obs/certs/server.pem ] ; then
+                           # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
+		           echo "CC
 Test State or Province
 Test Locality
 Organization Name
@@ -172,20 +171,14 @@ $FQHOSTNAME
 test@email.address
 
 
-"                                | openssl req -new -key /obs/certs/server.key -out /obs/certs/server.csr >& /dev/null
-                                   openssl x509 -req -days 365 -in /obs/certs/server.csr -signkey /obs/certs/server.key -out /obs/certs/server.crt
-                                   cat /obs/certs/server.key /obs/certs/server.crt > /obs/certs/server.pem
-                                   touch /obs/certs/server.$FQHOSTNAME.created
-                               else
-                                 echo "ERROR: SSL CAs in /obs/certs exists, but were not created for your hostname"
-                                 exit 1
-                               fi
-                        fi
-                        # use certificates from /obs (LVM ?) partition
-                       # this was only needed for lighttpd
-                       #ln -s /obs/certs/server.key /etc/ssl/private/server.key
-                       #ln -s /obs/certs/server.$FQHOSTNAME.crt /etc/ssl/certs/server.crt
-                       #ln -s /obs/certs/server.$FQHOSTNAME.pem /etc/ssl/private/server.pem
+"                        | openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.csr >& /dev/null
+                           openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
+                           cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem
+                           echo "Do not remove this file or new SSL CAs will get created." > /srv/obs/certs/server.$FQHOSTNAME.created
+                       else
+                         echo "ERROR: SSL CAs in /srv/obs/certs exists, but were not created for your hostname"
+                         exit 1
+                       fi
                 fi
 
                 cd $webuidir
