@@ -288,7 +288,7 @@ The default user is "Admin" with the password "opensuse".
 =============================
 
 To change the default URLs of the api, configure the lighttpd vhosts
-accordingly. Edit '/etc/lighttpd/vhosts.d/obs.conf' and add the new virtual
+accordingly. Edit '/etc/apache2/vhosts.d/obs.conf' and add the new virtual
 hostnames.
 
 Then change the FRONTEND_HOST variable in 
