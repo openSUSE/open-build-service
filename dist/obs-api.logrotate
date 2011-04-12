@@ -7,10 +7,10 @@
   size +8096k
   notifempty
   missingok
-  create 664 lighttpd lighttpd
+  create 664 wwwrun www
   sharedscripts
   postrotate
-    /etc/init.d/lighttpd reload
+    /etc/init.d/apache2 reload
   endscript
 }
 

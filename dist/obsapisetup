@@ -211,7 +211,7 @@ EOF
   Connect to the api interface via:     https://$FQHOSTNAME:444
   Browse the build packages via:        http://$FQHOSTNAME:82
 
- * "Admin" user password is "opensuse" by default.
+ * "Admin"/"root" user password is "opensuse" by default.
  * Connect to the web interface now to finish the OBS setup.
 
 More informations about this appliance are available here:

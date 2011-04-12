@@ -46,7 +46,7 @@ case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
         export RAILS_ENV="production"
-        startproc -u lighttpd -g lighttpd -- $DELAYED_BIN run
+        startproc -u wwwrun -g www -- $DELAYED_BIN run
 
 	rc_status -v
 	;;
