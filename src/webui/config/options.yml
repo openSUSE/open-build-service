@@ -28,6 +28,9 @@ exception_recipients: []
 # Hide private options in webui, like source or binary protection 
 # hide_private_options: true
 
+# Make use of mod_xforward module in apache
+#use_xforward: true
+
 # make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite
 # note that you need to enable the proxy-core option to allow this
 #use_lighttpd_x_rewrite: true

@@ -800,6 +800,16 @@ class PackageController < ApplicationController
 
   def rawlog
     valid_http_methods :get
+
+    # apache & mod_xforward case
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}#{path}"
+      head(200)
+      return
+    end
+
+    # lighttpd 1.5 case
     if CONFIG['use_lighttpd_x_rewrite']
       headers['X-Rewrite-URI'] = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
       headers['X-Rewrite-Host'] = FRONTEND_HOST
