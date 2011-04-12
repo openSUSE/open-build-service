@@ -145,7 +145,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   def test_create_request_anonymous
     ActionController::IntegrationTest::reset_auth
     post "/request?cmd=create", load_backend_file('request/add_role')
-    print @response.body
     assert_response 401
   end
 
@@ -605,6 +604,16 @@ end
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_attribute?(:id), true
     id_by_package = node.data['id']
+
+    # find requests which are not in review
+    get "/request?view=collection&user=Iggy&state=new"
+    assert_response :success
+    assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+    # find reviews
+    get "/request?view=collection&user=Iggy&state=review&reviewstate=new"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
 
     # create request by maintainer
     prepare_request_with_user "Iggy", "asdfasdf"

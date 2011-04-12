@@ -19,11 +19,14 @@ class RequestController < ApplicationController
       predicates = []
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank? and params[:state].blank? and params[:action_type].blank?
+      if params[:project].blank? and params[:user].blank? and params[:state].blank? and params[:action_type].blank? and params[:reviewstate].blank?
        render_error :status => 404, :errorcode => 'require_filter',
-         :message => "This call requires at least one filter, either by user, project or package or state or action_type"
+         :message => "This call requires at least one filter, either by user, project or package or state or action_type or reviewstate"
        return
       end
+
+      review_state = "new"
+      review_state = params[:reviewstate] if params[:reviewstate]
 
       # pending requests are new or in review requests
       if params[:state] == "pending"
@@ -41,12 +44,12 @@ class RequestController < ApplicationController
         if params[:package].blank?
           str = "action/target/@project='#{params[:project]}'"
           if params[:state] == "pending" or params[:state] == "review"
-            str += " or (review[@state='new' and @by_project='#{params[:project]}'] and state/@name='review')"
+            str += " or (review[@state='#{review_state}' and @by_project='#{params[:project]}'] and state/@name='review')"
           end
         else
           str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
           if params[:state] == "pending" or params[:state] == "review"
-            str += " or (review[@state='new' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'] and state/@name='review')"
+            str += " or (review[@state='#{review_state}' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'] and state/@name='review')"
           end
         end
         predicates << str
@@ -57,14 +60,14 @@ class RequestController < ApplicationController
         # user's own submitted requests
         str = "(state/@who='#{params[:user]}'"
         # requests where the user is reviewer or own requests that are in review by someone else
-        str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
+        str += " or review[@by_user='#{params[:user]}' and @state='#{review_state}'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         maintained_projects_hash = Hash.new
         user.involved_projects.each do |ip|
           maintained_projects += ["action/target/@project='#{ip.name}'"]
           if params[:state] == "pending" or params[:state] == "review"
-            maintained_projects += ["(review[@state='new' and @by_project='#{ip.name}'] and state/@name='review')"]
+            maintained_projects += ["(review[@state='#{review_state}' and @by_project='#{ip.name}'] and state/@name='review')"]
           end
           maintained_projects_hash[ip.id] = true
         end
@@ -75,7 +78,7 @@ class RequestController < ApplicationController
           unless maintained_projects_hash.has_key?(ip.db_project_id)
             maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
             if params[:state] == "pending" or params[:state] == "review"
-              maintained_packages += ["(review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+              maintained_packages += ["(review[@state='#{review_state}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
             end
           end
         end
