@@ -200,6 +200,11 @@ EOF
 		fi
 
 		if [ -n "$FQHOSTNAME" ]; then
+                        sed -e "s,___WEBUI_URL___,https://$FQHOSTNAME,g" \
+                            -e "s,___API_URL___,https://$FQHOSTNAME:444,g" \
+                            -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
+                            /srv/www/obs/overview/overview.html.TEMPLATE > /srv/www/obs/overview/index.html
+
 			cat >> /etc/issue <<EOF
 
   Connect to the web interface via:     https://$FQHOSTNAME
@@ -217,6 +222,7 @@ More informations about this appliance are available here:
 
 EOF
 		else
+                        echo "OBS appliance could not get setup, no network found" > /srv/www/obs/overview/index.html
 			echo '**********************************************' >> /etc/issue
 			echo '**           NETWORK SETUP FAILED           **' >> /etc/issue
 			echo '**                                          **' >> /etc/issue
