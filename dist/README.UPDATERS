@@ -1,3 +1,26 @@
+For Updaters to OBS 2.3 from OBS 2.1
+====================================
+
+1) Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
+2) Switch from lighttpd to apache2
+
+   The default httpd is apache2 since OBS 2.3. lighttpd should still work, but
+   we recommend to switch to apache to get a maintained base and load
+   optimizations. 
+
+   Please read the section 3 from README.SETUP file to learn how to configure
+   apache.
+
+
 For Updaters to OBS 2.1 from OBS 2.0
 ====================================
 
