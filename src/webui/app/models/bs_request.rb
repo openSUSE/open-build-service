@@ -127,7 +127,7 @@ class BsRequest < ActiveXML::Base
     end
 
     def list(opts)
-      unless opts[:state] or opts[:type] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
+      unless opts[:state] or opts[:reviewstate] or opts[:type] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
       end
 
@@ -136,6 +136,7 @@ class BsRequest < ActiveXML::Base
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request?view=collection"
       path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
+      path << "&reviewstate=#{CGI.escape(opts[:reviewstate])}" if opts[:reviewstate]
       path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
       path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
       path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]

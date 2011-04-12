@@ -19,6 +19,7 @@
         <th style="width: 40%">Target</th>
         <th style="width: 5%">Requester</th>
         <th style="width: 1%">Type</th>
+        <th style="width: 1%">State</th>
         <th style="width: 1%">Actions</th>
       </tr>
     </thead>
@@ -67,6 +68,7 @@
           </td>
           <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req), :short => true}%></td>
           <td class="nowrap"><%= reqtype(req) %></td>
+          <td class="nowrap"><%= req.state.name %></td>
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle Request'), :controller => :request, :action => :show, :id => req.value(:id)) -%>
             <% if ae.has_element? :source and ae.source.has_attribute? :package %>

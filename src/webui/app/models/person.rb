@@ -89,7 +89,9 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
 
-    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) { BsRequest.list({:state => 'new', :user => login.to_s}) }
+    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) {
+        BsRequest.list({:state => 'review', :reviewstate => 'new', :user => login.to_s}) + BsRequest.list({:state => 'new', :user => login.to_s}) 
+      }
   end
 
   def groups
