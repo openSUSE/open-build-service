@@ -90,7 +90,7 @@ class Person < ActiveXML::Base
     Rails.cache.delete cachekey unless opts[:cache]
 
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) {
-        BsRequest.list({:state => 'review', :reviewstate => 'new', :user => login.to_s}) + BsRequest.list({:state => 'new', :user => login.to_s}) 
+        BsRequest.list({:state => 'review', :reviewstate => 'new', :reviewuser => login.to_s}) + BsRequest.list({:state => 'new', :user => login.to_s}) 
       }
   end
 
