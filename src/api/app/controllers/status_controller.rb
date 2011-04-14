@@ -406,7 +406,7 @@ class StatusController < ApplicationController
           end
         end
 	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
-	outputxml << " missing='#{missingdeps.join(',')}'" if missingdeps.size > 0
+	outputxml << " missing='#{missingdeps.join(',')}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
 	outputxml << "/>\n"
       end
       outputxml << " </repository>\n"
