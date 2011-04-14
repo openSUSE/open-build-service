@@ -20,17 +20,18 @@ class MainController < ApplicationController
       end
 
       @busy = nil
-      @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
-        archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
-        if archret.length > 0
-          if @busy
-            @busy = MonitorController.addarrays(@busy, archret)
-          else
-            @busy = archret
+      if @available_architectures
+        @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
+          archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
+          if archret.length > 0
+            if @busy
+              @busy = MonitorController.addarrays(@busy, archret)
+            else
+              @busy = archret
+            end
           end
         end
       end
-      logger.debug @busy.inspect
 
       @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes, :shared => true) do
         GlobalCounters.find( :all )
@@ -119,6 +120,9 @@ class MainController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Available architectures not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    rescue ActiveXML::Transport::UnauthorizedError => e
+      @anonymous_forbidden = true
+      logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
     end
   end
 
