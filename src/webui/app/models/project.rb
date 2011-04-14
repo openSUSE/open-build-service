@@ -355,4 +355,25 @@ class Project < ActiveXML::Base
     has_element? "remoteurl"
   end
 
+  # Returns a list of pairs (full name, short name) for each parent
+  def self.parent_projects(project_name)
+    atoms = project_name.split(':')
+    projects = []
+    unused = 0
+
+    for i in 1..atoms.length do
+      p = atoms.slice(0, i).join(":")
+      r = atoms.slice(unused, i - unused).join(":")
+      if Project.exists? p
+        projects << [p, r]
+        unused = i
+      end
+    end
+    return projects
+  end
+
+  def parent_projects
+    return Project.parent_projects(self.name)
+  end
+
 end
