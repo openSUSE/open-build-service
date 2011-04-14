@@ -46,7 +46,7 @@ class BsRequest < ActiveXML::Base
     end
 
     def addReview(id, opts)
-      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
+      opts = {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?cmd=addreview"
@@ -69,7 +69,7 @@ class BsRequest < ActiveXML::Base
     end
 
     def modifyReview(id, changestate, opts)
-      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
+      opts = {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
       unless (changestate=="accepted" || changestate=="declined")
         raise ModifyError, "unknown changestate #{changestate}"
       end
@@ -93,13 +93,15 @@ class BsRequest < ActiveXML::Base
       end
     end
 
-    def modify(id, changestate, reason, superseded_by = nil)
+    def modify(id, changestate, opts)
+      opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
       if ["accepted", "declined", "revoked", "superseded"].include?(changestate)
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-        path += "&superseded_by=#{superseded_by}" if superseded_by
+        path += "&superseded_by=#{opts[:superseded_by]}" if opts[:superseded_by]
+        path += "&force=1" if opts[:force]
         begin
-          transport.direct_http URI("#{path}"), :method => "POST", :data => reason.to_s
+          transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
           BsRequest.free_cache(id)
           return true
         rescue ActiveXML::Transport::ForbiddenError => e

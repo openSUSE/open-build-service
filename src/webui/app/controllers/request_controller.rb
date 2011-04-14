@@ -104,7 +104,7 @@ class RequestController < ApplicationController
  
   def change_request(changestate, params)
     begin
-      if BsRequest.modify( params[:id], changestate, params[:reason] )
+      if BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
         flash[:note] = "Request #{changestate}!" and return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
