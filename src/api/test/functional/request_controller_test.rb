@@ -610,7 +610,7 @@ end
     assert_response :success
     assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     # find reviews
-    get "/request?view=collection&user=Iggy&state=review&reviewstate=new"
+    get "/request?view=collection&reviewuser=Iggy&state=review&reviewstate=new"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )

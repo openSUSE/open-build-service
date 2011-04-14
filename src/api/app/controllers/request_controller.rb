@@ -55,35 +55,63 @@ class RequestController < ApplicationController
         predicates << str
       end
 
-      if params[:user] # should be set in almost all cases
+      inner_or = []
+      if params[:user]
         user = User.get_by_login(params[:user])
         # user's own submitted requests
-        str = "(state/@who='#{params[:user]}'"
-        # requests where the user is reviewer or own requests that are in review by someone else
-        str += " or review[@by_user='#{params[:user]}' and @state='#{review_state}'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
+        inner_or << "state/@who='#{params[:user]}'"
+        inner_or << "history[@who='#{params[:user]}' and position()=1]"
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         maintained_projects_hash = Hash.new
         user.involved_projects.each do |ip|
-          maintained_projects += ["action/target/@project='#{ip.name}'"]
-          if params[:state] == "pending" or params[:state] == "review"
-            maintained_projects += ["(review[@state='#{review_state}' and @by_project='#{ip.name}'] and state/@name='review')"]
-          end
+          inner_or << ["action/target/@project='#{ip.name}'"]
           maintained_projects_hash[ip.id] = true
         end
-        str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+
         ## find request where user is maintainer in target package, except we have to project already
         maintained_packages = Array.new
         user.involved_packages.each do |ip|
           unless maintained_projects_hash.has_key?(ip.db_project_id)
-            maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+            inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+          end
+        end
+      end
+
+      if params[:reviewuser]
+        user = User.get_by_login(params[:reviewuser])
+        # requests where the user is reviewer or own requests that are in review by someone else
+        if params[:state] == "pending" or params[:state] == "review"
+          inner_or << "review[@by_user='#{params[:user]}' and @state='#{review_state}']"
+          # include all groups of user
+          user.groups.each do |g|
+            inner_or << "review[@by_group='#{g.title}' and @state='#{review_state}']"
+          end
+        end
+
+        # find requests where user is maintainer in target project
+        maintained_projects = Array.new
+        maintained_projects_hash = Hash.new
+        user.involved_projects.each do |ip|
+          if params[:state] == "pending" or params[:state] == "review"
+            inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.name}'] and state/@name='review')"]
+          end
+          maintained_projects_hash[ip.id] = true
+        end
+
+        ## find request where user is maintainer in target package, except we have to project already
+        maintained_packages = Array.new
+        user.involved_packages.each do |ip|
+          unless maintained_projects_hash.has_key?(ip.db_project_id)
             if params[:state] == "pending" or params[:state] == "review"
-              maintained_packages += ["(review[@state='#{review_state}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+              inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
             end
           end
         end
-        str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-        str += ")"
+      end
+
+      unless inner_or.empty?
+        str = "(" + inner_or.join(" or ") + ")"
         predicates << str
       end
 
