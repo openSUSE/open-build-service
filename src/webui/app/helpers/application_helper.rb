@@ -66,23 +66,6 @@ module ApplicationHelper
     return @user
   end
 
-  def subproject_links_for_project project
-    atoms = project.split(':')
-    l = []
-    unused = 0
-
-    for i in 1..atoms.length do
-      p = atoms.slice(0, i).join(":")
-      r = atoms.slice(unused, i - unused).join(":")
-      if Project.exists? p
-        link = link_to r, :controller => "project", :action => :show, :project => p
-        l << link
-        unused = i
-      end
-    end
-    return l
-  end
-
   def link_to_project project
     link_to project, :controller => "project", :action => :show,
       :project => project

@@ -38,10 +38,18 @@ module ProjectHelper
     status_comment_html += "<span id='".html_safe + valid_xml_id("comment_edit_#{package}") + "'></span>".html_safe
   end
 
-  def project_bread_crumb( *args )
-    @crumb_list = [
-      link_to( 'Projects', :controller => 'project', :action => :list_public),
-    ].concat(subproject_links_for_project @project.name) + args
+  def project_bread_crumb(*args)
+    @crumb_list = [link_to('Projects', :controller => 'project', :action => :list_public)]
+    prj_parents = nil
+    if @namespace # corner case where no project object is available (i.e. 'new' action)
+      prj_parents = Project.parent_projects(@namespace)
+    else
+      prj_parents = Project.parent_projects(@project.name)
+    end
+    prj_parents.each do |name, short_name|
+      @crumb_list << link_to(short_name, :controller => 'project', :action => 'show', :project => name)
+    end
+    @crumb_list = @crumb_list + args
   end
 
   def format_seconds( secs ) 
