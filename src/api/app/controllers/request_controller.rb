@@ -59,8 +59,8 @@ class RequestController < ApplicationController
       if params[:user]
         user = User.get_by_login(params[:user])
         # user's own submitted requests
-        inner_or << "state/@who='#{params[:user]}'"
-        inner_or << "history[@who='#{params[:user]}' and position()=1]"
+        inner_or << "state/@who='#{user.login}'"
+        inner_or << "history[@who='#{user.login}' and position()=1]"
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         maintained_projects_hash = Hash.new
@@ -81,21 +81,17 @@ class RequestController < ApplicationController
       if params[:reviewuser]
         user = User.get_by_login(params[:reviewuser])
         # requests where the user is reviewer or own requests that are in review by someone else
-        if params[:state] == "pending" or params[:state] == "review"
-          inner_or << "review[@by_user='#{params[:user]}' and @state='#{review_state}']"
-          # include all groups of user
-          user.groups.each do |g|
-            inner_or << "review[@by_group='#{g.title}' and @state='#{review_state}']"
-          end
+        inner_or << "review[@by_user='#{user.login}' and @state='#{review_state}']"
+        # include all groups of user
+        user.groups.each do |g|
+          inner_or << "review[@by_group='#{g.title}' and @state='#{review_state}']"
         end
 
         # find requests where user is maintainer in target project
         maintained_projects = Array.new
         maintained_projects_hash = Hash.new
         user.involved_projects.each do |ip|
-          if params[:state] == "pending" or params[:state] == "review"
-            inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.name}'] and state/@name='review')"]
-          end
+          inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.name}'] and state/@name='review')"]
           maintained_projects_hash[ip.id] = true
         end
 
@@ -103,9 +99,7 @@ class RequestController < ApplicationController
         maintained_packages = Array.new
         user.involved_packages.each do |ip|
           unless maintained_projects_hash.has_key?(ip.db_project_id)
-            if params[:state] == "pending" or params[:state] == "review"
-              inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
-            end
+            inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
           end
         end
       end
