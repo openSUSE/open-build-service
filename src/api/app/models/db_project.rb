@@ -254,7 +254,7 @@ class DbProject < ActiveRecord::Base
       local_project = String.new
       remote_project = nil
 
-      while fragments.length > 0
+      while fragments.length > 1
         remote_project = [fragments.pop, remote_project].compact.join ":"
         local_project = fragments.join ":"
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
