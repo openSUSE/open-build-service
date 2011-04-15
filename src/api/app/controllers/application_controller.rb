@@ -566,6 +566,13 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt = {} )
+    # workaround an exception in mod_rails, it dies when an answer is send without
+    # reading the body, we try with just the first byte for now.
+    if request.put? or request.post?
+      buffer = String.new
+      request.body.read(1, buffer)
+    end
+
     if opt[:status]
       if opt[:status].to_i == 401
         response.headers["WWW-Authenticate"] = 'basic realm="API login"'
