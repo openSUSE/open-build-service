@@ -380,4 +380,16 @@ class Project < ActiveXML::Base
     return Project.parent_projects(self.name)
   end
 
+  # Searches the maintenance project for a given project
+  def self.maintenance_project(project_name)
+    predicate = "maintenance/maintains/@project='#{project_name}'"
+    mp = Collection.find_cached(:id, :what => 'project', :predicate => predicate, :expires_in => 30.minutes)
+    return mp.each.first.name if mp.each.first
+    return nil
+  end
+
+  def maintenance_project
+    return Project.maintenance_project(self.name)
+  end
+
 end
