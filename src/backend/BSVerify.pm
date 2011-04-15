@@ -31,6 +31,11 @@ sub verify_projid {
   die("projid '$projid' is illegal\n") if ":$projid:" =~ /:[_\.:]/;
 }
 
+sub verify_projtype {
+  my $projtype = $_[0];
+  die("projtype '$projtype' is illegal\n") if $projtype ne 'maintenance' and $projtype ne 'maintenance_incident'
+}
+
 sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
@@ -185,6 +190,7 @@ sub verify_proj {
     die("name does not match data\n") unless $projid eq $proj->{'name'};
   }
   verify_projid($proj->{'name'});
+  verify_projtype($proj->{'type'}) if exists $proj->{'type'};
   my %got_pack;
   for my $pack (@{$proj->{'package'} || []}) {
     verify_packid($pack->{'name'});

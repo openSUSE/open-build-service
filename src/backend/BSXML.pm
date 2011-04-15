@@ -92,9 +92,17 @@ our $download = [
      'arch',
 ];
 
+our $maintenance = [
+    'maintenance' =>
+      [[ 'maintains' =>
+            'project',
+      ]],
+];
+
 our $proj = [
     'project' =>
         'name',
+        'type',
 	 [],
         'title',
         'description',
@@ -113,6 +121,7 @@ our $proj = [
             'groupid',
      ]],
      [ $download ],
+     [ $maintenance ],
      [ 'attributes' => 
        [[ 'namespace' => 
             'name', 
