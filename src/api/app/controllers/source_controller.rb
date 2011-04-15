@@ -449,6 +449,11 @@ class SourceController < ApplicationController
       @attribute_container = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false)
     else
       # project
+      if DbProject.is_remote_project?(params[:project])
+        render_error :status => 400, :errorcode => "remote_project",
+          :message => "Attribute access to remote project is not yet supported"
+        return
+      end
       @attribute_container = DbProject.get_by_name(params[:project])
     end
     # is the attribute type defined at all ?
@@ -462,7 +467,7 @@ class SourceController < ApplicationController
       # existing ?
       at = AttribType.find_by_name(params[:attribute])
       unless at
-        render_error :status => 403, :errorcode => "not_existing_attribute",
+        render_error :status => 404, :errorcode => "not_existing_attribute",
           :message => "Attribute is not defined in system"
         return
       end

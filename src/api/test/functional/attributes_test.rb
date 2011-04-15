@@ -201,9 +201,13 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/NOT_EXISTING/_attribute"
     assert_response 404
     get "/source/home:tom/_attribute/OBS:NotExisting"
-    assert_response 403
+    assert_response 404
     get "/source/home:tom/_attribute/NotExisting:NotExisting"
-    assert_response 403
+    assert_response 404
+
+    # via remote link
+    get "/source/RemoteInstance:home:tom/_attribute/OBS:Maintained"
+    assert_response 400
 
     # via group
     prepare_request_with_user "adrian", "so_alone"
