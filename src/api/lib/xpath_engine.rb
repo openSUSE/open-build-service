@@ -53,6 +53,9 @@ class XpathEngine
         ]},
         'title' => {:cpart => 'db_projects.title'},
         'description' => {:cpart => 'db_projects.description'},
+        'maintenance/maintains/@project' => {:cpart => 'maintained.name', :joins => [
+          'LEFT JOIN db_projects AS maintained ON db_projects.id = maintained.maintenance_project_id'
+        ]},
         'person/@userid' => {:cpart => 'users.login', :joins => [
           'LEFT JOIN project_user_role_relationships ON db_projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id'
