@@ -1454,6 +1454,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/home:coolo:test/_pattern/mypattern"
     assert_response 404
+    delete "/source/home:coolo:test/_pattern"
+    assert_response :success
+    delete "/source/home:coolo:test/_pattern"
+    assert_response 404
   end
 
   def test_prjconf
