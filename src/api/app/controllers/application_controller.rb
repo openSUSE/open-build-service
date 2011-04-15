@@ -442,6 +442,12 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt = {} )
+    # workaround an exception in mod_rails, it dies when an answer is send without
+    # reading the body. We trigger passenger to read the entire body via requesting the size
+    if request.put? or request.post?
+      request.body.size
+    end
+
     if opt[:status]
       if opt[:status].to_i == 401
         response.headers["WWW-Authenticate"] = 'basic realm="API login"'
