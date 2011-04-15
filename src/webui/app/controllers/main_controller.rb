@@ -15,8 +15,10 @@ class MainController < ApplicationController
       end
 
       @waiting_packages = 0
-      @workerstatus.each_waiting do |waiting|
-        @waiting_packages += waiting.jobs.to_i
+      if @workerstatus
+        @workerstatus.each_waiting do |waiting|
+          @waiting_packages += waiting.jobs.to_i
+        end
       end
 
       @busy = nil
