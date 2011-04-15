@@ -15,10 +15,9 @@ class MainController < ApplicationController
       end
 
       @waiting_packages = 0
-      if @workerstatus
-        @workerstatus.each_waiting do |waiting|
-          @waiting_packages += waiting.jobs.to_i
-        end
+      # If it crashes here due to @workerstatus.nil? the user tries to run a webui without an api connection ...
+      @workerstatus.each_waiting do |waiting|
+        @waiting_packages += waiting.jobs.to_i
       end
 
       @busy = nil
