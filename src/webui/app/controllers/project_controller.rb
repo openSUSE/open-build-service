@@ -1235,6 +1235,9 @@ class ProjectController < ApplicationController
     end
   end
 
+  def maintenance_incidents
+  end
+
   private
 
   def get_important_projects
