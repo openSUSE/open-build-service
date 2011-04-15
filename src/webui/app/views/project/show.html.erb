@@ -27,6 +27,16 @@
               <%= @closed_maintenance_incidents.length %> <%= link_to "closed incident#{@closed_maintenance_incidents.length == 1 ? "" : "s"}", :action => 'maintenance_incidents', :project => @project %>
             </li>
           <% end %>
+          <li>
+            <% if @maintained_projects.length == 0 %>
+              <%= image_tag 'icons/exclamation.png' %>
+            <% else %>
+              <%= image_tag 'icons/accept.png' %>
+            <% end %>
+            <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", :action => 'maintained_projects', :project => @project) %>
+          </li>
+        <% elsif @is_incident_project %>
+
         <% else %>
           <li>
             <% if @nr_packages == 0 %>
@@ -53,7 +63,6 @@
             This project is linking the remote obs instance at: <i><a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i>
           </li>
         <% end %>
-
         <% if @linking_projects.size > 0 %>
           <li>
             <%= image_tag 'icons/information.png' %> 

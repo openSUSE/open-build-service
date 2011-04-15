@@ -1229,10 +1229,6 @@ class ProjectController < ApplicationController
   end
 
   def maintained_projects
-    @maintained_projects = []
-    @project.data.find("maintenance/maintains/@project").each do |maintained_project_name|
-      @maintained_projects << maintained_project_name.value
-    end
   end
 
   def maintenance_incidents
@@ -1285,6 +1281,11 @@ class ProjectController < ApplicationController
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     if @is_maintenance_project
+      @maintained_projects = []
+      @project.data.find("maintenance/maintains/@project").each do |maintained_project_name|
+        @maintained_projects << maintained_project_name.value
+      end
+
       @open_maintenance_incidents = []
       @closed_maintenance_incidents = []
 
