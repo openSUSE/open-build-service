@@ -44,7 +44,12 @@ module ProjectHelper
     if @namespace # corner case where no project object is available (i.e. 'new' action)
       prj_parents = Project.parent_projects(@namespace)
     else
-      prj_parents = Project.parent_projects(@project.name)
+      #FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
+      if @project.class == String
+        prj_parents = Project.parent_projects(@project)
+      else
+        prj_parents = Project.parent_projects(@project.name)
+      end
     end
     prj_parents.each do |name, short_name|
       @crumb_list << link_to(short_name, :controller => 'project', :action => 'show', :project => name)
