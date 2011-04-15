@@ -221,6 +221,12 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt={} )
+    # workaround an exception in mod_rails, it dies when an answer is send without
+    # reading the body. We trigger passenger to read the entire body via requesting the size
+    if request.put? or request.post?
+      request.size
+    end
+
     # :code is a string that comes from the api, :status is the http status code
     @status = opt[:status] || 400
     @code = opt[:code] || @status

@@ -567,10 +567,9 @@ class ApplicationController < ActionController::Base
 
   def render_error( opt = {} )
     # workaround an exception in mod_rails, it dies when an answer is send without
-    # reading the body, we try with just the first byte for now.
+    # reading the body. We trigger passenger to read the entire body via requesting the size
     if request.put? or request.post?
-      buffer = String.new
-      request.body.read(1, buffer)
+      request.size
     end
 
     if opt[:status]
