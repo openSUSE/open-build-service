@@ -1,0 +1,13 @@
+<% @pagetitle = "Projects Maintained by #{@project}" %>
+<% project_bread_crumb 'Maintained Projects' %>
+
+<%= render :partial => 'tabs' %>
+
+<h3>Maintained Projects</h3>
+<ul>
+  <% @maintained_projects.each do |maintained_project| %>
+    <li>
+      <%= link_to(maintained_project, :action => 'show', :project => maintained_project) %>
+    </li>
+  <% end %>
+</ul>
