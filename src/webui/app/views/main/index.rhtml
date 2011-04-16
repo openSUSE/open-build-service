@@ -8,14 +8,16 @@
 
 <% if @busy %>
   <% content_for :ready_function do %>
-    $.plot($("#overallgraph"), [ { data: <%= MonitorHelper.print_statistics_array(@busy) %>, label: "Busy workers", color: 3} ],
-      {
+    $.plot($("#overallgraph"), [ { data: <%= MonitorHelper.print_statistics_array(@busy) %>, label: "Busy workers",  color: 4},
+                                 { data: <%= MonitorHelper.print_statistics_array(@idle) %>, label: "Idle workers",  color: 3},
+                               ], {
         series: {
           stack: true,
           lines: { show: true, steps: false, fill: true }
         }, 
         xaxis: { mode: 'time' },
         yaxis: { min: 0, position: "left" },
+	legend: { noColumns: 3, position: "nw" }
       });
   <% end %>
 <% end %>
