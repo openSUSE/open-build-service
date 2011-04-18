@@ -20,24 +20,15 @@ class MainController < ApplicationController
         @waiting_packages += waiting.jobs.to_i
       end
 
-      @idle = nil
       @busy = nil
       if @available_architectures
         @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
-          archret     = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
+          archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
           if archret.length > 0
             if @busy
               @busy = MonitorController.addarrays(@busy, archret)
             else
               @busy = archret
-            end
-          end
-          archidleret = frontend.gethistory("idle_" + arch, 168).map {|time,value| [time,value]}
-          if archidleret.length > 0
-            if @idle
-              @idle = MonitorController.addarrays(@idle, archidleret)
-            else
-              @idle = archidleret
             end
           end
         end
