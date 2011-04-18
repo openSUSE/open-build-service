@@ -102,7 +102,7 @@ module ApplicationHelper
   def get_frontend_url_for( opt={} )
     opt[:host] ||= Object.const_defined?(:EXTERNAL_FRONTEND_HOST) ? EXTERNAL_FRONTEND_HOST : FRONTEND_HOST
     opt[:port] ||= Object.const_defined?(:EXTERNAL_FRONTEND_PORT) ? EXTERNAL_FRONTEND_PORT : FRONTEND_PORT
-    opt[:protocol] ||= FRONTEND_PROTOCOL
+    opt[:protocol] ||= Object.const_defined?(:EXTERNAL_FRONTEND_PROTOCOL) ? EXTERNAL_FRONTEND_PROTOCOL : FRONTEND_PROTOCOL
 
     if not opt[:controller]
       logger.error "No controller given for get_frontend_url_for()."
