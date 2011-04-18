@@ -42,7 +42,6 @@ class MainController < ApplicationController
           end
         end
       end
-      @idle = MonitorController.addarrays (@busy, @idle)
 
       @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes, :shared => true) do
         GlobalCounters.find( :all )
