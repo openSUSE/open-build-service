@@ -60,7 +60,8 @@
   margin: 0 15px 0 15px !important;
   position: relative !important;
   overflow: auto !important;
-  font-size: 1em !important;
+  /*font-size: 1em !important;*/
+  font-size: 0.9em !important;
 }
 .syntaxhighlighter.source {
   overflow: hidden !important;
