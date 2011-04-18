@@ -24,7 +24,7 @@ class MainController < ApplicationController
       @busy = nil
       if @available_architectures
         @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
-          archret = frontend.gethistory('building_' + arch, 168).map {|time,value| [time,value]}
+          archret     = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
           if archret.length > 0
             if @busy
               @busy = MonitorController.addarrays(@busy, archret)
@@ -32,7 +32,7 @@ class MainController < ApplicationController
               @busy = archret
             end
           end
-          archidleret = frontend.gethistory('idle_' + arch, 168).map {|time,value| [time,value]}
+          archidleret = frontend.gethistory("idle_" + arch, 168).map {|time,value| [time,value]}
           if archidleret.length > 0
             if @idle
               @idle = MonitorController.addarrays(@idle, archidleret)
@@ -40,6 +40,9 @@ class MainController < ApplicationController
               @idle = archidleret
             end
           end
+        end
+        if @busy and @idle
+          @idle = MonitorController.addarrays (@busy, @idle)
         end
       end
 
