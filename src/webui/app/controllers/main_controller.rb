@@ -47,6 +47,8 @@ class MainController < ApplicationController
       logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
     end
 
+    #TODO: Order by data, strip deleted messages
+    @news = Statusmessage.find(:limit => 10)
   end
   
   def sitemap

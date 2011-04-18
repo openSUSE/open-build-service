@@ -8,7 +8,6 @@ class MonitorController < ApplicationController
     check_user
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
-    @status_messages = get_status_messages
   end
 
   def index
@@ -23,7 +22,6 @@ class MonitorController < ApplicationController
       rescue ActiveXML::Transport::NotFoundError
          @workerstatus = nil
       end
-      @status_messages = get_status_messages
 
       workers = Hash.new
       workers_list = Array.new
@@ -36,23 +34,18 @@ class MonitorController < ApplicationController
         end
       end
       workers_list.each do |bid, barch|
-	hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
+        hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
         id=bid.gsub(%r{[:./]}, '_')
-	workers[hostname] ||= Hash.new
-	workers[hostname]['_arch'] = barch
-	workers[hostname][subid] = id
+        workers[hostname] ||= Hash.new
+        workers[hostname]['_arch'] = barch
+        workers[hostname][subid] = id
       end
       @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] }
       @available_arch_list = @available_architectures.each.map{|arch| arch.name}
     end
   end
 
-
-  def add_message_form
-    render :partial => 'add_message_form'
-  end
-
-
+  #TODO: REmove those two actions
   def save_message
     message = Statusmessage.new(
       :message => params[:message],
@@ -65,8 +58,6 @@ class MonitorController < ApplicationController
     end
     @status_messages = get_status_messages
   end
-
-
   def delete_message
     message = Statusmessage.find( :id => params[:id] )
     begin
@@ -77,27 +68,12 @@ class MonitorController < ApplicationController
     @status_messages = get_status_messages
   end
 
-
-  def show_more_messages
-    @status_messages = get_status_messages 100
-  end
-
-
-  def get_status_messages( limit=nil )
-    @max_messages = 4
-    limit ||= params[:message_limit]
-    limit = @max_messages if limit.nil?
-    return Statusmessage.find( :limit => limit )
-  end
-
-
   def filtered_list
     get_settings
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
     render :partial => 'building_table'
   end
-
 
   def get_settings
     @project_filter = params[:project]
@@ -109,7 +85,6 @@ class MonitorController < ApplicationController
     @time_now = Time.now
     @dead_line = 1.hours.ago
   end
-
 
   def update_building
     get_settings

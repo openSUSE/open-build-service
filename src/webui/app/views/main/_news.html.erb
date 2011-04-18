@@ -1,0 +1,62 @@
+<% if (@news and @news.count > 0) or (@user and @user.is_admin?) %>
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">News</div>
+    <div class="clear"></div>
+
+    <% if @news.count > 0 %>
+      <table style="width: 95%">
+        <thead>
+          <tr>
+            <th>Message</th>
+            <th style="width: 10%">Created At</th>
+            <th style="width: 5%">Author</th>
+            <% if @user and @user.is_admin? %>
+              <th style="width: 1%">Actions</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% @news.each_message do |msg| %>
+            <tr id="message_<%= msg.msg_id %>">
+              <td>
+                <% case msg.severity.to_i %>
+                  <% when 3 %>
+                    <%= image_tag('status_red.png') %>
+                  <% when 2 %>
+                    <%= image_tag('status_yellow.png') %>
+                  <% when 1 %>
+                    <%= image_tag('status_green.png') %>
+                  <% else %>
+                    <%= image_tag('info.png') %>
+                <% end %>
+                <%= h(msg.to_s) %>
+              </td>
+              <td class="nowrap"><%= fuzzy_time_string(Time.parse(msg.created_at)) %></td>
+              <td><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => msg.value(:user), :short => true }%></td>
+              <% if @user and @user.is_admin? %>
+                <td><%= link_to_remote(image_tag('delete.png', :title => 'Delete message'), :url => {:action => 'delete_message', :id => msg.msg_id}) %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <%end %>
+
+    <% if @user and @user.is_admin? %>
+      <% form_:url => { :action => 'save_message' },
+        :loading => "$('#message_save_spinner').show()", :complete => "$('#message_save_spinner').hide()" do %>
+        <%= text_field_tag 'message', '', { :size => 100 } %>
+        <%= select_tag 'severity', options_for_select([['informal',0],['green',1],['yellow',2],['red',3]] ) %>
+        <%= submit_tag "Add message" %>
+        <%= image_tag 'rotating-tail.gif', :id => 'message_save_spinner', :style => "visibility:hidden;" -%>
+      <% end %>
+      <p>
+        <span id="add_message_form_area"></span>
+          <span id="add_message">
+            <%= link_to_remote 'Add message', :update => 'add_message_form_area', :url => {:action => "add_message_form"},
+              :loading => "$('#message_form_spinner').show();$('#add_message').hide()", :complete => "$('#message_form_spinner').hide()" %>
+          </span>
+      </p>
+    <% end %>
+  </div>
+<% end %>

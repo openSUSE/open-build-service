@@ -1,9 +1,0 @@
-
-if not @denied
-  page.replace_html 'status_messages', :partial => 'status_messages'
-  page.show 'add_message'
-else
-  page.replace_html 'error_message', 'Permission denied to add message'
-  page.show 'error_message'
-end
-

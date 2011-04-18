@@ -1,8 +1,0 @@
-
-if not @denied
-  page.replace_html 'status_messages', :partial => 'status_messages'
-else
-  page.replace_html 'error_message', 'Permission denied to delete message'
-  page.show 'error_message'
-end
-

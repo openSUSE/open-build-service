@@ -1,3 +1,0 @@
-
-page.replace_html 'status_messages', :partial => 'status_messages'
-
