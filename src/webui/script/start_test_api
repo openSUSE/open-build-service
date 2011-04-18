@@ -46,7 +46,7 @@ while true
           exit 1
       end
     end
-  rescue Errno::ECONNREFUSED, Timeout::Error
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Timeout::Error
     sleep 1
     next
   end

@@ -129,7 +129,7 @@ while true
   puts "Connecting to srcserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
   end
@@ -140,7 +140,7 @@ while true
   puts "Connecting to repserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
   end
@@ -151,7 +151,7 @@ while true
   puts "Connecting to serviceserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, 3202) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
   end
