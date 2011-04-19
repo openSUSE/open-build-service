@@ -143,12 +143,12 @@ class User < ActiveRecord::Base
     }
   end
 
-  # updates users email address and real name using data transmitted by ichain
-  def update_user_info_from_ichain_env(env)
-    ichain_email = env["HTTP_X_EMAIL"]
-    if not ichain_email.blank? and self.email != ichain_email
-      logger.info "updating email for user #{self.login} from ichain header: old:#{self.email}|new:#{ichain_email}"
-      self.email = ichain_email
+  # updates users email address and real name using data transmitted by authentification proxy
+  def update_user_info_from_proxy_env(env)
+    proxy_email = env["HTTP_X_EMAIL"]
+    if not proxy_email.blank? and self.email != proxy_email
+      logger.info "updating email for user #{self.login} from proxy header: old:#{self.email}|new:#{proxy_email}"
+      self.email = proxy_email
       self.save
     end
     if not env['HTTP_X_FIRSTNAME'].blank? and not env['HTTP_X_LASTNAME'].blank?
