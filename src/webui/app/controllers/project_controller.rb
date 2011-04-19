@@ -290,6 +290,10 @@ class ProjectController < ApplicationController
     render :partial => 'buildstatus'
   end
 
+  def delete_dialog
+    @linking_projects = @project.linking_projects
+  end
+
   def delete
     valid_http_methods :post
     begin

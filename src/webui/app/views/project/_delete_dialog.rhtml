@@ -6,32 +6,20 @@
         <b>Delete Confirmation</b>
       </div>
 
-      <p>Really delete <b><%= h elide(@project.name, 40) %></b>?</p>
+      <p>Really delete <b><%= h(elide(@project.name, 40)) %></b>?</p>
 
       <% form_tag({:controller => 'project', :action => 'delete'}, :method => 'post') do %>
-        <% if @project.linking_projects %>
-          <p>Other projects still have source links to this project:
-            <ul>
-              <% @project.linking_projects.each do |link| %>
-                <li><%= link_to(h(elide(link.name, 40)), :controller => 'project', :action => 'show', :project => link) %></li>
-              <% end %>
-            </ul>
-            <%= check_box_tag(:ignore_linking_projects, 'Ignore project source links') %>
-          </p>
-        <% end %>
-
-        <% if @project.linking_repositories %>
-          <p>Other projects still have links to this project's repositories:
-            <ul>
-              <% @project.linking_repositories.each do |link| %>
-                <li><%= link_to(h(elide(link.project.name, 40)), :controller => 'project', :action => 'show', :project => link) %></li>
-              <% end %>
-            </ul>
-            <%= check_box_tag(:ignore_linking_repositories, 'Ignore repository links') %>
-          </p>
-        <% end %>
-
         <%= hidden_field_tag(:project, @project) %>
+        <% if @linking_projects and @linking_projects.length > 0 %>
+          <p>Other projects still have source links to this project:</p>
+          <ul>
+            <% @linking_projects.each do |link| %>
+              <li><%= link_to(h(elide(link.name, 40)), :controller => 'project', :action => 'show', :project => link) %></li>
+            <% end %>
+          </ul>
+          <%= check_box_tag(:ignore_linking_projects)%> Ignore project source links
+        <% end %>
+
         <div class="buttons">
           <%= submit_tag('Ok') %>
           <%= link_to_function('Cancel', 'remove_dialog()') %>

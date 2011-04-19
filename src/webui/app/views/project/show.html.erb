@@ -113,8 +113,8 @@
                 <%= link_to("Edit description", :action => 'edit', :project => @project) -%>
               </li>
               <li>
-                <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:action => 'delete', :project => @project.name}) -%>
-                <%= link_to_remote('Delete project', :url => { :action => 'delete', :project => @project.name}) -%>
+                <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) -%>
+                <%= link_to_remote('Delete project', :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) -%>
               </li>
             <% else %>
               <li>

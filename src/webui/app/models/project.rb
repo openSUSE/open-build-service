@@ -266,18 +266,11 @@ class Project < ActiveXML::Base
   end
     
   def linking_projects
-    opt = Hash.new
-    opt[:project] = self.name
-    opt[:cmd] = "showlinked"
     fc = FrontendCompat.new
-    answer = fc.do_post nil, opt
-
+    answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
     doc = XML::Parser.string(answer).parse
     result = []
-    doc.find("/collection/project").each do |e|
-      result.push( e.attributes["name"] )
-    end
-
+    doc.find('/collection/project').each {|e| result << e.attributes['name']}
     return result
   end
 
