@@ -67,25 +67,15 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R lighttpd #{current_path}/tmp"
+    run "chown -R obsapirun #{current_path}/tmp"
   end
 end
 
 # server restarting
 namespace :deploy do
-  task :start do
-    run "sv start /service/frontend-*"
-    run "sv start /service/delayed_job_frontend"
-  end
-
   task :restart do
-    run "for i in /service/frontend-*; do sv restart $i; sleep 5; done"
+    run "touch #{current_path}/tmp/restart.txt"
     run "sv 1 /service/delayed_job_frontend"
-  end
-
-  task :stop do
-    run "sv stop /service/frontend-*"
-    run "sv stop /service/delayed_job_frontend"
   end
 
   task :use_subdir do
