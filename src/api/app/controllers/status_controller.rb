@@ -312,7 +312,7 @@ class StatusController < ApplicationController
 	hist.each_jobhist do |jh|
 	  next if jh.srcmd5 != srcmd5
 	  everbuilt = 1
-	  if jh.code == 'succeeded'
+	  if jh.code == 'succeeded' || jh.code == 'unchanged'
 	    buildcode='succeeded'
 	    eversucceeded = 1
 	    break
