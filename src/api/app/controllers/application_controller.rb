@@ -42,7 +42,7 @@ class ApplicationController < ActionController::Base
   before_filter :shutup_rails
   before_filter :set_current_user
 
-  #contains current authentification method, one of (:ichain, :basic)
+  #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
   
   hide_action :auth_method
@@ -113,34 +113,37 @@ class ApplicationController < ActionController::Base
   end
 
   def extract_user
-    if ICHAIN_MODE == :on || ICHAIN_MODE == :simulate # configured in the the environment file
-      @auth_method = :ichain
-      ichain_user = request.env['HTTP_X_USERNAME']
-      if ichain_user
-        logger.info "iChain user extracted from header: #{ichain_user}"
-      elsif ICHAIN_MODE == :simulate
-        ichain_user = ICHAIN_TEST_USER
-        logger.debug "iChain user extracted from config: #{ichain_user}"
+    mode = :basic
+    mode = ICHAIN_MODE if defined? ICHAIN_MODE
+    mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+    if mode == :on || mode == :simulate # configured in the the environment file
+      @auth_method = :proxy
+      proxy_user = request.env['HTTP_X_USERNAME']
+      if proxy_user
+        logger.info "iChain user extracted from header: #{proxy_user}"
+      elsif mode == :simulate
+        proxy_user = PROXY_AUTH_TEST_USER
+        logger.debug "iChain user extracted from config: #{proxy_user}"
       end
 
       # we're using iChain, there is no need to authenticate the user from the credentials
-      # However we have to care for the status of the user that must not be unconfirmed or ichain requested
-      if ichain_user
-        @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
-        @http_user.update_user_info_from_ichain_env(request.env) unless @http_user.nil?
+      # However we have to care for the status of the user that must not be unconfirmed or proxy requested
+      if proxy_user
+        @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', proxy_user ]
+        @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
 
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
         if @http_user == nil
-          @http_user = User.find :first, :conditions => ['login = ?', ichain_user ]
+          @http_user = User.find :first, :conditions => ['login = ?', proxy_user ]
           if @http_user == nil
             render_error :message => "Your user is not yet registered with iChain", :status => 403,
-              :errorcode => "unregistered_ichain_user",
+              :errorcode => "unregistered_proxy_user",
               :details => "Please register."
           else
             if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
-              render_error :message => "Your registed iChain user #{ichain_user} is not yet approved.", :status => 403,
-                :errorcode => "registered_ichain_but_unapproved",
+              render_error :message => "Your registed iChain user #{proxy_user} is not yet approved.", :status => 403,
+                :errorcode => "registered_proxy_but_unapproved",
                 :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
                 "<p>Please stay tuned until you get approval message.</p>"
             else

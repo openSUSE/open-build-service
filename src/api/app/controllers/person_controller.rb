@@ -156,7 +156,7 @@ class PersonController < ApplicationController
     end
     status = xml.elements["/unregisteredperson/state"].text if @http_user and @http_user.is_admin?
 
-    if auth_method == :ichain
+    if auth_method == :proxy
       if request.env['HTTP_X_USERNAME'].blank?
         render_error :message => "Missing iChain header", :errorcode => "err_register_save", :status => 400
         return

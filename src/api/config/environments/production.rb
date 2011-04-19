@@ -18,7 +18,7 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-ICHAIN_MODE = :off
+PROXY_AUTH_MODE = :off
 
 LDAP_MODE = :off
 # LDAP Servers separated by ':'.
