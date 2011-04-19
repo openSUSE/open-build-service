@@ -71,7 +71,7 @@ is correct here, since it automatically uses the local hostname.
 2.2.2 necessary changes on worker machine
 =========================================
 Install the package 'obs-worker' and edit the file /etc/sysconfig/obs-worker: 
-change the variable OBS_STORAGE_SERVER to main.fqdn:5252 
+change the variable OBS_REPO_SERVERS to main.fqdn:5252 
 where main.fqdn is the output of 'hostname -f' or IP on *main* machine.
 
 3. run the api
