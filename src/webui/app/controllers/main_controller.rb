@@ -41,7 +41,7 @@ class MainController < ApplicationController
       @latest_updates = Rails.cache.fetch(key, :expires_in => 5.minutes, :shared => true) do
         LatestUpdated.find( :limit => 6 )
       end
-      @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 10, :expires_in => 15.minutes)
+      @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
 
     rescue ActiveXML::Transport::UnauthorizedError => e
       @anonymous_forbidden = true
@@ -125,6 +125,7 @@ class MainController < ApplicationController
     begin
       message = Statusmessage.new(:message => params[:message], :severity => params[:severity].to_i)
       message.save
+      Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = 'Only admin users may post status messages'
     end
