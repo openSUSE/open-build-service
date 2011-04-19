@@ -41,14 +41,12 @@ class MainController < ApplicationController
       @latest_updates = Rails.cache.fetch(key, :expires_in => 5.minutes, :shared => true) do
         LatestUpdated.find( :limit => 6 )
       end
+      @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 10, :expires_in => 15.minutes)
 
     rescue ActiveXML::Transport::UnauthorizedError => e
       @anonymous_forbidden = true
       logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
     end
-
-    #TODO: Order by data, strip deleted messages
-    @news = Statusmessage.find(:limit => 10)
   end
   
   def sitemap
@@ -113,6 +111,24 @@ class MainController < ApplicationController
   def sitemap_packages
     load_packages(params[:category])
     render :template => 'main/sitemap_packages', :layout => false, :locals => { :action => params[:listaction] }
+  end
+
+  def add_news_dialog
+  end
+
+  def add_news
+    if params[:message].nil? or params[:severity].empty?
+      flash[:error] = "Please provide a message and severity"
+      redirect_to(:action => 'index') and return
+    end
+
+    begin
+      message = Statusmessage.new(:message => params[:message], :severity => params[:severity].to_i)
+      message.save
+    rescue ActiveXML::Transport::ForbiddenError
+      flash[:error] = 'Only admin users may post status messages'
+    end
+    redirect_to(:action => 'index')
   end
 
   def require_available_architectures

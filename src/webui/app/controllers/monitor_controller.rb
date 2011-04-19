@@ -45,29 +45,6 @@ class MonitorController < ApplicationController
     end
   end
 
-  #TODO: REmove those two actions
-  def save_message
-    message = Statusmessage.new(
-      :message => params[:message],
-      :severity => params[:severity].to_i
-    )
-    begin
-      message.save
-    rescue ActiveXML::Transport::ForbiddenError
-      @denied = true
-    end
-    @status_messages = get_status_messages
-  end
-  def delete_message
-    message = Statusmessage.find( :id => params[:id] )
-    begin
-      message.delete
-    rescue ActiveXML::Transport::ForbiddenError
-      @denied = true
-    end
-    @status_messages = get_status_messages
-  end
-
   def filtered_list
     get_settings
     @workerstatus = Workerstatus.find :all
