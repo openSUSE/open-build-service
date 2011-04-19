@@ -1,7 +1,6 @@
 <% if (@news and @news.count.to_i > 0) or (@user and @user.is_admin?) %>
   <div class="box box-shadow">
     <div class="box-header aligncenter">News</div>
-    <div class="clear"></div>
 
     <% if @news.count.to_i > 0 %>
       <table style="width: 95%">
