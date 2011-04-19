@@ -43,6 +43,7 @@
     </p>
 
     <% if @anonymous_forbidden.nil? %>
+      <br/>
       <ul id="proceed_list">
         <% if @user and @user.is_admin? %>
             <% if not Project.find "openSUSE.org" %>
