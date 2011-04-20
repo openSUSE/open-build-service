@@ -71,6 +71,7 @@ class Person < ActiveXML::Base
   end
 
   def free_cache
+    Rails.cache.delete("person_#{login}")
     Collection.free_cache :id, :what => 'project', :predicate => %(person/@userid='#{login}')
     Collection.free_cache :id, :what => 'package', :predicate => %(person/@userid='#{login}')
   end
