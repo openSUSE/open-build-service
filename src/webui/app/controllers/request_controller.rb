@@ -12,7 +12,7 @@ class RequestController < ApplicationController
         when "user" then opts[:user] = params[:review_user]
         when "group" then opts[:group] = params[:review_group]
         when "project" then opts[:project] = params[:review_project]
-        when "package" then opts[:project] = params[:review_package]
+        when "package" then opts[:project] = params[:review_project]
                             opts[:package] = params[:review_package]
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
