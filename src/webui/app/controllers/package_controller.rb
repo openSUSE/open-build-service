@@ -179,7 +179,7 @@ class PackageController < ApplicationController
       pending_requests.each do |request|
         next if request.data[:id] == req.data[:id] # ignore newly created request
         begin
-          BsRequest.modify(request.data[:id], "superseded", "Superseded by request #{req.data[:id]}", req.data[:id])
+          BsRequest.modify(request.data[:id], "superseded", :reason => "Superseded by request #{req.data[:id]}", :superseded_by => req.data[:id])
         rescue BsRequest::ModifyError => e
           flash[:error] = e.message
           redirect_to(:action => "list_requests", :project => params[:project], :package => params[:package]) and return
