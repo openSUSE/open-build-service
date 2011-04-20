@@ -69,7 +69,6 @@ class BsRequest < ActiveXML::Base
     end
 
     def modifyReview(id, changestate, opts)
-      opts = {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
       unless (changestate=="accepted" || changestate=="declined")
         raise ModifyError, "unknown changestate #{changestate}"
       end
