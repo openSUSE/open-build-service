@@ -38,7 +38,7 @@ FRONTEND_PROTOCOL = 'https'
 # PROXY_AUTH_MODE can be one of  'on', 'off' or 'simulate'
 PROXY_AUTH_MODE = :off
 #PROXY_AUTH_HOST = "https://build.opensuse.org"
-#PROXY_AUTH_REGISTER_PAGE = "https://en.opensuse.org/ICSLogin"
+#PROXY_AUTH_REGISTER_PAGE = "https://en.opensuse.org/ICSLogin/?%22http://en.opensuse.org/index.php%22"
 #PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
 #PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
 #EXTERNAL_WEBUI_PROTOCOL = "https"

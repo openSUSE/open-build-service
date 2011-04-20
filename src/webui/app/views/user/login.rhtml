@@ -30,7 +30,7 @@
   <p>
     Or
     <% if PROXY_AUTH_MODE == :on %>
-      <%= link_to "register", PROXY_AUTH_LOGIN_PAGE + "?%22#{@return_to_host}#{@return_to_path}%22" %>
+      <%= link_to "register", PROXY_AUTH_REGISTER_PAGE + "?%22#{@return_to_host}#{@return_to_path}%22" %>
     <% else %>
       <%= link_to "register", :controller => :user, :action => :register_user %>
     <% end %>
