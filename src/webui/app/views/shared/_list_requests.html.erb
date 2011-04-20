@@ -29,7 +29,7 @@
         ae = req.action if req.has_element? :action %>
         <tr>
           <% if req.has_element? :state %>
-            <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when.tr('T:',' ')).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
+            <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
           <% end %>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
