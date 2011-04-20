@@ -19,18 +19,19 @@ class RequestController < ApplicationController
       outer_and = []
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:action_types].blank? and params[:reviewstates].blank?
+      if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank?
        render_error :status => 404, :errorcode => 'require_filter',
-         :message => "This call requires at least one filter, either by user, project or package or state or action_type or reviewstate"
+         :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
        return
       end
 
       # convert comma seperated values into arrays
       roles = []
       states = []
-      action_types = []
+      types = []
       review_states = [ "new" ]
       roles = params[:roles].split(',') if params[:roles]
+      types = params[:types].split(',') if params[:types]
       states = params[:states].split(',') if params[:states]
       review_states = params[:reviewstates].split(',') if params[:reviewstates]
 
@@ -47,9 +48,9 @@ class RequestController < ApplicationController
       # Filter by request type (submit, delete, ...)
       #FIXME/FIXME2.3: This should be params[:type] instead but for whatever reason, all
       # webui controllers already set params[:type] to 'request' (always).
-      if action_types.count > 0
+      if types.count > 0
         inner_or = []
-        action_types.each do |t|
+        types.each do |t|
           inner_or << "action/@type='#{t}'"
         end
         str = "(" + inner_or.join(" or ") + ")"

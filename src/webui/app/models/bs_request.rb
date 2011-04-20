@@ -139,7 +139,7 @@ class BsRequest < ActiveXML::Base
       path << "&states=#{CGI.escape(opts[:states])}" if opts[:states]
       path << "&roles=#{CGI.escape(opts[:roles])}" if opts[:roles]
       path << "&reviewstates=#{CGI.escape(opts[:reviewstates])}" if opts[:reviewstates]
-      path << "&action_types=#{CGI.escape(opts[:types])}" if opts[:types] # the API want's to have it that way, sigh...
+      path << "&types=#{CGI.escape(opts[:types])}" if opts[:types] # the API want's to have it that way, sigh...
       path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
       path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
