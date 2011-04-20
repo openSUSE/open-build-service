@@ -132,7 +132,7 @@ class BsRequest < ActiveXML::Base
         raise RuntimeError, "missing parameters"
       end
 
-      opts.delete(:type) if opts[:type] == 'all' # All types means don't pass 'type' to backend
+      opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request?view=collection"
