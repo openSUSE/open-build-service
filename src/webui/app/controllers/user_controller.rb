@@ -10,8 +10,8 @@ class UserController < ApplicationController
     reset_session
     @user = nil
     @return_to_path = "/"
-    if ICHAIN_MODE == 'on'
-      redirect_to '/cmd/ICSLogout'
+    if PROXY_AUTH_MODE == :on
+      redirect_to PROXY_AUTH_LOGOUT_PAGE
     else
       redirect_to '/'
     end

@@ -26,8 +26,10 @@ FRONTEND_HOST = "localhost"
 FRONTEND_PORT = 3203
 FRONTEND_PROTOCOL = 'http'
 
-ICHAIN_HOST = "https://build.opensuse.org"
-ICHAIN_MODE = "off"
+PROXY_AUTH_HOST = "https://build.opensuse.org"
+PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
+PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
+PROXY_AUTH_MODE = :off
 
 config.gem 'webrat', :version => ">=0.4.3"
 

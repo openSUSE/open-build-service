@@ -26,10 +26,14 @@ config.action_controller.session = {
 # config.action_mailer.raise_delivery_errors = false
 
 FRONTEND_HOST = "api.opensuse.org"
-EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
+EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
+EXTERNAL_FRONTEND_PORT = 443
+EXTERNAL_FRONTEND_PROTOCOL = 'https'
 
-# ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_MODE = "on"
-ICHAIN_HOST = "https://build.opensuse.org"
+# PROXY_AUTH_MODE can be one of  'on', 'off' or 'simulate'
+PROXY_AUTH_MODE = :on
+PROXY_AUTH_HOST = "https://build.opensuse.org"
+PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
+PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"

@@ -46,9 +46,15 @@ class ApplicationController < ActionController::Base
   protected
 
   def set_return_to
-    # we cannot get the original protocol when behind lighttpd/apache
-    @return_to_host = params['return_to_host'] || "https://" + request.host
-    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI'].gsub(/&/, '&amp;')
+    if params['return_to_host']
+      @return_to_host = params['return_to_host']
+    else
+      # we have a proxy in front of us
+      @return_to_host = Object.const_defined?(:EXTERNAL_WEBUI_PROTOCOL) ? EXTERNAL_WEBUI_PROTOCOL : "http"
+      @return_to_host += "://"
+      @return_to_host += Object.const_defined?(:EXTERNAL_WEBUI_HOST) ? EXTERNAL_WEBUI_HOST : request.host
+    end
+    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI'].gsub(/.*:\/\/[^\/]*\//, '/').gsub(/&/, '&amp;')
     logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
@@ -62,7 +68,10 @@ class ApplicationController < ActionController::Base
     if !session[:login]
       render :text => 'Please login' and return if request.xhr?
       flash[:error] = "Please login to access the requested page."
-      if (ICHAIN_MODE == 'off')
+      mode = :off
+      mode = ICHAIN_MODE if defined? ICHAIN_MODE
+      mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
+      if (mode == :off)
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
       else
         redirect_to :controller => :main, :return_to_host => @return_to_host, :return_to_path => @return_to_path
@@ -72,8 +81,11 @@ class ApplicationController < ActionController::Base
 
   # sets session[:login] if the user is authenticated
   def authenticate
-    logger.debug "Authenticating with iChain mode: #{ICHAIN_MODE}"
-    if ICHAIN_MODE == 'on' || ICHAIN_MODE == 'simulate'
+    mode = :off
+    mode = ICHAIN_MODE if defined? ICHAIN_MODE
+    mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
+    logger.debug "Authenticating with iChain mode: #{mode}"
+    if mode == :on || mode == :simulate
       authenticate_ichain
     else
       authenticate_form_auth
@@ -86,10 +98,13 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_ichain
+    mode = :off
+    mode = ICHAIN_MODE if defined? ICHAIN_MODE
+    mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
     ichain_user = request.env['HTTP_X_USERNAME']
-    ichain_user = ICHAIN_TEST_USER if ICHAIN_MODE == 'simulate' and ICHAIN_TEST_USER
+    ichain_user = ICHAIN_TEST_USER if mode == :simulate and ICHAIN_TEST_USER
     ichain_email = request.env['HTTP_X_EMAIL']
-    ichain_email = ICHAIN_TEST_EMAIL if ICHAIN_MODE == 'simulate' and ICHAIN_TEST_EMAIL
+    ichain_email = ICHAIN_TEST_EMAIL if mode == :simulate and ICHAIN_TEST_EMAIL
     if ichain_user
       session[:login] = ichain_user
       session[:email] = ichain_email

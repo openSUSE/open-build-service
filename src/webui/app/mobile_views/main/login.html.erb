@@ -3,9 +3,9 @@
 
 <% @return_to_path ='' %>
 
-<% if ICHAIN_MODE == 'on' %>
+<% if PROXY_AUTH_MODE == :on %>
   <div>
-    <form action="/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+    <form action="<%= PROXY_AUTH_MODE %>/auth-up" method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
       <% relative_root = '' %>
       <% relative_root = ActionController::Base.relative_url_root unless @return_to_path =~ /^#{ActionController::Base.relative_url_root}/ %>
       <input name="url" size="20" value="<%= "#{@return_to_host}#{relative_root}#{@return_to_path}" %>" type="hidden" />

@@ -9,11 +9,11 @@
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
     <%= link_to 'Log Out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
   <% else %>
-    <% if ICHAIN_MODE == 'on' %>
-      <%= link_to "Register", ICHAIN_HOST + "/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22" %> |
+    <% if PROXY_AUTH_MODE == :on %>
+      <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
-        <form action="<%= ICHAIN_HOST + "/ICSLogin/auth-up" %>"
+        <form action="<%= "#{PROXY_AUTH_HOST}/auth-up" %>"
           method="post" enctype="application/x-www-form-urlencoded" id="login_form">
           <div class="hidden">
             <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />

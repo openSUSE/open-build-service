@@ -22,19 +22,26 @@ FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
+#EXTERNAL_FRONTEND_PROTOCOL = "https"
 #EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
+#EXTERNAL_FRONTEND_PORT = 443
 
-# If ICHAIN_HOST is set to "simulate", iChain is simulated in the
+# If PROXY_AUTH_MODE is set to "simulate", iChain is simulated in the
 # way that the ichain header entry is set to the value specified
-# in the ICHAIN_TEST_USER variable here below.
+# in the PROXY_AUTH_TEST_USER variable here below.
 # ATTENTION: If you set an IP address here the frontend takes the
 # user name that is coming as headervalue X-username as a valid
 # user and does not further authentication. So take care...
-# ATTENTION 2: The ICHAIN_* entries must correspond with the entries
+# ATTENTION 2: The PROXY_AUTH_* entries must correspond with the entries
 # in the frontend otherwise funny things happen.
 
-# ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_HOST = "https://build.opensuse.org"
-ICHAIN_MODE = "off"
-#ICHAIN_TEST_USER = "adrianSuSE"
-#ICHAIN_TEST_EMAIL = "foo@bar.com
+# PROXY_AUTH_MODE can be one of  'on', 'off' or 'simulate'
+PROXY_AUTH_MODE = :off
+#PROXY_AUTH_HOST = "https://build.opensuse.org"
+#PROXY_AUTH_REGISTER_PAGE = "https://en.opensuse.org/ICSLogin"
+#PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
+#PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
+#EXTERNAL_WEBUI_PROTOCOL = "https"
+#EXTERNAL_WEBUI_HOST = "build.opensuse.org"
+#PROXY_AUTH_TEST_USER = "adrianSuSE"
+#PROXY_AUTH_TEST_EMAIL = "foo@bar.com"
