@@ -331,7 +331,13 @@ class StatusController < ApplicationController
           end
 	  packages = Hash.new
 	  trepo.each do |p, r|
-	    packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
+            begin
+	      packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
+            rescue ActiveXML::Transport::Error => e
+              message, code, api_exception = ActiveXML::Transport.extract_error_message e
+              render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{message}</status>\n"
+              return
+            end
 	  end
 
 	  buildinfo.each_bdep do |b|
