@@ -1348,7 +1348,7 @@ class ProjectController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:state => 'new', :project => @project.name})
+    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name}) + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name})
   end
 
 end

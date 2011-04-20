@@ -136,10 +136,10 @@ class BsRequest < ActiveXML::Base
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request?view=collection"
-      path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
-      path << "&reviewuser=#{CGI.escape(opts[:reviewuser])}" if opts[:reviewuser]
-      path << "&reviewstate=#{CGI.escape(opts[:reviewstate])}" if opts[:reviewstate]
-      path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
+      path << "&states=#{CGI.escape(opts[:states])}" if opts[:states]
+      path << "&roles=#{CGI.escape(opts[:roles])}" if opts[:roles]
+      path << "&reviewstates=#{CGI.escape(opts[:reviewstates])}" if opts[:reviewstates]
+      path << "&action_types=#{CGI.escape(opts[:types])}" if opts[:types] # the API want's to have it that way, sigh...
       path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
       path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
