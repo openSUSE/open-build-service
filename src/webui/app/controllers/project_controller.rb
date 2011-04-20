@@ -24,7 +24,8 @@ class ProjectController < ApplicationController
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
-  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, :edit_repository]
+  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
+                                                            :edit_repository, :update_target]
 
   def index
     redirect_to :action => 'list_public'
@@ -326,9 +327,14 @@ class ProjectController < ApplicationController
     redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
-    @repository_arch_list = (@available_architectures.each.map{|arch| arch.name} + repository_arch_list()[repo.name]).uniq
+    
     # Prepare a list of recommended architectures
     @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended}
+
+    @repository_arch_hash = Hash.new
+    @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
+    repository_arch_list()[repo.name].each {|arch| @repository_arch_hash[arch] = true }
+
     render(:partial => 'edit_repository', :locals => {:repository => repo, :error => nil})
   end
 
@@ -338,9 +344,9 @@ class ProjectController < ApplicationController
     repo.archs = params[:arch].to_a
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
-    @repository_arch_list = (@available_architectures.each.map{|arch| arch.name} + repository_arch_list()[repo.name]).uniq
-    # Prepare a list of recommended architectures
-    @recommended_arch_list = @avail_status_values.each.map{|arch| arch.name if arch.recommended}
+    @repository_arch_hash = Hash.new
+    @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
+    repository_arch_list()[repo.name].each {|arch| @repository_arch_hash[arch] = true }
     begin
       @project.save
       render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }

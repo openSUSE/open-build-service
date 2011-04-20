@@ -8,8 +8,8 @@
   <% form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
     <p>
       <strong>Architectures: </strong>
-      <% @repository_arch_list.each do |arch| %>
-        <%= check_box_tag "arch[#{arch}]", "", @recommended_arch_list.include?(arch) %><%= arch %>
+      <% @repository_arch_hash.each do |arch, value| %>
+        <%= check_box_tag "arch[#{arch}]", "", value %><%= arch %>
         <%= observe_field "arch_#{arch}", :function => "document.getElementById('save_button').disabled = false" %>
       <% end %>
       <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>
