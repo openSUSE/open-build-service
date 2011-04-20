@@ -392,14 +392,14 @@ class RequestControllerTest < ActionController::IntegrationTest
 if $ENABLE_BROKEN_TEST
    #FIXME2.2 there is no code in this test creating request from HiddenProject
     # collection of user involved requests
-    get "/request?view=collection&user=Iggy&state=pending"
+    get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
 end
 
     # collection for given package
-    get "/request?view=collection&project=kde4&package=wpa_supplicant&state=pending"
+    get "/request?view=collection&project=kde4&package=wpa_supplicant&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
@@ -407,7 +407,7 @@ end
     assert_tag( :tag => "request", :attributes => { :id => id} )
 
     # collection for given project
-    get "/request?view=collection&project=kde4&state=pending"
+    get "/request?view=collection&project=kde4&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
@@ -418,7 +418,7 @@ if $ENABLE_BROKEN_TEST
 # this is working for involved search now, but not for other requests like add_role with a target.
     # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable
     prepare_request_with_user "tom", "thunder"
-    get "/request?view=collection&user=adrian&state=pending"
+    get "/request?view=collection&user=adrian&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_no_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
@@ -606,11 +606,11 @@ end
     id_by_package = node.data['id']
 
     # find requests which are not in review
-    get "/request?view=collection&user=Iggy&state=new"
+    get "/request?view=collection&user=Iggy&states=new"
     assert_response :success
     assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     # find reviews
-    get "/request?view=collection&reviewuser=Iggy&state=review&reviewstate=new"
+    get "/request?view=collection&user=Iggy&states=review&reviewstates=new&roles=reviewer"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
@@ -1185,17 +1185,17 @@ end
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
-    get "/request?view=collection&user=Iggy&state=pending"
+    get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
-    get "/request?view=collection&project=c%2b%2b&state=pending"
+    get "/request?view=collection&project=c%2b%2b&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
-    get "/request?view=collection&project=c%2b%2b&package=TestPack&state=pending"
+    get "/request?view=collection&project=c%2b%2b&package=TestPack&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )

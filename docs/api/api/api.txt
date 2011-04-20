@@ -638,7 +638,9 @@ Parameters:
         the user is maintainer and also open review requests
   project: limit to result to defined target project or review requests
   package: limit to result to defined target package or review requests
-  state: filter for given request state
+  states: filter for given request state, multiple matches can be added as comma seperated list (eg states=new,review)
+  action_types: filter for given action types (comma seperated)
+  roles: filter for given roles (creator, maintainer, reviewer, source or target)
 
 XmlResult: collection
 

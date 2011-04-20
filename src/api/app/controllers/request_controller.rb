@@ -16,97 +16,135 @@ class RequestController < ApplicationController
 
     if params[:view] == "collection"
       #FIXME: Move this code into a model so that it can be reused in other controllers
-      predicates = []
+      outer_and = []
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank? and params[:state].blank? and params[:action_type].blank? and params[:reviewstate].blank?
+      if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:action_types].blank? and params[:reviewstates].blank?
        render_error :status => 404, :errorcode => 'require_filter',
          :message => "This call requires at least one filter, either by user, project or package or state or action_type or reviewstate"
        return
       end
 
-      review_state = "new"
-      review_state = params[:reviewstate] if params[:reviewstate]
+      # convert comma seperated values into arrays
+      roles = []
+      states = []
+      action_types = []
+      review_states = [ "new" ]
+      roles = params[:roles].split(',') if params[:roles]
+      states = params[:states].split(',') if params[:states]
+      review_states = params[:reviewstates].split(',') if params[:reviewstates]
 
-      # pending requests are new or in review requests
-      if params[:state] == "pending"
-        predicates << "(state/@name='new' or state/@name='review')"
-      elsif params[:state]
-        predicates << "state/@name='#{params[:state]}'"
+      # filter for request state(s)
+      if states.count > 0
+        inner_or = []
+        states.each do |s|
+          inner_or << "state/@name='#{s}'"
+        end
+        str = "(" + inner_or.join(" or ") + ")"
+        outer_and << str
       end
 
       # Filter by request type (submit, delete, ...)
       #FIXME/FIXME2.3: This should be params[:type] instead but for whatever reason, all
       # webui controllers already set params[:type] to 'request' (always).
-      predicates << "action/@type='#{params[:action_type]}'" if params[:action_type]
+      if action_types.count > 0
+        inner_or = []
+        action_types.each do |t|
+          inner_or << "action/@type='#{t}'"
+        end
+        str = "(" + inner_or.join(" or ") + ")"
+        outer_and << str
+      end
 
       unless params[:project].blank?
+        inner_or = []
         if params[:package].blank?
-          str = "action/target/@project='#{params[:project]}'"
-          if params[:state] == "pending" or params[:state] == "review"
-            str += " or (review[@state='#{review_state}' and @by_project='#{params[:project]}'] and state/@name='review')"
+          inner_or << "action/source/@project='#{params[:project]}'" if roles.count == 0 or roles.include? "source"
+          inner_or << "action/target/@project='#{params[:project]}'" if roles.count == 0 or roles.include? "target"
+          if roles.count == 0 or roles.include? "reviewer"
+            if states.count == 0 or states.include? "review"
+              review_states.each do |r|
+                inner_or << "(review[@state='#{r}' and @by_project='#{params[:project]}'])"
+              end
+            end
           end
         else
-          str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
-          if params[:state] == "pending" or params[:state] == "review"
-            str += " or (review[@state='#{review_state}' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'] and state/@name='review')"
+          inner_or << "action/source/@project='#{params[:project]}' and action/source/@package='#{params[:package]}'" if roles.count == 0 or roles.include? "source"
+          inner_or << "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'" if roles.count == 0 or roles.include? "target"
+          if roles.count == 0 or roles.include? "reviewer"
+            if states.count == 0 or states.include? "review"
+              review_states.each do |r|
+                inner_or << "(review[@state='#{r}' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'])"
+              end
+            end
           end
         end
-        predicates << str
+
+        if inner_or.count > 0
+          str = "(" + inner_or.join(" or ") + ")"
+          outer_and << str
+        end
       end
 
-      inner_or = []
       if params[:user]
+        inner_or = []
         user = User.get_by_login(params[:user])
         # user's own submitted requests
-        inner_or << "state/@who='#{user.login}'"
-        inner_or << "history[@who='#{user.login}' and position()=1]"
-        # find requests where user is maintainer in target project
-        maintained_projects = Array.new
-        maintained_projects_hash = Hash.new
-        user.involved_projects.each do |ip|
-          inner_or << ["action/target/@project='#{ip.name}'"]
-          maintained_projects_hash[ip.id] = true
-        end
-
-        ## find request where user is maintainer in target package, except we have to project already
-        maintained_packages = Array.new
-        user.involved_packages.each do |ip|
-          unless maintained_projects_hash.has_key?(ip.db_project_id)
-            inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
-          end
-        end
-      end
-
-      if params[:reviewuser]
-        user = User.get_by_login(params[:reviewuser])
-        # requests where the user is reviewer or own requests that are in review by someone else
-        inner_or << "review[@by_user='#{user.login}' and @state='#{review_state}']"
-        # include all groups of user
-        user.groups.each do |g|
-          inner_or << "review[@by_group='#{g.title}' and @state='#{review_state}']"
+        if roles.count == 0 or roles.include? "creator"
+          inner_or << "state/@who='#{user.login}'"
+          inner_or << "history[@who='#{user.login}' and position()=1]"
         end
 
         # find requests where user is maintainer in target project
-        maintained_projects = Array.new
-        maintained_projects_hash = Hash.new
-        user.involved_projects.each do |ip|
-          inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.name}'] and state/@name='review')"]
-          maintained_projects_hash[ip.id] = true
-        end
+        if roles.count == 0 or roles.include? "maintainer"
+          maintained_projects = Array.new
+          maintained_projects_hash = Hash.new
+          user.involved_projects.each do |ip|
+            inner_or << ["action/target/@project='#{ip.name}'"]
+            maintained_projects_hash[ip.id] = true
+          end
 
-        ## find request where user is maintainer in target package, except we have to project already
-        maintained_packages = Array.new
-        user.involved_packages.each do |ip|
-          unless maintained_projects_hash.has_key?(ip.db_project_id)
-            inner_or << ["(review[@state='#{review_state}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+          ## find request where user is maintainer in target package, except we have to project already
+          maintained_packages = Array.new
+          user.involved_packages.each do |ip|
+            unless maintained_projects_hash.has_key?(ip.db_project_id)
+              inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+            end
           end
         end
-      end
 
-      unless inner_or.empty?
-        str = "(" + inner_or.join(" or ") + ")"
-        predicates << str
+        if roles.count == 0 or roles.include? "reviewer"
+          # FIXME2.3: do we really want to support to search for all reviews indepdend of the state ?
+          review_states.each do |r|
+            # requests where the user is reviewer or own requests that are in review by someone else
+            inner_or << "review[@by_user='#{user.login}' and @state='#{r}']"
+            # include all groups of user
+            user.groups.each do |g|
+              inner_or << "review[@by_group='#{g.title}' and @state='#{r}']"
+            end
+
+            # find requests where user is maintainer in target project
+            maintained_projects = Array.new
+            maintained_projects_hash = Hash.new
+            user.involved_projects.each do |ip|
+              inner_or << ["(review[@state='#{r}' and @by_project='#{ip.name}'] and state/@name='review')"]
+              maintained_projects_hash[ip.id] = true
+            end
+
+            ## find request where user is maintainer in target package, except we have to project already
+            maintained_packages = Array.new
+            user.involved_packages.each do |ip|
+              unless maintained_projects_hash.has_key?(ip.db_project_id)
+                inner_or << ["(review[@state='#{r}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+              end
+            end
+          end
+        end
+
+        unless inner_or.empty?
+          str = "(" + inner_or.join(" or ") + ")"
+          outer_and << str
+        end
       end
 
       # Pagination: Discard 'offset' most recent requests (useful with 'count')
@@ -118,9 +156,9 @@ class RequestController < ApplicationController
         # TODO: Backend XPath engine needs better range support
       end
 
-      pr = predicates.join(" and ")
+      match = outer_and.join(" and ")
       logger.debug "running backend query at #{Time.now}"
-      c = Suse::Backend.post("/search/request?match=" + CGI.escape(pr), nil)
+      c = Suse::Backend.post("/search/request?match=" + CGI.escape(match), nil)
       render :text => c.body, :content_type => "text/xml"
     else
       # directory list of all requests. not very usefull but for backward compatibility...
