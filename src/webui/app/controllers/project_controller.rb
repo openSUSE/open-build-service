@@ -922,7 +922,6 @@ class ProjectController < ApplicationController
       @user.add_watched_project @project.name
     end
     @user.save
-    Person.free_cache( :login => session[:login] )
 
     if request.env["HTTP_REFERER"]
       redirect_to :back

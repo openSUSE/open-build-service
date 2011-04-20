@@ -296,7 +296,8 @@ class ApplicationController < ActionController::Base
 
   def check_user
     return unless session[:login]
-    @user ||= Rails.cache.fetch("person_#{session[:login]}") do 
+    Rails.cache.delete("person_#{session[:login]}") if discard_cache?
+    @user ||= Rails.cache.fetch("person_#{session[:login]}", :expires_in => 10.minutes) do 
        Person.find( session[:login] )
     end
     if @user
