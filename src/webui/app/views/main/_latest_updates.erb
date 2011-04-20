@@ -14,7 +14,7 @@
               <% project, package = update.name, nil %>
             <% end %>
 
-            <%= link_to(elide(update.name, 22), :controller => 'project', :action => 'show', :project => project, :package => package) %>
+            <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => project, :package => package) %>
           </td>
           <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(update.updated) %></td>
         </tr>
