@@ -1,7 +1,7 @@
 <% @pagetitle = "Please Login" %>
 
 <% if PROXY_AUTH_MODE == :on %>
-  <form action="<%= PROXY_AUTH_LOGIN_PAGE + "/auth-up" %>"
+  <form action="<%= PROXY_AUTH_LOGIN_PAGE %>"
         method="post" enctype="application/x-www-form-urlencoded">
     <div>
       <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />

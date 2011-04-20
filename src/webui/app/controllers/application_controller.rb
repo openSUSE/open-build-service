@@ -70,7 +70,7 @@ class ApplicationController < ActionController::Base
       flash[:error] = "Please login to access the requested page."
       mode = :off
       mode = ICHAIN_MODE if defined? ICHAIN_MODE
-      mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
+      mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
       if (mode == :off)
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
       else
@@ -83,7 +83,7 @@ class ApplicationController < ActionController::Base
   def authenticate
     mode = :off
     mode = ICHAIN_MODE if defined? ICHAIN_MODE
-    mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
+    mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
     logger.debug "Authenticating with iChain mode: #{mode}"
     if mode == :on || mode == :simulate
       authenticate_ichain

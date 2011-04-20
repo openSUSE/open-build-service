@@ -13,7 +13,7 @@
       <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
-        <form action="<%= "#{PROXY_AUTH_HOST}/auth-up" %>"
+        <form action="<%= "#{PROXY_AUTH_LOGIN_PAGE}" %>"
           method="post" enctype="application/x-www-form-urlencoded" id="login_form">
           <div class="hidden">
             <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
