@@ -356,8 +356,12 @@ class SourceController < ApplicationController
         data = ActiveXML::XMLNode.new(r.body.to_s)
         lastrev = nil
         data.each_revision {|rev| lastrev = rev}
-        srcmd5 = lastrev.value("srcmd5")
-        metapath = "/source/#{CGI.escape(target_project_name)}/#{target_package_name}/_meta?rev=#{srcmd5}"
+        metapath = "/source/#{CGI.escape(target_project_name)}/#{target_package_name}/_meta"
+        if lastrev
+          srcmd5 = lastrev.value('srcmd5')
+          metapath += "?rev=#{srcmd5}" # only add revision if package has some
+        end
+
         r = Suse::Backend.get(metapath)
         raise DbPackage::UnknownObjectError, "#{target_project_name}/#{target_package_name}" unless r
         dpkg = Package.new(r.body)
