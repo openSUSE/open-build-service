@@ -10,8 +10,8 @@
         data: {
           project: $('#targetproject')[0].value,
           package: $('#package')[0].value,
-          type: "submit",
-          state: "pending",
+          types: "submit",
+          states: "new,review",
         },
         success: function(data) {
           if (data.indexOf('No requests') == -1) {
