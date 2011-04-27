@@ -126,43 +126,37 @@ class ApplicationController < ActionController::Base
         logger.debug "iChain user extracted from config: #{proxy_user}"
       end
 
-      # we're using iChain, there is no need to authenticate the user from the credentials
+      # we're using a login proxy, there is no need to authenticate the user from the credentials
       # However we have to care for the status of the user that must not be unconfirmed or proxy requested
       if proxy_user
-        @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', proxy_user ]
-        @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
+        @http_user = User.find_by_login proxy_user
 
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
-        if @http_user == nil
-          @http_user = User.find :first, :conditions => ['login = ?', proxy_user ]
-          if @http_user == nil
-            render_error :message => "Your user is not yet registered with iChain", :status => 403,
-              :errorcode => "unregistered_proxy_user",
-              :details => "Please register."
-          else
-            if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
-              render_error :message => "Your registed iChain user #{proxy_user} is not yet approved.", :status => 403,
-                :errorcode => "registered_proxy_but_unapproved",
-                :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
-                "<p>Please stay tuned until you get approval message.</p>"
-            else
-              render_error :message => "Your user is either invalid or net yet confirmed (state #{@http_user.state}).",
-                :status => 403,
-                :errorcode => "unconfirmed_user",
-                :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
-            end
-          end
-          return false
+        unless @http_user
+          status = "confirmed"
+          status = "unconfirmed" if CONFIG['new_user_registration'] == "confirmation"
+          # Generate and store a fake pw in the OBS DB that no-one knows
+          # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
+          chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
+          fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
+          @http_user = User.create(
+            :login => proxy_user,
+            :password => fakepw,
+            :password_confirmation => fakepw,
+            :status => status)
         end
+
+        # update user data from login proxy headers
+        @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
       else
         if CONFIG['allow_anonymous']
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return true
         end
-        logger.error "No X-username header from iChain! Are we really using iChain?"
-        render_error( :message => "No iChain user found!", :status => 401 ) and return false
+        logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
+        render_error( :message => "No user header found found!", :status => 401 ) and return false
       end
     else
       #active_rbac is used for authentication

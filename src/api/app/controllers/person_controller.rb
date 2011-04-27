@@ -124,6 +124,10 @@ class PersonController < ApplicationController
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
+    if (defined?( PROXY_AUTH_MODE ) && PROXY_AUTH_MODE == :on) or defined?( ICHAIN_MODE )
+      render_error :message => "Proxy authentification mode, manual registration is disabled", :errorcode => "err_register_save", :status => 400
+      return
+    end
 
     xml = REXML::Document.new( request.raw_post )
     
