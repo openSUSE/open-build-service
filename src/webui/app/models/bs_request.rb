@@ -15,13 +15,13 @@ class BsRequest < ActiveXML::Base
       case opt[:type]
         when "submit" then
           # set target package is the same as the source package if no target package is specified
-          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
-          revision_option = "rev=\"#{opt[:rev].to_xs}\"" if opt[:rev] and not opt[:rev].empty?
+          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.blank?
+          revision_option = "rev=\"#{opt[:rev].to_xs}\"" unless opt[:rev].blank?
           option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
-          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" unless opt[:sourceupdate].blank?
         when "add_role" then
-          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt[:group] and not opt[:group].empty?
-          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt[:person] and not opt[:person].empty?
+          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
+          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
         when "set_bugowner" then
           option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
         when "change_devel" then

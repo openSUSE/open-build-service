@@ -122,8 +122,8 @@ class PackageController < ApplicationController
 
   def files
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
-    @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
+    @revision = params[:rev]
     @current_rev = Package.current_rev(@project, @package.name)
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
@@ -270,6 +270,7 @@ class PackageController < ApplicationController
     if params[:commit]
       @rev = params[:commit]
     else
+      @rev = Package.current_rev(@project, @package.name)
       required_parameters :opackage, :oproject
       @opackage = params[:opackage]
       @oproject = params[:oproject]
