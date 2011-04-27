@@ -134,8 +134,8 @@ class ApplicationController < ActionController::Base
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
         unless @http_user
-          status = "confirmed"
-          status = "unconfirmed" if CONFIG['new_user_registration'] == "confirmation"
+          state = User.states['confirmed']
+          state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
           # Generate and store a fake pw in the OBS DB that no-one knows
           # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
           chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
@@ -144,7 +144,7 @@ class ApplicationController < ActionController::Base
             :login => proxy_user,
             :password => fakepw,
             :password_confirmation => fakepw,
-            :status => status)
+            :state => state)
         end
 
         # update user data from login proxy headers
