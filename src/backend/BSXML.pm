@@ -391,6 +391,7 @@ our $sourceinfo = [
     'sourceinfo' =>
 	'package',
 	'rev',
+	'vrev',
 	'srcmd5',
 	'verifymd5',
 	[],
@@ -1232,7 +1233,39 @@ our $updateinfoitem = [
 ];
 
 our $updateinfo = [
-    'updates' => [ $updateinfoitem ],
+    'updates' =>
+      [ $updateinfoitem ],
+];
+
+our $deltapackage = [
+    'newpackage' =>
+	'name',
+	'epoch',
+	'version',
+	'release',
+	'arch',
+     [[ 'delta' =>
+	    'oldepoch',
+	    'oldversion',
+	    'oldrelease',
+	    'filename',
+	    'sequence',
+	    'size',
+	  [ 'checksum' =>
+		'type',
+		'_content',
+	  ],
+     ]],
+];
+
+our $deltainfo = [
+    'deltainfo' =>
+      [ $deltapackage ],
+];
+
+our $prestoinfo = [
+    'prestodelta' =>
+      [ $deltapackage ],
 ];
 
 1;
