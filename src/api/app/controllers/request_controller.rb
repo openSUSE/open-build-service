@@ -717,6 +717,7 @@ class RequestController < ApplicationController
                         #:by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
   def command_changestate
+    params[:user] = @http_user.login
     if params[:id].nil? or params[:id].to_i == 0
       render_error :status => 404, :message => "Request ID is not a number", :errorcode => "no_such_request"
       return
@@ -731,7 +732,6 @@ class RequestController < ApplicationController
                :message => "Action requires authentifacted user."
       return
     end
-    params[:user] = @http_user.login
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
@@ -1039,6 +1039,9 @@ class RequestController < ApplicationController
     # have a unique time stamp for release
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
 
+    # use the request description as comments for history
+    params[:comment] = req.description
+
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
       if action.data.attributes["type"] == "set_bugowner"
@@ -1154,18 +1157,20 @@ class RequestController < ApplicationController
             # create again via branch ...
             h = {}
             h[:cmd] = "branch"
-            h[:user] = params[:user]
+            h[:user] = @http_user.login
             h[:comment] = "initialized devel package after accepting #{params[:id]}"
+            h[:requestid] = params[:id]
             h[:oproject] = action.target.project
             h[:opackage] = action.target.package
             cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
-            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage])
+            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid])
             Suse::Backend.post cp_path, nil
 
           elsif sourceupdate == "cleanup"
             # cleanup source project
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
+            delete_path = nil
             if source_project.db_packages.count == 1
               # find linking repos
               lreps = Array.new
@@ -1193,26 +1198,31 @@ class RequestController < ApplicationController
               if source_project.name != "home:" + user.login
                 # remove source project, if this is the only package and not the user's home project
                 source_project.destroy
-                Suse::Backend.delete "/source/#{action.source.project}"
+                delete_path = "/source/#{action.source.project}"
               end
             else
               # just remove package
               source_package.destroy
-              Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
+              delete_path = "/source/#{action.source.project}/#{action.source.package}"
+            end
+            if delete_path
+              delete_path << build_query_from_hash(cp_params, [:user, :comment, :requestid])
+              Suse::Backend.delete delete_path
             end
           end
       elsif action.data.attributes["type"] == "delete"
-          if not action.target.has_attribute? :package
+          if action.target.has_attribute? :package
+            package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
+            package.destroy
+            delete_path = "/source/#{action.target.project}/#{action.target.package}"
+          else
             project = DbProject.get_by_name(action.target.project)
             project.destroy
-            Suse::Backend.delete "/source/#{action.target.project}"
-          else
-            DbPackage.transaction do
-              package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
-              package.destroy
-              Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
-            end
+            delete_path = "/source/#{action.target.project}"
           end
+          h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
+          delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
+          Suse::Backend.delete delete_path
       elsif action.data.attributes["type"] == "maintenance_incident"
 
         # create incident project

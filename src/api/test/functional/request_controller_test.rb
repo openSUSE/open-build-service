@@ -948,7 +948,7 @@ end
                 <updatelink>true</updatelink>
               </options>
             </action>
-            <description/>
+            <description>SUBMIT</description>
             <state who='Iggy' name='new'/>
           </request>"
     post "/request?cmd=create", req
@@ -967,6 +967,11 @@ end
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
 
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_history"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "SUBMIT" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
+
     # pack2 got created
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
     assert_response :success
@@ -977,7 +982,7 @@ end
             <action type='delete'>
               <target project='BaseDistro2:LinkedUpdateProject' package='pack2'/>
             </action>
-            <description/>
+            <description>DELETE REQUEST</description>
             <state who='king' name='new'/>
           </request>"
     post "/request?cmd=create", req
@@ -1006,6 +1011,15 @@ end
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
+
+    # validate result
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_meta"
+    assert_response :success
+    assert_tag( :tag => "package", :attributes => { :project => "BaseDistro2", :name => "pack2" } )
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_history?deleted=1"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "DELETE REQUEST" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
 
     # accept the other request, what will fail
     prepare_request_with_user "king", "sunflower"
