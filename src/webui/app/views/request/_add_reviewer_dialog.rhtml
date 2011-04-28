@@ -16,36 +16,36 @@
           <span id="review_user_span">
             <%= label_tag(:review_user, "User:") %><br/>
             <%= text_field_tag(:review_user) %><br/>
-            <script type="text/javascript">
+            <% javascript_tag do %>
               $("#review_user").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
+            <% end %>
           </span>
           <span id="review_group_span" class="hidden">
             <%= label_tag(:review_group, "Group:") %><br/>
             <%= text_field_tag(:review_group) %><br/>
-            <script type="text/javascript">
+            <% javascript_tag do %>
               $("#review_group").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
+            <% end %>
           </span>
           <span id="review_project_span" class="hidden">
             <%= label_tag(:review_project, "Project:") %><br/>
             <%= text_field_tag(:review_project) %><br/>
-            <script type="text/javascript">
+            <% javascript_tag do %>
               $("#review_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {minChars: 2, matchCase: true, max: 50});
-            </script>
+            <% end %>
           </span>
           <span id="review_package_span" class="hidden">
             <%= label_tag(:review_package, "Package:") %><br/>
             <%= text_field_tag(:review_package) %><br/>
-            <script type="text/javascript">
+            <% javascript_tag do %>
               $("#review_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
                 minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#review_project").val(); }}
               });
-            </script>
+            <% end %>
           </span>
           <%= label_tag(:review_comment, "Comment for reviewer:") %><br/>
           <%= text_field_tag("review_comment") %>
-          <script type="text/javascript">
+          <% javascript_tag do %>
             $('#review_type').change(function() {
               switch($('#review_type option:selected').attr('value')) {
                 case "user": {
@@ -74,7 +74,7 @@
                 } break;
               }
             });
-          </script>
+          <% end %>
         </p>
         <div class="buttons">
           <%= submit_tag("Ok") %>

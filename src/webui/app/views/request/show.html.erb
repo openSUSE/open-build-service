@@ -78,9 +78,9 @@
               <% end %>
             <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
-              <script type="text/javascript">
+              <% javascript_tag do %>
                 setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
-              </script>
+              <% end %>
             <% end %>
           </td>
         </tr>
@@ -192,9 +192,9 @@
         </tr>
       <%end%>
     </table>
-    <script type="text/javascript">
+    <% javascript_tag do %>
       $('#review_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}, 4: {sorter: false}}});
-    </script>
+    <% end %>
   </div>
 <% end %>
 

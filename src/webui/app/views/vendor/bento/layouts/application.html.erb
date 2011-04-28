@@ -22,17 +22,15 @@
 
     <%= yield :content_for_head %>
 
-    <script type="text/javascript">
-    /* <![CDATA[ */
-    <%= yield :head_javascript %>
-    $(function() {
-      <% unless CONFIG['theme'] == 'bento' %>
-      setup_favorites();
-      <% end %>
-      <%= yield :ready_function %>
-    });
-    /* ]]> */
-    </script>
+    <% javascript_tag do %>
+      <%= yield :head_javascript %>
+      $(function() {
+        <% unless CONFIG['theme'] == 'bento' %>
+        setup_favorites();
+        <% end %>
+        <%= yield :ready_function %>
+      });
+    <% end %>
 
   </head>
 

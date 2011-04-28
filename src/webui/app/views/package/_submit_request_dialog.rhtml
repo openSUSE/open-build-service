@@ -2,7 +2,7 @@
 <%= javascript_include_tag 'jquery.tablesorter.js' %>
 <%= stylesheet_link_tag 'jquery.autocomplete' %>
 
-<script type="text/javascript">
+<% javascript_tag do %>
   function updateSupersedeDisplay() {
     if ($('#targetproject')[0].value.length > 0) {
       $.ajax({
@@ -40,7 +40,7 @@
   /*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
     minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
   });*/
-</script>
+<% end %>
 
 <div id="dialog_wrapper">
   <div class="dialog" id="disable_mask"></div>

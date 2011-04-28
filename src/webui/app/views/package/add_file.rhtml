@@ -12,7 +12,7 @@
     <b>Filename (taken from uploaded file if empty):</b><br/>
     <%= text_field_tag('filename', '', :size => 80) %><br/>
     <b>Upload from</b> <%= select_tag('file_type', options_for_select([['local file', 'local'], ['remote URL', 'remote']])) %> :<br/>
-    <script type="text/javascript"> /* <![CDATA[ */
+    <% javascript_tag do %>
       $('#file_type').change(function() {
         if ($('#file_type option:selected').attr('value') == 'local') {
           $('#file').show();
@@ -21,8 +21,8 @@
           $('#file').hide();
           $('#file_url').show();
         }
-      }); /* ]]> */
-    </script>
+      });
+    <% end %>
     <%= file_field_tag('file') %>
     <%= text_field_tag('file_url', '', :size => 80, :class => "hidden") %>
   </p>

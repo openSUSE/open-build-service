@@ -19,7 +19,7 @@
       <% end %>
     </tbody>
   </table>
-  <script type="text/javascript">
+  <% javascript_tag do %>
     $('#incident_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {2: {sorter: false}} });
-  </script>
+  <% end %>
 <% end %>
