@@ -114,7 +114,7 @@
   </table>
 </div>
 
-<% if @is_reviewer and @req.state.name == "review" and r.state.to_s == "new" %>
+<% if @is_reviewer and @req.state.to_s == 'review' and @req.state.to_s == 'new' %>
   <% content_for :head_javascript do %>
     function modifyReview(id, new_state) {
       var comment = $('#review_comment_' + id).attr('value');
