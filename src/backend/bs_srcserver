@@ -681,7 +681,7 @@ sub addrev {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filenames = join( ', ', keys %$files );
     BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filenames, comment => $comment, 
-                                       target => $target, request_id => $requestid, user => $user});
+                                       target => $target, requestid => $requestid, user => $user});
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -797,10 +797,11 @@ sub addrev {
   }
 
   # send out hermes notification
-  BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
+  BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment, 'requestid' => $requestid});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
-                                             oldversion => $rev_old->{'version'}, newversion => $rev->{'version'}, user => $user, comment => $comment})
+                                             oldversion => $rev_old->{'version'}, newversion => $rev->{'version'},
+                                             user => $user, comment => $comment, 'requestid' => $requestid})
     if $rev->{'version'} && $rev_old->{'version'} && $rev->{'version'} ne $rev_old->{'version'};
 
   # kill upload revision as we did a real commit
@@ -2548,7 +2549,7 @@ sub delproject {
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
 
-  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
+  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
 
   return $BSStdServer::return_ok;
 }
@@ -2725,7 +2726,7 @@ sub delpackage {
     expandproduct($projid, $packid, undef);
   }
   notify_repservers('package', $projid, $packid);
-  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
+  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
   return $BSStdServer::return_ok;
 }
 
@@ -5806,6 +5807,7 @@ sub sourceinfo {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
+    $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
     die("no source uploaded\n") if !$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq 'd41d8cd98f00b204e9800998ecf8427e';
     $files = lsrev($rev);
     die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
@@ -5828,6 +5830,7 @@ sub sourceinfo {
       $files =~ s/\n$//;
     }
     $r->{'linked'} = $linked if @$linked;
+    $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
     if (!ref $files) {
       $r->{'error'} = $files || 'could not get file list';
       return $r;
