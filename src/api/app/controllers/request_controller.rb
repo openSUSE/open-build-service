@@ -1041,7 +1041,7 @@ class RequestController < ApplicationController
 
     # use the request description as comments for history
     params[:comment] = nil
-    params[:comment] = req.description if req.respond_to? "description"
+    params[:comment] = req.description if req.has_element? "description"
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
