@@ -4,10 +4,6 @@
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
 <% end %>
 
-<% content_for :ready_function do %>
-  $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
-<% end %>
-
 <% if requests.blank? %>
   <p>No requests.</p>
 <% else %>
@@ -82,4 +78,7 @@
       <% end %>
     </tbody>
   </table>
+  <% javascript_tag do %>
+    $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
+  <% end %>
 <% end %>
