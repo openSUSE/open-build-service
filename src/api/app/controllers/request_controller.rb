@@ -1040,7 +1040,8 @@ class RequestController < ApplicationController
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
 
     # use the request description as comments for history
-    params[:comment] = req.description
+    params[:comment] = nil
+    params[:comment] = req.description if req.respond_to? "description"
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
