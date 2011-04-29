@@ -28,6 +28,7 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
+use Digest;
 use Digest::MD5 ();
 use XML::Structured ':bytes';
 use POSIX;
@@ -271,9 +272,29 @@ sub getpatterns {
 
 ##########################################################################
 
-sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos) = @_;
+sub addsizechecksum {
+  my ($filename, $d, $sum) = @_;
 
+  local *F;
+  open(F, '<', $filename) || return;
+  $d->{'size'} = -s F;
+  my %known = (
+    'sha' => 'SHA-1',
+    'sha1' => 'SHA-1',
+    'sha256' => 'SHA-256',
+  );
+  if ($known{$sum}) {
+    my $ctx = Digest->new($known{$sum});
+    $ctx->addfile(\*F);
+    $d->{'checksum'} = {'type' => $sum, '_content' => $ctx->hexdigest()};
+  }
+  close F;
+}
+
+sub createrepo_rpmmd {
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos) = @_;
+
+  my %options = map {$_ => 1} @{$options || []};
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $repotag = "obsrepository://$obsname/$projid/$repoid";
   my $prp_ext = "$projid/$repoid";
@@ -284,6 +305,7 @@ sub createrepo_rpmmd {
   unlink("$extrep/repodata/repomd.xml.key");
   unlink("$extrep/repodata/latest-feed.xml");
   unlink("$extrep/repodata/index.html");
+  my @oldrepodata = ls("$extrep/repodata");
   qsystem('rm', '-rf', "$extrep/repodata/repoview") if -d "$extrep/repodata/repoview";
   qsystem('rm', '-rf', "$extrep/repodata/.olddata") if -d "$extrep/repodata/.olddata";
   qsystem('rm', '-f', "$extrep/repodata/patterns*");
@@ -294,7 +316,7 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, '--repo', $repotag;
   my @legacyargs;
-  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if grep {$_ eq 'legacy'} @{$options || []};
+  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if $options{'legacy'};
   my @updateargs;
   if (-f "$extrep/repodata/repomd.xml") {
     push @updateargs, '--update';
@@ -306,13 +328,40 @@ sub createrepo_rpmmd {
       qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && print("    createrepo failed again: $?\n");
     }
   }
+  unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
   if ($updateinfos && @$updateinfos) {
     print "    adding updateinfo.xml to repodata\n";
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
     qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
-  } else {
-    unlink("$extrep/repodata/updateinfo.xml.gz");
+  }
+  unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
+  if ($deltainfos && %$deltainfos && ($options{'deltainfo'} || $options{'prestodelta'})) {
+    print "    adding deltainfo.xml to repodata\n" if $options{'deltainfo'};
+    print "    adding prestodelta.xml to repodata\n" if $options{'prestodelta'};
+    # thinks are a bit complex, as we have to merge the deltas, and we also have to add the checksum
+    my %mergeddeltas;
+    for my $d (values(%$deltainfos)) {
+      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], @legacyargs ? 'sha' : 'sha256');
+      my $mkey = "$d->{'arch'}\0$d->{'name'}\0$d->{'epoch'}\0$d->{'version'}\0$d->{'release'}\0";
+      if ($mergeddeltas{$mkey}) {
+	push @{$mergeddeltas{$mkey}->{'delta'}}, $d->{'delta'}->[0];
+      } else {
+	$mergeddeltas{$mkey} = $d;
+      }
+    }
+    # got all, now write
+    my @mergeddeltas = map {$mergeddeltas{$_}} sort keys %mergeddeltas;
+    if ($options{'deltainfo'}) {
+      writexml("$extrep/repodata/deltainfo.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::deltainfo);
+      qsystem('modifyrepo', "$extrep/repodata/deltainfo.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/deltainfo.xml");
+    }
+    if ($options{'prestodelta'}) {
+      writexml("$extrep/repodata/prestodelta.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::prestodelta);
+      qsystem('modifyrepo', "$extrep/repodata/prestodelta.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/prestodelta.xml");
+    }
   }
   if (-d "$extrep/repocache") {
     my $now = time;
@@ -712,7 +761,7 @@ sub deleterepo {
     return;
   }
   # delete all binaries
-  my @deleted;
+  my @db_deleted;
   for my $arch (ls($extrep)) {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
@@ -722,7 +771,7 @@ sub deleterepo {
       my $p = "$arch/$bin";
       print "      - $p\n";
       unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
-      push @deleted, $p;
+      push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
     }
   }
   # update repoinfo
@@ -731,10 +780,10 @@ sub deleterepo {
 
   # update published database
   my $binarydb = db_open('binary');
-  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], []) if $binarydb;
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], []) if $binarydb;
 
   if ($BSConfig::markfileorigins) {
-    for my $f (sort @deleted) {
+    for my $f (sort @db_deleted) {
       my $req = {
         'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
         'request' => 'HEAD',
@@ -827,6 +876,11 @@ sub publish {
 
   my @updateinfos;
   my $updateinfos_state;
+
+  my %deltas;	# XXX remove hack
+  my %deltainfos;
+  my $deltainfos_state;
+
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
@@ -843,14 +897,24 @@ sub publish {
 	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
 	push @updateinfos, @{$updateinfo->{'update'} || []};
       }
+      if ($bin =~ /^(.*\.rpm)::(.*\.drpm)$/) {
+	# special drpm handling: only take it if we took the corresponding rpm
+        if ($bin =~ /^(.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm)::(.*\.drpm)$/) {
+	  if ($bins{"$2/$1"} eq "$r/$1") {
+	    # ok, took it. also take delta
+	    $bin = $3;
+	    push @{$deltas{"$r/$1"}}, "$r/$rbin";
+	  }
+	}
+      }
       $bin =~ s/^.*?:://;	# strip package name for now
       #next unless $bin =~ /\.(?:rpm|deb)$/;
       my $p;
-      if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/) {
+      if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
 	$p = "$1/$bin";
-      } elsif ($bin =~ /\.rpm$/) {
+      } elsif ($bin =~ /\.d?rpm$/) {
 	# legacy format
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q;
@@ -888,10 +952,50 @@ sub publish {
         # keep old file (FIXME: should do this different)
         my @s2 = stat("$extrep/$p");
         next if !@s2 || "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]";
+        # argh, kill taken deltas again
+        for my $d (@{$deltas{"$r/$rbin"} || []}) {
+	  for my $dp (grep {$bins{$_} eq $d} keys %bins) {
+	    delete $bins{$dp};
+	    delete $bins_id{$dp};
+	    delete $binaryorigins->{$dp};
+	    delete $deltainfos{$dp};
+	  }
+        }
       }
       $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
+      if ($rbin =~ /^(.*)\.drpm$/) {
+	# we took a delta rpm. collect desq if possible
+	my $dseq = "$r/$1.dseq";
+	if (-s $dseq) {
+	  my %dseq;
+	  for (split("\n", readstr($dseq, 1) || '')) {
+	    $dseq{$1} = $2 if /^(.*?): (.*)$/s;
+	  }
+	  my @needed = qw{Name Epoch Version Release Arch OldName OldEpoch OldVersion OldRelease OldArch Seq};
+	  if (!grep {!exists($dseq{$_})} @needed) {
+	    # got all required fields. convert to correct data
+	    my $dinfo = {'name' => $dseq{'Name'}, 'epoch' => $dseq{'Epoch'} || 0, 'version' => $dseq{'Version'}, 'release' => $dseq{'Release'}, 'arch' => $dseq{'Arch'}};
+	    $dinfo->{'delta'} = [ {'oldepoch' => $dseq{'OldEpoch'} || 0, 'oldversion' => $dseq{'OldVersion'}, 'oldrelease' => $dseq{'OldRelease'}, 'filename' => $p, 'sequence' => $dseq{'Seq'}} ];
+	    $deltainfos{$p} = $dinfo;
+	  }
+	}
+      }
+    }
+  }
+
+  # calculate deltainfos_state
+  if (%deltainfos) {
+    $deltainfos_state = '';
+    for my $p (sort keys %deltainfos) {
+      my @s = stat($bins{$p});
+      my $id = "$s[9]/$s[7]/$s[1]";
+      if ($bins{$p} =~ /^(.*)\.drpm$/) {
+        @s = stat("$1.dseq");
+        $id .= "/$s[9]/$s[7]/$s[1]";
+      }
+      $deltainfos_state .= Digest::MD5::md5_hex($id);
     }
   }
 
@@ -1013,6 +1117,7 @@ sub publish {
   $state .= "\0".join(',', @{$config->{'patterntype'} || []}) if $proj->{'patternmd5'};
   $state .= "\0".join('/', map {"$_->{'project'}/$_->{'repository'}"} @{$prpsearchpath || []}) if $proj->{'patternmd5'};
   $state .= "\0".$updateinfos_state if $updateinfos_state;
+  $state .= "\0".$deltainfos_state if $deltainfos_state;
   $state = Digest::MD5::md5_hex($state) if $state ne '';
 
   # get us the old repoinfo, so we can compare the state
@@ -1156,7 +1261,7 @@ sub publish {
   }
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos);
+    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos);
   } else {
     deleterepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }

@@ -1263,7 +1263,7 @@ our $deltainfo = [
       [ $deltapackage ],
 ];
 
-our $prestoinfo = [
+our $prestodelta = [
     'prestodelta' =>
       [ $deltapackage ],
 ];
