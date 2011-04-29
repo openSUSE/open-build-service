@@ -446,7 +446,7 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "maintenance_incident"
-          if action.source.package
+          if action.source.has_attribute?(:package)
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
             return
