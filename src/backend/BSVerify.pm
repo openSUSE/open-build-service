@@ -217,6 +217,11 @@ sub verify_proj {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
   die('project must not have mountproject\n') if exists $proj->{'mountproject'};
+  if ($proj->{'maintenance'}) {
+    for my $m (@{$proj->{'maintenance'}->{'maintains'} || []}) {
+      verify_projid($m->{'project'});
+    }
+  }
 }
 
 sub verify_pack {
