@@ -4460,17 +4460,19 @@ sub getbinarylist {
     BSWatcher::rpc($param, undef, @args);
     return undef;
   }
-  my $uri = "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid";
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+  };
   if ($proj->{'remoteurl'}) {
-    $uri = {'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid"};
-    $uri->{'proxy'} = $proxy;
+    $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid";
+    $param->{'proxy'} = $proxy;
   }
   if ($view && $view eq 'binaryversions') {
     push @args, 'nometa=1' if $cgi->{'nometa'};
-    my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, @args);
+    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
-  my $bl = BSWatcher::rpc($uri, $BSXML::binarylist, @args);
+  my $bl = BSWatcher::rpc($param, $BSXML::binarylist, @args);
   return ($bl, $BSXML::binarylist);
 }
 
@@ -4478,10 +4480,8 @@ sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
   my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
   my $view = $cgi->{'view'} || '';
-  if ($proj->{'remoteurl'}) {
+  if ($proj->{'remoteurl'} && $packid eq '_repository' && !$view) {
     # hack: reroute to /getbinaries so that our local cache is used
-    die("can only access remote _repository files\n") unless $packid eq '_repository';
-    die("cannot use a view for remote binaries\n") if $view;
     die("need the raw package name as filename for remote repository access\n") if $filename =~ /\.(?:rpm|deb)$/;
     my @args;
     push @args, "project=$projid";
@@ -4499,6 +4499,10 @@ sub getbinary {
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
+  if ($proj->{'remoteurl'}) {
+    $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid/$filename";
+    $param->{'proxy'} = $proxy;
+  }
   BSWatcher::rpc($param, undef, @args);
   return undef;
 }

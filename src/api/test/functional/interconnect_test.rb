@@ -140,12 +140,8 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo"
     assert_response :success
-if $ENABLE_BROKEN
-    # FIXME: remote binaries access, this breaks biulding of products against remote project repos
-    # backend is not forwarding atm
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
     assert_response :success
-end
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
     assert_response :success
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository/package"
