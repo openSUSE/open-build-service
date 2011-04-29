@@ -171,6 +171,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-16.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
+ <distribution vendor="Ubuntu" version="11.04" id="ubuntu-11.04">
+  <name>Ubuntu 11.04</name>
+  <project>openSUSE.org:Ubuntu:11.04</project>
+  <reponame>xUbuntu_11.04</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
+  <link>http://www.ubuntu.com/</link>
+ </distribution>
  <distribution vendor="Ubuntu" version="10.10" id="ubuntu-10.10">
   <name>Ubuntu 10.10</name>
   <project>openSUSE.org:Ubuntu:10.10</project>
@@ -187,15 +196,6 @@
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
-  <link>http://www.ubuntu.com/</link>
- </distribution>
- <distribution vendor="Ubuntu" version="9.10" id="ubuntu-9.10">
-  <name>Ubuntu 9.10</name>
-  <project>openSUSE.org:Ubuntu:9.10</project>
-  <reponame>xUbuntu_9.10</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-9.10-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-9.10-16.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="8.04" id="ubuntu-8.04">
