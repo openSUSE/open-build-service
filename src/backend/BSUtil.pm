@@ -265,23 +265,35 @@ sub cp {
   }
 }
 
+sub checkutf8 {
+  my ($oct) = @_;
+  Encode::_utf8_off($oct);
+  return 1 unless defined $oct;
+  return 1 unless $oct =~ /[\200-\377]/;
+  eval {
+    Encode::_utf8_on($oct);
+    encode('UTF-8', $oct, Encode::FB_CROAK);
+  };
+  return $@ ? 0 : 1;
+}
+
 sub str2utf8 {
   my ($oct) = @_;
   return $oct unless defined $oct;
   return $oct unless $oct =~ /[^\011\012\015\040-\176]/s;
   eval {
     Encode::_utf8_on($oct);
-    $oct = encode('utf-8', $oct, Encode::FB_CROAK);
+    $oct = encode('UTF-8', $oct, Encode::FB_CROAK);
   };
   if ($@) {
     # assume iso-8859-1
     eval {
       Encode::_utf8_off($oct);
-      $oct = encode('utf-8', $oct, Encode::FB_CROAK);
+      $oct = encode('UTF-8', $oct, Encode::FB_CROAK);
     };
     if ($@) {
       Encode::_utf8_on($oct);
-      $oct = encode('utf-8', $oct, Encode::FB_XMLCREF);
+      $oct = encode('UTF-8', $oct, Encode::FB_XMLCREF);
     }
   }
   Encode::_utf8_off($oct);	# just in case...
