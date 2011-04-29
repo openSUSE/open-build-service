@@ -296,7 +296,7 @@ class RequestController < ApplicationController
             # find target via linkinfo or submit to all
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
             e = data.elements["directory/linkinfo"]
-            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
+            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"], follow_project_links=true, allow_remote_packages=true)
               if action.data.attributes["type"] == "maintenance_release"
                 newPackages << pkg.name
                 next
@@ -381,20 +381,20 @@ class RequestController < ApplicationController
           return
         end
         if action.source.has_attribute? 'package'
-          spkg = DbPackage.get_by_project_and_name sprj.name, action.source.package
+          spkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package, follow_project_links=true, allow_remote_packages=true)
         end
       end
 
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
-        if a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first
+        if tprj.class == DbProject and a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first
           render_error :status => 403, :errorcode => 'request_rejected',
             :message => "The target project #{action.target.project} is not accepting requests because: #{a.values.first.value.to_s}"
           return
         end
         if action.target.has_attribute? 'package' 
-          if DbPackage.exists_by_project_and_name( tprj.name, action.target.package) or ["delete", "change_devel", "add_role", "set_bugowner"].include? action.data.attributes["type"]
-            tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
+          if DbPackage.exists_by_project_and_name(action.target.project, action.target.package) or ["delete", "change_devel", "add_role", "set_bugowner"].include? action.data.attributes["type"]
+            tpkg = DbPackage.get_by_project_and_name action.target.project, action.target.package
           end
           
           if tpkg and a = tpkg.find_attribute("OBS", "RejectRequests") and a.values.first
@@ -430,13 +430,6 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "submit"
-          # source package is required for submit, but optional for change_devel
-          unless spkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "No source package specified"
-            return
-          end
-
           # validate that the sources are not broken
           begin
             pr = ""
@@ -453,7 +446,7 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "maintenance_incident"
-          if spkg
+          if action.source.package
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
             return
@@ -505,7 +498,7 @@ class RequestController < ApplicationController
           end
           # allow cleanup only, if no devel package reference
           if sourceupdate == 'cleanup'
-            unless spkg.develpackages.empty?
+            unless spkg and spkg.develpackages.empty?
               msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
               msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
               render_error :status => 400, :errorcode => 'develpackage_dependency',
@@ -881,8 +874,17 @@ class RequestController < ApplicationController
           if action.source.has_attribute? :package
             source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
-          if [ "submit", "change_devel" ].include? action.data.attributes["type"]
+          # require a local source package
+          if [ "change_devel" ].include? action.data.attributes["type"]
             unless source_package
+              render_error :status => 404, :errorcode => "unknown_package",
+                :message => "Local source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+              return
+            end
+          end
+          # accept also a remote source package
+          if source_package.nil? and [ "submit" ].include? action.data.attributes["type"]
+            unless DbPackage.exists_by_project_and_name( source_project.name, action.source.package, follow_project_links=true, allow_remote_packages=true)
               render_error :status => 404, :errorcode => "unknown_package",
                 :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
               return
@@ -1121,16 +1123,15 @@ class RequestController < ApplicationController
             initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
             # create package in database
             linked_package = target_project.find_package(action.target.package)
-            source_project = DbProject.find_by_name(action.source.project)
-            source_package = source_project.db_packages.find_by_name(action.source.package)
             if linked_package
               target_package = Package.new(linked_package.to_axml, :project => action.target.project)
             else
-              target_package = Package.new(source_package.to_axml, :project => action.target.project)
+              answer = Suse::Backend.get("/source/#{URI.escape(action.source.project)}/#{URI.escape(action.source.package)}/_meta")
+              target_package = Package.new(answer.body.to_s, :project => action.target.project)
               target_package.remove_all_flags
               target_package.remove_devel_project
               if initialize_devel_package
-                target_package.set_devel( :project => source_project.name, :package => source_package.name )
+                target_package.set_devel( :project => action.source.project, :package => action.source.package )
                 relinkSource=true
               end
             end
