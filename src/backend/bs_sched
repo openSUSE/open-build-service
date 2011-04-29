@@ -791,6 +791,196 @@ sub set_repo_state {
   writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -e "$reporoot/$prp/$myarch";
 }
 
+
+# make sure that we have all of the deltas we need
+# create a deltajob if some are missing
+# note that we must have the repo lock so that $extrep does not change!
+sub makedeltas {
+  my ($prp, $packs, $pubenabled, $bconf, $prpsearchpath) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $rdir = "$reporoot/$prp/$myarch/:repo";
+  my $ddir = "$reporoot/$prp/$myarch/_deltas";
+
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  my $extrep = "$extrepodir/$prp_ext";
+
+  my %oldbins;
+
+  my %havedelta;
+  my @needdelta;
+  my %deltaids;
+
+  for my $packid (@{$packs || []}) {
+    next if $pubenabled && !$pubenabled->{$packid};
+    my $pdir = "$reporoot/$prp/$myarch/$packid";
+    my @all = sort(ls($pdir));
+    my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
+    @all = grep {/\.rpm$/} @all;
+    next unless @all;
+    for my $bin (@all) {
+      next if $bin =~ /\.(?:no)?src\.rpm$/;	# no source deltas
+      if ($nosourceaccess) {
+	next if $bin =~ /-debug(:?info|source).*\.rpm$/;
+      }
+      next unless $bin =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/;
+      my $binname = $1;
+      my $binarch = $2;
+      if (!$oldbins{$binarch}) {
+	$oldbins{$binarch} = {};
+	for my $obin (sort(ls("$extrep/$binarch"))) {
+	  next unless $obin =~ /^(.+)-[^-]+-[^-]+\.(?:[a-zA-Z][^\/\.\-]*)\.rpm$/;
+	  push @{$oldbins{$binarch}->{$1}}, $obin;
+	}
+      }
+      my @cand = grep {$_ ne $bin} @{$oldbins{$binarch}->{$binname}};
+      next unless @cand;
+      if (@cand > 1) {
+	# sort version/release  FIXME: epoch? use file mtime instead?
+	@cand = sort { Build::Rpm::verscmp($b, $a) } @cand;
+      }
+      @cand = splice(@cand, 0, 1);
+      for my $obin (@cand) {
+	my @s = stat("$extrep/$binarch/$obin");
+        next unless @s;
+	my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$obin/$s[9]/$s[7]/$s[1]");
+        $deltaids{$deltaid} = 1;
+	if (-e "$ddir/$deltaid" && (-e "$ddir/$deltaid.dseq" || ! -s "$ddir/$deltaid")) {
+	  push @{$havedelta{"$packid/$bin"}}, [ $deltaid, $obin ];
+        } else {
+	  push @needdelta, [ "$extrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
+	}
+      }
+    }
+  }
+
+  # ddir maintenance
+  my @ddir = sort(ls($ddir));
+  for my $deltaid (grep {!$deltaids{$_} && !/\.dseq$/} @ddir) {
+    unlink("$ddir/$deltaid");		# no longer need this one
+    unlink("$ddir/$deltaid.dseq");	# no longer need this one
+  }
+
+  if (@needdelta) {
+    # create a delta job
+    my $packid = '_deltas';
+    my $job = jobname($prp, $packid);
+    if (-e "$myjobsdir/$job") {
+      # delta creation already in progress. wait...
+      print "    delta creation already in progress...\n";
+      return undef, "in progress";
+    }
+    my $srcmd5 = '';
+    $srcmd5 .= $_->[2] for @needdelta;
+    $srcmd5 = Digest::MD5::md5_hex($srcmd5);
+    my $jobdatadir = "$myjobsdir/$job:dir";
+    mkdir_p($jobdatadir);
+    BSUtil::cleandir($jobdatadir);
+    return undef unless -d $jobdatadir;
+    for my $delta (@needdelta) {
+      print Dumper($delta);
+      my $deltaid = $delta->[2];
+      link($delta->[0], "$jobdatadir/$deltaid.old") || return undef;
+      link($delta->[1], "$jobdatadir/$deltaid.new") || return undef;
+      my $qold = Build::Rpm::query("$jobdatadir/$deltaid.old", 'evra' => 1);
+      my $qnew = Build::Rpm::query("$jobdatadir/$deltaid.new", 'evra' => 1);
+      return undef unless $qold && $qnew;
+      return undef if $qold->{'name'} ne $qnew->{'name'} || $qold->{'arch'} ne $qnew->{'arch'};
+      $qold->{'epoch'} = '' unless defined $qold->{'epoch'};
+      $qnew->{'epoch'} = '' unless defined $qnew->{'epoch'};
+      my $info = '';
+      $info .= ucfirst($_).": $qnew->{$_}\n" for qw{name epoch version release arch};
+      $info .= "Old".ucfirst($_).": $qold->{$_}\n" for qw{name epoch version release arch};
+      writestr("$jobdatadir/$deltaid.info", undef, $info);
+    }
+    # create job
+    my $prptype = $bconf->{'type'};
+    my ($eok, @bdeps) = Build::get_build($bconf, [], "deltarpm");
+    if (!$eok) {
+      print "        unresolvables:\n";
+      print "          $_\n" for @bdeps;
+      return (undef, "unresolvable: ".join(', ', @bdeps));
+    }
+    my $now = time();
+    my @pdeps = Build::get_preinstalls($bconf);
+    my @vmdeps = Build::get_vminstalls($bconf);
+    my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+    my %bdeps = map {$_ => 1} @bdeps;
+    my %pdeps = map {$_ => 1} @pdeps;
+    my %vmdeps = map {$_ => 1} @vmdeps;
+    @bdeps = unify(@pdeps, @vmdeps, @bdeps);
+    for (@bdeps) {
+      $_ = {'name' => $_}; 
+      $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+      $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
+      $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
+      $_->{'notmeta'} = 1;
+    }
+    my $searchpath = [];
+    for (@$prpsearchpath) {
+      my @pr = split('/', $_, 2);
+      if ($remoteprojs{$pr[0]}) {
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      } else {
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+      }
+    }
+
+    my $binfo = {
+      'project' => $projid,
+      'repository' => $repoid,
+      'package' => $packid,
+      'file' => '_delta',
+      'srcmd5' => $srcmd5,
+      'reason' => 'source change',
+      'srcserver' => $BSConfig::srcserver,
+      'reposerver' => $BSConfig::reposerver,
+      'job' => $job,
+      'arch' => $myarch,
+      'readytime' => $now,
+      'bdep' => \@bdeps,
+      'path' => $searchpath,
+      'needed' => 0,
+    };
+
+    writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+    print "    creating deltas...\n";
+    return (undef, 'building');
+  }
+  return \%havedelta;
+}
+
+sub mkdeltaname {
+  my ($old, $new) = @_;
+  # name-version-release.arch.rpm
+  my $newtail = '';
+  if ($old =~ /^(.*)(\.[^\.]+\.rpm$)/) {
+    $old = $1;
+  }
+  if ($new =~ /^(.*)(\.[^\.]+\.rpm$)/) {
+    $new = $1;
+    $newtail = $2;
+  }
+  my @old = split('-', $old);
+  my @new = split('-', $new);
+  my @out;
+  while (@old || @new) {
+    $old = shift @old;
+    $new = shift @new;
+    $old = '' unless defined $old;
+    $new = '' unless defined $new;
+    if ($old eq $new) {
+      push @out, $old;
+    } else {
+      push @out, "${old}_${new}";
+    }
+  }
+  my $ret = join('-', @out).$newtail;
+  $ret =~ s/\.rpm$//;
+  return "$ret.drpm";
+}
+
 #
 # prpfinished  - publish a prp
 #
@@ -831,7 +1021,7 @@ sub compile_publishfilter {
 my $default_publishfilter;
 
 sub prpfinished {
-  my ($prp, $packs, $pubenabled, $bconf) = @_;
+  my ($prp, $packs, $pubenabled, $bconf, $prpsearchpath) = @_;
 
   print "    prp $prp is finished...\n";
 
@@ -853,12 +1043,21 @@ sub prpfinished {
     } else {
       print "    nothing to delete...\n";
       close(F);
-      return;
+      return '';
     }
     # release lock
     close(F);
     sendpublishevent($prp);
-    return;
+    return '';
+  }
+
+  # make all the deltas we need
+  my $needdeltas;
+  $needdeltas = 1 if grep {"$_:" =~ /:(?:deltainfo|prestodelta):/} @{$bconf->{'repotype'} || []};
+  my ($deltas, $err) = makedeltas($prp, $needdeltas ? $packs : undef, $pubenabled, $bconf, $prpsearchpath);
+  if (!$deltas) {
+      close(F);
+      return $err || 'error';
   }
 
   my $rdir = "$reporoot/$prp/$myarch/:repo";
@@ -944,6 +1143,21 @@ sub prpfinished {
 	BSUtil::linktree("$pdir/$bin", "$rdir/$rbin");
       } else {
         link("$pdir/$bin", "$rdir/$rbin") || die("link $pdir/$bin $rdir/$rbin: $!\n");
+	if ($deltas->{"$packid/$bin"}) {
+	  for my $delta (@{$deltas->{"$packid/$bin"}}) {
+	    next unless -s "$reporoot/$prp/$myarch/_deltas/$delta->[0]";	# zero size means skip it
+	    my $deltaname = mkdeltaname($delta->[1], $bin);
+	    my $deltaseqname = $deltaname;
+	    $deltaseqname =~ s/\.drpm$//;
+	    $deltaseqname .= ".dseq";
+	    unlink("$rdir/$rbin.$deltaname");
+	    print "      + :repo/${rbin}::$deltaname\n";
+	    link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
+	    link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
+	    $origin{"${rbin}::$deltaname"} = $packid;
+	    $origin{"${rbin}::$deltaseqname"} = $packid;
+	  }
+	}
       }
       $changed = 1;
     }
@@ -976,6 +1190,7 @@ sub prpfinished {
   # release lock and ping publisher
   close(F);
   sendpublishevent($prp);
+  return '';
 }
 
 my $exportcnt = 0;
@@ -2054,6 +2269,10 @@ sub jobfinished {
     aggregatefinished($job, $js, $changed);
     return ;
   }
+  if ($info->{'file'} eq '_delta') {
+    deltafinished($job, $js, $changed);
+    return ;
+  }
   my $projid = $info->{'project'};
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
@@ -2262,6 +2481,44 @@ sub aggregatefinished {
   rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
 }
 
+sub deltafinished {
+  my ($job, $js, $changed) = @_;
+
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print "  - $job is bad\n";
+    return;
+  }
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
+  my $packid = $info->{'package'};
+  if ($info->{'arch'} ne $myarch) {
+    print "  - $job has bad arch\n";
+    return;
+  }
+  if (!$projpacks->{$projid}) {
+    print "  - $job belongs to an unknown project\n";
+    return;
+  }
+  my $prp = "$projid/$repoid";
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  for my $f (sort(ls($jobdatadir))) {
+    next unless $f =~ /^(.*)\.(drpm|out|dseq)$/s;
+    my $deltaid = $1;
+    if ($2 ne 'dseq') {
+      rename("$jobdatadir/$f", "$dst/$deltaid");
+    } else {
+      rename("$jobdatadir/$f", "$dst/$deltaid.dseq");
+    }
+  }
+  $changed->{$prp} ||= 1;
+  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$dst/logfile");
+}
+
 sub uploadbuildevent {
   my ($job, $js, $changed) = @_;
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
@@ -2320,7 +2577,7 @@ sub importevent {
   my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
- $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
@@ -4604,6 +4861,7 @@ while(1) {
   # Step 2a: check if packages got deleted/excluded
   for my $packid (grep {!/^[:\.]/} ls("$reporoot/$prp/$myarch")) {
     if (!$packs->{$packid}) {
+      next if $packid eq '_deltas';
       print "      - $packid: is obsolete\n";
     } else {
       my $pdata = $packs->{$packid};
@@ -5413,17 +5671,18 @@ relsynccheck:
       my $oldrepodone = readstr("$reporoot/$prp/$myarch/:repodone", 1) || '';
       unlink("$reporoot/$prp/$myarch/:repodone") if $oldrepodone ne $repodonestate;
     }
+    my $publisherror;
     if (! -e "$reporoot/$prp/$myarch/:repodone") {
       if (!@packs || grep {$_} values %pubenabled) {
 	mkdir_p("$reporoot/$prp/$myarch");
-	prpfinished($prp, \@packs, \%pubenabled, $bconf);
-	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless %unfinished;
+	$publisherror = prpfinished($prp, \@packs, \%pubenabled, $bconf, $prpsearchpath{$prp});
+	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless $publisherror || %unfinished;
       } else {
 	print "    publishing is disabled\n";
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, "disabled");
       }
     }
-    if (!%unfinished) {
+    if (!%unfinished && !$publisherror) {
       $prpfinished{$prp} = 1;
       if (!$prpnoleaf{$prp}) {
 	# only free data if all projects we depend on are finished, too.
