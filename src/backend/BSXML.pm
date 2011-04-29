@@ -86,17 +86,17 @@ our @flags = (
 
 our $download = [
     'download' =>
-     'baseurl',
-     'metafile',
-     'mtype',
-     'arch',
+    'baseurl',
+    'metafile',
+    'mtype',
+    'arch',
 ];
 
 our $maintenance = [
     'maintenance' =>
-      [[ 'maintains' =>
+     [[ 'maintains' =>
             'project',
-      ]],
+     ]],
 ];
 
 our $proj = [
@@ -120,35 +120,35 @@ our $proj = [
             'role',
             'groupid',
      ]],
-     [ $download ],
-     [ $maintenance ],
-     [ 'attributes' => 
-       [[ 'namespace' => 
-            'name', 
-            [[ 'modifiable_by' =>
-		   'user',
-		   'group',
-		   'role',
-            ]],
-       ]],
-       [[ 'definition' => 
-            'name', 
-            'namespace', 
-            [],
-            'count',
-            [ 'default' =>
-               [ 'value' ],
-            ],
-            [ 'allowed' =>
-               [ 'value' ],
-            ],
-            [[ 'modifiable_by' =>
-               'user',
-               'group',
-               'role',
-            ]],
-       ]],
-     ],
+      [ $download ],
+	$maintenance,
+      [ 'attributes' => 
+         [[ 'namespace' => 
+		'name', 
+	     [[ 'modifiable_by' =>
+		    'user',
+		    'group',
+		    'role',
+             ]],
+         ]],
+         [[ 'definition' => 
+		'name', 
+		'namespace', 
+		[],
+		'count',
+              [ 'default' =>
+		  [ 'value' ],
+              ],
+              [ 'allowed' =>
+		  [ 'value' ],
+              ],
+             [[ 'modifiable_by' =>
+		    'user',
+		    'group',
+		    'role',
+             ]],
+         ]],
+      ],
 	@flags,
       [ $repo ],
 ];
