@@ -114,7 +114,7 @@
   </table>
 </div>
 
-<% if @is_reviewer and (@req.state.to_s == 'review' or @req.state.to_s == 'new') %>
+<% if @is_reviewer and (@req.state.name == 'review' or @req.state.name == 'new') %>
   <% content_for :head_javascript do %>
     function modifyReview(id, new_state) {
       var comment = $('#review_comment_' + id).attr('value');
@@ -147,7 +147,7 @@
         <th style="width: 1%">Type</th>
         <th style="width: 8%">Reviewer</th>
         <th style="width: 89%">Reviewer Comment</th>
-        <% if @is_reviewer and (@req.state.name == "review" or @req.state.to_s == "new") %>
+        <% if @is_reviewer and (@req.state.name == "review" or @req.state.name == "new") %>
           <th style="width: 1%">Actions</th>
         <% end %>
       </tr>
@@ -176,7 +176,7 @@
             <% end %>
           <% end %>
 
-          <% if @is_reviewer and (@req.state.name == "review" or @req.state.to_s == "new") and
+          <% if @is_reviewer and (@req.state.name == "review" or @req.state.name == "new") and
                 ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
                  (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
                  (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
