@@ -1321,6 +1321,26 @@ sub putjob {
   return $BSStdServer::return_ok;
 }
 
+sub getjobdata {
+  my ($cgi, $arch, $job, $jobid) = @_;
+  local *F;
+  die("no such job\n") unless -e "$jobsdir/$arch/$job";
+  die("job is not building\n") unless -e "$jobsdir/$arch/$job:status";
+  my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
+  die("job is not building\n") if $jobstatus->{'code'} ne 'building';
+  my $dir = "$jobsdir/$arch/$job:dir";
+  die("job has no jobdata\n") unless -d $dir;
+  my @send;
+  for my $file (grep {!/^\./} ls($dir)) {
+    next unless -f "$dir/$file";
+    push @send, {'name' => "$file", 'filename' => "$dir/$file"};
+  }
+  close F;	# XXX: too early?
+  BSServer::reply_cpio(\@send);
+  return undef;
+}
+
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
@@ -2819,6 +2839,7 @@ my $dispatches = [
   '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num?' => \&putjob,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
+  '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
 
   # published files
   '/published' => \&publisheddir,
