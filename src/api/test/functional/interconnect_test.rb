@@ -44,7 +44,7 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/public/source/RemoteInstance:BaseDistro/pack1/my_file"
     assert_response :success
 
-    # binary access
+    # public binary access
     get "/public/build/home:Iggy/10.2/i586/_repository?view=cache"
     assert_response :success
     get "/public/build/home:Iggy/10.2/i586/_repository?view=solvstate"
@@ -128,32 +128,43 @@ class InterConnectTests < ActionController::IntegrationTest
     # test binary operations
     prepare_request_with_user "king", "sunflower"
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"
-    assert_response 404
+    assert_response 403
     post "/build/RemoteInstance:BaseDistro", :cmd => "rebuild", :package => "pack1"
-    assert_response 404
+    assert_response 403
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe"
-    assert_response 404
+    assert_response 403
     post "/build/RemoteInstance:BaseDistro", :cmd => "rebuild"
-    assert_response 404
+    assert_response 403
     # the webui requires this for repository browsing in advanced repo add mask
     get "/build/RemoteInstance:BaseDistro"
     assert_response :success
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo"
     assert_response :success
 if $ENABLE_BROKEN
-    # FIXME: remote binaries access, or don't we want to support this ?
-    # backend is not forwarding
+    # FIXME: remote binaries access, this breaks biulding of products against remote project repos
+    # backend is not forwarding atm
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
     assert_response :success
-    # api code error
-    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository/package.rpm"
-    assert_response :success
 end
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository/package"
+    assert_response :success
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586"
     assert_response :success
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2"
     assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2?view=cpio"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/pack2?view=binaryversions"
+    assert_response :success
     get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=solvstate"
+    assert_response :success
+    get "/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=binaryversions"
     assert_response :success
 
     # direct access to remote instance, not existing project/package

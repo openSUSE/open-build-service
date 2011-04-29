@@ -43,6 +43,12 @@ class BuildController < ApplicationController
         return
       end
 
+      unless prj.class == DbProject
+        render_error :status => 403, :errorcode => "readonly_error",
+          :message => "The project #{params[:project]} is a remote project and therefore readonly."
+        return
+      end
+
       if not allowed and not params[:package].nil?
         package_names = nil
         if params[:package].kind_of? Array
@@ -143,17 +149,15 @@ class BuildController < ApplicationController
     required_parameters :project, :repository, :arch, :package, :filename
 
     # read access permission check
+    prj = nil
     if params[:package] == "_repository"
       prj = DbProject.get_by_name params[:project]
     else
       pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
-      prj = pkg.db_project
+      prj = pkg.db_project if pkg.class == DbPackage
     end
 
-    # FIXME2.2:
-    # binary download can be only supported project wide. We need to disallow it as per package
-    # setting, now that it is wanted as security feature
-    if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
+    if prj.class == DbProject and prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
@@ -229,10 +233,7 @@ class BuildController < ApplicationController
     # for permission check
     pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
 
-    # FIXME2.2:
-    # binary download can be only supported project wide. We need to disallow it as per package
-    # setting, now that it is wanted as security feature
-    if pkg.db_project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.db_project)
+    if pkg.class == DbPackage and pkg.db_project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.db_project)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
