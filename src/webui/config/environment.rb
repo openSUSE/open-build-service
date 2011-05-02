@@ -117,6 +117,9 @@ end
 unless defined?(PROXY_AUTH_MODE) and not PROXY_AUTH_MODE.blank?
   PROXY_AUTH_MODE = :off
 end
+unless defined?(FRONTEND_LDAP_MODE) and not FRONTEND_LDAP_MODE.blank?
+  FRONTEND_LDAP_MODE = :off
+end
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|

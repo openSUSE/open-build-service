@@ -63,6 +63,10 @@ class UserController < ApplicationController
 
   def register
     valid_http_methods(:post)
+    unless FRONTEND_LDAP_MODE == :off
+      flash[:error] = 'Registering currently not possible with LDAP mode'
+      redirect_back_or_to :controller => 'main', :action => 'index' and return
+    end
     begin
       find_cached(Person, session[:login] )
       logger.info "User #{session[:login]} already exists..."

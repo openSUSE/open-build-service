@@ -20,6 +20,7 @@ config.log_level = :debug
 FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
+FRONTEND_LDAP_MODE = :off
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
 #EXTERNAL_FRONTEND_PROTOCOL = "https"

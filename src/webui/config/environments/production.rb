@@ -35,6 +35,7 @@ config.action_controller.session = {
 FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
+FRONTEND_LDAP_MODE = :off
 
 # Enable the interface to change user's password, it can be one of 'on', 'off'
 CHANGE_PASSWD = "on"

@@ -28,6 +28,7 @@ config.action_controller.session = {
 FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
+FRONTEND_LDAP_MODE = :off
 EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 EXTERNAL_FRONTEND_PORT = 443
 EXTERNAL_FRONTEND_PROTOCOL = 'https'

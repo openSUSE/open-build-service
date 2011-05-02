@@ -8,7 +8,9 @@
     <%= link_to 'Log Out', { :controller => 'user', :action => 'logout' }, :method => :post %>
   <% else %>
     <% if PROXY_AUTH_MODE == :on %>
-      <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
+      <% if FRONTEND_LDAP_MODE == :off %>
+        <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
+      <% end %>
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
         <% form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
@@ -30,7 +32,9 @@
         <% end %>
       </div>
     <% else %>
-      <%= link_to 'Register', :controller => :user, :action => :register_user %> |
+      <% if FRONTEND_LDAP_MODE == :off %>
+        <%= link_to 'Register', :controller => :user, :action => :register_user %> |
+      <% end %>
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => 'login-trigger' %>
       <div id="login-form">
         <% form_tag(:controller => :user, :action => :do_login) do %>
