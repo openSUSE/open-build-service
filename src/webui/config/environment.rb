@@ -114,6 +114,9 @@ end
 unless defined?(FRONTEND_PROTOCOL) and not FRONTEND_PROTOCOL.blank?
   FRONTEND_PROTOCOL = "http"
 end
+unless defined?(PROXY_AUTH_MODE) and not PROXY_AUTH_MODE.blank?
+  PROXY_AUTH_MODE = :off
+end
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
