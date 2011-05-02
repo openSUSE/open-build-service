@@ -22,13 +22,13 @@ class PackageController < ApplicationController
     @bugowners_mail = []
     if @package.bugowners
       @package.bugowners.each do |bugowner|
-        mail = find_cached(Person, bugowner).email.to_s
-        @bugowners_mail.push mail if mail
+        mail = find_cached(Person, bugowner).email
+        @bugowners_mail.push(mail.to_s) if mail
       end
     elsif @project.bugowners
       @project.bugowners.each do |bugowner|
-        mail = find_cached(Person, bugowner).email.to_s
-        @bugowners_mail.push mail if mail
+        mail = find_cached(Person, bugowner).email
+        @bugowners_mail.push(mail.to_s) if mail
       end
     end
     @bugowners_mail = nil if @bugowners_mail.empty?
