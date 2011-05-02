@@ -25,10 +25,6 @@ module MaintenanceHelper
       mi.save!
     end
 
-    # set empty attribute to allow easy searches of active incidents
-    at = AttribType.find_by_name("OBS:MaintenanceReleaseDate")
-    Attrib.new(:db_project => tprj, :attrib_type => at).save
-
     # copy all packages and project source files from base project
     # we don't branch from it to keep the link target.
     if baseProject
@@ -137,18 +133,6 @@ module MaintenanceHelper
       end
       Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
     end
-
-    # update attribute to current version
-    at = AttribType.find_by_name("OBS:MaintenanceReleaseDate")
-    a = Attrib.find(:first, :conditions => ["attrib_type_id = ? AND db_project_id = ?", at.id, sourcePackage.db_project.id])
-    found=nil
-    a.values.each do |v|
-      found=1 if v.value.to_s == timestamp.to_s
-    end
-    unless found
-      a.values << AttribValue.new(:value => timestamp.to_s, :position => (a.values.count + 1))
-    end
-    a.save
 
   end
 end

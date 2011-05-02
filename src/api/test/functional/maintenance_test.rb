@@ -191,10 +191,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal node.repository.data, oprojectmeta.repository.data
     assert_equal node.build.data, oprojectmeta.build.data
 
-    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
-    assert_response :success
-    assert_no_tag( :tag => "value" )
-
     get "/source/#{maintenanceProject}"
     assert_response :success
     assert_tag( :tag => "directory", :attributes => { :count => "7" } )
@@ -245,11 +241,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
     get "/source/#{maintenanceProject}/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
-
-    # attribute set ?
-    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
-    assert_response :success
-    assert_no_tag( :tag => "value" )
 
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
@@ -392,11 +383,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
     assert_no_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
-
-    # attribute changed ?
-    get "/source/#{maintenanceProject}/_attribute/OBS:MaintenanceReleaseDate"
-    assert_response :success
-    assert_tag( :tag => "attribute", :children => { :count => 1 } )
 
     #cleanup
     delete "/source/#{maintenanceProject}"
