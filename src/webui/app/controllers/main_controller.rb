@@ -100,8 +100,10 @@ class MainController < ApplicationController
       predicate = "starts-with(@project,'openSUSE:')"
     elsif category == 'main'
       predicate = "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))"
+    else
+      render :text => 'No category given' and return
     end
-    find_cached(Collection, :id, :what => 'package', :predicate => predicate).each_package do |p|
+    find_cached(Collection, :id, :what => 'package', :predicate => predicate).each do |p|
       @packages << [p.value(:project), p.value(:name)]
     end
     render :template => 'main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}
