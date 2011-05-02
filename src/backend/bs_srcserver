@@ -111,7 +111,7 @@ sub notify_repservers {
 }
 
 sub runservice {
-  my ($cgi, $projid, $packid) = @_;
+  my ($cgi, $projid, $packid, $nonfatal) = @_;
 
   return if $packid eq "_project";
   return unless $BSConfig::serviceserver;
@@ -124,6 +124,7 @@ sub runservice {
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);
   unless ($files->{'_service'} || $projectfiles->{'_service'}){
+    die("404 no source service defined!") unless $nonfatal;
     # drop all existing service files
     my $dirty;
     for my $pfile (keys %$files) {
@@ -3294,6 +3295,21 @@ sub getfilelist {
   my $li = {};
   my $files = lsrev($rev, $li);
 
+  # show state of current source service run, if defined
+  my $serviceinfo;
+  if ($files->{'_service'} && !defined($cgi->{'rev'})) {
+    $serviceinfo = {};
+    my $lockfile = "$eventdir/service/${projid}::$packid";
+    if (-e $lockfile) {
+      $serviceinfo->{'code'} = 'running';
+    } elsif ($files->{'_service_error'}) {
+      $serviceinfo->{'code'} = 'failed';
+      $serviceinfo->{'error'} = repreadstr($rev, '_service_error', $files->{'_service_error'});
+    } else {
+      $serviceinfo->{'code'} = 'succeeded';
+    }
+  }
+
   if ($files->{'_link'}) {
     if ($cgi->{'emptylink'}) {
       my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
@@ -3346,6 +3362,7 @@ sub getfilelist {
   $ret->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
   $ret->{'rev'} = $rev->{'rev'} if exists $rev->{'rev'};
   $ret->{'vrev'} = $rev->{'vrev'} if exists $rev->{'vrev'};
+  $ret->{'serviceinfo'} = $serviceinfo if $serviceinfo;
   my @res;
   for my $filename (sort keys %$files) {
     my @s = repstat($rev, $filename, $files->{$filename});
@@ -3412,7 +3429,7 @@ sub putfile {
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
 # update happens only on commit atm, or we would modify on file upload time ...
-# runservice($projid, $packid) if $files->{'_service'} && not ($rev eq 'upload');
+# runservice($projid, $packid, 1) if $files->{'_service'} && not ($rev eq 'upload');
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -4230,7 +4247,7 @@ sub delfile {
   $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
   delete $rev->{'project'};
   delete $rev->{'package'};
-  runservice($cgi, $projid, $packid);
+  runservice($cgi, $projid, $packid, 1);
   return ($rev, $BSXML::revision);
 }
 

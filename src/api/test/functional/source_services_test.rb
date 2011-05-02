@@ -67,10 +67,11 @@ class SourceServicesTest < ActionController::IntegrationTest
   def wait_for_service( project, package )
     i=0
     while true
-      get "/source/#{project}/#{package}/_history"
+      get "/source/#{project}/#{package}"
       assert_response :success
       node = ActiveXML::XMLNode.new(@response.body)
-      return if node.each_revision.last.user.text == "_service"
+      return unless node.has_element? "serviceinfo" 
+      return if [ "failed", "succeeded" ].include? node.serviceinfo.code # else "running"
       i=i+1
       if i > 10
         puts "ERROR in wait_for_service: service did not run until time limit"
@@ -108,6 +109,15 @@ class SourceServicesTest < ActionController::IntegrationTest
     # cleanup
     delete "/source/home:tom/service"
     assert_response :success
+
+    # failure check
+    prepare_request_with_user "king", "sunflower"
+    get "/source/BaseDistro2/pack2"
+    assert_response :success
+    get "/source/BaseDistro2/pack2/_service"
+    assert_response 404
+    post "/source/BaseDistro2/pack2?cmd=runservice"
+    assert_response 404
   end
 
   def test_run_project_source_service

@@ -18,6 +18,7 @@
       <xs:sequence>
         <xs:element ref="entry" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="linkinfo" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="serviceinfo" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute name="rev" type="xs:string"/>
       <xs:attribute name="srcmd5" type="xs:string"/>
@@ -51,6 +52,20 @@
       <xs:attribute name="project" type="xs:string"/>
       <xs:attribute name="package" type="xs:string"/>
       <xs:attribute name="srcmd5" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="serviceinfo">
+    <xs:annotation>
+      <xs:documentation>
+        Information about source service run of last commit.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="error" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="code" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

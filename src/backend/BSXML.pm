@@ -312,6 +312,13 @@ our $linkinfo = [
       [ $linked ],
 ];
 
+our $serviceinfo = [
+    'serviceinfo' =>
+	# information in case a source service is part of package
+	'code',         # can be "running", "failed", "succeeded"
+        [],
+	'error',        # contains error message in case of error
+];
 
 our $dir = [
     'directory' =>
@@ -320,14 +327,15 @@ our $dir = [
 	'rev',
 	'vrev',
 	'srcmd5',
-        'tproject',
-        'tpackage',
-        'trev',
-        'tsrcmd5',
-        'lsrcmd5',
+        'tproject',     # obsolete, use linkinfo
+        'tpackage',     # obsolete, use linkinfo
+        'trev',         # obsolete, use linkinfo
+        'tsrcmd5',      # obsolete, use linkinfo
+        'lsrcmd5',      # obsolete, use linkinfo
         'error',
-        'xsrcmd5',
+        'xsrcmd5',      # obsolete, use linkinfo
         $linkinfo,
+        $serviceinfo,
      [[ 'entry' =>
 	    'name',
 	    'md5',
