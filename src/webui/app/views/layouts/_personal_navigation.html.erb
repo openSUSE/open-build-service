@@ -5,7 +5,7 @@
       <%= link_to pluralize(@nr_involved_requests, 'Request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"} %>
     <% end %> |
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
-    <%= link_to 'Log Out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
+    <%= link_to 'Log Out', { :controller => 'user', :action => 'logout' }, :method => :post %>
   <% else %>
     <% if PROXY_AUTH_MODE == :on %>
       <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
@@ -25,9 +25,8 @@
             <%= label_tag(:password, 'Password') %>
             <%= password_field_tag(:password, '') %>
           </p>
-
-          <p><input value="Login" type="submit" onclick="fillEmptyFields();" /></p>
-          <p class="slim-footer"><a id="close-login" href="#">Cancel</a></p>
+          <p><%= submit_tag('Login', :onclick => 'fillEmptyFields();') %></p>
+          <p class="slim-footer"><%= link_to('Cancel', '#', :id => 'close-login') %></p>
         <% end %>
       </div>
     <% else %>
@@ -44,9 +43,8 @@
             <%= label_tag(:password, 'Password') %>
             <%= password_field_tag(:password, '') %>
           </p>
-
-          <p><input type="submit" value="Login"/></p>
-          <p class="slim-footer"><a id="close-login" href="#cancel">Cancel</a></p>
+          <p><%= submit_tag('Login') %></p>
+          <p class="slim-footer"><%= link_to('Cancel', '#', :id => 'close-login') %></p>
         <% end %>
       </div>
     <% end %>
