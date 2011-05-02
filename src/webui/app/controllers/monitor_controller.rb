@@ -26,10 +26,10 @@ class MonitorController < ApplicationController
       workers = Hash.new
       workers_list = Array.new
       if @workerstatus
-        @workerstatus.each_building.each do |b|
+        @workerstatus.each_building do |b|
           workers_list << [b.workerid, b.hostarch]
         end
-        @workerstatus.each_idle.each do |b|
+        @workerstatus.each_idle do |b|
           workers_list << [b.workerid, b.hostarch]
         end
       end
