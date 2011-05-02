@@ -1,7 +1,5 @@
-
 <div class="grid_6 omega" style="text-align: right;">
-
-  <% if session[:login] -%>
+  <% if session[:login] %>
     <%= link_to session[:login], :controller => 'home', :action => :index %>
     <% if @nr_involved_requests and @nr_involved_requests > 0 %> |
       <%= link_to pluralize(@nr_involved_requests, 'Request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"} %>
@@ -13,33 +11,39 @@
       <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
-        <form action="<%= "#{PROXY_AUTH_LOGIN_PAGE}" %>"
-          method="post" enctype="application/x-www-form-urlencoded" id="login_form">
-          <div class="hidden">
-            <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
-            <input name="context" value="default" type="hidden" />
-            <input name="proxypath" value="reverse" type="hidden" />
-            <input name="message" value="Please log In" type="hidden" />
-            <input name="return_to_path" value="<%= @return_to_path %>" type="hidden" />
-          </div>
-          <p><label class="inlined" for="username">Username</label><input type="text" class="inline-text" name="username" value="" id="username" /></p>
-          <p><label class="inlined" for="password">Password</label><input type="password" class="inline-text" name="password" value="" id="password" /></p>
+        <% form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
+          <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
+          <%= hidden_field_tag(:context, 'default') %>
+          <%= hidden_field_tag(:proxypath, 'reserve') %>
+          <%= hidden_field_tag(:message, 'Please log in') %>
+          <%= hidden_field_tag(:return_to_path, @return_to_path) %>
+          <p>
+            <%= label_tag(:username, 'Username', :class => 'inlined') %>
+            <input type="text" class="inline-text" name="username" value="" id="username" />
+          </p>
+          <p>
+            <%= label_tag(:password, 'Password', :class => 'inlined') %>
+            <input type="password" class="inline-text" name="password" value="" id="password" />
+          </p>
 
           <p><input value="Login" type="submit" onclick="fillEmptyFields();" /></p>
-
           <p class="slim-footer"><a id="close-login" href="#">Cancel</a></p>
-        </form>
+        <% end %>
       </div>
     <% else %>
       <%= link_to "Register", :controller => :user, :action => :register_user %> |
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
-        <% form_tag( :controller => :user, :action => :do_login ) do %>
-          <div class="hidden">
-            <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
-          </div>
-          <p><label class="inlined" for="username">Username</label><input type="text" class="inline-text" name="username" value="" id="username" /></p>
-          <p><label class="inlined" for="password">Password</label><input type="password" class="inline-text" name="password" value="" id="password" /></p>
+        <% form_tag(:controller => :user, :action => :do_login) do %>
+          <%= hidden_field_tag(:return_to_path, @return_to_path) %>
+          <p>
+            <%= label_tag(:username, 'Username', :class => 'inlined') %>
+            <input type="text" class="inline-text" name="username" value="" id="username" />
+          </p>
+          <p>
+            <%= label_tag(:password, 'Password', :class => 'inlined') %>
+            <input type="password" class="inline-text" name="password" value="" id="password" />
+          </p>
 
           <p><input type="submit" value="Login"/></p>
           <p class="slim-footer"><a id="close-login" href="#cancel">Cancel</a></p>
@@ -47,5 +51,4 @@
       </div>
     <% end %>
   <% end %>
-
 </div>
