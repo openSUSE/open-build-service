@@ -101,27 +101,6 @@ class RequestController < ApplicationController
       logger.debug "Can't get diff for request: #{@diff_error}"
     end
   end
- 
-  def change_request(changestate, params)
-    begin
-      if BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
-        flash[:note] = "Request #{changestate}!" and return true
-      else
-        flash[:error] = "Can't change request to #{changestate}!"
-      end
-    rescue BsRequest::ModifyError => e
-      flash[:error] = e.message
-    end
-    return false
-  end
-  private :change_request
-
-  def add_maintainer(req)
-     target_package = find_cached(Package, req.action.target.package, :project => req.action.target.project)
-     target_package.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
-     target_package.save
-  end
-  private :add_maintainer
 
   def changerequest
     @req = find_cached(BsRequest, params[:id] ) if params[:id]
@@ -168,7 +147,7 @@ class RequestController < ApplicationController
         if changestate != 'accepted'
            flash[:error] = "Will not add maintainer for not accepted requests"
         else
-           add_maintainer(@req)
+           add_maintainer(@req) if @req.action.target.package
         end
       end
     end
@@ -231,6 +210,27 @@ class RequestController < ApplicationController
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
     redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+  end
+
+private
+
+  def change_request(changestate, params)
+    begin
+      if BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
+        flash[:note] = "Request #{changestate}!" and return true
+      else
+        flash[:error] = "Can't change request to #{changestate}!"
+      end
+    rescue BsRequest::ModifyError => e
+      flash[:error] = e.message
+    end
+    return false
+  end
+
+  def add_maintainer(req)
+     target_package = find_cached(Package, req.action.target.package, :project => req.action.target.project)
+     target_package.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
+     target_package.save
   end
 
 end
