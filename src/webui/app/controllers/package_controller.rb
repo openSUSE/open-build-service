@@ -31,7 +31,6 @@ class PackageController < ApplicationController
         @bugowners_mail.push(mail.to_s) if mail
       end
     end
-    @bugowners_mail = nil if @bugowners_mail.empty?
     fill_status_cache unless @buildresult.blank?
     linking_packages
   end
