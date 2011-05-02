@@ -90,27 +90,21 @@ class MainController < ApplicationController
     sitemap_projects_subpage(:prjconf, 'monthly', 0.1)
   end
 
-  def load_packages(category)
-    category = category.to_s
-    @packages = Array.new
-    if category == 'home'
-      find_cached(Collection, :id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|
-        @packages << [p.value(:project), p.value(:name)]
-      end
-    elsif category == 'opensuse'
-      find_cached(Collection, :id, :what => "package", :predicate => "starts-with(@project,'openSUSE:')").each_package do |p|
-        @packages << [p.value(:project), p.value(:name)]
-      end
-    elsif category == 'main'
-       find_cached(Collection, :id, :what => "package", :predicate => "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))").each_package do |p|
-         @packages << [p.value(:project), p.value(:name)]
-       end
-    end
-  end
-
   def sitemap_packages
-    load_packages(params[:category])
-    render :template => 'main/sitemap_packages', :layout => false, :locals => { :action => params[:listaction] }
+    category = params[:category].to_s
+    @packages = Array.new
+    predicate = ''
+    if category == 'home'
+      predicate = "starts-with(@project,'home:')"
+    elsif category == 'opensuse'
+      predicate = "starts-with(@project,'openSUSE:')"
+    elsif category == 'main'
+      predicate = "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))"
+    end
+    find_cached(Collection, :id, :what => 'package', :predicate => predicate).each_package do |p|
+      @packages << [p.value(:project), p.value(:name)]
+    end
+    render :template => 'main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}
   end
 
   def add_news_dialog
