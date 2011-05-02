@@ -118,6 +118,10 @@ sub runservice {
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
 
+  # die when a source service is still running
+  my $lockfile = "$eventdir/service/${projid}::$packid";
+  die("403 service still running") if !$nonfatal && -e $lockfile;
+
   # collect current sources to POST them
   my $projectrev = getrev($projid, '_project');
   my $projectfiles = lsrev($projectrev);
@@ -153,7 +157,6 @@ sub runservice {
     }
   }
 
-  my $lockfile = "$eventdir/service/${projid}::$packid";
   mkdir_p("$eventdir/service");
   BSUtil::touch($lockfile);
 
