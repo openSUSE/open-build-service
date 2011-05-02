@@ -1,17 +1,16 @@
 class MonitorController < ApplicationController
 
   skip_before_filter :check_user, :only => [ :plothistory ]
+  before_filter :require_settings, :only => [:old, :index, :filtered_list, :update_building]
   before_filter :require_available_architectures, :only => [:index]
 
   def old
-    get_settings
     check_user
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
   end
 
   def index
-    get_settings
     check_user
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
       redirect_to :project => params[:project]
@@ -46,25 +45,12 @@ class MonitorController < ApplicationController
   end
 
   def filtered_list
-    get_settings
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
     render :partial => 'building_table'
   end
 
-  def get_settings
-    @project_filter = params[:project]
-
-    # @interval_steps must be > 0:
-    # @interval_steps * @max_color + @dead_line minutes
-    @interval_steps = 1
-    @max_color = 240
-    @time_now = Time.now
-    @dead_line = 1.hours.ago
-  end
-
   def update_building
-    get_settings
     begin
        workerstatus = Workerstatus.find :all
     rescue Timeout::Error
@@ -154,6 +140,17 @@ private
       flash[:error] = "Available architectures not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
     end
+  end
+
+  def require_settings
+    @project_filter = params[:project]
+
+    # @interval_steps must be > 0:
+    # @interval_steps * @max_color + @dead_line minutes
+    @interval_steps = 1
+    @max_color = 240
+    @time_now = Time.now
+    @dead_line = 1.hours.ago
   end
 
 end
