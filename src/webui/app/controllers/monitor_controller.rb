@@ -5,13 +5,11 @@ class MonitorController < ApplicationController
   before_filter :require_available_architectures, :only => [:index]
 
   def old
-    check_user
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
   end
 
   def index
-    check_user
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
       redirect_to :project => params[:project]
     else
