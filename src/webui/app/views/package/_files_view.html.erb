@@ -28,9 +28,9 @@
                 (Global Patch)
               <% end %>
             </td>
-            <td><!-- <%= file[:size].rjust(10, '0') %> --><%=h human_readable_fsize( file[:size] )%></td>
-            <td><!-- <%= file[:mtime] %> --><%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %></td>
-                <!-- limit download for anonymous user to avoid getting killed by crawlers -->
+            <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%=h human_readable_fsize( file[:size] )%></td>
+            <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %></td>
+            <!-- limit download for anonymous user to avoid getting killed by crawlers -->
             <td><%= if @user or file[:size].to_i < ( 4 * 1024 * 1024 )
                       link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name], file[:srcmd5] )
                     end %>
