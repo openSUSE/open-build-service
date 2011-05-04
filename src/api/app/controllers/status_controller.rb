@@ -356,7 +356,7 @@ class StatusController < ApplicationController
             next unless m
             uri = "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{m[2]}/_repository/#{m[1]}.rpm?view=fileinfo_ext"
             begin
-              key = Digest::MD5.hexdigest(uri)
+              key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
               fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key) { backend.direct_http( URI( uri ) ) } )
               fileinfo.each_requires_ext do |r|
                 unless r.has_element? :providedby
