@@ -1,0 +1,26 @@
+#
+# openSUSE Build Service 2.1.8
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* Support for request notifications when to request has multiple actions
+
+Changes:
+========
+
+* Remove Ubuntu 9.04 from default targets and added 11.04
+* api: strip passwords in log files (when running in debug mode)
+
+Bugfixes:
+=========
+
+* webui: support mod_xforward
+* api: fix handling of not permitted PUT/POST commands when use apache with mod_rails
+* api: fix crash when accessing attributes on remote projects
+
