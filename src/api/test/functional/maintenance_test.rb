@@ -249,6 +249,14 @@ class MaintenanceTests < ActionController::IntegrationTest
   def test_create_maintenance_project_and_release_packages
     prepare_request_with_user "maintenance_coord", "power"
 
+    # setup 'My:Maintenance' as a maintenance project by fetching it's meta and set a type
+    get "/source/My:Maintenance/_meta"
+    assert_response :success
+    maintenance_project_meta = REXML::Document.new(@response.body)
+    maintenance_project_meta.elements['/project'].attributes['type'] = 'maintenance'
+    put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
+    assert_response :success
+
     # setup a maintained distro
     post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
