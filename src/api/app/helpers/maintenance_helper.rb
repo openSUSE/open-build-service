@@ -1,24 +1,31 @@
 module MaintenanceHelper
 
   # updates packages automatically generated in the backend after submitting a product file
-  def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil )
+  def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
     mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
 
     tprj = nil
     DbProject.transaction do
       tprj = DbProject.new :name => mi.project_name
-      tprj.project_user_role_relationships = maintenanceProject.project_user_role_relationships
-      tprj.project_group_role_relationships = maintenanceProject.project_group_role_relationships
+      maintenanceProject.project_user_role_relationships.each do |r| 
+        tprj.project_user_role_relationships.new( :user => r.user, :role => r.role )
+      end
+      maintenanceProject.project_group_role_relationships.each do |r| 
+        tprj.project_group_role_relationships.new( :group => r.group, :role => r.role )
+      end
       if baseProject
         # copy as much as possible from base project
-        tprj.title = baseProject.title
-        tprj.description = baseProject.description
-        tprj.flags = baseProject.flags
-        tprj.repositories = baseProject.repositories
+        tprj.title = baseProject.title.dup
+        tprj.description = baseProject.description.dup
+        tprj.flags = baseProject.flags.dup
+        tprj.repositories = baseProject.repositories.dup
       else
         # mbranch call is enabling selected packages
         tprj.store
         tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
+      end
+      if noaccess
+        tprj.flags.create( :flag => 'access', :status => "disable" )
       end
       tprj.store
       mi.db_project_id = tprj.id

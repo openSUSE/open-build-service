@@ -483,7 +483,6 @@ class User < ActiveRecord::Base
                                                 :conditions => ["ug.user_id = ? and db_package_id = ?", self.id, object.id],
                                                 :include => :role
       for rel in rels do
-# TODO:       if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true
@@ -506,7 +505,6 @@ class User < ActiveRecord::Base
                                                 :conditions => ["ug.user_id = ? and db_project_id = ?", self.id, object.id],
                                                 :include => :role
       for rel in rels do
-# TODO:        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true

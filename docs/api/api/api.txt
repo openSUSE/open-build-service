@@ -158,12 +158,14 @@ POST /source
 
   Commands on processing sources globally. Possible commands are
   branch: branch a set of packages based on attributes or on existing request
+  createmaintenanceincident: create mainatenance incident projects based on attribute search
 
 Parameters:
 
   attribute: attribute used for package search, default is OBS:Maintained
   update_project_attribute: attribute name used to find out possible existing update projects of a package
   request: branch by request, branch all packages in actions of request for superseding it
+  noaccess: the new created project will be read protected
   target_project: project which will get used or created
 
 
@@ -315,6 +317,11 @@ POST /source/<project>
   extendkey: Extend the expiration date of gpg keys.
   undelete: undelete the project and all packages existing when the project got removed.
   showlinked: List all projects linking to this one
+  createmaintenanceincident: create a single mainatenance incident project as sub project
+
+Parameters:
+  noaccess: the new created project will be read protected
+
 
 
 === Packages
@@ -463,6 +470,7 @@ Parameters:
   ignoredevel: bool, optional
   target_project: target project name, optional
   target_package: target package name, optional
+  noaccess: the new created project will be read protected, bool, optional
 
 XmlResult: status
 

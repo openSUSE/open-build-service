@@ -1060,6 +1060,8 @@ class SourceController < ApplicationController
     unless params[:attribute]
       params[:attribute] = "OBS:MaintenanceProject"
     end
+    noaccess = false
+    noaccess = true if params[:noaccess]
 
     # find maintenance project via attribute
     at = AttribType.find_by_name(params[:attribute])
@@ -1074,9 +1076,8 @@ class SourceController < ApplicationController
         :message => "no permission to modify project '#{prj.name}'"
       return
     end
-
     # create incident project
-    incident = create_new_maintenance_incident(prj)
+    incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
     render_ok :data => {:targetproject => incident.db_project.name}
   end
 
@@ -1097,6 +1098,8 @@ class SourceController < ApplicationController
         params[:target_project] += ":#{params[:package]}" if params[:package]
       end
     end
+    noaccess = false
+    noaccess = true if params[:noaccess]
 
     # find packages to be branched
     @packages = []
@@ -1168,13 +1171,19 @@ class SourceController < ApplicationController
     end
 
     #create branch project
-    unless DbProject.exists_by_name params[:target_project]
-       # permission check
-       unless @http_user.can_create_project?(params[:target_project])
-         render_error :status => 403, :errorcode => "create_project_no_permission",
-           :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
-         return
-       end
+    if DbProject.exists_by_name params[:target_project]
+      if noaccess
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "The destination project already exists, so the api can't make it not readable"
+        return
+      end
+    else
+      # permission check
+      unless @http_user.can_create_project?(params[:target_project])
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
+        return
+      end
 
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{params[:attribute]}"
@@ -1185,7 +1194,8 @@ class SourceController < ApplicationController
       DbProject.transaction do
         tprj = DbProject.new :name => params[:target_project], :title => title, :description => description
         tprj.add_user @http_user, "maintainer"
-        tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
+        tprj.flags.create( :flag => 'build', :status => "disable" )
+        tprj.flags.create( :flag => 'access', :status => "disable" ) if noaccess
         tprj.store
       end
       if params[:request]
@@ -1329,6 +1339,9 @@ class SourceController < ApplicationController
   def index_project_createmaintenanceincident
     valid_http_methods :post
 
+    noaccess = false
+    noaccess = true if params[:noaccess]
+
     prj = DbProject.get_by_name( params[:project] )
     unless @http_user.can_modify_project?(prj)
       render_error :status => 403, :errorcode => "modify_project_no_permission",
@@ -1337,7 +1350,7 @@ class SourceController < ApplicationController
     end
 
     # create incident project
-    incident = create_new_maintenance_incident(prj)
+    incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
     render_ok :data => {:targetproject => incident.db_project.name}
   end
 
@@ -1780,6 +1793,8 @@ class SourceController < ApplicationController
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
+    noaccess = false
+    noaccess = true if params[:noaccess]
     logger.debug "branch call of #{prj_name} #{pkg_name}"
 
     prj = DbProject.get_by_name prj_name
@@ -1848,84 +1863,91 @@ class SourceController < ApplicationController
       end
     end
  
-    oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
-    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj.class == DbProject
-    opkg_name = pkg_name
-    opkg_name = pkg.name if pkg
-    oprj_name = target_project unless target_project.nil?
-    opkg_name = target_package unless target_package.nil?
+    tprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
+    tprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj.class == DbProject
+    tpkg_name = pkg_name
+    tpkg_name = pkg.name if pkg
+    tprj_name = target_project unless target_project.nil?
+    tpkg_name = target_package unless target_package.nil?
 
     #create branch container
-    oprj = DbProject.find_by_name oprj_name
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(oprj_name)
-    if oprj.nil?
-      unless @http_user.can_create_project?(oprj_name)
+    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(tprj_name)
+    if DbProject.exists_by_name tprj_name
+      if noaccess
         render_error :status => 403, :errorcode => "create_project_no_permission",
-          :message => "no permission to create project '#{oprj_name}' while executing branch command"
+          :message => "The destination project already exists, so the api can't make it not readable"
+        return
+      end
+      tprj = DbProject.get_by_name tprj_name
+    else
+      unless @http_user.can_create_project?(tprj_name)
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "no permission to create project '#{tprj_name}' while executing branch command"
         return
       end
 
       DbProject.transaction do
-        oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj_name}"
-        oprj.add_user @http_user, "maintainer"
+        tprj = DbProject.new :name => tprj_name, :title => "Branch of #{prj_name}"
+        tprj.add_user @http_user, "maintainer"
         if prj.class == DbProject
           prj.repositories.each do |repo|
-            orepo = oprj.repositories.create :name => repo.name
-            orepo.architectures = repo.architectures
-            orepo.path_elements << PathElement.new(:link => repo, :position => 1)
+            trepo = tprj.repositories.create :name => repo.name
+            trepo.architectures = repo.architectures
+            trepo.path_elements << PathElement.new(:link => repo, :position => 1)
           end
           # take over flags, but explicit disable publishing by default and enable building.
           prj.flags.each do |f|
-            oprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
+            tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
           end
-          oprj.flags.create( :status => "disable", :flag => 'publish')
         else
           # FIXME: support this also for remote projects
         end
-        oprj.store
+        tprj.flags.create( :status => "disable", :flag => 'publish')
+        tprj.flags.create( :status => "disable", :flag => 'access') if noaccess
+        tprj.store
       end
     end
 
     #create branch package
-    unless valid_package_name? opkg_name
+    unless valid_package_name? tpkg_name
       render_error :status => 400, :errorcode => "invalid_package_name",
-        :message => "invalid package name '#{opkg_name}'"
+        :message => "invalid package name '#{tpkg_name}'"
     end
-    if opkg = oprj.db_packages.find_by_name(opkg_name)
+    if tpkg = tprj.db_packages.find_by_name(tpkg_name)
       if params[:force]
         # shall we clean all files here ?
       else
         render_error :status => 400, :errorcode => "double_branch_package",
-          :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
+          :message => "branch target package already exists: #{tprj_name}/#{tpkg_name}"
         return
       end
-      unless @http_user.can_modify_package?(opkg)
+      unless @http_user.can_modify_package?(tpkg)
         render_error :status => 403, :errorcode => "create_package_no_permission",
-          :message => "no permission to create package '#{opkg_name}' for project '#{oprj_name}' while executing branch command"
+          :message => "no permission to create package '#{tpkg_name}' for project '#{tprj_name}' while executing branch command"
         return
       end
     else
-      unless @http_user.can_create_package_in?(oprj)
+      unless @http_user.can_create_package_in?(tprj)
         render_error :status => 403, :errorcode => "create_package_no_permission",
-          :message => "no permission to create package '#{opkg_name}' for project '#{oprj_name}' while executing branch command"
+          :message => "no permission to create package '#{tpkg_name}' for project '#{tprj_name}' while executing branch command"
         return
       end
 
       if pkg
-        opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
+        tpkg = tprj.db_packages.create(:name => tpkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       else
-        opkg = oprj.db_packages.create(:name => opkg_name, :description => params.has_key?(:comment) ? params[:comment] : "" )
+        tpkg = tprj.db_packages.create(:name => tpkg_name, :description => params.has_key?(:comment) ? params[:comment] : "" )
       end
       if pkg
         # take over flags, but ignore publish and build flags (when branching from a frozen project)
         pkg.flags.each do |f|
-          opkg.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
+          tpkg.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
         end
       else
         # FIXME: support this also for remote projects
       end
-      opkg.add_user @http_user, "maintainer"
-      opkg.store
+      tpkg.add_user @http_user, "maintainer"
+      tpkg.store
     end
 
     #create branch of sources in backend
@@ -1935,11 +1957,11 @@ class SourceController < ApplicationController
     end
     comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
     if pkg
-      Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
-      render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
+      Suse::Backend.post "/source/#{tprj_name}/#{tpkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+      render_ok :data => {:targetproject => tprj_name, :targetpackage => tpkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
     else
-      Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
-      render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
+      Suse::Backend.post "/source/#{tprj_name}/#{tpkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+      render_ok :data => {:targetproject => tprj_name, :targetpackage => tpkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
     end
   end
 

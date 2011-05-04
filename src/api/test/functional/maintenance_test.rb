@@ -76,12 +76,22 @@ class MaintenanceTests < ActionController::IntegrationTest
     # do the real mbranch for default maintained packages
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
+    post "/source", :cmd => "branch", :package => "pack2", :noaccess => 1
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    assert_response :success
+    assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    delete "/source/home:tom:branches:OBS_Maintained:pack2"
+    assert_response :success
     post "/source", :cmd => "branch", :package => "pack2"
     assert_response :success
 
     # validate result
     get "/source/home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    assert_response :success
+    assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2/_meta"
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro/_meta"
@@ -109,6 +119,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro"
     assert_response :success
     # test branching another package only reachable via project link into same project
+    post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2", :noaccess => 1
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "create_project_no_permission" }
     post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack"
@@ -210,7 +223,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
 
     prepare_request_with_user "maintenance_coord", "power"
-    # create a maintenance incident
+    # create a public maintenance incident
     post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
@@ -219,6 +232,18 @@ class MaintenanceTests < ActionController::IntegrationTest
     incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
     get "/source/#{maintenanceProject}/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+
+    # create a maintenance incident under embargo
+    post "/source/My:Maintenance?cmd=createmaintenanceincident&noaccess=1", nil
+    assert_response :success
+    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    data = REXML::Document.new(@response.body)
+    maintenanceProject=data.elements["/status/data"].text
+    incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
+    get "/source/#{maintenanceProject}/_meta"
+    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
   end
 
   def test_create_maintenance_project_and_release_packages
