@@ -697,8 +697,8 @@ sub addrev {
   }
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
-  die("bad files\n") if grep {/\//} keys %$files;
-  die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
+  die("bad files (slash)\n") if grep {/\//} keys %$files;
+  die("bad files (glyph)\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
   if ($packid eq '_product') {
     expandproduct($projid, $packid, $files, $user, 1);
@@ -3932,6 +3932,27 @@ sub sourcecommitfilelist {
     return ($res, $BSXML::dir);
   }
 
+  # keep _service generated files, if source service keeps used
+  if (!$cgi->{'noservice'}) {
+    # do we have currently a source service ?
+    my $prev = getrev($projid, '_project');
+    my $pfiles = lsrev($prev);
+    if ($files->{'_service'} || $pfiles->{'_service'}) {
+      # had last commit a source service ?
+      my $orev = getrev($projid, $packid);
+      my $ofiles;
+      $ofiles = lsrev($orev) if $orev;
+      if ($ofiles->{'_service'} || $pfiles->{'_service'}) {
+        # take over old generated files for caching and reducing diff sizes
+        my %ofiles = map {$_ => [$ofiles->{$_}, $_]} keys %$ofiles;
+        for (keys %ofiles) {
+          next unless $_ =~ /^_service:.*:.*/ || $_ eq '_service_error';
+          $files->{$_} = $ofiles{$_}[0] # take over md5
+        }
+      }
+    }
+  }
+
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
     # autocommit old update revision so that it doesn't get lost
@@ -3941,6 +3962,7 @@ sub sourcecommitfilelist {
   }
   my $rev = addrev($cgi, $projid, $packid, $files);
 
+  # trigger service run, except for commits by service server itself
   if (!$cgi->{'noservice'}) {
     my $prev = getrev($projid, '_project');
     my $pfiles = lsrev($prev);
