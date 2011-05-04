@@ -151,6 +151,19 @@ class DbProjectTest < ActiveSupport::TestCase
 
     @project.store_axml(ActiveXML::Base.new(original))
   end  
+
+  def test_create_maintenance_project_and_maintained_project
+    # Create the project where maintenance is done
+    maintenance_project = DbProject.new(:name => 'Maintenance:Project')
+    assert_equal true, maintenance_project.project_type=('maintenance')
+    assert_equal 'standard', maintenance_project.project_type()
+
+    # Create a project for which maintenance is done (i.e. a maintained project)
+    maintained_project = DbProject.new(:name => 'Maintained:Project')
+    assert_equal true, maintained_project.maintenance_project=(maintenance_project)
+    assert_equal true, maintained_project.maintenance_project=(maintenance_project.name)
+    assert_equal maintenance_project, maintained_project.maintenance_project()
+  end
   
   
   #helper

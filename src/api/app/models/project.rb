@@ -45,4 +45,32 @@ class Project < ActiveXML::Base
     return disabled
   end
 
+  def project_type
+    return DbProjectType.find_by_id(type_id).name
+  end
+
+  def project_type=(project_type_name)
+    type = DbProjectType.find_by_name(project_type_name)
+    return false unless type
+    type_id = type.id
+    return true
+  end
+
+  def maintenance_project
+    return DbProject.find_by_id(maintenance_project_id)
+  end
+
+  def maintenance_project=(project)
+    if project.class == DbProject
+      maintenance_project_id = project.id
+      return true
+    elsif project.class == String
+      prj = DbProject.find_by_name(project)
+      if prj
+        maintenance_project_id = prj.id
+        return true
+      end
+    end
+    return false
+  end
 end
