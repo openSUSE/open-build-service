@@ -257,12 +257,18 @@ class MaintenanceTests < ActionController::IntegrationTest
     put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
     assert_response :success
 
-    # setup a maintained distro
-    post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
-    assert_response :success
+    # set the update project for 'BaseDistro2'
     post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2:LinkedUpdateProject</value> </attribute> </attributes>"
     assert_response :success
-    post "/source/BaseDistro3/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+
+    # maintain 'BaseDistro2' and 'BaseDistro3' in 'My:Maintenance'
+    get "/source/My:Maintenance/_meta"
+    assert_response :success
+    maintenance_project_meta = REXML::Document.new(@response.body)
+    maintenance_elem = maintenance_project_meta.elements['project'].add_element('maintenance')
+    maintenance_elem.add_element('maintains', 'project' => 'BaseDistro2')
+    maintenance_elem.add_element('maintains', 'project' => 'BaseDistro3')
+    put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
     assert_response :success
 
     # create a maintenance incident
