@@ -525,6 +525,7 @@ class ProjectController < ApplicationController
     @project = Project.new(:name => project_name)
     @project.title.text = params[:title]
     @project.description.text = params[:description]
+    @project.set_project_type('maintenance') if params[:maintenance_project]
     @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
     @project.add_person :userid => session[:login], :role => 'maintainer'
     @project.add_person :userid => session[:login], :role => 'bugowner'

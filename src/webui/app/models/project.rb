@@ -348,6 +348,14 @@ class Project < ActiveXML::Base
     return data.attributes['type']
   end
 
+  def set_project_type(project_type)
+    if ['maintenance', 'maintenance_incident', 'standard'].include?(project_type)
+      data.attributes['type'] = project_type
+      return true
+    end
+    return false
+  end
+
   def is_remote?
     has_element? "remoteurl"
   end
