@@ -566,7 +566,7 @@ class ApplicationController < ActionController::Base
     # workaround an exception in mod_rails, it dies when an answer is send without
     # reading the body. We trigger passenger to read the entire body via requesting the size
     if request.put? or request.post?
-      request.body.size
+      request.body.size if request.body.respond_to? 'size'
     end
 
     if opt[:status]
