@@ -1112,6 +1112,40 @@ class DbProject < ActiveRecord::Base
     return nil
   end
 
+  def project_type
+    type = DbProjectType.find_by_id(type_id)
+    return 'standard' unless type
+    return type.name
+  end
+
+  def set_project_type(project_type_name)
+    type = DbProjectType.find_by_name(project_type_name)
+    return false unless type
+    self.type_id = type.id
+    self.save!
+    return true
+  end
+
+  def maintenance_project
+    return DbProject.find_by_id(maintenance_project_id)
+  end
+
+  def set_maintenance_project(project)
+    if project.class == DbProject
+      self.maintenance_project_id = project.id
+      self.save!
+      return true
+    elsif project.class == String
+      prj = DbProject.find_by_name(project)
+      if prj
+        self.maintenance_project_id = prj.id
+        self.save!
+        return true
+      end
+    end
+    return false
+  end
+
   private
 
 end
