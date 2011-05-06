@@ -47,9 +47,11 @@ module ProjectHelper
       #FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
       prj_parents = Project.parent_projects(@project.to_s)
     end
+    project_list = []
     prj_parents.each do |name, short_name|
-      @crumb_list << link_to(short_name, :controller => 'project', :action => 'show', :project => name)
+      project_list << link_to(short_name, :controller => 'project', :action => 'show', :project => name)
     end
+    @crumb_list << project_list
     @crumb_list = @crumb_list + args
   end
 
