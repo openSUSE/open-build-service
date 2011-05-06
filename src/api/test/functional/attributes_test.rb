@@ -29,7 +29,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     get "/attribute/OBS"
     assert_response :success
-    count = 7
+    count = 8
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -160,7 +160,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     get "/attribute/OBS"
     assert_response :success
-    count = 7
+    count = 8
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -201,9 +201,13 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/NOT_EXISTING/_attribute"
     assert_response 404
     get "/source/home:tom/_attribute/OBS:NotExisting"
-    assert_response 403
+    assert_response 404
     get "/source/home:tom/_attribute/NotExisting:NotExisting"
-    assert_response 403
+    assert_response 404
+
+    # via remote link
+    get "/source/RemoteInstance:home:tom/_attribute/OBS:Maintained"
+    assert_response 400
 
     # via group
     prepare_request_with_user "adrian", "so_alone"
@@ -310,6 +314,11 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 403
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
+
+    # invalid operations
+    delete "/source/kde4/kdelibs/kdelibs-devel/_attribute"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "missing_attribute" }
 
     # delete
     ActionController::IntegrationTest::reset_auth

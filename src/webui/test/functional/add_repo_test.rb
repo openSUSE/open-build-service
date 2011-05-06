@@ -16,7 +16,7 @@ class AddRepoTest < ActionController::IntegrationTest
      click_link 'Iggy'
      assert_response :success
 
-     click_link 'Home project'
+     click_link 'Home Project'
      assert_response :success
 
      click_link 'Repositories'

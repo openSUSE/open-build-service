@@ -445,17 +445,25 @@ class StatisticsController < ApplicationController
 
 
   def latest_updated
+    require "benchmark"
 
-    packages = DbPackage.find :all,
-      :order => 'updated_at DESC, name', :limit => @limit
-    projects = DbProject.find :all,
-      :order => 'updated_at DESC, name', :limit => @limit
+    key = "latestupdated_#{@http_user.login}"
+    # authorization and caching:
+    begin
+      @list = Rails.cache.read(key)
+    rescue
+      @list = nil
+    end
+    unless @list
+      packages = DbPackage.find :all, :order => 'updated_at DESC', :limit => @limit
+      projects = DbProject.find :all, :order => 'updated_at DESC', :limit => @limit
 
-    list = projects 
-    list.concat packages
-    list.sort! { |a,b| b.updated_at <=> a.updated_at }
-
-    @list = list[0..@limit-1] if @limit
+      list = projects
+      list.concat packages
+      list.sort! { |a,b| b.updated_at <=> a.updated_at }
+      @list = list[0..@limit-1] if @limit
+      Rails.cache.write(key, @list, :expires_in => 5.minutes)
+    end
   end
 
 

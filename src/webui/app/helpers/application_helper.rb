@@ -102,7 +102,7 @@ module ApplicationHelper
   def get_frontend_url_for( opt={} )
     opt[:host] ||= Object.const_defined?(:EXTERNAL_FRONTEND_HOST) ? EXTERNAL_FRONTEND_HOST : FRONTEND_HOST
     opt[:port] ||= Object.const_defined?(:EXTERNAL_FRONTEND_PORT) ? EXTERNAL_FRONTEND_PORT : FRONTEND_PORT
-    opt[:protocol] ||= FRONTEND_PROTOCOL
+    opt[:protocol] ||= Object.const_defined?(:EXTERNAL_FRONTEND_PROTOCOL) ? EXTERNAL_FRONTEND_PROTOCOL : FRONTEND_PROTOCOL
 
     if not opt[:controller]
       logger.error "No controller given for get_frontend_url_for()."
@@ -355,10 +355,24 @@ module ApplicationHelper
   def format_comment(comment)
     comment ||= '-'
     comment = ERB::Util::h(comment).gsub(%r{[\n\r]}, '<br/>')
-    # always prepend a newline so the following code can eat up leading spaces over all lines
+    # Proper-width tab expansion - a gem from perlfaq4:
+    while comment.sub!(/\t+/) {' ' * ($&.length * 8 - $`.length % 8)}
+    end
+    # Newlines...`
     comment = '<br/>' + comment
-    comment = comment.gsub('(<br/> *) ', '\1&nbsp;')
-    comment = comment.gsub(%r{^<br/>}, '')
+    comment.gsub!(/[\n\r]/, "<br />")
+    # Initial space must be protected, or it may/will be eaten.
+    comment.gsub!(%{<br/> }, "<br/>&nbsp;")
+    # Keep lines breakable by retaining U+20. Keep the width by
+    # transforming every other space into U+A0. The browser will
+    # display U+A0 as U+20, which means it is safe for copy and paste
+    # to a terminal. Avoid any other characters (U+2002/&ensp;) because
+    # they will not be transformed to U+20 during C&P.
+    comment.gsub!(/  /, " &nbsp;")
+
+    # always prepend a newline so the following code can eat up leading spaces over all lines
+    comment.gsub!('(<br/> *) ', '\1&nbsp;')
+    comment.gsub!(%r{^<br/>}, '')
     comment = "<code>" + comment + "</code>"
     return comment.html_safe
   end
@@ -437,4 +451,13 @@ module ApplicationHelper
                           :complete => "$('##{id}_spinner').hide(); $('##{id}_reload').show()")
   end
 
+  # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()
+  def redirect_back_or_to(options = {}, response_status = {})
+    if request.env["HTTP_REFERER"]
+      redirect_to(:back)
+    else
+      redirect_to(options, response_status)
+    end
+  end
 end
+

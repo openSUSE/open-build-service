@@ -15,6 +15,7 @@ module FlagHelper
    end
 
    TYPES = { 
+     'lock' => :enable,
      'build' => :enable,
      'publish' => :enable,
      'debuginfo' => :disable,

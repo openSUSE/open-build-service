@@ -1,91 +1,83 @@
-    Architecture.create :name => "armv4l"
-    Architecture.create :name => "armv5el"
-    Architecture.create :name => "armv6el"
-    Architecture.create :name => "armv7el"
-    Architecture.create :name => "armv7hl"
-    Architecture.create :name => "armv8el"
-    Architecture.create :name => "hppa"
-    Architecture.create :name => "i586"
-    Architecture.create :name => "i686"
-    Architecture.create :name => "ia64"
-    Architecture.create :name => "local"
-    Architecture.create :name => "mips"
-    Architecture.create :name => "mips32"
-    Architecture.create :name => "mips64"
-    Architecture.create :name => "ppc"
-    Architecture.create :name => "ppc64"
-    Architecture.create :name => "s390"
-    Architecture.create :name => "s390x"
-    Architecture.create :name => "sparc"
-    Architecture.create :name => "sparc64"
-    Architecture.create :name => "sparc64v"
-    Architecture.create :name => "sparcv8"
-    Architecture.create :name => "sparcv9"
-    Architecture.create :name => "sparcv9v"
-    Architecture.create :name => "x86_64"
+puts "Seeding architectures table..."
+["armv4l", "armv5el", "armv6el", "armv7el", "armv8el", "hppa", "i586", "i686", "ia64", "local", "mips", "mips32", "mips64", "ppc", "ppc64", "s390", "s390x", "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64"].each do |arch_name|
+  Architecture.find_or_create_by_name :name => arch_name
+end
 
-    admin_role = Role.create :title => "Admin", :global => true
-    user_role  = Role.create :title => "User", :global => true
-    maintainer_role = Role.create :title => "maintainer"
-    downloader_role = Role.create :title => 'downloader'
-    reader_role     = Role.create :title => 'reader'
-    Role.create :title => 'bugowner'
-    Role.create :title => 'reviewer'
+puts "Seeding roles table..."
+admin_role      = Role.find_or_create_by_title :title => "Admin", :global => true
+user_role       = Role.find_or_create_by_title :title => "User", :global => true
+maintainer_role = Role.find_or_create_by_title :title => "maintainer"
+downloader_role = Role.find_or_create_by_title :title => 'downloader'
+reader_role     = Role.find_or_create_by_title :title => 'reader'
+Role.find_or_create_by_title :title => 'bugowner'
+Role.find_or_create_by_title :title => 'reviewer'
 
-    admin  = User.create :login => 'Admin', :email => "root@localhost", :realname => "OBS Instance Superuser", :state => "2", :password => "opensuse", :password_confirmation => "opensuse"
-    nobody = User.create :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
+puts "Seeding users table..."
+admin  = User.find_or_create_by_login_and_email_and_realname :login => 'Admin', :email => "root@localhost", :realname => "OBS Instance Superuser", :state => "2", :password => "opensuse", :password_confirmation => "opensuse"
+nobody = User.find_or_create_by_login_and_email_and_realname :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
 
-    RolesUser.create :user => admin, :role => admin_role
-    RolesUser.create :user => admin, :role => user_role
+puts "Seeding roles_users table..."
+RolesUser.find_or_create_by_user_id_and_role_id :user_id => admin.id, :role_id => admin_role.id
+RolesUser.find_or_create_by_user_id_and_role_id :user_id => admin.id, :role_id => user_role.id
 
-    StaticPermission.create :title => "status_message_create"
-    StaticPermission.create :title => "set_download_counters"
-    StaticPermission.create :title => "download_binaries"
-    StaticPermission.create :title => "source_access"
-    StaticPermission.create :title => "access"
-    StaticPermission.create :title => "global_change_project"
-    StaticPermission.create :title => "global_create_project"
-    StaticPermission.create :title => "global_change_package"
-    StaticPermission.create :title => "global_create_package"
-    StaticPermission.create :title => "change_project"
-    StaticPermission.create :title => "create_project"
-    StaticPermission.create :title => "change_package"
-    StaticPermission.create :title => "create_package"
+puts "Seeding static_permissions table..."
+["status_message_create", "set_download_counters", "download_binaries", "source_access", "access", "global_change_project", "global_create_project", "global_change_package", "global_create_package", "change_project", "create_project", "change_package", "create_package"].each do |sp_title|
+  StaticPermission.find_or_create_by_title :title => sp_title
+end
 
-    StaticPermission.find(:all).each do |sp|
-      admin_role.static_permissions << sp
-    end
-    maintainer_role.static_permissions << StaticPermission.find_by_title('change_project')
-    maintainer_role.static_permissions << StaticPermission.find_by_title('create_project')
-    maintainer_role.static_permissions << StaticPermission.find_by_title('change_package')
-    maintainer_role.static_permissions << StaticPermission.find_by_title('create_package')
-    reader_role.static_permissions     << StaticPermission.find_by_title('access')
-    reader_role.static_permissions     << StaticPermission.find_by_title('source_access')
-    downloader_role.static_permissions << StaticPermission.find_by_title('download_binaries')
+puts "Seeding static permissions for admin role in roles_static_permissions table..."
+StaticPermission.find(:all).each do |sp|
+  admin_role.static_permissions << sp unless admin_role.static_permissions.find_by_id(sp.id)
+end
 
-    p={}
-    p[:user] = admin
-    pm={}
-    pm[:role] = maintainer_role
-    ans=AttribNamespace.create :name => "OBS"
-    ans.attrib_namespace_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "VeryImportantProject", :value_count=>0 )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "UpdateProject", :value_count=>1 )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "Maintained", :value_count=>0 )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceProject", :value_count=>0 )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceVersion", :value_count=>1 )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "MaintenanceIdTemplate", :value_count=>1 )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "ScreenShots" )
-    at.attrib_type_modifiable_bies.create(p)
-    at=AttribType.create( :attrib_namespace => ans, :name => "RequestCloned", :value_count=>1 )
-    at.attrib_type_modifiable_bies.create(pm)
-    at=AttribType.create( :attrib_namespace => ans, :name => "ProjectStatusPackageFailComment", :value_count=>1 )
-    at.attrib_type_modifiable_bies.create(pm)
-    at=AttribType.create( :attrib_namespace => ans, :name => "InitializeDevelPackage", :value_count=>0 )
-    at.attrib_type_modifiable_bies.create(pm)
+puts "Seeding static permissions for maintainer role in roles_static_permissions table..."
+["change_project", "create_project", "change_package", "create_package"].each do |sp_title|
+  sp = StaticPermission.find_by_title(sp_title)
+  maintainer_role.static_permissions << sp unless maintainer_role.static_permissions.find_by_id(sp.id)
+end
+
+puts "Seeding static permissions for reader role in roles_static_permissions table..."
+["access", "source_access"].each do |sp_title|
+  sp = StaticPermission.find_by_title(sp_title)
+  reader_role.static_permissions << sp unless reader_role.static_permissions.find_by_id(sp.id)
+end
+
+puts "Seeding static permissions for downloader role in roles_static_permissions table..."
+["download_binaries"].each do |sp_title|
+  sp = StaticPermission.find_by_title(sp_title)
+  downloader_role.static_permissions << sp unless downloader_role.static_permissions.find_by_id(sp.id)
+end
+
+puts "Seeding attrib_namespaces table..."
+ans = AttribNamespace.find_or_create_by_name :name => "OBS"
+ans.attrib_namespace_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+
+puts "Seeding attrib_types table..."
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "VeryImportantProject", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "UpdateProject", :value_count => 1)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "RejectRequests", :value_count => 1)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "Maintained", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "MaintenanceProject", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "MaintenanceVersion", :value_count => 1)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "MaintenanceIdTemplate", :value_count => 1)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "ScreenShots")
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "RequestCloned", :value_count => 1)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "ProjectStatusPackageFailComment", :value_count => 1)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "InitializeDevelPackage", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+
+puts "Seeding db_project_type table by loading test fixtures"
+DbProjectType.find_or_create_by_name("standard")
+DbProjectType.find_or_create_by_name("maintenance")
+DbProjectType.find_or_create_by_name("maintenance_incident")

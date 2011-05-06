@@ -1,7 +1,8 @@
 CREATE TABLE `architectures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `selectable` tinyint(1) DEFAULT '0',
+  `recommended` tinyint(1) DEFAULT '0',
+  `available` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `arch_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -109,8 +110,15 @@ CREATE TABLE `db_packages` (
   UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
   KEY `devel_project_id_index` (`develproject_id`),
   KEY `devel_package_id_index` (`develpackage_id`),
-  KEY `index_db_packages_on_db_project_id` (`db_project_id`)
+  KEY `index_db_packages_on_db_project_id` (`db_project_id`),
+  KEY `updated_at_index` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `db_project_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `db_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -121,8 +129,11 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
+  `maintenance_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `projects_name_index` (`name`(255))
+  UNIQUE KEY `projects_name_index` (`name`(255)),
+  KEY `updated_at_index` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `db_projects_tags` (
@@ -184,7 +195,7 @@ CREATE TABLE `flags` (
   `db_package_id` int(11) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
-  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','privacy') NOT NULL,
+  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_flags_on_db_package_id` (`db_package_id`),
   KEY `index_flags_on_db_project_id` (`db_project_id`),
@@ -217,6 +228,13 @@ CREATE TABLE `groups_users` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `incident_counter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `maintenance_db_project_id` int(11) DEFAULT NULL,
+  `counter` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -232,9 +250,6 @@ CREATE TABLE `maintenance_incidents` (
   `db_project_id` int(11) DEFAULT NULL,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
   `request` int(11) DEFAULT NULL,
-  `day` int(11) DEFAULT NULL,
-  `month` int(11) DEFAULT NULL,
-  `year` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -314,6 +329,15 @@ CREATE TABLE `ratings` (
   KEY `object` (`object_id`),
   KEY `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `release_targets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `repository_id` int(11) NOT NULL,
+  `target_repository_id` int(11) NOT NULL,
+  `trigger` enum('finished','allsucceeded','maintenance') COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repository_id_index` (`repository_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -409,6 +433,16 @@ CREATE TABLE `tags` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `tags_name_unique_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `updateinfo_counter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `maintenance_db_project_id` int(11) DEFAULT NULL,
+  `day` int(11) DEFAULT NULL,
+  `month` int(11) DEFAULT NULL,
+  `year` int(11) DEFAULT NULL,
+  `counter` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `user_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -605,13 +639,33 @@ INSERT INTO schema_migrations (version) VALUES ('20110202100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110202110000');
 
-INSERT INTO schema_migrations (version) VALUES ('20110301100000');
-
 INSERT INTO schema_migrations (version) VALUES ('20110302100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110303100000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110309100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110318112742');
+
+INSERT INTO schema_migrations (version) VALUES ('20110321000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110322000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110323000000');
+
+INSERT INTO schema_migrations (version) VALUES ('2011033000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20110331001200');
+
+INSERT INTO schema_migrations (version) VALUES ('20110404085232');
+
+INSERT INTO schema_migrations (version) VALUES ('20110404085325');
+
+INSERT INTO schema_migrations (version) VALUES ('20110404090700');
+
+INSERT INTO schema_migrations (version) VALUES ('20110405151201');
+
+INSERT INTO schema_migrations (version) VALUES ('20110502100000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

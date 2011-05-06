@@ -14,6 +14,10 @@ class HomeController < ApplicationController
     @requests = @user.involved_requests(:cache => false)
   end
 
+  def home_project
+    redirect_to :controller => :project, :action => :show, :project => "home:#{@user}"
+  end
+
   def list_my
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user

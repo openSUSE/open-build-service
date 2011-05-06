@@ -75,15 +75,6 @@ class PublicControllerTest < ActionController::IntegrationTest
     # FIXME: do a working getbinary call
   end
 
-  def test_required_features_by_webui
-    get "/public/build/home:Iggy"
-    assert_response :success
-    assert_tag :tag => "entry", :attributes => { :name => "10.2" }
-    get "/public/build/home:Iggy/10.2"
-    assert_response :success
-    assert_tag :tag => "entry", :attributes => { :name => "i586" }
-  end
-
   def test_binaries
     get "/public/binary_packages/home:Iggy/TestPack"
     assert_response :success

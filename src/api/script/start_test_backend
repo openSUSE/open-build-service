@@ -129,7 +129,7 @@ while true
   puts "Connecting to srcserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
   end
@@ -140,7 +140,7 @@ while true
   puts "Connecting to repserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
   end
@@ -151,7 +151,7 @@ while true
   puts "Connecting to serviceserver..."
   begin
     Net::HTTP.start(SOURCE_HOST, 3202) {|http| http.get('/') }
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
   end
@@ -239,6 +239,7 @@ Suse::Backend.put( '/source/home:Iggy/ToBeDeletedTestPack/_meta', DbPackage.find
 Suse::Backend.put( '/source/home:Iggy:branches:kde4/_meta', DbProject.find_by_name('home:Iggy:branches:kde4').to_axml)
 Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/_meta', DbPackage.find_by_name('BranchPack').to_axml)
 Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/myfile', "DummyContent")
+Suse::Backend.put( '/source/home:fred/_meta', DbProject.find_by_name('home:fred').to_axml)
 Suse::Backend.put( '/source/home:fred:DeleteProject/_meta', DbProject.find_by_name('home:fred:DeleteProject').to_axml)
 Suse::Backend.put( '/source/kde4/_meta', DbProject.find_by_name('kde4').to_axml)
 Suse::Backend.put( '/source/kde4/kdebase/_meta', DbPackage.find_by_name('kdebase').to_axml)

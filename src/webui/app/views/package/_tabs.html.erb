@@ -15,7 +15,7 @@
     <%= tab 'Sources', :controller => :package, :action => :files %>
     <%= tab 'Repositories', :controller => :package, :action => :repositories %>
     <%= tab 'Revisions', :controller => :package, :action => :source_history %>
-    <%= tab "Requests", :controller => :package, :action => 'list_requests' unless @requests.blank? %>
+    <%= tab "Requests", :controller => :package, :action => 'list_requests' %>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>
@@ -33,4 +33,3 @@
     </ul>
   </div>
 </div>
-<div class="clear"></div>

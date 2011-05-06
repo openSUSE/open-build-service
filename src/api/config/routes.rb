@@ -24,19 +24,16 @@ ActionController::Routing::Routes.draw do |map|
   #        fix this for OBS 3.0
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/changepasswd', :controller => 'person', :action => 'change_my_password'
-  map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
+  # bad api, to be removed for OBS 3. Use /group?person=:login instead
   map.connect 'person/:login/group', :controller => 'person', :action => 'grouplist', :login => /[^\/]*/
+
+  map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
 
   ### /group
   map.connect 'group', :controller => 'group', :action => 'index'
-  map.connect 'group/:title', :controller => 'group', :action => 'grouplist', :title => /[^\/]*/
-
-  ### /repository
-
-  map.connect 'repository', :controller => 'repository', :action => 'index'
+  map.connect 'group/:title', :controller => 'group', :action => 'show', :title => /[^\/]*/
 
   ### /service
-
   map.connect 'service/:service', :controller => "service",
     :action => 'index_service', :service => /\w[^\/]*/
 
@@ -88,6 +85,13 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'namespace_definition'
   map.connect 'attribute/:namespace/:name/_meta', :controller => 'attribute',
     :action => 'attribute_definition'
+
+  ### /architecture
+  map.connect 'architectures',       :controller => 'architecture', :action => 'index'
+  map.connect 'architectures/:name', :controller => 'architecture', :action => 'show',   :conditions => {:method => :get}
+  map.connect 'architectures/:name', :controller => 'architecture', :action => 'create', :conditions => {:method => :post}
+  map.connect 'architectures/:name', :controller => 'architecture', :action => 'update', :conditions => {:method => :put}
+  map.connect 'architectures/:name', :controller => 'architecture', :action => 'delete', :conditions => {:method => :delete}
 
   ### /tag
 

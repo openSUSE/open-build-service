@@ -500,7 +500,6 @@ sub readrequest {
       $req = $1;
       last;
     }
-    # sysreads appends read data at the end of $qu
     die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
   }
   my ($act, $path, $vers, undef) = split(' ', $req, 4);
@@ -508,17 +507,17 @@ sub readrequest {
   die("400 No method name\n") if !$act;
   if ($vers) {
     die("501 Bad method: $act\n") if $act ne 'GET' && $act ne 'HEAD' && $act ne 'POST' && $act ne 'PUT' && $act ne 'DELETE';
-    # really ugly way of reading until request ends (regexp on the whole string every time!)
+    # read in all headers
     while ($qu !~ /^(.*?)\r?\n\r?\n(.*)$/s) {
       die("501 received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
     }
-    $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;
+    $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;	# redo regexp to work around perl bug
     $qu = $2;
-    gethead(\%headers, "Request: $1"); # put 1st line of http request into $headers{'Request'}
+    gethead(\%headers, "Request: $1");	# put 1st line of http request into $headers{'request'}
   } else {
-    # if there is no version in http request (HTTP/1.1), assume that there are no more headers
+    # no version -> HTTP 0.9 request
     die("501 Bad method, must be GET\n") if $act ne 'GET';
-    $qu = ''; # and assume that there are no more request data
+    $qu = '';
   }
   $forwardedfor = $headers{'x-forwarded-for'};
   my $query_string = '';
@@ -526,7 +525,7 @@ sub readrequest {
     $path = $1;
     $query_string = $2;
   }
-  $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge; # here comes the conversion from URI  again
+  $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;	# unescape path
   die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
   my $res = {};
   $res->{'action'} = $act;
@@ -534,7 +533,7 @@ sub readrequest {
   $res->{'query'} = $query_string;
   $res->{'headers'} = \%headers;
   if ($act eq 'POST' || $act eq 'PUT') {
-    # if client expects our response, respond
+    # send HTTP 1.1's 100-continue answer if requested by the client
     if ($headers{'expect'}) {
       die("417 unknown expect\n") unless lc($headers{'expect'}) eq '100-continue';
       my $data = "HTTP/1.1 100 continue\r\n\r\n";
@@ -803,6 +802,13 @@ sub dispatch {
   die("500 no dispatches configured\n") unless $disps;
   my @disps = @$disps;
   my $path = "$req->{'action'}:$req->{'path'}";
+  if (1) {
+    # path is already urldecoded
+    die("400 path is not utf-8\n") unless BSUtil::checkutf8($path);
+    my $q = $req->{'query'};
+    $q =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge if defined($q) && $q =~ /\%/s;
+    die("400 query string is not utf-8\n") unless BSUtil::checkutf8($q);
+  }
   my $ppath = $path;
   # strip trailing slash
   $ppath =~ s/\/+$// if substr($ppath, -1, 1) eq '/' && $ppath !~ /^[A-Z]*:\/$/s;

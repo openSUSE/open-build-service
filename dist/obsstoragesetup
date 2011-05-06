@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
 # Start-Before:      mysql sshd
-# Should-Start:      xendomains
+# Should-Start:      xendomains haveged
 # Should-Stop:       $none
 # Required-Start:    $network boot.lvm
 # Required-Stop:     $null
@@ -42,7 +42,11 @@ fi
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
+if [ -z "$OBS_BASE_DIR" ]; then
 backenddir=/srv/obs
+else
+backenddir="$OBS_BASE_DIR"
+fi
 
 if [ -z "$OBS_WORKER_DIRECTORY" ]; then
 	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
@@ -240,11 +244,21 @@ case "$1" in
                 if [ -e /dev/OBS/server ]; then
 			[ -L /obs ] && rm /obs
 			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
-			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
+# this fails on a configuration with OBS-server lvm on sdb
+#			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
+# using instead:
+			[ -d $backenddir -a ! -L $backenddir ] && { rm -rf $backenddir ; }
+			[ -L $backenddir ] || { ln -sf /obs $backenddir ; }
 			mount /dev/OBS/server /obs
 			[ -d /obs/log ] || mkdir /obs/log
 			[ -d /obs/run ] || mkdir /obs/run
-			chown obsrun.obsrun /obs/{,log,run}
+			[ -d /obs/build ] || mkdir /obs/build
+			[ -d /obs/events ] || mkdir /obs/events
+			[ -d /obs/jobs ] || mkdir /obs/jobs
+			[ -d /obs/info ] || mkdir /obs/info
+			[ -d /obs/projects ] || mkdir /obs/projects
+			[ -d /obs/workers ] || mkdir /obs/workers
+			chown obsrun.obsrun /obs/{,log,run,build,events,jobs,info,projects,workers}
 		else
 			echo "Setup local storage"
                		if [ -e /obs -a ! -L /obs ]; then
@@ -331,7 +345,7 @@ EOF
 		                # support virtio
 		                # FIXME: find a better way to do this without getting remove by kiwi again.
 		                if ! grep -q "^INITRD_MODULES=.*virtio_pci virtio_blk" /etc/sysconfig/kernel; then
-		                   sed -i 's,^INITRD_MODULES="\(.*\)",INITRD_MODULES="\1 binfmt_misc virtio_pci virtio_blk",' /etc/sysconfig/kernel
+		                   sed -i 's,^INITRD_MODULES="\(.*\)",INITRD_MODULES="\1 loop dm-mod dm-snapshot binfmt-misc fuse kqemu squashfs ext2 ext3 ext4 reiserfs binfmt_misc virtio_pci virtio_blk",' /etc/sysconfig/kernel
 		                   mkinitrd || unset RUN_VIRT
 		                fi
 			else

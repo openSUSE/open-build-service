@@ -1,10 +1,7 @@
 <% @pagetitle = "Show attributes" %>
-<%
-@crumb_list = [link_to('Projects', :controller => :project, :action => :list_public),
-               link_to(@project.name, :controller => 'project', :action => :show, :project => @project.name)]
-@crumb_list << link_to(@package, :controller => 'package', :action => :show, :project => @project.name, :package => @package) if @package
-@crumb_list << "Attributes"
--%>
+<% project_bread_crumb
+  @crumb_list << link_to(@package, :controller => 'package', :action => :show, :project => @project.name, :package => @package) if @package
+  @crumb_list << "Attributes" %>
 
 <% if @package %>
   <%= render :partial => "package/tabs" %>

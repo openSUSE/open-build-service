@@ -7,13 +7,13 @@
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
 <url>
-  <loc><%= url_for :controller => :main, :action => :index, :only_path => false, :protocol => 'https' %></loc>
+  <loc><%= url_for :controller => :main, :action => :index, :only_path => false %></loc>
   <priority>1.0</priority>
 </url>
 
 <% @projects.each do |p| %>
 <url>
-  <loc><%= url_for :controller => :project, :action => :show, :project => p, :only_path => false, :protocol => 'https' %></loc>
+  <loc><%= url_for :controller => :project, :action => :show, :project => p, :only_path => false %></loc>
   <priority>0.9</priority>
 </url>
 <% end %>

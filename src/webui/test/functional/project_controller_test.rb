@@ -58,9 +58,9 @@ class ProjectControllerTest < ActionController::IntegrationTest
     # adrian is maintainer via group on kde4 
     get "/project/show?project=kde4"
     # really simple test to get started
-    assert_match(/title="Delete Project"/, @response.body)
-    assert_match(/title="Edit Description"/, @response.body)
-    assert_match(/title="Create Subproject"/, @response.body)
+    assert_match(/title="Delete project"/, @response.body)
+    assert_match(/title="Edit description"/, @response.body)
+    assert_match(/title="Create subproject"/, @response.body)
     logout
     login_tom
   end

@@ -51,12 +51,13 @@
             <empty/>
           </element>
         </optional>
-        <optional>
+
+        <zeroOrMore>
           <element>
             <name ns="">topadd</name>
             <text/>
           </element>
-        </optional>
+        </zeroOrMore>
 
       </interleave>
     </element>

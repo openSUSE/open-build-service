@@ -657,11 +657,12 @@ module UserMixins
             ldap_info = Array.new
             # use cache to check the password firstly
             key="ldap_cache_userpasswd:" + login
+            require 'digest/md5'
             if Rails.cache.exist?(key)
-              cache_password = Rails.cache.read(key)
-              if cache_password == password
-                ldap_info[0] =  'fake@email.ldap'
-                ldap_info[1] = login
+              ar = Rails.cache.read(key)
+              if ar[0] == Digest::MD5.digest(password)
+                ldap_info[0] = ar[1]
+                ldap_info[1] = ar[2]
                 logger.debug("login success for checking with ldap cache")
                 return ldap_info
               end 
@@ -687,6 +688,7 @@ module UserMixins
             begin
               ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
                 dn = entry.dn
+                ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
                 if defined?( LDAP_AUTHENTICATE ) && LDAP_AUTHENTICATE == :local
                   if entry[LDAP_AUTH_ATTR] then
                     ldap_password = entry[LDAP_AUTH_ATTR][0]
@@ -736,8 +738,6 @@ module UserMixins
                 user_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
                   if entry[LDAP_MAIL_ATTR] then 
                     ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
-                  else
-                    ldap_info[0] =  'fake@email.ldap'
                   end
                   if entry[LDAP_NAME_ATTR] then
                     ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][0])
@@ -748,7 +748,7 @@ module UserMixins
                 user_con.unbind()
               end
             end
-            Rails.cache.write(key, password, :expires_in => 2.minute)
+            Rails.cache.write(key, [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]], :expires_in => 2.minute)
             logger.debug( "login success for checking with ldap server" )
             ldap_info
           end

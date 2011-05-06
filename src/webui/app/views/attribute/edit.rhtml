@@ -1,14 +1,12 @@
-<% @pagetitle = (@selected_attribute_name ? "Edit Attribute" : "Add New Attribute")
-  @crumb_list = [link_to('Projects', :controller => :project, :action => :list_public),
-                 link_to(@project.name, :controller => 'project', :action => :show, :project => @project.name)]
+<% @pagetitle = (@selected_attribute_name ? "Edit Attribute" : "Add New Attribute") %>
+<% project_bread_crumb
   if @package
     @crumb_list << link_to(@package, :controller => 'package', :action => :show, :project => @project.name, :package => @package)
     @crumb_list << link_to('Attributes', :controller => :package, :action => :attributes, :project => @project.name, :package => @package)
   else
     @crumb_list << link_to('Attributes', :controller => :project, :action => :attributes, :project => @project.name)
   end
-  @crumb_list << (@selected_attribute_name ? "Edit" : "Add New")
--%>
+  @crumb_list << (@selected_attribute_name ? "Edit" : "Add New") %>
 
 <% if @package %>
   <%= render :partial => "package/tabs" %>

@@ -44,5 +44,4 @@ class Project < ActiveXML::Base
     end
     return disabled
   end
-
 end

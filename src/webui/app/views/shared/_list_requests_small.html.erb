@@ -1,0 +1,18 @@
+<% if requests.blank? %>
+  <p>No requests.</p>
+<% else %>
+  <table>
+    <tbody>
+      <% requests.each do |req| -%>
+        <tr>
+          <td style="border: medium none; padding: 0px;">
+            <%= link_to("request ##{req.value(:id)}", :controller => :request, :action => :show, :id => req.value(:id)) -%>
+            by
+            <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req), :short => true}%>
+            (<%= fuzzy_time_string(req.state.value :when) %>)
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

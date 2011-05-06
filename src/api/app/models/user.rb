@@ -15,28 +15,36 @@ class User < ActiveRecord::Base
   has_many :status_messages
   has_many :messages
 
-  def self.current
-    Thread.current[:user]
-  end
-  
-  def self.currentID
-    Thread.current[:id]
-  end
-  
-  def self.currentAdmin
-    Thread.current[:admin]
-  end
+  class << self
+    def current
+      Thread.current[:user]
+    end
+    
+    def currentID
+      Thread.current[:id]
+    end
+    
+    def currentAdmin
+      Thread.current[:admin]
+    end
 
-  def self.current=(user)
-    Thread.current[:user] = user
-  end
+    def current=(user)
+      Thread.current[:user] = user
+    end
 
-  def self.currentID=(id)
-    Thread.current[:id] = id
-  end
+    def currentID=(id)
+      Thread.current[:id] = id
+    end
 
-  def self.currentAdmin=(isadmin)
-    Thread.current[:admin] = isadmin
+    def currentAdmin=(isadmin)
+      Thread.current[:admin] = isadmin
+    end
+
+    def get_by_login(login)
+      u = find :first, :conditions => ["login = BINARY ?", login]
+      raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
+      return u
+    end
   end
 
   def encrypt_password
@@ -135,12 +143,12 @@ class User < ActiveRecord::Base
     }
   end
 
-  # updates users email address and real name using data transmitted by ichain
-  def update_user_info_from_ichain_env(env)
-    ichain_email = env["HTTP_X_EMAIL"]
-    if not ichain_email.blank? and self.email != ichain_email
-      logger.info "updating email for user #{self.login} from ichain header: old:#{self.email}|new:#{ichain_email}"
-      self.email = ichain_email
+  # updates users email address and real name using data transmitted by authentification proxy
+  def update_user_info_from_proxy_env(env)
+    proxy_email = env["HTTP_X_EMAIL"]
+    if not proxy_email.blank? and self.email != proxy_email
+      logger.info "updating email for user #{self.login} from proxy header: old:#{self.email}|new:#{proxy_email}"
+      self.email = proxy_email
       self.save
     end
     if not env['HTTP_X_FIRSTNAME'].blank? and not env['HTTP_X_LASTNAME'].blank?
@@ -181,11 +189,16 @@ class User < ActiveRecord::Base
     return false
   end
 
+  def is_locked? object
+    object.is_locked?
+  end
+
   # project is instance of DbProject
-  def can_modify_project?(project)
+  def can_modify_project?(project, ignoreLock=nil)
     unless project.kind_of? DbProject
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
+    return false if is_locked? project and not ignoreLock
     return true if is_admin?
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
@@ -193,10 +206,11 @@ class User < ActiveRecord::Base
   end
 
   # package is instance of DbPackage
-  def can_modify_package?(package)
+  def can_modify_package?(package, ignoreLock=nil)
     unless package.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
+    return false if is_locked? package and not ignoreLock
     return true if is_admin?
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package
@@ -209,6 +223,7 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
+    return false if is_locked? project
     return true if is_admin?
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project
@@ -468,7 +483,6 @@ class User < ActiveRecord::Base
                                                 :conditions => ["ug.user_id = ? and db_package_id = ?", self.id, object.id],
                                                 :include => :role
       for rel in rels do
-# TODO:       if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true
@@ -491,7 +505,6 @@ class User < ActiveRecord::Base
                                                 :conditions => ["ug.user_id = ? and db_project_id = ?", self.id, object.id],
                                                 :include => :role
       for rel in rels do
-# TODO:        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true

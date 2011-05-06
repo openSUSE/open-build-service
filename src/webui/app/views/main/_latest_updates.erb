@@ -1,22 +1,28 @@
+<% content_for :content_for_head do %>
+  <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'latest_updates', :format => 'rss'}, {:title => 'Latest updates'}) %>
+<% end %>
+
 <div class="box box-shadow">
-  <div class="box-header aligncenter">
-    Latest updates
-  </div>
-  <p>
-    <% @latest_updates.each do |update| %>
+  <div class="box-header aligncenter">Latest Updates <%= link_to(image_tag('feeds.png', :title => 'RSS Feed'), :action => 'latest_updates', :format => 'rss') %></div>
 
-      <% if update.data.name == 'package' %>
-        <%= image_tag 'package.png' %>
-        <% project = update.project %>
-        <% link = url_for :controller => :package, :action => :show, :project => project, :package => update.name %>
-      <% elsif update.data.name == 'project' %>
-        <%= image_tag 'project.png' %>
-        <% link = url_for :controller => :project, :action => :show, :project => update.name %>
+  <table style="width: 90%">
+    <tbody>
+      <% @latest_updates.each do |update| %>
+        <tr>
+          <td>
+            <% if update.data.name == 'package' %>
+              <%= image_tag 'package.png' %>
+              <% project, package = update.project, update.name %>
+            <% elsif update.data.name == 'project' %>
+              <%= image_tag 'project.png' %>
+              <% project, package = update.name, nil %>
+            <% end %>
+
+            <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => project, :package => package) %>
+          </td>
+          <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(update.updated) %></td>
+        </tr>
       <% end %>
-
-      <%= link_to elide( update.name, 24 ), link %>: <%= fuzzy_time_string( update.updated ) %><br/>
-
-    <% end %>
-  </p>
-
+    </tbody>
+  </table>
 </div>

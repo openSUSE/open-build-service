@@ -15,13 +15,13 @@ class BsRequest < ActiveXML::Base
       case opt[:type]
         when "submit" then
           # set target package is the same as the source package if no target package is specified
-          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
-          revision_option = "rev=\"#{opt[:rev].to_xs}\"" if opt[:rev] and not opt[:rev].empty?
+          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.blank?
+          revision_option = "rev=\"#{opt[:rev].to_xs}\"" unless opt[:rev].blank?
           option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
-          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" if opt[:sourceupdate]
+          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" unless opt[:sourceupdate].blank?
         when "add_role" then
-          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" if opt[:group] and not opt[:group].empty?
-          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" if opt[:person] and not opt[:person].empty?
+          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
+          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
         when "set_bugowner" then
           option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
         when "change_devel" then
@@ -46,7 +46,7 @@ class BsRequest < ActiveXML::Base
     end
 
     def addReview(id, opts)
-      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
+      opts = {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?cmd=addreview"
@@ -55,7 +55,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        r = transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
+        r = transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         # FIXME add a full error handler here
         return true
@@ -69,7 +69,6 @@ class BsRequest < ActiveXML::Base
     end
 
     def modifyReview(id, changestate, opts)
-      {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
       unless (changestate=="accepted" || changestate=="declined")
         raise ModifyError, "unknown changestate #{changestate}"
       end
@@ -81,7 +80,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => opts[:comment]
+        transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -93,12 +92,15 @@ class BsRequest < ActiveXML::Base
       end
     end
 
-    def modify(id, changestate, reason)
-      if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
+    def modify(id, changestate, opts)
+      opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
+      if ["accepted", "declined", "revoked", "superseded"].include?(changestate)
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
+        path += "&superseded_by=#{opts[:superseded_by]}" if opts[:superseded_by]
+        path += "&force=1" if opts[:force]
         begin
-          transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason.to_s
+          transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
           BsRequest.free_cache(id)
           return true
         rescue ActiveXML::Transport::ForbiddenError => e
@@ -126,22 +128,24 @@ class BsRequest < ActiveXML::Base
     end
 
     def list(opts)
-      unless opts[:state] or opts[:type] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
+      unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or (opts[:user] or opts[:project] and (opts[:package] or 1)) # boolean algebra rocks!
         raise RuntimeError, "missing parameters"
       end
 
-      opts.delete(:type) if opts[:type] == 'all' # All types means don't pass 'type' to backend
+      opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request?view=collection"
-      path << "&state=#{CGI.escape(opts[:state])}" if opts[:state]
-      path << "&action_type=#{CGI.escape(opts[:type])}" if opts[:type] # the API want's to have it that way, sigh...
+      path << "&states=#{CGI.escape(opts[:states])}" if opts[:states]
+      path << "&roles=#{CGI.escape(opts[:roles])}" if opts[:roles]
+      path << "&reviewstates=#{CGI.escape(opts[:reviewstates])}" if opts[:reviewstates]
+      path << "&types=#{CGI.escape(opts[:types])}" if opts[:types] # the API want's to have it that way, sigh...
       path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
       path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
       path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
       begin
         logger.debug "Fetching request list from api"
-        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        response = transport.direct_http URI("#{path}"), :method => "GET"
         return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
       rescue ActiveXML::Transport::Error => e
         message, _, _ = ActiveXML::Transport.extract_error_message e

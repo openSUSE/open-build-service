@@ -1,0 +1,31 @@
+<% @pagetitle = "Maintenance Incidents for #{@project}" %>
+<% project_bread_crumb 'Maintainance Incidents' %>
+
+<%= render :partial => 'tabs' %>
+
+<h3><%= @pagetitle %></h3>
+<div class="grid_8 alpha">
+  <h4>Open Incidents</h4>
+  <% if @open_maintenance_incidents.length == 0 %>
+    <p><%= image_tag 'icons/accept.png' %> 0 open incidents</p>
+  <% else %>
+    <ul>
+      <% @open_maintenance_incidents.each do |incident| %>
+        <li><%= incident %></li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<div class="grid_8 omega">
+  <h4>Closed Incidents</h4>
+  <% if @closed_maintenance_incidents.length == 0%>
+    <p><%= image_tag 'icons/information.png' %> 0 closed incidents</p>
+  <% else %>
+    <ul>
+      <% @closed_maintenance_incidents.each do |incident| %>
+        <li><%= incident %></li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

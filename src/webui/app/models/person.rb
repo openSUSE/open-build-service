@@ -71,6 +71,7 @@ class Person < ActiveXML::Base
   end
 
   def free_cache
+    Rails.cache.delete("person_#{login}")
     Collection.free_cache :id, :what => 'project', :predicate => %(person/@userid='#{login}')
     Collection.free_cache :id, :what => 'package', :predicate => %(person/@userid='#{login}')
   end
@@ -89,7 +90,9 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
 
-    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) { BsRequest.list({:state => 'new', :user => login.to_s}) }
+    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) {
+        BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login.to_s}) + BsRequest.list({:states => 'new', :roles => "maintainer", :user => login.to_s}) 
+      }
   end
 
   def groups
@@ -140,12 +143,13 @@ class Person < ActiveXML::Base
   end
 
   def self.list(prefix=nil)
+    prefix = URI.encode(prefix)
     user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
       transport ||= ActiveXML::Config::transport_for(:person)
       path = "/person?prefix=#{prefix}"
       begin
         logger.debug "Fetching user list from API"
-        response = transport.direct_http URI("https://#{path}"), :method => "GET"
+        response = transport.direct_http URI("#{path}"), :method => "GET"
         names = []
         Collection.new(response).each {|user| names << user.name}
         names

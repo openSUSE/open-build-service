@@ -287,10 +287,19 @@ sub fdb_add_i2 {
   $d2 = decode_line($d2, $lay);
   $d2 = $d2->{$lay->[0]} || 0;
   $r2 = {$field => 0} unless $r2;
-  $r2 = $r2->{$field} || 0;
   $r->{$lay->[0]} = $d2 + 1;
-  $r->{$field} ||= 0;
-  $r->{$field} = $r2 + 1 if $r2 + 1 > $r->{$field};
+
+  my $rp = '';
+  my $rn = $r->{$field} ||= 0;
+  ($rp, $rn) = ($1, $2) if $rn =~ /^(.*\D)(\d+)$/;
+  my $r2p = '';
+  my $r2n = $r2->{$field} || 0;
+  ($r2p, $r2n) = ($1, $2) if $r2n =~ /^(.*\D)(\d+)$/;
+  $r2n += 1;
+  $r2p = $rp if $r2p eq '';
+  $r2n = $rn if $rn > $r2n;
+  $r->{$field} = "$r2p$r2n";
+
   $d2 = encode_line($r, $lay)."\n";
   (syswrite(FN, $d2) || 0) == length($d2) || die("$fn write error: $!\n");
   close(FN) || die("$fn write error: $!\n");

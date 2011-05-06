@@ -26,6 +26,12 @@ class DbProject < ActiveRecord::Base
 
   has_many :flags, :dependent => :destroy
 
+  has_one :db_project_type
+
+  # self-reference between projects and maintenance projects
+  has_many :maintained_projects, :class_name => "DbProject", :foreign_key => "maintenance_project_id"
+  belongs_to :maintenance_project, :class_name => "DbProject"
+
   def download_name
     self.name.gsub(/:/, ':/')
   end
@@ -248,7 +254,7 @@ class DbProject < ActiveRecord::Base
       local_project = String.new
       remote_project = nil
 
-      while fragments.length > 0
+      while fragments.length > 1
         remote_project = [fragments.pop, remote_project].compact.join ":"
         local_project = fragments.join ":"
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
@@ -274,6 +280,11 @@ class DbProject < ActiveRecord::Base
       END_SQL
       # ACL TODO: should be check this or do we break functionality ?
       result = DbProject.find_by_sql [sql, self.name]
+  end
+
+  def is_locked?
+      return true if flags.find_by_flag_and_status "lock", "enable"
+      return false
   end
 
   def store_axml( project, force=nil )
@@ -346,7 +357,7 @@ class DbProject < ActiveRecord::Base
             end
 
             ProjectUserRoleRelationship.create(
-              :user => User.find_by_login(person.userid),
+              :user => User.get_by_login(person.userid),
               :role => Role.rolecache[person.role],
               :db_project => self
             )
@@ -356,9 +367,7 @@ class DbProject < ActiveRecord::Base
             raise SaveError, "illegal role name '#{person.role}'"
           end
 
-          if not (user=User.find_by_login(person.userid))
-            raise SaveError, "unknown user '#{person.userid}'"
-          end
+          user=User.get_by_login(person.userid)
 
           begin
             ProjectUserRoleRelationship.create(
@@ -407,7 +416,7 @@ class DbProject < ActiveRecord::Base
             end
 
             ProjectGroupRoleRelationship.create(
-              :group => User.find_by_login(ge.groupid),
+              :group => Group.get_by_title(ge.groupid),
               :role => Role.rolecache[ge.role],
               :db_project => self
             )
@@ -467,6 +476,7 @@ class DbProject < ActiveRecord::Base
       #--- update flag group ---#
       update_all_flags( project )
 
+      #--- update repository download settings ---#
       dlcache = Hash.new
       self.downloads.each do |dl|
         dlcache["#{dl.architecture.name}"] = dl
@@ -549,6 +559,31 @@ class DbProject < ActiveRecord::Base
         end
         #--- end of repository flags ---#
 
+        #destroy all current releasetargets
+        current_repo.release_targets.each { |rt| rt.destroy }
+
+        #recreate release targets from xml
+        repo.each_releasetarget do |rt|
+          target_repo = Repository.find_by_project_and_repo_name( rt.project, rt.repository )
+          unless target_repo
+            raise SaveError, "Unknown target repository '#{rt.project}/#{rt.repository}'"
+          end
+          unless target_repo.remote_project_name.nil?
+            raise SaveError, "Can not use remote repository as release target '#{rt.project}/#{rt.repository}'"
+          end
+          r = current_repo.release_targets.create :target_repository => target_repo
+          if rt.has_attribute? :trigger and rt.trigger != "manual"
+            if rt.trigger != "maintenance"
+              # automatic triggers are only allowed inside the same project
+              unless rt.project == project.name
+                raise SaveError, "Automatic release updates are only allowed into a project to the same project"
+              end
+            end
+            r.trigger = rt.trigger
+          end
+          was_updated = true
+        end
+
         #destroy all current pathelements
         current_repo.path_elements.each { |pe| pe.destroy }
 
@@ -556,7 +591,7 @@ class DbProject < ActiveRecord::Base
         position = 1
         repo.each_path do |path|
           link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
-          if link_repo.nil?
+          unless link_repo
             raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
           end
           current_repo.path_elements.create :link => link_repo, :position => position
@@ -623,7 +658,6 @@ class DbProject < ActiveRecord::Base
   def store
     # update timestamp and save
     self.save!
-
     # expire cache
     Rails.cache.delete('meta_project_%d' % id)
 
@@ -748,7 +782,7 @@ class DbProject < ActiveRecord::Base
 
   def add_user( user, role )
     unless role.kind_of? Role
-      role = Role.find_by_title(role)
+      role = Role.get_by_title(role)
     end
     if role.global
       #only nonglobal roles may be set in a project
@@ -756,7 +790,7 @@ class DbProject < ActiveRecord::Base
     end
 
     unless user.kind_of? User
-      user = User.find_by_login(user)
+      user = User.get_by_login(user)
     end
 
     logger.debug "adding user: #{user.login}, #{role.title}"
@@ -768,7 +802,7 @@ class DbProject < ActiveRecord::Base
 
   def add_group( group, role )
     unless role.kind_of? Role
-      role = Role.find_by_title(role)
+      role = Role.get_by_title(role)
     end
     if role.global
       #only nonglobal roles may be set in a project
@@ -826,7 +860,13 @@ class DbProject < ActiveRecord::Base
     builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
-    xml = builder.project( :name => name ) do |project|
+
+    project_attributes = {:name => name}
+    # Check if the project has a special type defined (like maintenance)
+    type = DbProjectType.find(type_id) if type_id()
+    project_attributes[:type] = type.name if type
+
+    xml = builder.project( project_attributes ) do |project|
       project.title( title )
       project.description( description )
       
@@ -875,17 +915,36 @@ class DbProject < ActiveRecord::Base
         params[:block]       = repo.block       if repo.block
         params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
         project.repository( params ) do |r|
+          repo.release_targets.each do |rt|
+            params = {}
+            params[:project]    = rt.target_repository.db_project.name
+            params[:repository] = rt.target_repository.name
+            params[:trigger]    = rt.trigger    unless rt.trigger.blank?
+            r.releasetarget( params )
+          end
           repo.path_elements.each do |pe|
-            if pe.link.remote_project_name.blank?
-              project_name = pe.link.db_project.name
-            else
+            if pe.link.remote_project_name
               project_name = pe.link.db_project.name+":"+pe.link.remote_project_name
+            else
+              project_name = pe.link.db_project.name
             end
             r.path( :project => project_name, :repository => pe.link.name )
           end
           repo.architectures.each do |arch|
             r.arch arch.name
           end
+        end
+      end
+
+      if type
+        if type.name == "maintenance"
+          project.maintenance do |maintenance|
+            DbProject.find(:all, :conditions => ["maintenance_project_id = ?", id]).each do |maintained_project|
+              maintenance.maintains(:project => maintained_project.name)
+            end
+          end
+        elsif type.name == "maintenance_incident"
+          #TODO: Add Meta XML for maintenance incident projects
         end
       end
 
@@ -980,7 +1039,9 @@ class DbProject < ActiveRecord::Base
     opts[:explicit] = '1' if expl
     ret = 'enable' if ret == :enabled
     ret = 'disable' if ret == :disabled
-    builder.tag! ret, opts
+    # we allow to only check the return value
+    builder.tag! ret, opts if builder
+    return ret
   end
 
   # give out the XML for all repos/arch combos
@@ -1049,6 +1110,40 @@ class DbProject < ActiveRecord::Base
     # no package found
     processed.delete(self)
     return nil
+  end
+
+  def project_type
+    type = DbProjectType.find_by_id(type_id)
+    return 'standard' unless type
+    return type.name
+  end
+
+  def set_project_type(project_type_name)
+    type = DbProjectType.find_by_name(project_type_name)
+    return false unless type
+    self.type_id = type.id
+    self.save!
+    return true
+  end
+
+  def maintenance_project
+    return DbProject.find_by_id(maintenance_project_id)
+  end
+
+  def set_maintenance_project(project)
+    if project.class == DbProject
+      self.maintenance_project_id = project.id
+      self.save!
+      return true
+    elsif project.class == String
+      prj = DbProject.find_by_name(project)
+      if prj
+        self.maintenance_project_id = prj.id
+        self.save!
+        return true
+      end
+    end
+    return false
   end
 
   private

@@ -1,30 +1,29 @@
-<% @pagetitle = "Maintenance Incidents of #{@project}"
+<% @pagetitle = "Incidents of #{@project}"
    project_bread_crumb 'Incidents' -%>
 
 <%= render :partial => "tabs" %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<h3><%= @pagetitle %></h3>
+
+<% content_for :head_javascript do %>
+  function updateIncidentDisplay() {
+    if ($('#incident_type_select')[0].value == "open") {
+    } else {
+    }
+  }
 <% end %>
 
-<div style="display: inline">
-  <p>
-    <%= hidden_field_tag(:project, @project.name) %>
+<p>
+  Display <%= select_tag("incident_type_select", options_for_select(['all', 'open', 'closed'], 'open'), :onchange => "updateIncidentDisplay();") %> incidents:
+</p>
 
-    <% if @project.can_edit?(session[:login]) %>
-      <span style="float: left">
-        <%= link_to(image_tag( 'icons/package_add.png', :title => 'Create Incident'),
-          {:controller => :project, :action => :new_incident, :project => @project},
-          {:confirm => "Really create new incident project?", :class => 'x', :method => :post}) %>
-        <%= link_to('Create New Maintenance Incident',
-          {:controller => :project, :action => :new_incident, :project => @project},
-          {:confirm => "Really create new incident project?", :class => 'x', :method => :post}) %>
-      </span>
-    <% end %>
-  </p>
+<div id="incident_display">
+  <%= render(:partial => 'list_incidents', :locals => {:incidents => @maintenance_incidents}) %>
 </div>
 
-
-<h5>Running Incidents</h5>
-
-<h5>Done Incidents</h5>
+<p>
+  <% if @project.can_edit?(session[:login]) %>
+    <%= link_to(image_tag( 'icons/package_add.png', :title => 'Create new maintenance incident'), :action => :new_incident, :project => @project) %>
+    <%= link_to('Create new maintenance incident', :action => :new_incident, :project => @project) %>
+  <% end %>
+</p>

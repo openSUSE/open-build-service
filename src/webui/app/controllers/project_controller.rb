@@ -12,7 +12,7 @@ class ProjectController < ApplicationController
 
   class NoChangesError < Exception; end
 
-  before_filter :require_project, :except => [:arch_list, 
+  before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png]
@@ -24,6 +24,8 @@ class ProjectController < ApplicationController
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
+  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
+                                                            :edit_repository, :update_target]
 
   def index
     redirect_to :action => 'list_public'
@@ -289,45 +291,62 @@ class ProjectController < ApplicationController
     render :partial => 'buildstatus'
   end
 
-  def delete
-    valid_http_methods :post
-    @confirmed = params[:confirmed]
-    if @confirmed == "1"
-      begin
-        if params[:force] == "1"
-          @project.delete :force => 1
-        else
-          @project.delete
-        end
-        Rails.cache.delete("%s_packages_mainpage" % @project)
-        Rails.cache.delete("%s_problem_packages" % @project)
-      rescue ActiveXML::Transport::Error => err
-        @error, @code, @api_exception = ActiveXML::Transport.extract_error_message err
-        logger.error "Could not delete project #{@project}: #{@error}"
-      end
-    end
+  def delete_dialog
+    @linking_projects = @project.linking_projects
   end
 
-  def arch_list
-    @arch_list = Hash.new
-    @project.each_repository do |repo|
-      @arch_list[repo.name] = repo.archs.sort.uniq
+  def delete
+    valid_http_methods :post
+    begin
+      if params[:force] == '1'
+        @project.delete :force => 1
+      else
+        @project.delete
+      end
+      Rails.cache.delete("%s_packages_mainpage" % @project)
+      Rails.cache.delete("%s_problem_packages" % @project)
+      flash[:note] = "Project '#{@project}' was removed successfully"
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
     end
-    return @arch_list
+    redirect_to :action => :list_public
   end
-  private :arch_list
+
+  def repository_arch_list
+    @repository_arch_list = Hash.new
+    @project.each_repository do |repo|
+      @repository_arch_list[repo.name] = repo.archs.sort.uniq
+    end
+    return @repository_arch_list
+  end
+  private :repository_arch_list
 
   def edit_repository
     repo = @project.repository[params[:repository]]
-    @arch_list = arch_list
-    render :partial => 'edit_repository', :locals => { :repository => repo, :error => nil }
+    redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
+    # Merge project repo's arch list with currently available arches from API. This needed as you want
+    # to keep currently non-working arches in the project meta.
+    
+    # Prepare a list of recommended architectures
+    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended}
+
+    @repository_arch_hash = Hash.new
+    @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
+    repository_arch_list()[repo.name].each {|arch| @repository_arch_hash[arch] = true }
+
+    render(:partial => 'edit_repository', :locals => {:repository => repo, :error => nil})
   end
 
   def update_target
     valid_http_methods :post
     repo = @project.repository[params[:repo]]
     repo.archs = params[:arch].to_a
-    @arch_list = arch_list
+    # Merge project repo's arch list with currently available arches from API. This needed as you want
+    # to keep currently non-working arches in the project meta.
+    @repository_arch_hash = Hash.new
+    @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
+    repository_arch_list()[repo.name].each {|arch| @repository_arch_hash[arch] = true }
     begin
       @project.save
       render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
@@ -506,6 +525,7 @@ class ProjectController < ApplicationController
     @project = Project.new(:name => project_name)
     @project.title.text = params[:title]
     @project.description.text = params[:description]
+    @project.set_project_type('maintenance') if params[:maintenance_project]
     @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
     @project.add_person :userid => session[:login], :role => 'maintainer'
     @project.add_person :userid => session[:login], :role => 'bugowner'
@@ -672,14 +692,15 @@ class ProjectController < ApplicationController
 
   def save_group
     valid_http_methods(:post)
-    group = find_cached(Group, params[:groupid])
-    unless group
-      flash[:error] = "Unknown group with id '#{params[:groupid]}'"
-      redirect_to :action => :add_group, :project => @project, :role => params[:role] and return
-    end
-    @project.add_group(:groupid => group.title.to_s, :role => params[:role])
+    #FIXME: API Group controller routes don't support this currently.
+   #group = find_cached(Group, params[:groupid])
+   #unless group
+   #  flash[:error] = "Unknown group with id '#{params[:groupid]}'"
+   #  redirect_to :action => :add_group, :project => @project, :role => params[:role] and return
+   #end
+    @project.add_group(:groupid => params[:groupid], :role => params[:role])
     if @project.save
-      flash[:note] = "Added group #{group.title} with role #{params[:role]} to project #{@project}"
+      flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
     else
       flash[:error] = "Failed to add group '#{params[:groupid]}'"
     end
@@ -902,7 +923,6 @@ class ProjectController < ApplicationController
       @user.add_watched_project @project.name
     end
     @user.save
-    Person.free_cache( :login => session[:login] )
 
     if request.env["HTTP_REFERER"]
       redirect_to :back
@@ -1217,6 +1237,12 @@ class ProjectController < ApplicationController
     @packages.sort! { |x,y| x['name'] <=> y['name'] }
   end
 
+  def maintained_projects
+  end
+
+  def maintenance_incidents
+  end
+
   private
 
   def get_important_projects
@@ -1261,29 +1287,35 @@ class ProjectController < ApplicationController
       end
     end
     # Is this a maintenance master project ?
-    attributes = find_cached(Attribute, :project => @project, :expires_in => 30.minutes)
-    @is_maintenance_project = nil
-    @is_maintenance_project = true if attributes and attributes.data.find("/attributes/attribute[@name='MaintenanceProject' and @namespace='OBS']").length > 0
+    @is_maintenance_project = false
+    @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     if @is_maintenance_project
+      @maintained_projects = []
+      @project.data.find("maintenance/maintains/@project").each do |maintained_project_name|
+        @maintained_projects << maintained_project_name.value
+      end
+
       @open_maintenance_incidents = []
       @closed_maintenance_incidents = []
 
-      # All sub-projects that have a MaintenanceReleaseDate are closed incidents, the others are open incidents
-      Collection.find(:id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')").each do |sub|
-        att = find_cached(Attribute, :project => sub, :expires_in => 30.minutes)
-        if att and att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']").length > 0
-          @closed_maintenance_incidents << sub
-        else
-          @open_maintenance_incidents << sub
-        end
-      end
+     ## All sub-projects that have a MaintenanceReleaseDate are incidents
+     ## FIXME: This should be awesomely fast!
+     #Collection.find(:id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')").each do |subproject|
+     #  att = find_cached(Attribute, :project => subproject, :expires_in => 30.minutes)
+     #  if att and att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']").length > 0
+     #    @maintenance_incidents << subproject # Found an incident!
+     #    if att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']/value").length > 0
+     #      @closed_maintenance_incidents += 1 # if they have a release data as a value then they're closed
+     #    else
+     #      @open_maintenance_incidents += 1 # if not, they're open
+     #    end
+     #  end
+     #end
     end
-    # Is this a maintenance incident project ?
-    @is_incident_project = nil
-    if parentProject = @project.name.gsub( /:[^:]*$/, '' )
-      attributes = find_cached(Attribute, :project => parentProject, :expires_in => 30.minutes)
-      @is_incident_project = true if attributes and attributes.data.find("/attributes/attribute[@name='MaintenanceProject' and @namespace='OBS']").length > 0
-    end
+    # Is this a maintenance incident project?
+    @is_incident_project = false
+    @is_incident_project = true if @project.project_type and @project.project_type == "maintenance_incident"
+    #TODO: Prepare incident-related data
   end
 
   def require_prjconf
@@ -1304,8 +1336,19 @@ class ProjectController < ApplicationController
     end
   end
 
+  def require_available_architectures
+    begin
+      transport = ActiveXML::Config::transport_for(:architecture)
+      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
+      @available_architectures = Collection.new(response)
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Available architectures not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
+  end
+
   def load_requests
-    @requests = BsRequest.list({:state => 'pending', :project => @project.name})
+    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name}) + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name})
   end
 
 end

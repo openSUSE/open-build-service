@@ -1,18 +1,15 @@
 class MonitorController < ApplicationController
 
   skip_before_filter :check_user, :only => [ :plothistory ]
+  before_filter :require_settings, :only => [:old, :index, :filtered_list, :update_building]
+  before_filter :require_available_architectures, :only => [:index]
 
   def old
-    get_settings
-    check_user
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
-    @status_messages = get_status_messages
   end
 
   def index
-    get_settings
-    check_user
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
       redirect_to :project => params[:project]
     else
@@ -22,95 +19,36 @@ class MonitorController < ApplicationController
       rescue ActiveXML::Transport::NotFoundError
          @workerstatus = nil
       end
-      @status_messages = get_status_messages
 
       workers = Hash.new
       workers_list = Array.new
       if @workerstatus
-        @workerstatus.each_building.each do |b|
+        @workerstatus.each_building do |b|
           workers_list << [b.workerid, b.hostarch]
         end
-        @workerstatus.each_idle.each do |b|
+        @workerstatus.each_idle do |b|
           workers_list << [b.workerid, b.hostarch]
         end
       end
       workers_list.each do |bid, barch|
-	hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
+        hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
         id=bid.gsub(%r{[:./]}, '_')
-	workers[hostname] ||= Hash.new
-	workers[hostname]['_arch'] = barch
-	workers[hostname][subid] = id
+        workers[hostname] ||= Hash.new
+        workers[hostname]['_arch'] = barch
+        workers[hostname][subid] = id
       end
       @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] }
+      @available_arch_list = @available_architectures.each.map{|arch| arch.name}
     end
   end
-
-
-  def add_message_form
-    render :partial => 'add_message_form'
-  end
-
-
-  def save_message
-    message = Statusmessage.new(
-      :message => params[:message],
-      :severity => params[:severity].to_i
-    )
-    begin
-      message.save
-    rescue ActiveXML::Transport::ForbiddenError
-      @denied = true
-    end
-    @status_messages = get_status_messages
-  end
-
-
-  def delete_message
-    message = Statusmessage.find( :id => params[:id] )
-    begin
-      message.delete
-    rescue ActiveXML::Transport::ForbiddenError
-      @denied = true
-    end
-    @status_messages = get_status_messages
-  end
-
-
-  def show_more_messages
-    @status_messages = get_status_messages 100
-  end
-
-
-  def get_status_messages( limit=nil )
-    @max_messages = 4
-    limit ||= params[:message_limit]
-    limit = @max_messages if limit.nil?
-    return Statusmessage.find( :limit => limit )
-  end
-
 
   def filtered_list
-    get_settings
     @workerstatus = Workerstatus.find :all
     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
     render :partial => 'building_table'
   end
 
-
-  def get_settings
-    @project_filter = params[:project]
-
-    # @interval_steps must be > 0:
-    # @interval_steps * @max_color + @dead_line minutes
-    @interval_steps = 1
-    @max_color = 240
-    @time_now = Time.now
-    @dead_line = 1.hours.ago
-  end
-
-
   def update_building
-    get_settings
     begin
        workerstatus = Workerstatus.find :all
     rescue Timeout::Error
@@ -189,6 +127,28 @@ private
     end if arr1
     ret << 0 if ret.length == 0
     return ret
+  end
+
+  def require_available_architectures
+    begin
+      transport = ActiveXML::Config::transport_for(:architecture)
+      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
+      @available_architectures = Collection.new(response)
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Available architectures not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
+  end
+
+  def require_settings
+    @project_filter = params[:project]
+
+    # @interval_steps must be > 0:
+    # @interval_steps * @max_color + @dead_line minutes
+    @interval_steps = 1
+    @max_color = 240
+    @time_now = Time.now
+    @dead_line = 1.hours.ago
   end
 
 end

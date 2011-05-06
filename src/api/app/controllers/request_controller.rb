@@ -16,73 +16,135 @@ class RequestController < ApplicationController
 
     if params[:view] == "collection"
       #FIXME: Move this code into a model so that it can be reused in other controllers
-      predicates = []
+      outer_and = []
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank? and params[:state].blank? and params[:action_type].blank?
+      if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank?
        render_error :status => 404, :errorcode => 'require_filter',
-         :message => "This call requires at least one filter, either by user, project or package or state or action_type"
+         :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
        return
       end
 
-      # pending requests are new or in review requests
-      if params[:state] == "pending"
-        predicates << "(state/@name='new' or state/@name='review')"
-      elsif params[:state]
-        predicates << "state/@name='#{params[:state]}'"
+      # convert comma seperated values into arrays
+      roles = []
+      states = []
+      types = []
+      review_states = [ "new" ]
+      roles = params[:roles].split(',') if params[:roles]
+      types = params[:types].split(',') if params[:types]
+      states = params[:states].split(',') if params[:states]
+      review_states = params[:reviewstates].split(',') if params[:reviewstates]
+
+      # filter for request state(s)
+      if states.count > 0
+        inner_or = []
+        states.each do |s|
+          inner_or << "state/@name='#{s}'"
+        end
+        str = "(" + inner_or.join(" or ") + ")"
+        outer_and << str
       end
 
       # Filter by request type (submit, delete, ...)
       #FIXME/FIXME2.3: This should be params[:type] instead but for whatever reason, all
       # webui controllers already set params[:type] to 'request' (always).
-      predicates << "action/@type='#{params[:action_type]}'" if params[:action_type]
-
-      unless params[:project].blank?
-        if params[:package].blank?
-          str = "action/target/@project='#{params[:project]}'"
-          if params[:state] == "pending" or params[:state] == "review"
-            str += " or (review[@state='new' and @by_project='#{params[:project]}'] and state/@name='review')"
-          end
-        else
-          str = "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'"
-          if params[:state] == "pending" or params[:state] == "review"
-            str += " or (review[@state='new' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'] and state/@name='review')"
-          end
+      if types.count > 0
+        inner_or = []
+        types.each do |t|
+          inner_or << "action/@type='#{t}'"
         end
-        predicates << str
+        str = "(" + inner_or.join(" or ") + ")"
+        outer_and << str
       end
 
-      if params[:user] # should be set in almost all cases
-        user = User.find_by_login(params[:user])
-        if user # make sure the user actually exists
-          # user's own submitted requests
-          str = "(state/@who='#{params[:user]}'"
-          # requests where the user is reviewer or own requests that are in review by someone else
-          str += " or review[@by_user='#{params[:user]}' and @state='new'] or history[@who='#{params[:user]}' and position()=1]" if params[:state] == "pending" or params[:state] == "review"
-          # find requests where user is maintainer in target project
+      unless params[:project].blank?
+        inner_or = []
+        if params[:package].blank?
+          inner_or << "action/source/@project='#{params[:project]}'" if roles.count == 0 or roles.include? "source"
+          inner_or << "action/target/@project='#{params[:project]}'" if roles.count == 0 or roles.include? "target"
+          if roles.count == 0 or roles.include? "reviewer"
+            if states.count == 0 or states.include? "review"
+              review_states.each do |r|
+                inner_or << "(review[@state='#{r}' and @by_project='#{params[:project]}'])"
+              end
+            end
+          end
+        else
+          inner_or << "action/source/@project='#{params[:project]}' and action/source/@package='#{params[:package]}'" if roles.count == 0 or roles.include? "source"
+          inner_or << "action/target/@project='#{params[:project]}' and action/target/@package='#{params[:package]}'" if roles.count == 0 or roles.include? "target"
+          if roles.count == 0 or roles.include? "reviewer"
+            if states.count == 0 or states.include? "review"
+              review_states.each do |r|
+                inner_or << "(review[@state='#{r}' and @by_project='#{params[:project]}' and @by_package='#{params[:package]}'])"
+              end
+            end
+          end
+        end
+
+        if inner_or.count > 0
+          str = "(" + inner_or.join(" or ") + ")"
+          outer_and << str
+        end
+      end
+
+      if params[:user]
+        inner_or = []
+        user = User.get_by_login(params[:user])
+        # user's own submitted requests
+        if roles.count == 0 or roles.include? "creator"
+          inner_or << "state/@who='#{user.login}'"
+          inner_or << "history[@who='#{user.login}' and position()=1]"
+        end
+
+        # find requests where user is maintainer in target project
+        if roles.count == 0 or roles.include? "maintainer"
           maintained_projects = Array.new
           maintained_projects_hash = Hash.new
           user.involved_projects.each do |ip|
-            maintained_projects += ["action/target/@project='#{ip.name}'"]
-            if params[:state] == "pending" or params[:state] == "review"
-              maintained_projects += ["(review[@state='new' and @by_project='#{ip.name}'] and state/@name='review')"]
-            end
+            inner_or << ["action/target/@project='#{ip.name}'"]
             maintained_projects_hash[ip.id] = true
           end
-          str += " or (" + maintained_projects.join(" or ") + ")" unless maintained_projects.empty?
+
           ## find request where user is maintainer in target package, except we have to project already
           maintained_packages = Array.new
           user.involved_packages.each do |ip|
             unless maintained_projects_hash.has_key?(ip.db_project_id)
-              maintained_packages += ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
-              if params[:state] == "pending" or params[:state] == "review"
-                maintained_packages += ["(review[@state='new' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
+              inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
+            end
+          end
+        end
+
+        if roles.count == 0 or roles.include? "reviewer"
+          # FIXME2.3: do we really want to support to search for all reviews indepdend of the state ?
+          review_states.each do |r|
+            # requests where the user is reviewer or own requests that are in review by someone else
+            inner_or << "review[@by_user='#{user.login}' and @state='#{r}']"
+            # include all groups of user
+            user.groups.each do |g|
+              inner_or << "review[@by_group='#{g.title}' and @state='#{r}']"
+            end
+
+            # find requests where user is maintainer in target project
+            maintained_projects = Array.new
+            maintained_projects_hash = Hash.new
+            user.involved_projects.each do |ip|
+              inner_or << ["(review[@state='#{r}' and @by_project='#{ip.name}'] and state/@name='review')"]
+              maintained_projects_hash[ip.id] = true
+            end
+
+            ## find request where user is maintainer in target package, except we have to project already
+            maintained_packages = Array.new
+            user.involved_packages.each do |ip|
+              unless maintained_projects_hash.has_key?(ip.db_project_id)
+                inner_or << ["(review[@state='#{r}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
               end
             end
           end
-          str += " or (" + maintained_packages.join(" or ") + ")" unless maintained_packages.empty?
-          str += ")"
-          predicates << str
+        end
+
+        unless inner_or.empty?
+          str = "(" + inner_or.join(" or ") + ")"
+          outer_and << str
         end
       end
 
@@ -95,9 +157,9 @@ class RequestController < ApplicationController
         # TODO: Backend XPath engine needs better range support
       end
 
-      pr = predicates.join(" and ")
+      match = outer_and.join(" and ")
       logger.debug "running backend query at #{Time.now}"
-      c = Suse::Backend.post("/search/request?match=" + CGI.escape(pr), nil)
+      c = Suse::Backend.post("/search/request?match=" + CGI.escape(match), nil)
       render :text => c.body, :content_type => "text/xml"
     else
       # directory list of all requests. not very usefull but for backward compatibility...
@@ -157,7 +219,7 @@ class RequestController < ApplicationController
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_user_role_relationships
-        obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
           reviewers << User.find_by_id(r.bs_user_id)
         end
       end
@@ -167,7 +229,7 @@ class RequestController < ApplicationController
 
     # add reviewers of project in any case
     if defined? prj.project_user_role_relationships
-      prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+      prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
         reviewers << User.find_by_id(r.bs_user_id)
       end
     end
@@ -183,7 +245,7 @@ class RequestController < ApplicationController
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
-        obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
           review_groups << Group.find_by_id(r.bs_group_id)
         end
       end
@@ -193,7 +255,7 @@ class RequestController < ApplicationController
 
     # add reviewers of project in any case
     if defined? prj.project_group_role_relationships
-      prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+      prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
         review_groups << Group.find_by_id(r.bs_group_id)
       end
     end
@@ -203,6 +265,13 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   def create_create
     req = BsRequest.new(request.body.read)
+
+    # refuse request creation for anonymous users
+    if @http_user == http_anonymous_user
+      render_error :status => 401, :errorcode => 'anonymous_user',
+        :message => "Anonymous user is not allowed to create requests"
+      return
+    end
 
     # expand release and submit request targets if not specified
     req.each_action do |action|
@@ -227,7 +296,7 @@ class RequestController < ApplicationController
             # find target via linkinfo or submit to all
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
             e = data.elements["directory/linkinfo"]
-            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"] )
+            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"], follow_project_links=true, allow_remote_packages=true)
               if action.data.attributes["type"] == "maintenance_release"
                 newPackages << pkg.name
                 next
@@ -286,27 +355,18 @@ class RequestController < ApplicationController
       tprj=nil
       tpkg=nil
       if action.has_element? 'person'
-        unless User.find_by_login(action.person.name)
-          render_error :status => 404, :errorcode => 'unknown_person',
-            :message => "Unknown person  #{action.person.data.attributes["name"]}"
-          return
-        end
+        # validate user object
+        User.get_by_login(action.person.name)
         role = action.person.role if action.person.has_attribute? 'role'
       end
       if action.has_element? 'group'
-        unless Group.find_by_title(action.group.data.attributes["name"])
-          render_error :status => 404, :errorcode => 'unknown_group',
-            :message => "Unknown group  #{action.group.data.attributes["name"]}"
-          return
-        end
+        # validate group object
+        Group.get_by_title(action.group.data.attributes["name"])
         role = action.group.role if action.group.has_attribute? 'role'
       end
       if role
-        unless Role.find_by_title(role)
-          render_error :status => 404, :errorcode => 'unknown_role',
-            :message => "Unknown role  #{role}"
-          return
-        end
+        # validate role object
+        Role.get_by_title(role)
       end
       if action.has_element?('source') and action.source.has_attribute?('project')
         sprj = DbProject.get_by_name action.source.project
@@ -321,14 +381,27 @@ class RequestController < ApplicationController
           return
         end
         if action.source.has_attribute? 'package'
-          spkg = DbPackage.get_by_project_and_name sprj.name, action.source.package
+          spkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package, follow_project_links=true, allow_remote_packages=true)
         end
       end
 
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
-        if action.target.has_attribute? 'package' and not ["submit", "maintenance_release"].include? action.data.attributes["type"]
-          tpkg = DbPackage.get_by_project_and_name tprj.name, action.target.package
+        if tprj.class == DbProject and a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first
+          render_error :status => 403, :errorcode => 'request_rejected',
+            :message => "The target project #{action.target.project} is not accepting requests because: #{a.values.first.value.to_s}"
+          return
+        end
+        if action.target.has_attribute? 'package' 
+          if DbPackage.exists_by_project_and_name(action.target.project, action.target.package) or ["delete", "change_devel", "add_role", "set_bugowner"].include? action.data.attributes["type"]
+            tpkg = DbPackage.get_by_project_and_name action.target.project, action.target.package
+          end
+          
+          if tpkg and a = tpkg.find_attribute("OBS", "RejectRequests") and a.values.first
+            render_error :status => 403, :errorcode => 'request_rejected',
+              :message => "The target package #{action.target.project} / #{action.target.package} is not accepting requests because: #{a.values.first.value.to_s}"
+            return
+          end
         end
       end
 
@@ -357,13 +430,6 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "submit"
-          # source package is required for submit, but optional for change_devel
-          unless spkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "No source package specified"
-            return
-          end
-
           # validate that the sources are not broken
           begin
             pr = ""
@@ -380,7 +446,7 @@ class RequestController < ApplicationController
         end
 
         if action.data.attributes["type"] == "maintenance_incident"
-          if spkg
+          if action.source.has_attribute?(:package)
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
             return
@@ -432,7 +498,7 @@ class RequestController < ApplicationController
           end
           # allow cleanup only, if no devel package reference
           if sourceupdate == 'cleanup'
-            unless spkg.develpackages.empty?
+            unless spkg and spkg.develpackages.empty?
               msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
               msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
               render_error :status => 400, :errorcode => 'develpackage_dependency',
@@ -478,17 +544,34 @@ class RequestController < ApplicationController
         end
       end
       if action.has_element? 'source'
-        # Creating submit request from packages where no maintainer right exists will enforce a maintainer review
-        # to avoid that random people can submit versions without talking to the maintainers 
-        if action.source.has_attribute? 'package'
+        # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
+        if action.data.attributes["type"] == "change_devel" and tpkg.develpackage and not @http_user.can_modify_package?(tpkg.develpackage, 1)
+          review_packages.push({ :by_project => tpkg.develpackage.db_project.name, :by_package => tpkg.develpackage.name })
+        end
+
+        if action.data.attributes["type"] == "maintenance_release"
+          # creating release requests is also locking the source package, therefore we require write access there.
           spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
-          if spkg and not @http_user.can_modify_package? spkg
-            review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
+          unless spkg or not @http_user.can_modify_package? spkg
+            render_error :status => 403, :errorcode => "lacking_maintainership",
+              :message => "Creating a release request action requires maintainership in source package"
+            return
           end
+          spkg.flags.create(:status => "enable", :flag => "lock")
+          spkg.store
         else
-          sprj = DbProject.find_by_name action.source.project
-          if sprj and not @http_user.can_modify_project? sprj
-            review_packages.push({ :by_project => action.source.project })
+          # Creating requests from packages where no maintainer right exists will enforce a maintainer review
+          # to avoid that random people can submit versions without talking to the maintainers 
+          if action.source.has_attribute? 'package'
+            spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
+            if spkg and not @http_user.can_modify_package? spkg
+              review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
+            end
+          else
+            sprj = DbProject.find_by_name action.source.project
+            if sprj and not @http_user.can_modify_project? sprj
+              review_packages.push({ :by_project => action.source.project })
+            end
           end
         end
       end
@@ -627,6 +710,7 @@ class RequestController < ApplicationController
                         #:by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
   def command_changestate
+    params[:user] = @http_user.login
     if params[:id].nil? or params[:id].to_i == 0
       render_error :status => 404, :message => "Request ID is not a number", :errorcode => "no_such_request"
       return
@@ -641,7 +725,6 @@ class RequestController < ApplicationController
                :message => "Action requires authentifacted user."
       return
     end
-    params[:user] = @http_user.login
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
@@ -692,15 +775,11 @@ class RequestController < ApplicationController
     end
 
     # valid users and groups ?
-    if params[:by_user] and User.find_by_login(params[:by_user]).nil?
-       render_error :status => 404, :errorcode => "unknown_user",
-                :message => "User #{params[:by_user]} is unkown"
-       return
+    if params[:by_user] 
+       User.get_by_login(params[:by_user])
     end
-    if params[:by_group] and Group.find_by_title(params[:by_group]).nil?
-       render_error :status => 404, :errorcode => "unknown_group",
-                :message => "Group #{params[:by_group]} is unkown"
-       return
+    if params[:by_group] 
+       Group.get_by_title(params[:by_group])
     end
 
     # valid project or package ?
@@ -795,11 +874,32 @@ class RequestController < ApplicationController
           if action.source.has_attribute? :package
             source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
-          if [ "submit", "change_devel" ].include? action.data.attributes["type"]
+          # require a local source package
+          if [ "change_devel" ].include? action.data.attributes["type"]
             unless source_package
+              render_error :status => 404, :errorcode => "unknown_package",
+                :message => "Local source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+              return
+            end
+          end
+          # accept also a remote source package
+          if source_package.nil? and [ "submit" ].include? action.data.attributes["type"]
+            unless DbPackage.exists_by_project_and_name( source_project.name, action.source.package, follow_project_links=true, allow_remote_packages=true)
               render_error :status => 404, :errorcode => "unknown_package",
                 :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
               return
+            end
+          end
+          # write access check in release targets
+          if [ "maintenance_release" ].include? action.data.attributes["type"]
+            source_project.repositories.each do |repo|
+              repo.release_targets.each do |releasetarget|
+                unless @http_user.can_modify_project? releasetarget.target_repository.db_project
+                  render_error :status => 403, :errorcode => "release_target_no_permission",
+                    :message => "Release target project #{releasetarget.target_repository.db_project.name} is not writable by you"
+                  return
+                end
+              end
             end
           end
         end
@@ -941,11 +1041,15 @@ class RequestController < ApplicationController
     # have a unique time stamp for release
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
 
+    # use the request description as comments for history
+    params[:comment] = nil
+    params[:comment] = req.description if req.has_element? "description"
+
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
       if action.data.attributes["type"] == "set_bugowner"
           object = DbProject.find_by_name(action.target.project)
-          bugowner = Role.find_by_title("bugowner")
+          bugowner = Role.get_by_title("bugowner")
           if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
               PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
@@ -964,11 +1068,11 @@ class RequestController < ApplicationController
              object = object.db_packages.find_by_name(action.target.package)
           end
           if action.has_element? 'person'
-             role = Role.find_by_title(action.person.role)
+             role = Role.get_by_title(action.person.role)
              object.add_user( action.person.name, role )
           end
           if action.has_element? 'group'
-             role = Role.find_by_title(action.group.role)
+             role = Role.get_by_title(action.group.role)
              object.add_group( action.group.name, role )
           end
           object.store
@@ -1019,16 +1123,15 @@ class RequestController < ApplicationController
             initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
             # create package in database
             linked_package = target_project.find_package(action.target.package)
-            source_project = DbProject.find_by_name(action.source.project)
-            source_package = source_project.db_packages.find_by_name(action.source.package)
             if linked_package
               target_package = Package.new(linked_package.to_axml, :project => action.target.project)
             else
-              target_package = Package.new(source_package.to_axml, :project => action.target.project)
+              answer = Suse::Backend.get("/source/#{URI.escape(action.source.project)}/#{URI.escape(action.source.package)}/_meta")
+              target_package = Package.new(answer.body.to_s, :project => action.target.project)
               target_package.remove_all_flags
               target_package.remove_devel_project
               if initialize_devel_package
-                target_package.set_devel( :project => source_project.name, :package => source_package.name )
+                target_package.set_devel( :project => action.source.project, :package => action.source.package )
                 relinkSource=true
               end
             end
@@ -1056,18 +1159,20 @@ class RequestController < ApplicationController
             # create again via branch ...
             h = {}
             h[:cmd] = "branch"
-            h[:user] = params[:user]
+            h[:user] = @http_user.login
             h[:comment] = "initialized devel package after accepting #{params[:id]}"
+            h[:requestid] = params[:id]
             h[:oproject] = action.target.project
             h[:opackage] = action.target.package
             cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
-            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage])
+            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid])
             Suse::Backend.post cp_path, nil
 
           elsif sourceupdate == "cleanup"
             # cleanup source project
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
+            delete_path = nil
             if source_project.db_packages.count == 1
               # find linking repos
               lreps = Array.new
@@ -1095,26 +1200,31 @@ class RequestController < ApplicationController
               if source_project.name != "home:" + user.login
                 # remove source project, if this is the only package and not the user's home project
                 source_project.destroy
-                Suse::Backend.delete "/source/#{action.source.project}"
+                delete_path = "/source/#{action.source.project}"
               end
             else
               # just remove package
               source_package.destroy
-              Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
+              delete_path = "/source/#{action.source.project}/#{action.source.package}"
+            end
+            if delete_path
+              delete_path << build_query_from_hash(cp_params, [:user, :comment, :requestid])
+              Suse::Backend.delete delete_path
             end
           end
       elsif action.data.attributes["type"] == "delete"
-          if not action.target.has_attribute? :package
+          if action.target.has_attribute? :package
+            package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
+            package.destroy
+            delete_path = "/source/#{action.target.project}/#{action.target.package}"
+          else
             project = DbProject.get_by_name(action.target.project)
             project.destroy
-            Suse::Backend.delete "/source/#{action.target.project}"
-          else
-            DbPackage.transaction do
-              package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
-              package.destroy
-              Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
-            end
+            delete_path = "/source/#{action.target.project}"
           end
+          h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
+          delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
+          Suse::Backend.delete delete_path
       elsif action.data.attributes["type"] == "maintenance_incident"
 
         # create incident project
@@ -1129,10 +1239,9 @@ class RequestController < ApplicationController
 
       elsif action.data.attributes["type"] == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
-        tprj = DbProject.get_by_name(action.target.project)
 
 #FIXME2.3: support limiters to specified repositories
-        release_package(pkg, tprj, action.target.package, action.source.rev, acceptTimeStamp, req)
+        release_package(pkg, action.target.project, action.target.package, action.source.rev, nil, nil, acceptTimeStamp, req)
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"

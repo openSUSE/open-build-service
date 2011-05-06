@@ -9,9 +9,9 @@
   <p>
     <strong>User:</strong><br/>
     <%= text_field_tag 'userid', params[:userid] %><br/>
-    <script type="text/javascript">
+    <% javascript_tag do %>
       $("#userid").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
-    </script>
+    <% end %>
     <strong>Role:</strong><br/>
     <%= select_tag 'role', options_for_select(@roles, params[:role]) %><br/>
     <%= hidden_field_tag 'package', @package %>

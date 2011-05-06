@@ -48,8 +48,14 @@ class XpathEngine
       },
       'db_projects' => {
         '@name' => {:cpart => 'db_projects.name'},
+        '@type' => {:cpart => 'pt.name', :joins => [
+          'LEFT JOIN db_project_types pt ON db_projects.type_id = pt.id'
+        ]},
         'title' => {:cpart => 'db_projects.title'},
         'description' => {:cpart => 'db_projects.description'},
+        'maintenance/maintains/@project' => {:cpart => 'maintained.name', :joins => [
+          'LEFT JOIN db_projects AS maintained ON db_projects.id = maintained.maintenance_project_id'
+        ]},
         'person/@userid' => {:cpart => 'users.login', :joins => [
           'LEFT JOIN project_user_role_relationships ON db_projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id'
@@ -64,6 +70,10 @@ class XpathEngine
           'join path_elements pe on pe.parent_id=r.id',
           'join repositories r2 on r2.id=pe.repository_id',
           'join db_projects childs on childs.id=r2.db_project_id'
+        ]},
+        'repository/releasetarget/@trigger' => {:cpart => 'rt.trigger', :joins => [
+          'join repositories r on r.db_project_id=db_projects.id',
+          'join release_targets rt on rt.repository_id=r.id'
         ]},
         'package/@name' => {:cpart => 'packs.name', :joins => 
           ['LEFT JOIN db_packages AS packs ON packs.db_project_id = db_projects.id']},

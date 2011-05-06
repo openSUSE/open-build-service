@@ -20,6 +20,8 @@ server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
 set :deploy_to, "/srv/www/vhosts/opensuse.org/#{application}"
 set :runit_name, "webclient"
 set :static, "build2.o.o"
+set :owner, "webuirun"
+set :rails_env, "production"
 
 # set variables for different target deployments
 task :stage do
@@ -27,6 +29,8 @@ task :stage do
   set :runit_name, "webclient_stage"
   set :branch, "master"
   set :static, "build.o.o-stage/stage"
+  set :owner, "swebuirun"
+  set :rails_env, "stage"
 end
 
 ssh_options[:forward_agent] = true
@@ -57,9 +61,8 @@ namespace :config do
     run "rm #{release_path}#{git_subdir}/config/options.yml"
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/secret.key #{release_path}#{git_subdir}/config/"
-    run "rm -f #{release_path}#{git_subdir}/config/environments/production.rb"
-    run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/"
-    run "ln -s #{shared_path}/database.db #{release_path}#{git_subdir}/db/"
+    run "rm -f #{release_path}#{git_subdir}/config/environments/#{rails_env}.rb"
+    run "ln -s #{shared_path}/#{rails_env}.rb #{release_path}#{git_subdir}/config/environments/"
     run "ln -s #{shared_path}/repositories.rb #{release_path}#{git_subdir}/config/"
     #not in git anymore
     #run "rm -fr #{release_path}#{git_subdir}/app/views/maintenance"
@@ -75,7 +78,7 @@ namespace :config do
   desc "Set permissions"
   task :permissions do
     run "mkdir -p #{release_path}#{git_subdir}/public/main"
-    run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{release_path}#{git_subdir}/public/main"
+    run "chown -R #{owner} #{current_path}/tmp #{release_path}#{git_subdir}/public/main"
   end
 
   desc "Sync public to static.o.o"
@@ -89,19 +92,9 @@ end
 
 # server restarting
 namespace :deploy do
-  task :start do
-    run "sv start /service/#{runit_name}-*"
-    run "sv start /service/delayed_job_#{runit_name}"
-  end
-
   task :restart do
-    run "for i in /service/#{runit_name}-*; do sv restart $i; sleep 5; done"
+    run "touch #{current_path}/tmp/restart.txt"
     run "sv 1 /service/delayed_job_#{runit_name}"
-  end
-
-  task :stop do
-    run "sv stop /service/#{runit_name}-*"
-    run "sv stop /service/delayed_job_#{runit_name}"
   end
 
   task :use_subdir do

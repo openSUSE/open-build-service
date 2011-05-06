@@ -70,7 +70,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_http_methods :get, :post, :delete
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -182,6 +182,8 @@ class SourceController < ApplicationController
     # POST /source/:project
     #----------------------
     elsif request.post?
+      params[:user] = @http_user.login
+
       # command: undelete
       if 'undelete' == command
         unless @http_user.can_create_project?(project_name) and pro.nil?
@@ -322,7 +324,7 @@ class SourceController < ApplicationController
       follow_project_links = false
       follow_project_links = true if request.get? or (source_untouched_commands.include? command)
 
-      if [ '_project', '_pattern' ].include? target_package_name
+      if [ '_project', '_pattern' ].include? target_package_name and not request.delete?
         tprj = DbProject.get_by_name target_project_name
       else
         tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, use_source = true, follow_project_links = follow_project_links)
@@ -340,29 +342,7 @@ class SourceController < ApplicationController
 
     # check read access rights when the package does not exist anymore
     if tpkg.nil? and deleted_package
-      raise DbProject::ReadAccessError, "#{target_project_name}" if tprj.nil? or tprj.disabled_for? 'access', nil, nil
-      raise DbPackage::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if tprj.disabled_for? 'sourceaccess', nil, nil
-
-      unless tpkg
-        # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
-        begin
-          r = Suse::Backend.get("/source/#{CGI.escape(target_project_name)}/#{target_package_name}/_history?deleted=1&meta=1")
-        rescue
-          raise DbPackage::UnknownObjectError, "#{target_project_name}/#{target_package_name}"
-        end
-
-        data = ActiveXML::XMLNode.new(r.body.to_s)
-        lastrev = nil
-        data.each_revision {|rev| lastrev = rev}
-        srcmd5 = lastrev.value("srcmd5")
-        metapath = "/source/#{CGI.escape(target_project_name)}/#{target_package_name}/_meta?rev=#{srcmd5}"
-        r = Suse::Backend.get(metapath)
-        raise DbPackage::UnknownObjectError, "#{target_project_name}/#{target_package_name}" unless r
-        dpkg = Package.new(r.body)
-        raise DbPackage::UnknownObjectError, "#{target_project_name}/#{target_package_name}" unless dpkg
-        raise DbPackage::ReadAccessError, "#{target_project_name}/#{target_package_name}" if dpkg.disabled_for? 'access'
-        raise DbPackage::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if dpkg.disabled_for? 'sourceaccess'
-      end
+      validate_read_access_of_deleted_package(target_project_name, target_package_name)
     end
     
     # GET /source/:project/:package
@@ -371,7 +351,7 @@ class SourceController < ApplicationController
 
       # exec
       path = request.path
-      path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted])
+      path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted, :parse, :arch, :repository])
       pass_to_backend path
       return
 
@@ -447,6 +427,11 @@ class SourceController < ApplicationController
       @attribute_container = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false)
     else
       # project
+      if DbProject.is_remote_project?(params[:project])
+        render_error :status => 400, :errorcode => "remote_project",
+          :message => "Attribute access to remote project is not yet supported"
+        return
+      end
       @attribute_container = DbProject.get_by_name(params[:project])
     end
     # is the attribute type defined at all ?
@@ -460,7 +445,7 @@ class SourceController < ApplicationController
       # existing ?
       at = AttribType.find_by_name(params[:attribute])
       unless at
-        render_error :status => 403, :errorcode => "not_existing_attribute",
+        render_error :status => 404, :errorcode => "not_existing_attribute",
           :message => "Attribute is not defined in system"
         return
       end
@@ -492,7 +477,12 @@ class SourceController < ApplicationController
     #--------------------------------------------------------
     elsif request.delete?
       # init
-      ac = @attribute_container.find_attribute(name_parts[0], name_parts[1],binary)
+      if params[:namespace].blank? or params[:name].blank?
+        render_error :status => 400, :errorcode => "missing_attribute",
+          :message => "No attribute got specified for delete"
+        return
+      end
+      ac = @attribute_container.find_attribute(params[:namespace], params[:name], binary)
 
       # checks
       unless ac
@@ -504,7 +494,7 @@ class SourceController < ApplicationController
           render_error :status => 403, :errorcode => "change_attribute_no_permission",
             :message => "user #{user.login} has no permission to change attribute"
           return
-    end
+        end
       end
 
       # exec
@@ -644,11 +634,18 @@ class SourceController < ApplicationController
         end
       end
 
+      # parse xml structure of uploaded data
+      rdata = REXML::Document.new(request.raw_post.to_s)
+
       # Need permission
       logger.debug "Checking permission for the put"
       if prj
+        # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
+        ignoreLock = nil
+        ignoreLock = 1 if rdata.elements["/project/lock/disable"]
+
         # project exists, change it
-        unless @http_user.can_modify_project? prj
+        unless @http_user.can_modify_project?(prj, ignoreLock)
           logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
@@ -681,7 +678,6 @@ class SourceController < ApplicationController
       end
 
       # the following code checks if the target project of a linked project exists or is not readable by user
-      rdata = REXML::Document.new(request.raw_post.to_s)
       rdata.elements.each("project/link") do |e|
         # permissions check
         tproject_name = e.attributes["project"]
@@ -739,6 +735,23 @@ class SourceController < ApplicationController
           render_error :status => 400, :errorcode => "repo_dependency",
             :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
           return
+        end
+      end
+
+      # Check for maintenance-related parts
+      # The attribute 'type' is only set for maintenance and maintenance incident projects.
+      type_element = rdata.elements["project/@type"]
+      if type_element
+        if type_element.value == "maintenance"
+          # Set this project as the maintenance project for all maintained projects found in the XML
+          rdata.elements.each("project/maintenance/maintains") do |maintains|
+            maintained_project = DbProject.get_by_name(maintains.attributes['project'])
+            maintained_project.maintenance_project_id = prj.id
+            maintained_project.save
+          end
+        elsif type_element.value == "maintenance_incident"
+          # Handle maintenance incident project data
+          #TODO
         end
       end
 
@@ -867,8 +880,13 @@ class SourceController < ApplicationController
 
       # check for project
       if DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links=false )
+        # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
+        rdata = REXML::Document.new(request.raw_post.to_s)
+        ignoreLock = nil
+        ignoreLock = 1 if rdata.elements["/package/lock/disable"]
+
         pkg = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false )
-        unless @http_user.can_modify_package?(pkg)
+        unless @http_user.can_modify_package?(pkg, ignoreLock)
           render_error :status => 403, :errorcode => "change_package_no_permission",
             :message => "no permission to modify package '#{pkg.db_project.name}'/#{pkg.name}"
           return
@@ -920,19 +938,23 @@ class SourceController < ApplicationController
     if package_name == "_project" or package_name == "_pattern"
       allowed = permissions.project_change? prj
     else
-      if request.get?
-        # a readable package, even on remote instance is enough here
-        begin
-          pack = DbPackage.get_by_project_and_name(project_name, package_name)
-        rescue DbPackage::UnknownObjectError
-        end
+      if params.has_key? :deleted
+        validate_read_access_of_deleted_package(project_name, package_name)
+        pass_to_backend
+        return
       else
-        # we need a local package here in any case for modifications
-        pack = DbPackage.get_by_project_and_name(project_name, package_name)
-        allowed = permissions.package_change? pack
-      end
+        if request.get? 
+          # a readable package, even on remote instance is enough here
+          begin
+            pack = DbPackage.get_by_project_and_name(project_name, package_name)
+          rescue DbPackage::UnknownObjectError
+          end
+        else
+          # we need a local package here in any case for modifications
+          pack = DbPackage.get_by_project_and_name(project_name, package_name)
+          allowed = permissions.package_change? pack
+        end
 
-      unless params.has_key? :deleted and ["_history",].include?(file)
         if pack.nil? and request.get?
           # Check if this is a package on a remote OBS instance
           answer = Suse::Backend.get(request.path)
@@ -950,7 +972,7 @@ class SourceController < ApplicationController
       if pack # local package
         path = "/source/#{URI.escape(pack.db_project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
       end
-      path += build_query_from_hash(params, [:rev, :meta, :deleted])
+      path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit])
       pass_to_backend path
       return
     end
@@ -1038,6 +1060,8 @@ class SourceController < ApplicationController
     unless params[:attribute]
       params[:attribute] = "OBS:MaintenanceProject"
     end
+    noaccess = false
+    noaccess = true if params[:noaccess]
 
     # find maintenance project via attribute
     at = AttribType.find_by_name(params[:attribute])
@@ -1052,9 +1076,8 @@ class SourceController < ApplicationController
         :message => "no permission to modify project '#{prj.name}'"
       return
     end
-
     # create incident project
-    incident = create_new_maintenance_incident(prj)
+    incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
     render_ok :data => {:targetproject => incident.db_project.name}
   end
 
@@ -1075,6 +1098,8 @@ class SourceController < ApplicationController
         params[:target_project] += ":#{params[:package]}" if params[:package]
       end
     end
+    noaccess = false
+    noaccess = true if params[:noaccess]
 
     # find packages to be branched
     @packages = []
@@ -1146,13 +1171,19 @@ class SourceController < ApplicationController
     end
 
     #create branch project
-    unless DbProject.exists_by_name params[:target_project]
-       # permission check
-       unless @http_user.can_create_project?(params[:target_project])
-         render_error :status => 403, :errorcode => "create_project_no_permission",
-           :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
-         return
-       end
+    if DbProject.exists_by_name params[:target_project]
+      if noaccess
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "The destination project already exists, so the api can't make it not readable"
+        return
+      end
+    else
+      # permission check
+      unless @http_user.can_create_project?(params[:target_project])
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "no permission to create project '#{params[:target_project]}' while executing branch command"
+        return
+      end
 
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{params[:attribute]}"
@@ -1163,7 +1194,8 @@ class SourceController < ApplicationController
       DbProject.transaction do
         tprj = DbProject.new :name => params[:target_project], :title => title, :description => description
         tprj.add_user @http_user, "maintainer"
-        tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
+        tprj.flags.create( :flag => 'build', :status => "disable" )
+        tprj.flags.create( :flag => 'access', :status => "disable" ) if noaccess
         tprj.store
       end
       if params[:request]
@@ -1241,6 +1273,9 @@ class SourceController < ApplicationController
           trepo = tprj.repositories.create :name => repoName
           trepo.architectures = repo.architectures
           trepo.path_elements.create(:link => repo, :position => 1)
+          trigger = "manual"
+          trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
+          trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
         end
         tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
       end
@@ -1279,7 +1314,6 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=extendkey
   def index_project_extendkey
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
 
     pro = DbProject.find_by_name project_name
@@ -1292,7 +1326,6 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=createkey
   def index_project_createkey
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
 
     pro = DbProject.find_by_name project_name
@@ -1302,10 +1335,28 @@ class SourceController < ApplicationController
     pass_to_backend path
   end
 
+  # POST /source/<project>?cmd=createmaintenanceincident
+  def index_project_createmaintenanceincident
+    valid_http_methods :post
+
+    noaccess = false
+    noaccess = true if params[:noaccess]
+
+    prj = DbProject.get_by_name( params[:project] )
+    unless @http_user.can_modify_project?(prj)
+      render_error :status => 403, :errorcode => "modify_project_no_permission",
+        :message => "no permission to modify project '#{prj.name}'"
+      return
+    end
+
+    # create incident project
+    incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
+    render_ok :data => {:targetproject => incident.db_project.name}
+  end
+
   # POST /source/<project>?cmd=undelete
   def index_project_undelete
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
 
     path = request.path
@@ -1327,7 +1378,6 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=copy
   def index_project_copy
     valid_http_methods :post
-    params[:user] = @http_user.login
     project_name = params[:project]
     oproject = params[:oproject]
     repository = params[:repository]
@@ -1678,7 +1728,7 @@ class SourceController < ApplicationController
 
     # We need to use the project name of package object, since it might come via a project linked project
     path = "/source/#{CGI.escape(tpkg.db_project.name)}/#{CGI.escape(tpkg.name)}"
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
     pass_to_backend path
   end
 
@@ -1743,6 +1793,8 @@ class SourceController < ApplicationController
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
+    noaccess = false
+    noaccess = true if params[:noaccess]
     logger.debug "branch call of #{prj_name} #{pkg_name}"
 
     prj = DbProject.get_by_name prj_name
@@ -1811,84 +1863,91 @@ class SourceController < ApplicationController
       end
     end
  
-    oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
-    oprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj.class == DbProject
-    opkg_name = pkg_name
-    opkg_name = pkg.name if pkg
-    oprj_name = target_project unless target_project.nil?
-    opkg_name = target_package unless target_package.nil?
+    tprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
+    tprj_name = "home:#{@http_user.login}:branches:#{prj.name}" if prj.class == DbProject
+    tpkg_name = pkg_name
+    tpkg_name = pkg.name if pkg
+    tprj_name = target_project unless target_project.nil?
+    tpkg_name = target_package unless target_package.nil?
 
     #create branch container
-    oprj = DbProject.find_by_name oprj_name
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(oprj_name)
-    if oprj.nil?
-      unless @http_user.can_create_project?(oprj_name)
+    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(tprj_name)
+    if DbProject.exists_by_name tprj_name
+      if noaccess
         render_error :status => 403, :errorcode => "create_project_no_permission",
-          :message => "no permission to create project '#{oprj_name}' while executing branch command"
+          :message => "The destination project already exists, so the api can't make it not readable"
+        return
+      end
+      tprj = DbProject.get_by_name tprj_name
+    else
+      unless @http_user.can_create_project?(tprj_name)
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "no permission to create project '#{tprj_name}' while executing branch command"
         return
       end
 
       DbProject.transaction do
-        oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj_name}"
-        oprj.add_user @http_user, "maintainer"
+        tprj = DbProject.new :name => tprj_name, :title => "Branch of #{prj_name}"
+        tprj.add_user @http_user, "maintainer"
         if prj.class == DbProject
           prj.repositories.each do |repo|
-            orepo = oprj.repositories.create :name => repo.name
-            orepo.architectures = repo.architectures
-            orepo.path_elements << PathElement.new(:link => repo, :position => 1)
+            trepo = tprj.repositories.create :name => repo.name
+            trepo.architectures = repo.architectures
+            trepo.path_elements << PathElement.new(:link => repo, :position => 1)
           end
           # take over flags, but explicit disable publishing by default and enable building.
           prj.flags.each do |f|
-            oprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
+            tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
           end
-          oprj.flags.create( :status => "disable", :flag => 'publish')
         else
           # FIXME: support this also for remote projects
         end
-        oprj.store
+        tprj.flags.create( :status => "disable", :flag => 'publish')
+        tprj.flags.create( :status => "disable", :flag => 'access') if noaccess
+        tprj.store
       end
     end
 
     #create branch package
-    unless valid_package_name? opkg_name
+    unless valid_package_name? tpkg_name
       render_error :status => 400, :errorcode => "invalid_package_name",
-        :message => "invalid package name '#{opkg_name}'"
+        :message => "invalid package name '#{tpkg_name}'"
     end
-    if opkg = oprj.db_packages.find_by_name(opkg_name)
+    if tpkg = tprj.db_packages.find_by_name(tpkg_name)
       if params[:force]
         # shall we clean all files here ?
       else
         render_error :status => 400, :errorcode => "double_branch_package",
-          :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
+          :message => "branch target package already exists: #{tprj_name}/#{tpkg_name}"
         return
       end
-      unless @http_user.can_modify_package?(opkg)
+      unless @http_user.can_modify_package?(tpkg)
         render_error :status => 403, :errorcode => "create_package_no_permission",
-          :message => "no permission to create package '#{opkg_name}' for project '#{oprj_name}' while executing branch command"
+          :message => "no permission to create package '#{tpkg_name}' for project '#{tprj_name}' while executing branch command"
         return
       end
     else
-      unless @http_user.can_create_package_in?(oprj)
+      unless @http_user.can_create_package_in?(tprj)
         render_error :status => 403, :errorcode => "create_package_no_permission",
-          :message => "no permission to create package '#{opkg_name}' for project '#{oprj_name}' while executing branch command"
+          :message => "no permission to create package '#{tpkg_name}' for project '#{tprj_name}' while executing branch command"
         return
       end
 
       if pkg
-        opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
+        tpkg = tprj.db_packages.create(:name => tpkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       else
-        opkg = oprj.db_packages.create(:name => opkg_name, :description => params.has_key?(:comment) ? params[:comment] : "" )
+        tpkg = tprj.db_packages.create(:name => tpkg_name, :description => params.has_key?(:comment) ? params[:comment] : "" )
       end
       if pkg
         # take over flags, but ignore publish and build flags (when branching from a frozen project)
         pkg.flags.each do |f|
-          opkg.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
+          tpkg.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
         end
       else
         # FIXME: support this also for remote projects
       end
-      opkg.add_user @http_user, "maintainer"
-      opkg.store
+      tpkg.add_user @http_user, "maintainer"
+      tpkg.store
     end
 
     #create branch of sources in backend
@@ -1898,11 +1957,11 @@ class SourceController < ApplicationController
     end
     comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
     if pkg
-      Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
-      render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
+      Suse::Backend.post "/source/#{tprj_name}/#{tpkg_name}?cmd=branch&oproject=#{CGI.escape(prj.name)}&opackage=#{CGI.escape(pkg.name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+      render_ok :data => {:targetproject => tprj_name, :targetpackage => tpkg_name, :sourceproject => prj.name, :sourcepackage => pkg.name}
     else
-      Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
-      render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
+      Suse::Backend.post "/source/#{tprj_name}/#{tpkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
+      render_ok :data => {:targetproject => tprj_name, :targetpackage => tpkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
     end
   end
 
@@ -2005,5 +2064,33 @@ class SourceController < ApplicationController
     return true if name =~ /^_product:[-_+\w\.:]*$/
     return true if name =~ /^_patchinfo:[-_+\w\.:]*$/ # obsolete, just for backward compatibility
     name =~ /^\w[-_+\w\.:]*$/
+  end
+
+  # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
+  def validate_read_access_of_deleted_package(project, name)
+    prj = DbProject.get_by_name project
+    raise DbProject::ReadAccessError, "#{project}" if prj.disabled_for? 'access', nil, nil
+    raise DbPackage::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for? 'sourceaccess', nil, nil
+
+    begin
+      r = Suse::Backend.get("/source/#{CGI.escape(project)}/#{name}/_history?deleted=1&meta=1")
+    rescue
+      raise DbPackage::UnknownObjectError, "#{project}/#{name}"
+    end
+
+    data = ActiveXML::XMLNode.new(r.body.to_s)
+    lastrev = nil
+    data.each_revision {|rev| lastrev = rev}
+    metapath = "/source/#{CGI.escape(project)}/#{name}/_meta"
+    if lastrev
+      srcmd5 = lastrev.value('srcmd5')
+      metapath += "?rev=#{srcmd5}" # only add revision if package has some
+    end
+
+    r = Suse::Backend.get(metapath)
+    raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless r
+    dpkg = Package.new(r.body)
+    raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless dpkg
+    raise DbPackage::ReadSourceAccessError, "#{project}/#{name}" if dpkg.disabled_for? 'sourceaccess'
   end
 end

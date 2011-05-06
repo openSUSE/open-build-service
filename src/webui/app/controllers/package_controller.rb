@@ -22,16 +22,15 @@ class PackageController < ApplicationController
     @bugowners_mail = []
     if @package.bugowners
       @package.bugowners.each do |bugowner|
-        mail = find_cached(Person, bugowner).email.to_s
-        @bugowners_mail.push mail if mail
+        mail = find_cached(Person, bugowner).email
+        @bugowners_mail.push(mail.to_s) if mail
       end
     elsif @project.bugowners
       @project.bugowners.each do |bugowner|
-        mail = find_cached(Person, bugowner).email.to_s
-        @bugowners_mail.push mail if mail
+        mail = find_cached(Person, bugowner).email
+        @bugowners_mail.push(mail.to_s) if mail
       end
     end
-    @bugowners_mail = nil if @bugowners_mail.empty?
     fill_status_cache unless @buildresult.blank?
     linking_packages
   end
@@ -53,6 +52,9 @@ class PackageController < ApplicationController
     @fileinfo = find_cached(Fileinfo, :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
+    unless @fileinfo # avoid displaying an error for non-existing packages
+      redirect_back_or_to(:action => "binary", :project => params[:project], :package => params[:package], :repository => @repository, :arch => @arch, :filename => @filename)
+    end
   end
 
   def binary
@@ -89,12 +91,16 @@ class PackageController < ApplicationController
   def binaries
     required_parameters :repository
     @repository = params[:repository]
+    begin
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.message
+      redirect_back_or_to :controller => "package", :action => "show", :project => @project, :package => @package and return
+    end
     unless @buildresult
       flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}" 
-      redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404  
-      return
+      redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
     end
     # load the flag details to disable links for forbidden binary downloads
     @package = find_cached(Package, @package.name, :project => @project, :view => :flagdetails )
@@ -115,8 +121,8 @@ class PackageController < ApplicationController
 
   def files
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
-    @revision = params[:rev]
     @srcmd5   = params[:srcmd5]
+    @revision = params[:rev]
     @current_rev = Package.current_rev(@project, @package.name)
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
@@ -150,7 +156,6 @@ class PackageController < ApplicationController
   def submit_request_dialog
     @revision = Package.current_rev(@project, @package)
   end
-
   def submit_request
     if params[:targetproject].nil? or params[:targetproject].empty?
       flash[:error] = "Please provide a target for the submit request"
@@ -162,12 +167,27 @@ class PackageController < ApplicationController
       req = BsRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message, _, _ = ActiveXML::Transport.extract_error_message(e)
       flash[:error] = message
-      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+      redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
     end
+
+    # Supersede logic has to be below addition as we need the new request id
+    if params[:supersede]
+      pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => "new,review", :types => "submit")
+      pending_requests.each do |request|
+        next if request.data[:id] == req.data[:id] # ignore newly created request
+        begin
+          BsRequest.modify(request.data[:id], "superseded", :reason => "Superseded by request #{req.data[:id]}", :superseded_by => req.data[:id])
+        rescue BsRequest::ModifyError => e
+          flash[:error] = e.message
+          redirect_to(:action => "list_requests", :project => params[:project], :package => params[:package]) and return
+        end
+      end
+    end
+
     Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+    redirect_to(:controller => "request", :action => "show", :id => req.data[:id])
   end
 
   def service_parameter
@@ -249,6 +269,7 @@ class PackageController < ApplicationController
     if params[:commit]
       @rev = params[:commit]
     else
+      @rev = Package.current_rev(@project, @package.name)
       required_parameters :opackage, :oproject
       @opackage = params[:opackage]
       @oproject = params[:oproject]
@@ -738,6 +759,9 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = "Error: #{e}"
+      redirect_back_or_to :action => :show, :project => @project, :package => @package
     end
   end
 
@@ -776,8 +800,20 @@ class PackageController < ApplicationController
 
   def rawlog
     valid_http_methods :get
+
+    path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
+
+    # apache & mod_xforward case
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}#{path}"
+      head(200)
+      return
+    end
+
+    # lighttpd 1.5 case
     if CONFIG['use_lighttpd_x_rewrite']
-      headers['X-Rewrite-URI'] = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
+      headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = FRONTEND_HOST
       head(200) and return
     end
@@ -1148,7 +1184,7 @@ class PackageController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:state => 'pending', :project => @project.name, :package => @package.name})
+    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
   end
 
 end

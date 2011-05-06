@@ -35,11 +35,29 @@ config.action_controller.session = {
 FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
-
-ICHAIN_HOST = "https://build.opensuse.org"
-# ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_MODE = "off"
+FRONTEND_LDAP_MODE = :off
 
 # Enable the interface to change user's password, it can be one of 'on', 'off'
 CHANGE_PASSWD = "on"
+
+##
+## The following is needed when the authentification is done by a proxy server in front
+## of OBS. The external api name is usually different to the local one in this case.
+##
+PROXY_AUTH_HOST = "https://build.opensuse.org"
+PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
+PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
+# EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
+# EXTERNAL_FRONTEND_PORT = 443
+# EXTERNAL_FRONTEND_PROTOCOL = 'https'
+# PROXY_AUTH_MODE can be one of  'on', 'off' or 'simulate'
+PROXY_AUTH_MODE = :off
+#PROXY_AUTH_HOST = "https://build.opensuse.org"
+#PROXY_AUTH_REGISTER_PAGE = "https://en.opensuse.org/ICSLogin"
+#PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
+#PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
+#EXTERNAL_WEBUI_PROTOCOL = "https"
+#EXTERNAL_WEBUI_HOST = "build.opensuse.org"
+#PROXY_AUTH_TEST_USER = "adrianSuSE"
+#PROXY_AUTH_TEST_EMAIL = "foo@bar.com"
 

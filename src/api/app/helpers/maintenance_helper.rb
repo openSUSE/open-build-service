@@ -1,35 +1,36 @@
 module MaintenanceHelper
 
   # updates packages automatically generated in the backend after submitting a product file
-  def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil )
+  def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
     mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
-
-    name = maintenanceProject.name + ":" + mi.createIncidentId.to_s
 
     tprj = nil
     DbProject.transaction do
-      tprj = DbProject.new :name => name
-      tprj.project_user_role_relationships = maintenanceProject.project_user_role_relationships
-      tprj.project_group_role_relationships = maintenanceProject.project_group_role_relationships
+      tprj = DbProject.new :name => mi.project_name
+      maintenanceProject.project_user_role_relationships.each do |r| 
+        tprj.project_user_role_relationships.new( :user => r.user, :role => r.role )
+      end
+      maintenanceProject.project_group_role_relationships.each do |r| 
+        tprj.project_group_role_relationships.new( :group => r.group, :role => r.role )
+      end
       if baseProject
         # copy as much as possible from base project
-        tprj.title = baseProject.title
-        tprj.description = baseProject.description
-        tprj.flags = baseProject.flags
-        tprj.repositories = baseProject.repositories
+        tprj.title = baseProject.title.dup
+        tprj.description = baseProject.description.dup
+        tprj.flags = baseProject.flags.dup
+        tprj.repositories = baseProject.repositories.dup
       else
         # mbranch call is enabling selected packages
         tprj.store
         tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
       end
+      if noaccess
+        tprj.flags.create( :flag => 'access', :status => "disable" )
+      end
       tprj.store
       mi.db_project_id = tprj.id
       mi.save!
     end
-
-    # set empty attribute to allow easy searches of active incidents
-    at = AttribType.find_by_name("OBS:MaintenanceReleaseDate")
-    Attrib.new(:db_project => tprj, :attrib_type => at).save
 
     # copy all packages and project source files from base project
     # we don't branch from it to keep the link target.
@@ -58,7 +59,9 @@ module MaintenanceHelper
     return mi
   end
 
-  def release_package(sourcePackage, targetProject, targetPackageName, revision, timestamp, request = nil)
+  def release_package(sourcePackage, targetProjectName, targetPackageName, revision, sourceRepository, releasetargetRepository, timestamp, request = nil)
+
+    targetProject = DbProject.get_by_name targetProjectName
 
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
@@ -98,30 +101,27 @@ module MaintenanceHelper
     Suse::Backend.post cp_path, nil
 
     # copy binaries
-    targetProject.repositories.each do |targetRepo|
-      targetRepo.architectures.each do |arch|
-        # copy all binaries, which got build for our target repo from maintenance project
-        sourceRepo=nil
-        sourcePackage.db_project.repositories.each do |r|
-          if r.path_elements and r.path_elements.find_by_repository_id(targetRepo)
-            if sourceRepo
-               raise
-            end
-            sourceRepo=r
+    sourcePackage.db_project.repositories.each do |sourceRepo|
+      sourceRepo.release_targets.each do |releasetarget|
+        #FIXME2.5: filter given release and/or target repos here
+        sourceRepo.architectures.each do |arch|
+          if releasetarget.target_repository.db_project == targetProject
+            cp_params = {
+              :cmd => "copy",
+              :oproject => sourcePackage.db_project.name,
+              :opackage => sourcePackage.name,
+              :orepository => sourceRepo.name,
+            }
+            cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
+            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{CGI.escape(releasetarget.target_repository.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
+            cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
+            Suse::Backend.post cp_path, nil
           end
         end
-        if sourceRepo
-          cp_params = {
-            :cmd => "copy",
-            :oproject => sourcePackage.db_project.name,
-            :opackage => sourcePackage.name,
-            :orepository => sourceRepo.name,
-            :setupdateinfoid => updateinfoId,
-          }
-          cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
-          cp_path = "/build/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetRepo.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
-          Suse::Backend.post cp_path, nil
+        # remove maintenance release trigger in source
+        if releasetarget.trigger == "maintenance"
+          releasetarget.trigger = "manual"
+          releasetarget.save!
         end
       end
     end
@@ -140,18 +140,6 @@ module MaintenanceHelper
       end
       Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
     end
-
-    # update attribute to current version
-    at = AttribType.find_by_name("OBS:MaintenanceReleaseDate")
-    a = Attrib.find(:first, :conditions => ["attrib_type_id = ? AND db_project_id = ?", at.id, sourcePackage.db_project.id])
-    found=nil
-    a.values.each do |v|
-      found=1 if v.value.to_s == timestamp.to_s
-    end
-    unless found
-      a.values << AttribValue.new(:value => timestamp.to_s, :position => (a.values.count + 1))
-    end
-    a.save
 
   end
 end

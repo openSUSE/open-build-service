@@ -19,17 +19,17 @@ config.action_mailer.raise_delivery_errors = false
 config.log_level = :debug
 
 #SOURCE_HOST = "buildservice.suse.de"
-SOURCE_HOST = "localhost"
-
-SOURCE_PORT = 5352
 #SOURCE_PORT = 6362 #test backend
+SOURCE_HOST = "localhost"
+SOURCE_PORT = 5352
+SOURCE_PROTOCOL = "http"
 
-# ATTENTION: If ICHAIN_MODE is :on, the frontend takes the user
+# ATTENTION: If PROXY_AUTH_MODE is :on, the frontend takes the user
 # name that is coming as headervalue X-username as a 
 # valid user does no further authentication. So take care...
-# ICHAIN_MODE can be :off, :on or :simulate
-ICHAIN_TEST_USER = "test"
-ICHAIN_MODE = :off
+# PROXY_AUTH_MODE can be :off, :on or :simulate
+PROXY_AUTH_TEST_USER = "test"
+PROXY_AUTH_MODE = :off
 
 LDAP_MODE = :off
 # LDAP Servers separated by ':'.

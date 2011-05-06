@@ -1,5 +1,7 @@
 class UserController < ApplicationController
 
+  include ApplicationHelper
+
   before_filter :require_login, :only => [:edit, :save]
   before_filter :check_user, :only => [:edit, :save, :change_password]
 
@@ -8,8 +10,8 @@ class UserController < ApplicationController
     reset_session
     @user = nil
     @return_to_path = "/"
-    if ICHAIN_MODE == 'on'
-      redirect_to '/cmd/ICSLogout'
+    if PROXY_AUTH_MODE == :on
+      redirect_to PROXY_AUTH_LOGOUT_PAGE
     else
       redirect_to '/'
     end
@@ -31,9 +33,14 @@ class UserController < ApplicationController
       session[:passwd] = params[:password]
       authenticate_form_auth
       begin
-        Person.find( session[:login] )
+        p = Person.find( session[:login] )
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
+        reset_session
+        flash.now[:error] = "Authentication failed"
+        render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
+      end
+      unless p
         reset_session
         flash.now[:error] = "Authentication failed"
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
@@ -56,11 +63,14 @@ class UserController < ApplicationController
 
   def register
     valid_http_methods(:post)
+    unless FRONTEND_LDAP_MODE == :off
+      flash[:error] = 'Registering currently not possible with LDAP mode'
+      redirect_back_or_to :controller => 'main', :action => 'index' and return
+    end
     begin
       find_cached(Person, session[:login] )
       logger.info "User #{session[:login]} already exists..."
-      redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
-      return
+      redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}" and return
     rescue
     end
     login = ""
@@ -80,16 +90,18 @@ class UserController < ApplicationController
     if params[:password_first] != params[:password_second]
       logger.info "Password did not match"
       flash[:error] = "Given passwords are not the same"
-      redirect_to :controller => :project, :action => :show
-      return
+      redirect_back_or_to :controller => "main", :action => "index" and return
     end
-
-    if login.blank?
-      logger.info "No login name found"
+    if params[:password_first] and (params[:password_first].length < 6 or params[:password_first].length > 64)
+      flash[:error] = "Password is to short, it should have minimum 6 characters"
+      redirect_back_or_to :controller => "main", :action => "index" and return
+    end
+    if login.blank? or login.include?(" ")
+      logger.info "Illegal login name"
       flash[:error] = "Illegal login name"
-      redirect_to :controller => :project, :action => :show
-      return
+      redirect_back_or_to :controller => "main", :action => "index" and return
     end
+    #FIXME redirecting destroys form content, either send it or use AJAX form validation
 
     logger.debug "Creating new person #{login}"
     unreg_person_opts = {
@@ -98,7 +110,7 @@ class UserController < ApplicationController
       :realname => realname,
       :explanation => explanation
     }
-    unreg_person_opts[:password] = params[:password_first]    if params[:password_first]
+    unreg_person_opts[:password] = params[:password_first] if params[:password_first]
 
     person = Unregisteredperson.new(unreg_person_opts)
     person.save({:create => true})

@@ -46,9 +46,15 @@ class ApplicationController < ActionController::Base
   protected
 
   def set_return_to
-    # we cannot get the original protocol when behind lighttpd/apache
-    @return_to_host = params['return_to_host'] || "https://" + request.host
-    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI'].gsub(/&/, '&amp;')
+    if params['return_to_host']
+      @return_to_host = params['return_to_host']
+    else
+      # we have a proxy in front of us
+      @return_to_host = Object.const_defined?(:EXTERNAL_WEBUI_PROTOCOL) ? EXTERNAL_WEBUI_PROTOCOL : "http"
+      @return_to_host += "://"
+      @return_to_host += Object.const_defined?(:EXTERNAL_WEBUI_HOST) ? EXTERNAL_WEBUI_HOST : request.host
+    end
+    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI'].gsub(/.*:\/\/[^\/]*\//, '/').gsub(/&/, '&amp;')
     logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
@@ -62,7 +68,10 @@ class ApplicationController < ActionController::Base
     if !session[:login]
       render :text => 'Please login' and return if request.xhr?
       flash[:error] = "Please login to access the requested page."
-      if (ICHAIN_MODE == 'off')
+      mode = :off
+      mode = ICHAIN_MODE if defined? ICHAIN_MODE
+      mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+      if (mode == :off)
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
       else
         redirect_to :controller => :main, :return_to_host => @return_to_host, :return_to_path => @return_to_path
@@ -72,8 +81,11 @@ class ApplicationController < ActionController::Base
 
   # sets session[:login] if the user is authenticated
   def authenticate
-    logger.debug "Authenticating with iChain mode: #{ICHAIN_MODE}"
-    if ICHAIN_MODE == 'on' || ICHAIN_MODE == 'simulate'
+    mode = :off
+    mode = ICHAIN_MODE if defined? ICHAIN_MODE
+    mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+    logger.debug "Authenticating with iChain mode: #{mode}"
+    if mode == :on || mode == :simulate
       authenticate_ichain
     else
       authenticate_form_auth
@@ -86,10 +98,13 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_ichain
+    mode = :off
+    mode = ICHAIN_MODE if defined? ICHAIN_MODE
+    mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
     ichain_user = request.env['HTTP_X_USERNAME']
-    ichain_user = ICHAIN_TEST_USER if ICHAIN_MODE == 'simulate' and ICHAIN_TEST_USER
+    ichain_user = ICHAIN_TEST_USER if mode == :simulate and ICHAIN_TEST_USER
     ichain_email = request.env['HTTP_X_EMAIL']
-    ichain_email = ICHAIN_TEST_EMAIL if ICHAIN_MODE == 'simulate' and ICHAIN_TEST_EMAIL
+    ichain_email = ICHAIN_TEST_EMAIL if mode == :simulate and ICHAIN_TEST_EMAIL
     if ichain_user
       session[:login] = ichain_user
       session[:email] = ichain_email
@@ -151,6 +166,18 @@ class ApplicationController < ActionController::Base
     transport.delete_additional_header 'Authorization'
   end
 
+  def strip_sensitive_data_from(request)
+    # Strip HTTP_AUTHORIZATION header that contains the user's password
+    # try to get it where mod_rewrite might have put it
+    request.env["X-HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "X-HTTP_AUTHORIZATION"
+    # for Apace/mod_fastcgi with -pass-header Authorization
+    request.env["Authorization"] = "STRIPPED" if request.env.has_key? "Authorization"
+    # this is the regular location
+    request.env["HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "HTTP_AUTHORIZATION"
+    return request
+  end
+  private :strip_sensitive_data_from
+
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
   end
@@ -173,7 +200,7 @@ class ApplicationController < ActionController::Base
       elsif code == "unconfirmed_user"
         render :template => "user/unconfirmed" and return
       else
-        #ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+        #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
         if @user
           render_error :status => 403, :message => message
         else
@@ -181,8 +208,8 @@ class ApplicationController < ActionController::Base
         end
       end
     when ActiveXML::Transport::UnauthorizedError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render_error :status => 401, :message => 'Unauthorized access'
+      #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
+      render_error :status => 401, :message => 'Unauthorized access, please login'
     when ActionController::InvalidAuthenticityToken
       render_error :status => 401, :message => 'Invalid authenticity token'
     when ActiveXML::Transport::ConnectionError
@@ -190,7 +217,7 @@ class ApplicationController < ActionController::Base
     when Timeout::Error
       render :template => "timeout" and return
     when ValidationError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+      ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
     when MissingParameterError 
       render_error :status => 400, :message => message
@@ -201,7 +228,7 @@ class ApplicationController < ActionController::Base
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
     else
       if code != 404 && send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
+        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
       end
       render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
@@ -209,6 +236,12 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt={} )
+    # workaround an exception in mod_rails, it dies when an answer is send without
+    # reading the body. We trigger passenger to read the entire body via requesting the size
+    if request.put? or request.post?
+      request.body.size if request.body.respond_to? 'size'
+    end
+
     # :code is a string that comes from the api, :status is the http status code
     @status = opt[:status] || 400
     @code = opt[:code] || @status
@@ -263,7 +296,8 @@ class ApplicationController < ActionController::Base
 
   def check_user
     return unless session[:login]
-    @user ||= Rails.cache.fetch("person_#{session[:login]}") do 
+    Rails.cache.delete("person_#{session[:login]}") if discard_cache?
+    @user ||= Rails.cache.fetch("person_#{session[:login]}", :expires_in => 10.minutes) do 
        Person.find( session[:login] )
     end
     if @user

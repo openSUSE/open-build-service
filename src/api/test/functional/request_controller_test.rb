@@ -91,15 +91,15 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     post "/request?cmd=create", load_backend_file('request/no_such_user')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown person/
+    assert_tag( :tag => "status", :attributes => { :code => 'user_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_group')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown group/
+    assert_tag( :tag => "status", :attributes => { :code => 'group_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_role')
     assert_response 404
-    assert_select "status[code] > summary", /Unknown role/
+    assert_tag( :tag => "status", :attributes => { :code => 'role_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_project')
     assert_response 404
@@ -141,6 +141,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  # FIXME: we need a way to test this with api anonymous config and without
+  def test_create_request_anonymous
+    ActionController::IntegrationTest::reset_auth
+    post "/request?cmd=create", load_backend_file('request/add_role')
+    assert_response 401
+  end
+
   def test_add_role_request
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role')
@@ -161,7 +168,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_clone_and_superseed_it
-    ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -386,14 +392,14 @@ class RequestControllerTest < ActionController::IntegrationTest
 if $ENABLE_BROKEN_TEST
    #FIXME2.2 there is no code in this test creating request from HiddenProject
     # collection of user involved requests
-    get "/request?view=collection&user=Iggy&state=pending"
+    get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
 end
 
     # collection for given package
-    get "/request?view=collection&project=kde4&package=wpa_supplicant&state=pending"
+    get "/request?view=collection&project=kde4&package=wpa_supplicant&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
@@ -401,7 +407,7 @@ end
     assert_tag( :tag => "request", :attributes => { :id => id} )
 
     # collection for given project
-    get "/request?view=collection&project=kde4&state=pending"
+    get "/request?view=collection&project=kde4&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
@@ -412,13 +418,56 @@ if $ENABLE_BROKEN_TEST
 # this is working for involved search now, but not for other requests like add_role with a target.
     # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable
     prepare_request_with_user "tom", "thunder"
-    get "/request?view=collection&user=adrian&state=pending"
+    get "/request?view=collection&user=adrian&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_no_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
 
 # FIXME: add test cases for group search and for involved project search
 end
+  end
+
+  def test_reject_request_creation
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    # block request creation in project
+    post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Go Away</value> </attribute> </attributes>"
+    assert_response :success
+
+    rq = '<request>
+           <action type="submit">
+             <source project="BaseDistro" package="pack1" rev="1"/>
+             <target project="home:Iggy" package="TestPack"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/Go Away/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    # block request creation in package
+    post "/source/home:Iggy/TestPack/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
+    assert_response :success
+
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/Go Away/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    # remove project attribute lock
+    delete "/source/home:Iggy/_attribute/OBS:RejectRequests"
+    assert_response :success
+
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/Package blocked/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    #cleanup
+    delete "/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests"
+    assert_response :success
   end
 
   def test_submit_request_from_hidden_project_and_hidden_source
@@ -556,6 +605,16 @@ end
     assert_equal node.has_attribute?(:id), true
     id_by_package = node.data['id']
 
+    # find requests which are not in review
+    get "/request?view=collection&user=Iggy&states=new"
+    assert_response :success
+    assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+    # find reviews
+    get "/request?view=collection&user=Iggy&states=review&reviewstates=new&roles=reviewer"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+
     # create request by maintainer
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/submit_without_target')
@@ -592,6 +651,22 @@ end
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+
+    # invalid review, by_project is missing
+    post "/request/#{id}?cmd=addreview&by_package=kdelibs"
+    assert_response 400
+
+    post "/request/#{id}?cmd=addreview&by_project=kde4&by_package=kdelibs"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_project => "kde4", :by_package => "kdelibs" } )
+
+    post "/request/#{id}?cmd=addreview&by_project=home:tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_project => "home:tom", :by_package => nil } )
 
     # and revoke it
     ActionController::IntegrationTest::reset_auth
@@ -734,8 +809,15 @@ end
     prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response :success
-    prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response :success
+
+    # a review has been added because we are not maintainer of current devel package, accept it.
+    prepare_request_with_user "king", "sunflower"
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_project => "home:coolo:test", :by_package => "kdelibs_DEVEL_package" } )
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package"
     assert_response :success
 
     # validate our existing test data and fixtures
@@ -866,7 +948,7 @@ end
                 <updatelink>true</updatelink>
               </options>
             </action>
-            <description/>
+            <description>SUBMIT</description>
             <state who='Iggy' name='new'/>
           </request>"
     post "/request?cmd=create", req
@@ -885,6 +967,11 @@ end
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
 
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_history"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "SUBMIT" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
+
     # pack2 got created
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
     assert_response :success
@@ -895,7 +982,7 @@ end
             <action type='delete'>
               <target project='BaseDistro2:LinkedUpdateProject' package='pack2'/>
             </action>
-            <description/>
+            <description>DELETE REQUEST</description>
             <state who='king' name='new'/>
           </request>"
     post "/request?cmd=create", req
@@ -924,6 +1011,15 @@ end
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
+
+    # validate result
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_meta"
+    assert_response :success
+    assert_tag( :tag => "package", :attributes => { :project => "BaseDistro2", :name => "pack2" } )
+    get "/source/BaseDistro2:LinkedUpdateProject/pack2/_history?deleted=1"
+    assert_response :success
+    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "DELETE REQUEST" )
+    assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
 
     # accept the other request, what will fail
     prepare_request_with_user "king", "sunflower"
@@ -1103,17 +1199,17 @@ end
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
-    get "/request?view=collection&user=Iggy&state=pending"
+    get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
-    get "/request?view=collection&project=c%2b%2b&state=pending"
+    get "/request?view=collection&project=c%2b%2b&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
-    get "/request?view=collection&project=c%2b%2b&package=TestPack&state=pending"
+    get "/request?view=collection&project=c%2b%2b&package=TestPack&states=new,review"
     assert_response :success
     assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )

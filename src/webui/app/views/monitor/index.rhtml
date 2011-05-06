@@ -1,18 +1,15 @@
-<% @pagetitle = "Build Status Monitor"
-   @metarobots = "nofollow"
-   @crumb_list = [ 'Monitor' ]
--%>
+<% @pagetitle = 'Build Status Monitor' %>
+<% @crumb_list = ['Monitor'] %>
+<% @metarobots = 'nofollow' %>
 
 <% content_for :content_for_head do %>
-<%= stylesheet_link_tag "monitor", :media => "all" %>
+  <%= stylesheet_link_tag 'monitor', :media => 'all' %>
 <% end %>
 
-<%= render :partial => 'status_messages' %>
 <% if @workerstatus %>
   <%= render :partial => 'lights' %>
   <%= render :partial => 'workers_table' %>
   <%= render :partial => 'events' %>
-<% else -%>
+<% else %>
   <div class="strong">Unable to determine status of workers</div>
-<% end -%>
-
+<% end %>

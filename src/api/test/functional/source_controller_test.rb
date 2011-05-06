@@ -545,6 +545,85 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   
+  def test_lock_project
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
+    assert_response :success
+
+    # lock project
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    doc = REXML::Document.new( @response.body )
+    doc.elements["/project"].add_element "lock"
+    doc.elements["/project/lock"].add_element "enable"
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response :success
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "project" }, :tag => "lock" 
+    assert_tag :parent => { :tag => "lock" }, :tag => "enable" 
+
+    # modifications are not allowed anymore
+    delete "/source/home:Iggy"
+    assert_response 403
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response 403
+    doc.elements["/project/description"].text = "new text"
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response 403
+    put "/source/home:Iggy/TestLinkPack/_link", ""
+    assert_response 403
+
+    # make project read-writable again
+    doc.elements["/project/lock"].delete_element "enable"
+    doc.elements["/project/lock"].add_element "disable"
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response :success
+
+    # cleanup works now again
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
+  
+  def test_lock_package
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+
+    # lock package
+    get "/source/home:Iggy/TestLinkPack/_meta"
+    assert_response :success
+    doc = REXML::Document.new( @response.body )
+    doc.elements["/package"].add_element "lock"
+    doc.elements["/package/lock"].add_element "enable"
+    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    assert_response :success
+    get "/source/home:Iggy/TestLinkPack/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "package" }, :tag => "lock" 
+    assert_tag :parent => { :tag => "lock" }, :tag => "enable" 
+
+    # modifications are not allowed anymore
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response 403
+    doc.elements["/package/description"].text = "new text"
+    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    assert_response 403
+    put "/source/home:Iggy/TestLinkPack/_link", ""
+    assert_response 403
+
+    # make package read-writable again
+    doc.elements["/package/lock"].delete_element "enable"
+    doc.elements["/package/lock"].add_element "disable"
+    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    assert_response :success
+
+    # cleanup works now again
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
   
   def test_put_package_meta_with_invalid_permissions
     prepare_request_with_user "tom", "thunder"
@@ -1375,6 +1454,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/home:coolo:test/_pattern/mypattern"
     assert_response 404
+    delete "/source/home:coolo:test/_pattern"
+    assert_response :success
+    delete "/source/home:coolo:test/_pattern"
+    assert_response 404
   end
 
   def test_prjconf
@@ -1502,6 +1585,44 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_copy_package
+    # fred has maintainer permissions in this single package of Iggys home
+    # this is the osc way
+    prepare_request_with_user "fred", "geröllheimer"
+    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    assert_response :success
+    get "/source/home:Iggy/TestPack/_history"
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    revision = node.each_revision.last.value :rev
+
+    # standard copy
+    post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack"
+    assert_response :success
+    get "/source/home:fred/DELETE/_history"
+    assert_response :success
+    assert_tag :tag => "revisionlist", :children => { :count => 1 }
+
+    delete "/source/home:fred/DELETE"
+    assert_response :success
+
+# FIXME2.3: this support needs a rethink in backend
+if $ENABLE_BROKEN_TEST
+    # copy with history
+    post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack", :withhistory => "1"
+    assert_response :success
+    get "/source/home:fred/DELETE/_history"
+    assert_response :success
+    assert_tag :tag => "revisionlist", :children => { :count => revision }
+
+    # cleanup
+    delete "/source/home:fred/DELETE"
+    assert_response :success
+end
+    delete "/source/home:Iggy/TestPack/filename"
+    assert_response :success
+  end
+
   def test_source_commits
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
@@ -1512,12 +1633,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
     prepare_request_with_user "fred", "geröllheimer"
+    delete "/source/home:Iggy/TestPack/filename" # in case other tests created it
     put "/source/home:Iggy/TestPack/filename?rev=repository", 'CONTENT'
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
     assert_response 404
+    get "/source/home:Iggy/TestPack/_history?limit=1"
+    assert_response :success
+    assert_tag :tag => "revisionlist", :children => { :count => 1 }
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
+    assert_no_tag :tag => "revisionlist", :children => { :count => 1 }
     node = ActiveXML::XMLNode.new(@response.body)
     revision = node.each_revision.last.value :rev
     revision = revision.to_i + 1
@@ -1533,6 +1659,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # delete file with commit
     delete "/source/home:Iggy/TestPack/filename"
     assert_response :success
+    revision = revision.to_i + 1
     get "/source/home:Iggy/TestPack/filename"
     assert_response 404
 
@@ -1546,10 +1673,10 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 404
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    assert_no_tag( :tag => "revision", :attributes => { :rev => "5"} )
+    revision = revision.to_i + 1
+    assert_no_tag( :tag => "revision", :attributes => { :rev => revision.to_s} )
     post "/source/home:Iggy/TestPack?cmd=commit"
     assert_response :success
-    revision = revision.to_i + 1
     get "/source/home:Iggy/TestPack/filename?rev=latest"
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"

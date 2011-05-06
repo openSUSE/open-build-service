@@ -111,12 +111,16 @@ sub notify_repservers {
 }
 
 sub runservice {
-  my ($cgi, $projid, $packid) = @_;
+  my ($cgi, $projid, $packid, $nonfatal) = @_;
 
   return if $packid eq "_project";
   return unless $BSConfig::serviceserver;
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
+
+  # die when a source service is still running
+  my $lockfile = "$eventdir/service/${projid}::$packid";
+  die("403 service still running") if !$nonfatal && -e $lockfile;
 
   # collect current sources to POST them
   my $projectrev = getrev($projid, '_project');
@@ -124,6 +128,7 @@ sub runservice {
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);
   unless ($files->{'_service'} || $projectfiles->{'_service'}){
+    die("404 no source service defined!") unless $nonfatal;
     # drop all existing service files
     my $dirty;
     for my $pfile (keys %$files) {
@@ -133,7 +138,7 @@ sub runservice {
       }
     }
     if ($dirty){
-      addrev($projid, $packid, $files, "_service", "generated via source service", undef);
+      addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service'}, $projid, $packid, $files);
       notify_repservers('package', $projid, $packid);
     }
     return;
@@ -146,13 +151,12 @@ sub runservice {
       mkdir_p($uploaddir);
       writestr("$uploaddir/_service_error$$", undef, "services only work on branches\n");
       $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
-      addrev($projid, $packid, $files, "_service", "generated via source service", undef);
+      addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service'}, $projid, $packid, $files);
       notify_repservers('package', $projid, $packid);
       return;
     }
   }
 
-  my $lockfile = "$eventdir/service/${projid}::$packid";
   mkdir_p("$eventdir/service");
   BSUtil::touch($lockfile);
 
@@ -213,7 +217,7 @@ sub runservice {
     writestr("$odir/_service_error", undef, $error);
     $files->{'_service_error'} = addfile($projid, $packid, "$odir/_service_error", '_service_error');
   }
-  addrev($projid, $packid, $files, "_service", "generated via source service", undef);
+  addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service'}, $projid, $packid, $files);
   BSUtil::cleandir($odir);
   rmdir($odir);
   unlink($lockfile);
@@ -349,7 +353,9 @@ sub getcommitinfo {
     # a moving target
     return ('unknown', '0');
   }
-  my $bconf = Build::read_config('noarch');
+  my $cfile;
+  $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+  my $bconf = Build::read_config('noarch', $cfile);
   for my $type ('spec', 'dsc', 'kiwi') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my (undef, $file) = findfile($rev, undef, $type, $files);
@@ -373,6 +379,11 @@ sub getcommitinfo {
     }
   }
   $release ||= '0';
+  if ($bconf->{'cicntstart'} && $bconf->{'cicntstart'} =~ /(\d+)$/) {
+    my $r = $release;
+    $release = $bconf->{'cicntstart'};
+    $release =~  s/\d+$/$r/ if $r > $1;
+  }
   return ($version, $release);
 }
 
@@ -643,9 +654,19 @@ sub updatelinkinfodb {
 # create a new revision from a file list, returns revision object
 #
 sub addrev {
-  my ($projid, $packid, $files, $user, $comment, $target, $requestid) = @_;
+  my ($cgi, $projid, $packid, $files, $target) = @_;
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
+
+  my $user = $cgi->{'user'};
+  my $comment = $cgi->{'comment'};
+  my $requestid = $cgi->{'requestid'};
+  $user = '' unless defined $user;
+  $user = 'unknown' if $user eq '';
+  $comment = '' unless defined $comment;
+  $user = str2utf8xml($user);
+  $comment = str2utf8xml($comment);
+
   if ($packid eq '_pattern' || ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # upgrade pseudo _pattern package to real package
     my $pack = {
@@ -657,14 +678,14 @@ sub addrev {
     mkdir_p($uploaddir);
     writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
     mkdir_p("$projectsdir/$projid.pkg");
-    addrev_meta({'user' => $user}, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+    addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
   }
   die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filenames = join( ', ', keys %$files );
     BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filenames, comment => $comment, 
-                                       target => $target, request_id => $requestid, user => $user});
+                                       target => $target, requestid => $requestid, user => $user});
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -676,8 +697,8 @@ sub addrev {
   }
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
-  die("bad files\n") if grep {/\//} keys %$files;
-  die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
+  die("bad files (slash)\n") if grep {/\//} keys %$files;
+  die("bad files (glyph)\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
   if ($packid eq '_product') {
     expandproduct($projid, $packid, $files, $user, 1);
@@ -689,11 +710,6 @@ sub addrev {
   }
 
   my $srcmd5 = addmeta($projid, $packid, $files);
-  $user = '' unless defined $user;
-  $user = 'unknown' if $user eq '';
-  $comment = '' unless defined $comment;
-  $user = str2utf8xml($user);
-  $comment = str2utf8xml($comment);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $requestid};
   if ($packid ne '_project' && $packid ne '_pattern') {
     my ($version, $release) = getcommitinfo($projid, $packid, $srcmd5, $files);
@@ -704,6 +720,13 @@ sub addrev {
   my $rev_old = getrev($projid, $packid);
   my $files_old = lsrev($rev_old);
   my $filestr = BSNotify::generate_commit_flist($files_old, $files);
+
+  $rev->{'version'} = $cgi->{'version'} if defined $cgi->{'version'};
+  $rev->{'vrev'} = $cgi->{'vrev'} if defined $cgi->{'vrev'};
+  if ($cgi->{'time'}) {
+    die("specified time is less than time in last commit\n") if ($rev_old->{'time'} || 0) > $cgi->{'time'};
+    $rev->{'time'} = $cgi->{'time'};
+  }
 
   my $acceptinfo;
   if ($requestid) {
@@ -735,18 +758,21 @@ sub addrev {
   }
 
   # help a little with link<->nolink and singleversion<->multiversion changes
-  if ($rev->{'version'} && $rev_old->{'version'}) {
+  if ($rev->{'version'} && $rev_old->{'version'} && !defined($cgi->{'vrev'})) {
     # if this is a known -> unknown version change, max with vrev of last commit
-    if ($rev->{'version'} eq 'unknown' && $rev_old->{'version'} ne 'unknown') {
-      $rev->{'vrev'} = $rev_old->{'vrev'} + 1 if $rev_old->{'vrev'} + 1 > $rev->{'vrev'};
-    }
     # same for unknown -> known
-    if ($rev->{'version'} ne 'unknown' && $rev_old->{'version'} eq 'unknown') {
-      $rev->{'vrev'} = $rev_old->{'vrev'} + 1 if $rev_old->{'vrev'} + 1 > $rev->{'vrev'};
+    if (($rev->{'version'} eq 'unknown' && $rev_old->{'version'} ne 'unknown') ||
+        ($rev->{'version'} ne 'unknown' && $rev_old->{'version'} eq 'unknown')) {
+      my $l_old = 0;
+      $l_old = $1 if $rev_old->{'vrev'} =~ /(\d+)$/;
+      my $l_new = 0;
+      $l_new = $1 if $rev->{'vrev'} =~ /(\d+)$/;
+      $rev->{'vrev'} =~ s/\d+$/$l_old + 1/e if $l_old + 1 > $l_new;
     }
   }
 
-  if (defined($rev->{'version'})) {
+  # add to revision database
+  if (defined($rev->{'version'}) && !defined($cgi->{'vrev'})) {
     $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $rev->{'version'});
   } else {
     $rev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev);
@@ -775,10 +801,11 @@ sub addrev {
   }
 
   # send out hermes notification
-  BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
+  BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment, 'requestid' => $requestid});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
-                                             oldversion => $rev_old->{'version'}, newversion => $rev->{'version'}, user => $user, comment => $comment})
+                                             oldversion => $rev_old->{'version'}, newversion => $rev->{'version'},
+                                             user => $user, comment => $comment, 'requestid' => $requestid})
     if $rev->{'version'} && $rev_old->{'version'} && $rev->{'version'} ne $rev_old->{'version'};
 
   # kill upload revision as we did a real commit
@@ -1332,7 +1359,7 @@ sub handlelinks {
   push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}, 'rev' => $rev->{'rev'}};
   delete $rev->{'srcmd5'};
   delete $rev->{'linkrev'};
-  my $vrev = $rev->{'vrev'};
+  my $oldvrev = 0;
   my $vrevdone;
   my $lrev = $rev;
   while ($files->{'_link'}) {
@@ -1376,15 +1403,18 @@ sub handlelinks {
     };
     return 'linked package is not in repository' unless $files;
     my $cicount = $l->{'cicount'} || 'add';
-    if ($cicount eq 'copy') {
-      $rev->{'vrev'} -= $vrev unless $vrevdone;
-    } elsif ($cicount eq 'local') {
-      $vrevdone = 1;
-    } elsif ($cicount ne 'add') {
-      return '_link is bad: illegal cicount';
+
+    return '_link is bad: illegal cicount' unless $cicount eq 'copy' || $cicount eq 'add' || $cicount eq 'local';
+    $rev->{'vrev'} = $oldvrev if $cicount eq 'copy';
+    $oldvrev = $rev->{'vrev'};
+    $vrevdone = 1 if $cicount eq 'local';
+    if (!$vrevdone) {
+      my $v = $rev->{'vrev'} || 0;
+      $v =~ s/^.*\D//;
+      $rev->{'vrev'} = $lrev->{'vrev'} || 0;
+      $rev->{'vrev'} =~ s/(\d+)$/$1+$v/e;
     }
-    $vrev = $lrev->{'vrev'};
-    $rev->{'vrev'} += $lrev->{'vrev'} unless $vrevdone;
+
     push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
   }
   my $md5;
@@ -2115,9 +2145,8 @@ sub getprojpack {
  	  next;
         }
 	if ($files->{'_link'}) {
-	  my %li = ('linked' => $linked);
 	  eval {
-	    $files = handlelinks($rev, $files, \%li);
+	    $files = handlelinks($rev, $files, {'linked' => $linked});
 	  };
 	  if ($@) {
 	    $files = "$@";
@@ -2524,7 +2553,7 @@ sub delproject {
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
 
-  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
+  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
 
   return $BSStdServer::return_ok;
 }
@@ -2701,7 +2730,7 @@ sub delpackage {
     expandproduct($projid, $packid, undef);
   }
   notify_repservers('package', $projid, $packid);
-  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
+  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
   return $BSStdServer::return_ok;
 }
 
@@ -2753,6 +2782,12 @@ sub getpackagehistory {
   my @res;
   my $revfile;
   $packid = '_project' unless defined $packid;
+
+  if (!$cgi->{'deleted'}) {
+    die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+    die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
+  }
+
   $revfile = "$projectsdir/$projid.pkg";
   $revfile = "$projectsdir/_deleted/$projid.pkg" if $packid eq '_project' && $cgi->{'deleted'};
   $revfile .= $cgi->{'meta'} ? "/$packid.mrev" : "/$packid.rev";
@@ -3263,6 +3298,21 @@ sub getfilelist {
   my $li = {};
   my $files = lsrev($rev, $li);
 
+  # show state of current source service run, if defined
+  my $serviceinfo;
+  if ($files->{'_service'} && !defined($cgi->{'rev'})) {
+    $serviceinfo = {};
+    my $lockfile = "$eventdir/service/${projid}::$packid";
+    if (-e $lockfile) {
+      $serviceinfo->{'code'} = 'running';
+    } elsif ($files->{'_service_error'}) {
+      $serviceinfo->{'code'} = 'failed';
+      $serviceinfo->{'error'} = repreadstr($rev, '_service_error', $files->{'_service_error'});
+    } else {
+      $serviceinfo->{'code'} = 'succeeded';
+    }
+  }
+
   if ($files->{'_link'}) {
     if ($cgi->{'emptylink'}) {
       my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
@@ -3271,7 +3321,7 @@ sub getfilelist {
       writexml("$uploaddir/$$", undef, $l, $BSXML::link);
       $files = {};
       $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
-      $rev = addrev($projid, $packid, $files, undef, undef, '');
+      $rev = addrev({}, $projid, $packid, $files, '');
     }
     my %lrev = %$rev;
     $lrev{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
@@ -3315,6 +3365,7 @@ sub getfilelist {
   $ret->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
   $ret->{'rev'} = $rev->{'rev'} if exists $rev->{'rev'};
   $ret->{'vrev'} = $rev->{'vrev'} if exists $rev->{'vrev'};
+  $ret->{'serviceinfo'} = $serviceinfo if $serviceinfo;
   my @res;
   for my $filename (sort keys %$files) {
     my @s = repstat($rev, $filename, $files->{$filename});
@@ -3337,7 +3388,12 @@ sub getfile {
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  my $files = lsrev($rev);
+  my $files;
+  if ($cgi->{'expand'}) {
+    $files = lsrev_expanded($rev);
+  } else {
+    $files = lsrev($rev);
+  }
   die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = repstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
@@ -3374,9 +3430,9 @@ sub putfile {
   }
   $files->{$filename} = $uploaded->{'md5'};
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
+  $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
 # update happens only on commit atm, or we would modify on file upload time ...
-# runservice($projid, $packid) if $files->{'_service'} && not ($rev eq 'upload');
+# runservice($projid, $packid, 1) if $files->{'_service'} && not ($rev eq 'upload');
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -3838,7 +3894,7 @@ sub sourcecommit {
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'});
+  $rev = addrev($cgi, $projid, $packid, $files);
   if (!$cgi->{'noservice'}) {
     my $prev = getrev($projid, '_project');
     my $pfiles = lsrev($prev);
@@ -3875,16 +3931,16 @@ sub sourcecommitfilelist {
     my $res = {'name' => $packid, 'error' => 'missing', 'entry' => \@missing};
     return ($res, $BSXML::dir);
   }
-
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
     # autocommit old update revision so that it doesn't get lost
     my $uploadrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => 'upload'};
     my $uploadfiles = lsrev($uploadrev);
-    addrev($projid, $packid, $uploadfiles, $cgi->{'user'}, 'autocommit', undef, $cgi->{'requestid'});
+    addrev({ %$cgi, 'comment' => 'autocommit update revision'}, $projid, $packid, $uploadfiles);
   }
-  my $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, undef, $cgi->{'requestid'});
+  my $rev = addrev($cgi, $projid, $packid, $files);
 
+  # trigger service run, except for commits by service server itself
   if (!$cgi->{'noservice'}) {
     my $prev = getrev($projid, '_project');
     my $pfiles = lsrev($prev);
@@ -3967,7 +4023,7 @@ sub copyproject {
       $lastorev->{'comment'} = $comment;
       $lastorev->{'requestid'} = $cgi->{'requestid'};
       $lastorev->{'time'} = time();
-      $lastorev->{'vrev'} += 1;
+      $lastorev->{'vrev'} =~ s/(\d+)$/$1+1/e;
       delete $lastorev->{'rev'};
       $lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
       updatelinkinfodb($projid, $packid, { %$lastorev, 'project' => $oprojid, 'package' => $packid }, $files);
@@ -4051,7 +4107,7 @@ sub sourcecopy {
   copyfiles($projid, $packid, $oprojid, $opackid, $files);
 
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  my $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'}, $cgi->{'requestid'});
+  my $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
 
   if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
     my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$autosimplifylink->{'patches'}->{''} || []};
@@ -4077,7 +4133,7 @@ sub sourcecopy {
 	      mkdir_p($uploaddir);
 	      writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
               $latestfiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
-              addrev($oprojid, $opackid, $latestfiles, 'buildservice-autocommit', "baserev update by copy to link target\n", undef, $cgi->{'requestid'});
+              addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'baserev update by copy to link target'}, $oprojid, $opackid, $latestfiles);
 	    }
 	  }
 	};
@@ -4096,7 +4152,7 @@ sub sourcecopy {
           writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
           my $ofiles = {};
           $ofiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
-          addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n", undef, $cgi->{'requestid'});
+          addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'auto commit by copy to link target'}, $oprojid, $opackid, $ofiles);
         }
       };
       warn($@) if $@;
@@ -4134,7 +4190,7 @@ sub sourcebranch {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
-  my $rev = addrev($projid, $packid, $lfiles, $cgi->{'user'}, $cgi->{'comment'});
+  my $rev = addrev($cgi, $projid, $packid, $lfiles);
   delete $rev->{'project'};
   delete $rev->{'package'};
   BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
@@ -4157,7 +4213,8 @@ sub linktobranch {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
-  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'} || "converted link to branch");
+  $cgi->{'comment'} ||= 'converted link to branch';
+  $rev = addrev($cgi, $projid, $packid, $files);
   delete $rev->{'project'};
   delete $rev->{'package'};
   runservice($projid, $packid) if $files->{'_service'};
@@ -4190,10 +4247,10 @@ sub delfile {
   die("404 file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
   $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
-  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
+  $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
   delete $rev->{'project'};
   delete $rev->{'package'};
-  runservice($cgi, $projid, $packid);
+  runservice($cgi, $projid, $packid, 1);
   return ($rev, $BSXML::revision);
 }
 
@@ -4423,17 +4480,19 @@ sub getbinarylist {
     BSWatcher::rpc($param, undef, @args);
     return undef;
   }
-  my $uri = "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid";
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+  };
   if ($proj->{'remoteurl'}) {
-    $uri = {'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid"};
-    $uri->{'proxy'} = $proxy;
+    $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid";
+    $param->{'proxy'} = $proxy;
   }
   if ($view && $view eq 'binaryversions') {
     push @args, 'nometa=1' if $cgi->{'nometa'};
-    my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, @args);
+    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
-  my $bl = BSWatcher::rpc($uri, $BSXML::binarylist, @args);
+  my $bl = BSWatcher::rpc($param, $BSXML::binarylist, @args);
   return ($bl, $BSXML::binarylist);
 }
 
@@ -4441,10 +4500,8 @@ sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
   my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
   my $view = $cgi->{'view'} || '';
-  if ($proj->{'remoteurl'}) {
+  if ($proj->{'remoteurl'} && $packid eq '_repository' && !$view) {
     # hack: reroute to /getbinaries so that our local cache is used
-    die("can only access remote _repository files\n") unless $packid eq '_repository';
-    die("cannot use a view for remote binaries\n") if $view;
     die("need the raw package name as filename for remote repository access\n") if $filename =~ /\.(?:rpm|deb)$/;
     my @args;
     push @args, "project=$projid";
@@ -4462,6 +4519,10 @@ sub getbinary {
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
+  if ($proj->{'remoteurl'}) {
+    $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid/$filename";
+    $param->{'proxy'} = $proxy;
+  }
   BSWatcher::rpc($param, undef, @args);
   return undef;
 }
@@ -5253,9 +5314,9 @@ sub postrequest {
   } elsif ($cmd eq 'changereviewstate') {
     die("request is not in review state\n") unless $req->{'state'} and $req->{'state'}->{'name'} eq "review";
     die("request review item is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'} and not $cgi->{'by_project'};
-    die("review state must be accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
-        $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
-
+    die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
+    die("review state must be new, accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
+        $cgi->{'newstate'} eq 'new' or $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
     my $go_new_state = 'review';
     $go_new_state = $cgi->{'newstate'} if $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
     my $found = 0;
@@ -5298,6 +5359,7 @@ sub postrequest {
       }
       $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
       $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
+      $req->{'state'}->{'comment'} = "All reviewers accepted request" if $go_new_state eq "accepted";
       $req->{'state'}->{'when'} = $mytime;
     }
   } elsif ($cmd eq 'changestate') {
@@ -5315,7 +5377,6 @@ sub postrequest {
   BSVerify::verify_request($req);
   writereq($oreq, $req);
   $req->{'oldstate'} = $oldstate;
-  BSNotify::notify("SRCSRV_REQUEST_STATECHANGE", BSNotify::requestParams($req, $cgi->{'user'}));
   # Additionally send type specific hermes notifications
   my $hermes_type;
   my $notification = BSNotify::requestParams($req, $cgi->{'user'});
@@ -5336,15 +5397,26 @@ sub postrequest {
     }
     $notification->{'comment'} = $cgi->{'comment'};
   } else {
-    if( $cgi->{'newstate'} eq "accepted" ) {
-      $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
-    } elsif( $cgi->{'newstate'} eq "rejected" ) {
-      $hermes_type = "SRCSRV_REQUEST_REJECTED";
-    } elsif( $cgi->{'newstate'} eq "revoked" ) {
-      $hermes_type = "SRCSRV_REQUEST_REVOKED";
+    if ($cmd eq 'changereviewstate') {
+      if( $cgi->{'newstate'} eq "accepted" ) {
+        $hermes_type = "SRCSRV_REVIEW_ACCEPTED";
+      } elsif( $cgi->{'newstate'} eq "declined" ) {
+        $hermes_type = "SRCSRV_REVIEW_DECLINED";
+      } elsif( $cgi->{'newstate'} eq "revoked" ) {
+        $hermes_type = "SRCSRV_REVIEW_REVOKED";
+      }
+    } else {
+      if( $cgi->{'newstate'} eq "accepted" ) {
+        $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
+      } elsif( $cgi->{'newstate'} eq "declined" ) {
+        $hermes_type = "SRCSRV_REQUEST_DECLINED";
+      } elsif( $cgi->{'newstate'} eq "revoked" ) {
+        $hermes_type = "SRCSRV_REQUEST_REVOKED";
+      }
     }
   }
   BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
+  BSNotify::notify("SRCSRV_REQUEST_STATECHANGE", BSNotify::requestParams($req, $cgi->{'user'})) unless $oldstate->{'name'} eq $req->{'state'}->{'name'};
 
   return $BSStdServer::return_ok;
 }
@@ -5749,6 +5821,131 @@ sub getdispatchprios {
   return undef;
 }
 
+sub sourceinfo {
+  my ($cgi, $projid, $packid, $bconf) = @_;
+  my $r = {'package' => $packid};
+  my $linked = [];
+  my $rev;
+  my $files;
+  eval {
+    $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
+    $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
+    $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
+    $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
+    die("no source uploaded\n") if !$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq 'd41d8cd98f00b204e9800998ecf8427e';
+    $files = lsrev($rev);
+    die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
+    die("source update failed\n") if $files->{'_service_error'};
+  };
+  $r->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
+  $r->{'linked'} = $linked if @$linked;
+  if ($@) {
+    $r->{'error'} = $@;
+    $r->{'error'} =~ s/\n$//s;
+    return $r;
+  }
+  if ($files->{'_link'}) {
+    $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
+    eval {
+      $files = handlelinks($rev, $files, {'linked' => $linked});
+    };
+    if ($@) {
+      $files = "$@";
+      $files =~ s/\n$//;
+    }
+    $r->{'linked'} = $linked if @$linked;
+    $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
+    if (!ref $files) {
+      $r->{'error'} = $files || 'could not get file list';
+      return $r;
+    }
+    $r->{'srcmd5'} = $rev->{'srcmd5'};
+    my $meta = '';
+    $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+    $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+  }
+  return $r if $packid eq '_pattern';
+  if ($files->{'_aggregate'}) {
+    $r->{'filename'} = '_aggregate';
+    return $r;
+  } elsif ($files->{'_patchinfo'}) {
+    $r->{'filename'} = '_patchinfo';
+    return $r;
+  }
+  my $type = $bconf->{'type'};
+  my $file;
+  if (!$type || $type eq 'UNDEFINED') {
+    undef $type;
+    for my $t ('spec', 'dsc', 'kiwi') {
+      (undef, $file) = findfile($rev, $cgi->{'repository'}, $t, $files);
+      next unless defined $file;
+      $type = $t;
+      last;
+    }
+  } else {
+    (undef, $file) = findfile($rev, $cgi->{'repository'}, $type, $files);
+  }
+  if (!$type) {
+    $r->{'error'} = 'bad build configuration';
+    return $r;
+  }
+  if (!$file) {
+    $r->{'error'} = "no file found for build type '$type'";
+    return $r;
+  }
+  $r->{'filename'} = $file;
+  return $r unless $cgi->{'parse'};
+  my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
+  if (!$d) {
+    $r->{'error'} = "parse error";
+    return $r;
+  }
+  for (qw{name version release subpacks deps prereqs exclarch badarch}) {
+    $r->{$_} = $d->{$_} if defined $d->{$_};
+  }
+  return $r;
+}
+
+sub getprojectsourceinfo {
+  my ($cgi, $projid) = @_;
+  checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'});
+  my @packages = @{$cgi->{'package'} || []};
+  @packages = findpackages($projid) unless @packages;
+  my $bconf;
+  if (!$cgi->{'repository'}) {
+    my $cfile;
+    $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
+  } else {
+    my @path = expandsearchpath($projid, $cgi->{'repository'});
+    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
+  }
+  my @res;
+  for my $packid (@packages) {
+    push @res, sourceinfo($cgi, $projid, $packid, $bconf);
+  }
+  return ({'sourceinfo' => \@res}, $BSXML::sourceinfolist);
+}
+
+sub getpackagesourceinfo {
+  my ($cgi, $projid, $packid) = @_;
+  my $bconf;
+  checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'});
+  if (!$cgi->{'repository'}) {
+    my $cfile;
+    $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
+  } else {
+    print "expandsearchpath $projid $cgi->{'repository'}...\n";
+    my @path = expandsearchpath($projid, $cgi->{'repository'});
+    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
+  }
+  my $res = sourceinfo($cgi, $projid, $packid, $bconf);
+  return ($res, $BSXML::sourceinfo);
+}
+
 ####################################################################
 
 sub hello {
@@ -5774,11 +5971,12 @@ my $dispatches = [
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
+  '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
   '/source/$project deleted:bool?' => \&getpackagelist,
 
-  'DELETE:/source/$project user:? comment:?' => \&delproject,
+  'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
   '/source/$project/_meta rev?' => \&getproject,
-  'PUT:/source/$project/_meta user:? comment:?' => \&putproject,
+  'PUT:/source/$project/_meta user:? comment:? requestid:num?' => \&putproject,
 
   '/source/$project/_pubkey rev?' => \&getpubkey,
   'DELETE:/source/$project/_pubkey user:? comment:?' => \&deletekey,
@@ -5792,9 +5990,9 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
-  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num?' => \&sourcecommitfilelist,
+  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num? time:num? version:? vrev:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? withhistory:bool?' => \&sourcecopy,
-  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? force:bool?' => \&sourcebranch,
+  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
@@ -5804,12 +6002,13 @@ my $dispatches = [
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
+  '/source/$project/$package view=info rev? linkrev? parse:bool? repository? arch?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev?' => \&getpackage,
-  'PUT:/source/$project/$package/_meta user:? comment:?' => \&putpackage,
-  'DELETE:/source/$project/$package user:? comment:?' => \&delpackage,
-  '/source/$project/$package/$filename rev?' => \&getfile,
+  'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
+  'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
+  '/source/$project/$package/$filename rev? expand:bool?' => \&getfile,
   'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
 

@@ -12,6 +12,8 @@ class MissingParameterError < Exception; end
 class IllegalRequestError < Exception; end
 class IllegalEncodingError < Exception; end
 class UserNotFoundError < Exception; end
+class GroupNotFoundError < Exception; end
+class RoleNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
@@ -40,7 +42,7 @@ class ApplicationController < ActionController::Base
   before_filter :shutup_rails
   before_filter :set_current_user
 
-  #contains current authentification method, one of (:ichain, :basic)
+  #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
   
   hide_action :auth_method
@@ -93,6 +95,10 @@ class ApplicationController < ActionController::Base
     return true
   end
 
+  def http_anonymous_user 
+    return User.find_by_login( "_nobody_" )
+  end
+
   def extract_user_public
     # to become _public_ special user 
     @http_user = User.find_by_login( "_nobody_" )
@@ -107,53 +113,50 @@ class ApplicationController < ActionController::Base
   end
 
   def extract_user
-    if ICHAIN_MODE == :on || ICHAIN_MODE == :simulate # configured in the the environment file
-      @auth_method = :ichain
-      ichain_user = request.env['HTTP_X_USERNAME']
-      if ichain_user
-        logger.info "iChain user extracted from header: #{ichain_user}"
-      elsif ICHAIN_MODE == :simulate
-        ichain_user = ICHAIN_TEST_USER
-        logger.debug "iChain user extracted from config: #{ichain_user}"
+    mode = :basic
+    mode = ICHAIN_MODE if defined? ICHAIN_MODE
+    mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+    if mode == :on || mode == :simulate # configured in the the environment file
+      @auth_method = :proxy
+      proxy_user = request.env['HTTP_X_USERNAME']
+      if proxy_user
+        logger.info "iChain user extracted from header: #{proxy_user}"
+      elsif mode == :simulate
+        proxy_user = PROXY_AUTH_TEST_USER
+        logger.debug "iChain user extracted from config: #{proxy_user}"
       end
 
-      # we're using iChain, there is no need to authenticate the user from the credentials
-      # However we have to care for the status of the user that must not be unconfirmed or ichain requested
-      if ichain_user
-        @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
-        @http_user.update_user_info_from_ichain_env(request.env) unless @http_user.nil?
+      # we're using a login proxy, there is no need to authenticate the user from the credentials
+      # However we have to care for the status of the user that must not be unconfirmed or proxy requested
+      if proxy_user
+        @http_user = User.find_by_login proxy_user
 
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
-        if @http_user == nil
-          @http_user = User.find :first, :conditions => ['login = ?', ichain_user ]
-          if @http_user == nil
-            render_error :message => "Your user is not yet registered with iChain", :status => 403,
-              :errorcode => "unregistered_ichain_user",
-              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
-          else
-            if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
-              render_error :message => "Your registed iChain user #{ichain_user} is not yet approved.", :status => 403,
-                :errorcode => "registered_ichain_but_unapproved",
-                :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
-                "<p>Please stay tuned until you get approval message.</p>"
-            else
-              render_error :message => "Your user is either invalid or net yet confirmed (state #{@http_user.state}).",
-                :status => 403,
-                :errorcode => "unconfirmed_user",
-                :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
-            end
-          end
-          return false
+        unless @http_user
+          state = User.states['confirmed']
+          state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
+          # Generate and store a fake pw in the OBS DB that no-one knows
+          # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
+          chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
+          fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
+          @http_user = User.create(
+            :login => proxy_user,
+            :password => fakepw,
+            :password_confirmation => fakepw,
+            :state => state)
         end
+
+        # update user data from login proxy headers
+        @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
       else
         if CONFIG['allow_anonymous']
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return true
         end
-        logger.error "No X-username header from iChain! Are we really using iChain?"
-        render_error( :message => "No iChain user found!", :status => 401 ) and return false
+        logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
+        render_error( :message => "No user header found found!", :status => 401 ) and return false
       end
     else
       #active_rbac is used for authentication
@@ -179,20 +182,30 @@ class ApplicationController < ActionController::Base
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and [ request.env['REMOTE_HOST'], request.env['REMOTE_ADDR'] ].include?( CONFIG['webui_host'] ) and request.env['HTTP_USER_AGENT'].match(/^obs-webui/)
-          @http_user = User.find_by_login( "_nobody_" )
-          @user_permissions = Suse::Permission.new( @http_user )
-          return true
-        else
-          if @http_user.nil? and login
+        if @http_user.nil? and CONFIG['allow_anonymous'] 
+          read_only_hosts = []
+          read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
+          read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
+          if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
+            # Fixed list of clients which do support the read only mode
+            if request.env['HTTP_USER_AGENT'].match(/^obs-webui/) or request.env['HTTP_USER_AGENT'].match(/^obs-software/)
+              @http_user = User.find_by_login( "_nobody_" )
+              @user_permissions = Suse::Permission.new( @http_user )
+              return true
+            end
+          end
+
+          if login
             render_error :message => "User not yet registered", :status => 403,
               :errorcode => "unregistered_user",
-              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
+              :details => "Please register."
             return false
           end
         end
+
         logger.debug "no authentication string was sent"
-        render_error( :message => "Authentication required", :status => 401 ) and return false
+        render_error( :message => "Authentication required", :status => 401 ) 
+        return false
       end
 
       # disallow empty passwords to prevent LDAP lockouts
@@ -307,8 +320,17 @@ class ApplicationController < ActionController::Base
   hide_action :forward_from_backend
   def forward_from_backend(path)
 
+    # apache & mod_xforward case
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "http://#{SOURCE_HOST}:#{SOURCE_PORT}#{path}"
+      head(200)
+      return
+    end
+
+    # lighttpd 1.5 case
     if CONFIG['x_rewrite_host']
-      logger.debug "[backend] VOLLEY(light): #{path}"
+      logger.debug "[backend] VOLLEY(lighttpd): #{path}"
       headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
       head(200)
@@ -383,12 +405,25 @@ class ApplicationController < ActionController::Base
   end
   public :pass_to_backend
 
+  def strip_sensitive_data_from(request)
+    # Strip HTTP_AUTHORIZATION header that contains the user's password
+    # try to get it where mod_rewrite might have put it
+    request.env["X-HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "X-HTTP_AUTHORIZATION"
+    # for Apace/mod_fastcgi with -pass-header Authorization
+    request.env["Authorization"] = "STRIPPED" if request.env.has_key? "Authorization"
+    # this is the regular location
+    request.env["HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "HTTP_AUTHORIZATION"
+    return request
+  end
+  private :strip_sensitive_data_from
+
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
   end
 
   def rescue_action_in_public( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
+
     case exception
     when Suse::Backend::HTTPError
       xml = REXML::Document.new( exception.message.body )
@@ -473,9 +508,27 @@ class ApplicationController < ActionController::Base
         render_error :status => 404, :errorcode => 'user_not_found',
           :message => exception.message
       end
+    when GroupNotFoundError
+      logger.error "GroupNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'group_not_found',
+          :message => "Group not found"
+      else
+        render_error :status => 404, :errorcode => 'group_not_found',
+          :message => exception.message
+      end
+    when RoleNotFoundError
+      logger.error "RoleNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'role_not_found',
+          :message => "Role not found"
+      else
+        render_error :status => 404, :errorcode => 'role_not_found',
+          :message => exception.message
+      end
     else
       if send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
+        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
       end
       render_error :message => "Uncaught exception: #{exception.message}", :status => 400
     end
@@ -510,6 +563,12 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt = {} )
+    # workaround an exception in mod_rails, it dies when an answer is send without
+    # reading the body. We trigger passenger to read the entire body via requesting the size
+    if request.put? or request.post?
+      request.body.size if request.body.respond_to? 'size'
+    end
+
     if opt[:status]
       if opt[:status].to_i == 401
         response.headers["WWW-Authenticate"] = 'basic realm="API login"'
@@ -658,7 +717,7 @@ class ApplicationController < ActionController::Base
   end
 
   def min_votes_for_rating
-    MIN_VOTES_FOR_RATING
+    return CONFIG["min_votes_for_rating"]
   end
 
   private

@@ -13,18 +13,9 @@ APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 require "common/libxmlactivexml"
-require 'fileutils'
-
-# create important directories that are needed at runtime
-FileUtils.mkdir_p("#{RAILS_ROOT}/log")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/cache")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/pids")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
 
 # define our current api version
-api_version = '2.1.0'
+api_version = '2.3.0'
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -87,22 +78,19 @@ Rails::Initializer.run do |config|
   # See Rails::Configuration for more options
 end
 
-# Include your application configuration below
-
-
-# minimum count of rating votes a project/package needs to
-# be taken in account for global statistics
-MIN_VOTES_FOR_RATING = 3
-
 ActionController::Base.perform_caching = true
 
 ActiveRbac.controller_layout = "rbac"
+
+unless defined?(SOURCE_PROTOCOL) and not SOURCE_PROTOCOL.blank?
+  SOURCE_PROTOCOL = "http"
+end
 
 ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-    map.default_server :rest, "#{SOURCE_HOST}:#{SOURCE_PORT}"
+    map.default_server :rest, "#{SOURCE_PROTOCOL}://#{SOURCE_HOST}:#{SOURCE_PORT}"
 
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
@@ -126,8 +114,8 @@ ActiveXML::Base.config do |conf|
   end
 end
 
-ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
-ExceptionNotifier.sender_address = %("OBS API" <admin@opensuse.org>)
+ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
+ExceptionNotifier.sender_address = CONFIG["exception_sender"]
 
 if defined? API_DATE
   CONFIG['version'] = api_version + ".git" + API_DATE

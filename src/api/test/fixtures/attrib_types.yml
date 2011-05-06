@@ -36,3 +36,8 @@ MaintenanceReleaseDate:
   id: 63
   name: MaintenanceReleaseDate
   attrib_namespace_id: 9
+RejectRequests:
+  id: 64
+  name: RejectRequests
+  value_count: 1
+  attrib_namespace_id: 9

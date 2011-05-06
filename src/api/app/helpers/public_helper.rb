@@ -7,4 +7,3 @@ module PublicHelper
      path ? File.join(YMP_URL, path) : ""
   end
 end
-

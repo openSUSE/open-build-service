@@ -5,7 +5,7 @@ class PersonController < ApplicationController
   validate_action :userinfo => {:method => :get, :response => :user}
   validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
   validate_action :grouplist => {:method => :get, :response => :group}
-  validate_action :register => {:method => :put, :request => :user, :response => :status}
+  validate_action :register => {:method => :put, :response => :status}
   validate_action :register => {:method => :post, :response => :status}
 
   # Returns a list of all users (that optionally start with a prefix)
@@ -49,13 +49,7 @@ class PersonController < ApplicationController
       if params[:login]
         login = URI.unescape( params[:login] )
         logger.debug "Generating for user from parameter #{login}"
-        @render_user = User.find_by_login( login )
-        if @render_user.blank?
-          logger.debug "User is not valid!"
-          render_error :status => 404, :errorcode => 'unknown_user',
-            :message => "Unknown user: #{login}"
-          return
-        end
+        @render_user = User.get_by_login( login )
       else 
         logger.debug "Generating user info for logged in user #{@http_user.login}"
         @render_user = @http_user
@@ -130,6 +124,10 @@ class PersonController < ApplicationController
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
+    if (defined?( PROXY_AUTH_MODE ) && PROXY_AUTH_MODE == :on) or defined?( ICHAIN_MODE )
+      render_error :message => "Proxy authentification mode, manual registration is disabled", :errorcode => "err_register_save", :status => 400
+      return
+    end
 
     xml = REXML::Document.new( request.raw_post )
     
@@ -162,7 +160,7 @@ class PersonController < ApplicationController
     end
     status = xml.elements["/unregisteredperson/state"].text if @http_user and @http_user.is_admin?
 
-    if auth_method == :ichain
+    if auth_method == :proxy
       if request.env['HTTP_X_USERNAME'].blank?
         render_error :message => "Missing iChain header", :errorcode => "err_register_save", :status => 400
         return
@@ -201,6 +199,10 @@ class PersonController < ApplicationController
       IchainNotifier.deliver_approval(newuser)
       render_ok
     end
+  rescue Exception => e
+    # Strip passwords from request environment and re-raise exception
+    request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")
+    raise e
   end
   
   def update_watchlist( user, xml )
@@ -280,13 +282,7 @@ class PersonController < ApplicationController
     end
 
     #update password in users db
-    @user = User.find_by_login(login)
-    if @user.blank?
-      logger.debug "User is not valid!"
-      render_error :status => 404, :errorcode => 'unknown_user',
-        :message => "Unknown user: #{login}"
-      return
-    end
+    @user = User.get_by_login(login)
     logger.debug("find the user")
     @user.password = newpassword
     @user.password_confirmation = newpassword

@@ -46,7 +46,7 @@
   width: auto !important;
   box-sizing: content-box !important;
   /*font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;*/
-  font-family: "Bitstream Vera Sans Mono", monospace !important;
+  font-family: monospace !important;
   font-weight: normal !important;
   font-style: normal !important;
   font-size: 1em !important;
@@ -60,7 +60,8 @@
   margin: 0 15px 0 15px !important;
   position: relative !important;
   overflow: auto !important;
-  font-size: 1em !important;
+  /*font-size: 1em !important;*/
+  font-size: 0.9em !important;
 }
 .syntaxhighlighter.source {
   overflow: hidden !important;

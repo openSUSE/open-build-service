@@ -9,9 +9,9 @@
   <p>
     <strong>Group:</strong><br/>
     <%= text_field_tag 'groupid', params[:groupid], :size => '25' %><br/>
-    <script type="text/javascript">
+    <% javascript_tag do %>
       $("#groupid").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
-    </script>
+    <% end %>
     <strong>Role:</strong><br/>
     <%= select_tag 'role', options_for_select(@roles, params[:role]) %><br/>
     <%= hidden_field_tag 'package', @package %>

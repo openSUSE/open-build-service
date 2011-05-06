@@ -1,2 +1,0 @@
-module MainHelper
-end

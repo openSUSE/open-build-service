@@ -6,22 +6,22 @@
         <b>Create Delete Request</b>
       </div>
 
-      <p>Request to delete <b><%= h((defined? @package) ? @package : @project) %></b></p>
+      <p>Request to delete <b><%= h((defined? @package) ? elide(@package, 30) : elide(@project, 30)) %></b></p>
 
-      <% form_tag(:action => "delete_request", :method => "post") do %>
+      <% form_tag(:action => 'delete_request', :method => 'post') do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) if defined? @package %>
         <p>
           <% if defined? @package %>
-            <%= label_tag(:target_project, "In target project:") %><br/>
+            <%= label_tag(:target_project, 'In target project:') %><br/>
             <%= text_field_tag(:target_project, @project, :size => 40, :disabled => true) %><br/>
           <% end %>
-          <%= label_tag(:description, "Description:") %><br/>
-          <%= text_area_tag(:description, "", :size => "40x3") %>
+          <%= label_tag(:description, 'Description:') %><br/>
+          <%= text_area_tag(:description, '', :size => '40x3') %>
         </p>
         <div class="buttons">
-          <%= submit_tag("Ok") %>
-          <%= link_to_function("Cancel", 'remove_dialog()') %>
+          <%= submit_tag('Ok') %>
+          <%= link_to_function('Cancel', 'remove_dialog()') %>
         </div>
       <% end %>
     </div>

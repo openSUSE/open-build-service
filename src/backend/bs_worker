@@ -576,6 +576,7 @@ sub rm_rf {
   my ($dir) = @_;
   BSUtil::cleandir($dir);
   rmdir($dir);
+  die("rmdir $dir failed\n") if -d $dir;
 }
 
 sub getsources {
@@ -631,6 +632,22 @@ sub getsources {
     }
     push @meta, "$src->{'srcmd5'}  $src->{'project'}/$src->{'package'}";
   }
+  return @meta;
+}
+
+sub getdeltasources {
+  my ($buildinfo, $dir) = @_;
+
+  my @meta;
+  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  my $server = $buildinfo->{'reposerver'};
+  my $res = BSRPC::rpc({
+    'uri' => "$server/getjobdata",
+    'directory' => $dir,
+    'timeout' => $gettimeout,
+    'receiver' => \&BSHTTP::cpio_receiver,
+  }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
+  die("Error\n") unless ref($res) eq 'ARRAY';
   return @meta;
 }
 
@@ -1347,6 +1364,8 @@ sub dobuild {
   my $arch = $buildinfo->{'arch'};
   my $kiwimode;
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+  my $deltamode;
+  $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
 
   my $helper = '';
   /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
@@ -1372,9 +1391,19 @@ sub dobuild {
   my @meta;
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir: $!\n");
-  push @meta, getsources($buildinfo, $srcdir);
-  print "packages, ";
-  push @meta, getbinaries($buildinfo, $pkgdir, $srcdir);
+  if ($deltamode) {
+    push @meta, getdeltasources($buildinfo, $srcdir);
+    print "packages, ";
+    getbinaries($buildinfo, $pkgdir, $srcdir);
+    undef $oldpkgdir;
+    my $spec = readstr("$statedir/worker/worker-deltagen.spec", 1) || readstr("worker-deltagen.spec");
+    writestr("$srcdir/worker-deltagen.spec", undef, $spec);
+    $buildinfo->{'file'} = 'worker-deltagen.spec';
+  } else {
+    push @meta, getsources($buildinfo, $srcdir);
+    print "packages, ";
+    push @meta, getbinaries($buildinfo, $pkgdir, $srcdir);
+  }
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
@@ -1733,6 +1762,8 @@ die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
 my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
 my $jobid = $cgi->{'jobid'};
 $jobid ||= Digest::MD5::md5_hex($infoxml);
+
+$buildinfo->{'jobid'} = $jobid;
 
 # old buildinfos missed some entries
 if (@{$buildinfo->{'path'} || []}) {

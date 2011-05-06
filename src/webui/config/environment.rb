@@ -9,15 +9,6 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 require File.join(File.dirname(__FILE__), 'boot')
 
 require "common/libxmlactivexml"
-require 'fileutils'
-
-# create important directories that are needed at runtime
-FileUtils.mkdir_p("#{RAILS_ROOT}/log")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/cache")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/pids")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sessions")
-FileUtils.mkdir_p("#{RAILS_ROOT}/tmp/sockets")
 
 init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -120,10 +111,19 @@ if CONFIG.has_key?('bugzilla_host')
 else
   BUGZILLA_HOST = "http://bugzilla.novell.com"
 end
+unless defined?(FRONTEND_PROTOCOL) and not FRONTEND_PROTOCOL.blank?
+  FRONTEND_PROTOCOL = "http"
+end
+unless defined?(PROXY_AUTH_MODE) and not PROXY_AUTH_MODE.blank?
+  PROXY_AUTH_MODE = :off
+end
+unless defined?(FRONTEND_LDAP_MODE) and not FRONTEND_LDAP_MODE.blank?
+  FRONTEND_LDAP_MODE = :off
+end
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
-    map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
+    map.default_server :rest, "#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}"
 
     map.connect :project, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",
@@ -145,7 +145,8 @@ ActiveXML::Base.config do |conf|
     map.connect :unregisteredperson, "rest:///person/register"
     map.connect :userchangepasswd, "rest:///person/changepasswd"
 
-    map.connect :architecture, "rest:///architecture"
+    map.connect :architecture, "rest:///architectures/:name",
+      :all => "rest://architectures/"
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 

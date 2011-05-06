@@ -12,8 +12,11 @@
 <div class="box-header header-tabs">
   <ul>
     <%= tab 'Overview', :controller => :project, :action => :show %>
-    <% if @is_maintenance_project -%>
-      <%= tab 'Incidents', :controller => :project, :action => :incidents %>
+    <% if @is_maintenance_project %>
+      <%= tab 'Incidents', :controller => :project, :action => :maintenance_incidents %>
+      <%= tab 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
+    <% elsif @is_incident_project %>
+      <%# TODO %>
     <% else %>
       <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
       <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? %>
@@ -21,7 +24,7 @@
     <% if @project.has_element?(:repository) -%>
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
-    <%= tab "Requests", :controller => :project, :action => 'list_requests' unless @requests.blank? %>
+    <%= tab "Requests", :controller => :project, :action => 'list_requests' %>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>
@@ -33,7 +36,7 @@
   </ul>
   <div id="advanced_tabs">
     <ul>
-      <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? %>
+      <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
       <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
       <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
       <%= tab 'Attributes', :controller => :project, :action => :attributes %>
@@ -42,4 +45,3 @@
     </ul>
   </div>
 </div>
-<div class="clear"></div>

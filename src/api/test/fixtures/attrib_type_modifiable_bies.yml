@@ -10,3 +10,6 @@ test_group_can_update_maintained:
 maintainer_role_can_update_maintenance:
   bs_role_id: 3
   attrib_type_id: 58
+maintainer_role_can_set_reject_requests:
+  bs_role_id: 3
+  attrib_type_id: 64

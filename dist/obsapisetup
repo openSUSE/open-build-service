@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
-# Start-Before:      lighttpd
+# Start-Before:      apache2
 # Should-Start:      obsstoragesetup
 # Should-Stop:       $none
 # Required-Start:    mysql
@@ -28,11 +28,26 @@ link=${base#*[SK][0-9][0-9]}
 apidir=/srv/www/obs/api
 webuidir=/srv/www/obs/webui
 
+
+
 # make parsed output predictable 
 export LC_ALL=C
 
-FQHOSTNAME=`hostname -f`
+. /etc/sysconfig/obs-server
 
+if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
+   echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
+   exit 0
+fi
+
+if [ -z "$OBS_BASE_DIR" ]; then
+backenddir=/srv/obs
+else
+backenddir="$OBS_BASE_DIR"
+fi
+
+
+FQHOSTNAME=`hostname -f `
 
 if [ "$?" != "0" ]; then
   # Fallback to IP of the VM/host
@@ -43,12 +58,7 @@ if [ "$?" != "0" ]; then
     echo "    Using 'localhost' as FQHOSTNAME."
     FQHOSTNAME="localhost"
   fi
-fi
-. /etc/sysconfig/obs-server
-
-if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
-   echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
-   exit 0
+  USEIP=$FQHOSTNAME
 fi
 
 rc_reset
@@ -57,10 +67,42 @@ case "$1" in
                 if [ ! -d /obs/MySQL ]; then
 			mkdir -p /obs/MySQL
 		fi
+
+		# If we've proper hostname resolution all is fine. But if
+		# there's no proper hostname resolution, adapt BSConfig.pm et al.
+		### In case of the appliance, we never know where we boot up !
+		OLDFQHOSTNAME="NOTHING"
+		if [ -e /obs/.oldfqhostname ]; then
+			OLDFQHOSTNAME=`cat /obs/.oldfqhostname`
+		fi
+		if [ "$FQHOSTNAME" != "$OLDFQHOSTNAME" ]; then
+			echo "Appliance hostname changed from $OLDFQHOSTNAME to $FQHOSTNAME !"
+			echo "Adapting hostname in BSConfig.pm"
+			sed -i 's,^my.*hostname.*=.*,my \$hostname = "'"$FQHOSTNAME"'";,' \
+				/usr/lib/obs/server/BSConfig.pm
+			#changed IP means also that leftover jobs are invalid - cope with that
+			echo "Adapting present worker jobs"
+			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5352,server=\"http://$FQHOSTNAME:5352,g" \
+				/$backenddir/jobs/*/* 2> /dev/null
+			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5252,server=\"http://$FQHOSTNAME:5252,g" \
+				/$backenddir/jobs/*/* 2> /dev/null
+			#remove old workers status and idling/building markers
+			rm -f /$backenddir/jobs/*/*status 2> /dev/null
+			rm -f /$backenddir/workers/*/* 2> /dev/null
+                        # create repo directory or apache fails when nothing got published
+			mkdir -p /$backenddir/repos
+			chown obsrun.obsrun /$backenddir/repos
+		fi
+		echo "$FQHOSTNAME" > /obs/.oldfqhostname
+
 		echo -n "Adjust webui configuration for api"
-                # it would be better to solve this in lighttpd.conf to accept also localhost:81,
+                # it would be better to solve this in lighttpd.conf to accept also localhost:444,
                 # but no idea how to solve this
                 sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
+		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^FRONTEND_PORT = .*,FRONTEND_PORT = 444,' \
+		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^FRONTEND_PROTOCOL = .*,FRONTEND_PROTOCOL = "'"https"'",' \
 		    /srv/www/obs/webui/config/environments/production.rb
                 sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
 		    /srv/www/obs/webui/config/environments/production.rb
@@ -73,7 +115,7 @@ case "$1" in
 		else
 			echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
 		fi
-                echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
+                echo "webui_url: https://$FQHOSTNAME:443" >> /srv/www/obs/api/config/options.yml
 		echo
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
@@ -84,7 +126,8 @@ case "$1" in
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
-			chown lighttpd.lighttpd config/secret.key
+			chmod 0640 config/secret.key
+			chown root.www config/secret.key
 		else
 			echo
 			echo -n "Migrate OBS api database"
@@ -98,7 +141,8 @@ case "$1" in
         		cd $webuidir
 			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
-			chown lighttpd.lighttpd config/secret.key
+			chmod 0640 config/secret.key
+			chown root.www config/secret.key
 		else
 			echo
 			echo -n "Migrate OBS webui database"
@@ -107,26 +151,40 @@ case "$1" in
 			echo
 		fi
 
-                if [ ! -e /etc/ssl/private/lighttpd.key -a ! -e /etc/ssl/certs/lighttpd.crt -a ! -e /etc/ssl/private/lighttpd.pem ]; then
-                        if [ ! -e /OBS/certs/lighttpd.key ]; then
-                               # setup ssl certificates (NOT protected with a passphrase)
-                               echo "Creating SSL certificate for the server..."
-                               install -d -m 0700 /OBS/certs
-                               openssl genrsa -out /OBS/certs/lighttpd.key 1024
-                               openssl req -new -key /OBS/certs/lighttpd.key -out /OBS/certs/lighttpd.csr
-                               openssl x509 -req -days 365 -in /OBS/certs/lighttpd.csr -signkey /OBS/certs/lighttpd.key -out /OBS/certs/lighttpd.crt
-                               cat /OBS/certs/lighttpd.key /OBS/certs/lighttpd.crt > /OBS/certs/lighttpd.pem
-                        fi
-                        # use certificates from /OBS (LVM ?) partition
-                        ln -s /OBS/certs/lighttpd.key /etc/ssl/private/lighttpd.key
-                        ln -s /OBS/certs/lighttpd.crt /etc/ssl/certs/lighttpd.crt
-                        ln -s /OBS/certs/lighttpd.pem /etc/ssl/private/lighttpd.pem
+                if [ ! -e /srv/obs/certs/server.$FQHOSTNAME.created ]; then
+                       # setup ssl certificates (NOT protected with a passphrase)
+                       echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
+                       # reuse signing key even if hostname changed
+                       if [ ! -e /srv/obs/certs/server.key ]; then
+                           install -d -m 0700 /srv/obs/certs
+                           openssl genrsa -out /srv/obs/certs/server.key 1024
+                       fi
+                       # hostname specific certs - survive intermediate hostname changes
+                       if [ ! -e /srv/obs/certs/server.pem ] ; then
+                           # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
+		           echo "CC
+Test State or Province
+Test Locality
+Organization Name
+Organizational Unit Name
+$FQHOSTNAME
+test@email.address
+
+
+"                        | openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.csr >& /dev/null
+                           openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
+                           cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem
+                           echo "Do not remove this file or new SSL CAs will get created." > /srv/obs/certs/server.$FQHOSTNAME.created
+                       else
+                         echo "ERROR: SSL CAs in /srv/obs/certs exists, but were not created for your hostname"
+                         exit 1
+                       fi
                 fi
 
                 cd $webuidir
-		chown -R lighttpd.lighttpd $webuidir/log
+		chown -R wwwrun.www $webuidir/log
                 cd $apidir
-		chown -R lighttpd.lighttpd $apidir/log
+		chown -R wwwrun.www $apidir/log
 
 		cat > /etc/issue <<EOF
 Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
@@ -142,13 +200,18 @@ EOF
 		fi
 
 		if [ -n "$FQHOSTNAME" ]; then
+                        sed -e "s,___WEBUI_URL___,https://$FQHOSTNAME,g" \
+                            -e "s,___API_URL___,https://$FQHOSTNAME:444,g" \
+                            -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
+                            /srv/www/obs/overview/overview.html.TEMPLATE > /srv/www/obs/overview/index.html
+
 			cat >> /etc/issue <<EOF
 
-  Connect to the web interface via:     http://$FQHOSTNAME
-  Connect to the api interface via:     http://$FQHOSTNAME:81
+  Connect to the web interface via:     https://$FQHOSTNAME
+  Connect to the api interface via:     https://$FQHOSTNAME:444
   Browse the build packages via:        http://$FQHOSTNAME:82
 
- * "Admin" user password is "opensuse" by default.
+ * "Admin"/"root" user password is "opensuse" by default.
  * Connect to the web interface now to finish the OBS setup.
 
 More informations about this appliance are available here:
@@ -159,6 +222,7 @@ More informations about this appliance are available here:
 
 EOF
 		else
+                        echo "OBS appliance could not get setup, no network found" > /srv/www/obs/overview/index.html
 			echo '**********************************************' >> /etc/issue
 			echo '**           NETWORK SETUP FAILED           **' >> /etc/issue
 			echo '**                                          **' >> /etc/issue

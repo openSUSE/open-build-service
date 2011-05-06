@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
+
+    <title>Please Login - openSUSE.org</title>
+
+    <link href="https://static.opensuse.org/themes/bento/css/style.css" media="screen" rel="stylesheet" title="Normal" type="text/css" />
+    <link href="https://static.opensuse.org/themes/bento/images/favicon.png" rel="shortcut icon" />
+    <script src="https://static.opensuse.org/themes/bento/js/jquery.js" type="text/javascript"></script>
+    <script src="https://static.opensuse.org/themes/bento/js/l10n/global-navigation-data-en.js" type="text/javascript"></script>
+    <script src="https://static.opensuse.org/themes/bento/js/global-navigation.js" type="text/javascript"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Start: Header -->
+    <div id="header">
+      <div id="header-content" class="container_12">
+	<a id="header-logo" href="http://www.opensuse.org"><img src="https://static.opensuse.org/themes/bento/images/header-logo.png" width="46" height="26" alt="Header Logo" /></a>
+	<ul id="global-navigation">
+	  <li id="item-downloads"><a href="http://en.opensuse.org/openSUSE:Browse#Downloads">Downloads</a></li>
+	  <li id="item-support"><a href="http://en.opensuse.org/openSUSE:Browse#Support">Support</a></li>
+	  <li id="item-community"><a href="http://en.opensuse.org/openSUSE:Browse#Community">Community</a></li>
+	  <li id="item-development"><a href="http://en.opensuse.org/openSUSE:Browse#Development">Development</a></li>
+	</ul>
+      </div>
+    </div>
+    <!-- End: Header -->
+
+
+
+    <div id="subheader" class="container_16">
+      <div id="breadcrump" class="grid_10 alpha">
+        <img alt="Home_grey" src="https://static.opensuse.org/themes/bento/images/home_grey.png" /><a href="/">Home</a>
+      </div>
+    </div>
+
+    
+    <!-- wrong credentials message -->
+   <div id="flash-messages" class="container_16" >
+    <div class="grid_16 alpha omega" id="error_message" style="display: none">
+          <div class="ui-state-error ui-corner-all" style="margin-bottom: 5px;">
+            <p>
+              <span class="ui-icon ui-icon-alert"/>
+              The username/password combination you entered is invalid. Please try again, or recover it from
+              <a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp">here</a>.
+            </p>
+          </div>
+    </div>
+  </div>
+    
+    
+    <!-- Start: Main Content Area -->
+    <div id="content" class="container_16 content-wrapper">
+        <div class="grid_16 box box-shadow alpha omega">
+
+	<h1>Log in to your account</h1>
+	<form action="/ICSLogin" method="post">
+	<table>
+	  <tbody><tr>
+	    <td style="width: 90px;"><label for="username">Username</label></td>
+
+	    <td><input name="username" id="username" type="text"></td>
+	  </tr>
+	  <tr>
+	    <td><label for="username">Password</label></td>
+	    <td><input name="password" id="password" type="password"></td>
+	  </tr>
+	</tbody></table>
+	<p>
+	<input name="return_to_path" value="/" type="hidden" />
+	<input name="login" value="Log in" type="submit"></p>
+	</form>
+
+
+	<h1>Create a new account</h1>
+	<form action="https://secure-www.novell.com/selfreg/jsp/createOpenSuseAccount.jsp?target=https://www.opensuse.org" method="get">
+	<p>Sign up for an account to log in to the openSUSE infrastructure.</p>
+	<p><input name="login" value="Sign up" type="submit"></p>
+	</form>
+
+	<h1>Forgot your credentials?</h1>
+	<p>If you've forgotten your account information, you can restore access to your account using the links below.</p>
+
+	<ul>
+	  <li><a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp?target=http://www.opensuse.org">Recover my password</a></li>
+	  <li><a href="https://secure-www.novell.com/selfreg/jsp/forgotUsername.jsp?target=http://www.opensuse.org">Look up my username</a></li>
+	  <li><a href="https://secure-www.novell.com/selfreg/jsp/forgotAll.jsp?target=http://www.opensuse.org">Retrieve both</a></li>
+	</ul>
+
+    <script type="text/javascript">
+    document.getElementById('username').focus();
+    </script>
+
+        </div>
+    </div>
+    <!-- End: Main Content Area -->
+
+
+    <div style="clear: both;"></div>
+    <!-- Start: Footer -->
+    <div id="footer" class="container_12">
+
+
+
+      <div id="footer-legal" class="border-top grid_12">
+        <p>
+          &#169; 2010 Novell, Inc. All rights reserved. Novell is a registered trademark and
+          openSUSE and SUSE are trademarks of Novell, Inc. in the United States and other countries.
+        </p>
+      </div>
+
+    </div>
+    <!-- End: Footer -->
+
+
+  </body>
+</html>

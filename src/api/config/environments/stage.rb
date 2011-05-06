@@ -18,7 +18,7 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-ICHAIN_MODE = :on
+PROXY_AUTH_MODE = :on
 
 LDAP_MODE = :off
 # LDAP Servers separated by ':'.
@@ -36,6 +36,7 @@ EXTENDED_BACKEND_LOG = false
 
 SOURCE_HOST = "storage"
 SOURCE_PORT = 5352
+SOURCE_PROTOCOL = "http"
 
 ActionController::AbstractRequest.relative_url_root = "/stage"
 

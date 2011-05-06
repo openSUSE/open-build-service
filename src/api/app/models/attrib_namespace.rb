@@ -21,12 +21,10 @@ class AttribNamespace < ActiveRecord::Base
           end
           p={}
           if m.attributes["user"]
-            p[:user] = User.find_by_login(m.attributes["user"])
-            raise RuntimeError, "Unknown user '#{m.attributes["user"]}' in modifiable_by element" if not p[:user]
+            p[:user] = User.get_by_login(m.attributes["user"])
           end
           if m.attributes["group"]
-            p[:group] = Group.find_by_title(m.attributes["group"])
-            raise RuntimeError, "Unknown group '#{m.attributes["group"]}' in modifiable_by element" if not p[:group]
+            p[:group] = Group.get_by_title(m.attributes["group"])
           end
           self.attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(p)
       end

@@ -49,6 +49,11 @@ our $repo = [
 	'rebuild',
 	'block',
 	'linkedbuild',
+     [[ 'releasetarget' =>
+	    'project',
+	    'repository',
+	    'trigger',
+     ]],
      [[ 'path' =>
 	    'project',
 	    'repository',
@@ -69,27 +74,35 @@ our @disableenable = (
 );
 
 our @flags = (
+      [ 'lock' => @disableenable ],
       [ 'build' => @disableenable ],
       [ 'publish' => @disableenable ],
       [ 'debuginfo' => @disableenable ],
       [ 'useforbuild' => @disableenable ],
       [ 'binarydownload' => @disableenable ],
       [ 'sourceaccess' => @disableenable ],
-      [ 'privacy' => @disableenable ],
       [ 'access' => @disableenable ],
 );
 
 our $download = [
     'download' =>
-     'baseurl',
-     'metafile',
-     'mtype',
-     'arch',
+    'baseurl',
+    'metafile',
+    'mtype',
+    'arch',
+];
+
+our $maintenance = [
+    'maintenance' =>
+     [[ 'maintains' =>
+            'project',
+     ]],
 ];
 
 our $proj = [
     'project' =>
         'name',
+        'type',
 	 [],
         'title',
         'description',
@@ -107,34 +120,35 @@ our $proj = [
             'role',
             'groupid',
      ]],
-     [ $download ],
-     [ 'attributes' => 
-       [[ 'namespace' => 
-            'name', 
-            [[ 'modifiable_by' =>
-		   'user',
-		   'group',
-		   'role',
-            ]],
-       ]],
-       [[ 'definition' => 
-            'name', 
-            'namespace', 
-            [],
-            'count',
-            [ 'default' =>
-               [ 'value' ],
-            ],
-            [ 'allowed' =>
-               [ 'value' ],
-            ],
-            [[ 'modifiable_by' =>
-               'user',
-               'group',
-               'role',
-            ]],
-       ]],
-     ],
+      [ $download ],
+	$maintenance,
+      [ 'attributes' => 
+         [[ 'namespace' => 
+		'name', 
+	     [[ 'modifiable_by' =>
+		    'user',
+		    'group',
+		    'role',
+             ]],
+         ]],
+         [[ 'definition' => 
+		'name', 
+		'namespace', 
+		[],
+		'count',
+              [ 'default' =>
+		  [ 'value' ],
+              ],
+              [ 'allowed' =>
+		  [ 'value' ],
+              ],
+             [[ 'modifiable_by' =>
+		    'user',
+		    'group',
+		    'role',
+             ]],
+         ]],
+      ],
 	@flags,
       [ $repo ],
 ];
@@ -298,6 +312,13 @@ our $linkinfo = [
       [ $linked ],
 ];
 
+our $serviceinfo = [
+    'serviceinfo' =>
+	# information in case a source service is part of package
+	'code',         # can be "running", "failed", "succeeded"
+        [],
+	'error',        # contains error message in case of error
+];
 
 our $dir = [
     'directory' =>
@@ -306,14 +327,15 @@ our $dir = [
 	'rev',
 	'vrev',
 	'srcmd5',
-        'tproject',
-        'tpackage',
-        'trev',
-        'tsrcmd5',
-        'lsrcmd5',
+        'tproject',     # obsolete, use linkinfo
+        'tpackage',     # obsolete, use linkinfo
+        'trev',         # obsolete, use linkinfo
+        'tsrcmd5',      # obsolete, use linkinfo
+        'lsrcmd5',      # obsolete, use linkinfo
         'error',
-        'xsrcmd5',
+        'xsrcmd5',      # obsolete, use linkinfo
         $linkinfo,
+        $serviceinfo,
      [[ 'entry' =>
 	    'name',
 	    'md5',
@@ -371,6 +393,34 @@ our $fileinfo = [
 		'repository',
 	 ]],
      ]],
+];
+
+our $sourceinfo = [
+    'sourceinfo' =>
+	'package',
+	'rev',
+	'vrev',
+	'srcmd5',
+	'verifymd5',
+	[],
+	'filename',
+	'error',
+	'originproject',
+       [ $linked ],
+
+	'name',
+	'version',
+	'release',
+       [ 'subpacks' ],
+       [ 'deps' ],
+       [ 'prereqs' ],
+       [ 'exclarch' ],
+       [ 'badarch' ],
+];
+
+our $sourceinfolist = [
+    'sourceinfolist' =>
+      [ $sourceinfo ],
 ];
 
 our $buildinfo = [
@@ -1191,7 +1241,39 @@ our $updateinfoitem = [
 ];
 
 our $updateinfo = [
-    'updates' => [ $updateinfoitem ],
+    'updates' =>
+      [ $updateinfoitem ],
+];
+
+our $deltapackage = [
+    'newpackage' =>
+	'name',
+	'epoch',
+	'version',
+	'release',
+	'arch',
+     [[ 'delta' =>
+	    'oldepoch',
+	    'oldversion',
+	    'oldrelease',
+	    'filename',
+	    'sequence',
+	    'size',
+	  [ 'checksum' =>
+		'type',
+		'_content',
+	  ],
+     ]],
+];
+
+our $deltainfo = [
+    'deltainfo' =>
+      [ $deltapackage ],
+];
+
+our $prestodelta = [
+    'prestodelta' =>
+      [ $deltapackage ],
 ];
 
 1;

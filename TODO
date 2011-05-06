@@ -22,11 +22,5 @@ To Do List
 * We need nicer progress graphics
   - /monitor uses graphics that coolo made with gimp → SCANDAL!
 
-* /project/list_requests links should stay in project
-  - When I go from /project/list_requests to a single request, I don’t expect to go to /requests
-
 * Chrome has issues displaying tables
   - Chrome (possibly chromium too) has e.g. in /project/status the table out of the box
-
-* If there is only request pending (for prj or pkg)
-  - If there is only 1 request, the link should go to /request/id

@@ -266,18 +266,11 @@ class Project < ActiveXML::Base
   end
     
   def linking_projects
-    opt = Hash.new
-    opt[:project] = self.name
-    opt[:cmd] = "showlinked"
     fc = FrontendCompat.new
-    answer = fc.do_post nil, opt
-
+    answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
     doc = XML::Parser.string(answer).parse
     result = []
-    doc.find("/collection/project").each do |e|
-      result.push( e.attributes["name"] )
-    end
-
+    doc.find('/collection/project').each {|e| result << e.attributes['name']}
     return result
   end
 
@@ -351,8 +344,53 @@ class Project < ActiveXML::Base
     @name ||= data.attributes['name']
   end
 
+  def project_type
+    return data.attributes['type']
+  end
+
+  def set_project_type(project_type)
+    if ['maintenance', 'maintenance_incident', 'standard'].include?(project_type)
+      data.attributes['type'] = project_type
+      return true
+    end
+    return false
+  end
+
   def is_remote?
     has_element? "remoteurl"
+  end
+
+  # Returns a list of pairs (full name, short name) for each parent
+  def self.parent_projects(project_name)
+    atoms = project_name.split(':')
+    projects = []
+    unused = 0
+
+    for i in 1..atoms.length do
+      p = atoms.slice(0, i).join(":")
+      r = atoms.slice(unused, i - unused).join(":")
+      if Project.exists? p
+        projects << [p, r]
+        unused = i
+      end
+    end
+    return projects
+  end
+
+  def parent_projects
+    return Project.parent_projects(self.name)
+  end
+
+  # Searches the maintenance project for a given project
+  def self.maintenance_project(project_name)
+    predicate = "maintenance/maintains/@project='#{project_name}'"
+    mp = Collection.find_cached(:id, :what => 'project', :predicate => predicate, :expires_in => 30.minutes)
+    return mp.each.first.name if mp.each.first
+    return nil
+  end
+
+  def maintenance_project
+    return Project.maintenance_project(self.name)
   end
 
 end

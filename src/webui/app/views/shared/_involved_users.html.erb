@@ -79,10 +79,10 @@
                   <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
                 <% end %>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
-                  <script type="text/javascript">
+                  <% javascript_tag do %>
                     $('#user_<%= role %>_<%= user %>').enable();
                     $('#user_<%= role %>_<%= user %>').change(change_role);
-                  </script>
+                  <% end %>
                 <% end %>
               </td>
             <% end %>
@@ -98,9 +98,9 @@
         <% end %>
       </tbody>
     </table>
-    <script type="text/javascript">
+    <% javascript_tag do %>
       $('#user_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {1: {sorter: false}, 2: {sorter: false}} });
-    </script>
+    <% end %>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>
@@ -131,10 +131,10 @@
                   <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %><%= role.capitalize %>
                 <% end %>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
-                  <script type="text/javascript">
+                  <% javascript_tag do %>
                     $('#group_<%= role %>_<%= group %>').enable();
                     $('#group_<%= role %>_<%= group %>').change(change_role);
-                  </script>
+                  <% end %>
                 <% end %>
               </td>
             <% end %>
@@ -147,9 +147,9 @@
         <% end %>
       </tbody>
     </table>
-    <script type="text/javascript">
+    <% javascript_tag do %>
       $('#group_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {1: {sorter: false}, 2: {sorter: false}} });
-    </script>
+    <% end %>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>

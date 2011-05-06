@@ -67,10 +67,11 @@ class SourceServicesTest < ActionController::IntegrationTest
   def wait_for_service( project, package )
     i=0
     while true
-      get "/source/#{project}/#{package}/_history"
+      get "/source/#{project}/#{package}"
       assert_response :success
       node = ActiveXML::XMLNode.new(@response.body)
-      return if node.each_revision.last.user.text == "_service"
+      return unless node.has_element? "serviceinfo" 
+      return if [ "failed", "succeeded" ].include? node.serviceinfo.code # else "running"
       i=i+1
       if i > 10
         puts "ERROR in wait_for_service: service did not run until time limit"
@@ -108,6 +109,67 @@ class SourceServicesTest < ActionController::IntegrationTest
     # cleanup
     delete "/source/home:tom/service"
     assert_response :success
+
+    # failure check
+    prepare_request_with_user "king", "sunflower"
+    get "/source/BaseDistro2/pack2"
+    assert_response :success
+    get "/source/BaseDistro2/pack2/_service"
+    assert_response 404
+    post "/source/BaseDistro2/pack2?cmd=runservice"
+    assert_response 404
+  end
+
+  def test_source_commit_with_service
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
+    assert_response :success
+    put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    # find out the md5sum of _service file
+    get "/source/home:tom/service"
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    md5sum_service = doc.elements["//entry[@name='_service']"].attributes['md5']
+    md5sum_spec = doc.elements["//entry[@name='pack.spec']"].attributes['md5']
+
+    # do a commit to trigger the service
+    put "/source/home:tom/service/filename?rev=repository", 'CONTENT'
+    assert_response :success
+    filelist = '<directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
+    post "/source/home:tom/service?cmd=commitfilelist", filelist
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+
+    get "/source/home:tom/service/_history"
+    # do another commit, check that the service files are kept
+    filelist = '<directory> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
+    post "/source/home:tom/service?cmd=commitfilelist", filelist
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+
+    # validate revisions
+    get "/source/home:tom/service/_history"
+    assert_response :success
+    get "/source/home:tom/service?rev=4" # service run after first commitfilelist
+    assert_response :success
+    assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
+    assert_tag :tag => 'entry', :attributes => { :name => 'filename' }
+    get "/source/home:tom/service?rev=5" # second commit
+    assert_response :success
+    assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }  # old file kept during commit
+    assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }                      # user file got removed
+    get "/source/home:tom/service?rev=6" # service run after second commit
+    assert_response :success
+    assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
+    assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }
+
+    # cleanup
+    delete "/source/home:tom/service"
+    assert_response :success
   end
 
   def test_run_project_source_service
@@ -127,17 +189,23 @@ class SourceServicesTest < ActionController::IntegrationTest
 
     put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
-    post "/source/home:tom/service?cmd=runservice"
+
+    put "/source/home:tom/service2/_meta", "<package project='home:tom' name='service2'> <title /> <description /> </package>"
     assert_response :success
-    wait_for_service( "home:tom", "service" )
-    get "/source/home:tom/service/_service_error"
-print @response.body
+    put "/source/home:tom/service2/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+    post "/source/home:tom/service2?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service2" )
+    get "/source/home:tom/service2/_service_error"
     assert_response 404
-    get "/source/home:tom/service/_service:set_version:pack.spec"
+    get "/source/home:tom/service2/_service:set_version:pack.spec"
     assert_response :success
 
     # cleanup
     delete "/source/home:tom/service"
+    assert_response :success
+    delete "/source/home:tom/service2"
     assert_response :success
   end
 

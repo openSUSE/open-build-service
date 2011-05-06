@@ -215,7 +215,7 @@ sub rpc {
       my $status = $1;
       die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
     }
-    ($param->{'https'} || $tossl)->(\*S) if $proto eq 'https' || $proxytunnel;
+    ($param->{'https'} || $tossl)->(\*S, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1) if $proto eq 'https' || $proxytunnel;
   }
   if (!$param->{'continuation'}) {
     if ($param->{'verbose'}) {

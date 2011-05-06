@@ -24,7 +24,13 @@ class Attribute < ActiveXML::Base
   end
 
   def delete(namespace, name)
-    path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_attribute/#{attribute}" : "/source/#{self.init_options[:project]}/_attribute/#{namespace}:#{name}"
+    package = self.init_options[:package]
+    if package
+      path = "/source/#{self.init_options[:project]}/#{package}/_attribute/#{namespace}:#{name}"
+    else
+      path = "/source/#{self.init_options[:project]}/_attribute/#{namespace}:#{name}"
+    end
+
     begin
       frontend = ActiveXML::Config::transport_for( :package )
       frontend.direct_http URI("#{path}"), :method => "DELETE", :data => ""

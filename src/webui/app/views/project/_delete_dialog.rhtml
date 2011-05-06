@@ -1,32 +1,30 @@
 <div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Delete Confirmation</b>
+      </div>
 
-<div class="dialog" id="disable_mask"></div>
-<div class="dialog darkgrey_box">
-  <div class="box box-shadow">
-    <div class="box-header aligncenter">
-      Confirmation
-    </div>
+      <p>Really delete <b><%= h(elide(@project.name, 40)) %></b>?</p>
 
-    <p>The following repositories use this project:</p>
-    <p>
-    <ul>
-      <% @repos.each do |repo| -%>
-        <% project = repo[0..repo.index('/')-1] %>
-        <li><%= link_to project, :controller => :project, :action => :show, :project => project %><%= repo[repo.index('/')..repo.length] %></li>
+      <% form_tag({:controller => 'project', :action => 'delete'}, :method => 'post') do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <% if @linking_projects and @linking_projects.length > 0 %>
+          <p>Other projects still have source links to this project:</p>
+          <ul>
+            <% @linking_projects.each do |link| %>
+              <li><%= link_to(h(elide(link.name, 40)), :controller => 'project', :action => 'show', :project => link) %></li>
+            <% end %>
+          </ul>
+          <%= check_box_tag(:ignore_linking_projects)%> Ignore project source links
+        <% end %>
+
+        <div class="buttons">
+          <%= submit_tag('Ok') %>
+          <%= link_to_function('Cancel', 'remove_dialog()') %>
+        </div>
       <% end %>
-    </ul>
-    </p>
-
-    <p><div class="aligncenter buttons">
-      <%= link_to_remote 'Delete',
-        :url => {:action => :delete, :project => @project.name, :force => 1, :confirmed => 1},
-        :loading => 'hide_dialog()',
-        :complete => 'remove_dialog()'
-    %>
-      <%= link_to_function 'Abort', 'remove_dialog()' %>
     </div>
-    </p>
-
   </div>
-
-</div></div>
+</div>

@@ -56,18 +56,18 @@ sub tossl {
 }
 
 sub TIEHANDLE {
-  my ($self, $socket, $keyfile, $certfile) = @_;
+  my ($self, $socket, $keyfile, $certfile, $forceconnect) = @_;
 
   initctx() unless $sslctx;
   my $ssl = Net::SSLeay::new($sslctx) or die("SSL_new failed\n");
   Net::SSLeay::set_fd($ssl, fileno($socket));
-  if (defined($keyfile)) {
-    if ($keyfile ne '') {
-      Net::SSLeay::use_RSAPrivateKey_file($ssl, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
-    }
-    if ($certfile ne '') {
-      Net::SSLeay::use_certificate_file ($ssl, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $certfile failed\n");
-    }
+  if ($keyfile) {
+    Net::SSLeay::use_RSAPrivateKey_file($ssl, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
+  }
+  if ($certfile) {
+    Net::SSLeay::use_certificate_file($ssl, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $certfile failed\n");
+  }
+  if (defined($keyfile) && !$forceconnect) {
     Net::SSLeay::accept($ssl) == 1 || die("SSL_accept\n");
   } else {
     Net::SSLeay::connect($ssl) || die("SSL_connect");

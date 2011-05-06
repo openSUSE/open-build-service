@@ -10,14 +10,22 @@ class Role < ActiveRecord::Base
   include ActiveRbacMixins::RoleMixins::Core
 
   has_many :project_user_role_relationships
-  
-  def self.rolecache
-    return @cache if @cache
-    @cache = Hash.new
-    find(:all).each do |role|
-      @cache[role.title] = role
+
+  class << self
+    def rolecache
+      return @cache if @cache
+      @cache = Hash.new
+      find(:all).each do |role|
+        @cache[role.title] = role
+      end
+      return @cache
     end
-    return @cache
+
+    def get_by_title(title)
+      r = find :first, :conditions => ["title = BINARY ?", title]
+      raise RoleNotFoundError.new( "Error: Role '#{title}' not found." ) unless r
+      return r
+    end
   end
 
   def rolecache

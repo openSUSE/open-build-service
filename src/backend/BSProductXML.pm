@@ -212,7 +212,7 @@ our $productdesc = [
       [ 'mediasets' =>
          [[ 'media' =>
             'type',
-            'product',
+            'product',                 # obsolete, should not be used anymore
             'name',
             'flavor',
             'repo_only',

@@ -60,6 +60,15 @@
 
       <attribute name="name" />
       <optional>
+        <attribute name="type">
+          <choice>
+            <value>standard</value>
+            <value>maintenance</value>
+            <value>maintenance_incident</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="mountproject"/>
       </optional>
       <optional>
@@ -95,6 +104,11 @@
           <ref name="group-element"/>
         </zeroOrMore>
         <optional>
+          <element ns="" name="lock">
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+        <optional>
           <element ns="" name="build">
             <ref name="flag-element"/>
           </element>
@@ -122,12 +136,22 @@
         </optional>
         <optional>
           <element ns="" name="sourceaccess">
-            <ref name="flag-element"/>
+            <ref name="simple-flag-element"/>
           </element>
         </optional>
         <optional>
           <element ns="" name="access">
-            <ref name="flag-element"/>
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="maintenance">
+            <oneOrMore>
+              <element name="maintains">
+                <attribute name="project"/>
+              </element>
+            </oneOrMore>
           </element>
         </optional>
 

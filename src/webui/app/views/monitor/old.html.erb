@@ -1,11 +1,7 @@
-<% @pagetitle = "Build Status Monitor" 
-   @metarobots="nofollow"
--%>
+<% @pagetitle = 'Build Status Monitor' %>
+<% @crumb_list = ['Monitor'] %>
+<% @metarobots = 'nofollow' %>
 
-<%
-@crumb_list = [ 'Monitor' ]
--%>
-<%= render :partial => 'status_messages' %>
 <%= render :partial => 'scheduler' %>
 <%= render :partial => 'building' %>
 <%= render :partial => 'idle' %>

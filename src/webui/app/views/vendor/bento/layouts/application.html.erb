@@ -22,17 +22,38 @@
 
     <%= yield :content_for_head %>
 
-    <script type="text/javascript">
-    /* <![CDATA[ */
-    <%= yield :head_javascript %>
-    $(function() {
-      <% unless CONFIG['theme'] == 'bento' %>
-      setup_favorites();
-      <% end %>
-      <%= yield :ready_function %>
-    });
-    /* ]]> */
-    </script>
+    <% javascript_tag do %>
+      <%= yield :head_javascript %>
+      $(function() {
+        <% unless CONFIG['theme'] == 'bento' %>
+        setup_favorites();
+        <% end %>
+        <%= yield :ready_function %>
+      });
+    <% end %>
+
+    <% if CONFIG['theme'] == 'bento' %>
+        <!-- Piwik -->
+        <script type="text/javascript">
+          var _paq = _paq || [];
+          (function(){
+            var u=(("https:" == document.location.protocol) ? "https://beans.opensuse.org/piwik/" : "http://beans.opensuse.org/piwik/");
+            _paq.push(['setSiteId', 8]);
+            _paq.push(['setTrackerUrl', u+'piwik.php']);
+            _paq.push(['trackPageView']);
+            _paq.push([ 'setDomains', ["*.opensuse.org"]]);
+            var d=document,
+            g=d.createElement('script'),
+            s=d.getElementsByTagName('script')[0];
+            g.type='text/javascript';
+            g.defer=true;
+            g.async=true;
+            g.src=u+'piwik.js';
+            s.parentNode.insertBefore(g,s);
+          })();
+        </script>
+        <!-- End Piwik Code -->
+    <% end %>
 
   </head>
 
@@ -43,11 +64,18 @@
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
         <%= image_tag( "home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
-        <% if @crumb_list -%>
-          <% @crumb_list.each do |link| -%>
-            &gt; <%= link %>
-          <% end -%>
-        <% end -%>
+        <% if @crumb_list %>
+          <% @crumb_list.each do |link| %>
+            &gt;
+            <% if link.class == Array %> <!-- multiple items in crump list but they belong together as sub group, eg sub projects -->
+              <% link.each_with_index do |slink, index| %>
+                <%= ':' if index > 0 %> <%= slink %>
+              <% end %>
+            <% else %>
+              <%= link %>
+            <% end %>
+          <% end %>
+        <% end %>
       </div>
 
       <%= render :partial => "layouts/personal_navigation"  %>

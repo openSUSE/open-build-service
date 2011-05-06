@@ -1,12 +1,12 @@
 = openSUSE API
 
-Version: 2.0
+Version: 2.3
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
-  
-  The /public routes are also accessible as anonymous user. 
 
+  Do NOT simply add api calls here without discussion before.
+  
 <project>: Project name
 <package>: Package name
 <platform>: Platform name
@@ -26,6 +26,44 @@ GET /about
   Get information about API.
 
 XmlResult: about
+
+
+== Architectures
+
+Host api.opensuse.org
+
+GET /architecture
+
+  Get the list of available architectures
+
+XmlResult: directory
+
+<name>: Architecture name
+
+GET /architecture/<name>
+
+  Read architecture data.
+
+XmlResult: architecture
+
+PUT /architecture/<name>
+
+  Update architecture data.
+
+XmlResult: status
+
+POST /architecture/<name>
+
+  Create new architecture.
+
+XmlResult: status
+
+DELETE /architecture/<name>
+
+  Delete architecture.
+
+XmlResult: status
+
 
 == Distribution List
 
@@ -120,12 +158,14 @@ POST /source
 
   Commands on processing sources globally. Possible commands are
   branch: branch a set of packages based on attributes or on existing request
+  createmaintenanceincident: create mainatenance incident projects based on attribute search
 
 Parameters:
 
   attribute: attribute used for package search, default is OBS:Maintained
   update_project_attribute: attribute name used to find out possible existing update projects of a package
   request: branch by request, branch all packages in actions of request for superseding it
+  noaccess: the new created project will be read protected
   target_project: project which will get used or created
 
 
@@ -277,6 +317,11 @@ POST /source/<project>
   extendkey: Extend the expiration date of gpg keys.
   undelete: undelete the project and all packages existing when the project got removed.
   showlinked: List all projects linking to this one
+  createmaintenanceincident: create a single mainatenance incident project as sub project
+
+Parameters:
+  noaccess: the new created project will be read protected
+
 
 
 === Packages
@@ -291,6 +336,29 @@ XmlResult: package directory.xsd
 Parameters:
 
   deleted: show deleted package instead of existing
+
+
+GET /source/<project>/<package>
+
+  Package source listing
+
+Parameters:
+
+  rev: revision of new package, optional
+  linkrev: linked revision, optional
+  emptylink: bool, , optional
+  expand: bool, expand links, optional
+  meta: bool, switch to meta files, optional
+  view: The "info" view will show data like source version, md5sums and build description files. May be used together with parse, arch or repository parameter, optional
+  extension: filter for file extension, optional
+  lastworking: bool, show sources of last mergeable sources in case of conflicting changes, optional
+  withlinked: bool, show all used package containers (in case of multiple link indirections) in linkinfo information, optional
+  deleted: bool, show content of deleted package instance
+  parse: bool, for view=info: take build description into account, optional
+  arch: string, for view=info: parse buildinfo for this architecture, optinal
+  repository: string, for view=info: parse buildinfo for this repository, optinal
+
+XmlResult: package directory.xsd
 
 
 GET /source/<project>/<package>/_meta
@@ -402,6 +470,7 @@ Parameters:
   ignoredevel: bool, optional
   target_project: target project name, optional
   target_package: target package name, optional
+  noaccess: the new created project will be read protected, bool, optional
 
 XmlResult: status
 
@@ -577,7 +646,9 @@ Parameters:
         the user is maintainer and also open review requests
   project: limit to result to defined target project or review requests
   package: limit to result to defined target package or review requests
-  state: filter for given request state
+  states: filter for given request state, multiple matches can be added as comma seperated list (eg states=new,review)
+  types: filter for given action types (comma seperated)
+  roles: filter for given roles (creator, maintainer, reviewer, source or target)
 
 XmlResult: collection
 
@@ -1427,4 +1498,9 @@ PUT /message/?project=<project>&package=<package>
 XmlBody :message
 XmlResult: message
 
+
+== Internal only routes
+
+/public shall not be used in any tools, it is for OBS remote support only and may
+change or disappear at any time.
 
