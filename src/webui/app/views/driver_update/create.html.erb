@@ -1,6 +1,6 @@
 <% @pagetitle = "Driver Update Disk Wizard" %>
 
-<% package_bread_crumb 'Edit Package Information' -%>
+<% #package_bread_crumb 'Edit Package Information' -%>
 <%= render :partial => "package/tabs" %>
 
 <% content_for :content_for_head do %>
@@ -195,7 +195,7 @@
   </div>
 
   <p><strong>Add package: </strong><br/>
-    <%= select_tag "target_package_repo", options_for_select(@repositories.map{|repo| repo[:project]}.uniq), :id => 'target_package_repo' %>
+    <%= select_tag "target_package_repo", options_for_select(@repositories.map{|repo| repo[:project]+"/"+repo[:repo] } ), :id => 'target_package_repo' %>
     Name:
     <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
   <div id="add_package"><p>

@@ -38,6 +38,34 @@ class DriverUpdateController < PackageController
 
   def save
     valid_http_methods :post
+
+    # write filelist to separate file
+    opt = Hash.new
+    opt[:project] = @project
+    opt[:package] = @package
+    opt[:filename] = "dud_packlist.xml"
+    opt[:comment] = "Modified via webui"
+
+    fc = FrontendCompat.new
+    logger.debug "storing filelist"
+
+    file_content = "<?xml version=\"1.0\"?>\n"
+    file_content += "  <packlist>\n"
+    file_content += "    <repopackages>\n"
+    file_content += params[:packages].map{|package| "      <binarylist package=\"" + package + "\" />" }.join("\n")
+    file_content += "\n"
+    @buildresult = find_cached(Buildresult, :project => @project, :package => 'ctris',
+                               :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    file_content +=  @buildresult.data.find('//binary').map{|binary| "<binary filename=\"" + binary['filename'] + "\"/>"}.join("\n")
+
+    file_content += "    </repopackages/>\n    <modules/>\n"
+    file_content += "     <instsys>\n"
+    file_content += params[:packages].map{|package| "      <binarylist package=\"" + package + "\" />" }.join("\n")
+    file_content += "     </instsys>\n"
+    file_content += "  </packlist>"
+
+    fc.put_file file_content, opt
+
     # find the 'generator_driver_update_disk' service
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
@@ -47,7 +75,6 @@ class DriverUpdateController < PackageController
     dud_params << {:name => 'distname', :value => params[:distname]}
     dud_params << {:name => 'flavour', :value => params[:flavour]}
     dud_params |= params[:projects].map{|project| {:name => 'instrepo', :value => project}}
-    dud_params |= params[:packages].map{|package| {:name => 'repopackage', :value => package}}
 
     services.removeService( 'generator_driver_update_disk' )
     services.addService( 'generator_driver_update_disk', -1, dud_params )
@@ -57,7 +84,6 @@ class DriverUpdateController < PackageController
     flash[:success] = "Saved Driver update disk service."
     redirect_to :controller => :package, :action => :show, :project => @project, :package => @package
   end
-
 
   #TODO: select architecture of binary packages
   def binaries
