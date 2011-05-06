@@ -64,24 +64,18 @@
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
         <%= image_tag( "home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
-        <% if @crumb_list -%>
-          <% @crumb_list.each do |link| -%>
+        <% if @crumb_list %>
+          <% @crumb_list.each do |link| %>
             &gt;
-            <% if link.class == Array -%> <!-- multiple items in crump list but they belong together as sub group, eg sub projects -->
-              <%- first=true  %>
-              <%- link.each do |slink| -%>
-                <% if first  %>
-                  <%- first=false  %>
-                <% else %>
-                  :
-                <% end %>
-                <%= slink %>
-              <% end -%>
-            <% else -%>
+            <% if link.class == Array %> <!-- multiple items in crump list but they belong together as sub group, eg sub projects -->
+              <% link.each_with_index do |slink, index| %>
+                <%= ':' if index > 0 %> <%= slink %>
+              <% end %>
+            <% else %>
               <%= link %>
-            <% end -%>
-          <% end -%>
-        <% end -%>
+            <% end %>
+          <% end %>
+        <% end %>
       </div>
 
       <%= render :partial => "layouts/personal_navigation"  %>
