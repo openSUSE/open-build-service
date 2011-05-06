@@ -1,0 +1,9 @@
+
+<div style="margin-left: 15px;">
+<% @binaries.each do |binary| %>
+
+  <%= image_tag("package.png", :title => "Package") %> <%= binary %> 
+  <%= image_tag("icons/package_delete.png", :title => "Remove Package") %><br/>
+
+<% end %>
+</div>
