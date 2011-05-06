@@ -1,6 +1,10 @@
+<% content_for :content_for_head do %>
+  <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'news', :format => 'rss'}, {:title => 'News'}) %>
+<% end %>
+
 <% if (@news and @news.count.to_i > 0) or (@user and @user.is_admin?) %>
   <div class="box box-shadow">
-    <div class="box-header aligncenter">News</div>
+    <div class="box-header aligncenter">News <%= link_to(image_tag('feeds.png', :title => 'RSS Feed'), :action => 'news', :format => 'rss') %></div>
 
     <% if @news.count.to_i > 0 %>
       <table style="width: 95%">

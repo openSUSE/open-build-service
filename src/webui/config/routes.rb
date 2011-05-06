@@ -7,6 +7,8 @@ ActionController::Routing::Routes.draw do |map|
   # Keep in mind you can assign values other than :controller and :action
 
   map.connect '/', :controller => 'main'
+  map.connect '/main/news.:format', :controller => 'main', :action => 'news'
+  map.connect '/main/latest_updates.:format', :controller => 'main', :action => 'latest_updates'
 
   map.connect ':project/:repository/:pkgrev', :controller => 'package', :action => 'files', :requirements => { :project => /[^\/]+/, :repository => /[^\/]+/, :pkgrev => /[a-fA-F0-9]{32}-(.+)/ }
 

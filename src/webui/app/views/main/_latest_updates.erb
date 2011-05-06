@@ -1,5 +1,9 @@
+<% content_for :content_for_head do %>
+  <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'latest_updates', :format => 'rss'}, {:title => 'Latest updates'}) %>
+<% end %>
+
 <div class="box box-shadow">
-  <div class="box-header aligncenter">Latest Updates</div>
+  <div class="box-header aligncenter">Latest Updates <%= link_to(image_tag('feeds.png', :title => 'RSS Feed'), :action => 'latest_updates', :format => 'rss') %></div>
 
   <table style="width: 90%">
     <tbody>

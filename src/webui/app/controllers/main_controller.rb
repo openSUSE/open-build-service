@@ -34,21 +34,29 @@ class MainController < ApplicationController
         end
       end
 
-      @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes, :shared => true) do
-        GlobalCounters.find( :all )
-      end
-      key="latest_updates_#{@user}"
-      @latest_updates = Rails.cache.fetch(key, :expires_in => 5.minutes, :shared => true) do
-        LatestUpdated.find( :limit => 6 )
-      end
       @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
-
+      @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+      @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
     rescue ActiveXML::Transport::UnauthorizedError => e
       @anonymous_forbidden = true
       logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
     end
   end
-  
+
+  def news
+    @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
+    respond_to do |format|
+      format.rss { render :layout => false }
+    end
+  end
+
+  def latest_updates
+    @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+    respond_to do |format|
+      format.rss { render :layout => false }
+    end
+  end
+
   def sitemap
     render :layout => false
   end
