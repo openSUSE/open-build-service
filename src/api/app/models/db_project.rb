@@ -299,6 +299,8 @@ class DbProject < ActiveRecord::Base
       self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
       self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
       self.updated_at = Time.now
+      project_type = DbProjectType.find_by_name(project.data.attributes['type'])
+      self.type_id = project_type.id if project_type
       self.save!
 
       #--- update linked projects ---#
