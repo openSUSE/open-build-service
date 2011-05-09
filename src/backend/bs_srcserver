@@ -667,7 +667,7 @@ sub addrev {
   $user = str2utf8xml($user);
   $comment = str2utf8xml($comment);
 
-  if ($packid eq '_pattern' || ! -e "$projectsdir/$projid.pkg/$packid.xml") {
+  if ($packid eq '_pattern' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # upgrade pseudo _pattern package to real package
     my $pack = {
       'name' => $packid,
