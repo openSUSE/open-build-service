@@ -86,8 +86,7 @@
   var repo = get_package_repo();
   $("#" + key).append( '<div id="' + key + '_binaries" style="margin-left: 15px;"><p><%= image_tag("ajax-loader.gif", :title => "Loading") %> Loading binary packages for <i>' + package + '</i></p></div>' );
 
-  $.ajax({ url: '<%= url_for :controller => :driver_update, :action => :binaries %>?package=' + package +
-    '&project=' + project + '&repository=' + repo,
+  $.ajax({ url: '<%= url_for :controller => :driver_update, :action => :binaries %>?package=' + package + '&project=' + project + '&repository=' + repo,
     data: {},
     success: function(data){
       $("#" + key + '_binaries').html(data);

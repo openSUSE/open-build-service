@@ -1,9 +1,12 @@
 
 <div style="margin-left: 15px;">
-<% @binaries.each do |binary| %>
-
-  <%= image_tag("package.png", :title => "Package") %> <%= binary %> 
-  <%= image_tag("icons/package_delete.png", :title => "Remove Package") %><br/>
-
+<% @binaries.uniq.each do |binary| %> 
+  <% key = "binary_#{binary}".gsub(/[:\.]/, '_')  %>
+  <div id="<%= key %>">
+  <%= image_tag("package.png", :title => "Package") %>
+  <input type="hidden" name="binaries[]" value="<%= "#{@package}/#{binary}" %>" /> <%= binary %>
+  <a href="#" onclick="remove_element('<%= key %>'); return false;">
+  <%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a>
+  </div>
 <% end %>
 </div>

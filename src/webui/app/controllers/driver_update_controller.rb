@@ -6,9 +6,9 @@ class DriverUpdateController < PackageController
 
   def create
     @repositories = @project.each_repository.map{|repo| {:project => @project.name,
-        :repo => repo.name, :archs => repo.each_arch.map{|arch| arch.to_s} } }
+        :repo => repo.name, :archs => repo.each_arch.map{|arch| arch.to_s} }}.delete_if{|x| x[:repo] == 'images'}
     @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds ).
-      each_entry.map{|package| {:name => package.name, :type => 'repopackage'}}[0..50]
+      each_entry.map{|package| {:name => package.name, :type => 'repopackage'}}.delete_if{|x| x[:name] == @package.name}[0..50]
   end
 
 
@@ -52,16 +52,15 @@ class DriverUpdateController < PackageController
     file_content = "<?xml version=\"1.0\"?>\n"
     file_content += "  <packlist>\n"
     file_content += "    <repopackages>\n"
-    file_content += params[:packages].map{|package| "      <binarylist package=\"" + package + "\" />" }.join("\n")
-    file_content += "\n"
-    @buildresult = find_cached(Buildresult, :project => @project, :package => 'ctris',
-                               :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
-    file_content +=  @buildresult.data.find('//binary').map{|binary| "<binary filename=\"" + binary['filename'] + "\"/>"}.join("\n")
 
+    params[:packages].each do |package|
+      file_content += "      <binarylist package=\"" + package + "\">\n"
+      params[:binaries].select{|binary| binary =~ /#{package}\//}.each do |binary|
+        file_content += "        <binary filename=\"#{binary.gsub(/^.*\//, '')}\"/>\n"
+      end
+    end
     file_content += "    </repopackages/>\n    <modules/>\n"
-    file_content += "     <instsys>\n"
-    file_content += params[:packages].map{|package| "      <binarylist package=\"" + package + "\" />" }.join("\n")
-    file_content += "     </instsys>\n"
+    file_content += "    <instsys/>\n"
     file_content += "  </packlist>"
 
     fc.put_file file_content, opt
