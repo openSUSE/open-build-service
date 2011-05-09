@@ -37,8 +37,10 @@ module MaintenanceHelper
     if baseProject
       baseProject.db_packages.each do |pkg|
         new = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
-        new.flags = pkg.flags
         tprj.db_packages << new
+        pkg.flags.each do |f|
+          new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+        end
         new.save
 
         # backend copy of current sources
