@@ -5312,8 +5312,8 @@ sub postrequest {
       }
     }
   } elsif ($cmd eq 'changereviewstate') {
-    die("request is not in review state\n") unless $req->{'state'} and $req->{'state'}->{'name'} eq "review";
-    die("request review item is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'} and not $cgi->{'by_project'};
+    die("request is not in review state\n") unless $req->{'state'} && ($req->{'state'}->{'name'} eq "review" || ($req->{'state'}->{'name'} eq "new" && $cgi->{'newstate'} eq 'new'));
+    die("request review item is not specified via by_user, by_group or by_project\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'} and not $cgi->{'by_project'};
     die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
     die("review state must be new, accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
         $cgi->{'newstate'} eq 'new' or $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
