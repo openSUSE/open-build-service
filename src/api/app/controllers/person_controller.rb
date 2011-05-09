@@ -120,11 +120,11 @@ class PersonController < ApplicationController
   def register
     valid_http_methods :post, :put
 
-    if defined?( LDAP_MODE ) && LDAP_MODE == :on
+    if defined?(LDAP_MODE) && LDAP_MODE == :on
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
-    if (defined?( PROXY_AUTH_MODE ) && PROXY_AUTH_MODE == :on) or defined?( ICHAIN_MODE )
+    if (defined?(PROXY_AUTH_MODE) and PROXY_AUTH_MODE == :on) or (defined?(ICHAIN_MODE) and ICHAIN_MODE == :on)
       render_error :message => "Proxy authentification mode, manual registration is disabled", :errorcode => "err_register_save", :status => 400
       return
     end
