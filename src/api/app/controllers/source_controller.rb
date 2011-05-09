@@ -1278,6 +1278,7 @@ class SourceController < ApplicationController
           trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
         end
         tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
+        tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
       end
       tpkg.store
 
