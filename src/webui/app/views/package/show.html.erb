@@ -36,7 +36,7 @@
           <li>
             <% dpackage = @package.devel.data["package"] || @package.name %>
             <%= image_tag 'icons/information.png' %>
-            Maintained in <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
+            Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
           </li>
         <% end %>
 
