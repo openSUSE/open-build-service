@@ -938,14 +938,16 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      if type
-        if type.name == "maintenance"
-          project.maintenance do |maintenance|
-            DbProject.find(:all, :conditions => ["maintenance_project_id = ?", id]).each do |maintained_project|
-              maintenance.maintains(:project => maintained_project.name)
-            end
+      mp = DbProject.find(:all, :conditions => ["maintenance_project_id = ?", id])
+      if mp.length > 0
+        project.maintenance do |maintenance|
+          mp.each do |maintained_project|
+            maintenance.maintains(:project => maintained_project.name)
           end
-        elsif type.name == "maintenance_incident"
+        end
+      end
+      if type
+        if type.name == "maintenance_incident"
           #TODO: Add Meta XML for maintenance incident projects
         end
       end
