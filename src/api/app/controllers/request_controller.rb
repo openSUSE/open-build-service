@@ -1152,11 +1152,7 @@ class RequestController < ApplicationController
           # cleanup source project
           if relinkSource and not sourceupdate == "noupdate"
             # source package got used as devel package, link it to the target
-            # remove it ...
-            cp_path = "/source/#{action.source.project}/#{action.source.package}"
-            cp_path << build_query_from_hash(cp_params, [:user, :comment])
-            Suse::Backend.delete cp_path, nil
-            # create again via branch ...
+            # re-create it via branch ...
             h = {}
             h[:cmd] = "branch"
             h[:user] = @http_user.login
