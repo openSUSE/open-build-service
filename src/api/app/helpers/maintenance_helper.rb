@@ -21,7 +21,7 @@ module MaintenanceHelper
         tprj.repositories = baseProject.repositories.dup
       else
         # mbranch call is enabling selected packages
-        tprj.store
+        tprj.save
         tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
       end
       if noaccess
@@ -41,7 +41,7 @@ module MaintenanceHelper
         pkg.flags.each do |f|
           new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
         end
-        new.save
+        new.store
 
         # backend copy of current sources
         cp_params = {
@@ -68,10 +68,13 @@ module MaintenanceHelper
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-      new.flags = sourcePackage.flags
 #FIXME2.3 validate that there are no build enable flags
       targetProject.db_packages << new
       new.save
+      sourcePackage.flags.each do |f|
+        new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+      end
+      new.store
     end
 
     # get updateinfo id in case the source package comes from a maintenance project
@@ -136,9 +139,12 @@ module MaintenanceHelper
       # only if package does not contain a _patchinfo file
       unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
         new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-        new.flags = sourcePackage.flags
         targetProject.db_packages << new
         new.save
+        sourcePackage.flags.each do |f|
+          new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+        end
+        new.store
       end
       Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
     end
