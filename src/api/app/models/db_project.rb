@@ -142,7 +142,7 @@ class DbProject < ActiveRecord::Base
           options[:joins] += " LEFT OUTER JOIN users u ON ur.bs_user_id = u.id"
           options[:group] = "db_projects.id" unless options[:group] # is creating a DISTINCT select to have uniq results
 
-          cond = "((f.flag = 'access' AND u.login = '#{User.current.login}') OR ISNULL(f.flag))"
+          cond = "((f.flag = 'access' AND u.login = '#{User.current ? User.current.login : "_nobody_"}') OR ISNULL(f.flag))"
           if options[:conditions].nil?
             options[:conditions] = cond
           else
