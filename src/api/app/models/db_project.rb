@@ -938,10 +938,10 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      self.maintained_projects.each do |mp|
+      if self.maintained_projects.length > 0
         project.maintenance do |maintenance|
-          mp.each do |maintained_project|
-            maintenance.maintains(:project => maintained_project.name)
+          self.maintained_projects.each do |mp|
+            maintenance.maintains(:project => mp.name)
           end
         end
       end
