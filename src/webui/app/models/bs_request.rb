@@ -50,10 +50,10 @@ class BsRequest < ActiveXML::Base
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?cmd=addreview"
-      path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
-      path << "&by_group=#{CGI.escape(opts[:group])}" if opts[:group]
-      path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
-      path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
+      path << "&by_user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
+      path << "&by_group=#{CGI.escape(opts[:group])}" unless opts[:group].blank?
+      path << "&by_project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
+      path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
         r = transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
@@ -75,10 +75,10 @@ class BsRequest < ActiveXML::Base
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request/#{id}?newstate=#{changestate}&cmd=changereviewstate"
-      path << "&by_user=#{CGI.escape(opts[:user])}" if opts[:user]
-      path << "&by_group=#{CGI.escape(opts[:group])}" if opts[:group]
-      path << "&by_project=#{CGI.escape(opts[:project])}" if opts[:project]
-      path << "&by_package=#{CGI.escape(opts[:package])}" if opts[:package]
+      path << "&by_user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
+      path << "&by_group=#{CGI.escape(opts[:group])}" unless opts[:group].blank?
+      path << "&by_project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
+      path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
         transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
@@ -97,7 +97,7 @@ class BsRequest < ActiveXML::Base
       if ["accepted", "declined", "revoked", "superseded"].include?(changestate)
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-        path += "&superseded_by=#{opts[:superseded_by]}" if opts[:superseded_by]
+        path += "&superseded_by=#{opts[:superseded_by]}" unless opts[:superseded_by].blank?
         path += "&force=1" if opts[:force]
         begin
           transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
@@ -136,13 +136,13 @@ class BsRequest < ActiveXML::Base
 
       transport ||= ActiveXML::Config::transport_for :bsrequest
       path = "/request?view=collection"
-      path << "&states=#{CGI.escape(opts[:states])}" if opts[:states]
-      path << "&roles=#{CGI.escape(opts[:roles])}" if opts[:roles]
-      path << "&reviewstates=#{CGI.escape(opts[:reviewstates])}" if opts[:reviewstates]
-      path << "&types=#{CGI.escape(opts[:types])}" if opts[:types] # the API want's to have it that way, sigh...
-      path << "&user=#{CGI.escape(opts[:user])}" if opts[:user]
-      path << "&project=#{CGI.escape(opts[:project])}" if opts[:project]
-      path << "&package=#{CGI.escape(opts[:package])}" if opts[:package]
+      path << "&states=#{CGI.escape(opts[:states])}" unless opts[:states].blank?
+      path << "&roles=#{CGI.escape(opts[:roles])}" unless opts[:roles].blank?
+      path << "&reviewstates=#{CGI.escape(opts[:reviewstates])}" unless opts[:reviewstates].blank?
+      path << "&types=#{CGI.escape(opts[:types])}" unless opts[:types].blank? # the API want's to have it that way, sigh...
+      path << "&user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
+      path << "&project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
+      path << "&package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
         logger.debug "Fetching request list from api"
         response = transport.direct_http URI("#{path}"), :method => "GET"
