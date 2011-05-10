@@ -75,6 +75,7 @@ BaseDistro:
   updated_at: 2005-01-01 00:00:01
   title: This is a base distro
   id: 2042
+  maintenance_project_id: 2048
   description: "This could be openSUSE:11.2 project for example"
   created_at: 2005-01-01 00:00:01
 BaseDistro:Update:
@@ -96,6 +97,7 @@ BaseDistro2:
   updated_at: 2005-01-01 00:00:01
   title: This is another base distro
   id: 2045
+  maintenance_project_id: 2048
   description: "This could be openSUSE:11.3 project for example"
   created_at: 2005-01-01 00:00:01
 BaseDistro2:LinkedUpdateProject:
@@ -110,6 +112,7 @@ BaseDistro3:
   updated_at: 2005-01-01 00:00:01
   title: This is another base distro, without update project
   id: 2047
+  maintenance_project_id: 2048
   description: "Base distro without update project"
   created_at: 2005-01-01 00:00:01
 My_Maintenance:

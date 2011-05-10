@@ -86,7 +86,6 @@ class SourceControllerTest < ActionController::IntegrationTest
         assert_equal r, @response.body
       end
     end
-    
   end
 
   def test_get_packagelist_with_hidden_project
