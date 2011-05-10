@@ -938,8 +938,7 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      mp = DbProject.find(:all, :conditions => ["maintenance_project_id = ?", id])
-      if mp.length > 0
+      self.maintained_projects.each do |mp|
         project.maintenance do |maintenance|
           mp.each do |maintained_project|
             maintenance.maintains(:project => maintained_project.name)
