@@ -27,13 +27,13 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.3-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
- <distribution vendor="openSUSE" version="11.2" id="opensuse-11.2">
-  <name>openSUSE 11.2</name>
-  <project>openSUSE.org:openSUSE:11.2</project>
-  <reponame>openSUSE_11.2</reponame>
+ <distribution vendor="openSUSE" version="Tumbleweed" id="opensuse-Tumbleweed">
+  <name>openSUSE Tumbleweed</name>
+  <project>openSUSE:Tumbleweed</project>
+  <reponame>openSUSE_Tumbleweed</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.2-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.2-16.png"/>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11">
