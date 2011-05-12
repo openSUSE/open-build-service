@@ -2953,7 +2953,7 @@ sub remote_getrev {
     }        
   }
   my @args;
-  push @args, 'expand';
+  push @args, 'expand=1';
   push @args, "rev=$rev" if defined $rev;
   my $dir;
   eval {
