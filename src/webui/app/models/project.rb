@@ -345,12 +345,12 @@ class Project < ActiveXML::Base
   end
 
   def project_type
-    return data.attributes['type']
+    return data.attributes['kind']
   end
 
   def set_project_type(project_type)
     if ['maintenance', 'maintenance_incident', 'standard'].include?(project_type)
-      data.attributes['type'] = project_type
+      data.attributes['kind'] = project_type
       return true
     end
     return false
