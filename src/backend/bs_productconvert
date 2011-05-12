@@ -393,7 +393,7 @@ sub createMetadata( $$$ )
           push @onlyarch, $archSets{$ref}->{productarch} unless grep { $_ eq $archSets{$ref}->{productarch} } @onlyarch;
         }
         # In 11.4 and later noarch metapackages need explicit a onlyarch="noarch" in config because we do now fail on missing packages
-	if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+	if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
           push @onlyarch, "noarch" unless grep { $_ eq "noarch" } @onlyarch;
         }
       }
@@ -845,7 +845,7 @@ sub writeProductSPECfile( $$$$ )
     $productprovides.="Provides:       %name-%version\n";
     $productprovides.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
     $productprovides.="Provides:       product()\n";
-    if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+    if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
       $productprovides.="Provides:       product($product->{'name'}) = %version-%release\n";
     } else {
       $productprovides.="Provides:       product($product->{'name'}) = $product->{version}-$product->{release}\n";
@@ -936,7 +936,7 @@ sub writeProductSPECfile( $$$$ )
      } else {
        $str =~ s/___BETA_VERSION___//g;
      }
-     if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+     if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
         # this is the product release, not a package release. should not be used anymore.
         # this old way is a problem because it can produce leading zeros in product provides
         $str =~ s/___RELEASE___/0%{?release}/g;
@@ -978,7 +978,7 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
       # take media style from first media. not nice, but we can only have one product package for all of them.
       my $medium = $prodRef->{mediasets}->{media}[0];
-      if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+      if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
         $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
       } else {
         # this is the product version and release, not a package release.
@@ -1080,7 +1080,7 @@ sub createProductFile ( $$ ) {
     my $mediaStyle = "suse-11.1"; # fallback value
     my $medium = $prodRef->{mediasets}->{media}[0];
     $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
-    if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+    if ($mediaStyle =~ /^suse-11.[123]$/) {
       $zypp_product->{'release'} = "%{release}";
     }
 
@@ -1244,10 +1244,10 @@ foreach my $medium ( @$media ){
     my $name = $medium->{name};
 
     # bug compatibility for 11.3 and before (ignoring product name definition per media)
-    if (not defined($medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+    if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
       $product = $prodRef->{'products'}->{'product'}[0]->{'name'};
       if ($medium->{'product'}) {
-        print "WARNING: own product type per media is used. This may create inconsistent medias!\n";
+        print "WARNING: own product attribute \"product\" per media is used. This may create inconsistent medias!\n";
         $product = $medium->{'product'};
       }
     }
