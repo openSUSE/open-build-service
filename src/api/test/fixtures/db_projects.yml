@@ -120,6 +120,7 @@ My_Maintenance:
   title: official maintenance space
   id: 2048
   description: official maintenance space, maintained by maintenance ;)
+  type_id: 2
 
 # For read/view permission checks
 HiddenProject:

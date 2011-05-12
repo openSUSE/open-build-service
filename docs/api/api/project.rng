@@ -60,7 +60,7 @@
 
       <attribute name="name" />
       <optional>
-        <attribute name="type">
+        <attribute name="kind">
           <choice>
             <value>standard</value>
             <value>maintenance</value>

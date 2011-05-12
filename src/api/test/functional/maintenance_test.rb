@@ -253,7 +253,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/My:Maintenance/_meta"
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
-    maintenance_project_meta.elements['/project'].attributes['type'] = 'maintenance'
+    maintenance_project_meta.elements['/project'].attributes['kind'] = 'maintenance'
     put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
     assert_response :success
 
@@ -273,7 +273,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     maintenanceProject=data.elements["/status/data"].text
     incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
     get "/source/#{maintenanceProject}/_meta"
+    assert_response :success
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_tag( :tag => "project", :attributes => { :name => maintenanceProject, :kind => "maintenance_incident" } )
 
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject

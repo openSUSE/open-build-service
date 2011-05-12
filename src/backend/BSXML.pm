@@ -102,7 +102,7 @@ our $maintenance = [
 our $proj = [
     'project' =>
         'name',
-        'type',
+        'kind',
 	 [],
         'title',
         'description',

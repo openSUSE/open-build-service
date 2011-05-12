@@ -27,6 +27,7 @@ module MaintenanceHelper
       if noaccess
         tprj.flags.create( :flag => 'access', :status => "disable" )
       end
+      tprj.set_project_type "maintenance_incident"
       tprj.store
       mi.db_project_id = tprj.id
       mi.save!

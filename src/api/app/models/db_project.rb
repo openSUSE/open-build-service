@@ -299,7 +299,7 @@ class DbProject < ActiveRecord::Base
       self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
       self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
       self.updated_at = Time.now
-      project_type = DbProjectType.find_by_name(project.data.attributes['type'])
+      project_type = DbProjectType.find_by_name(project.data.attributes['kind'])
       self.type_id = project_type.id if project_type
       self.save!
 
@@ -865,8 +865,7 @@ class DbProject < ActiveRecord::Base
 
     project_attributes = {:name => name}
     # Check if the project has a special type defined (like maintenance)
-    type = DbProjectType.find(type_id) if type_id()
-    project_attributes[:type] = type.name if type
+    project_attributes[:kind] = project_type if project_type and project_type != "standard"
 
     xml = builder.project( project_attributes ) do |project|
       project.title( title )
@@ -943,11 +942,6 @@ class DbProject < ActiveRecord::Base
           self.maintained_projects.each do |mp|
             maintenance.maintains(:project => mp.name)
           end
-        end
-      end
-      if type
-        if type.name == "maintenance_incident"
-          #TODO: Add Meta XML for maintenance incident projects
         end
       end
 
@@ -1116,15 +1110,15 @@ class DbProject < ActiveRecord::Base
   end
 
   def project_type
-    type = DbProjectType.find_by_id(type_id)
-    return 'standard' unless type
-    return type.name
+    mytype = DbProjectType.find_by_id(type_id)
+    return 'standard' unless mytype
+    return mytype.name
   end
 
   def set_project_type(project_type_name)
-    type = DbProjectType.find_by_name(project_type_name)
-    return false unless type
-    self.type_id = type.id
+    mytype = DbProjectType.find_by_name(project_type_name)
+    return false unless mytype
+    self.type_id = mytype.id
     self.save!
     return true
   end
