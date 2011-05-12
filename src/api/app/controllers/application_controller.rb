@@ -692,7 +692,12 @@ class ApplicationController < ActionController::Base
           raise IllegalEncodingError.new('Illegal encoded parameter')
         end
 
-        [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape(hash[key].to_s)}"}.join("&")
+        if hash[key].nil?
+          # just a boolean argument ?
+          [hash[key]].flatten.map {|x| "#{key}"}.join("&")
+        else
+          [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape(hash[key].to_s)}"}.join("&")
+        end
       end
     end
 
