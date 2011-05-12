@@ -1894,7 +1894,11 @@ class SourceController < ApplicationController
           prj.repositories.each do |repo|
             trepo = tprj.repositories.create :name => repo.name
             trepo.architectures = repo.architectures
-            trepo.path_elements << PathElement.new(:link => repo, :position => 1)
+            if repo.name != "images"
+              # FIXME: horrible, horrible heuristic, real solution would be to ask the backend
+              #        for the build type. But we don't have a way in this situation atm :/ (#693362)
+              trepo.path_elements << PathElement.new(:link => repo, :position => 1)
+            end
           end
           # take over flags, but explicit disable publishing by default and enable building.
           prj.flags.each do |f|
