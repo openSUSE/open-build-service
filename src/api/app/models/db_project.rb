@@ -299,8 +299,11 @@ class DbProject < ActiveRecord::Base
       self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
       self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
       self.updated_at = Time.now
-      project_type = DbProjectType.find_by_name(project.data.attributes['kind'])
-      self.type_id = project_type.id if project_type
+      kind = "standard"
+      kind = project.data.attributes['kind'] unless project.data.attributes['kind'].blank?
+      project_type = DbProjectType.find_by_name(kind)
+      raise SaveError, "unable to find project kind '#{kind}'" if project_type.nil?
+      self.type_id = project_type.id
       self.save!
 
       #--- update linked projects ---#
