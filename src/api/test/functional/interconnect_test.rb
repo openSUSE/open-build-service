@@ -21,6 +21,10 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/public/source/BaseDistro/pack1"
     assert_response :success
+    get "/public/source/BaseDistro/pack1?expand"
+    assert_response :success
+    get "/public/source/BaseDistro/pack1?expand=1"
+    assert_response :success
     get "/public/source/BaseDistro/pack1?view=cpio"
     assert_response :success
     get "/public/source/BaseDistro/pack1/_meta"
@@ -38,6 +42,10 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/public/source/RemoteInstance:BaseDistro/_pubkey"
     assert_response :success
     get "/public/source/RemoteInstance:BaseDistro/pack1"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/pack1?expand"
+    assert_response :success
+    get "/public/source/RemoteInstance:BaseDistro/pack1?expand=1"
     assert_response :success
     get "/public/source/RemoteInstance:BaseDistro/pack1/_meta"
     assert_response :success
@@ -64,6 +72,10 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/public/source/UseRemoteInstance/_meta"
     assert_response :success
     get "/public/source/UseRemoteInstance/pack1"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/pack1?expand"
+    assert_response :success
+    get "/public/source/UseRemoteInstance/pack1?expand=1"
     assert_response :success
     get "/public/source/UseRemoteInstance/pack1/_meta"
     assert_response :success
