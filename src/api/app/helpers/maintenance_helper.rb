@@ -17,8 +17,20 @@ module MaintenanceHelper
         # copy as much as possible from base project
         tprj.title = baseProject.title.dup
         tprj.description = baseProject.description.dup
-        tprj.flags = baseProject.flags.dup
-        tprj.repositories = baseProject.repositories.dup
+        tprj.save
+        baseProject.flags.each do |f|
+          tprj.flags.create(:status => f.status, :flag => f.flag)
+        end
+        baseProject.repositories.each do |r|
+          trepo = tprj.repositories.create :name => r.name
+          trepo.architectures = r.architectures
+          r.path_elements.each do |pe|
+            trepo.path_elements.create(:link => pe.link, :position => pe.position)
+          end
+          r.release_targets.each do |rr|
+            trepo.release_targets.create(:target_repository => rr.target_repository, :trigger => "maintenance")
+          end
+        end
       else
         # mbranch call is enabling selected packages
         tprj.save

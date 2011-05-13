@@ -201,6 +201,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_not_nil node.repository.data
+    # repository definition must be the same, except for the maintenance trigger
+    node.each_repository do |r|
+      assert_equal r.releasetarget.data.attributes["trigger"], "maintenance"
+      r.releasetarget.delete_attribute("trigger")
+    end
     assert_equal node.repository.data, oprojectmeta.repository.data
     assert_equal node.build.data, oprojectmeta.build.data
 
