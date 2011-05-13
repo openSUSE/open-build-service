@@ -14,6 +14,7 @@ Feature backports:
 Changes:
 ========
 
+* backend: support for remote projects on OBS 2.3 using a project kind.
 * backend: support for remote packages on OBS 2.3 with source services.
 
 Bugfixes:
