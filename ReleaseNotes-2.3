@@ -16,12 +16,20 @@ their appliance image without data loss. The migration will
 happen automatically.
 
 
-Security aspects
-================
+Main Features
+=============
 
-Former OBS releases lack protection against XSS attacks. Esp. public instances
-should update to OBS 2.3, which is using rails plugins to protect against XSS
-attempts. This fixes (CVE-2011-0462).
+The main topic of OBS 2.3 is to deliver a number of features to allow 
+product maintenance handling with OBS. No external build or tracking tool 
+is needed to do the typical maintenance workflow of a distribution team.
+
+The usage of these features are documented in the OBS book:
+
+  http://doc.opensuse.org/products/draft/OBS/obs-reference-guide_draft/
+
+OBS 2.3 comes also with a feature which was planned for the not released
+OBS 2.2 version. New created projects can set to hidden. That means no source 
+or binary read access is possible. Please read the following for details:
 
 To be considered regarding read access checks
 =============================================
@@ -42,23 +50,44 @@ To be considered regarding read access checks
   makes it impossible to get the binaries via the API directly. But it still possible
   to get the binaries via build time in any case.
 
+Security aspects
+================
+
+Former OBS releases lack protection against XSS attacks. Esp. public instances
+should update to OBS 2.3, which is using rails plugins to protect against XSS
+attempts. This fixes (CVE-2011-0462).
+
+
+Apache & mod_rails switch
+=========================
+
+Former OBS versions used lighttpd as default web server. We have switched to 
+apache with mod_rails (known as passenger) as default web server. 
+We have also added an mod_xforward apache module to allow unloading the rails
+stack with long running requests to the backend.
+Please note that current apache2 versions have a known bug which cuts the http
+headers regardless to it's configuration. Please use apache2 from openSUSE:Tools
+project to get this fixed for now.
 
 Known Regressions to 2.1:
 =========================
 
+* none yet
 
 Features:
 =========
 
 * web interface improvements:
   - package filtering
-  - IChain host configurable
+  - Generic authentification proxy support
   - delete request dialogs
+  - request and review handling improvements
   - social features, i.e. show other user's projects and requests
 
 * api
   - review of requests by project or package maintainers is possible now (FATE #310806)
   - better Cross-Site Scripting (XSS) protection
+  - larger number of request handling improvements
 
 * backend:
 
@@ -89,6 +118,7 @@ Requirements:
 * The OBS server should not run on a system with less than 2GB memory. 
   4GB is recommended, esp. when the same system is also building packages.
 
-* Use osc 0.130 or later to get access to the new features.
+* Use osc 0.131 or later to get access to the new features.
 
-* Usage of Ruby on Rails version 2.3.8 is mandatory.
+* Usage of Ruby on Rails version 2.3.11 is recommended.
+
