@@ -1,0 +1,23 @@
+#
+# openSUSE Build Service 2.1.10
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* backend: support for remote packages on OBS 2.3 with source services.
+
+Bugfixes:
+=========
+
+* none
+

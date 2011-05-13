@@ -291,6 +291,13 @@ our $linkinfo = [
       [ $linked ],
 ];
 
+our $serviceinfo = [
+    'serviceinfo' =>
+        # information in case a source service is part of package
+        'code',         # can be "running", "failed", "succeeded"
+        [],
+        'error',        # contains error message in case of error
+];
 
 our $dir = [
     'directory' =>
@@ -307,6 +314,7 @@ our $dir = [
         'error',
         'xsrcmd5',
         $linkinfo,
+        $serviceinfo,
      [[ 'entry' =>
 	    'name',
 	    'md5',
