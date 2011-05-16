@@ -1,0 +1,35 @@
+<%= javascript_include_tag 'jquery.autocomplete.pack' %>
+<%= javascript_include_tag 'jquery.tablesorter.js' %>
+<%= stylesheet_link_tag 'jquery.autocomplete' %>
+
+<div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Create Maintenance Release Request</b>
+      </div>
+
+      <p>Release <b><%= h @project %></b></p>
+
+      <% form_tag({:controller => "project", :action => :new_release_request}, :method => "post") do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <p>
+          <%= label_tag(:sourceproject, "From project:") %><br/>
+          <%= text_field_tag(:sourceproject, elide(@project.name, 40), :size => 40, :disabled => true) %><br/>
+          <%= label_tag(:description, "Description:") %><br/>
+          <%= text_area_tag(:description, "", :size => "40x3") %><br/>
+          <span id="supersede_display" class="hidden">
+            <%= label_tag(:pending_requests, "Pending requests:") %><br/>
+            <span id="pending_requests"></span>
+            <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
+          </span>
+        </p>
+        <div class="buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()') %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
