@@ -113,13 +113,6 @@
             "123456, 654321"</td>
       </tr>
       <tr>
-        <th>Swamp-ID: </th>
-        <td>
-          <%=text_field_tag('swampid', @swampid) %>
-        </td>
-        <td><div id= "infobox"> Enter a valid swampid</div></td>
-      </tr>
-      <tr>
         <th>Category: </th>
         <td>
           <%= select_tag "category", options_for_select(["","normal", "security", "optional", "feature"], @category)%>

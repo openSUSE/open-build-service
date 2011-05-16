@@ -24,10 +24,6 @@ class PatchinfoController < ApplicationController
       valid_params = false
       flash[:error] = "#{flash[:error]}" + "|| Invalid bugzilla number: '#{params[:bugid]}'"
     end
-    if !valid_swampid? params[:swampid]
-      valid_params = false
-      flash[:error] = "#{flash[:error]}" + " || Invalid swampid: '#{params[:swampid]}'"
-    end
     if !valid_summary? params[:summary]
       valid_params = false
       flash[:error] = "#{flash[:error]}" + " || Summary is too short (should have more than 10 signs)"
@@ -61,7 +57,6 @@ class PatchinfoController < ApplicationController
         buglist = Array.new
       end
       category = params[:category]
-      swampid = params[:swampid]
       summary = params[:summary]
       description = params[:description]
       relogin = params[:relogin]
@@ -86,7 +81,6 @@ class PatchinfoController < ApplicationController
           @buglist = Array.new
         end
         @category = params[:category]
-        @swampid = params[:swampid]
         @summary = params[:summary]
         @description = params[:description]
         @relogin = params[:relogin]
@@ -111,7 +105,6 @@ class PatchinfoController < ApplicationController
         buglist.each do |bug|
           node.bugzilla(bug)
         end
-        node.swampid     swampid
         node.category    category
         if category == "security"
           cvelist.each do |cve|
@@ -129,7 +122,7 @@ class PatchinfoController < ApplicationController
           :category => [:category], :bug => [:bug],
           :cve => [:cve],
           :binarylist => [:binarylist],
-          :binaries => [:binaries], :swampid => [:swampid],
+          :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
           :relogin => [:relogin], :reboot => [:reboot])
         flash[:note] = "Successfully saved #{pkg_name}"
@@ -156,7 +149,6 @@ class PatchinfoController < ApplicationController
         @buglist = Array.new
       end
       @category = params[:category]
-      @swampid = params[:swampid]
       @summary = params[:summary]
       @description = params[:description]
       @relogin = params[:relogin]
@@ -229,10 +221,10 @@ class PatchinfoController < ApplicationController
       end
     end
 
-    @swampid = @file.swampid.to_s
-    @category = @file.category.to_s
-    @summary = @file.summary.to_s
-    @description = @file.description.to_s
+    @description = @summary = @category = nil
+    @category = @file.category.to_s       if @file.has_element? 'category'
+    @summary = @file.summary.to_s         if @file.has_element? 'summary'
+    @description = @file.description.to_s if @file.has_element? 'description'
     if @file.has_element?("relogin_needed")
       @relogin = @file.relogin_needed.to_s
       if @relogin == ""
@@ -269,10 +261,6 @@ class PatchinfoController < ApplicationController
       valid_params = false
       flash[:error] = "|| Invalid bugzilla number: '#{params[:bugid]}'"
     end
-    if !valid_swampid? params[:swampid]
-      valid_params = false
-      flash[:error] = "#{flash[:error]}" + " || Invalid swampid: '#{params[:swampid]}'"
-    end
     if !valid_summary? params[:summary]
       valid_params = false
       flash[:error] = "#{flash[:error]}" + " || Summary is too short (should have more than 10 signs)"
@@ -303,7 +291,6 @@ class PatchinfoController < ApplicationController
       @patchinfo.set_cve(cvelist)
       @patchinfo.set_binaries(binaries, name)
       @patchinfo.category.text = params[:category]
-      @patchinfo.swampid.text = params[:swampid]
       @patchinfo.summary.text = params[:summary]
       @patchinfo.description.text = params[:description]
       @patchinfo.set_buglist(buglist)
@@ -317,7 +304,7 @@ class PatchinfoController < ApplicationController
           :category => [:category], :bug => [:bug],
           :cve => [:cve],
           :binarylist => [:binarylist],
-          :binaries => [:binaries], :swampid => [:swampid],
+          :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
           :relogin => [:relogin], :reboot => [:reboot])
         flash[:note] = "Successfully edited #{@package}"
@@ -333,7 +320,6 @@ class PatchinfoController < ApplicationController
       @binaries = params[:binaries]
       @buglist = params[:bug]
       @category = params[:category]
-      @swampid = params[:swampid]
       @summary = params[:summary]
       @description = params[:description]
       @relogin = params[:relogin]
@@ -372,10 +358,6 @@ class PatchinfoController < ApplicationController
     name != nil and name.each do |cve|
       cve =~ /^cve-\d{4}-\d{4}$/
     end
-  end
-
-  def valid_swampid? name
-    name != nil and name =~ /^\d{5,}$/
   end
 
   def valid_summary? name
