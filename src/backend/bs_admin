@@ -663,6 +663,7 @@ while (@ARGV) {
     $patchinfo->{'description'} = $updateinfo->{'description'};
     $patchinfo->{'version'} = $updateinfo->{'version'};
     $patchinfo->{'category'} = $updateinfo->{'type'};
+    $patchinfo->{'category'} = "normal" if $updateinfo->{'type'} eq "recommended";
     $patchinfo->{'packager'} = $updateinfo->{'from'};
     $patchinfo->{'bugzilla'} = [];
     $patchinfo->{'CVE'} = [];
