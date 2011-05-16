@@ -1321,19 +1321,13 @@ class ProjectController < ApplicationController
       @open_maintenance_incidents = []
       @closed_maintenance_incidents = []
 
-     ## All sub-projects that have a MaintenanceReleaseDate are incidents
-     ## FIXME: This should be awesomely fast!
-     #Collection.find(:id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')").each do |subproject|
-     #  att = find_cached(Attribute, :project => subproject, :expires_in => 30.minutes)
-     #  if att and att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']").length > 0
-     #    @maintenance_incidents << subproject # Found an incident!
-     #    if att.data.find("/attributes/attribute[@name='MaintenanceReleaseDate' and @namespace='OBS']/value").length > 0
-     #      @closed_maintenance_incidents += 1 # if they have a release data as a value then they're closed
-     #    else
-     #      @open_maintenance_incidents += 1 # if not, they're open
-     #    end
-     #  end
-     #end
+      ## All sub-projects are incidents by definition, no type check
+      Collection.find(:id, :what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and repository/releasetarget/@trigger='maintenance')").each do |p|
+        @open_maintenance_incidents << p
+      end
+      Collection.find(:id, :what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and not(repository/releasetarget/@trigger='maintenance'))").each do |p|
+        @closed_maintenance_incidents << p
+      end
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
