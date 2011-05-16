@@ -2,11 +2,7 @@
 <% patchinfo_bread_crumb 'Patchinfo' -%>
 <%= render :partial => "package/tabs" %>
 
-
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
-
+<%= javascript_include_tag 'jquery.tablesorter' %>
 
 <% content_for :ready_function do %>
   $("#bug_table").tablesorter( {

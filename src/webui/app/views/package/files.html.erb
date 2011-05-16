@@ -3,13 +3,9 @@
 
 <%= render :partial => "tabs" %>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
+<%= javascript_include_tag 'jquery.tablesorter' %>
 
 <% content_for :head_javascript do %>
-
-
   function insertRow() {
     var name     = document.getElementById('add_new_parameter').value;
     var service  = document.getElementById('servicename').value;
@@ -27,9 +23,7 @@
     var path="/package/service_parameter_value?number="+number+"&servicename="+escape(service)+"&parameter="+escape(name)+"&value="+escape(value)+"&package=<%= CGI.escape(@package.name) %>&project=<%= CGI.escape(@project.name) %>";
     $("#pTable td#added_parameter_"+number).load(path);
   }
-
 <% end %>
-
 
 <% content_for :ready_function do %>
   $("#files_table").tablesorter( {
@@ -40,7 +34,6 @@
     }
   } );
 <% end %>
-
 
 <%= render :partial => 'links' if @package.linkinfo %>
 

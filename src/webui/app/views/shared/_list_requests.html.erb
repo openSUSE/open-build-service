@@ -1,8 +1,6 @@
 <% elide_len ||= 40 %>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
+<%= javascript_include_tag 'jquery.tablesorter' %>
 
 <% if requests.blank? %>
   <p>No requests.</p>

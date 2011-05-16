@@ -5,6 +5,11 @@
 
 <%= render :partial => "tabs" %>
 
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.ajaxmanager' %>
+
 <h2>Add Repositories to Project <%=h @project%></h2>
 
 <p>Please choose the repositories that your packages will be built for by following default list. Or 
@@ -58,14 +63,6 @@
   <p>
     <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
   </p>
-<% end %>
-
-
-
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
-  <%= javascript_include_tag 'jquery.ajaxmanager' %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
 <% end %>
 
 <% content_for :ready_function do %>

@@ -3,9 +3,8 @@
    project_bread_crumb 'Status'
 -%>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
+<%= javascript_include_tag 'jquery.tablesorter' %>
+
 <% content_for :ready_function do %>
   $('.tablesorter').tablesorter({widgets: ['zebra']});
 <% end %>

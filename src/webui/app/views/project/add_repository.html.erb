@@ -6,10 +6,9 @@
 <%= render :partial => "tabs" %>
 
 <% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
-  <%= javascript_include_tag 'jquery.ajaxmanager' %>
   <%= stylesheet_link_tag 'jquery.autocomplete' %>
 <% end %>
+<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.ajaxmanager' %>
 
 <% content_for :ready_function do %>
   $('#target_repo').hide();

@@ -1,6 +1,4 @@
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
+<%= javascript_include_tag 'jquery.tablesorter' %>
 
 <% if @user and @user.is_maintainer?(@project, @package) %>
   <% content_for :head_javascript do %>

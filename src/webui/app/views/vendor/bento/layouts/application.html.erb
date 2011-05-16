@@ -16,11 +16,10 @@
     <%= stylesheet_link_tag "/themes/bento/css/style", :media => "screen", :title => "Normal" %>
     <%= stylesheet_link_tag "/themes/bento/css/style.fluid.css", :media => "screen", :title => "Stretch Limo", :rel => "alternate stylesheet" %>
     <%= stylesheet_link_tag "style", :media => "screen" %>
-    <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
-    <%= javascript_include_tag 'jrails', "application" %>
-    <%= javascript_include_tag '/themes/bento/js/script' %>
 
     <%= yield :content_for_head %>
+
+    <%= javascript_include_tag '/themes/bento/js/jquery', '/themes/bento/js/script', 'jquery-ui-1.7.2.min', 'jrails', 'application' %>
 
     <% javascript_tag do %>
       <%= yield :head_javascript %>

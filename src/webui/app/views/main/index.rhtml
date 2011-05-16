@@ -1,9 +1,7 @@
 <% @pagetitle = 'Welcome' %>
 <% @layouttype = 'custom' %>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.flot.js' %>
-<% end %>
+<%= javascript_include_tag 'jquery.flot' %>
 
 <% if @busy %>
   <% content_for :ready_function do %>
