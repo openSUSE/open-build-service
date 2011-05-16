@@ -180,6 +180,28 @@ class ProjectController < ApplicationController
     return
   end
 
+  def new_release_request
+    valid_http_methods(:post)
+
+    if params[:skiprequest]
+      # FIXME2.3: do it directly here, api function missing
+    else
+      begin
+        params[:type] = "maintenance_release"
+        req = BsRequest.new(:project => params[:project], :type => "maintenance_release")
+        req.save(:create => true)
+        flash[:success] = "Created maintenance release request"
+      rescue ActiveXML::Transport::NotFoundError => e
+        message, _, _ = ActiveXML::Transport.extract_error_message(e)
+        flash[:error] = message
+        redirect_to(:action => "show", :project => params[:project]) and return
+      end
+    end
+
+    redirect_to :controller => 'project', :action => 'show', :project => params[:project]
+    return
+  end
+
   def load_packages_mainpage
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
@@ -493,7 +515,8 @@ class ProjectController < ApplicationController
     @patchinfo = []
     unless @packages.blank?
       @packages.each do |p|
-        @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+        # FIXME: correct check would be to check if a source file "_patchinfo" exists
+        @patchinfo << p.name if p.name =~ %r{^_patchinfo} or p.name =~ %r{^patchinfo}
       end
     end
     @filterstring = params[:searchtext] || ''

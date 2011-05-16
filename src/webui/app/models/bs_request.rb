@@ -15,28 +15,32 @@ class BsRequest < ActiveXML::Base
       case opt[:type]
         when "submit" then
           # set target package is the same as the source package if no target package is specified
-          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.blank?
           revision_option = "rev=\"#{opt[:rev].to_xs}\"" unless opt[:rev].blank?
-          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
-          option += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" unless opt[:sourceupdate].blank?
+          action = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" unless opt[:sourceupdate].blank?
         when "add_role" then
-          option = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
-          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
+          action = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
+          action = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
         when "set_bugowner" then
-          option = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
+          action = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
         when "change_devel" then
-          option = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+          action = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
         when "maintenance_incident" then
-          option = "<source project=\"#{opt[:project]}\"/>"
+          action = "<source project=\"#{opt[:project]}\" />"
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
         when "maintenance_release" then
-          option = "<source project=\"#{opt[:project]}\"/>"
+          action = "<source project=\"#{opt[:project]}\" />"
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
       end
       # build the request XML
       reply = <<-EOF
         <request>
           <action type="#{opt[:type]}">
-            #{option}
-            <target project="#{opt[:targetproject].to_xs}" #{target_package}/>
+            #{action}
           </action>
           <state name="new"/>
           <description>#{opt[:description].to_xs}</description>
