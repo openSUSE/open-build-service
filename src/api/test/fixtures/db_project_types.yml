@@ -2,12 +2,12 @@
 
 standard:
   id: 1
-  name: standard
+  name: "standard"
 
 maintenance:
   id: 2
-  name: maintenance
+  name: "maintenance"
 
 maintenance_incident:
   id: 3
-  name: maintenance_incident
+  name: "maintenance_incident"
