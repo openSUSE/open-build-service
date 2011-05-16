@@ -1365,7 +1365,15 @@ class ProjectController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name}) + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name})
+    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name}) \
+              + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name})
+    if @is_maintenance_project
+      pred = "((state/@name='new') and starts-with(action/source/@project='#{@project.name}:') and (action/@type='maintenance_release'))"
+      requests = Collection.find_cached :what => :request, :predicate => pred
+      requests.each_request do |r|
+        @requests << r
+      end
+    end
   end
 
 end
