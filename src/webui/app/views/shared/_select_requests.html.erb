@@ -12,7 +12,7 @@
       data: {
         'states': $('#request_state_select')[0].value,
         'types': $('#request_type_select')[0].value,
-        <%= "'user': '" + user.to_s + "'," unless not defined?(user)  %>
+        <%= "'user': '" + userid.to_s + "'," unless not defined?(userid)  %>
         <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
         <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
       },
