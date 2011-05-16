@@ -33,7 +33,7 @@ sub verify_projid {
 
 sub verify_projtype {
   my $projtype = $_[0];
-  die("projtype '$projtype' is illegal\n") if $projtype ne 'maintenance' and $projtype ne 'maintenance_incident'
+  die("projtype '$projtype' is illegal\n") if $projtype ne 'maintenance' && $projtype ne 'maintenance_incident'
 }
 
 sub verify_packid {
@@ -42,7 +42,7 @@ sub verify_packid {
   $packid =~ s/^_product://s;
   $packid =~ s/^_patchinfo://s;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern' and $packid ne '_project' and $packid ne '_patchinfo';
+  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ && $packid ne '_product' && $packid ne '_pattern' && $packid ne '_project' && $packid ne '_patchinfo';
 }
 
 sub verify_repoid {
@@ -73,10 +73,10 @@ sub verify_packid_repository {
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
-  die("Neither patch incident or name defined in _patchinfo\n") unless (defined($p->{'name'}) and $p->{'name'} ne "") or (defined($p->{'incident'}) and $p->{'incident'} ne "");
+  die("Neither patch incident or name defined in _patchinfo\n") unless (defined($p->{'name'}) && $p->{'name'} ne "") || (defined($p->{'incident'}) && $p->{'incident'} ne "");
   verify_filename($p->{'name'}) if defined($p->{'name'});
   my %allowed_categories = map {$_ => 1} qw{security normal optional feature};
-  die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) and $p->{'category'} ne "" && !$allowed_categories{$p->{'category'}};
+  die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) && $p->{'category'} ne "" && !$allowed_categories{$p->{'category'}};
 }
 
 sub verify_patchinfo_complete {
