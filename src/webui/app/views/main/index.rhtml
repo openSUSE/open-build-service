@@ -63,7 +63,7 @@
 
   <%= render :partial => 'news' %>
 
-  <% if @workerstatus %>
+  <% if @workerstatus and (@busy or @global_counters) %>
     <div class="box box-shadow">
       <div class="box-header aligncenter">System Status</div>
       <div class="clear"></div>
@@ -76,12 +76,14 @@
         </p>
       <% end %>
 
-      <p class="description">
-        According to <%= link_to 'the statistics', :controller => 'statistics' %> this openSUSE Build Service instance hosts
-        <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
-        <b><%= number_with_delimiter @global_counters.packages %></b> packages, in <b><%= number_with_delimiter @global_counters.repos %></b> repositories
-        and is used by <b><%= number_with_delimiter @global_counters.users %></b> confirmed developers.
-      </p>
+      <% if @global_counters %>
+        <p class="description">
+          According to <%= link_to 'the statistics', :controller => 'statistics' %> this openSUSE Build Service instance hosts
+          <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
+          <b><%= number_with_delimiter @global_counters.packages %></b> packages, in <b><%= number_with_delimiter @global_counters.repos %></b> repositories
+          and is used by <b><%= number_with_delimiter @global_counters.users %></b> confirmed developers.
+        </p>
+      <% end %>
     </div>
   <% end %>
 </div>
