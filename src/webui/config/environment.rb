@@ -101,15 +101,19 @@ begin
 rescue Errno::ENOENT
 end
 
-if CONFIG.has_key?('download_url')
+if not defined?(DOWNLOAD_URL) or DOWNLOAD_URL.blank?
+ if CONFIG.has_key?('download_url') and not 
   DOWNLOAD_URL = CONFIG['download_url']
-else
+ else
   DOWNLOAD_URL = "http://download.opensuse.org/repositories"
+ end
 end
-if CONFIG.has_key?('bugzilla_host')
-  BUGZILLA_HOST = CONFIG['bugzilla_host']
-else
-  BUGZILLA_HOST = "http://bugzilla.novell.com"
+if not defined?(BUGZILLA_HOST) or BUGZILLA_HOST.blank?
+ if CONFIG.has_key?('bugzilla_host')
+   BUGZILLA_HOST = CONFIG['bugzilla_host']
+ else
+   BUGZILLA_HOST = "http://bugzilla.novell.com"
+ end
 end
 unless defined?(FRONTEND_PROTOCOL) and not FRONTEND_PROTOCOL.blank?
   FRONTEND_PROTOCOL = "http"
