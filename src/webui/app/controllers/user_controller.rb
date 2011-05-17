@@ -46,8 +46,9 @@ class UserController < ApplicationController
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
       end
       flash[:success] = "You are logged in now"
-      redirect_to params[:return_to_path]
+      redirect_to params[:return_to_path] and return
     end
+    redirect_back_or_to :action => 'login'
   end
 
   def save
