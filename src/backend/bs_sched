@@ -4254,6 +4254,7 @@ while(1) {
     @events = sort @events;
 
     my %fetchprojpacks;
+    my %fetchprojpacks_nodelay;
     my %deepcheck;
     my @lateevents;
 
@@ -4288,7 +4289,11 @@ while(1) {
 	my $projid = $info->{'project'};
 	my $packid = $info->{'package'};
 	if (defined($projid) && defined($packid)) {
-	  next if grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks{$projid} || []}, @{$delayedfetchprojpacks{$projid} || []});
+	  if (grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks{$projid} || []}, @{$delayedfetchprojpacks{$projid} || []})) {
+	    push @{$fetchprojpacks{$projid}}, $packid;
+	    $fetchprojpacks_nodelay{$projid} = 1;
+	    next;
+	  }
 	}
       }
 
@@ -4534,6 +4539,7 @@ while(1) {
 
     if (%fetchprojpacks) {
       for my $projid (sort keys %fetchprojpacks) {
+	next if $fetchprojpacks_nodelay{$projid};
 	next if grep {!defined($_)} @{$fetchprojpacks{$projid}};
 	# only source updates, delay them
 	push @{$delayedfetchprojpacks{$projid}}, @{$fetchprojpacks{$projid}};
