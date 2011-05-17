@@ -132,7 +132,7 @@ class BsRequest < ActiveXML::Base
     end
 
     def list(opts)
-      unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or (opts[:user] or opts[:project]) # boolean algebra rocks!
+      unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or opts[:user] or opts[:project]
         raise RuntimeError, "missing parameters"
       end
 

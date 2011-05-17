@@ -11,4 +11,4 @@
   </ul>
 <% end %>
 
-<%= render(:partial => 'shared/select_requests', :locals => {:requests => @requests}) %>
+<%= render(:partial => 'shared/select_requests', :locals => {:requests => @requests, :userid => user.to_s}) %>
