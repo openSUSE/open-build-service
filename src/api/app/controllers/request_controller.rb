@@ -557,8 +557,10 @@ class RequestController < ApplicationController
               :message => "Creating a release request action requires maintainership in source package"
             return
           end
-          spkg.flags.create(:status => "enable", :flag => "lock")
-          spkg.store
+          unless prj.enabled_for?('lock', nil, nil)
+            spkg.flags.create(:status => "enable", :flag => "lock")
+            spkg.store
+          end
         else
           # Creating requests from packages where no maintainer right exists will enforce a maintainer review
           # to avoid that random people can submit versions without talking to the maintainers 
