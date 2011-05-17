@@ -2105,7 +2105,7 @@ sub getbuildinfo {
 	$b->{'notmeta'} = 1 unless $edeps{$_};
 	if ($p != $dep2pkg{$_}) {
 	  $b->{'noinstall'} = 1;
-	  push @bdeps, $b;
+	  push @rdeps, $b;
 	  next;
 	}
 	$b->{'preinstall'} = 1 if $pdeps{$_};
