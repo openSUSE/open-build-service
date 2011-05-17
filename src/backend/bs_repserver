@@ -1766,6 +1766,7 @@ sub getbuildinfo {
   if (!$pdata) {
     $pdata = $proj->{'package'}->[0];
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
+    die("$pdata->{'error'}\n") if $pdata->{'error'};
   }
 
   my $info = $pdata->{'info'}->[0];
