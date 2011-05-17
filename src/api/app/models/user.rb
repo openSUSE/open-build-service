@@ -439,7 +439,7 @@ class User < ActiveRecord::Base
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
         rels = package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
-        rels = PackageGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+        rels = PackageGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
                                                   :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role],
                                                   :include => :role
          return true if rels > 0
@@ -454,7 +454,7 @@ class User < ActiveRecord::Base
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
-        rels = ProjectGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+        rels = ProjectGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
                                                   :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role],
                                                   :include => :role
         return true if rels > 0
@@ -479,7 +479,7 @@ class User < ActiveRecord::Base
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
       #check permission for given package
       rels = package_user_role_relationships.find :all, :conditions => ["db_package_id = ?", object], :include => :role
-      rels += PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+      rels += PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
                                                 :conditions => ["ug.user_id = ? and db_package_id = ?", self.id, object.id],
                                                 :include => :role
       for rel in rels do
@@ -501,7 +501,7 @@ class User < ActiveRecord::Base
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
       rels = project_user_role_relationships.find :all, :conditions => ["db_project_id = ? ", object], :include => :role
-      rels += ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+      rels += ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
                                                 :conditions => ["ug.user_id = ? and db_project_id = ?", self.id, object.id],
                                                 :include => :role
       for rel in rels do
@@ -554,7 +554,7 @@ class User < ActiveRecord::Base
     LEFT OUTER JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
     LEFT OUTER JOIN roles r ON gr.role_id = r.id
     LEFT OUTER JOIN flags f ON f.db_project_id = prj.id
-    LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id
+    LEFT OUTER JOIN groups_users ug ON ug.group_id = gr.bs_group_id
     LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id 
     LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
     WHERE ug.user_id = BINARY ? and r.title = BINARY ?
@@ -589,7 +589,7 @@ class User < ActiveRecord::Base
     FROM db_packages pkg
     LEFT OUTER JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
     LEFT OUTER JOIN roles r ON gr.role_id = r.id
-    LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id
+    LEFT OUTER JOIN groups_users ug ON ug.group_id = gr.bs_group_id
     LEFT OUTER JOIN flags f ON f.db_project_id = pkg.db_project_id
     LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id 
     LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
