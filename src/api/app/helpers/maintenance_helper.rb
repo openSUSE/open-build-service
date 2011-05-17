@@ -155,7 +155,8 @@ module MaintenanceHelper
         targetProject.db_packages << new
         new.save
         sourcePackage.flags.each do |f|
-          new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+          # copy all flags except the lock flags from release request
+          new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "lock"
         end
         new.store
       end

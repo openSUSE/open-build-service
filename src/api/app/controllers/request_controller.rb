@@ -557,7 +557,7 @@ class RequestController < ApplicationController
               :message => "Creating a release request action requires maintainership in source package"
             return
           end
-          unless prj.enabled_for?('lock', nil, nil)
+          unless spkg.enabled_for?('lock', nil, nil)
             spkg.flags.create(:status => "enable", :flag => "lock")
             spkg.store
           end
