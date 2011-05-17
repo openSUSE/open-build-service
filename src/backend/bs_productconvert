@@ -239,6 +239,11 @@ sub createProductOptions($$$)
 {
     my( $prodRef, $medium, $archSetList ) = @_;
 
+    # check for the wanted media style
+    my $mediaStyle = "suse-11.1"; # fallback value
+    $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
+    $mediaStyle = "suse-11.3" if defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} eq "suse-11.4"; # there is no kiwi plugin for 11.4
+
     # General FIXME: this works only with a single product on media.
     my $product = $prodRef->{products}{product}[0];
     die( "Handling of multiple products on one media is currently not specified !\n" ) if $prodRef->{products}{product}[1];
@@ -269,6 +274,8 @@ sub createProductOptions($$$)
     $varsH{MAKE_LISTINGS} = 'false' if (defined($medium->{'run_make_listings'})) && $medium->{'run_make_listings'} ne "yes" && $medium->{'run_make_listings'} ne "true";
     $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
     $varsH{SHA1OPT} = "-x";
+    # switch to sha256 sums except for old distros
+    $varsH{SHA1OPT} .= " -2" unless $mediaStyle eq "suse-11.1" || $mediaStyle eq "suse-11.2" || $mediaStyle eq "suse-11.3";
 
     $varsH{VENDOR} = $product->{'vendor'};
     $varsH{DISTNAME} = $product->{'name'};
@@ -293,9 +300,6 @@ sub createProductOptions($$$)
       $options{'DEBUGMEDIUM'} = $medium->{'debugmedia'};
     };
     
-    my $mediaStyle = "suse-11.1"; # fallback value
-    $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
-    $mediaStyle = "suse-11.3" if defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} eq "suse-11.4"; # there is no kiwi plugin for 11.4
     $options{'IGNORE_MISSING_REPO_PACKAGES'} = "true" if (defined($medium->{'ignore_missing_packages'}) && $medium->{'ignore_missing_packages'} eq "true");
     $options{'IGNORE_MISSING_META_PACKAGES'} = "true" if (defined($medium->{'ignore_missing_meta_packages'}) && $medium->{'ignore_missing_meta_packages'} eq "true");
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
