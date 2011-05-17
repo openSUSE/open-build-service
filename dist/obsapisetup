@@ -151,16 +151,17 @@ case "$1" in
 			echo
 		fi
 
-                if [ ! -e /srv/obs/certs/server.$FQHOSTNAME.created ]; then
+                # reuse signing key even if hostname changed
+                if [ ! -e /srv/obs/certs/server.key ]; then
+                    install -d -m 0700 /srv/obs/certs
+                    openssl genrsa -out /srv/obs/certs/server.key 1024
+                fi
+
+                if [ ! -e /srv/obs/certs/server.${FQHOSTNAME}.created ]; then
                        # setup ssl certificates (NOT protected with a passphrase)
                        echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
-                       # reuse signing key even if hostname changed
-                       if [ ! -e /srv/obs/certs/server.key ]; then
-                           install -d -m 0700 /srv/obs/certs
-                           openssl genrsa -out /srv/obs/certs/server.key 1024
-                       fi
                        # hostname specific certs - survive intermediate hostname changes
-                       if [ ! -e /srv/obs/certs/server.pem ] ; then
+                       if [ ! -e /srv/obs/certs/server.${FQHOSTNAME}.pem ] ; then
                            # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
 		           echo "CC
 Test State or Province
@@ -171,15 +172,19 @@ $FQHOSTNAME
 test@email.address
 
 
-"                        | openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.csr >& /dev/null
-                           openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
-                           cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem
-                           echo "Do not remove this file or new SSL CAs will get created." > /srv/obs/certs/server.$FQHOSTNAME.created
+"                        | openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.${FQHOSTNAME}.csr >& /dev/null
+                           openssl x509 -req -days 365 -in /srv/obs/certs/server.${FQHOSTNAME}.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.${FQHOSTNAME}.crt
+                           cat /srv/obs/certs/server.key /srv/obs/certs/server.${FQHOSTNAME}.crt > /srv/obs/certs/server.${FQHOSTNAME}.pem
+                           echo "Do not remove this file or new SSL CAs will get created." > /srv/obs/certs/server.${FQHOSTNAME}.created
                        else
                          echo "ERROR: SSL CAs in /srv/obs/certs exists, but were not created for your hostname"
                          exit 1
                        fi
                 fi
+		# change links for certs according to hostnames
+		rm /srv/obs/certs/server.crt /srv/obs/certs/server.pem
+		ln -sf /srv/obs/certs/server.${FQHOSTNAME}.crt /srv/obs/certs/server.crt
+		ln -sf /srv/obs/certs/server.${FQHOSTNAME}.pem /srv/obs/certs/server.pem
 
                 cd $webuidir
 		chown -R wwwrun.www $webuidir/log
