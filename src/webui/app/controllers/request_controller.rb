@@ -34,7 +34,11 @@ class RequestController < ApplicationController
   end
 
   def show
-    @req = find_cached(BsRequest, params[:id]) if params[:id]
+    begin
+      @req = find_cached(BsRequest, params[:id]) if params[:id]
+    rescue ActiveXML::Transport::Error => e
+      @req = nil # User input is directly passed to backend, avoid crashers
+    end
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "list_requests" and return
