@@ -193,7 +193,10 @@ sub runservice {
   
   # make sure that there was no other commit in the meantime
   my $newrev = getrev($projid, $packid);
-  exit(1) if $newrev->{'rev'} ne $rev->{'rev'};
+  if ($newrev->{'rev'} ne $rev->{'rev'}) {
+    unlink($lockfile);
+    exit(1);
+  };
 
   # and update source repository with the result
   if ($receive) {
