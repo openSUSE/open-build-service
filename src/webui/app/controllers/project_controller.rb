@@ -600,12 +600,11 @@ class ProjectController < ApplicationController
 
   def save_targets
     valid_http_methods :post
-    #FIXME: Typical WTF?!, a plethora of redundant arguments that may be empty (but public API?)
     if (not params.has_key?(:target_project) or params[:target_project].empty?) and
        (not params.has_key?(:torepository) or params[:torepository].empty?) and
        (not params.has_key?(:repo) or params[:repo].empty?) and
        (not params.has_key?(:target_repo) and not params.has_key?(:target_repo_txt) or params[:target_repo_txt].empty?)
-      flash[:error] = "Missing arguments for target project or repository" # Something for the _user_
+      flash[:error] = "Missing arguments for target project or repository"
       redirect_to :action => "add_repository_from_default_list", :project => @project and return
     end
     target_repo = params[:target_repo].blank? ? params[:target_repo_txt] : params[:target_repo]
@@ -613,10 +612,10 @@ class ProjectController < ApplicationController
     # extend an existing repository with a path
     if params.has_key?(:torepository)
       repo_path = "#{params[:target_project]}/#{target_repo}"
-      @project.add_path_to_repository :reponame => params[:torepository], :repo_path => repo_path
+      @project.add_path_to_repository(:reponame => params[:torepository], :repo_path => repo_path)
       @project.save
       flash[:success] = "Repository #{params['target_project']}/#{target_repo} added successfully"
-      redirect_to :action => :repositories, :project => @project and return
+      redirect_to :action => 'repositories', :project => @project and return
     elsif params.has_key?(:repo)
       # add new repositories
       params[:repo].each do |repo|
@@ -627,7 +626,7 @@ class ProjectController < ApplicationController
         repo_path = params[repo + '_repo'] || "#{params[:target_project]}/#{target_repo}"
         repo_archs = params[repo + '_arch'] || params[:arch]
         logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
-        @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
+        @project.add_repository(:reponame => repo, :repo_path => repo_path, :arch => repo_archs)
 
         # FIXME: will be cleaned up after implementing FATE #308899
         if repo == "images"
@@ -638,19 +637,15 @@ class ProjectController < ApplicationController
           end
         end
       end
-    end
 
-    begin
-      if @project.save
-        flash[:success] = "Build targets were added successfully"
-      else
-        flash[:error] = "Failed to add build targets"
-      end
-    rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = "Failed to add build targets: " + message
+      @project.save
+      flash[:success] = "Build targets were added successfully"
+      redirect_to :action => 'repositories', :project => @project and return
     end
-    redirect_to :action => :repositories, :project => @project
+  rescue ActiveXML::Transport::Error => e
+    message, code, api_exception = ActiveXML::Transport.extract_error_message e
+    flash[:error] = "Failed to add project or repository: " + message
+    redirect_back_or_to :action => 'repositories', :project => @project and return
   end
 
 
