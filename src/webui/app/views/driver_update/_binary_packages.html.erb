@@ -1,6 +1,6 @@
 
 <div style="margin-left: 15px;">
-<% @binaries.uniq.each do |binary| %> 
+<% @binaries.map{|binary| binary.split(/-/)[0..-3].join('-')}.uniq.each do |binary| %> 
   <% key = "binary_#{binary}".gsub(/[:\.]/, '_')  %>
   <div id="<%= key %>">
   <%= image_tag("package.png", :title => "Package") %>

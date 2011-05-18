@@ -58,8 +58,10 @@ class DriverUpdateController < PackageController
       params[:binaries].select{|binary| binary =~ /#{package}\//}.each do |binary|
         file_content += "        <binary filename=\"#{binary.gsub(/^.*\//, '')}\"/>\n"
       end
+      file_content += "    </binarylist>\n"
     end
-    file_content += "    </repopackages/>\n    <modules/>\n"
+    file_content += "    </repopackages>\n"
+    file_content += "    <modules/>\n"
     file_content += "    <instsys/>\n"
     file_content += "  </packlist>"
 
@@ -72,7 +74,7 @@ class DriverUpdateController < PackageController
     dud_params = []
     dud_params << {:name => 'name', :value => params[:name]}
     dud_params << {:name => 'distname', :value => params[:distname]}
-    dud_params << {:name => 'flavour', :value => params[:flavour]}
+    dud_params |= params[:arch].map{|arch| {:name => 'arch', :value => arch}}
     dud_params |= params[:projects].map{|project| {:name => 'instrepo', :value => project}}
 
     services.removeService( 'generator_driver_update_disk' )
