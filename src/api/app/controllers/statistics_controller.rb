@@ -445,8 +445,6 @@ class StatisticsController < ApplicationController
 
 
   def latest_updated
-    require "benchmark"
-
     key = "latestupdated_#{@http_user.login}"
     # authorization and caching:
     begin
