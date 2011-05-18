@@ -1,13 +1,13 @@
 <div class="box" style="margin: 1em" id="<%= valid_xml_id(repository.name) %>">
 
-  <div class="box-header aligncenter"><strong>Edit <%= h(repository.name) %></strong></div>
+  <div class="box-header aligncenter"><b>Edit <%= h(repository.name) %></b></div>
   <% if local_assigns[:error] %>
     <div class="message error"><%= error %></div>
   <% end %>
 
   <% form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
     <p>
-      <strong>Architectures: </strong>
+      <b>Architectures:</b>
       <% @repository_arch_hash.each do |arch, value| %>
         <%= check_box_tag "arch[#{arch}]", "", value %><%= arch %>
         <%= observe_field "arch_#{arch}", :function => "document.getElementById('save_button').disabled = false" %>
@@ -16,7 +16,7 @@
     </p>
 
     <div style="margin-bottom: 1.2em" >
-      <p><strong>Paths (applied in descending order):</strong></p>
+      <p><b>Additional package repositories (searched in descending order):</b></p>
       <div style="margin-left: 30px">
         <% begin -%>
           <% repository.each_path do |path| -%>
