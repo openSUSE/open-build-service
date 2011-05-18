@@ -1,6 +1,6 @@
 <% @pagetitle = "Driver Update Disk Wizard" %>
 
-<% #package_bread_crumb 'Edit Package Information' -%>
+<% project_bread_crumb @package.name -%>
 <%= render :partial => "package/tabs" %>
 
 <% content_for :content_for_head do %>
@@ -15,16 +15,31 @@
   $('#target_project').result(function(event, data, formatted) {
   if (data) {
   $('#target_repo').html('');
+  get_repos_for_project();
+  }
+  });
+
+
+  get_repos_for_project = function() {
   $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
   data: {project: $("#target_project").attr('value')},
   success: function(data){
   $('#target_repo').removeAttr('disabled');
+  $('#target_repo').html("");
   $.each(data.split('\n'), function(idx, val) {
+  if (val != "images") {
   $('#target_repo').append( new Option( val ) );
-  });
-  }});
   }
   });
+  },
+  beforeSend: function(data){
+  $("#target_repo_loader").show();
+  },
+  complete: function(data){
+  $("#target_repo_loader").hide();
+  },
+  });
+  };
 
   $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
   matchCase: true, max: 50, minChars: 0,
@@ -105,12 +120,15 @@
   return false;
   });
 
+  $("#target_project").val("<%= @project.name %>");
+  get_repos_for_project();
+
 
 <% end -%>
 
 <h2>Driver update disk wizard</h2>
 
-<p>This editor helps to create the configuration for a <a href="http://en.opensuse.org/Libzypp/Products/DuD/Installation">driver update disk</a>.
+<p>This editor helps to create the configuration for a <a href="http://old-en.opensuse.org/Libzypp/Products/DuD/Installation">driver update disk</a>.
   It will store its settings in the _service file which generates the full kiwi config on the build server or
   your workstation when using osc.</p>
 
@@ -126,7 +144,7 @@
    <td><%= text_field_tag 'name', @name, :size => 50 %></td>
   </tr>
 
-  <tr>
+  <!-- <tr>
     <td><strong>Distname: </strong></td>
     <td><%= text_field_tag 'distname', @distname, :size => 50 %></td>
   </tr>
@@ -134,13 +152,13 @@
   <tr>
     <td><strong>Flavour: </strong></td>
     <td><%= text_field_tag 'flavour', @flavour, :size => 50 %></td>
-  </tr>
+  </tr> -->
 
   <tr>
     <td><strong>Architectures: </strong></td>
     <td>
       <% @available_architectures.each do |arch| %>
-        <%= check_box_tag "arch[#{arch.name}]", "", arch.recommended %><%= arch.name %>
+        <%= check_box_tag "arch[#{arch.name}]", "", (@architectures.include? arch.name ) %><%= arch.name %>
       <% end %>
     </td>
   </tr>
@@ -167,9 +185,10 @@
     </p></div>
 
   <div id="add_repository" class="show_left box show_right" style="display: none">
-    <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %> <i>(gets auto-completed)</i> </p>
+    <p><strong>Project: </strong><%= text_field_tag 'target_project', @project.name, :size => 60, :id => 'target_project' %> <i>(gets auto-completed)</i> </p>
     <p><strong>Repository: </strong>
       <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %>
+      <span id="target_repo_loader" style="display: none; margin-left: 15px;"><%= image_tag("ajax-loader.gif", :title => "Loading") %> Loading repositories</span>
     </p>
     <div id="add_repo"><p>
         <%= image_tag("icons/drive_add.png", :title => "Add Repository") %>
@@ -184,9 +203,22 @@
 
   <div id="inst_packs">
     <% @packages.each do |pack| %>
-      <div id="pack_<%= pack[:name] %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack[:name] %> <i>(<%= pack[:type] %>)</i>
-          <input type="hidden" name="packages[]" value="<%= "#{pack[:name]}" %>" />
-          <a href="#" onclick="remove_element('pack_<%= pack[:name] %>'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>
+      <div id="pack_<%= pack %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack %> 
+          <input type="hidden" name="packages[]" value="<%= "#{pack}" %>" />
+          <a href="#" onclick="remove_element('pack_<%= pack %>'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p>
+          <div id="pack_<%= pack %>_binaries" style="margin-left: 15px;">
+            <div style="margin-left: 15px;">
+              <% @binary_packages[pack].each do |binary| %>
+              <div id="binary_<%= binary %>">
+                <%= image_tag("package.png", :title => "Binary Package") %>
+                <input type="hidden" value="<%= pack %>/<%= binary %>" name="binaries[]"/>
+                <%= binary %> <a onclick="remove_element('binary_<%= binary %>'); return false;" href="#">
+                  <%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a>
+              </div>
+              <% end %>
+            </div>
+        </div>
+    </div>
     <% end %>
     <% if @packages.blank? %>
       <div id="no_inst_packs"><p><i>No packages selected for installation yet.</i></p></div>

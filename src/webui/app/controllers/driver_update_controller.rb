@@ -2,13 +2,14 @@ class DriverUpdateController < PackageController
 
   before_filter :require_project
   before_filter :require_package
-  before_filter :require_available_architectures, :only => [:create]
+  before_filter :require_available_architectures, :only => [:create, :edit]
+  before_filter :check_images_repo, :only => [:create, :edit]
 
   def create
-    @repositories = @project.each_repository.map{|repo| {:project => @project.name,
-        :repo => repo.name, :archs => repo.each_arch.map{|arch| arch.to_s} }}.delete_if{|x| x[:repo] == 'images'}
-    @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds ).
-      each_entry.map{|package| {:name => package.name, :type => 'repopackage'}}.delete_if{|x| x[:name] == @package.name}[0..50]
+    @repositories = []
+    @packages = []
+    @binary_packages = []
+    @architectures = []
   end
 
 
@@ -23,14 +24,25 @@ class DriverUpdateController < PackageController
       redirect_to :action => :create, :project => @project, :package => @package and return
     end
 
+    #parse name, archs, repos from services file
     @repositories = service.find( 'param[@name="instrepo"]' ).map{|repo| {:project => repo.content.split('/')[0], :repo => repo.content.split('/')[1] } }
-    @packages = []
-    @packages |= service.find( 'param[@name="repopackage"]' ).map{|package| {:name => package.content, :type => 'repopackage'} }
-    @packages |=  service.find( 'param[@name="instsys"]' ).map{|package| {:name => package.content, :type => 'instsys'} }
-    @packages |=  service.find( 'param[@name="module"]' ).map{|package| {:name => package.content, :type => 'module'} }
     @name = service.find( 'param[@name="name"]' ).first.content if service.find( 'param[@name="name"]' ).first
     @distname = service.find( 'param[@name="distname"]' ).first.content if service.find( 'param[@name="distname"]' ).first
     @flavour = service.find( 'param[@name="flavour"]' ).first.content if service.find( 'param[@name="flavour"]' ).first
+    @architectures = service.find( 'param[@name="arch"]' ).map{|arch| arch.content} 
+
+    #parse packages, binary packages from dud_packlist.xml file
+    packlist = frontend.get_source( :project => @project.to_s, :package => @package.to_s, :filename => "dud_packlist.xml" )
+    xml = XML::Document.string(packlist)
+    @packages = []
+    @binary_packages = {}
+    xml.find( "//binarylist" ).each do |binarylist|
+      @packages << binarylist['package']
+      @binary_packages[binarylist['package']] = []
+      binarylist.find( "binary" ).each do |binary|
+        @binary_packages[binarylist['package']] << binary['filename']
+      end
+    end
 
     render :create
   end
@@ -38,6 +50,8 @@ class DriverUpdateController < PackageController
 
   def save
     valid_http_methods :post
+
+    # TODO: check for valid name, check for minimum 1 architecture
 
     # write filelist to separate file
     opt = Hash.new
@@ -96,6 +110,9 @@ class DriverUpdateController < PackageController
     render :partial => 'binary_packages'
   end
 
+
+  private
+
   def require_available_architectures
     begin
       transport = ActiveXML::Config::transport_for(:architecture)
@@ -104,6 +121,14 @@ class DriverUpdateController < PackageController
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Available architectures not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
+  end
+
+
+  def check_images_repo
+    unless @project.repositories.include? "images"
+      flash.now[:warn] = "You need to add an 'images' repository to your project " +
+        "to be able to build a driver update disk image!" 
     end
   end
 
