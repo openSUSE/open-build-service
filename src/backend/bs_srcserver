@@ -110,11 +110,87 @@ sub notify_repservers {
   }
 }
 
-sub runservice {
-  my ($cgi, $projid, $packid, $nonfatal) = @_;
+# called *before* addrev to mark if service run is needed
+sub addservicemark {
+  my ($projid, $packid, $files, $rev) = @_;
+  
+  return $files unless $BSConfig::new_style_services;
 
-  return if $packid eq "_project";
+  return $files if $packid eq '_project';	# just in case...
+  return $files if defined $rev;	# don't mark if upload/repository/internal
+  return $files if $packid eq '_pattern' || $packid eq '_product';	# for now...
+
+  # check if we really need to run the service
+  if (!$files->{'_service'}) {
+    # XXX: getprojectservices may die!
+    my ($projectservices, undef) = getprojectservices({}, $rev->{'project'}, $rev->{'package'});
+    return $files unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
+  }
+
+  # argh, somewhat racy. luckily we just need something unique...
+  # (files is not unique enough because we want a different id
+  # for each commit, even if it has the same srcmd5)
+  my $smd5 = "sourceservice/$projid/$packid";
+  eval {
+    my $rev_old = getrev($projid, $packid);
+    $smd5 .= "$rev_old->{'rev'}" if $rev_old->{'rev'};
+  };
+  $smd5 .= "$files->{$_}  $_\n" for sort keys %$files;
+  $smd5 = Digest::MD5::md5_hex($smd5);
+
+  # add the mark
+  return { %$files, '/SERVICE' => $smd5 };
+}
+
+# called from runservice when the service run is finished. it
+# either does the service commit (old style), or creates the
+# xsrcmd5 service revision (new style).
+sub addrev_service {
+  my ($cgi, $rev, $files, $error) = @_;
+
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
+  if (!$files->{'/SERVICE'}) {
+    if ($error) {
+      mkdir_p($uploaddir);
+      writestr("$uploaddir/_service_error$$", undef, $error);
+      $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
+    }
+    $cgi ||= {};
+    $cgi->{'user'} = '_service';
+    $cgi->{'comment'} = 'generated via source service';
+    addrev($cgi, $projid, $packid, $files);
+  } else {
+    # new style services
+    my $srcmd5 = $files->{'/SERVICE'};
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+    if ($error) {
+      writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
+    } else {
+      return if -e "$treedir/$srcmd5-MD5SUMS";	# huh? why did we run twice?
+      my $meta = '';
+      $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE'} sort keys %$files;
+      $meta .= "$rev->{'srcmd5'}  /LSERVICE\n";
+      mkdir_p($uploaddir);
+      mkdir_p($treedir);
+      writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
+      unlink("$treedir/$srcmd5-_serviceerror");
+    }
+  }
+}
+
+# called *after* addrev to trigger service run
+sub runservice {
+  my ($cgi, $rev, $files, $nonfatal) = @_;
+
+  return if $BSConfig::new_style_services && !$files->{'/SERVICE'};
+
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
+
+  return if $packid eq '_project';
   return unless $BSConfig::serviceserver;
+  return if $rev->{'rev'} && ($rev->{'rev'} eq 'repository' || $rev->{'rev'} eq 'upload');
   die("No project defined for source update!") if !defined $projid;
   die("No package defined for source update!") if !defined $packid;
 
@@ -122,12 +198,12 @@ sub runservice {
   my $lockfile = "$eventdir/service/${projid}::$packid";
   die("403 service still running") if !$nonfatal && -e $lockfile;
 
+  # XXX: getprojectservices may die!
+  my ($projectservices, undef) = getprojectservices({}, $projid, $packid);
+  undef $projectservices unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
+
   # collect current sources to POST them
-  my $projectrev = getrev($projid, '_project');
-  my $projectfiles = lsrev($projectrev);
-  my $rev = getrev($projid, $packid);
-  my $files = lsrev($rev);
-  unless ($files->{'_service'} || $projectfiles->{'_service'}){
+  if (!$files->{'_service'} && !$projectservices) {
     die("404 no source service defined!") unless $nonfatal;
     # drop all existing service files
     my $dirty;
@@ -137,8 +213,8 @@ sub runservice {
         $dirty = 1;
       }
     }
-    if ($dirty){
-      addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service'}, $projid, $packid, $files);
+    if ($dirty || $files->{'/SERVICE'}) {
+      addrev_service($cgi, $rev, $files);
       notify_repservers('package', $projid, $packid);
     }
     return;
@@ -148,28 +224,25 @@ sub runservice {
     # make sure it's a branch
     my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if (!$l || !$l->{'patches'} || @{$l->{'patches'}->{''} || []} != 1 || (keys %{$l->{'patches'}->{''}->[0]})[0] ne 'branch') {
-      mkdir_p($uploaddir);
-      writestr("$uploaddir/_service_error$$", undef, "services only work on branches\n");
-      $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
-      addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service'}, $projid, $packid, $files);
+      addrev_service($cgi, $rev, $files, "services only work on branches\n");
       notify_repservers('package', $projid, $packid);
       return;
     }
   }
 
-  mkdir_p("$eventdir/service");
-  BSUtil::touch($lockfile);
+  if (!$files->{'/SERVICE'}) {
+    mkdir_p("$eventdir/service");
+    BSUtil::touch($lockfile);
+  }
 
-  # Run the source update in own process (do not wait for it)
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
-  # add _service file from projects with different name
-  my ($projectservices, undef) = getprojectservices($cgi, $projid, $packid);
-  if ($projectservices) {
-    push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)};
-  };
-  # run update as background job
+  push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)} if $projectservices;
+
+  # run the source update in own process (do not wait for it)
   my $pid = xfork();
-  return $BSStdServer::return_ok if $pid;
+  return if $pid;
+
+  # child continues...
   my $odir = "$srcrep/:service/$$";
   BSUtil::cleandir($odir) if -d $odir;
   mkdir_p($odir);
@@ -192,11 +265,13 @@ sub runservice {
   my $error = $@;
   
   # make sure that there was no other commit in the meantime
-  my $newrev = getrev($projid, $packid);
-  if ($newrev->{'rev'} ne $rev->{'rev'}) {
-    unlink($lockfile);
-    exit(1);
-  };
+  if (!$files->{'/SERVICE'}) {
+    my $newrev = getrev($projid, $packid);
+    if ($newrev->{'rev'} ne $rev->{'rev'}) {
+      unlink($lockfile);
+      exit(1);
+    }
+  }
 
   # and update source repository with the result
   if ($receive) {
@@ -216,11 +291,9 @@ sub runservice {
   } else {
     $error ||= 'error';
     $error =~ s/\n$//s;
-    $error = "service daemon error: $error\n";
-    writestr("$odir/_service_error", undef, $error);
-    $files->{'_service_error'} = addfile($projid, $packid, "$odir/_service_error", '_service_error');
+    $error = "service daemon error: $error";
   }
-  addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service'}, $projid, $packid, $files);
+  addrev_service($cgi, $rev, $files, $error);
   BSUtil::cleandir($odir);
   rmdir($odir);
   unlink($lockfile);
@@ -228,6 +301,25 @@ sub runservice {
   exit(0);
 }
 
+sub triggerservicerun {
+  my ($cgi, $projid, $packid) = @_;
+  my $rev = getrev($projid, $packid);
+  my $linkinfo = {};
+  my $files = lsrev($rev, $linkinfo);
+  if (!$BSConfig::new_style_services) {
+    # old style, just run the service again...
+    runservice($cgi, $rev, $files);
+  } else {
+    $files = addservicemark($projid, $packid, $files);
+    if ($files->{'/SERVICE'} || $linkinfo->{'xservicemd5'}) {
+      # have to do a new commit...
+      $cgi->{'comment'} ||= 'trigger service run';
+      $rev = addrev($cgi, $projid, $packid, $files);
+      runservice($cgi, $rev, $files, 1);
+    }
+  }
+  return $BSStdServer::return_ok;
+}
 
 #
 # run the productconverter on _product to create/update/delete
@@ -670,6 +762,9 @@ sub addrev {
   $user = str2utf8xml($user);
   $comment = str2utf8xml($comment);
 
+  # hmm, better mark it here?
+  my $servicemark = $files->{'/SERVICE'};
+
   if ($packid eq '_pattern' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # upgrade pseudo _pattern package to real package
     my $pack = {
@@ -700,7 +795,7 @@ sub addrev {
   }
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
-  die("bad files (slash)\n") if grep {/\//} keys %$files;
+  die("bad files (slash)\n") if grep {/\// && $_ ne '/SERVICE'} keys %$files;
   die("bad files (glyph)\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
   if ($packid eq '_product') {
@@ -714,6 +809,10 @@ sub addrev {
 
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $requestid};
+
+  # we do not want it in the file list for the next part...
+  delete $files->{'/SERVICE'};
+
   if ($packid ne '_project' && $packid ne '_pattern') {
     my ($version, $release) = getcommitinfo($projid, $packid, $srcmd5, $files);
     $rev->{'version'} = $version;
@@ -817,6 +916,9 @@ sub addrev {
   unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS") if $packid eq '_pattern';
 
   notify_repservers('package', $projid, $packid);
+
+  # put marker back
+  $files->{'/SERVICE'} = $servicemark if $servicemark;
   return $rev;
 }
 
@@ -882,9 +984,13 @@ sub lsrev {
   if ($linkinfo) {
     $linkinfo->{'lsrcmd5'} = $files->{'/LOCAL'} if $files->{'/LOCAL'};
     $linkinfo->{'srcmd5'} = $files->{'/LINK'} if $files->{'/LINK'};
+    $linkinfo->{'xservicemd5'} = $files->{'/SERVICE'} if $files->{'/SERVICE'};
+    $linkinfo->{'lservicemd5'} = $files->{'/LSERVICE'} if $files->{'/LSERVICE'};
   }
   delete $files->{'/LINK'};
   delete $files->{'/LOCAL'};
+  delete $files->{'/SERVICE'};
+  delete $files->{'/LSERVICE'};
   return $files;
 }
 
@@ -1368,13 +1474,16 @@ sub handlelinks {
   while ($files->{'_link'}) {
     my $l = repreadxml($lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
     return '_link is bad' unless $l;
+    my $cicount = $l->{'cicount'} || 'add';
     eval {
       BSVerify::verify_link($l);
+      die("illegal cicount\n") unless $cicount eq 'copy' || $cicount eq 'add' || $cicount eq 'local';
     };
     if ($@) {
       my $err = $@;
       $err =~ s/\n$//s;
-      return "_link is bad: $err";
+      return "_link is bad: $err" if @linkinfo == 1;
+      return "$lrev->{'project'}/$lrev->{'package'}: _link is bad: $err";
     }
     $l->{'project'} = $linkinfo[-1]->{'project'} unless exists $l->{'project'};
     $l->{'package'} = $linkinfo[-1]->{'package'} unless exists $l->{'package'};
@@ -1393,21 +1502,23 @@ sub handlelinks {
     };
     if ($@) {
       my $error = $@;
-      $error =~ s/\n$//s;
+      chomp $error;
       $error = $2 if $error =~ /^(\d+) +(.*?)$/s;
-      return "$projid $packid: $error";
+      return "$projid/$packid: $error";
     }
     return "linked package '$packid' does not exist in project '$projid'" unless $lrev;
     return "linked package '$packid' is empty" if $lrev->{'srcmd5'} eq 'empty';
     return "linked package '$packid' is strange" unless $lrev->{'srcmd5'} =~ /^[0-9a-f]{32}$/;
     undef $files;
     eval {
-      $files = lsrev($lrev);
+      # links *always* point to expanded services
+      $files = lsrev_service($lrev);
     };
-    return 'linked package is not in repository' unless $files;
-    my $cicount = $l->{'cicount'} || 'add';
-
-    return '_link is bad: illegal cicount' unless $cicount eq 'copy' || $cicount eq 'add' || $cicount eq 'local';
+    if ($@) {
+      my $error = $@;
+      chomp $error;
+      return "$projid/$packid: $error";
+    }
     $rev->{'vrev'} = $oldvrev if $cicount eq 'copy';
     $oldvrev = $rev->{'vrev'};
     $vrevdone = 1 if $cicount eq 'local';
@@ -1447,11 +1558,52 @@ sub handlelinks {
   return $files;
 }
 
+# - returns expanded file list
+# - side effects:
+#   modifies $rev->{'srcmd5'}
+sub handleservice {
+  my ($rev, $files, $smd5) = @_;
+
+  $rev->{'srcmd5'} = $smd5;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
+  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$smd5-MD5SUMS" && -e "$srcrep/$rev->{'package'}/$smd5-MD5SUMS") {
+    return lsrev($rev);
+  }
+
+  return lsrev($rev) if -e "$treedir/$smd5-MD5SUMS";	# we have a result
+  my $error = readstr("$treedir/$smd5-_serviceerror", 1);
+  $error =~ s/\n$//s if $error;
+  die("$error\n") if $error && $error ne '';
+  # need to run it, serialize
+  local *FF;
+  BSUtil::lockopen(\*FF, '+>>', "$treedir/$smd5-_serviceerror");
+  $error = readstr("$treedir/$smd5-_serviceerror");
+  $error =~ s/\n$//s;
+  die("$error\n") if $error ne '';
+  $error = 'service in progress';
+  writestr("$treedir/.$smd5-_serviceerror", "$treedir/$smd5-_serviceerror", "$error\n");
+  close FF;	# free lock
+  my %nfiles = %$files;
+  $nfiles{'/SERVICE'} = $smd5;
+  runservice({}, $rev, \%nfiles, 1);
+  die("$error\n");
+}
+
+# returns service expanded filelist
+# modifies $rev->{'srcmd5'}
+sub lsrev_service {
+  my ($rev, $linkinfo) = @_;
+  $linkinfo ||= {};
+  my $files = lsrev($rev, $linkinfo);
+  $files = handleservice($rev, $files, $linkinfo->{'xservicemd5'}) if $linkinfo->{'xservicemd5'};
+  return $files;
+}
+
 # returns expanded filelist
 # modifies $rev->{'srcmd5'}, $rev->{'vrev'}
 sub lsrev_expanded {
   my ($rev, $linkinfo) = @_;
-  my $files = lsrev($rev, $linkinfo);
+  my $files = lsrev_service($rev, $linkinfo);
   return $files unless $files->{'_link'};
   $files = handlelinks($rev, $files, $linkinfo);
   die("$files\n") unless ref $files;
@@ -1789,18 +1941,18 @@ sub readpack {
 # collect all globale source services via all package and project links
 sub getprojectservices {
   my ($cgi, $projid, $packid, $projectloop) = @_;
-  my $services;
+  my $services = {};
 
   # protection against loops and double matches
-  $projectloop = {} unless $projectloop;
+  $projectloop ||= {};
   return ({}, $BSXML::services) if $projectloop->{$projid};
-  $projectloop->{$projid}=1;
+  $projectloop->{$projid} = 1;
 
   # get source services from this project
   my $projectrev = getrev($projid, '_project');
   my $projectfiles = lsrev($projectrev);
   if ($projectfiles->{'_service'}) {
-    $services = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::services, 1);
+    $services = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::services, 1) || {};
   }
 
   # find further projects via project link
@@ -1817,14 +1969,14 @@ sub getprojectservices {
   my $packagefiles = lsrev($packagerev);
   if ($packagefiles->{'_link'}) {
     my $l = repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1);
-    my $lprojid=$projid;
-    my $lpackid=$packid;
-    $lprojid=$l->{'project'} if $l->{'project'};
-    $lpackid=$l->{'package'} if $l->{'package'};
+    my $lprojid = $projid;
+    my $lpackid = $packid;
+    $lprojid = $l->{'project'} if defined $l->{'project'};
+    $lpackid = $l->{'package'} if defined $l->{'package'};
 
     # honor project links
     my ($lpack, undef) = getpackage($cgi, $lprojid, $lpackid);
-    if ($lprojid ne $lpack->{'project'}) {
+    if ($lprojid ne $lpack->{'project'}) {	# huh, can that happen?
       my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
       if (defined($as) && defined($as->{'service'})) {
         push @{$services->{'service'}}, @{$as->{'service'}};
@@ -1838,9 +1990,8 @@ sub getprojectservices {
     }
   }
 
-  $services = {} unless $services;
   return ($services, $BSXML::services);
-};
+}
 
 # find matching .spec/.dsc/.kiwi file depending on packid and/or repoid
 sub findfile {
@@ -2132,7 +2283,14 @@ sub getprojpack {
 	$pinfo->{'revtime'} = $rev->{'time'} if $rev->{'time'};
 	my $files;
 	eval {
-          $files = lsrev($rev);
+	  my $linkinfo = {};
+          $files = lsrev($rev, $linkinfo);
+	  if ($linkinfo->{'xservicemd5'}) {
+	    $files = handleservice($rev, $files, $linkinfo->{'xservicemd5'});
+	    my $meta = '';
+	    $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+	    $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+	  }
 	};
 	if ($@) {
 	  $pinfo->{'error'} = $@;
@@ -3303,7 +3461,34 @@ sub getfilelist {
 
   # show state of current source service run, if defined
   my $serviceinfo;
-  if ($files->{'_service'} && !defined($cgi->{'rev'})) {
+  if ($li->{'xservicemd5'} || $li->{'lservicemd5'}) {
+    # new style
+    $serviceinfo = {};
+    $serviceinfo->{'lsrcmd5'} = $li->{'lservicemd5'} if $li->{'lservicemd5'};
+    if ($li->{'xservicemd5'}) {
+      if ($cgi->{'expand'}) {
+	$serviceinfo->{'lsrcmd5'} = $rev->{'srcmd5'};
+	$files = handleservice($rev, $files, $li->{'xservicemd5'});
+	$serviceinfo->{'code'} = 'succeeded';	# otherwise it already died...
+      } else {
+        eval { handleservice({ %$rev }, $files, $li->{'xservicemd5'}) };
+	my $error = $@;
+	chomp $error if $error;
+	if (!$error) {
+	  $serviceinfo->{'code'} = 'succeeded';
+	  $serviceinfo->{'xsrcmd5'} = $li->{'xservicemd5'};
+	} elsif ($error =~ /service in progress/) {
+	  $serviceinfo->{'code'} = 'running';
+	} else {
+	  $serviceinfo->{'code'} = 'failed';
+	  $serviceinfo->{'error'} = $error;
+	}
+      }
+    }
+    delete $li->{'xservicemd5'};
+    delete $li->{'lservicemd5'};
+  } elsif ($files->{'_service'} && !defined($cgi->{'rev'})) {
+    # check error/in progress
     $serviceinfo = {};
     my $lockfile = "$eventdir/service/${projid}::$packid";
     if (-e $lockfile) {
@@ -3433,9 +3618,9 @@ sub putfile {
   }
   $files->{$filename} = $uploaded->{'md5'};
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
+  $files = addservicemark($projid, $packid, $files, $cgi->{'rev'});
   $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
-# update happens only on commit atm, or we would modify on file upload time ...
-# runservice($projid, $packid, 1) if $files->{'_service'} && not ($rev eq 'upload');
+  runservice($cgi, $rev, $files, 1);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -3461,7 +3646,9 @@ sub sourcediff {
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', undef, $cgi->{'missingok'});
   }
-  my $files = lsrev($rev);
+  my $linkinfo = {};
+  my $files = lsrev($rev, $linkinfo);
+  $files = handleservice($rev, $files, $linkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $linkinfo->{'xservicemd5'};
   my $orev = $cgi->{'orev'};
   if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     die("revision is not a simple commit\n") unless $rev->{'rev'} =~ /^\d+$/s;
@@ -3473,7 +3660,9 @@ sub sourcediff {
   } else {
     $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
   }
-  my $ofiles = lsrev($orev);
+  my $olinkinfo = {};
+  my $ofiles = lsrev($orev, $olinkinfo);
+  $ofiles = handleservice($rev, $ofiles, $olinkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $olinkinfo->{'xservicemd5'};
   if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
     if ($files->{'_link'}) {
@@ -3539,11 +3728,27 @@ sub linkdiff {
   die("not a link\n") unless $linkinfo->{'srcmd5'};
   linkinfo_addtarget($rev, $linkinfo);
   return sourcediff({
+    %$cgi, 'expand' => 0,
     'oproject' => $linkinfo->{'project'},
     'opackage' => $linkinfo->{'package'},
     'orev' => $linkinfo->{'srcmd5'},
     'rev' => $rev->{'srcmd5'},
   }, $projid, $packid);
+}
+
+sub servicediff {
+  my ($cgi, $projid, $packid) = @_;
+  die("servicediff only works for new style services\n") unless $BSConfig::new_style_services;
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  my $linkinfo = {};
+  my $files = lsrev($rev, $linkinfo);
+  if ($linkinfo->{'xservicemd5'}) {
+    return sourcediff({%$cgi, 'expand' => 0, 'orev' => $rev->{'srcmd5'}, 'rev' => $linkinfo->{'xservicemd5'}}, $projid, $packid);
+  } elsif ($linkinfo->{'lservicemd5'}) {
+    return sourcediff({%$cgi, 'expand' => 0, 'orev' => $linkinfo->{'lservicemd5'}, 'rev' => $rev->{'srcmd5'}}, $projid, $packid);
+  } else {
+    die("no service was run for this revision\n");
+  }
 }
 
 sub isascii {
@@ -3897,14 +4102,9 @@ sub sourcecommit {
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
+  $files = addservicemark($projid, $packid, $files) unless $cgi->{'noservice'};
   $rev = addrev($cgi, $projid, $packid, $files);
-  if (!$cgi->{'noservice'}) {
-    my $prev = getrev($projid, '_project');
-    my $pfiles = lsrev($prev);
-    if ($files->{'_service'} || $pfiles->{'_service'}) {
-      runservice($cgi, $projid, $packid);
-    }
-  }
+  runservice($cgi, $rev, $files, 1) unless $cgi->{'noservice'};
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -3941,17 +4141,11 @@ sub sourcecommitfilelist {
     my $uploadfiles = lsrev($uploadrev);
     addrev({ %$cgi, 'comment' => 'autocommit update revision'}, $projid, $packid, $uploadfiles);
   }
+  $files = addservicemark($projid, $packid, $files) unless $cgi->{'noservice'};
   my $rev = addrev($cgi, $projid, $packid, $files);
 
   # trigger service run, except for commits by service server itself
-  if (!$cgi->{'noservice'}) {
-    my $prev = getrev($projid, '_project');
-    my $pfiles = lsrev($prev);
-    if ($files->{'_service'} || $pfiles->{'_service'}) {
-      runservice($cgi, $projid, $packid);
-    }
-  }
-
+  runservice($cgi, $rev, $files, 1) unless $cgi->{'noservice'};
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
 }
@@ -4110,6 +4304,7 @@ sub sourcecopy {
   copyfiles($projid, $packid, $oprojid, $opackid, $files);
 
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
+  $files = addservicemark($projid, $packid, $files, $cgi->{'rev'});
   my $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
 
   if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
@@ -4193,6 +4388,7 @@ sub sourcebranch {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
+  $files = addservicemark($projid, $packid, $files);
   my $rev = addrev($cgi, $projid, $packid, $lfiles);
   delete $rev->{'project'};
   delete $rev->{'package'};
@@ -4217,10 +4413,11 @@ sub linktobranch {
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   $cgi->{'comment'} ||= 'converted link to branch';
+  $files = addservicemark($projid, $packid, $files);
   $rev = addrev($cgi, $projid, $packid, $files);
+  runservice($cgi, $rev, $files, 1);
   delete $rev->{'project'};
   delete $rev->{'package'};
-  runservice($projid, $packid) if $files->{'_service'};
   return ($rev, $BSXML::revision);
 }
 
@@ -4250,10 +4447,11 @@ sub delfile {
   die("404 file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
   $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
+  $files = addservicemark($projid, $packid, $files, $cgi->{'rev'});
   $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
+  runservice($cgi, $rev, $files, 1);
   delete $rev->{'project'};
   delete $rev->{'package'};
-  runservice($cgi, $projid, $packid, 1);
   return ($rev, $BSXML::revision);
 }
 
@@ -5992,6 +6190,7 @@ my $dispatches = [
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=servicediff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool? requestid:num? time:num? version:? vrev:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? withhistory:bool?' => \&sourcecopy,
@@ -5999,7 +6198,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
-  'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&runservice,
+  'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&triggerservicerun,
   'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
