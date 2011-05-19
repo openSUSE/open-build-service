@@ -108,10 +108,19 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-12-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
+ <distribution vendor="ScientificLinux" version="ScientificLinux-6" id="ScientificLinux-RHEL-6">
+  <name>ScientificLinux 6</name>
+  <project>openSUSE.org:ScientificLinux:6</project>
+  <reponame>ScientificLinux_6</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/scientificlinux-6-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/scientificlinux-6-16.png"/>
+  <link>http://www.scientificlinux.org/</link>
+ </distribution>
  <distribution vendor="RedHat" version="RHEL-6" id="redhat-RHEL-6">
   <name>RedHat RHEL-6</name>
   <project>openSUSE.org:RedHat:RHEL-6</project>
-  <reponame>RedHat_RHEL-6</reponame>
+  <reponame>RHEL_6</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-16.png"/>
@@ -120,7 +129,7 @@
  <distribution vendor="RedHat" version="RHEL-5" id="redhat-RHEL-5">
   <name>RedHat RHEL-5</name>
   <project>openSUSE.org:RedHat:RHEL-5</project>
-  <reponame>RedHat_RHEL-5</reponame>
+  <reponame>RHEL_5</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-5-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-5-16.png"/>
@@ -129,7 +138,7 @@
  <distribution vendor="RedHat" version="RHEL-4" id="redhat-RHEL-4">
   <name>RedHat RHEL-4</name>
   <project>openSUSE.org:RedHat:RHEL-4</project>
-  <reponame>RedHat_RHEL-4</reponame>
+  <reponame>RHEL_4</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-16.png"/>
@@ -138,7 +147,7 @@
  <distribution vendor="CentOS" version="CentOS-5" id="centos-CentOS-5">
   <name>CentOS CentOS-5</name>
   <project>openSUSE.org:CentOS:CentOS-5</project>
-  <reponame>CentOS_CentOS-5</reponame>
+  <reponame>CentOS_5</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-16.png"/>
