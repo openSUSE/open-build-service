@@ -9,7 +9,7 @@ class AddRepoTest < ActionController::IntegrationTest
       fill_in "Password", :with => "asdfasdf"
       click_button "Login"
       assert_contain("You are logged in now")
-      assert_contain("Welcome to the openSUSE Build Service")
+      assert_contain("Welcome to the Open Build Service")
    end
 
    def test_add_default

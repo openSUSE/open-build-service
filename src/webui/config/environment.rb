@@ -101,6 +101,11 @@ begin
 rescue Errno::ENOENT
 end
 
+if CONFIG.has_key?('visible_instance_name')
+  OBS_INSTANCE_NAME = CONFIG['visible_instance_name']
+else
+  OBS_INSTANCE_NAME = ""
+end
 if not defined?(DOWNLOAD_URL) or DOWNLOAD_URL.blank?
  if CONFIG.has_key?('download_url') and not 
   DOWNLOAD_URL = CONFIG['download_url']
