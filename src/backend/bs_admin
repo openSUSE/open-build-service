@@ -60,7 +60,7 @@ my $sourcedb = "$BSConfig::bsdir/db/source";
 
 sub echo_help {
     print "\n
-The openSUSE Build Service Admin Tool
+The Open Build Service Admin Tool
 =====================================
 
 *** This tool is only intended to be used by experienced admins on

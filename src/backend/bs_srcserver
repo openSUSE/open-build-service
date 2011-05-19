@@ -3231,7 +3231,7 @@ sub concatconfigs {
   my $config = "%define _project $projid\n";
   my $macros = '';
 
-  #$macros .= "%vendor openSUSE Build Service\n";
+  #$macros .= "%vendor Open Build Service\n";
 
   # find the sign project, this is what we use as vendor
   my $vprojid = $projid;

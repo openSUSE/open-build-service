@@ -17,7 +17,7 @@
 #
 ################################################################
 #
-# Build Service Configuration
+# Open Build Service Configuration
 #
 
 package BSConfig;

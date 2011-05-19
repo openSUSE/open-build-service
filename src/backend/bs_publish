@@ -422,14 +422,14 @@ sub createrepo_susetags {
   my @lt = localtime(time());
   $lt[4] += 1;
   $lt[5] += 1900;
-  my $str = sprintf("openSUSE Build Service\n%04d%02d%02d%02d%02d%02d\n1\n", @lt[5,4,3,2,1,0]);
+  my $str = sprintf("Open Build Service\n%04d%02d%02d%02d%02d%02d\n1\n", @lt[5,4,3,2,1,0]);
   writestr("$extrep/media.1/.media", "$extrep/media.1/media", $str);
   writestr("$extrep/media.1/.directory.yast", "$extrep/media.1/directory.yast", "media\n");
   $str = <<"EOL";
-PRODUCT openSUSE Build Service $projid $repoid
+PRODUCT Open Build Service $projid $repoid
 VERSION 1.0-0
 LABEL $repoinfo->{'title'}
-VENDOR openSUSE Build Service
+VENDOR Open Build Service
 ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
 ARCH.ppc64 ppc64 ppc noarch
 ARCH.ppc ppc noarch
@@ -487,11 +487,11 @@ sub createrepo_debian {
   my $date = POSIX::ctime(time());
   $date =~ s/\n//m;
   my $str = <<"EOL";
-Origin: openSUSE Build Service $projid $repoid
+Origin: Open Build Service $projid $repoid
 Label: $repoinfo->{'title'}
 Version: 0.00
 Date: $date
-Description: openSUSE Build Service $projid $repoid
+Description: Open Build Service $projid $repoid
 MD5Sum:
 EOL
 
