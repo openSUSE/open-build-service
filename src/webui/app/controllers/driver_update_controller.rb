@@ -6,6 +6,12 @@ class DriverUpdateController < PackageController
   before_filter :check_images_repo, :only => [:create, :edit]
 
   def create
+    services = Service.find :project => @project, :package => @package
+    services = Service.new( :project => @project, :package => @package ) unless services
+    if services.data.find( "service[@name='generator_driver_update_disk']" ).first
+      flash[:warn] = "Existing Driver update disk section found in _services, editing that one"
+      redirect_to :action => :edit, :project => @project, :package => @package and return
+    end
     @repositories = []
     @packages = []
     @binary_packages = []
@@ -25,7 +31,7 @@ class DriverUpdateController < PackageController
     end
 
     #parse name, archs, repos from services file
-    @repositories = service.find( 'param[@name="instrepo"]' ).map{|repo| {:project => repo.content.split('/')[0], :repo => repo.content.split('/')[1] } }
+    @repositories = service.find( 'param[@name="instrepo"]' ).map{|repo| repo.content}
     @name = service.find( 'param[@name="name"]' ).first.content if service.find( 'param[@name="name"]' ).first
     @distname = service.find( 'param[@name="distname"]' ).first.content if service.find( 'param[@name="distname"]' ).first
     @flavour = service.find( 'param[@name="flavour"]' ).first.content if service.find( 'param[@name="flavour"]' ).first
@@ -51,26 +57,57 @@ class DriverUpdateController < PackageController
   def save
     valid_http_methods :post
 
-    # TODO: check for valid name, check for minimum 1 architecture
+    @name = params[:name]
+    @repositories = params[:projects] || []
+    @packages = params[:packages] || []
+    @binary_packages = {}
+    @packages.each do |package|
+      @binary_packages[package] = params[:binaries].select{|binary| 
+        binary =~ /#{package}\//}.each{|binary| binary.gsub!(/^.*\//, '') } unless params[:binaries].blank?
+    end
+
+    @architectures = params[:arch] || []
+
+    errors = ""
+    if params[:arch].blank?
+      errors += "Please select at least one architecture. \n"
+    end
+    if params[:name].blank?
+      errors += "Please enter a name. \n"
+    end
+    if params[:projects].blank?
+      errors += "Please select at least one repository. \n"
+    end
+    if params[:packages].blank?
+      errors += "Please select at least one package. \n"
+    end
+    if params[:binaries].blank?
+      errors += "Please select at least one binary package. \n"
+    end
+
+    unless errors.blank?
+      flash.now[:error] = errors
+      require_available_architectures
+      render :create and return
+    end
+
 
     # write filelist to separate file
     opt = Hash.new
     opt[:project] = @project
     opt[:package] = @package
     opt[:filename] = "dud_packlist.xml"
-    opt[:comment] = "Modified via webui"
+    opt[:comment] = "Modified via driver update disk webui"
 
     fc = FrontendCompat.new
-    logger.debug "storing filelist"
-
     file_content = "<?xml version=\"1.0\"?>\n"
     file_content += "  <packlist>\n"
     file_content += "    <repopackages>\n"
 
-    params[:packages].each do |package|
+    @packages.each do |package|
       file_content += "      <binarylist package=\"" + package + "\">\n"
-      params[:binaries].select{|binary| binary =~ /#{package}\//}.each do |binary|
-        file_content += "        <binary filename=\"#{binary.gsub(/^.*\//, '')}\"/>\n"
+      @binary_packages[package].each do |binary|
+        file_content += "        <binary filename=\"#{binary}\"/>\n"
       end
       file_content += "    </binarylist>\n"
     end
@@ -86,10 +123,10 @@ class DriverUpdateController < PackageController
     services = Service.new( :project => @project, :package => @package ) unless services
 
     dud_params = []
-    dud_params << {:name => 'name', :value => params[:name]}
+    dud_params << {:name => 'name', :value => @name}
     dud_params << {:name => 'distname', :value => params[:distname]}
-    dud_params |= params[:arch].map{|arch| {:name => 'arch', :value => arch}}
-    dud_params |= params[:projects].map{|project| {:name => 'instrepo', :value => project}}
+    dud_params |= @architectures.map{|arch| {:name => 'arch', :value => arch}}
+    dud_params |= @repositories.map{|project| {:name => 'instrepo', :value => project}}
 
     services.removeService( 'generator_driver_update_disk' )
     services.addService( 'generator_driver_update_disk', -1, dud_params )
