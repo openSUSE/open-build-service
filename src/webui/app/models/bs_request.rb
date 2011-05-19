@@ -9,7 +9,11 @@ class BsRequest < ActiveXML::Base
     def make_stub(opt)
       option = source_package = target_package = ""
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
-      target_package = "package=\"#{opt[:targetpackage].to_xs}\"" if opt[:targetpackage] and not opt[:targetpackage].empty?
+      if opt[:targetpackage] and not opt[:targetpackage].empty?
+        target_package = "package=\"#{opt[:targetpackage].to_xs}\""
+      else
+        target_package = "package=\"#{opt[:package].to_xs}\""
+      end
 
       # set request-specific options
       case opt[:type]
