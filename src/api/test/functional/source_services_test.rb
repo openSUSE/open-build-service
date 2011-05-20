@@ -93,17 +93,21 @@ class SourceServicesTest < ActionController::IntegrationTest
     post "/source/home:tom/service?cmd=runservice"
     assert_response :success
     wait_for_service( "home:tom", "service" )
-    get "/source/home:tom/service/_service_error"
+    get "/source/home:tom/service"
     assert_response :success
+    assert_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
+    assert_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
 
     put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
     post "/source/home:tom/service?cmd=runservice"
     assert_response :success
     wait_for_service( "home:tom", "service" )
-    get "/source/home:tom/service/_service_error"
-    assert_response 404
-    get "/source/home:tom/service/_service:set_version:pack.spec"
+    get "/source/home:tom/service"
+    assert_response :success
+    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
     assert_response :success
 
     # cleanup
@@ -190,8 +194,10 @@ end
     post "/source/home:tom/service?cmd=runservice"
     assert_response :success
     wait_for_service( "home:tom", "service" )
-    get "/source/home:tom/service/_service_error"
+    get "/source/home:tom/service"
     assert_response :success
+    assert_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
+    assert_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
 
     put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
@@ -203,9 +209,11 @@ end
     post "/source/home:tom/service2?cmd=runservice"
     assert_response :success
     wait_for_service( "home:tom", "service2" )
-    get "/source/home:tom/service2/_service_error"
-    assert_response 404
-    get "/source/home:tom/service2/_service:set_version:pack.spec"
+    get "/source/home:tom/service2"
+    assert_response :success
+    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    get "/source/home:tom/service2/_service:set_version:pack.spec?expand=1"
     assert_response :success
 
     # cleanup
