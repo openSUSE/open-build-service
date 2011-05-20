@@ -210,7 +210,9 @@ end
     wait_for_service( "home:tom", "service2" )
     get "/source/home:tom/service2"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+# FIXME2.3: use this when switching to new service mode
+#    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
     assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
     get "/source/home:tom/service2/_service:set_version:pack.spec?expand=1"
     assert_response :success
