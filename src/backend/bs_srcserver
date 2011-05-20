@@ -3522,6 +3522,9 @@ sub getfilelist {
     } else {
       $serviceinfo->{'code'} = 'succeeded';
     }
+  } elsif ($files->{'_service_error'}) {
+    $serviceinfo = {'code' => 'failed'};
+    $serviceinfo->{'error'} = repreadstr($rev, '_service_error', $files->{'_service_error'});
   }
 
   if ($files->{'_link'}) {
