@@ -1831,6 +1831,24 @@ end
     assert_response :success
   end
 
+  def test_create_project_with_repository_self_reference
+    prepare_request_with_user "tom", "thunder"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> 
+           <repository name="me" />
+         </project>'
+    assert_response :success
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> 
+           <repository name="me">
+             <path project="home:tom:temporary" repository="me" />
+           </repository>
+         </project>'
+    assert_response 400
+    delete "/source/home:tom:temporary"
+    assert_response :success
+  end
+
   def test_use_project_link_as_non_maintainer
     prepare_request_with_user "tom", "thunder"
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
