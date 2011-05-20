@@ -596,7 +596,7 @@ class DbProject < ActiveRecord::Base
         position = 1
         repo.each_path do |path|
           link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
-          if path.project == link_repo.db_project.name and path.repository == link_repo.name
+          if path.project == self.name and path.repository == repo.name
             raise SaveError, "Using same repository as path element is not allowed"
           end
           unless link_repo
