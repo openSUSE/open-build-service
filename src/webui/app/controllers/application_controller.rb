@@ -5,6 +5,16 @@ require 'common/activexml/transport'
 require 'libxml'
 require 'person'
 
+#Note: This is a SUSE-sepecific debugging extension that saves the last
+#      exception's scope. This method needs a patched Ruby interpreter.
+if defined?(set_trace_func_for_raise)
+  $exception_scope = {}
+  set_trace_func_for_raise proc {|event, file, line, id, binding, classname|
+    $exception_scope[:locals] = binding.eval('local_variables()')
+    $exception_scope[:globals] = binding.eval('global_variables()')
+  }
+end
+
 class ApplicationController < ActionController::Base
 
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
@@ -228,7 +238,13 @@ class ApplicationController < ActionController::Base
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
     else
       if code != 404 && send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+        #Note: This is a SUSE-sepecific debugging extension that saves the last
+        #      exception's scope. This method needs a patched Ruby interpreter.
+        if defined?(set_trace_func_for_raise)
+          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), $exception_scope)
+        else
+          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+        end
       end
       render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception

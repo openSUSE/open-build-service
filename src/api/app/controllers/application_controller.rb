@@ -16,6 +16,16 @@ class GroupNotFoundError < Exception; end
 class RoleNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
 
+#Note: This is a SUSE-sepecific debugging extension that saves the last
+#      exception's scope. This method needs a patched Ruby interpreter.
+if defined?(set_trace_func_for_raise)
+  $exception_scope = {}
+  set_trace_func_for_raise proc {|event, file, line, id, binding, classname|
+    $exception_scope[:locals] = binding.eval('local_variables()')
+    $exception_scope[:globals] = binding.eval('global_variables()')
+  }
+end
+
 class ApplicationController < ActionController::Base
 
   # Do never use a layout here since that has impact on every controller
@@ -528,7 +538,13 @@ class ApplicationController < ActionController::Base
       end
     else
       if send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+        #Note: This is a SUSE-sepecific debugging extension that saves the last
+        #      exception's scope. This method needs a patched Ruby interpreter.
+        if defined?(set_trace_func_for_raise)
+          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), $exception_scope)
+        else
+          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+        end
       end
       render_error :message => "Uncaught exception: #{exception.message}", :status => 400
     end
