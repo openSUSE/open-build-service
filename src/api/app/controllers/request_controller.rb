@@ -813,20 +813,39 @@ class RequestController < ApplicationController
               :message => "The request is not in state review"
         return
       end
-      permission_granted = true if @http_user.is_in_group?(params[:by_group])
-      permission_granted = true if params[:by_user] == @http_user.login
-      if params[:by_project] 
-        if params[:by_package]
-          permission_granted = true if @http_user.can_modify_package? pkg
-        else
-          permission_granted = true if @http_user.can_modify_project? prj
+      if params[:by_user]
+        unless @http_user.login == params[:by_user]
+          render_error :status => 403, :errorcode => "review_change_state_no_permission",
+                :message => "review state change is not permitted for #{@http_user.login}"
+          return
         end
       end
-      unless permission_granted
-        render_error :status => 403, :errorcode => "review_change_state_no_permission",
-              :message => "Changing review state for request #{req.id} not permitted"
-        return
+      if params[:by_group]
+        unless @http_user.is_in_group?(params[:by_group])
+          render_error :status => 403, :errorcode => "review_change_state_no_permission",
+                :message => "review state change for group #{params[:by_group]} is not permitted for #{@http_user.login}"
+          return
+        end
       end
+      if params[:by_project] 
+        if params[:by_package]
+          unless @http_user.can_modify_package? pkg
+            render_error :status => 403, :errorcode => "review_change_state_no_permission",
+                  :message => "review state change for package #{params[:by_project]} / #{params[:by_package]} is not permitted for #{@http_user.login}"
+            return
+          end
+        else
+          if @http_user.can_modify_project? prj
+            unless @http_user.can_modify_package? pkg
+              render_error :status => 403, :errorcode => "review_change_state_no_permission",
+                    :message => "review state change for project #{params[:by_project]} is not permitted for #{@http_user.login}"
+              return
+            end
+          end
+        end
+      end
+      # 
+      permission_granted = true
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true

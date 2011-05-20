@@ -891,10 +891,10 @@ end
     assert_match(/Request is in review state./, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response 403
-    assert_match(/Changing review state for request/, @response.body)
+    assert_match(/review state change is not permitted for/, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 403
-    assert_match(/Changing review state for request/, @response.body)
+    assert_match(/review state change for group test_group is not permitted for Iggy/, @response.body)
     post "/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 404
     assert_match(/No such request/, @response.body)
