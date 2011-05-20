@@ -214,7 +214,7 @@ sub runservice {
 
   # collect current sources to POST them
   if (!$files->{'_service'} && !$projectservices) {
-    die("404 no source service defined!") unless $nonfatal;
+    die("404 no source service defined!\n") unless $nonfatal;
     # drop all existing service files
     my $dirty;
     for my $pfile (keys %$files) {
@@ -327,6 +327,8 @@ sub triggerservicerun {
       $cgi->{'servicemark'} = $servicemark;
       $rev = addrev($cgi, $projid, $packid, $files);
       runservice($cgi, $rev, $files, 1);
+    } else {
+      die("404 no source service defined!\n");
     }
   }
   return $BSStdServer::return_ok;
