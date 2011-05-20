@@ -124,7 +124,7 @@ sub genservicemark {
   # check if we really need to run the service
   if (!$files->{'_service'}) {
     # XXX: getprojectservices may die!
-    my ($projectservices, undef) = getprojectservices({}, $rev->{'project'}, $rev->{'package'});
+    my ($projectservices, undef) = getprojectservices({}, $projid, $packid);
     return undef unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
   }
 
