@@ -5155,7 +5155,7 @@ while(1) {
 	$packerror{$packid} = $pdata->{'error'};
 	next;
       }
-      if ($pdata->{'error'} =~ /source update running/) {
+      if ($pdata->{'error'} =~ /source update running/ || $pdata->{'error'} =~ /service in progress/) {
 	$packstatus{$packid} = 'blocked';
 	$packerror{$packid} = $pdata->{'error'};
 	next;
