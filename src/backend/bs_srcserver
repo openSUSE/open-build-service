@@ -5549,19 +5549,11 @@ sub postrequest {
     $go_new_state = $cgi->{'newstate'} if $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
     my $found = 0;
     for my $r (@{$req->{'review'} || []}) {
-      my $matching;
-      $matching = 1 if defined($r->{'by_user'}) and defined($cgi->{'by_user'}) and $r->{'by_user'} eq $cgi->{'by_user'};
-      $matching = 1 if defined($r->{'by_group'}) and defined($cgi->{'by_group'}) and $r->{'by_group'} eq $cgi->{'by_group'};
-      if (defined($r->{'by_project'}) and defined($cgi->{'by_project'}) and $r->{'by_project'} eq $cgi->{'by_project'}) {
-        if (defined($r->{'by_package'}) or defined($cgi->{'by_package'})) {
-          # by_package review
-          $matching = 1 if $r->{'by_package'} eq $cgi->{'by_package'};
-        } else {
-          # by_project review
-          $matching = 1;
-        }
-      }
-
+      my $matching = 1;
+      $matching = 0 if defined($r->{'by_user'}) && $r->{'by_user'} ne ($cgi->{'by_user'}||'');
+      $matching = 0 if defined($r->{'by_group'}) && $r->{'by_group'} ne ($cgi->{'by_group'}||'');
+      $matching = 0 if defined($r->{'by_project'}) && $r->{'by_project'} ne ($cgi->{'by_project'}||'');
+      $matching = 0 if defined($r->{'by_package'}) && $r->{'by_package'} ne ($cgi->{'by_package'}||'');
       if ($matching) {
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
