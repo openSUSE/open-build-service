@@ -96,7 +96,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     get "/source/home:tom/service/_service_error"
     assert_response :success
 
-    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
+    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
     post "/source/home:tom/service?cmd=runservice"
     assert_response :success
@@ -116,6 +116,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/BaseDistro2/pack2/_service"
     assert_response 404
+    post "/source/BaseDistro2/pack2?cmd=getprojectservices"
     post "/source/BaseDistro2/pack2?cmd=runservice"
     assert_response 404
   end
@@ -124,10 +125,12 @@ class SourceServicesTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
-    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
+    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0819</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
+    wait_for_service( "home:tom", "service" )
     put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
+    wait_for_service( "home:tom", "service" )
 
     # find out the md5sum of _service file
     get "/source/home:tom/service"
@@ -154,18 +157,18 @@ class SourceServicesTest < ActionController::IntegrationTest
     # validate revisions
     get "/source/home:tom/service/_history"
     assert_response :success
-    get "/source/home:tom/service?rev=4" # service run after first commitfilelist
+    get "/source/home:tom/service?rev=6" # service run after first commitfilelist
     assert_response :success
     assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
     assert_tag :tag => 'entry', :attributes => { :name => 'filename' }
-    get "/source/home:tom/service?rev=5" # second commit
+    get "/source/home:tom/service?rev=7" # second commit
     assert_response :success
 if $ENABLE_BROKEN_TEST
 # mls want's to solve it differntly, just mark it as broken atm.
     assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }  # old file kept during commit
 end
     assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }                      # user file got removed
-    get "/source/home:tom/service?rev=6" # service run after second commit
+    get "/source/home:tom/service?rev=8" # service run after second commit
     assert_response :success
     assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
     assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }
@@ -190,7 +193,7 @@ end
     get "/source/home:tom/service/_service_error"
     assert_response :success
 
-    put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> <param name="file">pack.spec</param> </service> </services>'
+    put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
 
     put "/source/home:tom/service2/_meta", "<package project='home:tom' name='service2'> <title /> <description /> </package>"
@@ -206,6 +209,8 @@ end
     assert_response :success
 
     # cleanup
+    delete "/source/home:tom/_project/_service"
+    assert_response :success
     delete "/source/home:tom/service"
     assert_response :success
     delete "/source/home:tom/service2"
