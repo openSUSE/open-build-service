@@ -49,10 +49,3 @@ class Consistency < ActionController::IntegrationTest
   end
 end
 
-
-# these tests needs to run twice, just after fixture setup and after all other test finished
-class AaaPreConsistencyTest < Consistency
-end
-class ZzzPostConsistencyTest < Consistency
-end
-
