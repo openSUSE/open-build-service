@@ -899,8 +899,19 @@ end
     assert_response 404
     assert_match(/No such request/, @response.body)
 
-    # approve reviews
+    # Only partly matching by_ arguments
     prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian&by_group=test_group_b"
+    assert_response 403
+    assert_match(/review state change for group test_group_b is not permitted for adrian/, @response.body)
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian&by_project=BaseDistro"
+    assert_response 403
+    assert_match(/review state change for project BaseDistro is not permitted for adrian/, @response.body)
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian&by_project=BaseDistro&by_package=pack2"
+    assert_response 403
+    assert_match(/review state change for package BaseDistro\/pack2 is not permitted for adrian/, @response.body)
+
+    # approve reviews for real
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response :success
     get "/request/#{id}"

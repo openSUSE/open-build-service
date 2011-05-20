@@ -831,16 +831,14 @@ class RequestController < ApplicationController
         if params[:by_package]
           unless @http_user.can_modify_package? pkg
             render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                  :message => "review state change for package #{params[:by_project]} / #{params[:by_package]} is not permitted for #{@http_user.login}"
+                  :message => "review state change for package #{params[:by_project]}/#{params[:by_package]} is not permitted for #{@http_user.login}"
             return
           end
         else
-          if @http_user.can_modify_project? prj
-            unless @http_user.can_modify_package? pkg
-              render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                    :message => "review state change for project #{params[:by_project]} is not permitted for #{@http_user.login}"
-              return
-            end
+          unless @http_user.can_modify_project? prj
+            render_error :status => 403, :errorcode => "review_change_state_no_permission",
+                  :message => "review state change for project #{params[:by_project]} is not permitted for #{@http_user.login}"
+            return
           end
         end
       end
