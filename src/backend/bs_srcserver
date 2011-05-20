@@ -198,7 +198,7 @@ sub runservice {
 
   # die when a source service is still running
   my $lockfile = "$eventdir/service/${projid}::$packid";
-  die("403 service still running") if !$nonfatal && -e $lockfile;
+  die("403 service still running\n") if !$nonfatal && -e $lockfile;
 
   my $projectservices;
   eval {
@@ -4407,7 +4407,7 @@ sub sourcebranch {
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   my $rev = addrev($cgi, $projid, $packid, $lfiles);
-  runservice($cgi, $rev, $files, 1);
+  runservice($cgi, $rev, $lfiles, 1);
   delete $rev->{'project'};
   delete $rev->{'package'};
   BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
