@@ -120,7 +120,6 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/BaseDistro2/pack2/_service"
     assert_response 404
-    post "/source/BaseDistro2/pack2?cmd=getprojectservices"
     post "/source/BaseDistro2/pack2?cmd=runservice"
     assert_response 404
   end
