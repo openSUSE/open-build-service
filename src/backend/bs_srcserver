@@ -1984,9 +1984,15 @@ sub getprojectservices {
   # find further projects via project link
   my $proj = readproj($projid, 1);
   for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
-    my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
-    if (defined($as) && defined($as->{'service'})) {
-      push @{$services->{'service'}}, @{$as->{'service'}};
+    my $lpack;
+    eval {
+      ($lpack, undef) = getpackage($cgi, $lprojid, $packid);
+    };
+    if ($lpack) {
+      my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
+      if (defined($as) && defined($as->{'service'})) {
+        push @{$services->{'service'}}, @{$as->{'service'}};
+      }
     }
   }
 
