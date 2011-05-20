@@ -9,8 +9,8 @@ class ApplicationControllerTest < ActionController::IntegrationTest
     d = "don't shorten"
     assert_equal(d, elide(d, d.length))
 
-    t = "Rocking the openSUSE Build Service"
-    assert_equal("...openSUSE Build Service", elide(t, 25, :left))
+    t = "Rocking the Open Build Service"
+    assert_equal("...Open Build Service", elide(t, 25, :left))
     assert_equal("R...", elide(t, 4, :right))
     assert_equal("...", elide(t, 3, :right))
     assert_equal("...", elide(t, 2, :right))
@@ -22,7 +22,7 @@ class ApplicationControllerTest < ActionController::IntegrationTest
 
   def test_elide_two
     d = "don't shorten"
-    t = "Rocking the openSUSE Build Service"
+    t = "Rocking the Open Build Service"
 
     assert_equal([d, "Rocking the ...uild Service"], elide_two(d, t, 40))
   end

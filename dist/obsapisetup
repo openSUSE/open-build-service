@@ -192,7 +192,7 @@ test@email.address
 		chown -R wwwrun.www $apidir/log
 
 		cat > /etc/issue <<EOF
-Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
+Welcome to Open Build Service(OBS) Appliance $OBSVERSION
 based on $OS
 
 EOF
@@ -223,7 +223,8 @@ More informations about this appliance are available here:
 
  http://en.opensuse.org/Build_Service/OBS-Appliance
 
-                                  Greetings from the openSUSE Build Service Team
+                                  Greetings from the Open Build Service Team
+                                  http://www.open-build-service.org
 
 EOF
 		else

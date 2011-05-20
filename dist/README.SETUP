@@ -1,4 +1,4 @@
-This file briefly describes how to setup an openSUSE Build Service
+This file briefly describes how to setup an Open Build Service
 (OBS) with the rpm packages from the openSUSE project.  By default all
 services run on the same system.  This document does not describe how
 to distribute them to increase reliability and do load balancing, but
@@ -227,7 +227,7 @@ Afterwards you can start the OBS web api via
 ==============================
 
 The easiest way is reuse a base distro hosted at openSUSE.org.
-The Build Service has a mechanism to reuse projects from a remote instance
+The Open Build Service has a mechanism to reuse projects from a remote instance
 since version 0.9. It is recommended to use this mechanism.
 In addition to that, it is also possible to copy base projects with the provided scripts.
 

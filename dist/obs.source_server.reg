@@ -8,5 +8,5 @@
 
 service:obs.source_server:http://$HOSTNAME:5352,en,65535
 watch-port-tcp=5352
-description=openSUSE Build Service Source Server
+description=Open Build Service Source Server
 

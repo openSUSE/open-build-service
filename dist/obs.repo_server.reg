@@ -8,5 +8,5 @@
 
 service:obs.repo_server:http://$HOSTNAME:5252,en,65535
 watch-port-tcp=5252
-description=openSUSE Build Service Repository Server
+description=Open Build Service Repository Server
 
