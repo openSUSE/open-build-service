@@ -11,13 +11,13 @@ class BsRequest < ActiveXML::Base
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
       if opt[:targetpackage] and not opt[:targetpackage].empty?
         target_package = "package=\"#{opt[:targetpackage].to_xs}\""
-      else
-        target_package = "package=\"#{opt[:package].to_xs}\""
       end
 
       # set request-specific options
       case opt[:type]
         when "submit" then
+          # use source package name if no target package name is given for a submit request
+          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
           # set target package is the same as the source package if no target package is specified
           revision_option = "rev=\"#{opt[:rev].to_xs}\"" unless opt[:rev].blank?
           action = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
@@ -39,6 +39,8 @@ class BsRequest < ActiveXML::Base
         when "maintenance_release" then
           action = "<source project=\"#{opt[:project]}\" />"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
+        when "delete_request" then
+          action = "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
       end
       # build the request XML
       reply = <<-EOF
