@@ -1,0 +1,15 @@
+<% @pagetitle = 'My Work' %>
+<% @crumb_list = [@pagetitle] %>
+
+<h3><%= @pagetitle %></h3>
+
+<p>
+  This page summarizes all requests where immediate action is required from you.
+  <%= link_to('You can also use your complete list of requests.', :action => 'list_requests', :user => user.to_s) %>
+</p>
+
+<h3>Open Reviews</h3>
+<%= render(:partial => 'shared/list_requests', :locals => { :requests => @open_reviews }) %>
+
+<h3>New Requests</h3>
+<%= render(:partial => 'shared/list_requests', :locals => { :requests => @new_requests, :request_table_id => 'new_requests_table' }) %>

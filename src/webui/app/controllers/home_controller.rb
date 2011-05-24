@@ -8,6 +8,13 @@ class HomeController < ApplicationController
     @user = user if user
   end
 
+  def my_work
+    user = find_cached(Person, params['user'] ) if params['user']
+    @user = user if user
+    @new_requests = BsRequest.list({:states => 'new', :roles => "maintainer", :user => user.to_s})
+    @open_reviews = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => user.to_s})
+  end
+
   def list_requests
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
