@@ -9,3 +9,8 @@ require 'rake/rdoctask'
 
 require 'tasks/rails'
 require 'delayed/tasks'
+begin
+  require 'ci/reporter/rake/test_unit'
+rescue LoadError
+  puts "Please run 'rake gems:install' to install the 'ci_reporter' gem."
+end
