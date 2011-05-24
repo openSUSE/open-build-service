@@ -802,10 +802,6 @@ sub makedeltas {
   my $rdir = "$reporoot/$prp/$myarch/:repo";
   my $ddir = "$reporoot/$prp/$myarch/_deltas";
 
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
-  my $extrep = "$extrepodir/$prp_ext";
-
   my %oldbins;
 
   my %havedelta;
@@ -827,29 +823,44 @@ sub makedeltas {
       next unless $bin =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/;
       my $binname = $1;
       my $binarch = $2;
-      if (!$oldbins{$binarch}) {
-	$oldbins{$binarch} = {};
-	for my $obin (sort(ls("$extrep/$binarch"))) {
-	  next unless $obin =~ /^(.+)-[^-]+-[^-]+\.(?:[a-zA-Z][^\/\.\-]*)\.rpm$/;
-	  push @{$oldbins{$binarch}->{$1}}, $obin;
+
+      # find all delta candidates for this package. we currently just
+      # use the searchpath, this may be configurable in a later version
+      my @aprp = @$prpsearchpath;
+      for my $aprp (@aprp) {
+	# look in the *published* repos. this does not work for
+	# projects that have publishing disabled, like "openSUSE:*"
+	my $aextrep = $aprp;
+	$aextrep =~ s/:/:\//g;
+	$aextrep = "$extrepodir/$aextrep";
+	if (!$oldbins{"$aprp/$binarch"}) {
+	  $oldbins{"$aprp/$binarch"} = {};
+	  for my $obin (sort(ls("$aextrep/$binarch"))) {
+	    next unless $obin =~ /^(.+)-[^-]+-[^-]+\.(?:[a-zA-Z][^\/\.\-]*)\.rpm$/;
+	    push @{$oldbins{"$aprp/$binarch"}->{$1}}, $obin;
+	  }
 	}
-      }
-      my @cand = grep {$_ ne $bin} @{$oldbins{$binarch}->{$binname}};
-      next unless @cand;
-      if (@cand > 1) {
-	# sort version/release  FIXME: epoch? use file mtime instead?
-	@cand = sort { Build::Rpm::verscmp($b, $a) } @cand;
-      }
-      @cand = splice(@cand, 0, 1);
-      for my $obin (@cand) {
-	my @s = stat("$extrep/$binarch/$obin");
-        next unless @s;
-	my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$obin/$s[9]/$s[7]/$s[1]");
-        $deltaids{$deltaid} = 1;
-	if (-e "$ddir/$deltaid" && (-e "$ddir/$deltaid.dseq" || ! -s "$ddir/$deltaid")) {
-	  push @{$havedelta{"$packid/$bin"}}, [ $deltaid, $obin ];
-        } else {
-	  push @needdelta, [ "$extrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
+	my @cand = grep {$_ ne $bin} @{$oldbins{"$aprp/$binarch"}->{$binname}};
+	next unless @cand;
+	if (@cand > 1) {
+	  # sort version/release  FIXME: epoch? use file mtime instead?
+	  @cand = sort { Build::Rpm::verscmp($b, $a) } @cand;
+	}
+	# make this configurable
+	@cand = splice(@cand, 0, 1);
+	for my $obin (@cand) {
+	  my @s = stat("$aextrep/$binarch/$obin");
+	  next unless @s;
+	  my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$aprp/$obin/$s[9]/$s[7]/$s[1]");
+	  $deltaids{$deltaid} = 1;
+	  if (-e "$ddir/$deltaid" && (-e "$ddir/$deltaid.dseq" || ! -s "$ddir/$deltaid")) {
+	    # make sure we don't already have this one
+	    if (!grep {$_->[1] eq $obin} @{$havedelta{"$packid/$bin"} || []}) {
+	      push @{$havedelta{"$packid/$bin"}}, [ $deltaid, $obin ];
+	    }
+	  } else {
+	    push @needdelta, [ "$aextrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
+	  }
 	}
       }
     }
