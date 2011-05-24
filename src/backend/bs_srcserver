@@ -183,7 +183,7 @@ sub addrev_service {
 
 # called *after* addrev to trigger service run
 sub runservice {
-  my ($cgi, $rev, $files, $nonfatal) = @_;
+  my ($cgi, $rev, $files) = @_;
 
   return if $BSConfig::new_style_services && !$files->{'/SERVICE'};
 
@@ -198,7 +198,7 @@ sub runservice {
 
   # die when a source service is still running
   my $lockfile = "$eventdir/service/${projid}::$packid";
-  die("403 service still running\n") if !$nonfatal && -e $lockfile;
+  die("403 service still running\n") if $cgi->{'triggerservicerun'} && -e $lockfile;
 
   my $projectservices;
   eval {
@@ -214,7 +214,7 @@ sub runservice {
 
   # collect current sources to POST them
   if (!$files->{'_service'} && !$projectservices) {
-    die("404 no source service defined!\n") unless $nonfatal;
+    die("404 no source service defined!\n") if $cgi->{'triggerservicerun'};
     # drop all existing service files
     my $dirty;
     for my $pfile (keys %$files) {
@@ -316,6 +316,7 @@ sub triggerservicerun {
   my $rev = getrev($projid, $packid);
   my $linkinfo = {};
   my $files = lsrev($rev, $linkinfo);
+  $cgi->{'triggerservicerun'} = 1;	# hack
   if (!$BSConfig::new_style_services) {
     # old style, just run the service again...
     runservice($cgi, $rev, $files);
@@ -326,7 +327,7 @@ sub triggerservicerun {
       $cgi->{'comment'} ||= 'trigger service run';
       $cgi->{'servicemark'} = $servicemark;
       $rev = addrev($cgi, $projid, $packid, $files);
-      runservice($cgi, $rev, $files, 1);
+      runservice($cgi, $rev, $files);
     } else {
       die("404 no source service defined!\n");
     }
@@ -1611,7 +1612,7 @@ sub handleservice {
   close FF;	# free lock
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $smd5;
-  runservice({}, $rev, \%nfiles, 1);
+  runservice({}, $rev, \%nfiles);
   die("$error\n");
 }
 
@@ -2981,7 +2982,7 @@ sub getpackagehistory {
   $revfile = "$projectsdir/$projid.pkg";
   $revfile = "$projectsdir/_deleted/$projid.pkg" if $packid eq '_project' && $cgi->{'deleted'};
   $revfile .= $cgi->{'meta'} ? "/$packid.mrev" : "/$packid.rev";
-  $revfile .= '.del'if $packid ne '_project' && $cgi->{'deleted'};
+  $revfile .= '.del' if $packid ne '_project' && $cgi->{'deleted'};
   my $filter;
   if ($cgi->{'rev'}) {
     $filter = sub { return $cgi->{'rev'} eq $_[0]->{'rev'} || $cgi->{'rev'} eq $_[0]->{'srcmd5'} ? 1 : 0 };
@@ -3651,7 +3652,7 @@ sub putfile {
   $files->{$filename} = $uploaded->{'md5'};
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
-  runservice($cgi, $rev, $files, 1);
+  runservice($cgi, $rev, $files);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -4134,7 +4135,7 @@ sub sourcecommit {
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($cgi, $projid, $packid, $files);
-  runservice($cgi, $rev, $files, 1);
+  runservice($cgi, $rev, $files);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -4172,7 +4173,7 @@ sub sourcecommitfilelist {
     addrev({ %$cgi, 'comment' => 'autocommit update revision'}, $projid, $packid, $uploadfiles);
   }
   my $rev = addrev($cgi, $projid, $packid, $files);
-  runservice($cgi, $rev, $files, 1);
+  runservice($cgi, $rev, $files);
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
 }
@@ -4386,6 +4387,8 @@ sub sourcecopy {
     }
   }
 
+  runservice($cgi, $rev, $files) if $files->{'/SERVICE'};	# XXX: always?
+
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -4418,7 +4421,7 @@ sub sourcebranch {
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   my $rev = addrev($cgi, $projid, $packid, $lfiles);
-  runservice($cgi, $rev, $lfiles, 1);
+  runservice($cgi, $rev, $lfiles);
   delete $rev->{'project'};
   delete $rev->{'package'};
   BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
@@ -4443,7 +4446,7 @@ sub linktobranch {
   $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   $cgi->{'comment'} ||= 'converted link to branch';
   $rev = addrev($cgi, $projid, $packid, $files);
-  runservice($cgi, $rev, $files, 1);
+  runservice($cgi, $rev, $files);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -4476,7 +4479,7 @@ sub delfile {
   delete $files->{$filename};
   $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
-  runservice($cgi, $rev, $files, 1);
+  runservice($cgi, $rev, $files);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
