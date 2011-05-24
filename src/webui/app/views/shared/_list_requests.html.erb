@@ -1,11 +1,12 @@
 <% elide_len ||= 40 %>
+<% request_table_id ||= 'request_table' %>
 
 <%= javascript_include_tag 'jquery.tablesorter' %>
 
 <% if requests.blank? %>
   <p>No requests.</p>
 <% else %>
-  <table cellspacing="1" id="request_table" class="tablesorter" style="width: 95%">
+  <table cellspacing="1" id="<%= request_table_id %>" class="tablesorter" style="width: 95%">
     <thead>
       <tr>
         <th style="width: 1%">Modified</th>
@@ -77,6 +78,6 @@
     </tbody>
   </table>
   <% javascript_tag do %>
-    $('#request_table').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
+    $('#<%= request_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
   <% end %>
 <% end %>
