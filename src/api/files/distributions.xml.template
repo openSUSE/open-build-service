@@ -81,6 +81,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-5.0-16.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
+ <distribution vendor="Fedora" version="15" id="fedora-15">
+  <name>Fedora 15</name>
+  <project>openSUSE.org:Fedora:15</project>
+  <reponame>Fedora_15</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
+  <link>http://fedoraproject.org/</link>
+ </distribution>
  <distribution vendor="Fedora" version="14" id="fedora-14">
   <name>Fedora 14</name>
   <project>openSUSE.org:Fedora:14</project>
@@ -88,24 +97,6 @@
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-14-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-14-16.png"/>
-  <link>http://fedoraproject.org/</link>
- </distribution>
- <distribution vendor="Fedora" version="13" id="fedora-13">
-  <name>Fedora 13</name>
-  <project>openSUSE.org:Fedora:13</project>
-  <reponame>Fedora_13</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-13-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-13-16.png"/>
-  <link>http://fedoraproject.org/</link>
- </distribution>
- <distribution vendor="Fedora" version="12" id="fedora-12">
-  <name>Fedora 12</name>
-  <project>openSUSE.org:Fedora:12</project>
-  <reponame>Fedora_12</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-12-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-12-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
  <distribution vendor="ScientificLinux" version="ScientificLinux-6" id="ScientificLinux-RHEL-6">
