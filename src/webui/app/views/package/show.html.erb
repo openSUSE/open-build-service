@@ -39,6 +39,16 @@
             Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
           </li>
         <% end %>
+        <% if not @package.developed_packages.is_empty? %>
+          <li>
+            <%= image_tag 'icons/information.png' %>
+            Devel package for
+            <% @package.developed_packages.each_with_index do |pkg, index| %>
+              <%= ',' if index > 0 %>
+              <%= link_to("#{elide(pkg.project, 40)}", :action => 'show', :project => pkg.project, :package => pkg.name) %>
+            <% end %>
+          </li>
+        <% end %>
 
         <% if @package.name =~ %r{^_patchinfo} %>
           <p>
