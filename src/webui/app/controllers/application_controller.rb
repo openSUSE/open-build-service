@@ -337,12 +337,17 @@ class ApplicationController < ActionController::Base
  
   private
 
-  @@schema = nil
-  def schema
-    @@schema ||= LibXML::XML::Document.file(RAILS_ROOT + "/lib/xhtml1-strict.xsd")
+  def assert_xml_validates
   end
 
-  def assert_xml_validates
+  def validate_xhtml
+    # find out how to cache the w3 data before using it for test env
+    #return unless (Rails.env.development? || Rails.env.test?)
+    return unless Rails.env.development?
+    return if request.xhr?
+    return if mobile_request?
+    return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
+
     errors = []
     xmlbody = String.new response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
@@ -359,37 +364,16 @@ class ApplicationController < ActionController::Base
       tmp.write(xmlbody)
       tmp.close
 
-      out = `xmllint --noout --schema #{RAILS_ROOT}/lib/xhtml1-strict.xsd #{tmp.path} 2>&1`
+      out = `xmllint --noout --schema #{RAILS_ROOT}/lib/xml/xhtml1-strict.xsd #{tmp.path} 2>&1`
       if $?.exitstatus != 0
         document = nil
         errors = [out]
       end
     end
-    
-    # crashes unfortunately on 11.2
-    #result = document.validate_schema(schema) do |message, error|
-    #  puts "#{error ? 'error' : 'warning'} : #{message}"
-    #end if document
 
     unless document
       erase_render_results
       raise ValidationError.new xmlbody, errors
-    end
-    return true
-  end
-
-  def validate_xhtml
-    # find out how to cache the w3 data before using it for test env
-    #return unless (Rails.env.development? || Rails.env.test?)
-    return unless Rails.env.development?
-    return if request.xhr?
-    return if mobile_request?
-  
-    return if !(response.status =~ /200/ &&
-        response.headers['Content-Type'] =~ /text\/html/i)
-
-    if assert_xml_validates
-      #assert_w3c_validates
     end
   end
 

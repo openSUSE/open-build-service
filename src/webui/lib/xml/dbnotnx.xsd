@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- DocBook notations module V4.5 ........................................ -->
+<!-- File dbnotnx.mod ..................................................... -->
+<!--
+  Copyright 1992-2004 HaL Computer Systems, Inc.,
+  O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+  Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+  Organization for the Advancement of Structured Information
+  Standards (OASIS).
+  
+  $Id: dbnotnx.mod 6340 2006-10-03 13:23:24Z nwalsh $
+  
+  Permission to use, copy, modify and distribute the DocBook DTD
+  and its accompanying documentation for any purpose and without fee
+  is hereby granted in perpetuity, provided that the above copyright
+  notice and this paragraph appear in all copies.  The copyright
+  holders make no representation about the suitability of the DTD for
+  any purpose.  It is provided "as is" without expressed or implied
+  warranty.
+  
+  If you modify the DocBook DTD in any way, except for declaring and
+  referencing additional sets of general entities and declaring
+  additional notations, label your DTD as a variant of DocBook.  See
+  the maintenance documentation for more information.
+  
+  Please direct all questions, bug reports, or suggestions for
+  changes to the docbook@lists.oasis-open.org mailing list. For more
+  information, see http://www.oasis-open.org/docbook/.
+-->
+<!-- ...................................................................... -->
+<!--
+  This module contains the notation declarations used by DocBook.
+  
+  In DTD driver files referring to this module, please use an entity
+  declaration that uses the public identifier shown below:
+  
+  <!ENTITY % dbnotn PUBLIC
+  "-//OASIS//ENTITIES DocBook Notations V4.5//EN"
+  "dbnotnx.mod">
+  %dbnotn;
+  
+  See the documentation for detailed information on the parameter
+  entity and module scheme used in DocBook, customizing DocBook and
+  planning for interchange, and changes made since the last release
+  of DocBook.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xs:simpleType name="notation.class">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="BMP"/>
+      <xs:enumeration value="CGM-CHAR"/>
+      <xs:enumeration value="CGM-BINARY"/>
+      <xs:enumeration value="CGM-CLEAR"/>
+      <xs:enumeration value="DITROFF"/>
+      <xs:enumeration value="DVI"/>
+      <xs:enumeration value="EPS"/>
+      <xs:enumeration value="EQN"/>
+      <xs:enumeration value="FAX"/>
+      <xs:enumeration value="GIF"/>
+      <xs:enumeration value="GIF87a"/>
+      <xs:enumeration value="GIF89a"/>
+      <xs:enumeration value="JPG"/>
+      <xs:enumeration value="JPEG"/>
+      <xs:enumeration value="IGES"/>
+      <xs:enumeration value="PCX"/>
+      <xs:enumeration value="PIC"/>
+      <xs:enumeration value="PNG"/>
+      <xs:enumeration value="PS"/>
+      <xs:enumeration value="SGML"/>
+      <xs:enumeration value="TBL"/>
+      <xs:enumeration value="TEX"/>
+      <xs:enumeration value="TIFF"/>
+      <xs:enumeration value="WMF"/>
+      <xs:enumeration value="WPG"/>
+      <xs:enumeration value="SVG"/>
+      <xs:enumeration value="PDF"/>
+      <xs:enumeration value="SWF"/>
+      <xs:enumeration value="linespecific"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+<!-- WordPerfect Graphic format -->
+<!-- End of DocBook notations module V4.5 ................................. -->
+<!-- ...................................................................... -->
