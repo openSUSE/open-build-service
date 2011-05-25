@@ -39,7 +39,7 @@ class BsRequest < ActiveXML::Base
         when "maintenance_release" then
           action = "<source project=\"#{opt[:project]}\" />"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
-        when "delete_request" then
+        when "delete" then
           action = "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
       end
       # build the request XML
