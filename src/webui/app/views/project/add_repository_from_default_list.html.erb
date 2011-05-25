@@ -35,7 +35,7 @@
         <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected, :id => 'repo_' + h(reponame), :class => "repocheckbox" -%>
           <%= hidden_field_tag h(reponame) + "_repo", h(project + '/' + repo) -%>
           <% @available_architectures.each do |arch| %>
-            <%= hidden_field_tag(h(reponame) + "_arch[]", arch.name, :id => h(reponame) + "_arch_" + h(arch.name)) if arch.recommended %>
+            <%= hidden_field_tag(h(reponame) + "_arch[]", arch.name, :id => h(reponame) + "_arch_" + h(arch.name)) if arch.recommended == "true" %>
           <% end %>
           <%= h(name) %>
         </span>
@@ -53,7 +53,7 @@
       <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected, :id => 'repo_images', :class => "repocheckbox" -%>
       <input id="images_repo" name="images_repo" value="" type="hidden"/>
       <% @available_architectures.each do |arch| %>
-        <% if arch.recommended %>
+        <% if arch.recommended == "true" %>
           <input id="images_arch_<%= arch.name %>" name="images_arch[]" value="<%= arch.name %>" type="hidden"/>
         <% end %>
       <% end %>

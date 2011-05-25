@@ -351,7 +351,7 @@ class ProjectController < ApplicationController
     # to keep currently non-working arches in the project meta.
     
     # Prepare a list of recommended architectures
-    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended}
+    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended == "true"}
 
     @repository_arch_hash = Hash.new
     @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
