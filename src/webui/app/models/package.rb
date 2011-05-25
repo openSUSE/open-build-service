@@ -325,5 +325,9 @@ class Package < ActiveXML::Base
     return files
   end
 
+  def developed_packages
+     Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
+  end
+
 end
 
