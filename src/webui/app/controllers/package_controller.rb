@@ -6,10 +6,10 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :except => [:rawlog, :submit_request]
-  before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new ]
+  before_filter :require_project, :except => [:rawlog, :submit_request, :devel_project]
+  before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new ]
+  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
@@ -927,6 +927,15 @@ class PackageController < ApplicationController
   def wipe_binaries
     valid_http_methods :delete
     api_cmd('wipe', params)
+  end
+
+  def devel_project
+    tgt_pkg = find_cached(Package, params[:package], :project => params[:project])
+    if tgt_pkg and tgt_pkg.has_element?(:devel)
+      render :text => tgt_pkg.devel.project
+    else
+      render :text => ''
+    end
   end
 
   def api_cmd(cmd, params)

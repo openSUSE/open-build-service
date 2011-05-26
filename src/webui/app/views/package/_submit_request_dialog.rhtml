@@ -7,16 +7,16 @@
   var lastTimeoutId = 0;
   function deferUpdateDisplayWhileInputHappens() {
     window.clearTimeout(lastTimeoutId);
-    lastTimeoutId = window.setTimeout(updateSupersedeDisplay, 500);
+    lastTimeoutId = window.setTimeout(updateSupersedeAndDevelPackageDisplay, 500);
   }
 
-  function updateSupersedeDisplay() {
+  function updateSupersedeAndDevelPackageDisplay() {
     if ($('#targetproject')[0].value.length > 0) {
       $.ajax({
         url: '<%= url_for(:controller => "request", :action => "list_small") %>',
         data: {
-          project: $('#targetproject')[0].value,
-          package: $('#package')[0].value,
+          project: $('#targetproject').attr('value'),
+          package: $('#package').attr('value'),
           types: "submit",
           states: "new,review",
         },
@@ -31,17 +31,34 @@
           }
         }
       })
+      $.ajax({
+        url: '<%= url_for(:controller => "package", :action => "devel_project") %>',
+        data: {
+          project: $('#targetproject')[0].value,
+          package: $('#package')[0].value,
+        },
+        success: function(data) {
+          if (data.length > 0) {
+            $('#devel_project_warning').show();
+            $('#devel_project_name').html(data);
+          } else {
+            $('#devel_project_warning').hide();
+          }
+        }
+      })
     }
   };
 
+  $('#devel_project_name').click(function() { $('#targetproject').attr('value', $('#devel_project_name').html()); });
+
   $('#targetproject').keyup(deferUpdateDisplayWhileInputHappens);
 
-  updateSupersedeDisplay();
+  updateSupersedeAndDevelPackageDisplay();
 
   $('#targetproject').autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
     minChars: 2, matchCase: true, max: 50
   }).result(function(event, item) {
-    updateSupersedeDisplay();
+    updateSupersedeAndDevelPackageDisplay();
   });
   /*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
     minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
@@ -61,10 +78,6 @@
       <% tprj = "" %>
       <% tprj = @package.linkinfo.project if @package.linkinfo %>
 
-      <span id="devel_package_warning" class="hidden">
-        You are about to bypass the devel project <span id="devel_project_name"></span>!
-      </span>
-
       <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
@@ -82,6 +95,9 @@
             <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
           </span>
           <%= check_box_tag(:sourceupdate) %> Remove local package if request is accepted
+        </p>
+        <p id="devel_project_warning" class="hidden">
+          You are about to bypass the devel project, please submit to <b id="devel_project_name"></b> instead.
         </p>
         <div class="buttons">
           <%= submit_tag("Ok") %>
