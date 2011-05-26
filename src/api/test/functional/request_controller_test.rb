@@ -427,6 +427,45 @@ if $ENABLE_BROKEN_TEST
 end
   end
 
+  def test_process_devel_request
+    prepare_request_with_user "king", "sunflower"
+
+    get "/source/home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_no_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
+    oldmeta=@response.body
+
+    rq = '<request>
+           <action type="change_devel">
+             <source project="BaseDistro" package="pack1"/>
+             <target project="home:Iggy" package="TestPack"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    get "/source/home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
+
+    # cleanup
+    put "/source/home:Iggy/TestPack/_meta", oldmeta
+    assert_response :success
+  end
+
   def test_reject_request_creation
     prepare_request_with_user "Iggy", "asdfasdf"
 
