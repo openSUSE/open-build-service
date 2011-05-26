@@ -29,6 +29,11 @@
     <p class="description">
       Please find further details of this service on our <%= link_to 'wiki pages', 'http://wiki.opensuse.org/openSUSE:Build_Service', :title => 'more Information about the Open Build Service in the openSUSE wiki ...' %>
     </p>
+    <p class="description">
+      This instance offers a special <%= link_to 'package search interface', 'http://software.opensuse.org/search', :title => 'Software Search' %>. Users of any distribution can
+      search their for built packages for their distribution.
+      For developers it is an efficient place to build up groups and work together through its project model.
+    </p>
 
     <% if @anonymous_forbidden.nil? %>
       <br/>
