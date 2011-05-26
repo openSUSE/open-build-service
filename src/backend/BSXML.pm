@@ -295,6 +295,8 @@ our $serviceinfo = [
     'serviceinfo' =>
         # information in case a source service is part of package
         'code',         # can be "running", "failed", "succeeded"
+        'xsrcmd5',
+        'lsrcmd5',
         [],
         'error',        # contains error message in case of error
 ];
