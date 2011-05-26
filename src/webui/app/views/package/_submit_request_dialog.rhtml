@@ -4,6 +4,12 @@
 <%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.tablesorter' %>
 
 <% javascript_tag do %>
+  var lastTimeoutId = 0;
+  function deferUpdateDisplayWhileInputHappens() {
+    window.clearTimeout(lastTimeoutId);
+    lastTimeoutId = window.setTimeout(updateSupersedeDisplay, 500);
+  }
+
   function updateSupersedeDisplay() {
     if ($('#targetproject')[0].value.length > 0) {
       $.ajax({
@@ -28,8 +34,7 @@
     }
   };
 
-  $('#targetproject').change(updateSupersedeDisplay);
-  $('#targetproject').keyup(updateSupersedeDisplay);
+  $('#targetproject').keyup(deferUpdateDisplayWhileInputHappens);
 
   updateSupersedeDisplay();
 
@@ -55,6 +60,10 @@
 
       <% tprj = "" %>
       <% tprj = @package.linkinfo.project if @package.linkinfo %>
+
+      <span id="devel_package_warning" class="hidden">
+        You are about to bypass the devel project <span id="devel_project_name"></span>!
+      </span>
 
       <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
