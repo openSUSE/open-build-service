@@ -890,7 +890,7 @@ class RequestController < ApplicationController
               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
             return
           end
-          if action.source.has_attribute? :package
+          if action.source.has_attribute? :package or action.data.attributes["type"] == "change_devel"
             source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
           # require a local source package
@@ -941,7 +941,7 @@ class RequestController < ApplicationController
            end
         end
 
-      elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
+      elsif [ "delete", "add_role", "set_bugowner" ].include? action.data.attributes["type"]
         # target must exist
         if params[:newstate] == "accepted"
           if action.target.has_attribute? :package
@@ -1098,7 +1098,7 @@ class RequestController < ApplicationController
       elsif action.data.attributes["type"] == "change_devel"
           target_project = DbProject.get_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
-          target_package.develpackage = DbPackage.find_by_project_and_name(action.source.project, action.source.package)
+          target_package.develpackage = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
           begin
             target_package.resolve_devel_package
             target_package.store
