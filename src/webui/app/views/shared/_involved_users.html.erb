@@ -116,6 +116,13 @@
           <th colspan="<%= @roles.length %>">Roles</th>
           <th>Actions</th>
         </tr>
+        <tr>
+          <td></td>
+          <% @roles.each do |role| %>
+            <td><%= role.capitalize %></td>
+          <% end %>
+          <td></td>
+        </tr>
       </thead>
       <tbody>
         <% @groups.each do |group| %>
@@ -124,9 +131,9 @@
             <% @roles.each do |role| %>
               <td>
                 <% if defined? @package %>
-                  <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role) || @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %><%= role.capitalize %>
+                  <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role) || @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
                 <% else %>
-                  <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %><%= role.capitalize %>
+                  <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
                 <% end %>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
                   <% javascript_tag do %>
