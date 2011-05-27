@@ -760,10 +760,12 @@ class RequestController < ApplicationController
        end
     end
 
-    # enforce state to "review" if going to "new", but review tasks are open
-    if params[:newstate] == "new" and req.has_element? 'review'
-       req.each_review do |r|
-         params[:newstate] = "review" if r.data.attributes['state'] == "new"
+    # enforce state to "review" if going to "new", when review tasks are open
+    if params[:cmd] == "changestate"
+       if params[:newstate] == "new" and req.has_element? 'review'
+          req.each_review do |r|
+            params[:newstate] = "review" if r.data.attributes['state'] == "new"
+          end
        end
     end
 

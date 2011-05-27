@@ -216,8 +216,19 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    # try update comment
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment='blahfasel'"
+    assert_response 403
 
+    # update comment for real
     prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment='blahfasel'"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'blahfasel' )
+
+    # superseded review
     post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
     assert_response :success
 
