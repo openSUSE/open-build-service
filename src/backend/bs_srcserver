@@ -4432,6 +4432,7 @@ sub sourcebranch {
   $orev = getrev($oprojid, $opackid);
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
   my $files = lsrev_expanded($orev);
+  $files = getrev($projid, $packid, 'latest') if $cgi->{'keepcontent'};
   my $l = {};
   $l->{'project'} = $oprojid if $oprojid ne $projid;
   $l->{'package'} = $opackid if $opackid ne $projid;
@@ -4441,7 +4442,7 @@ sub sourcebranch {
   mkdir_p("$srcrep/$packid");
   if ($usebranch) {
     $l->{'patches'}->{''} = [ { 'branch' => undef} ];
-    copyfiles($projid, $packid, $oprojid, $opackid, $files);
+    copyfiles($projid, $packid, $oprojid, $opackid, $files) unless $cgi->{'keepcontent'};
     $lfiles->{$_} = $files->{$_} for keys %$files;
   }
   mkdir_p($uploaddir);
@@ -6243,7 +6244,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? withhistory:bool?' => \&sourcecopy,
-  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool?' => \&sourcebranch,
+  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
