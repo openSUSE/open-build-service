@@ -987,6 +987,60 @@ end
     assert_tag( :tag => "devel", :attributes => { :project => 'home:Iggy', :package => 'TestPack' } )
   end
 
+  def test_reviewer_added_when_source_maintainer_is_missing
+    # create request
+    prepare_request_with_user "tom", "thunder"
+    req = "<request>
+            <action type='submit'>
+              <source project='BaseDistro2' package='pack2' rev='1' />
+              <target project='home:tom' package='pack2' />
+            </action>
+            <description>SUBMIT</description>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'review' } )
+    assert_tag( :tag => "review", :attributes => { :by_project => "BaseDistro2", :by_package => "pack2" } )
+
+    # set project to approve it
+    prepare_request_with_user "king", "sunflower"
+    post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='ApprovedRequestSource' /></attributes>"
+    assert_response :success
+ 
+    # create request again
+    prepare_request_with_user "tom", "thunder"
+    req = "<request>
+            <action type='submit'>
+              <source project='BaseDistro2' package='pack2' rev='1' />
+              <target project='home:tom' package='pack2' />
+            </action>
+            <description>SUBMIT</description>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    id = node.data['id']
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+    assert_no_tag( :tag => "review", :attributes => { :by_project => "BaseDistro2", :by_package => "pack2" } )
+
+    # cleanup attribute
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/BaseDistro2/_attribute/OBS:ApprovedRequestSource"
+    assert_response :success
+  end
+
   def test_branch_and_submit_request_to_linked_project_and_delete_it_again
     prepare_request_with_user "tom", "thunder"
 

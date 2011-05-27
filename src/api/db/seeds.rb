@@ -59,6 +59,8 @@ at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "RejectRequests", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "ApprovedRequestSource", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "Maintained", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "MaintenanceProject", :value_count => 0)

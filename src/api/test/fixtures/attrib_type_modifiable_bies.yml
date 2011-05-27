@@ -13,3 +13,6 @@ maintainer_role_can_update_maintenance:
 maintainer_role_can_set_reject_requests:
   bs_role_id: 3
   attrib_type_id: 64
+maintainer_role_can_set_approve_requests:
+  bs_role_id: 3
+  attrib_type_id: 65

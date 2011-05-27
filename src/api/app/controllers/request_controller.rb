@@ -564,14 +564,15 @@ class RequestController < ApplicationController
         else
           # Creating requests from packages where no maintainer right exists will enforce a maintainer review
           # to avoid that random people can submit versions without talking to the maintainers 
+          # projects may skip this by setting OBS:ApprovedRequestSource attributes
           if action.source.has_attribute? 'package'
             spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
-            if spkg and not @http_user.can_modify_package? spkg
+            if spkg and not @http_user.can_modify_package? spkg and not spkg.db_project.find_attribute("OBS", "ApprovedRequestSource") and not spkg.find_attribute("OBS", "ApprovedRequestSource")
               review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
             end
           else
             sprj = DbProject.find_by_name action.source.project
-            if sprj and not @http_user.can_modify_project? sprj
+            if sprj and not @http_user.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
               review_packages.push({ :by_project => action.source.project })
             end
           end

@@ -41,3 +41,8 @@ RejectRequests:
   name: RejectRequests
   value_count: 1
   attrib_namespace_id: 9
+ApprovedRequestSource:
+  id: 65
+  name: ApprovedRequestSource
+  value_count: 0
+  attrib_namespace_id: 9
