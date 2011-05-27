@@ -1186,19 +1186,18 @@ class RequestController < ApplicationController
           # cleanup source project
           if relinkSource and not sourceupdate == "noupdate"
             # source package got used as devel package, link it to the target
-            # re-create it via branch ...
-
-# FIXME2.3: disabled for now to avoid to loose submissions when source has been further changed. We need backend support for a real solution
-#            h = {}
-#            h[:cmd] = "branch"
-#            h[:user] = @http_user.login
-#            h[:comment] = "initialized devel package after accepting #{params[:id]}"
-#            h[:requestid] = params[:id]
-#            h[:oproject] = action.target.project
-#            h[:opackage] = action.target.package
-#            cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
-#            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid])
-#            Suse::Backend.post cp_path, nil
+            # re-create it via branch , but keep current content...
+            h = {}
+            h[:cmd] = "branch"
+            h[:user] = @http_user.login
+            h[:comment] = "initialized devel package after accepting #{params[:id]}"
+            h[:requestid] = params[:id]
+            h[:keepcontent] = "1"
+            h[:oproject] = action.target.project
+            h[:opackage] = action.target.package
+            cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
+            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
+            Suse::Backend.post cp_path, nil
           elsif sourceupdate == "cleanup"
             # cleanup source project
             source_project = DbProject.find_by_name(action.source.project)
