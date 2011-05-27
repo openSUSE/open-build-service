@@ -1,0 +1,19 @@
+<h1>Editing Site Configuration</h1>
+
+<% form_for(@site_config) do |f| %>
+  <%= f.error_messages %>
+  <p>
+    <%= f.label :title %><br />
+    <%= f.text_field :title %>
+  </p>
+  <p>
+    <%= f.label :description %><br />
+    <%= f.text_area :description %>
+  </p>
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @site_config %> |
+<%= link_to 'Back', site_config_path %>

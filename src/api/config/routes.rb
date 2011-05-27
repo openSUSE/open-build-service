@@ -16,8 +16,9 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/', :controller => 'main'
 
-  ### /person
+  map.resource :site_config, :only => [:show, :edit, :update]
 
+  ### /person
   map.connect 'person', :controller => 'person', :action => 'index'
   # FIXME: this is no clean namespace, a person "register" or "changepasswd" could exist ...
   #        suggested solution is POST person/:login?cmd=register
