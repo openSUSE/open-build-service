@@ -74,22 +74,23 @@ class UserController < ApplicationController
       redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}" and return
     rescue
     end
-    login = ""
-    realname = ""
-    explanation = ""
 
-    # User entered data
-    login       = params[:login]       if params[:login]
-    email       = params[:email]       if params[:email]
-    realname    = params[:realname]    if params[:realname]
-    explanation = params[:explanation] if params[:explanation]
+    #FIXME: Reading form data and overriding it with session data seems broken.
+    #       Saving it back into the session seems even more so, re-evaluate this.
+    login = session[:login] || params[:login] || ''
+    email = session[:email] || params[:email] || 'nomail@nomail.com'
 
-    # session data, when login via iChain for example
-    login = session[:login] if session[:login]
-    email = session[:email] || 'nomail@nomail.com'
-
+    #FIXME redirecting destroys form content, either send it or use AJAX form validation
+    if login.blank? or login.include?(" ")
+      flash[:error] = "Illegal login name"
+      redirect_back_or_to :controller => "main", :action => "index" and return
+    end
+    simplified_rfc2822_regexp = Regexp.new '\A[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\Z'
+    if email !~ simplified_rfc2822_regexp
+      flash[:error] = "Illegal email address: #{email}"
+      redirect_back_or_to :controller => "main", :action => "index" and return
+    end
     if params[:password_first] != params[:password_second]
-      logger.info "Password did not match"
       flash[:error] = "Given passwords are not the same"
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
@@ -97,24 +98,19 @@ class UserController < ApplicationController
       flash[:error] = "Password is to short, it should have minimum 6 characters"
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
-    if login.blank? or login.include?(" ")
-      logger.info "Illegal login name"
-      flash[:error] = "Illegal login name"
-      redirect_back_or_to :controller => "main", :action => "index" and return
-    end
-    #FIXME redirecting destroys form content, either send it or use AJAX form validation
 
     logger.debug "Creating new person #{login}"
-    unreg_person_opts = {
-      :login => login,
-      :email => email,
-      :realname => realname,
-      :explanation => explanation
-    }
+    unreg_person_opts = { :login => login, :email => email, :realname => params[:realname], :explanation => params[:description] }
     unreg_person_opts[:password] = params[:password_first] if params[:password_first]
 
-    person = Unregisteredperson.new(unreg_person_opts)
-    person.save({:create => true})
+    begin
+      person = Unregisteredperson.new(unreg_person_opts)
+      person.save({:create => true})
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "#{message} (#{code})"
+      redirect_back_or_to :controller => "main", :action => "index" and return
+    end
 
     session[:login] = login
     session[:passwd] = unreg_person_opts[:password]
