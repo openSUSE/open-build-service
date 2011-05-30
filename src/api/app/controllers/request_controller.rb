@@ -158,9 +158,15 @@ class RequestController < ApplicationController
       end
 
       match = outer_and.join(" and ")
-      logger.debug "running backend query at #{Time.now}"
-      c = Suse::Backend.post("/search/request?match=" + CGI.escape(match), nil)
-      render :text => c.body, :content_type => "text/xml"
+      if match.empty?
+        # Initial cornercase, when a user doesn't yet have a home project.Avoid
+        # a useless roundtrip that would only cause the backend to mourn.
+        render :text => '<collection matches="0"></collection>', :content_type => 'text/xml'
+      else
+        logger.debug "running backend query at #{Time.now}"
+        c = Suse::Backend.post("/search/request?match=" + CGI.escape(match), nil)
+        render :text => c.body, :content_type => "text/xml"
+      end
     else
       # directory list of all requests. not very usefull but for backward compatibility...
       # OBS3: make this more usefull
