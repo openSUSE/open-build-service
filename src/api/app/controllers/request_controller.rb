@@ -162,6 +162,12 @@ class RequestController < ApplicationController
         # Initial cornercase, when a user doesn't yet have a home project.Avoid
         # a useless roundtrip that would only cause the backend to mourn.
         render :text => '<collection matches="0"></collection>', :content_type => 'text/xml'
+      elsif inner_or.empty? and params[:user] and states == ['new'] and roles == ['maintainer']
+        # FIXME: Ugly but currently unresovable hack:
+        # User has no involved projects/packages leading to an empty 'inner_or', which itself leads
+        # to a match "(state/@name='new')" for combination of parameters of this elsif clause.
+        # TODO: Can be removed if we always create a home project for users.
+        render :text => '<collection matches="0"></collection>', :content_type => 'text/xml'
       else
         logger.debug "running backend query at #{Time.now}"
         c = Suse::Backend.post("/search/request?match=" + CGI.escape(match), nil)
