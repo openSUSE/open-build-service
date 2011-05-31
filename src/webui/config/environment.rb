@@ -79,16 +79,6 @@ ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
 ExceptionNotifier.email_prefix = "[OBS web error] "
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
-if CONFIG['visible_architectures']
-   VISIBLE_ARCHITECTURES=CONFIG['visible_architectures']
-else
-   VISIBLE_ARCHITECTURES=[ :i586, :x86_64 ]
-end
-if CONFIG['default_enabled_architectures']
-   DEFAULT_ENABLED_ARCHITECTURES=CONFIG['default_enabled_architectures']
-else
-   DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
-end
 if CONFIG['hide_private_options'] == true
    HIDE_PRIVATE_OPTIONS = true
 else
