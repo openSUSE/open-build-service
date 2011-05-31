@@ -1,7 +1,7 @@
 xml.instruct! :xml, :version => '1.0'
 xml.rss :version => '2.0' do
   xml.channel do
-    xml.title "#{OBS_INSTANCE_NAME} Open Build Service Latest Updates"
+    xml.title "#{@site_config['title']} Latest Updates"
     xml.description 'Latest project and package changes'
     xml.link url_for :only_path => false, :controller => 'main', :action => 'index'
 

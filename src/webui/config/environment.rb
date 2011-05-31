@@ -91,11 +91,6 @@ begin
 rescue Errno::ENOENT
 end
 
-if CONFIG.has_key?('visible_instance_name')
-  OBS_INSTANCE_NAME = CONFIG['visible_instance_name']
-else
-  OBS_INSTANCE_NAME = ""
-end
 if not defined?(DOWNLOAD_URL) or DOWNLOAD_URL.blank?
  if CONFIG.has_key?('download_url') and not 
   DOWNLOAD_URL = CONFIG['download_url']
@@ -144,8 +139,8 @@ ActiveXML::Base.config do |conf|
     map.connect :unregisteredperson, "rest:///person/register"
     map.connect :userchangepasswd, "rest:///person/changepasswd"
 
-    map.connect :architecture, "rest:///architectures/:name",
-      :all => "rest://architectures/"
+    map.connect :architecture, "rest:///architectures/:name", :all => "rest://architectures/"
+    map.connect :site_config, "rest:///site_config/"
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 

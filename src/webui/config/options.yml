@@ -16,10 +16,6 @@ theme: neutral
 #exception_recipients: ['webclient_noreply@opensuse.org']
 exception_recipients: []
 
-# Define a name for this OBS instance name, will be visible where ever 
-# "Open Build Service" term is used in the webui
-#visible_instance_name: "Private"
-
 # Use static.opensuse.org for static style content
 #use_static: build.o.o
 

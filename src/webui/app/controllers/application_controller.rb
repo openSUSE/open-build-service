@@ -22,6 +22,7 @@ class ApplicationController < ActionController::Base
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
+  before_filter :require_site_configuration
   after_filter :set_charset
   after_filter :validate_xhtml
   protect_from_forgery
@@ -393,6 +394,21 @@ class ApplicationController < ActionController::Base
        puts "Killing test API with pid: #{@@frontend.pid}"
        Process.kill "INT", @@frontend.pid
        @@frontend = nil
+    end
+  end
+
+  def require_site_configuration
+    begin
+      @site_config = Rails.cache.fetch('site_config', :expires_in => 30.minutes) do
+        response = ActiveXML::Config::transport_for(:site_config).direct_http(URI('/site_config.json'))
+        ActiveSupport::JSON.decode(response)
+      end
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = 'Site configuration not found'
+      redirect_to :controller => 'main', :action => 'index', :nextstatus => 404
+    rescue ActiveXML::Transport::UnauthorizedError => e
+      @anonymous_forbidden = true
+      logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
     end
   end
 end
