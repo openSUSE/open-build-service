@@ -33,12 +33,12 @@
     <% else %>
       <li><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
     <% end %>
+    <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
+    <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
   </ul>
   <div id="advanced_tabs">
     <ul>
       <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
-      <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-      <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
       <%= tab 'Attributes', :controller => :project, :action => :attributes %>
       <%= tab "Raw Config", :controller => :project, :action => :meta %>
       <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>

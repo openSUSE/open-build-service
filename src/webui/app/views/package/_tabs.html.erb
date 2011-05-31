@@ -24,10 +24,10 @@
     <% else %>
       <li><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
     <% end %>
+    <%= tab 'Users', :controller => :package, :action => :users %>
   </ul>
   <div id="advanced_tabs">
     <ul>
-      <%= tab 'Users', :controller => :package, :action => :users %>
       <%= tab 'Attributes', :controller => :package, :action => :attributes %>
       <%= tab 'Raw Config', :controller => :package, :action => :meta %>
     </ul>
