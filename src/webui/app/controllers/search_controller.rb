@@ -13,7 +13,7 @@ class SearchController < ApplicationController
     if @search_text.starts_with?("obs://")
       # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
       disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
-      disturl_rev, disturl_package = disturl_pkgrev.split('-')
+      disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
       redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
     end
 
