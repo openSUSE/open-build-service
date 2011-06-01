@@ -4431,8 +4431,12 @@ sub sourcebranch {
   die("cannot branch myself\n") if $oprojid eq $projid && $opackid eq $packid;
   $orev = getrev($oprojid, $opackid);
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
-  my $files = lsrev_expanded($orev);
-  $files = getrev($projid, $packid, 'latest') if $cgi->{'keepcontent'};
+  my $files = lsrev_expanded($orev);	# modifies srcmd5, thus also needed for keepcontent case
+  if ($cgi->{'keepcontent'}) {
+    die("keepcontent is only supported for branches\n") unless $usebranch;
+    my $nrev = getrev($projid, $packid, 'latest');
+    $files = lsrev_expanded($nrev);
+  }
   my $l = {};
   $l->{'project'} = $oprojid if $oprojid ne $projid;
   $l->{'package'} = $opackid if $opackid ne $projid;
