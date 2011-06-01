@@ -27,7 +27,7 @@
       <xs:enumeration value="delete"/>
       <xs:enumeration value="change_devel"/>
       <xs:enumeration value="add_role"/>
-      <xs:enumeration value="set_bugowner"/> <!-- FIXME3.0: obsolete, please use 'add_role' -->
+      <xs:enumeration value="set_bugowner"/>
       <xs:enumeration value="maintenance_incident"/>
       <xs:enumeration value="maintenance_release"/>
     </xs:restriction>

@@ -983,7 +983,7 @@ our $request = [
 	'id',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
      [[ 'action' =>
-	    'type',	# currently submit, delete, change_devel, add_role, maintenance_release, maintenance_incident (obsolete: set_bugowner)
+	    'type',	# currently submit, delete, change_devel, add_role, maintenance_release, maintenance_incident, set_bugowner
 	  [ 'source' =>
 	        'project',
 	        'package',
