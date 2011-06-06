@@ -370,6 +370,8 @@ class StatusController < ApplicationController
               render :text => "<status id='#{params[:id]}' code='error'>Does not match re: #{f.value(:filename)}</status>\n"
               next
             end
+            # work around as long as we build ia64 baselibs (soon to be gone)
+            next if m[2] == "ia64"
             md = nil
             begin
                md = bsrequest_repo_file(sproj.name, srep.name, m[2], m[1])
