@@ -220,6 +220,19 @@ class StatusController < ApplicationController
   end
   private :bsrequest_repo_list
 
+  def bsrequest_repo_file(project, repo, arch, file)
+     uri = "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{arch}/_repository/#{CGI.escape(file)}.rpm?view=fileinfo_ext"
+     ret = []
+     key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
+     fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key) { backend.direct_http( URI( uri ) ) } )
+     fileinfo.each_requires_ext do |r|
+         unless r.has_element? :providedby
+            ret << "#{file}:#{r.dep}"
+         end
+     end
+     return ret
+  end
+
   def bsrequest
     required_parameters :id
     req = BsRequest.find :id => params[:id]
@@ -353,20 +366,23 @@ class StatusController < ApplicationController
           binaries.each_binary do |f|
             # match to the repository filename
             m = re_filename.match(f.value(:filename)) 
-            next unless m
-            uri = "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{m[2]}/_repository/#{m[1]}.rpm?view=fileinfo_ext"
-            begin
-              key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
-              fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key) { backend.direct_http( URI( uri ) ) } )
-              fileinfo.each_requires_ext do |r|
-                unless r.has_element? :providedby
-                  missingdeps << "#{m[1]}:#{r.dep}"
-                end
-              end
-            rescue ActiveXML::Transport::NotFoundError
-	      # we ignore those we don't find atm
-              logger.debug "can't find #{uri.to_s}"
+            unless m
+              render :text => "<status id='#{params[:id]}' code='error'>Does not match re: #{f.value(:filename)}</status>\n"
+              next
             end
+            md = nil
+            begin
+               md = bsrequest_repo_file(sproj.name, srep.name, m[2], m[1])
+            rescue ActiveXML::Transport::NotFoundError
+               if m[2] != arch
+                  begin
+                     md = bsrequest_repo_file(sproj.name, srep.name, arch.to_s, m[1])
+                  rescue ActiveXML::Transport::NotFoundError
+                     render :text => "<status id='#{params[:id]}' code='error'>Can not find: #{f.value(:filename)}</status>\n"
+                  end
+               end
+            end
+            missingdeps << md if md.size > 0
           end
 	end
 	# if the package does not appear in build history, check flags
