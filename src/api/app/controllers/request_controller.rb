@@ -1181,7 +1181,7 @@ class RequestController < ApplicationController
           end
 
           cp_path = "/source/#{action.target.project}/#{action.target.package}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource])
+          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource, :noservice])
           Suse::Backend.post cp_path, nil
 
           # cleanup source project
