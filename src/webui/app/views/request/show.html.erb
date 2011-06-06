@@ -206,7 +206,7 @@
     <% form_tag(:action => "changerequest") do %>
       <h3>Handle Request</h3>
       <p>
-        <% if @is_maintainer and not @submitter_is_target_maintainer %>
+        <% if @contains_submit_action and @is_maintainer and not @submitter_is_target_maintainer %>
           <%= check_box_tag(:add_submitter_as_maintainer) %> Add
           <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
         <% end %>

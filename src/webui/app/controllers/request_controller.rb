@@ -72,10 +72,12 @@ class RequestController < ApplicationController
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
   
     @is_maintainer = nil
+    @contains_submit_action = false
     @req.each_action do |action|
       if action.data.attributes["type"] == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
+        @contains_submit_action = true
       end
       @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
       @target_pkg_name = action.target.value :package
