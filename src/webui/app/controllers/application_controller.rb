@@ -10,8 +10,14 @@ require 'person'
 if defined?(set_trace_func_for_raise)
   $exception_scope = {}
   set_trace_func_for_raise proc {|event, file, line, id, binding, classname|
-    $exception_scope[:locals] = binding.eval('local_variables()')
-    $exception_scope[:globals] = binding.eval('global_variables()')
+    $exception_scope[:locals] = {}
+    binding.eval('local_variables()').each do |lvar|
+      $exception_scope[:locals][lvar.to_sym] = binding.eval(lvar)
+    end
+    $exception_scope[:globals] = {}
+    binding.eval('global_variables()').each do |gvar|
+      $exception_scope[:globals][gvar.to_sym] = binding.eval(gvar)
+    end
   }
 end
 
