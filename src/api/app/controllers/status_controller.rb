@@ -2,6 +2,8 @@ require 'project_status_helper'
 
 class StatusController < ApplicationController
   
+  class NotInRepo < Exception; end
+
   def messages
     # this displays the status messages the Admin can enter for users.
     if request.get?
@@ -220,17 +222,24 @@ class StatusController < ApplicationController
   end
   private :bsrequest_repo_list
 
-  def bsrequest_repo_file(project, repo, arch, file)
-     uri = "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{arch}/_repository/#{CGI.escape(file)}.rpm?view=fileinfo_ext"
-     ret = []
-     key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
-     fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key) { backend.direct_http( URI( uri ) ) } )
-     fileinfo.each_requires_ext do |r|
-         unless r.has_element? :providedby
-            ret << "#{file}:#{r.dep}"
-         end
-     end
-     return ret
+  def bsrequest_repo_file(project, repo, arch, file, version, release)
+    uri = "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{arch}/_repository/#{CGI.escape(file)}.rpm?view=fileinfo_ext"
+    ret = []
+    key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
+    fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key, :expires_in => 15.minutes) { backend.direct_http( URI( uri ) ) } )
+    if fileinfo.version.to_s != version
+      raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
+    end
+    if fileinfo.release.to_s != release
+      raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
+    end
+
+    fileinfo.each_requires_ext do |r|
+      unless r.has_element? :providedby
+	ret << "#{file}:#{r.dep}"
+      end
+    end
+    return ret
   end
 
   def bsrequest
@@ -294,7 +303,7 @@ class StatusController < ApplicationController
 
     outputxml = "<status id='#{params[:id]}'>\n"
     
-    re_filename = Regexp.new('^(.*)-[^-]*-[^-]*\.([^-.]*).rpm')
+    re_filename = Regexp.new('^(.*)-([^-]*)-([^-]*)\.([^-.]*).rpm')
     tocheck_repos.each do |srep|
       outputxml << " <repository name='#{srep.name}'>\n"
       trepo = []
@@ -370,20 +379,27 @@ class StatusController < ApplicationController
               render :text => "<status id='#{params[:id]}' code='error'>Does not match re: #{f.value(:filename)}</status>\n"
               next
             end
+	    filename_file = m[1]
+	    filename_version = m[2]
+	    filename_release = m[3]
+	    filename_arch = m[4]
             # work around as long as we build ia64 baselibs (soon to be gone)
-            next if m[2] == "ia64"
+            next if filename_arch == "ia64"
             md = nil
             begin
-               md = bsrequest_repo_file(sproj.name, srep.name, m[2], m[1])
+               md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
             rescue ActiveXML::Transport::NotFoundError
                if m[2] != arch
                   begin
-                     md = bsrequest_repo_file(sproj.name, srep.name, arch.to_s, m[1])
+                     md = bsrequest_repo_file(sproj.name, srep.name, arch.to_s, filename_file, filename_version, filename_release)
                   rescue ActiveXML::Transport::NotFoundError
                      render :text => "<status id='#{params[:id]}' code='error'>Can not find: #{f.value(:filename)}</status>\n"
                      return
                   end
                end
+	    rescue NotInRepo => e
+	      render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
+	      return
             end
             if md && md.size > 0
               missingdeps << md
