@@ -25,6 +25,8 @@
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
     <%= tab "Requests", :controller => :project, :action => 'list_requests' %>
+    <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
+    <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>
@@ -33,8 +35,6 @@
     <% else %>
       <li><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
     <% end %>
-    <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-    <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
   </ul>
   <div id="advanced_tabs">
     <ul>
