@@ -389,13 +389,9 @@ class StatusController < ApplicationController
             begin
                md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
             rescue ActiveXML::Transport::NotFoundError
-               if m[2] != arch
-                  begin
-                     md = bsrequest_repo_file(sproj.name, srep.name, arch.to_s, filename_file, filename_version, filename_release)
-                  rescue ActiveXML::Transport::NotFoundError
-                     render :text => "<status id='#{params[:id]}' code='error'>Can not find: #{f.value(:filename)}</status>\n"
-                     return
-                  end
+               if filename_arch != arch
+                  filename_arch = arch.to_s
+                  retry
                end
 	    rescue NotInRepo => e
 	      render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
