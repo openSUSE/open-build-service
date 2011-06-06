@@ -3635,7 +3635,12 @@ sub getfile {
   my ($cgi, $projid, $packid, $filename) = @_;
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
-  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  my $rev;
+  if ($cgi->{'meta'}) {
+    $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
+  } else {
+    $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  }
   my $files;
   if ($cgi->{'expand'}) {
     $files = lsrev_expanded($rev);
@@ -6264,7 +6269,7 @@ my $dispatches = [
   '/source/$project/$package/_meta rev?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
-  '/source/$project/$package/$filename rev? expand:bool?' => \&getfile,
+  '/source/$project/$package/$filename rev? expand:bool? meta:bool?' => \&getfile,
   'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
 
