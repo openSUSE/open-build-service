@@ -379,7 +379,7 @@ class StatusController < ApplicationController
                      md = bsrequest_repo_file(sproj.name, srep.name, arch.to_s, m[1])
                   rescue ActiveXML::Transport::NotFoundError
                      render :text => "<status id='#{params[:id]}' code='error'>Can not find: #{f.value(:filename)}</status>\n"
-                     render
+                     return
                   end
                end
             end
