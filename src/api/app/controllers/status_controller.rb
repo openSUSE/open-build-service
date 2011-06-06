@@ -382,7 +382,9 @@ class StatusController < ApplicationController
                   end
                end
             end
-            missingdeps << md if md.size > 0
+            if md && md.size > 0
+              missingdeps << md
+            end
           end
 	end
 	# if the package does not appear in build history, check flags
