@@ -1133,6 +1133,7 @@ class RequestController < ApplicationController
             :user => @http_user.login,
             :oproject => src.project,
             :opackage => src.package,
+            :noservice => "1",
             :requestid => params[:id],
             :comment => params[:comment]
           }
