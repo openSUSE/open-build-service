@@ -478,14 +478,6 @@ sub stream_logfile {
   BSServer::swrite("0\r\n\r\n");
 }
 
-sub cleanup_build {
-  if ($vm_tmpfs_mode) {
-    my @targs;
-    push @targs, "umount", $buildroot;
-    qsystem(@targs) && die("umount tmpfs failed: $!\n");
-  }
-}
-
 sub send_state {
   my ($state, $p, $ba, $exclude) = @_;
   my @args = ("state=$state", "arch=$ba", "port=$p");
@@ -1528,21 +1520,17 @@ sub dobuild {
       $ret = 0;
     } else {
       print "build succeeded, but old build had same result !\n";
-      cleanup_build();
       return 2;
     }
   } elsif ($ret == 768) {
-    cleanup_build();
     return 3;
   }
   if ($ret) {
     print "build failed\n";
-    cleanup_build();
     return 1;
   }
   if (! -s "$buildroot/.build.log") {
     print "build succeeded, but no logfile?\n";
-    cleanup_build();
     return 1;
   }
 
@@ -1556,19 +1544,16 @@ sub dobuild {
       push @args, '--root', "$vm_root";
       push @args, '--swap', "$vm_swap";
       if (system(@args)) {
-        cleanup_build();
         die("extractbuild failed\n");
       }
       mkdir_p("$buildroot/.build.packages");
       if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $vm_swap")) {
-        cleanup_build();
 	die("cpio extract failed\n");
       }
     } else {
       # new style, build already did extractbuild for us
       if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
         print "final rename failed: $!";
-        cleanup_build();
         return 1;
       }
     }
@@ -1579,7 +1564,6 @@ sub dobuild {
   }
   print "build succeeded\n";
 
-  cleanup_build();
   return 0;
 }
 
@@ -2003,6 +1987,12 @@ print "\n";
 
 $state = {'state' => 'idle'};
 commitstate($state);
+
+if ($vm_tmpfs_mode) {
+  my @targs;
+  push @targs, "umount", $buildroot;
+  qsystem(@targs) && die("umount tmpfs failed: $!\n");
+}
 
 exit(0) if $oneshot && time() > $oneshot;
 send_state('idle', $port, $hostarch);
