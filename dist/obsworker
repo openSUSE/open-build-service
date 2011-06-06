@@ -169,6 +169,7 @@ case "$1" in
             title="$HOSTNAME/$I"
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
+            TMPFS=
             if [ -n "$vmopt" ]; then
                 mkdir -p $R
                 DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
@@ -178,6 +179,9 @@ case "$1" in
                 elif [ ! -e "$DEVICE" -o ! -e "$SWAP" ]; then
                         echo "ERROR: worker is configured to use a VM, but one or all of the following devices/files do not exist: $DEVICE, $SWAP"
                         exit 1
+                fi
+                if [ -n "$OBS_VM_USE_TMPFS" ]; then
+                    TMPFS="--tmpfs"
                 fi
                 DEVICE="--device $DEVICE"
                 SWAP="--swap $SWAP"
@@ -190,7 +194,7 @@ case "$1" in
             fi
 	    echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $HOSTNAME/$I $REPO_PARAM" \
-                "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $DEVICE $SWAP $MEMORY" \
+                "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
         done

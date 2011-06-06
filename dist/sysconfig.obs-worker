@@ -194,6 +194,16 @@ OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
 
 ## Path:        Applications/OBS
+## Description: Enable build in memory
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+# WARNING: this requires much memory!
+#
+OBS_VM_USE_TMPFS=""
+
+## Path:        Applications/OBS
 ## Description: Memory allocated for each VM (256) if not set
 ## Type:        integer
 ## Default:     ""
