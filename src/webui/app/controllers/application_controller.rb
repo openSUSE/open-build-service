@@ -51,7 +51,7 @@ class ApplicationController < ActionController::Base
   end
 
   def is_advanced_tab?
-    ["prjconf", "users", "subprojects", "attributes", "meta", "status"].include? @action_name
+    ["prjconf", "attributes", "meta", "status"].include? @action_name
   end
 
   protected
