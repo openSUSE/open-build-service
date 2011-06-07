@@ -1,4 +1,7 @@
 class SiteConfigsController < ApplicationController
+  # Site configuration is insensitive information, no login needed therefore
+  skip_before_filter :extract_user, :only => [:show]
+
   # GET /site_config
   # GET /site_config.json
   # GET /site_config.xml
