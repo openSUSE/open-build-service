@@ -196,7 +196,8 @@ class PersonController < ApplicationController
         h.add_request_subscription(login)
       end
 
-      IchainNotifier.deliver_approval(newuser)
+# This may fail when no notification is configured. Not important, so no exception handling for now
+#      IchainNotifier.deliver_approval(newuser)
       render_ok
     end
   rescue Exception => e
