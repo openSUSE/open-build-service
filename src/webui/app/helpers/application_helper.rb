@@ -66,16 +66,6 @@ module ApplicationHelper
     return @user
   end
 
-  def link_to_project project
-    link_to project, :controller => "project", :action => :show,
-      :project => project
-  end
-
-  def link_to_package project, package
-    link_to package, :controller => "package", :action => :show,
-      :project => project, :package => package
-  end
-
   def repo_url(project, repo='' )
     if defined? DOWNLOAD_URL
       "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
