@@ -365,7 +365,7 @@ class PackageController < ApplicationController
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
-    if package_exists? @project, @package_name
+    if Package.exists? @project, @package_name
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
@@ -448,7 +448,7 @@ class PackageController < ApplicationController
       flash[:error] = "Invalid target package name: '#{@target_package}'"
       redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
     end
-    if package_exists? @project, @target_package
+    if Package.exists? @project, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
     end

@@ -14,7 +14,7 @@
       Source:
       <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 35) %>
       <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
-      <% if package_exists?(ae.source.project, ae.source.package) %>
+      <% if Package.exists?(ae.source.project, ae.source.package) %>
         <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
       <% else %>
         <%= src_pack %>
@@ -24,7 +24,7 @@
 
     <% if ae.has_element?(:target) %>
       Target:
-      <% if ae.target.has_attribute?(:package) and package_exists?(ae.target.project, ae.target.package) %>
+      <% if ae.target.has_attribute?(:package) and Package.exists?(ae.target.project, ae.target.package) %>
         <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, 35) %>
         <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
         <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>

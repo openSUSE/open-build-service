@@ -141,14 +141,6 @@ module ApplicationHelper
     return diff_m.to_s + " months ago"
   end
 
-  def package_exists?(project, package)
-    if Package.find_cached(package, :project => project )
-      return true
-    else
-      return false
-    end
-  end
-
   def status_for( repo, arch, package )
     @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status package='#{package}'/>")
   end

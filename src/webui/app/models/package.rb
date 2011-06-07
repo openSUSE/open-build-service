@@ -329,5 +329,13 @@ class Package < ActiveXML::Base
      Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
   end
 
+  def self.exists?(project, package)
+    if Package.find_cached(package, :project => project)
+      return true
+    else
+      return false
+    end
+  end
+
 end
 

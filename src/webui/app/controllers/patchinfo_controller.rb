@@ -66,7 +66,7 @@ class PatchinfoController < ApplicationController
         name=params[:name] if params[:name]
       end
       pkg_name = "_patchinfo:#{name.gsub(/\W/, '_')}"
-      if package_exists? @project, pkg_name
+      if Package.exists? @project, pkg_name
         @name = params[:name]
         @packager = @project.person.userid
         if params[:cve] != nil
