@@ -84,21 +84,6 @@ module ApplicationHelper
     end
   end
 
-  def focus_id( id )
-    javascript_tag(
-      "document.getElementById('#{id}').focus();"
-    )
-  end
-
-
-  def focus_and_select_id( id )
-    javascript_tag(
-      "document.getElementById('#{id}').focus();" +
-        "document.getElementById('#{id}').select();"
-    )
-  end
-
-
   def get_frontend_url_for( opt={} )
     opt[:host] ||= Object.const_defined?(:EXTERNAL_FRONTEND_HOST) ? EXTERNAL_FRONTEND_HOST : FRONTEND_HOST
     opt[:port] ||= Object.const_defined?(:EXTERNAL_FRONTEND_PORT) ? EXTERNAL_FRONTEND_PORT : FRONTEND_PORT
@@ -121,32 +106,11 @@ module ApplicationHelper
     URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
-  def hinted_text_field_tag(name, value = nil, hint = "Click and enter text", options={})
-    value = value.nil? ? hint : value
-    text_field_tag name, value, {:onfocus => "if($(this).value == '#{hint}'){$(this).value = ''}",
-      :onblur => "if($(this).value == ''){$(this).value = '#{hint}'}",
-    }.update(options.stringify_keys)
-  end
-
-
   def get_random_sponsor_image
     sponsors = ["/themes/bento/images/sponsors/sponsor_amd.png",
       "/themes/bento/images/sponsors/sponsor_b1-systems.png",
       "/themes/bento/images/sponsors/sponsor_ip-exchange2.png"]
     return sponsors[rand(sponsors.size)]
-  end
-
-
-  def link_to_remote_if(condition, name, options = {}, html_options = nil, &block)
-    if condition
-      link_to_remote(name, options, html_options)
-    else
-      if block_given?
-        block.arity <= 1 ? yield(name) : yield(name, options, html_options)
-      else
-        name
-      end
-    end
   end
 
   def image_url(source)
