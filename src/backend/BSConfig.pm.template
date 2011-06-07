@@ -30,6 +30,12 @@ our $new_style_services = 1;
 
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 
+# restrict access to the backend
+our $ipaccess = {
+   '127\..*' => 'rw', # only the localhost can write to the backend
+   '.*' => 'worker',  # build results can be delivered from any client in the network
+}
+
 our $obsname = $hostname; # unique identifier for this Build Service instance
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
 our $srcserver = "http://$hostname:5352";
