@@ -677,6 +677,13 @@ PUT /request/<id>
 XmlResult: request
 
 
+POST /request/<id>?cmd=diff
+  
+  Shows the diff of all affected packages.
+
+Result: diff as text/plain
+
+
 POST /request/<id>
   
   Modify a request state
