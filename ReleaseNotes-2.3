@@ -105,6 +105,11 @@ Changes:
     This is possible now, but the source package maintainer will get asked for review the request.
   - the route /group/$GROUP is showing correct xml description and no directory anymore
 
+* new source service handling
+  - Source services do not generate an extra commit for the result. Instead they work like
+    source links, this means the generated files become visible with expand=1 parameter.
+  - The state of the service is visible via serviceinfo element in package file list.
+
 Deprecated:
 ===========
 

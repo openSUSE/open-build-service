@@ -24,6 +24,10 @@ package BSConfig;
 
 use Net::Domain;
 
+# Use new style source service by default.
+# FIXME2.3: make this default in code before 2.3 final
+our $new_style_services = 1;
+
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 
 our $obsname = $hostname; # unique identifier for this Build Service instance

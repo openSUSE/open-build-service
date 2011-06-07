@@ -96,7 +96,6 @@ class SourceServicesTest < ActionController::IntegrationTest
     get "/source/home:tom/service"
     assert_response :success
     assert_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
-    assert_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
 
     put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
@@ -160,18 +159,15 @@ class SourceServicesTest < ActionController::IntegrationTest
     # validate revisions
     get "/source/home:tom/service/_history"
     assert_response :success
-    get "/source/home:tom/service?rev=6" # service run after first commitfilelist
+    get "/source/home:tom/service?rev=3&expand=1" # show service generated files
     assert_response :success
     assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
     assert_tag :tag => 'entry', :attributes => { :name => 'filename' }
-    get "/source/home:tom/service?rev=7" # second commit
+    get "/source/home:tom/service?rev=4" # second commit
     assert_response :success
-if $ENABLE_BROKEN_TEST
-# mls want's to solve it differntly, just mark it as broken atm.
-    assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }  # old file kept during commit
-end
+    assert_no_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
     assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }                      # user file got removed
-    get "/source/home:tom/service?rev=8" # service run after second commit
+    get "/source/home:tom/service?rev=4&expand=1" # with generated files
     assert_response :success
     assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
     assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }
@@ -196,7 +192,6 @@ end
     get "/source/home:tom/service"
     assert_response :success
     assert_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
-    assert_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
 
     put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success

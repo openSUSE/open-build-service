@@ -52,6 +52,11 @@
       <xs:attribute name="project" type="xs:string"/>
       <xs:attribute name="package" type="xs:string"/>
       <xs:attribute name="srcmd5" type="xs:string"/>
+      <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="baserev" type="xs:string"/>
+      <xs:attribute name="xsrcmd5" type="xs:string"/>
+      <xs:attribute name="lsrcmd5" type="xs:string"/>
+      <xs:attribute name="error" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -62,10 +67,10 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence>
-        <xs:element name="error" type="xs:string" minOccurs="0" maxOccurs="1"/>
-      </xs:sequence>
       <xs:attribute name="code" type="xs:string"/>
+      <xs:attribute name="error" type="xs:string"/>
+      <xs:attribute name="lsrcmd5" type="xs:string"/>
+      <xs:attribute name="xsrcmd5" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
