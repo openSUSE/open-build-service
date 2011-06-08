@@ -105,10 +105,8 @@ class ApplicationController < ActionController::Base
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
     unless @http_user.has_role? 'Admin'
       logger.debug "not granted!"
-      render :template => 'permerror'
-      return false
+      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges" and return
     end
-    return true
   end
 
   def http_anonymous_user 

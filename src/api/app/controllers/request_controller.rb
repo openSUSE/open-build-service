@@ -10,6 +10,9 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   alias_method :create, :dispatch_command
 
+  #TODO: allow PUT for non-admins
+  before_filter :require_admin, :only => [:update]
+
   # GET /request
   def index
     valid_http_methods :get
@@ -198,13 +201,6 @@ class RequestController < ApplicationController
   # PUT /request/:id
   def update
     params[:user] = @http_user.login if @http_user
-    
-    #TODO: allow PUT for non-admins
-    unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => 'put_request_no_permission',
-        :message => "PUT on requests currently requires admin privileges"
-      return
-    end
 
     path = request.path
     path << build_query_from_hash(params, [:user])

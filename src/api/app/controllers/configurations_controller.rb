@@ -1,6 +1,7 @@
 class ConfigurationsController < ApplicationController
   # Site-specific configuration is insensitive information, no login needed therefore
   skip_before_filter :extract_user, :only => [:show]
+  before_filter :require_admin, :only => [:update]
 
   # GET /configuration
   # GET /configuration.json
@@ -24,9 +25,6 @@ class ConfigurationsController < ApplicationController
   # PUT /configuration.json
   # PUT /configuration.xml
   def update
-    unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "PUT on requests currently requires admin privileges" and return
-    end
     @configuration = Configuration.first
 
     respond_to do |format|

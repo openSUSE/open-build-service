@@ -6,6 +6,7 @@ class ArchitectureController < ApplicationController
   validate_action :show  => {:method => :get, :response => :architecture}
 
   before_filter :update_architecture_state, :only => [:index, :show]
+  before_filter :require_admin, :only => [:create, :update, :delete]
 
   # GET /architecture
   def index
@@ -45,9 +46,6 @@ class ArchitectureController < ApplicationController
 
   # POST /architecture/:name
   def create
-    unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "PUT on requests currently requires admin privileges" and return
-    end
     unless params[:name]
       render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
     end
@@ -64,9 +62,6 @@ class ArchitectureController < ApplicationController
 
   # PUT /architecture/:name
   def update
-    unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "PUT on requests currently requires admin privileges" and return
-    end
     unless params[:name]
       render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
     end
@@ -86,9 +81,6 @@ class ArchitectureController < ApplicationController
 
   # DELETE /architecture/:name
   def delete
-    unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "PUT on requests currently requires admin privileges" and return
-    end
     unless params[:name]
       render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
     end
