@@ -19,7 +19,7 @@
 
 <div class="grid_11 alpha">
   <div class="box box-shadow">
-    <h1 class="mainhead">Welcome to the <%= @site_config['title'] %></h1>
+    <h1 class="mainhead">Welcome to the <%= @configuration['title'] %></h1>
 
     <p class="description">
       The
@@ -73,7 +73,7 @@
 
       <% if @global_counters %>
         <p class="description">
-          According to <%= link_to 'the statistics', :controller => 'statistics' %>, <%= @site_config['title'] %> hosts
+          According to <%= link_to 'the statistics', :controller => 'statistics' %>, <%= @configuration['title'] %> hosts
           <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
           <b><%= number_with_delimiter @global_counters.packages %></b> packages, in <b><%= number_with_delimiter @global_counters.repos %></b> repositories
           and is used by <b><%= number_with_delimiter @global_counters.users %></b> confirmed developers.

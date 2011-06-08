@@ -1,6 +1,6 @@
 <h1>Editing Site Configuration</h1>
 
-<% form_for(@site_config) do |f| %>
+<% form_for(@configuration) do |f| %>
   <%= f.error_messages %>
   <p>
     <%= f.label :title %><br />
@@ -15,5 +15,5 @@
   </p>
 <% end %>
 
-<%= link_to 'Show', @site_config %> |
-<%= link_to 'Back', site_config_path %>
+<%= link_to 'Show', @configuration %> |
+<%= link_to 'Back', configuration_path %>

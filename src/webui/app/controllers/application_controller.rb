@@ -28,7 +28,7 @@ class ApplicationController < ActionController::Base
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
-  before_filter :require_site_configuration
+  before_filter :require_configuration
   after_filter :set_charset
   after_filter :validate_xhtml
   protect_from_forgery
@@ -403,10 +403,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def require_site_configuration
+  def require_configuration
     begin
-      @site_config = Rails.cache.fetch('site_config', :expires_in => 30.minutes) do
-        response = ActiveXML::Config::transport_for(:site_config).direct_http(URI('/site_config.json'))
+      @configuration = Rails.cache.fetch('configuration', :expires_in => 30.minutes) do
+        response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration.json'))
         ActiveSupport::JSON.decode(response)
       end
     rescue ActiveXML::Transport::NotFoundError
