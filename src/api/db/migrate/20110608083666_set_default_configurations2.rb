@@ -1,4 +1,4 @@
-class SetDefaultConfigurations < ActiveRecord::Migration
+class SetDefaultConfigurations2 < ActiveRecord::Migration
   def self.up
     Configuration.find_or_create_by_title_and_description(:title => "Open Build Service", :description => <<-EOT
       <p class="description">
