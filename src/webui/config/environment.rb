@@ -140,7 +140,7 @@ ActiveXML::Base.config do |conf|
     map.connect :userchangepasswd, "rest:///person/changepasswd"
 
     map.connect :architecture, "rest:///architectures/:name", :all => "rest://architectures/"
-    map.connect :site_config, "rest:///site_config/"
+    map.connect :configuration, "rest:///configuration/"
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
