@@ -9,9 +9,9 @@ class SiteConfigsController < ApplicationController
     @site_config = SiteConfig.first
 
     respond_to do |format|
+      format.xml  { render :xml => @site_config }
       format.html # show.html.erb
       format.json { render :json => @site_config }
-      format.xml  { render :xml => @site_config }
     end
   end
 
@@ -31,13 +31,13 @@ class SiteConfigsController < ApplicationController
 
     respond_to do |format|
       if @site_config.update_attributes(request.request_parameters)
+        format.xml  { head :ok }
         format.html { redirect_to(@site_config, :notice => 'SiteConfig was successfully updated.') }
         format.json { head :ok }
-        format.xml  { head :ok }
       else
+        format.xml  { render :xml => @site_config.errors, :status => :unprocessable_entity }
         format.html { render :action => "edit" }
         format.json { render :json => @site_config.errors, :status => :unprocessable_entity }
-        format.xml  { render :xml => @site_config.errors, :status => :unprocessable_entity }
       end
     end
   end
