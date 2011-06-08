@@ -20,7 +20,7 @@ module ActionController
     module InstanceMethods
       def prepend_view_path_if_mobile
         if mobile_request?
-          prepend_view_path 'app/mobile_views'
+          prepend_view_path File.join(RAILS_ROOT, 'app/mobile_views')
         end
       end
 
