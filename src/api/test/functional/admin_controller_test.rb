@@ -6,8 +6,8 @@ class AdminControllerTest < ActionController::IntegrationTest
   def test_index
     prepare_request_valid_user
     get "/admin"
-    assert_response :success
-    assert_match(/Insufficient permissions to view page/, @response.body)
+    assert_response 403
+    assert_match(/Requires admin privileges/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
     get "/admin"
