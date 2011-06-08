@@ -404,14 +404,14 @@ class ApplicationController < ActionController::Base
   end
 
   def require_configuration
+    @configuration = {}
     begin
       @configuration = Rails.cache.fetch('configuration', :expires_in => 30.minutes) do
         response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration.json'))
         ActiveSupport::JSON.decode(response)
       end
     rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = 'Site configuration not found'
-      redirect_to :controller => 'main', :action => 'index', :nextstatus => 404
+      logger.error 'Site configuration not found'
     rescue ActiveXML::Transport::UnauthorizedError => e
       @anonymous_forbidden = true
       logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
