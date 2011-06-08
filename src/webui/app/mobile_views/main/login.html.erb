@@ -5,14 +5,12 @@
 
 <% if PROXY_AUTH_MODE == :on %>
   <div>
-    <form action="<%= PROXY_AUTH_MODE %>/auth-up" method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
-      <% relative_root = '' %>
-      <% relative_root = ActionController::Base.relative_url_root unless @return_to_path =~ /^#{ActionController::Base.relative_url_root}/ %>
-      <input name="url" size="20" value="<%= "#{@return_to_host}#{relative_root}#{@return_to_path}" %>" type="hidden" />
-      <input name="context" value="default" type="hidden" />
-      <input name="proxypath" value="reverse" type="hidden" />
-      <input name="message" value="Please log In" type="hidden" />
-      <input name="return_to_path" value="<%= relative_root + @return_to_path %>" type="hidden" />
+    <% form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
+      <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
+      <%= hidden_field_tag(:context, 'default') %>
+      <%= hidden_field_tag(:proxypath, 'reserve') %>
+      <%= hidden_field_tag(:message, 'Please log in') %>
+      <%= hidden_field_tag(:return_to_path, @return_to_path) %>
       <table class="vertical">
         <tr>
           <td>Username</td>
@@ -37,15 +35,13 @@
           </td>
         </tr>
       </table>
-    </form>
+    <% end %>
   </div>
 <% else %>
 
   <div id="login-form">
     <% form_tag( :controller => :user, :action => :do_login ) do %>
-      <% relative_root = '' %>
-      <% relative_root = ActionController::Base.relative_url_root unless @return_to_path =~ /^#{ActionController::Base.relative_url_root}/ %>
-      <input name="return_to_path" value="<%= relative_root + @return_to_path %>" type="hidden" />
+      <%= hidden_field_tag(:return_to_path, @return_to_path) %>
       <table class="vertical">
         <tr>
           <td>Username</td>
