@@ -157,6 +157,25 @@ sub trunc_logfile {
   rename("$lf.new", $lf);
 }
 
+sub cleanup_job {
+  my $kill = shift;
+
+  if ($kill) {
+    if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
+      warn("could not kill job\n");
+      return 1;
+    }
+  }
+
+  if ($vm_tmpfs_mode) {
+    my @targs;
+    push @targs, "umount", $buildroot;
+    qsystem(@targs) && die("umount tmpfs failed: $!\n");
+  }
+
+  return 0;
+}
+
 sub usage {
   my ($ret) = @_;
 
@@ -1638,9 +1657,7 @@ while (!BSServer::server($conf)) {
       $rekillcnt = 0;
       $state = lockstate();
       if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
-        if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
-	  warn("could not kill job\n");
-        }
+        cleanup_job(1);
       }
       unlockstate();
     }
@@ -1659,8 +1676,7 @@ while (!BSServer::server($conf)) {
     next unless @s;
     if ($s[7] > $buildlog_maxsize) {
       next unless $locked;
-      if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
-	warn("could not kill job\n");
+      if (cleanup_job(1)) {
         last;
       }
       trunc_logfile("$buildroot/.build.log");
@@ -1669,8 +1685,7 @@ while (!BSServer::server($conf)) {
       $locked = 0;
     } elsif ($ct - $s[9] > $buildlog_maxidle) {
       next unless $locked;
-      if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
-	warn("could not kill job\n");
+      if (cleanup_job(1)) {
         last;
       }
       local *F;
@@ -1722,7 +1737,7 @@ if ($path eq '/info') {
   my $state = lockstate();
   die("not building\n") if $state->{'state'} ne 'building';
   die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
-  if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
+  if (cleanup_job(1)) {
     die("could not kill job\n");
   }
   local *F;
@@ -1986,11 +2001,7 @@ print "\n";
 $state = {'state' => 'idle'};
 commitstate($state);
 
-if ($vm_tmpfs_mode) {
-  my @targs;
-  push @targs, "umount", $buildroot;
-  qsystem(@targs) && die("umount tmpfs failed: $!\n");
-}
+cleanup_job();
 
 exit(0) if $oneshot && time() > $oneshot;
 send_state('idle', $port, $hostarch);
