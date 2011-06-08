@@ -88,11 +88,7 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'attribute_definition'
 
   ### /architecture
-  map.connect 'architectures',       :controller => 'architecture', :action => 'index'
-  map.connect 'architectures/:name', :controller => 'architecture', :action => 'show',   :conditions => {:method => :get}
-  map.connect 'architectures/:name', :controller => 'architecture', :action => 'create', :conditions => {:method => :post}
-  map.connect 'architectures/:name', :controller => 'architecture', :action => 'update', :conditions => {:method => :put}
-  map.connect 'architectures/:name', :controller => 'architecture', :action => 'delete', :conditions => {:method => :delete}
+  map.resources :architectures, :only => [:index, :show, :update] # create,delete currently disabled
 
   ### /tag
 
