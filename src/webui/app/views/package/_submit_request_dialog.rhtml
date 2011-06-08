@@ -38,7 +38,7 @@
           package: $('#package')[0].value,
         },
         success: function(data) {
-          if (data.length > 0) {
+          if (data.length > 0 && data != '<%= @project.to_s %>') {
             $('#devel_project_warning').show();
             $('#devel_project_name').html(data);
           } else {
