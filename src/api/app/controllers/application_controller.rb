@@ -460,6 +460,8 @@ class ApplicationController < ActionController::Base
       render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "Error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
+    when DbPackage::DeleteError
+      render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
     when IllegalRequestError
       message = "Illegal request"
       message = exception.message unless exception.message.nil?
@@ -475,6 +477,8 @@ class ApplicationController < ActionController::Base
       render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
     when DbProject::CycleError
       render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
+    when DbProject::DeleteError
+      render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
 
     # unknown objects and no read access permission are handled in the same way by default
     when DbProject::ReadAccessError, DbProject::UnknownObjectError

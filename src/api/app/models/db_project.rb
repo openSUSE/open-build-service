@@ -4,6 +4,7 @@ class DbProject < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
+  class DeleteError < Exception; end
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
 
@@ -285,6 +286,30 @@ class DbProject < ActiveRecord::Base
   def is_locked?
       return true if flags.find_by_flag_and_status "lock", "enable"
       return false
+  end
+
+  # NOTE: this is no permission check, should it be added ?
+  def can_be_deleted?
+    # check if other packages have me as devel project
+    unless self.develpackages.empty?
+      msg = "Unable to delete project #{self.name}; following packages use this project as develproject: "
+      msg += self.develpackages.map {|pkg| pkg.db_project.name+"/"+pkg.name}.join(", ")
+      raise DeleteError.new "project is used by following projects as devel project: #{msg}"
+    end
+
+    # check all packages, if any get refered as develpackage
+    self.db_packages.each do |pkg|
+      msg = ""
+      pkg.develpackages.each do |dpkg|
+        if self != dpkg.db_project
+          msg += dpkg.db_project.name + "/" + dpkg.name + ", "
+        end
+      end
+      unless msg == ""
+        raise DeleteError.new "packages in this project are used by following packages as devel package: #{msg}"
+      end
+    end
+
   end
 
   def store_axml( project, force=nil )

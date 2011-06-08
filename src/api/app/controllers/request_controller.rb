@@ -506,12 +506,8 @@ class RequestController < ApplicationController
           end
           # allow cleanup only, if no devel package reference
           if sourceupdate == 'cleanup'
-            unless spkg and spkg.develpackages.empty?
-              msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
-              msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
-              render_error :status => 400, :errorcode => 'develpackage_dependency',
-                :message => msg
-              return
+            if spkg 
+              spkg.can_be_deleted?
             end
           end
         end
@@ -547,8 +543,15 @@ class RequestController < ApplicationController
         tprj = DbProject.find_by_name action.target.project
         if action.target.has_attribute? 'package'
           tpkg = tprj.db_packages.find_by_name action.target.package
-        elsif action.has_element? 'source' and action.source.has_attribute? 'package'
-          tpkg = tprj.db_packages.find_by_name action.source.package
+          if action.data.attributes["type"] == "delete"
+            tpkg.can_be_deleted?    # raises exception if not
+          end
+        else
+          if action.data.attributes["type"] == "delete"
+            tprj.can_be_deleted?    # raises exception if not
+          elsif action.has_element? 'source' and action.source.has_attribute? 'package'
+            tpkg = tprj.db_packages.find_by_name action.source.package
+          end
         end
       end
       if action.has_element? 'source'
@@ -961,6 +964,13 @@ class RequestController < ApplicationController
               render_error :status => 400, :errorcode => 'not_existing_target',
                 :message => "Unable to process package #{action.target.project}/#{action.target.package}; it does not exist."
               return
+            end
+            if action.data.attributes["type"] == "delete"
+              target_package.can_be_deleted?
+            end
+          else
+            if action.data.attributes["type"] == "delete"
+              target_project.can_be_deleted?
             end
           end
         end

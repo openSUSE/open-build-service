@@ -2,6 +2,7 @@ class DbPackage < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
+  class DeleteError < Exception; end
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
   class ReadSourceAccessError < Exception; end
@@ -284,8 +285,20 @@ class DbPackage < ActiveRecord::Base
   end
 
   def is_locked?
-      return true if flags.find_by_flag_and_status "lock", "enable"
-      return self.db_project.is_locked?
+    return true if flags.find_by_flag_and_status "lock", "enable"
+    return self.db_project.is_locked?
+  end
+
+  # NOTE: this is no permission check, should it be added ?
+  def can_be_deleted?
+    # check if other packages have me as devel package
+    unless self.develpackages.empty?
+      msg = ""
+      self.develpackages.each do |dpkg|
+        msg += dpkg.db_project.name + "/" + dpkg.name + ", "
+      end
+      raise DeleteError.new "Package is used by following packages as devel package: #{msg}"
+    end
   end
 
   def find_linking_packages

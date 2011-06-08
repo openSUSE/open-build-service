@@ -115,7 +115,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     post "/request?cmd=create", load_backend_file('request/failing_cleanup_due_devel_package')
     assert_response 400
-    assert_select "status[code] > summary", /following packages use this package as devel package:/
+    assert_select "status[code] > summary", /Package is used by following packages as devel package:/
   end
 
   def test_set_bugowner_request
@@ -460,6 +460,21 @@ end
     assert_equal node.has_attribute?(:id), true
     id = node.data['id']
 
+    # and create a delete request
+    rq = '<request>
+           <action type="delete">
+             <target project="BaseDistro" package="pack1"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    iddelete = node.data['id']
+
+    # try to approve change_devel
     prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
@@ -471,6 +486,24 @@ end
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
     assert_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
+
+    # try to create delete request
+    rq = '<request>
+           <action type="delete">
+             <target project="BaseDistro" package="pack1"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "delete_error" }
+
+    # try to delete package via old request, it should fail
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "delete_error" }
 
     # cleanup
     put "/source/home:Iggy/TestPack/_meta", oldmeta
@@ -917,6 +950,8 @@ end
     assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
 
     # cleanup
+    delete "/source/kde4/Testing"
+    assert_response :success
     prepare_request_with_user "Iggy", "asdfasdf"
     delete "/source/home:Iggy:branches:kde4"
     assert_response :success

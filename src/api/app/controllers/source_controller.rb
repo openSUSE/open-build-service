@@ -110,28 +110,7 @@ class SourceController < ApplicationController
           :message => "Permission denied (delete project #{project_name})"
         return
       end
-      # deny deleting if other packages use this as develproject
-      unless pro.develpackages.empty?
-        msg = "Unable to delete project #{pro.name}; following packages use this project as develproject: "
-        msg += pro.develpackages.map {|pkg| pkg.db_project.name+"/"+pkg.name}.join(", ")
-        render_error :status => 400, :errorcode => 'develproject_dependency',
-          :message => msg
-        return
-      end
-      # check all packages, if any get refered as develpackage
-      pro.db_packages.each do |pkg|
-        msg = ""
-        pkg.develpackages do |dpkg|
-          if pro != dpkg.db_project
-            msg += dpkg.db_project.name + "/" + dkg.name + ", "
-          end
-        end
-        unless msg == ""
-          render_error :status => 400, :errorcode => 'develpackage_dependency',
-            :message => "Unable to delete package #{pkg.name}; following packages use this package as devel package: #{msg}"
-          return
-        end
-      end
+      pro.can_be_deleted?
 
       # find linking repos
       lreps = Array.new
@@ -371,16 +350,10 @@ class SourceController < ApplicationController
       # deny deleting if other packages use this as develpackage
       # Shall we offer a --force option here as well ?
       # Shall we ask the other package owner accepting to be a devel package ?
-      unless tpkg.develpackages.empty?
-        msg = "Unable to delete package #{tpkg.name}; following packages use this package as devel package: "
-        msg += tpkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
-        render_error :status => 400, :errorcode => 'develpackage_dependency',
-          :message => msg
-        return
-      end
+      tpkg.can_be_deleted?
 
-      #FIXME: Check for all requests that have this packae as either source or target
-      #FIXME: Checkk all requests in state review that have a by_package review on this one
+      #FIXME: Check for all requests that have this package as either source or target
+      #FIXME: Check all requests in state review that have a by_package review on this one
 
       # exec
       DbPackage.transaction do
