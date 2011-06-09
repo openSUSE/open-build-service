@@ -1715,7 +1715,7 @@ class SourceController < ApplicationController
     pack.update_timestamp
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :comment])
+    path << build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend path
   end
 
