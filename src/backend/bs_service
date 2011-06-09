@@ -238,7 +238,7 @@ my $dispatches = [
 
   '/service' => \&list_service,
 #  '/service/$service' => \&show_service,
-  'POST:/sourceupdate/$project/$package' => \&run_source_update,
+  '!- POST:/sourceupdate/$project/$package' => \&run_source_update,
 ];
 
 my $conf = {
