@@ -164,6 +164,11 @@ sub addrev_service {
     addrev($cgi, $projid, $packid, $files);
   } else {
     # new style services
+    if ($files->{'_service_error'} && !$error) {
+      $error = repreadstr($rev, '_service_error', $files->{'_service_error'});
+      chomp $error;
+      $error ||= 'unknown service error';
+    }
     my $srcmd5 = $files->{'/SERVICE'};
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
     if ($error) {
