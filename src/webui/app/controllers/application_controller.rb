@@ -417,4 +417,13 @@ class ApplicationController < ActionController::Base
       logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
     end
   end
+
+  # Before filter to check if current user is administrator
+  def require_admin
+    if @user and not @user.is_admin?
+      flash[:error] = "Requires admin privileges"
+      redirect_back_or_to :controller => 'main', :action => 'index' and return
+    end
+  end
+
 end
