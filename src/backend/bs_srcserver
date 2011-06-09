@@ -194,12 +194,28 @@ sub runservice {
 
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
+  die("No project defined for source update!") unless defined $projid;
+  die("No package defined for source update!") unless defined $packid;
+
+  if ($files->{'/SERVICE'}) {
+    # check serialization
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
+    my $smd5 = $files->{'/SERVICE'};
+    local *FF;
+    BSUtil::lockopen(\*FF, '+>>', "$treedir/$smd5-_serviceerror");
+    my $error = readstr("$treedir/$smd5-_serviceerror");
+    chomp $error;
+    if ($error) {
+      # already running or failed!
+      close FF;	# free lock
+      return
+    }
+    writestr("$treedir/.$smd5-_serviceerror", "$treedir/$smd5-_serviceerror", "service in progress\n");
+    close FF;	# free lock
+  }
 
   return if $packid eq '_project';
-  return unless $BSConfig::serviceserver;
   return if $rev->{'rev'} && ($rev->{'rev'} eq 'repository' || $rev->{'rev'} eq 'upload');
-  die("No project defined for source update!") if !defined $projid;
-  die("No package defined for source update!") if !defined $packid;
 
   # die when a source service is still running
   my $lockfile = "$eventdir/service/${projid}::$packid";
@@ -244,6 +260,8 @@ sub runservice {
       return;
     }
   }
+
+  return unless $BSConfig::serviceserver;
 
   if (!$files->{'/SERVICE'}) {
     mkdir_p("$eventdir/service");
@@ -1628,24 +1646,14 @@ sub handleservice {
   if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$smd5-MD5SUMS" && -e "$srcrep/$rev->{'package'}/$smd5-MD5SUMS") {
     return lsrev($rev);
   }
-
   return lsrev($rev) if -e "$treedir/$smd5-MD5SUMS";	# we have a result
   my $error = readstr("$treedir/$smd5-_serviceerror", 1);
   $error =~ s/\n$//s if $error;
   die("$error\n") if $error && $error ne '';
-  # need to run it, serialize
-  local *FF;
-  BSUtil::lockopen(\*FF, '+>>', "$treedir/$smd5-_serviceerror");
-  $error = readstr("$treedir/$smd5-_serviceerror");
-  $error =~ s/\n$//s;
-  die("$error\n") if $error ne '';
-  $error = 'service in progress';
-  writestr("$treedir/.$smd5-_serviceerror", "$treedir/$smd5-_serviceerror", "$error\n");
-  close FF;	# free lock
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $smd5;
   runservice({}, $rev, \%nfiles);
-  die("$error\n");
+  die("service in progress\n");
 }
 
 # returns service expanded filelist
