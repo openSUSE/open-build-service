@@ -1,6 +1,7 @@
-class SetDefaultConfigurations2 < ActiveRecord::Migration
+class SetDefaultConfigurations < ActiveRecord::Migration
   def self.up
-    Configuration.find_or_create_by_title_and_description(:title => "Open Build Service", :description => <<-EOT
+    Configuration.destroy_all
+    Configuration.create(:nameprefix => "", :description => <<-EOT
       <p class="description">
         The <%= link_to 'Open Build Service (OBS)', 'http://openbuildservice.org', :title => 'OBS Project Page' %>
         is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
@@ -18,7 +19,7 @@ class SetDefaultConfigurations2 < ActiveRecord::Migration
   end
 
   def self.down
-    Configuration.find_by_title("Open Build Service").delete
+    Configuration.destroy_all
   end
 end
 

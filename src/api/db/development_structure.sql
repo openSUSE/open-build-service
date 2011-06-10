@@ -94,7 +94,7 @@ CREATE TABLE `blacklist_tags` (
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `nameprefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8_unicode_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -138,8 +138,8 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
-  `maintenance_project_id` int(11) DEFAULT NULL,
   `type_id` int(11) DEFAULT NULL,
+  `maintenance_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`)
@@ -392,6 +392,15 @@ CREATE TABLE `schema_migrations` (
   `version` varchar(255) NOT NULL,
   UNIQUE KEY `unique_schema_migrations` (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `site_configs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -683,6 +692,14 @@ INSERT INTO schema_migrations (version) VALUES ('20110527000000');
 INSERT INTO schema_migrations (version) VALUES ('20110527083007');
 
 INSERT INTO schema_migrations (version) VALUES ('20110527083666');
+
+INSERT INTO schema_migrations (version) VALUES ('20110608083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20110608083666');
+
+INSERT INTO schema_migrations (version) VALUES ('20110609083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20110609083666');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -1,4 +1,4 @@
-class CreateConfigurations2 < ActiveRecord::Migration
+class CreateConfigurations < ActiveRecord::Migration
   def self.up
     # to help people who updated during development phase
     begin
@@ -8,7 +8,7 @@ class CreateConfigurations2 < ActiveRecord::Migration
     end
 
     create_table :configurations do |t|
-      t.string :title
+      t.string :nameprefix
       t.text :description
 
       t.timestamps

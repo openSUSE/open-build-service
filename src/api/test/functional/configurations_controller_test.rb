@@ -16,10 +16,10 @@ class ConfigurationsControllerTest < ActionController::IntegrationTest
   end
 
   def test_should_update_configuration
-    put '/configuration', :title => 'openSUSE Build Service', :description => 'Long description'
+    put '/configuration', :nameprefix => 'openSUSE Build Service', :description => 'Long description'
     assert_response 403 # Normal users can't change site-wide configuration
     prepare_request_with_user 'king', 'sunflower' # User with admin rights
-    put '/configuration', :title => 'openSUSE Build Service', :description => 'Long description'
+    put '/configuration', :nameprefix => 'openSUSE Build Service', :description => 'Long description'
     assert_redirected_to configuration_path(assigns(:configuration))
   end
 end
