@@ -10,13 +10,13 @@ class ConfigurationController < ApplicationController
 
   def update_configuration
     valid_http_methods :post
-    if not (params[:title] or params[:target_project])
-      flash[:error] = "Missing arguments (title or description)"
+    if not (params[:nameprefix] or params[:target_project])
+      flash[:error] = "Missing arguments (nameprefix or description)"
       redirect_back_or_to :action => 'index' and return
     end
 
     begin
-      data = "title=#{CGI.escape(params[:title])}&description=#{CGI.escape(params[:description])}"
+      data = "nameprefix=#{CGI.escape(params[:nameprefix])}&description=#{CGI.escape(params[:description])}"
       response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration'), :method => 'PUT', :content_type => 'application/x-www-form-urlencoded', :data => data)
       flash[:note] = "Updated configuration"
       Rails.cache.delete('configuration')

@@ -22,8 +22,8 @@ as well as managing users and groups.
     <h3>User Interface</h3>
     <% form_tag(:action => 'update_configuration') do %>
       <p>
-        <%= label_tag :title, 'Title:' %><br/>
-        <%= text_field_tag :title, @configuration['title'] %>
+        <%= label_tag :title, 'Instance Name Prefix:' %><br/>
+        <%= text_field_tag :title, @configuration['nameprefix'] %>
       </p>
       <p>
         <%= label_tag :description, 'Description:' %><br/>

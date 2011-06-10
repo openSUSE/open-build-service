@@ -23,7 +23,7 @@
   <p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
   <% if build_count > 0 %>
     <p class="info">Hover the job time field to see the start time.</p>
-    <p class="info"><%= @configuration['title'] %> reports <%= build_count %> running jobs.</p>
+    <p class="info"><%= @configuration['nameprefix'] %> Open Build Service reports <%= build_count %> running jobs.</p>
 
     <%= render :partial => 'building_table' %>
 
