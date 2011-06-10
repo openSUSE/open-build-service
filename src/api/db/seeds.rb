@@ -83,3 +83,10 @@ puts "Seeding db_project_type table by loading test fixtures"
 DbProjectType.find_or_create_by_name("standard")
 DbProjectType.find_or_create_by_name("maintenance")
 DbProjectType.find_or_create_by_name("maintenance_incident")
+
+# default repository to link when original one got removed
+d = DbProject.find_or_create_by_name("deleted")
+r = Repository.new( :name => "deleted", :db_project => d )
+d.repositories << r
+d.save
+
