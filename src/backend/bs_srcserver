@@ -149,13 +149,17 @@ sub genservicemark {
 sub addrev_service {
   my ($cgi, $rev, $files, $error) = @_;
 
+  if ($error) {
+    chomp $error;
+    $error ||= 'unknown service error';
+  }
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
   if (!$files->{'/SERVICE'}) {
     # old style, do a commit
     if ($error) {
       mkdir_p($uploaddir);
-      writestr("$uploaddir/_service_error$$", undef, $error);
+      writestr("$uploaddir/_service_error$$", undef, "$error\n");
       $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
     }
     $cgi ||= {};
@@ -226,9 +230,7 @@ sub runservice {
     ($projectservices, undef) = getprojectservices({}, $projid, $packid);
   };
   if ($@) {
-    my $error = $@;
-    chomp $error;
-    addrev_service($cgi, $rev, $files, $error);
+    addrev_service($cgi, $rev, $files, $@);
     return;
   }
   undef $projectservices unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
@@ -251,13 +253,27 @@ sub runservice {
     return;
   }
 
+  my $linkfiles;
   if ($files->{'_link'}) {
     # make sure it's a branch
     my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if (!$l || !$l->{'patches'} || @{$l->{'patches'}->{''} || []} != 1 || (keys %{$l->{'patches'}->{''}->[0]})[0] ne 'branch') {
-      addrev_service($cgi, $rev, $files, "services only work on branches\n");
-      notify_repservers('package', $projid, $packid);
-      return;
+      #addrev_service($cgi, $rev, $files, "services only work on branches\n");
+      #notify_repservers('package', $projid, $packid);
+      #return;
+      # uh oh!
+      $linkfiles = { %$files };
+      delete $files->{'/SERVICE'};
+      eval {
+        $files = handlelinks({%$rev, 'linkrev' => 'base'}, $files);
+      };
+      if ($@) {
+        $files = $linkfiles;
+        addrev_service($cgi, $rev, $files, $@);
+        notify_repservers('package', $projid, $packid);
+        return;
+      }
+      $files->{'/SERVICE'} = $linkfiles->{'/SERVICE'} if $linkfiles->{'/SERVICE'}
     }
   }
 
@@ -323,8 +339,14 @@ sub runservice {
     }
   } else {
     $error ||= 'error';
-    $error =~ s/\n$//s;
     $error = "service daemon error: $error";
+  }
+  if ($linkfiles) {
+    # argh, a link! put service run result in old filelist
+    if (!$error) {
+      $linkfiles->{$_} = $files->{$_} for grep {/^_service[_:]/} %$files;
+    }
+    $files = $linkfiles;
   }
   addrev_service($cgi, $rev, $files, $error);
   BSUtil::cleandir($odir);
