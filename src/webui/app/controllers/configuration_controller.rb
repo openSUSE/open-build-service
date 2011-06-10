@@ -16,8 +16,6 @@ class ConfigurationController < ApplicationController
     end
 
     begin
-      #path = "/configuration?title=#{CGI.escape(params[:title])}&description=#{CGI.escape(params[:description])}"
-      #data = { :title => CGI.escape(params[:title]), :description => CGI.escape(params[:description]) }
       data = "title=#{CGI.escape(params[:title])}&description=#{CGI.escape(params[:description])}"
       response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration'), :method => 'PUT', :content_type => 'application/x-www-form-urlencoded', :data => data)
       flash[:note] = "Updated configuration"
