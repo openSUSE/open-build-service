@@ -17,7 +17,7 @@ class SearchController < ApplicationController
       redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
     end
 
-    @search_text = @search_text.gsub(/[\[\]'\n/, '')
+    @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
     @attribute = params[:attribute]
     if (!@search_text or @search_text.length < 2) && @attribute.blank?
       flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
