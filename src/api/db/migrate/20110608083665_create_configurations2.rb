@@ -1,5 +1,12 @@
 class CreateConfigurations2 < ActiveRecord::Migration
   def self.up
+    # to help people who updated during development phase
+    begin
+      drop_table :configurations
+    rescue
+      pass
+    end
+
     create_table :configurations do |t|
       t.string :title
       t.text :description
