@@ -275,7 +275,7 @@ sub createProductOptions($$$)
     $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
     $varsH{SHA1OPT} = "-x";
     # switch to sha256 sums except for old distros
-    $varsH{SHA1OPT} .= " -2" unless $mediaStyle eq "suse-11.1" || $mediaStyle eq "suse-11.2" || $mediaStyle eq "suse-11.3";
+    $varsH{SHA1OPT} .= " -2" unless $mediaStyle eq "suse-11.1" || $mediaStyle eq "suse-11.2" || $mediaStyle eq "suse-11.3" || $mediaStyle eq "suse-sle11-sp2";
 
     $varsH{VENDOR} = $product->{'vendor'};
     $varsH{DISTNAME} = $product->{'name'};
