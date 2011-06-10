@@ -344,7 +344,7 @@ sub runservice {
   if ($linkfiles) {
     # argh, a link! put service run result in old filelist
     if (!$error) {
-      $linkfiles->{$_} = $files->{$_} for grep {/^_service[_:]/} %$files;
+      $linkfiles->{$_} = $files->{$_} for grep {/^_service[_:]/} keys %$files;
     }
     $files = $linkfiles;
   }
@@ -1372,8 +1372,8 @@ sub applylink {
       return "baserev $baserev does not exist" unless $fbas;
       return "baserev is link" if $fbas->{'link'};
 
-      # ignore linked generated service files if our link contains a service
-      if ($flnk->{'_service'}) {
+      # ignore linked generated service files if our link contains service files
+      if (grep {/^_service/} keys %$flnk) {
 	delete $fbas->{$_} for grep {/^_service[:_]/} keys %$fbas;
 	delete $fsrc->{$_} for grep {/^_service[:_]/} keys %$fsrc;
       }
