@@ -275,34 +275,19 @@ class Project < ActiveXML::Base
   end
 
   def bugowners
-    b = all_persons("bugowner")
-    return nil if b.empty?
-    return b
-  end
-
-  def all_persons( role )
-    ret = Array.new
-    each_person do |p|
-      if p.role == role
-        ret << p.userid.to_s
-      end
-    end
-    return ret
-  end
-
-  def all_groups( role )
-    ret = Array.new
-    each_group do |p|
-      if p.role == role
-        ret << p.groupid.to_s
-      end
-    end
-    return ret
+    return users('bugowner')
   end
 
   def user_has_role?(userid, role)
     each_person do |p|
       return true if p.role == role and p.userid == userid
+    end
+    user = Person.find_cached(userid)
+    if user
+      return true if user.is_admin?
+      each_group do |g|
+        return true if g.role == role and user.is_in_group?(g)
+      end
     end
     return false
   end
@@ -314,30 +299,40 @@ class Project < ActiveXML::Base
     return false
   end
 
-  def users
+  def users(role = nil)
     users = []
-    each_person {|p| users.push(p.userid)}
+    each_person do |p|
+      if not role or (role and p.role == role)
+        users << p.userid
+      end
+      user = Person.find_cached(p.userid)
+      if user
+        each_group do |g|
+          if not role or (role and g.role == role)
+            users << p.userid if user.is_in_group?(g)
+          end
+        end
+      end
+    end
     return users.sort.uniq
   end
 
-  def groups
+  def groups(role = nil)
     groups = []
-    each_group {|g| groups.push(g.groupid)}
+    each_group do |g|
+      if not role or (role and g.role == role)
+        groups << g.groupid
+      end
+    end
     return groups.sort.uniq
   end
 
   def is_maintainer? userid
-    has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+    return user_has_role?(userid, 'maintainer')
   end
 
   def can_edit? userid
-    return false unless userid
-    return true if is_maintainer? userid
-    return true if Person.find_cached(userid).is_admin?
-    all_groups("maintainer").each do |grp|
-      return true if Person.find_cached(userid).is_in_group?(grp)
-    end
-    return false
+    return userid and is_maintainer?(userid)
   end
 
   def name

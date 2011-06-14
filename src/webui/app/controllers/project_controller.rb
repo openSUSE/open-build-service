@@ -211,13 +211,10 @@ class ProjectController < ApplicationController
 
   def show
     @bugowners_mail = []
-    if @project.bugowners
-      @project.bugowners.each do |bugowner|
-        mail = find_cached(Person, bugowner).email.to_s
-        @bugowners_mail.push mail if mail
-      end
+    @project.bugowners.each do |bugowner|
+      mail = find_cached(Person, bugowner).email
+      @bugowners_mail.push(mail.to_s) if mail
     end
-    @bugowners_mail = nil if @bugowners_mail.empty?
 
     load_packages_mainpage
 

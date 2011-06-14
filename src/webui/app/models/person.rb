@@ -128,17 +128,11 @@ class Person < ActiveXML::Base
     has_element?( "globalrole[text() = \"Admin\"]" )
   end
 
-  # if package is nil, returns project maintainership
-  def is_maintainer?(project, package=nil)
-    return true if is_admin?
-    package = Package.find_cached(package) if package.class == String
-    return true if package and package.is_maintainer?(login)
-    project = Project.find_cached(project) if project.class == String
-    return project.is_maintainer?(login)
+  def is_maintainer?(project, package = nil)
+    return has_role('maintainer', project, package)
   end
 
-  def has_role?(role, project, package=nil)
-    return true if is_admin?
+  def has_role?(role, project, package = nil)
     return true if package and package.user_has_role?(login, role)
     return project.user_has_role?(login, role)
   end

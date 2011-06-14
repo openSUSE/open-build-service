@@ -72,10 +72,10 @@
       </ul>
     </div>
     <div class="grid_4">
-      <% if (@bugowners_mail and !BUGZILLA_HOST.nil?) or session[:login] %>
+      <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
         <h4>Actions</h4>
         <ul class="clean_list">
-          <% if @bugowners_mail and !BUGZILLA_HOST.nil? %>
+          <% if not @bugowners_mail.empty? and !BUGZILLA_HOST.nil? %>
             <li>
               <%= link_to(image_tag('tools-report-bug.png', :title => 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               <%= link_to('Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>

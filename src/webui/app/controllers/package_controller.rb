@@ -20,16 +20,9 @@ class PackageController < ApplicationController
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
     @bugowners_mail = []
-    if @package.bugowners
-      @package.bugowners.each do |bugowner|
+    (@package.bugowners + @project.bugowners).uniq.each do |bugowner|
         mail = find_cached(Person, bugowner).email
         @bugowners_mail.push(mail.to_s) if mail
-      end
-    elsif @project.bugowners
-      @project.bugowners.each do |bugowner|
-        mail = find_cached(Person, bugowner).email
-        @bugowners_mail.push(mail.to_s) if mail
-      end
     end
     fill_status_cache unless @buildresult.blank?
     linking_packages
