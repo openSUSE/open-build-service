@@ -176,6 +176,7 @@ sub addrev_service {
     my $srcmd5 = $files->{'/SERVICE'};
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
     if ($error) {
+      mkdir_p($treedir);
       writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
     } else {
       return if -e "$treedir/$srcmd5-MD5SUMS";	# huh? why did we run twice?
@@ -825,9 +826,10 @@ sub addrev {
   my $servicemark;
   delete $files->{'/SERVICE'};	# just in case...
   if ($BSConfig::new_style_services) {
-    # we do not want any generated files in the commit!
-    delete $files->{$_} for grep {/^_service[:_]/} keys %$files;
-
+    if (!$cgi->{'noservice'}) {
+      # we do not want any generated files in the commit!
+      delete $files->{$_} for grep {/^_service[:_]/} keys %$files;
+    }
     # see if we have to run a service
     if (exists($cgi->{'servicemark'})) {
       $servicemark = $cgi->{'servicemark'};	# use given value
@@ -1663,6 +1665,7 @@ sub handlelinks {
 sub handleservice {
   my ($rev, $files, $smd5) = @_;
 
+  my $lsrcmd5 = $rev->{'srcmd5'};
   $rev->{'srcmd5'} = $smd5;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
   if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$smd5-MD5SUMS" && -e "$srcrep/$rev->{'package'}/$smd5-MD5SUMS") {
@@ -1674,6 +1677,7 @@ sub handleservice {
   die("$error\n") if $error && $error ne '';
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $smd5;
+  $rev->{'srcmd5'} = $lsrcmd5;	# so that runservice can put it in /LSRCMD5
   runservice({}, $rev, \%nfiles);
   die("service in progress\n");
 }
