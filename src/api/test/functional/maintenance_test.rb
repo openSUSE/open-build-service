@@ -413,6 +413,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}"
     assert_response :success
+print @response.body
     assert_tag :tag => "binary", :attributes => { :filename => "updateinfo.xml" }
     get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
