@@ -144,7 +144,7 @@ class Package < ActiveXML::Base
     each_person do |p|
       return true if p.role == role and p.userid == userid
     end
-    user = Person.find_cached(userid)
+    user = Person.find_cached(userid.to_s)
     if user
       return true if user.is_admin?
       each_group do |g|
