@@ -57,6 +57,9 @@ Former OBS releases lack protection against XSS attacks. Esp. public instances
 should update to OBS 2.3, which is using rails plugins to protect against XSS
 attempts. This fixes (CVE-2011-0462).
 
+Building in "chroot" environments is known to be unsecure. XEN and KVM is considered to
+be a secure environment. However KVM is known to be unstable, it leads to build
+failures.
 
 Apache & mod_rails switch
 =========================
