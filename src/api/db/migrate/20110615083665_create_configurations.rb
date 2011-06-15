@@ -7,7 +7,7 @@ class CreateConfigurations < ActiveRecord::Migration
     end
 
     create_table :configurations do |t|
-      t.string :nameprefix
+      t.string :title
       t.text :description
 
       t.timestamps

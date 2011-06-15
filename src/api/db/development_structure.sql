@@ -94,7 +94,7 @@ CREATE TABLE `blacklist_tags` (
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nameprefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8_unicode_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -700,6 +700,10 @@ INSERT INTO schema_migrations (version) VALUES ('20110608083666');
 INSERT INTO schema_migrations (version) VALUES ('20110609083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20110609083666');
+
+INSERT INTO schema_migrations (version) VALUES ('20110615083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20110615083666');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

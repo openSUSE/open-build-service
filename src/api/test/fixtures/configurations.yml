@@ -1,9 +1,9 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
 one:
-  nameprefix: My
+  title: My Open Build Service
   description: MyText
 
 two:
-  nameprefix: openSUSE
+  title: openSUSE Build Service
   description: MyText
