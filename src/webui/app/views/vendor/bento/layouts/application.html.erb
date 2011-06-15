@@ -60,9 +60,7 @@
           <% @crumb_list.each do |link| %>
             &gt;
             <% if link.class == Array %> <!-- multiple items in crump list but they belong together as sub group, eg sub projects -->
-              <% link.each_with_index do |slink, index| %>
-                <%= ':' if index > 0 %> <%= slink %>
-              <% end %>
+              <% link.each_with_index do |slink, index| %><%= ':' if index > 0 %><%= slink %><% end %>
             <% else %>
               <%= link %>
             <% end %>
