@@ -301,17 +301,7 @@ class Package < ActiveXML::Base
     p[:package] = name
     p[:expand]  = expand  if expand
     p[:rev]     = rev     if rev
-    begin
-      dir = Directory.find(p)
-    rescue
-      begin
-        # retry without merging latest base version
-        p[:linkrev] = 'base'
-        dir = Directory.find(p)
-      rescue
-        return files
-      end
-    end
+    dir = Directory.find(p)
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|

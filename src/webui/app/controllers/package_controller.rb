@@ -119,7 +119,18 @@ class PackageController < ApplicationController
     @current_rev = Package.current_rev(@project, @package.name)
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
-    set_file_details
+    begin
+      set_file_details
+    rescue ActiveXML::Transport::Error => e
+      if @expand == 1
+         @expand = 0
+         message, code, api_exception = ActiveXML::Transport.extract_error_message e
+         flash[:error] = "Files could not be expanded " + message
+         set_file_details
+      else
+         raise e
+      end
+    end
   end
 
   def service_parameter_value
