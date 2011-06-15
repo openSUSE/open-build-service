@@ -63,6 +63,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLES-9-16.png"/>
   <link>http://www.suse.com/</link>
  </distribution>
+ <distribution vendor="MeeGo" version="1.2 oss" id="1.2-oss">
+  <name>MeeGo 1.2 oss</name>
+  <project>MeeGo.com:MeeGo:1.2:oss</project>
+  <reponame>MeeGo_1.2</reponame>
+  <repository>standard</repository>
+  <link>http://www.meego.com/</link>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/meego-1.2-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/meego-1.2-16.png"/>
+ </distribution>
  <distribution vendor="Debian" version="6.0" id="debian-6.0">
   <name>Debian 6.0</name>
   <project>openSUSE.org:Debian:6.0</project>
