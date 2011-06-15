@@ -23,7 +23,7 @@ FileUtils.mkdir "#{RAILS_ROOT}/tmp/backend_config"
 file = File.open("#{RAILS_ROOT}/tmp/backend_config/BSConfig.pm", "w")
 File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
   template.readlines.each do |line|
-    line.gsub!(/^1;$/, '')
+    line.gsub!(/our \$ipaccess/, 'our $ipaccess = undef; our $dummy')
     line.gsub!(/(our \$bsuser)/, '#\1')
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{RAILS_ROOT}/tmp/backend_data';")
@@ -33,9 +33,6 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/:5152/, ":3202") # source service, used via source server
     file.print line
   end
-  file.print ""
-  file.print "our $ipaccess = undef;"
-  file.print "1;"
 end
 file.close
 
