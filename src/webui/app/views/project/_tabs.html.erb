@@ -15,9 +15,7 @@
     <% if @is_maintenance_project %>
       <%= tab 'Incidents', :controller => :project, :action => :maintenance_incidents %>
       <%= tab 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
-    <% elsif @is_incident_project %>
-      <%# TODO %>
-    <% else %>
+    <% else %> <!-- also for incident project -->
       <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
       <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? %>
     <% end %>

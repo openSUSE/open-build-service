@@ -29,9 +29,7 @@
             <% end %>
             <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", :action => 'maintained_projects', :project => @project) %>
           </li>
-        <% elsif @is_incident_project %>
-
-        <% else %>
+        <% else %> <!-- also for incident project -->
           <li>
             <% if @nr_packages == 0 %>
               <%= image_tag 'icons/exclamation.png' %>
