@@ -164,7 +164,7 @@ class Package < ActiveXML::Base
   def users(role = nil)
     users = []
     each_person do |p|
-      if not role or (role = and p.role == role)
+      if not role or (role and p.role == role)
         users << p.userid
       end
       user = Person.find_cached(p.userid)

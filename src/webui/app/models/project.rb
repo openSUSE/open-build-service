@@ -332,7 +332,7 @@ class Project < ActiveXML::Base
   end
 
   def can_edit? userid
-    return userid and is_maintainer?(userid)
+    return userid && is_maintainer?(userid)
   end
 
   def name
