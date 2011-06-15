@@ -23,7 +23,7 @@ as well as managing users and groups.
     <% form_tag(:action => 'update_configuration') do %>
       <p>
         <%= label_tag :title, 'Title:' %><br/>
-        <%= text_field_tag :title, @configuration['title'] %> Open Build Service
+        <%= text_field_tag :title, @configuration['title'].gsub(" Open Build Service", "") %> Open Build Service
       </p>
       <p>
         <%= label_tag :description, 'Description:' %><br/>
