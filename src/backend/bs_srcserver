@@ -163,9 +163,7 @@ sub addrev_service {
       $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
     }
     $cgi ||= {};
-    $cgi->{'user'} = '_service';
-    $cgi->{'comment'} = 'generated via source service';
-    addrev($cgi, $projid, $packid, $files);
+    addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service', 'noservice' => 1}, $projid, $packid, $files);
   } else {
     # new style services
     if ($files->{'_service_error'} && !$error) {
@@ -175,8 +173,8 @@ sub addrev_service {
     }
     my $srcmd5 = $files->{'/SERVICE'};
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+    mkdir_p($treedir);
     if ($error) {
-      mkdir_p($treedir);
       writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
     } else {
       return if -e "$treedir/$srcmd5-MD5SUMS";	# huh? why did we run twice?
@@ -184,7 +182,6 @@ sub addrev_service {
       $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE'} sort keys %$files;
       $meta .= "$rev->{'srcmd5'}  /LSERVICE\n";
       mkdir_p($uploaddir);
-      mkdir_p($treedir);
       writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
       unlink("$treedir/$srcmd5-_serviceerror");
     }
@@ -961,7 +958,7 @@ sub addrev {
   }
 
   # help a little with link<->nolink and singleversion<->multiversion changes
-  if ($rev->{'version'} && $rev_old->{'version'} && !defined($cgi->{'vrev'})) {
+  if (defined($rev->{'version'}) && defined($rev_old->{'version'}) && !defined($cgi->{'vrev'})) {
     # if this is a known -> unknown version change, max with vrev of last commit
     # same for unknown -> known
     if (($rev->{'version'} eq 'unknown' && $rev_old->{'version'} ne 'unknown') ||
@@ -1009,7 +1006,7 @@ sub addrev {
   BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
                                              oldversion => $rev_old->{'version'}, newversion => $rev->{'version'},
                                              user => $user, comment => $comment, 'requestid' => $requestid})
-    if $rev->{'version'} && $rev_old->{'version'} && $rev->{'version'} ne $rev_old->{'version'};
+    if defined($rev->{'version'}) && defined($rev_old->{'version'}) && $rev->{'version'} ne $rev_old->{'version'};
 
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
