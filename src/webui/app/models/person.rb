@@ -129,7 +129,7 @@ class Person < ActiveXML::Base
   end
 
   def is_maintainer?(project, package = nil)
-    return has_role('maintainer', project, package)
+    return has_role?('maintainer', project, package)
   end
 
   def has_role?(role, project, package = nil)
