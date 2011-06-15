@@ -4,7 +4,6 @@ class CreateConfigurations < ActiveRecord::Migration
     begin
       drop_table :configurations
     rescue
-      pass
     end
 
     create_table :configurations do |t|
