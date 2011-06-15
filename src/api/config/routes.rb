@@ -16,7 +16,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/', :controller => 'main'
 
-  map.resource :configuration, :only => [:show, :edit, :update]
+  map.resource :configuration, :only => [:show, :update]
 
   ### /person
   map.connect 'person', :controller => 'person', :action => 'index'
