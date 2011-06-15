@@ -10,11 +10,6 @@ class ConfigurationsControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_should_get_edit
-    get '/configuration/edit'
-    assert_response :success
-  end
-
   def test_should_update_configuration
     put '/configuration', :nameprefix => 'openSUSE Build Service', :description => 'Long description'
     assert_response 403 # Normal users can't change site-wide configuration
