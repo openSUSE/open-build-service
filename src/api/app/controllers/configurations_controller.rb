@@ -22,7 +22,15 @@ class ConfigurationsController < ApplicationController
     @configuration = Configuration.first
 
     respond_to do |format|
-      if @configuration.update_attributes(request.request_parameters)
+      begin
+        ret = @configuration.update_attributes(request.request_parameters)
+      rescue ActiveRecord::UnknownAttributeError
+        # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
+        xml = REXML::Document.new(request.raw_post)
+        ret = @configuration.update_attributes(:title => xml.elements["/configuration/title"].text,
+                                               :description => xml.elements["/configuration/description"].text)
+      end
+      if ret
         format.xml  { head :ok }
         format.json { head :ok }
       else
