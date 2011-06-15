@@ -103,7 +103,7 @@ class ApplicationController < ActionController::Base
 
   def require_admin
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
-    unless @http_user.has_role? 'Admin'
+    unless @http_user.is_admin?
       logger.debug "not granted!"
       render_error :status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges" and return
     end
