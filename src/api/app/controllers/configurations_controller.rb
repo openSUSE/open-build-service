@@ -27,8 +27,10 @@ class ConfigurationsController < ApplicationController
       rescue ActiveRecord::UnknownAttributeError
         # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
         xml = REXML::Document.new(request.raw_post)
-        ret = @configuration.update_attributes(:title => xml.elements["/configuration/title"].text,
-                                               :description => xml.elements["/configuration/description"].text)
+        attribs = {}
+        attribs[:title] = xml.elements['/configuration/title'].text if xml.elements['/configuration/title']
+        attribs[:description] = xml.elements['/configuration/description'].text if xml.elements['/configuration/description']
+        ret = @configuration.update_attributes(attribs)
       end
       if ret
         format.xml  { head :ok }
