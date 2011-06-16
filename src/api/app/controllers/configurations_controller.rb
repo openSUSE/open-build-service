@@ -7,7 +7,7 @@ class ConfigurationsController < ApplicationController
   # GET /configuration.json
   # GET /configuration.xml
   def show
-    @configuration = Configuration.first
+    @configuration = Configuration.first(:select => 'title, description')
 
     respond_to do |format|
       format.xml  { render :xml => @configuration }
