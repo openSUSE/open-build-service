@@ -3763,7 +3763,7 @@ sub sourcediff {
   }
   my $olinkinfo = {};
   my $ofiles = lsrev($orev, $olinkinfo);
-  $ofiles = handleservice($rev, $ofiles, $olinkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $olinkinfo->{'xservicemd5'};
+  $ofiles = handleservice($orev, $ofiles, $olinkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $olinkinfo->{'xservicemd5'};
   if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
     if ($files->{'_link'}) {
@@ -3776,7 +3776,7 @@ sub sourcediff {
       }
       $files = handlelinks($rev, $files, \%li);
       die("bad link: $files\n") unless ref $files;
-      $cgi->{'olinkrev'} = $li{'srcmd5'} if $cgi->{'olinkrev'} eq 'linkrev';
+      $cgi->{'olinkrev'} = $li{'srcmd5'} if $cgi->{'olinkrev'} && $cgi->{'olinkrev'} eq 'linkrev';
       if ($l && $cgi->{'linkrev'} && $l->{'project'} eq $oprojid && $l->{'package'} eq $opackid && !$l->{'rev'} && !$cgi->{'orev'}) {
         # we're diffing against the link target. As the user specified a baserev, we should use it
         # instead of the latest source
