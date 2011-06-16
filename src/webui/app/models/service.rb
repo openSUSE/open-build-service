@@ -208,10 +208,13 @@ class Service < ActiveXML::Base
     opt[:package]  = self.init_options[:package]
     opt[:expand]   = self.init_options[:expand]
     opt[:rev]      = self.init_options[:revision]
-    opt[:filename] = "_service_error"
     begin
       fc = FrontendCompat.new
-      return fc.get_source opt
+      answer = fc.get_source opt
+      doc = XML::Parser.string(answer).parse.root
+      doc.find("/directory/serviceinfo").each do |s|
+         return s.attributes["error"]
+      end
     rescue
       return nil
     end

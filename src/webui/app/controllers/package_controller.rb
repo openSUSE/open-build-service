@@ -246,15 +246,13 @@ class PackageController < ApplicationController
         rescue RuntimeError
           # possibly thrown on bad link files
         end
-      elsif file[:name] == "_service" or file[:name] == "_service_error"
-        begin
-          @services = find_cached(Service,  :project => @project, :package => @package )
-        rescue
-          @services = nil
-        end
-        @serviceerror = @services.error if @services and @services.error
       end
     end
+
+    # check source service state
+    @services = find_cached(Service,  :project => @project, :package => @package )
+    @serviceerror = nil
+    @serviceerror = @package.serviceinfo.error if @package.serviceinfo and @package.serviceinfo.has_attribute? :error
   end
   private :set_file_details
 

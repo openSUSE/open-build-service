@@ -16,6 +16,8 @@ class Package < ActiveXML::Base
     @pf_updated = false
     @df_updated = false
     @uf_updated = false
+    @linkinfo = nil
+    @serviceinfo = nil
   end
 
   def to_s
@@ -207,12 +209,23 @@ class Package < ActiveXML::Base
   def linkinfo
     unless @linkinfo
       begin
-        link = Directory.find_cached( :project => project, :package => name)
-        @linkinfo = link.linkinfo if link && link.has_element?('linkinfo')
+        dir = Directory.find_cached( :project => project, :package => name)
+        @linkinfo = dir.linkinfo if dir && dir.has_element?('linkinfo')
       rescue ActiveXML::Transport::NotFoundError
       end
     end
     @linkinfo
+  end
+
+  def serviceinfo
+    unless @serviceinfo
+      begin
+        dir = Directory.find_cached( :project => project, :package => name)
+        @serviceinfo = dir.serviceinfo if dir && dir.has_element?('serviceinfo')
+      rescue ActiveXML::Transport::NotFoundError
+      end
+    end
+    @serviceinfo
   end
 
   def linked_to
@@ -304,6 +317,7 @@ class Package < ActiveXML::Base
     dir = Directory.find(p)
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
+    @serviceinfo = dir.serviceinfo if dir.has_element? 'serviceinfo'
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = Pathname.new(file[:name]).extname
