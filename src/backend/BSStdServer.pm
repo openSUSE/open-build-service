@@ -93,17 +93,24 @@ sub dispatch {
 
 sub periodic {
   my ($conf) = @_;
-  return unless -e "$rundir/$conf->{'name'}.restart";
-  BSServer::msg("$conf->{'name'} restarting...");
-  if (system($0, "--test")) {
-    BSServer::msg("$0 failed, aborting restart");
-    return;
+  if (-e "$rundir/$conf->{'name'}.exit") {
+    BSServer::msg("$conf->{'name'} exiting...");
+    unlink("$conf->{'ajaxsocketpath'}.lock") if $conf->{'ajaxsocketpath'};
+    unlink("$rundir/$conf->{'name'}.exit");
+    exit(0);
   }
-  unlink("$rundir/$conf->{'name'}.restart");
-  # clear close-on-exec bit
-  fcntl(BSServer::getserversocket(), F_SETFD, 0);
-  exec($0, '--restart', fileno(BSServer::getserversocket()));
-  die("$0: $!\n");
+  if (-e "$rundir/$conf->{'name'}.restart") {
+    BSServer::msg("$conf->{'name'} restarting...");
+    if (system($0, "--test")) {
+      BSServer::msg("$0 failed, aborting restart");
+      return;
+    }
+    unlink("$rundir/$conf->{'name'}.restart");
+    # clear close-on-exec bit
+    fcntl(BSServer::getserversocket(), F_SETFD, 0);
+    exec($0, '--restart', fileno(BSServer::getserversocket()));
+    die("$0: $!\n");
+  }
 }
 
 sub periodic_ajax {
@@ -132,10 +139,44 @@ sub serverstatus {
   return ({'job' => \@res}, $BSXML::serverstatus);
 }
 
+sub isrunning {
+  my ($name, $conf) = @_;
+  return 1 unless $conf;	# can't check
+  # hmm, might want to use a lock instead...
+  eval {
+    BSServer::serveropen($conf->{'port'});
+    BSServer::serverclose();
+  };
+  return $@ && "$@" =~ /bind:/ ? 1 : 0;
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
 
-  exit 0 if $args && @$args && $args->[0] eq '--test';
+  if ($args && @$args) {
+    if ($args->[0] eq '--test') {
+      exit 0;
+    }
+    if ($args->[0] eq '--stop' || $args->[0] eq '--exit') {
+      if (!isrunning($name, $conf)) {
+	print "server not running\n";
+	exit 0;
+      }
+      print("exiting server...\n");
+      BSUtil::touch("$rundir/$name.exit");
+      BSUtil::waituntilgone("$rundir/$name.exit");
+      exit 0;
+    }
+    if ($args->[0] eq '--restart' && @$args == 1) {
+      if (!isrunning($name, $conf)) {
+	die("server not running\n");
+      }
+      print("restarting server...\n");
+      BSUtil::touch("$rundir/$name.restart");
+      BSUtil::waituntilgone("$rundir/$name.restart");
+      exit 0;
+    }
+  }
 
   my $bsdir = $BSConfig::bsdir || "/srv/obs";
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
@@ -167,6 +208,7 @@ sub server {
     } else {
       BSServer::serveropen($conf->{'port'}, $BSConfig::bsuser, $BSConfig::bsgroup);
     }
+    $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'} if $aconf;
     unlink("$aconf->{'socketpath'}.lock") if $aconf;
   }
   if ($aconf) {

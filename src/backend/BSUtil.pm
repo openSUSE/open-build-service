@@ -355,6 +355,16 @@ sub data2utf8xml {
   }
 }
 
+sub waituntilgone {
+  my ($fn, $timeout) = @_;
+  while (1) {
+    return 1 unless -e $fn;
+    return 0 if defined($timeout) && $timeout <= 0;
+    select(undef, undef, undef, .1);
+    $timeout -= .1 if defined $timeout;
+  }
+}
+
 sub lockopen {
   my ($fg, $op, $fn, $nonfatal) = @_;
 
@@ -368,6 +378,23 @@ sub lockopen {
     my @s = stat(F);
     return 1 if @s && $s[3];
     close F;
+  }
+}
+
+sub lockcheck {
+  my ($op, $fn) = @_;
+  local *F;
+  while (1) {
+    if (!open(F, $op, $fn)) {
+      return -1;
+    }
+    if (!flock(F, LOCK_EX | LOCK_NB)) {
+      close(F);
+      return 0;
+    }
+    my @s = stat(F);
+    close F;
+    return 1 if @s && $s[3];
   }
 }
 
@@ -463,6 +490,28 @@ sub retrieve {
     }
   }
   return $dd;
+}
+
+sub restartexit {
+  my ($arg, $name, $runfile) = @_;
+  return unless $arg;
+  if ($arg eq '--stop' || $arg eq '--exit') {
+    if (!(-e "$runfile.lock") || lockcheck('>>', "$runfile.lock")) {
+      print "$name not running.\n";
+      exit 0;
+    }    
+    print "exiting $name...\n";
+    BSUtil::touch("$runfile.exit");
+    BSUtil::waituntilgone("$runfile.exit");
+    exit(0);
+  }
+  if ($ARGV[0] eq '--restart') {
+    die("$name not running.\n") if !(-e "$runfile.lock") || BSUtil::lockcheck('>>', "$runfile.lock");
+    print "restarting $name...\n";
+    BSUtil::touch("$runfile.restart");
+    BSUtil::waituntilgone("$runfile.restart");
+    exit(0);
+  }
 }
 
 1;

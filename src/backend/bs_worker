@@ -158,22 +158,17 @@ sub trunc_logfile {
 }
 
 sub cleanup_job {
-  my $kill = shift;
-
-  if ($kill) {
-    if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
-      warn("could not kill job\n");
-      return 1;
-    }
-  }
-
   if ($vm_tmpfs_mode) {
-    my @targs;
-    push @targs, "umount", $buildroot;
-    qsystem(@targs) && die("umount tmpfs failed: $!\n");
+    qsystem("umount", $buildroot) && die("umount tmpfs failed: $!\n");
   }
+}
 
-  return 0;
+sub kill_job {
+  if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
+    return 0;
+  }
+  cleanup_job();
+  return 1;
 }
 
 sub usage {
@@ -256,11 +251,22 @@ EOF
 
 my @saveargv = @ARGV;	# so we can restart ourself
 my $justbuild;
+my $exitrestart;
 
 exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
 
 while (@ARGV) {
   usage(0) if $ARGV[0] eq '--help';
+  if ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop') {
+    shift @ARGV;
+    $exitrestart = 'exit';
+    next;
+  }
+  if ($ARGV[0] eq '--restart') {
+    shift @ARGV;
+    $exitrestart = 'restart';
+    next;
+  }
   if ($ARGV[0] eq '--root') {
     shift @ARGV;
     $buildroot = shift @ARGV;
@@ -416,6 +422,33 @@ while (@ARGV) {
     next;
   }
   last;
+}
+
+if ($exitrestart) {
+  usage(1) unless $statedir;
+  if ((! -e "$statedir/lock") || BSUtil::lockcheck('>>', "$statedir/lock")) {
+    die("worker not running.\n") if $exitrestart eq 'restart';
+    print "worker not running.\n";
+    exit(0);
+  }
+  my $state = lockstate();
+  $state->{'state'} = 'idle' unless $state->{'state'};
+  if ($state->{'state'} eq 'building' || $state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
+    $state->{'state'} = 'discarded';
+    $state->{'nextstate'} = $exitrestart eq 'exit' ? 'exit' : 'rebooting';
+  } else {
+    $state->{'state'} = $exitrestart eq 'exit' ? 'exit' : 'rebooting';
+  }
+  commitstate($state);
+  # now wait till the state changes...
+  while(1) {
+    select(undef, undef, undef, .1);
+    my $curstate = readxml("$statedir/state", $BSXML::workerstate, 1);
+    last unless $curstate && $curstate->{'state'};
+    next if $curstate->{'nextstate'};
+    last if $curstate->{'state'} ne 'exit' && $curstate->{'state'} ne 'rebooting';
+  }
+  exit(0);
 }
 
 usage(1) unless $buildroot && $statedir;
@@ -1594,13 +1627,17 @@ chdir($statedir) || die("$statedir: $!\n");
 
 
 BSServer::deamonize(@ARGV) unless $oneshot;
-$SIG{'PIPE'} = 'IGNORE' if $oneshot;
+$SIG{'PIPE'} = 'IGNORE';
 
 # calculate code meta md5
 my $workercode = codemd5('worker');
 my $buildcode = codemd5('build');
 $| = 1;
 print "starting worker $workercode build $buildcode\n";
+
+open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
+utime undef, undef, "$statedir/lock";
 
 # we always start idle
 lockstate();
@@ -1644,20 +1681,33 @@ while (!BSServer::server($conf)) {
     $idlecnt = 0;
   }
 
+  if ($state->{'state'} eq 'exit') {
+    $state = lockstate();
+    if ($state->{'state'} eq 'exit') {
+      $state = {'state' => 'idle'};
+      commitstate($state);
+      send_state('exit', $port, $hostarch);
+      exit(0);
+    }
+    unlockstate();
+  }
+
   if ($state->{'state'} eq 'rebooting') {
     chdir("$statedir/worker") || die("$statedir/worker: $!");
+    close RUNLOCK;
     exec("./bs_worker", @saveargv);
     die("$statedir/worker/bs_worker: $!\n");	# oops
   }
 
   if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
     $rekillcnt++;
+    $rekillcnt = 12 if $state->{'state'} eq 'discarded' && $state->{'nextstate'};
     if ($rekillcnt % 12 == 0) {
       # re-kill after 2 minutes, maybe build is stuck somewhere
       $rekillcnt = 0;
       $state = lockstate();
       if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
-        cleanup_job(1);
+        kill_job();
       }
       unlockstate();
     }
@@ -1676,7 +1726,8 @@ while (!BSServer::server($conf)) {
     next unless @s;
     if ($s[7] > $buildlog_maxsize) {
       next unless $locked;
-      if (cleanup_job(1)) {
+      if (!kill_job()) {
+        warn("could not kill job\n");
         last;
       }
       trunc_logfile("$buildroot/.build.log");
@@ -1685,7 +1736,8 @@ while (!BSServer::server($conf)) {
       $locked = 0;
     } elsif ($ct - $s[9] > $buildlog_maxidle) {
       next unless $locked;
-      if (cleanup_job(1)) {
+      if (!kill_job()) {
+        warn("could not kill job\n");
         last;
       }
       local *F;
@@ -1701,6 +1753,7 @@ while (!BSServer::server($conf)) {
   }
   unlockstate() if $locked;
 }
+close RUNLOCK;
 
 my $req = BSServer::readrequest();
 my $path = $req->{'path'};
@@ -1737,7 +1790,7 @@ if ($path eq '/info') {
   my $state = lockstate();
   die("not building\n") if $state->{'state'} ne 'building';
   die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
-  if (cleanup_job(1)) {
+  if (!kill_job()) {
     die("could not kill job\n");
   }
   local *F;
@@ -1864,6 +1917,11 @@ if ($state->{'state'} eq 'discarded') {
   print "build discarded...\n";
   unlink("$buildroot/.build.log");
   unlink("$buildroot/job");
+  if ($state->{'nextstate'}) {
+    $state = {'state' => $state->{'nextstate'}};
+    commitstate($state);
+    exit(0);
+  }
   $state = {'state' => 'idle'};
   commitstate($state);
   exit(0) if $oneshot && time() > $oneshot;

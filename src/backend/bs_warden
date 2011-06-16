@@ -52,6 +52,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($ARGV[0], 'warden', "$rundir/bs_warden");
 print "starting build service worker warden\n";
 
 # get lock

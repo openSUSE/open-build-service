@@ -6422,13 +6422,13 @@ my $aconf = {
 
 # set a repoid for identification of this data repository
 mkdir_p("$projectsdir") unless -d "$projectsdir";
-if ( ! -e "$projectsdir/_repoid" ) {
+if (! -e "$projectsdir/_repoid") {
   my $randomid = int(rand(1000000000));
-  writestr("$projectsdir/._repoid", "$projectsdir/_repoid", sprintf("%09d", $randomid)) || die ("Unable to initialize the project repository");
+  writestr("$projectsdir/._repoid", "$projectsdir/_repoid", sprintf("%09d", $randomid));
 }
 $repoid = readstr("$projectsdir/_repoid");
 
-BSNotify::notify("SRCSRV_START", $conf);
+BSNotify::notify("SRCSRV_START", $conf) unless @ARGV && $ARGV[0] eq '--test';
 
 BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);
 

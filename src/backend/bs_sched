@@ -77,8 +77,15 @@ my $infodir = "$bsdir/info";
 
 if (@ARGV && $ARGV[0] eq '--testmode') {
   $testmode = 1;
-  shift;
-};
+  shift @ARGV;
+}
+if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
+  $testmode = 'exit';
+  shift @ARGV;
+} elsif (@ARGV && $ARGV[0] eq '--restart') {
+  $testmode = 'restart';
+  shift @ARGV;
+}
 
 my $myarch = $ARGV[0] || 'i586';
 
@@ -3928,6 +3935,31 @@ sub updaterelsyncmax {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
+if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
+  if (!(-e "$rundir/bs_sched.$myarch.lock") || BSUtil::lockcheck('>>', "$rundir/bs_sched.$myarch.lock")) {
+    die("scheduler is not running for $myarch.\n") if $testmode eq 'restart';
+    print("scheduler is not running for $myarch.\n");
+    exit(0);
+  }
+  if ($testmode eq 'restart') {
+    print "restarting scheduler for $myarch...\n";
+  } else {
+    print "shutting down scheduler for $myarch...\n";
+  }
+  my $ev = {
+    'type' => $testmode eq 'restart' ? 'restart' : 'exitcomplete',
+  };
+  my $evname = "$ev->{'type'}::";
+  sendevent($ev, $myarch, $evname);
+  BSUtil::waituntilgone("$myeventdir/$evname");
+  if ($testmode eq 'exit') {
+    # scheduler saw the event, wait until the process is gone
+    local *F;
+    BSUtil::lockopen(\*F, '>>', "$rundir/bs_sched.$myarch.lock", 1);
+    close F;
+  }
+  exit(0);
+}
 print "starting build service scheduler\n";
 
 # get lock
@@ -4479,15 +4511,16 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'dumpstate') {
+      if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'dumpstate' || $ev->{'type'} eq 'restart') {
 	print "exiting...\n" if $ev->{'type'} eq 'exit';
 	print "exiting (with complete info)...\n" if $ev->{'type'} eq 'exitcomplete';
+	print "restarting...\n" if $ev->{'type'} eq 'restart';
 	print "dumping scheduler state...\n" if $ev->{'type'} eq 'dumpstate';
 	my @new_lookat = @lookat_low;
         push @new_lookat, grep {$lookat_next{$_}} @prps;
 	# here comes our scheduler state
 	my $schedstate = {};
-	if ($ev->{'type'} eq 'exitcomplete') {
+	if ($ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'restart') {
 	  $schedstate->{'projpacks'} = $projpacks;
 	}
 	$schedstate->{'prps'} = \@prps;
@@ -4506,6 +4539,10 @@ while(1) {
 	if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete') {
 	  print "bye.\n";
 	  exit(0);
+	}
+	if ($ev->{'type'} eq 'restart') {
+	  exec $0, $myarch;
+	  die("$0: $!\n");
 	}
 	next;
       }

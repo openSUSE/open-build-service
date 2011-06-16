@@ -1341,7 +1341,9 @@ publishprog_done:
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($ARGV[0], 'publisher', "$rundir/bs_publish");
 print "starting build service publisher\n";
+
 open(RUNLOCK, '>>', "$rundir/bs_publish.lock") || die("$rundir/bs_publish.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("publisher is already running!\n");
 utime undef, undef, "$rundir/bs_publish.lock";

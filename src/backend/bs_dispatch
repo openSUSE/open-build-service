@@ -268,6 +268,7 @@ sub staleness {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
 print "starting build service dispatcher\n";
 
 # get lock
