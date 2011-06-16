@@ -29,7 +29,6 @@ class ArchitecturesController < ApplicationController
         end
         render :xml => xml
       end
-      #format.html # index.html.erb
     end
   end
 
@@ -53,7 +52,6 @@ class ArchitecturesController < ApplicationController
         end
         render :xml => xml
       end
-      #format.html # show.html.erb
     end
   end
 
@@ -72,11 +70,9 @@ class ArchitecturesController < ApplicationController
 
     respond_to do |format|
       if @architecture.save
-        format.xml  { render :xml => @architecture, :status => :created, :location => @architecture }
-        #format.html { redirect_to(@architecture, :notice => 'Architecture was successfully created.') }
+        format.xml { render :xml => @architecture, :status => :created, :location => @architecture }
       else
-        format.xml  { render :xml => @architecture.errors, :status => :unprocessable_entity }
-        #format.html { render :action => "new" }
+        format.xml { render :xml => @architecture.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -95,11 +91,9 @@ class ArchitecturesController < ApplicationController
     respond_to do |format|
       if @architecture.update_attributes(:recommended => xml.elements["/architecture/recommended"].text,
                                          :available => xml.elements["/architecture/available"].text)
-        format.xml  { head :ok }
-        #format.html { redirect_to(@architecture, :notice => 'Architecture was successfully updated.') }
+        format.xml { head :ok }
       else
-        format.xml  { render :xml => @architecture.errors, :status => :unprocessable_entity }
-        #format.html { render :action => "edit" }
+        format.xml { render :xml => @architecture.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -113,8 +107,7 @@ class ArchitecturesController < ApplicationController
     @architecture.destroy
 
     respond_to do |format|
-      format.xml  { head :ok }
-      #format.html { redirect_to(architectures_url) }
+      format.xml { head :ok }
     end
   end
 
