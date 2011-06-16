@@ -21,7 +21,7 @@
   <div class="box box-shadow">
     <h1 class="mainhead">Welcome to the <%= @configuration['title'] %></h1>
 
-    <%= render :inline => @configuration['description'] %>
+    <%= raw @configuration['description'] %>
 
     <% if @anonymous_forbidden.nil? %>
       <br/>
