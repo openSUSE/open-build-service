@@ -1704,6 +1704,7 @@ sub get_projpacks {
       if (@args) {
         print "retrying...\n";
         get_projpacks();
+        get_projpacks_postprocess();	# just in case...
         return;
       }
       die("could not get project/package information, aborting due to testmode\n") if $testmode;
@@ -1735,6 +1736,9 @@ sub get_projpacks {
 	  $opackage->{$_}->{'name'} = $_;
 	  push @{$proj->{'package'}}, $opackage->{$_};
         }
+	if (!$proj->{'patternmd5'} && $projpacks->{$projid}->{'patternmd5'}) {
+	  $proj->{'patternmd5'} = $projpacks->{$projid}->{'patternmd5'} unless grep {$_ eq '_pattern'} @packids;
+        }
       }
     }
     $projpacks->{$proj->{'name'}} = $proj;
@@ -1764,7 +1768,7 @@ sub get_projpacks {
 
 # -> BSUtil
 sub identical {
-  my ($d1, $d2, @except) = @_;
+  my ($d1, $d2, $except) = @_;
 
   if (!defined($d1)) {
     return defined($d2) ? 0 : 1;
@@ -1776,15 +1780,14 @@ sub identical {
     return 0 if $d1 ne $d2; 
   } elsif ($r eq 'HASH') {
     my %k = (%$d1, %$d2);
-    my %except = map {$_ => 1} @except;
     for my $k (keys %k) {
-      next if $except{$k};
-      return 0 unless identical($d1->{$k}, $d2->{$k});
+      next if $except && $except->{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k}, $except);
     }    
   } elsif ($r eq 'ARRAY') {
     return 0 unless @$d1 == @$d2;
     for (my $i = 0; $i < @$d1; $i++) {
-      return 0 unless identical($d1->[$i], $d2->[$i], @except);
+      return 0 unless identical($d1->[$i], $d2->[$i], $except);
     }    
   } else {
     return 0;
@@ -1897,12 +1900,14 @@ sub calc_projpacks_linked {
     my ($mypackid, $pack);
     while (($mypackid, $pack) = each %{$projpacks->{$projid}->{'package'} || {}}) {
       next unless $pack->{'linked'};
-      for my $li (@{$pack->{'linked'}}) {
+      my @li = @{$pack->{'linked'}};
+      for my $li (@li) {
+	$li = { %$li };		# clone so that we don't change projpack
 	addwatchremote('package', $li->{'project'}, "/$li->{'package'}");
 	$li->{'myproject'} = $projid;
 	$li->{'mypackage'} = $mypackid;
       }
-      push @projpacks_linked, @{$pack->{'linked'}};
+      push @projpacks_linked, @li;
     }
     if ($projpacks->{$projid}->{'link'}) {
       my @li = expandprojlink($projid);
@@ -4855,8 +4860,32 @@ while(1) {
   while ($delayedfetchprojpacks{$projid}) {
     my %packids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
     delete $delayedfetchprojpacks{$projid};
-    get_projpacks($projid, sort keys %packids) if %packids;
-    get_projpacks_postprocess();
+    if (%packids) {
+      # remember old values
+      my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+      for my $packid (keys %packids) {
+	$packids{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef;
+      }
+      my $oldprojdata = { %{$projpacks->{$projid} || {}} };
+      delete $oldprojdata->{'package'};
+      $oldprojdata = Storable::dclone($oldprojdata);
+      get_projpacks($projid, sort keys %packids);
+      # if we just had a srcmd5 change, no need to postprocess
+      my $need_postprocess;
+      if (!identical($projpacks->{$projid}, $oldprojdata, {'package' => 1})) {
+        $need_postprocess = 1;
+      } else {
+        $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+        my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep};
+        for my $packid (keys %packids) {
+	  if (!identical($packids{$packid}, $packs->{$packid}, \%except)) {
+	    $need_postprocess = 1;
+	    last;
+	  }
+	}
+      }
+      get_projpacks_postprocess() if $need_postprocess;
+    }
   }
 
   if (!$prpsearchpath{$prp}) {
