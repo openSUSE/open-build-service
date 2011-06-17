@@ -253,6 +253,8 @@ my @saveargv = @ARGV;	# so we can restart ourself
 my $justbuild;
 my $exitrestart;
 
+my $exitrestart_timeout = 300;	# wait max 5 minuntes
+
 exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
 
 while (@ARGV) {
@@ -443,6 +445,10 @@ if ($exitrestart) {
   # now wait till the state changes...
   while(1) {
     select(undef, undef, undef, .1);
+    if (defined($exitrestart_timeout)) {
+      $exitrestart_timeout -= .1;
+      die("timeout reached, worker not responding\n") if $exitrestart_timeout < 0;
+    }
     my $curstate = readxml("$statedir/state", $BSXML::workerstate, 1);
     last unless $curstate && $curstate->{'state'};
     next if $curstate->{'nextstate'};
@@ -1701,7 +1707,11 @@ while (!BSServer::server($conf)) {
 
   if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
     $rekillcnt++;
-    $rekillcnt = 12 if $state->{'state'} eq 'discarded' && $state->{'nextstate'};
+    if ($state->{'state'} eq 'discarded' && $state->{'nextstate'}) {
+      # signal early that we're going down
+      send_state('exit', $port, $hostarch);
+      $rekillcnt = 12;
+    }
     if ($rekillcnt % 12 == 0) {
       # re-kill after 2 minutes, maybe build is stuck somewhere
       $rekillcnt = 0;
