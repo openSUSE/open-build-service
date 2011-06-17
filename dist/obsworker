@@ -204,6 +204,14 @@ case "$1" in
     ;;
     stop)
         echo -n "Shutting down obsworker"
+        for I in "$workerdir"/*; do
+	    test -d "$I" || continue
+	    test -e "$I/state" || continue
+	    pushd "$workerbootdir" > /dev/null
+	    ./bs_worker --statedir "$I" --exit &
+	    popd > /dev/null
+        done
+	wait
         killall bs_worker 
         rc_status -v
     ;;
