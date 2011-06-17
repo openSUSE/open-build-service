@@ -252,7 +252,7 @@ class PackageController < ApplicationController
     # check source service state
     @services = find_cached(Service,  :project => @project, :package => @package )
     @serviceerror = nil
-    @serviceerror = @package.serviceinfo.error if @package.serviceinfo and @package.serviceinfo.has_attribute? :error
+    @serviceerror = @package.serviceinfo.error.text if @package.serviceinfo and @package.serviceinfo.error
   end
   private :set_file_details
 

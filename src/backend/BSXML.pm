@@ -318,7 +318,8 @@ our $serviceinfo = [
 	'code',         # can be "running", "failed", "succeeded"
 	'xsrcmd5',
 	'lsrcmd5',
-	'error',        # contains error message in case of error
+        [],
+	'error',        # contains error message (with new lines) in case of error
 ];
 
 our $dir = [

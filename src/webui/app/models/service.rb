@@ -212,8 +212,8 @@ class Service < ActiveXML::Base
       fc = FrontendCompat.new
       answer = fc.get_source opt
       doc = XML::Parser.string(answer).parse.root
-      doc.find("/directory/serviceinfo").each do |s|
-         return s.attributes["error"]
+      doc.find("/directory/serviceinfo/error").each do |e|
+         return e.text
       end
     rescue
       return nil
