@@ -9,7 +9,7 @@ class SearchController < ApplicationController
   def search
     redirect_to :action => "index" and return unless params[:search_text]
 
-    @search_text = params[:search_text]
+    @search_text = params[:search_text].strip
     if @search_text.starts_with?("obs://")
       # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
       disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
