@@ -1778,7 +1778,7 @@ sub findlastworkinglink {
 ###
 
 sub identical {
-  my ($d1, $d2, @except) = @_;
+  my ($d1, $d2, $except) = @_;
 
   return 0 unless defined($d1) && defined($d2);
   my $r = ref($d1);
@@ -1787,15 +1787,14 @@ sub identical {
     return 0 if $d1 ne $d2;
   } elsif ($r eq 'HASH') {
     my %k = (%$d1, %$d2);
-    my %except = map {$_ => 1} @except;
     for my $k (keys %k) {
-      next if $except{$k};
-      return 0 unless identical($d1->{$k}, $d2->{$k});
+      next if $except && $except->{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k}, $except);
     }
   } elsif ($r eq 'ARRAY') {
     return 0 unless @$d1 == @$d2;
     for (my $i = 0; $i < @$d1; $i++) {
-      return 0 unless identical($d1->[$i], $d2->[$i], @except);
+      return 0 unless identical($d1->[$i], $d2->[$i], $except);
     }
   } else {
     return 0;
@@ -2745,7 +2744,8 @@ sub putproject {
     createkey({ %$cgi, 'comment' => 'autocreate key' }, $projid) if $sk eq '';
   }
 
-  if (!identical($oldproj, $proj, 'title', 'description', 'person', 'group', 'url', 'attributes')) {
+  my %except = map {$_ => 1} qw{title description person group url attributes};
+  if (!identical($oldproj, $proj, \%except)) {
     notify_repservers('project', $projid);
   }
 
@@ -2948,7 +2948,8 @@ sub putpackage {
   BSNotify::notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
 
   addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
-  if (!identical($oldpack, $pack, 'title', 'description', 'devel', 'person', 'group', 'url')) {
+  my %except = map {$_ => 1} qw{title description devel person group url};
+  if (!identical($oldpack, $pack, \%except)) {
     notify_repservers('package', $projid, $packid);
   }
   $pack = readpack($projid, $packid);
