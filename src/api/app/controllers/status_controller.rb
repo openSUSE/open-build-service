@@ -422,7 +422,7 @@ class StatusController < ApplicationController
           begin
             uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(req.action.source.package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
             resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
-            if resultlist.result
+            if resultlist.result.respond_to?(:status)
               currentcode = resultlist.result.status.value(:code)
             else
               currentcode = nil
