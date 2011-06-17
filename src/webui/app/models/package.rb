@@ -143,12 +143,12 @@ class Package < ActiveXML::Base
   end
 
   def user_has_role?(userid, role)
-    each_person do |p|
-      return true if p.role == role and p.userid == userid
-    end
-    user = Person.find_cached(userid.to_s)
+    user = Person.find(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
     if user
       return true if user.is_admin?
+      each_person do |p|
+        return true if p.role == role and p.userid == user.to_s
+      end
       each_group do |g|
         return true if g.role == role and user.is_in_group?(g)
       end
@@ -191,14 +191,14 @@ class Package < ActiveXML::Base
     return groups.sort.uniq
   end
 
-  def is_maintainer? userid
-    return user_has_role?(userid, 'maintainer')
+  def is_maintainer?(user)
+    return user_has_role?(user, 'maintainer')
   end
 
-  def can_edit? userid
-    return false unless userid
-    return true if is_maintainer?(userid)
-    return true if p=Project.find_cached(project) and p.can_edit? userid
+  def can_edit?(user)
+    return false unless user
+    return true if is_maintainer?(user)
+    return true if p=Project.find_cached(project) and p.can_edit?(user)
   end
 
   def free_directory( rev=nil, expand=false )

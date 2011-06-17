@@ -278,13 +278,13 @@ class Project < ActiveXML::Base
     return users('bugowner')
   end
 
-  def user_has_role?(userid, role)
-    each_person do |p|
-      return true if p.role == role and p.userid == userid
-    end
-    user = Person.find_cached(userid.to_s)
+  def user_has_role?(user, role)
+    user = Person.find(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
     if user
       return true if user.is_admin?
+      each_person do |p|
+        return true if p.role == role and p.userid == user.to_s
+      end
       each_group do |g|
         return true if g.role == role and user.is_in_group?(g)
       end
@@ -292,9 +292,9 @@ class Project < ActiveXML::Base
     return false
   end
 
-  def group_has_role?(groupid, role)
+  def group_has_role?(group, role)
     each_group do |g|
-      return true if g.role == role and g.groupid == groupid
+      return true if g.role == role and g.groupid == group
     end
     return false
   end
@@ -327,12 +327,12 @@ class Project < ActiveXML::Base
     return groups.sort.uniq
   end
 
-  def is_maintainer? userid
-    return user_has_role?(userid, 'maintainer')
+  def is_maintainer?(user)
+    return user_has_role?(user, 'maintainer')
   end
 
-  def can_edit? userid
-    return userid && is_maintainer?(userid)
+  def can_edit?(user)
+    return is_maintainer?(user)
   end
 
   def name
