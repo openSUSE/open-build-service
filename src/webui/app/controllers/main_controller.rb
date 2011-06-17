@@ -134,6 +134,20 @@ class MainController < ApplicationController
     redirect_to(:action => 'index')
   end
 
+  def delete_message_dialog
+  end
+
+  def delete_message
+    begin
+      message = Statusmessage.find(:id => params[:message_id])
+      message.delete
+      #Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
+    rescue ActiveXML::Transport::ForbiddenError
+      flash[:error] = 'Only admin users may delete status messages'
+    end
+    redirect_to(:action => 'index')
+  end
+
   def require_available_architectures
     begin
       transport = ActiveXML::Config::transport_for(:architecture)
