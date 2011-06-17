@@ -1927,6 +1927,8 @@ if ($state->{'state'} eq 'discarded') {
   print "build discarded...\n";
   unlink("$buildroot/.build.log");
   unlink("$buildroot/job");
+  cleanup_job();
+
   if ($state->{'nextstate'}) {
     $state = {'state' => $state->{'nextstate'}};
     commitstate($state);
@@ -2065,11 +2067,15 @@ if (!$testmode) {
 unlink("$buildroot/.build.log");
 unlink("$buildroot/job");
 print "\n";
+cleanup_job();
 
+if ($state->{'nextstate'}) {
+  $state = {'state' => $state->{'nextstate'}};
+  commitstate($state);
+  exit(0);
+}
 $state = {'state' => 'idle'};
 commitstate($state);
-
-cleanup_job();
 
 exit(0) if $oneshot && time() > $oneshot;
 send_state('idle', $port, $hostarch);
