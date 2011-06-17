@@ -24,10 +24,6 @@ package BSConfig;
 
 use Net::Domain;
 
-# Use new style source service by default.
-# FIXME2.3: make this default in code before 2.3 final
-our $new_style_services = 1;
-
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 
 # restrict access to the backend
@@ -148,6 +144,9 @@ our $relsync_pool = {
 # Allow to build as root, exceptions per package
 # the keys are actually anchored regexes
 # our $norootexceptions = { "my_project/my_package" => 1, "openSUSE:Factory.*/installation-images" => 1 };
+
+# Use old style source service handling
+# our $old_style_services = 1;
 
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();

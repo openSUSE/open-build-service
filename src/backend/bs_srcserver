@@ -114,7 +114,7 @@ sub notify_repservers {
 sub genservicemark {
   my ($projid, $packid, $files, $rev) = @_;
   
-  return undef unless $BSConfig::new_style_services;
+  return undef if $BSConfig::old_style_services;
 
   return undef if $packid eq '_project';	# just in case...
   return undef if defined $rev;	# don't mark if upload/repository/internal
@@ -192,7 +192,7 @@ sub addrev_service {
 sub runservice {
   my ($cgi, $rev, $files) = @_;
 
-  return if $BSConfig::new_style_services && !$files->{'/SERVICE'};
+  return if !$BSConfig::old_style_services && !$files->{'/SERVICE'};
 
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
@@ -360,7 +360,7 @@ sub triggerservicerun {
   my $linkinfo = {};
   my $files = lsrev($rev, $linkinfo);
   $cgi->{'triggerservicerun'} = 1;	# hack
-  if (!$BSConfig::new_style_services) {
+  if ($BSConfig::old_style_services) {
     # old style, just run the service again...
     runservice($cgi, $rev, $files);
   } else {
@@ -822,7 +822,7 @@ sub addrev {
   # check if the commit will need a service run
   my $servicemark;
   delete $files->{'/SERVICE'};	# just in case...
-  if ($BSConfig::new_style_services) {
+  if (!$BSConfig::old_style_services) {
     if (!$cgi->{'noservice'}) {
       # we do not want any generated files in the commit!
       delete $files->{$_} for grep {/^_service[:_]/} keys %$files;
@@ -3839,7 +3839,7 @@ sub linkdiff {
 
 sub servicediff {
   my ($cgi, $projid, $packid) = @_;
-  die("servicediff only works for new style services\n") unless $BSConfig::new_style_services;
+  die("servicediff only works for new style services\n") if $BSConfig::old_style_services;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $linkinfo = {};
   my $files = lsrev($rev, $linkinfo);
