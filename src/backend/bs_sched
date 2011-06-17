@@ -4876,7 +4876,7 @@ while(1) {
         $need_postprocess = 1;
       } else {
         $packs = ($projpacks->{$projid} || {})->{'package'} || {};
-        my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep};
+        my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep prereq file name error build publish useforbuild};
         for my $packid (keys %packids) {
 	  if (!identical($packids{$packid}, $packs->{$packid}, \%except)) {
 	    $need_postprocess = 1;
