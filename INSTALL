@@ -42,7 +42,7 @@ please issue the following commands as root user in your shell:
                   perl-GD \
                   ruby ruby-mysql rubygems rubygem-sqlite3 rubygem-rails-2_3 \
                   rubygem-delayed_job rubygem-gruff rubygem-libxml-ruby \
-                  rubygem-sqlite3 rubygem-daemons \
+                  rubygem-sqlite3 rubygem-daemons rubygem-ci_reporter \
                   rubygem-exception_notification
 
 
