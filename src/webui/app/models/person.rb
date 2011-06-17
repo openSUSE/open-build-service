@@ -120,8 +120,8 @@ class Person < ActiveXML::Base
     a.project == b.project ? a.name <=> b.name : a.project <=> b.project
   end
 
-  def is_in_group? (group)
-    return groups.include? group
+  def is_in_group?(group)
+    return groups.include?(group)
   end
 
   def is_admin?

@@ -286,7 +286,7 @@ class Project < ActiveXML::Base
         return true if p.role == role and p.userid == user.to_s
       end
       each_group do |g|
-        return true if g.role == role and user.is_in_group?(g)
+        return true if g.role == role and user.is_in_group?(g.groupid)
       end
     end
     return false
@@ -309,7 +309,7 @@ class Project < ActiveXML::Base
       if user
         each_group do |g|
           if not role or (role and g.role == role)
-            users << p.userid if user.is_in_group?(g)
+            users << p.userid if user.is_in_group?(g.groupid)
           end
         end
       end
