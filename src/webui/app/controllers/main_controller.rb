@@ -141,7 +141,6 @@ class MainController < ApplicationController
     begin
       message = Statusmessage.find(:id => params[:message_id])
       message.delete
-      #Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = 'Only admin users may delete status messages'
     end
