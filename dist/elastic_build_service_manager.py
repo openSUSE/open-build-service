@@ -15,7 +15,7 @@
 #
 #   Copyright (C) 2011 Tieto Corporation
 #   Contact information: Ville Seppanen, ville.seppanen@tieto.com
-#   Updated: 2011-05-27
+#   Updated: 2011-06-20
 #   Tested with: OBS 2.1.6, Boto 2.0b4, Python 2.6.5, openSUSE 11.3
 #
 #
@@ -37,14 +37,29 @@
 # -- create a VPN tunnel to your OBS server network
 # -- start OBS worker(s)
 # - private installation of OBS
-# - Boto installed and AWS access keys set in .boto config file
-# - OBS API URL and credentials set in .oscrc config file
-# Refer to boto and OBS documentation.
+# - Boto installed http://boto.cloudhackers.com
 #
-
+#  Example .boto config:
+#    [Credentials]
+#    aws_access_key_id = AVTIOJERVAIOEJTIAOTVJ
+#    aws_secret_access_key = a369840983a6n03a986bah34098g
+#    [Boto]
+#    debug = 1
+#    num_retries = 3
+#    https_validate_certificates = True
+#
+#  Example .oscrc config:
+#    [general]
+#    # URL to access API server
+#    apiurl = http://localhost:81
+#    # run osc to get these auto-generated for you
+#    [http://localhost:81]
+#    user=exampleuser
+#    passx=yzerMZYRNrzyNYZRNYRnxdryXNDRYDXNRY
+#
+#  Refer to OBS and boto documentation for more help.
+#
 # TO-DO LIST:
-# - check AWS certificate using M2crypto upon connecting
-#   m2helpers@boto http://bit.ly/iyfHZR http://bit.ly/ljXSxJ
 # - fail nicely if AWS or OBS are unreachable or reject requests
 # - allow more customization info to be passed through (e.g. IP addresses)
 # - use libcloud to avoid AWS lock-in, use separate monitoring software
@@ -54,8 +69,8 @@
 import osc.conf # for OBS usage
 import osc.core # for OBS usage
 from xml.dom import minidom # for XML parsing from OBS API
-import boto.ec2 # Python library for EC2 access http://boto.cloudhackers.com
-import boto.ec2.cloudwatch
+import boto.ec2 # Python library for EC2 access
+import boto.ec2.cloudwatch # for EC2 monitoring info
 import boto.utils
 from boto.exception import BotoServerError
 import time
@@ -91,6 +106,9 @@ aws_instance_type = "m1.small"
 aws_cloudwatch_url = "monitoring.eu-west-1.amazonaws.com"
 aws_region = "eu-west-1"
 
+# If you want more debugging info than what you get by adding debug=2 to the
+# .boto config file, uncomment the following line.
+# boto.set_stream_logger('debug')
 
 ### Function declarations #####################################################
 
