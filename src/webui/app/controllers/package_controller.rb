@@ -125,8 +125,15 @@ class PackageController < ApplicationController
       if @expand == 1
          @expand = 0
          message, code, api_exception = ActiveXML::Transport.extract_error_message e
-         flash[:error] = "Files could not be expanded " + message
-         set_file_details
+         flash[:error] = "Files could not be expanded: " + message
+         begin
+           set_file_details
+         rescue ActiveXML::Transport::Error => e
+           message, code, api_exception = ActiveXML::Transport.extract_error_message e
+           # seems really bad even without expand
+           flash[:error] = "Files could not be expanded: " + message
+           redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+         end 
       else
          raise e
       end
