@@ -748,7 +748,12 @@ class PackageController < ApplicationController
     @srcmd5 = params[:srcmd5]
     @addeditlink = false
     if @package.can_edit?( session[:login] )
-      @package.files(@srcmd5, @expand).each do |file|
+      begin
+        files = @package.files(@srcmd5, @expand)
+      rescue ActiveXML::Transport::Error => e
+        files = []
+      end
+      files.each do |file|
         if file[:name] == @filename
           @addeditlink = file[:editable]
           break
@@ -760,10 +765,10 @@ class PackageController < ApplicationController
         :package => @package.to_s, :filename => @filename, :rev => @srcmd5 )
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
-      redirect_to :action => :show, :package => @package, :project => @project
+      redirect_to :action => :files, :package => @package, :project => @project
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
-      redirect_back_or_to :action => :show, :project => @project, :package => @package
+      redirect_back_or_to :action => :files, :project => @project, :package => @package
     end
   end
 
