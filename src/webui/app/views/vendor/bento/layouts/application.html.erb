@@ -11,7 +11,7 @@
 
     <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
 
-    <title><%=h "#{@pagetitle} - " if @pagetitle -%><%= @configuration['title'] %></title>
+    <title><%=h "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
     <%= stylesheet_link_tag "/themes/bento/css/style", :media => "screen", :title => "Normal" %>
     <%= stylesheet_link_tag "/themes/bento/css/style.fluid.css", :media => "screen", :title => "Stretch Limo", :rel => "alternate stylesheet" %>
@@ -55,7 +55,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
-        <%= image_tag( "home_grey.png" ) %><%= link_to "#{@configuration['title']}", :controller => 'main', :action => :index %>
+        <%= image_tag( "home_grey.png" ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", :controller => 'main', :action => :index %>
         <% if @crumb_list %>
           <% @crumb_list.each do |link| %>
             &gt;
