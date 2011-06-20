@@ -17,6 +17,8 @@ def check_foreign_key(id, table, othertable, delete)
   end
 end
 
+User.current = User.find_by_login('_nobody_')
+
 packs = DbPackage.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
 projects = Hash.new
 
