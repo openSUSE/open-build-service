@@ -138,7 +138,7 @@ class RequestController < ApplicationController
         redirect_to :action => :show, :id => params[:id] and return
       end
     
-      add_maintainer(@req) if params[:add_submitter_as_maintainer] and @req.action.target.package
+      add_maintainer(@req) if params[:add_submitter_as_maintainer]
       rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
       @req = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
         :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
@@ -153,7 +153,7 @@ class RequestController < ApplicationController
         if changestate != 'accepted'
            flash[:error] = "Will not add maintainer for not accepted requests"
         else
-           add_maintainer(@req) if @req.action.target.package
+           add_maintainer(@req)
         end
       end
     end
@@ -234,9 +234,13 @@ private
   end
 
   def add_maintainer(req)
-     target_package = find_cached(Package, req.action.target.package, :project => req.action.target.project)
-     target_package.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
-     target_package.save
+    if req.action.target.has_element?('package')
+      target = find_cached(Package, req.action.target.package, :project => req.action.target.project)
+    else
+      target = find_cached(Project, req.action.target.project)
+    end
+    target.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
+    target.save
   end
 
 end
