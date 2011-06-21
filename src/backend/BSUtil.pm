@@ -435,32 +435,50 @@ sub isotime {
 }
 
 # XXX: does that really belong here?
+#
+# Algorithm:
+# each enable/disable has a score:
+# +1 if it's a disable
+# +2 if the arch matches
+# +4 if the repo matches
+#
 sub enabled {
   my ($repoid, $disen, $default, $arch) = @_;
+
+  # filter matching elements, check for shortcuts
   return $default unless $disen;
-  my $exact = 0;
-  # the arch attr has a higher score/exactness than all other attrs
-  if (($default || !defined($default)) && $disen->{'disable'}) {
-    for (@{$disen->{'disable'}}) {
-      my $e = 0;
-      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
-      $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
-      $exact = $e;
-      $default = 0;
-      last;
+  my @dis = grep { (!defined($_->{'arch'}) || $_->{'arch'} eq $arch) && 
+                   (!defined($_->{'repository'}) || $_->{'repository'} eq $repoid)
+                 } @{$disen->{'disable'} || []};
+  return 1 if !@dis && $default;
+  my @ena = grep { (!defined($_->{'arch'}) || $_->{'arch'} eq $arch) && 
+                   (!defined($_->{'repository'}) || $_->{'repository'} eq $repoid)
+                 } @{$disen->{'enable'} || []};
+  return @dis ? 0 : $default unless @ena;
+  return @ena ? 1 : $default unless @dis;
+
+  # have @dis and @ena, need to do score thing...
+  my $disscore = 0;
+  for (@dis) {
+    my $score = 1;
+    $score += 2 if defined($_->{'arch'});
+    $score += 4 if defined($_->{'repository'});
+    if ($score > $disscore) {
+      return 0 if $score == 7;		# can't max this!
+      $disscore = $score;
     }
   }
-  if (!$default && $disen->{'enable'}) {
-    for (@{$disen->{'enable'}}) {
-      my $e = 0;
-      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
-      $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
-      next if $e < $exact;
-      $default = 1;
-      last;
+  my $enascore = 0;
+  for (@ena) {
+    my $score = 0;
+    $score += 2 if defined($_->{'arch'});
+    $score += 4 if defined($_->{'repository'});
+    if ($score > $enascore) {
+      return 1 if $enascore == 6;		# can't max this!
+      $enascore = $score;
     }
   }
-  return $default;
+  return $enascore > $disscore ? 1 : 0;
 }
 
 sub store {
