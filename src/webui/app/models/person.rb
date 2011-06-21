@@ -72,16 +72,22 @@ class Person < ActiveXML::Base
 
   def free_cache
     Rails.cache.delete("person_#{login}")
-    Collection.free_cache :id, :what => 'project', :predicate => %(person/@userid='#{login}')
-    Collection.free_cache :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+    predicate = "person/@userid='#{login}'"
+    groups.each {|group| predicate += " or group/@groupid='#{group}'"}
+    Collection.free_cache(:id, :what => 'project', :predicate => predicate)
+    Collection.free_cache(:id, :what => 'package', :predicate => predicate)
   end
 
   def involved_projects
-    Collection.find_cached :id, :what => 'project', :predicate => %(person/@userid='#{login}')
+    predicate = "person/@userid='#{login}'"
+    groups.each {|group| predicate += " or group/@groupid='#{group}'"}
+    Collection.find_cached(:id, :what => 'project', :predicate => predicate)
   end
 
   def involved_packages
-    Collection.find_cached :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+    predicate = "person/@userid='#{login}'"
+    groups.each {|group| predicate += " or group/@groupid='#{group}'"}
+    Collection.find_cached(:id, :what => 'package', :predicate => predicate)
   end
 
   def involved_requests(opts = {})
