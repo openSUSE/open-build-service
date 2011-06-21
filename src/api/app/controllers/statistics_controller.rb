@@ -445,22 +445,40 @@ class StatisticsController < ApplicationController
 
 
   def latest_updated
-    key = "latestupdated_#{@http_user.login}"
-    # authorization and caching:
-    begin
-      @list = Rails.cache.read(key)
-    rescue
-      @list = nil
-    end
-    unless @list
-      packages = DbPackage.find :all, :order => 'updated_at DESC', :limit => @limit
-      projects = DbProject.find :all, :order => 'updated_at DESC', :limit => @limit
+    @limit = 10 unless @limit
+    # first we catch a list visible to anyone
+    # not just needs this to be fast, it also needs to catch errors in case projects or packages
+    # disappear after the cache hit. So we do not spend too much logic in access flags, but check
+    # the cached values afterwards if they are valid and accessible
+    list = Rails.cache.fetch("latestupdated", :expires_in => 5.minutes) do
+      packages = DbPackage.find_by_sql("select id,updated_at from db_packages ORDER by updated_at DESC LIMIT #{@limit * 2}")
+      projects = DbProject.find_by_sql("select id,updated_at from db_projects ORDER by updated_at DESC LIMIT #{@limit * 2}")
 
       list = projects
       list.concat packages
-      list.sort! { |a,b| b.updated_at <=> a.updated_at }
-      @list = list[0..@limit-1] if @limit
-      Rails.cache.write(key, @list, :expires_in => 5.minutes)
+      ret = Array.new
+      list.sort { |a,b| b.updated_at <=> a.updated_at }.each do |item|
+        if item.instance_of? DbPackage
+          ret << [:package, item.id]
+        else
+          ret << [:project, item.id]
+        end
+      end
+      ret
+    end
+
+    @list = Array.new
+    list.each do |type, id|
+      if type == :project
+        item = DbProject.find_by_id(id)
+        next unless DbProject.check_access?(item)
+      else
+        item = DbPackage.find_by_id(id)
+        next unless item
+        next unless DbPackage.check_access?(item)
+      end
+      @list << item
+      break if @list.size == @limit
     end
   end
 
