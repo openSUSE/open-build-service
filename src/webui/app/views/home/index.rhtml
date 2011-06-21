@@ -32,6 +32,15 @@
   <% end %>
 <% end %>
 
+<% if not @user.groups.empty? %>
+  <h4>Groups Memberships</h4>
+  <ul>
+  <% @user.groups.each do |group| %>
+    <li><%= group %> </li>
+  <% end %>
+  </ul>
+<% end %>
+
 <h4>Related Links</h4>
 <ul>
   <li><%= link_to "Home project", :controller => "project", :action => "show", :project => "home:" + user.to_s %></li>
