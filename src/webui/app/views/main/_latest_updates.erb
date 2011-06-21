@@ -12,13 +12,11 @@
           <td>
             <% if update.data.name == 'package' %>
               <%= image_tag 'package.png' %>
-              <% project, package = update.project, update.name %>
+              <%= link_to(elide(update.name, 20), :controller => 'package', :action => 'show', :project => update.project, :package => update.name) %>
             <% elsif update.data.name == 'project' %>
               <%= image_tag 'project.png' %>
-              <% project, package = update.name, nil %>
+              <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => update.name) %>
             <% end %>
-
-            <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => project, :package => package) %>
           </td>
           <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(update.updated) %></td>
         </tr>
