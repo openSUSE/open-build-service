@@ -76,7 +76,11 @@ module Suse
           else
             http.read_timeout = 1000
           end
-          http.request backend_request
+          begin
+            http.request backend_request
+          rescue Errno::EPIPE, Errno::ECONNRESET
+            raise Timeout::Error
+          end
         end
         write_backend_log method, host, port, path, response, data
         handle_response response

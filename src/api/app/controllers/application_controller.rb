@@ -456,6 +456,8 @@ class ApplicationController < ActionController::Base
       render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
     when IllegalEncodingError
       render_error :message => exception.message, :errorcode => "invalid_text_encoding", :status => 400
+    when Timeout::Error
+      render_error :message => "Timeout during progress", :status => 504, :errorcode => "timeout"
     when DbPackage::SaveError
       render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
