@@ -20,7 +20,7 @@
           of project <%= linked_project %>.
         <% else %>
           <%= link_to linked_package, :action => :files, :project => linked_project, :package => linked_package %>
-          of project <%= link_to linked_project, :controller => 'project', :action => 'show', :project => @project %>.
+          of project <%= link_to linked_project, :controller => 'project', :action => 'show', :project => linked_project %>.
         <% end %>
 
         <% text_label="diff"
