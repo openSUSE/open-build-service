@@ -47,7 +47,7 @@ class Flag < ActiveRecord::Base
 
   def specifics
     count = 0
-    count += 1 unless status == 'disable'
+    count += 1 if status == 'disable'
     count += 2 unless architecture.nil?
     count += 4 unless repo.nil?
     count
