@@ -450,22 +450,20 @@ class StatisticsController < ApplicationController
     # not just needs this to be fast, it also needs to catch errors in case projects or packages
     # disappear after the cache hit. So we do not spend too much logic in access flags, but check
     # the cached values afterwards if they are valid and accessible
-    list = Rails.cache.fetch("latestupdated", :expires_in => 5.minutes) do
-      packages = DbPackage.find_by_sql("select id,updated_at from db_packages ORDER by updated_at DESC LIMIT #{@limit * 2}")
-      projects = DbProject.find_by_sql("select id,updated_at from db_projects ORDER by updated_at DESC LIMIT #{@limit * 2}")
+    packages = DbPackage.find_by_sql("select id,updated_at from db_packages ORDER by updated_at DESC LIMIT #{@limit * 2}")
+    projects = DbProject.find_by_sql("select id,updated_at from db_projects ORDER by updated_at DESC LIMIT #{@limit * 2}")
 
-      list = projects
-      list.concat packages
-      ret = Array.new
-      list.sort { |a,b| b.updated_at <=> a.updated_at }.each do |item|
-        if item.instance_of? DbPackage
-          ret << [:package, item.id]
-        else
-          ret << [:project, item.id]
-        end
+    list = projects
+    list.concat packages
+    ret = Array.new
+    list.sort { |a,b| b.updated_at <=> a.updated_at }.each do |item|
+      if item.instance_of? DbPackage
+        ret << [:package, item.id]
+      else
+        ret << [:project, item.id]
       end
-      ret
     end
+    list = ret
 
     @list = Array.new
     list.each do |type, id|
