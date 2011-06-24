@@ -5,7 +5,7 @@ namespace :db do
       case abcs[RAILS_ENV]["adapter"]
       when "mysql"
         ActiveRecord::Base.establish_connection(abcs[RAILS_ENV])
-        ActiveRecord::Base.connection.execute 'DELETE FROM sessions WHERE updated_at < DATE_SUB(NOW(), 24*3600)'
+        ActiveRecord::Base.connection.execute 'DELETE FROM sessions WHERE updated_at < DATE_SUB(NOW(), INTERVAL 1 DAY)'
       else
         raise "Task not supported by '#{abcs[RAILS_ENV]["adapter"]}'"
       end
