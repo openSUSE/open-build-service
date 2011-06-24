@@ -9,7 +9,7 @@ class CreateProjectTest < ActionController::IntegrationTest
       fill_in "Password", :with => "thunder"
       click_button "Login"
       assert_contain("You are logged in now")
-      assert_contain("Welcome to the Open Build Service")
+      assert_contain("Welcome to the ")
    end
 
    def test_create_package

@@ -17,7 +17,7 @@ class WebratTest < ActionController::IntegrationTest
       fill_in "Password", :with => "thunder"
       click_button "Login"
       assert_contain("You are logged in now")
-      assert_contain("Welcome to the Open Build Service")
+      assert_contain("Welcome to the ")
       logout
     end
 
@@ -28,10 +28,10 @@ class WebratTest < ActionController::IntegrationTest
       fill_in "Password", :with => "sunflower"
       click_button "Login"
       assert_contain("You are logged in now")
-      assert_contain("Welcome to the Open Build Service")
+      assert_contain("Welcome to the ")
 
-      click_link "Setup OBS"
-      assert_contain("Connect a remote Open Build Service instance")
+      click_link "Configuration"
+      assert_contain("Connect a remote OBS instance")
 
       #click_button "Save changes"
       #assert_contain("Project 'openSUSE.org' was created successfully")

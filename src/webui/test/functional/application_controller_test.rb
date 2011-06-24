@@ -10,7 +10,7 @@ class ApplicationControllerTest < ActionController::IntegrationTest
     assert_equal(d, elide(d, d.length))
 
     t = "Rocking the Open Build Service"
-    assert_equal("...Open Build Service", elide(t, 25, :left))
+    assert_equal("...the Open Build Service", elide(t, 25, :left))
     assert_equal("R...", elide(t, 4, :right))
     assert_equal("...", elide(t, 3, :right))
     assert_equal("...", elide(t, 2, :right))
