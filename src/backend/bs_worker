@@ -73,8 +73,6 @@ my $oneshot;
 my $silent;
 my $hostcheck;
 my $localkiwi;
-my $localkiwi_uid;
-my $localkiwi_gid;
 
 my $jobs;
 my $cachedir;
@@ -473,15 +471,6 @@ if (!$hostarch) {
 }
 
 die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch} || ($hostarch eq 'local' && $localkiwi);
-
-if ($localkiwi) {
-  $localkiwi_uid = $BSConfig::bsuser;
-  $localkiwi_gid = $BSConfig::bsgroup;
-  !defined($localkiwi_uid) || defined($localkiwi_uid = (getpwnam($localkiwi_uid))[2]) || die("unknown user\n");
-  !defined($localkiwi_gid) || defined($localkiwi_gid = (getgrnam($localkiwi_gid))[2]) || die("unknown group\n");
-  $localkiwi_uid = -1 unless defined $localkiwi_uid;
-  $localkiwi_gid = -1 unless defined $localkiwi_gid;
-}
 
 $srcserver = $BSConfig::srcserver unless defined $srcserver;
 @reposervers = @BSConfig::reposervers unless @reposervers;
@@ -2019,6 +2008,8 @@ push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 if (!$testmode) {
   if ($localkiwi && -d "$localkiwi/jobs/$buildinfo->{'arch'}") {
     # local delivery hack...
+    my @s = stat(_);
+    my ($localkiwi_uid, $localkiwi_gid) = ($s[4], $s[5]);
     my $jobdir = "$localkiwi/jobs/$buildinfo->{'arch'}/$buildinfo->{'job'}:dir";
     mkdir_p($jobdir);
     chown($localkiwi_uid, $localkiwi_gid, $jobdir);
