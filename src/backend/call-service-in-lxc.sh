@@ -3,7 +3,7 @@
 #FSDIR="/opt/obs/SourceServiceSystem"
 FSDIR="/"
 MOUNTDIR="/opt/obs/SourceServiceSystem.mounts/"
-TEMPDIR="/lxc.tmp"
+TEMPDIR="/lxc.tmp.$$"
 
 INNEROUTDIR="$TEMPDIR/out"
 INNERSRCDIR="$TEMPDIR/src"
@@ -107,6 +107,8 @@ fi
 umount "$MOUNTDIR$INNERSRCDIR"
 umount "$MOUNTDIR$INNEROUTDIR"
 umount "$MOUNTDIR"
+rm "$MOUNTDIR/$INNERSCRIPT"
+rmdir "$MOUNTDIR/$TEMPDIR"
 rmdir "$MOUNTDIR"
 
 exit $RETURN
