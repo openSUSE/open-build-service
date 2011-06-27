@@ -122,20 +122,21 @@ class PackageController < ApplicationController
     begin
       set_file_details
     rescue ActiveXML::Transport::Error => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
       if @expand == 1
-         @expand = 0
-         message, code, api_exception = ActiveXML::Transport.extract_error_message e
-         flash[:error] = "Files could not be expanded: " + message
-         begin
-           set_file_details
-         rescue ActiveXML::Transport::Error => e
-           message, code, api_exception = ActiveXML::Transport.extract_error_message e
-           # seems really bad even without expand
-           flash[:error] = "Files could not be expanded: " + message
-           redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
-         end 
+        @expand = 0
+        flash[:error] = "Files could not be expanded: " + message
+        begin
+          set_file_details
+        rescue ActiveXML::Transport::Error => e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
+          # seems really bad even without expand
+          flash[:error] = "Files could not be expanded: " + message
+          redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+        end
       else
-         raise e
+        flash[:error] = "No such revision: #{@revision}"
+        redirect_to :action => :files, :project => params[:project], :package => params[:package] and return
       end
     end
   end
