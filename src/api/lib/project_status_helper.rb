@@ -90,18 +90,24 @@ class PackInfo
     # return packages not having sources
     return if srcmd5.blank?
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    version = nil
+    release = nil
+    if buildinfo
+      version = buildinfo.version
+      release = buildinfo.release
+    end
     opts = { :project => project,
              :name => name,
-             :version => buildinfo.version,
+             :version => version,
              :srcmd5 => srcmd5,
-             :release => buildinfo.release }
+             :release => release }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
     end
     xml.package(opts) do
       buildinfo.fails.each do |repo,tuple|
         xml.failure(:repo => repo, :time => tuple[0], :srcmd5 => tuple[1] )
-      end
+      end if buildinfo
       if develpack
         xml.develpack(:proj => devel_project, :pack => devel_package) do
           develpack.to_xml(:builder => xml)
