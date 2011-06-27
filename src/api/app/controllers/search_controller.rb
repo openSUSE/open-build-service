@@ -50,30 +50,29 @@ class SearchController < ApplicationController
     logger.debug "searching in #{what}s, predicate: '#{predicate}'"
 
     xe = XpathEngine.new
-    begin
-      collection = xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order))
-    rescue XpathEngine::IllegalXpathError => e
-      render_error :status => 400, :message => "illegal xpath %s (#{e.message})" % predicate
-      return
-    end
+
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<collection>\n"
 
-    collection.uniq!
-    collection.each do |item|
-      if item.kind_of? DbPackage or item.kind_of? DbProject
-        # already checked in this case
-      elsif item.kind_of? Repository
-        # This returns nil if access is not allowed
-        next unless DbProject.find_by_id item.db_project_id
-      else
-        render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
-        return
+    begin
+      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order)) do |item|
+        if item.kind_of? DbPackage or item.kind_of? DbProject
+          # already checked in this case
+        elsif item.kind_of? Repository
+          # This returns nil if access is not allowed
+          next unless DbProject.find_by_id item.db_project_id
+        else
+          render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
+          return
+        end
+        
+        str = (render_all ? item.to_axml : item.to_axml_id)
+        output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
       end
-
-      str = (render_all ? item.to_axml : item.to_axml_id)
-      output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
+    rescue XpathEngine::IllegalXpathError => e
+      render_error :status => 400, :message => "illegal xpath %s (#{e.message})" % predicate
+      return
     end
 
     output << "</collection>\n"

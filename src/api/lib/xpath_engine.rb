@@ -102,6 +102,7 @@ class XpathEngine
     RAILS_DEFAULT_LOGGER
   end
 
+  # Careful: there is no return value, the items found are passed to the calling block
   def find(xpath, opt={})
     defaults = {:order => :asc}
     opt = defaults.merge opt
@@ -184,8 +185,10 @@ class XpathEngine
     end
 
     #logger.debug "-- cond_ary: #{cond_ary.inspect} --"
-    return model.find(:all, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                      :conditions => cond_ary, :order => @sort_order )
+    model.find_each(:include => includes, :joins => @joins.flatten.uniq.join(" "),
+                    :conditions => cond_ary, :order => @sort_order ) do |item|
+      yield(item)
+    end
   end
 
   def parse_predicate(stack)

@@ -4,7 +4,6 @@
 require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
-require 'xpath_engine'
 require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
