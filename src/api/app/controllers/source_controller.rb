@@ -970,6 +970,9 @@ class SourceController < ApplicationController
       elsif params[:package] == "_pattern"
          validator = Suse::Validator.new( "pattern" )
          validator.validate(request)
+      elsif params[:file] == "_service"
+         validator = Suse::Validator.new( "service" )
+         validator.validate(request)
       end
 
       if params[:file] == "_link"
