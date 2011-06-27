@@ -1,6 +1,10 @@
 require 'xml'
 require 'ostruct'
 require 'digest/md5'
+require 'memprof'
+
+include ActionView::Helpers::NumberHelper
+include ObjectSpace
 
 class LinkInfo
   attr_accessor :project
@@ -8,27 +12,47 @@ class LinkInfo
   attr_accessor :targetmd5
 end
 
-class PackInfo
-  attr_reader :version, :release
-  attr_accessor :devel_project, :devel_package
-  attr_accessor :srcmd5, :verifymd5, :error, :link
-  attr_reader :name, :project, :key
-  attr_accessor :develpack
+class BuildInfo
 
-  def initialize(projname, name)
-    @project = projname
-    @name = name
-    @key = projname + "/" + name
+  attr_reader :version, :release, :versiontime
+  attr_reader :failed
+
+  def initialize
     @failed = Hash.new
     @last_success = Hash.new
-    @devel_project = nil
-    @devel_package = nil
     @version = nil
     @release = nil
     # we avoid going back in versions by avoiding going back in time
     # the last built version wins (repos may have different versions)
     @versiontime = nil
-    @link = LinkInfo.new
+    
+  end
+
+  def success(reponame, time, md5)
+    # try to remember last success
+    if @last_success.has_key? reponame
+      return if @last_success[reponame][0] > time
+    end
+    @last_success[reponame] = [time, md5]
+  end
+
+  def failure(reponame, time, md5)
+    # we only track the first failure time but latest md5 returned
+    if @failed.has_key? reponame
+      time = @failed[reponame][0]
+    end
+    @failed[reponame] = [time, md5]
+  end
+
+  def fails
+    ret = Hash.new
+    @failed.each do |repo,tuple|
+      ls = begin @last_success[repo][0] rescue 0 end
+      if ls < tuple[0]
+        ret[repo] = tuple
+      end
+    end
+    return ret
   end
 
   def set_version(version, release, time)
@@ -38,31 +62,30 @@ class PackInfo
     @release = release
   end
 
-  def success(reponame, time, md5)
-    # try to remember last success
-    if @last_success.has_key? reponame
-      return if @last_success[reponame].time > time
+  def merge(bi)
+    set_version(bi.version, bi.release, bi.versiontime)
+    puts "merge"
+    bi.failed.each do |rep, tuple|
+      failure(rep, tuple[0], tuple[1])
     end
-    @last_success[reponame] = OpenStruct.new :time => time, :md5 => md5
   end
+end  
 
-  def failure(reponame, time, md5)
-    # we only track the first failure time but latest md5 returned
-    if @failed.has_key? reponame
-      time = @failed[reponame].time
-    end
-    @failed[reponame] = OpenStruct.new :time => time, :md5 => md5
-  end
+class PackInfo
+  attr_accessor :devel_project, :devel_package
+  attr_accessor :srcmd5, :verifymd5, :error, :link
+  attr_reader :name, :project, :key
+  attr_accessor :develpack
+  attr_accessor :buildinfo
 
-  def fails
-    ret = Hash.new
-    @failed.each do |repo,tuple|
-      ls = begin @last_success[repo].time rescue 0 end
-      if ls < tuple.time
-        ret[repo] = tuple
-      end
-    end
-    return ret
+  def initialize(projname, name)
+    @project = projname
+    @name = name
+    @key = projname + "/" + name
+    @devel_project = nil
+    @devel_package = nil
+    @link = LinkInfo.new
+    @buildinfo = nil
   end
 
   def to_xml(options = {}) 
@@ -71,15 +94,15 @@ class PackInfo
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
     opts = { :project => project,
              :name => name,
-             :version => version,
+             :version => buildinfo.version,
              :srcmd5 => srcmd5,
-             :release => release }
+             :release => buildinfo.release }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
     end
     xml.package(opts) do
-      self.fails.each do |repo,tuple|
-        xml.failure(:repo => repo, :time => tuple.time, :srcmd5 => tuple.md5 )
+      buildinfo.fails.each do |repo,tuple|
+        xml.failure(:repo => repo, :time => tuple[0], :srcmd5 => tuple[1] )
       end
       if develpack
         xml.develpack(:proj => devel_project, :pack => devel_package) do
@@ -91,6 +114,15 @@ class PackInfo
         xml.link(:project => @link.project, :package => @link.package, :targetmd5 => @link.targetmd5)
       end
     end
+  end
+
+  def add_buildinfo(bi)
+    puts "add_buildinfo #{bi.inspect}"
+    unless @buildinfo
+      @buildinfo = bi
+      return
+    end
+    @buildinfo.merge(bi)
   end
 end
 
@@ -171,39 +203,45 @@ class ProjectStatusHelper
 
     key = Digest::MD5.hexdigest(uri)
 
-    lastlast = Rails.cache.read(key + '_last', :raw => true)
+    lastlast = Rails.cache.read(key + '_last')
     if currentlast != lastlast 
       Rails.cache.delete key
     end
-   
-    Rails.cache.fetch(key, :raw => true) do
-      Rails.cache.write(key + '_last', currentlast, :raw => true)
-      backend.direct_http( URI(uri) , :timeout => 1000 )
+
+    Rails.cache.fetch(key) do
+      Rails.cache.write(key + '_last', currentlast)
+      d = backend.direct_http( URI(uri) , :timeout => 1000 )
+      data = XML::Parser.string(d).parse unless d.blank?
+      return nil unless data
+      ret = Hash.new
+      reponame = repo + "/" + arch
+      data.find('/jobhistlist/jobhist').each do |p|
+	packname = p.attributes['package']
+	ret[packname] = BuildInfo.new
+	code = p.attributes['code']
+	readytime = begin Integer(p['readytime']) rescue 0 end
+	if code == "unchanged" || code == "succeeded"
+	  ret[packname].success(reponame, readytime, p['srcmd5'])
+	else
+	  ret[packname].failure(reponame, readytime, p['srcmd5'])
+	end
+	versrel = p.attributes['versrel'].split('-')
+	ret[packname].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
+      end
+      ret
     end
   end
 
   def self.update_jobhistory(dbproj, backend, mypackages)
     dbproj.repositories.each do |r|
       r.architectures.each do |arch|
-        reponame = r.name + "/" + arch.name
-        d = fetch_jobhistory(backend, dbproj.name, r.name, arch.name, mypackages)
-        data = XML::Parser.string(d).parse unless d.blank?
-        if data then
-          data.find('/jobhistlist/jobhist').each do |p|
-            packname = p.attributes['package']
-            key = dbproj.name + "/" + packname
-            next unless mypackages.has_key?(key)
-            code = p.attributes['code']
-            readytime = begin Integer(p['readytime']) rescue 0 end
-            if code == "unchanged" || code == "succeeded"
-              mypackages[key].success(reponame, readytime, p['srcmd5'])
-            else
-              mypackages[key].failure(reponame, readytime, p['srcmd5'])
-            end
-            versrel=p.attributes['versrel'].split('-')
-            mypackages[key].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
-          end
-        end
+        infos = fetch_jobhistory(backend, dbproj.name, r.name, arch.name, mypackages)
+	next if infos.nil?
+	infos.each do |packname, bi|
+	  key = dbproj.name + "/" + packname
+	  next unless mypackages.has_key?(key)
+	  mypackages[key].add_buildinfo(bi)
+	end
       end
     end 
   end
@@ -242,9 +280,13 @@ class ProjectStatusHelper
     return true
   end
 
+  def self.memory_usage
+    number_to_human_size(`ps -o rss= -p #{Process.pid}`.to_i * 1024)
+  end
+
   def self.calc_status(dbproj, backend)
     mypackages = Hash.new
-
+    
     if ! dbproj
       puts "invalid project " + proj
       return mypackages
@@ -260,17 +302,20 @@ class ProjectStatusHelper
       end
       add_recursively(mypackages, projects, dbpack)
     end
-
+    
     projects.each do |name,proj|
+      puts "point 1 #{name} #{memory_usage}"
       update_jobhistory(proj, backend, mypackages)
       update_projpack(name, backend, mypackages)
     end
 
+    puts "point 2 #{name} #{memory_usage}"
     dbproj.db_packages.each do |dbpack|
       next unless filter_by_package_name(dbpack.name)
       key = dbproj.name + "/" + dbpack.name
       move_devel_package(mypackages, key)
     end
+    puts "point 3 #{name} #{memory_usage}"
 
     links = Hash.new
     # find links
@@ -280,6 +325,7 @@ class ProjectStatusHelper
 	links[package.link.project] << package.link.package
       end
     end
+
     links.each do |proj, packages|
       tocheck = Array.new
       packages.each do |name|
