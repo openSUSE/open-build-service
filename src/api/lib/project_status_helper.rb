@@ -1,7 +1,6 @@
 require 'xml'
 require 'ostruct'
 require 'digest/md5'
-require 'memprof'
 
 include ActionView::Helpers::NumberHelper
 include ObjectSpace
@@ -64,7 +63,6 @@ class BuildInfo
 
   def merge(bi)
     set_version(bi.version, bi.release, bi.versiontime)
-    puts "merge"
     bi.failed.each do |rep, tuple|
       failure(rep, tuple[0], tuple[1])
     end
@@ -117,7 +115,6 @@ class PackInfo
   end
 
   def add_buildinfo(bi)
-    puts "add_buildinfo #{bi.inspect}"
     unless @buildinfo
       @buildinfo = bi
       return
@@ -304,18 +301,15 @@ class ProjectStatusHelper
     end
     
     projects.each do |name,proj|
-      puts "point 1 #{name} #{memory_usage}"
       update_jobhistory(proj, backend, mypackages)
       update_projpack(name, backend, mypackages)
     end
 
-    puts "point 2 #{name} #{memory_usage}"
     dbproj.db_packages.each do |dbpack|
       next unless filter_by_package_name(dbpack.name)
       key = dbproj.name + "/" + dbpack.name
       move_devel_package(mypackages, key)
     end
-    puts "point 3 #{name} #{memory_usage}"
 
     links = Hash.new
     # find links
