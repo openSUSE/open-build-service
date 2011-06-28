@@ -418,14 +418,13 @@ class StatusController < ApplicationController
         end
  
         unless buildcode
-          buildcode='unknown'
+          buildcode="unknown"
           begin
             uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(req.action.source.package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
             resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
-            if resultlist.result.respond_to?(:status)
-              currentcode = resultlist.result.status.value(:code)
-            else
-              currentcode = nil
+            currentcode = nil
+            resultlist.each_result do |r|
+               r.each_status { |s| currentcode = s.value(:code) }
             end
           rescue ActiveXML::Transport::Error
             currentcode = nil
