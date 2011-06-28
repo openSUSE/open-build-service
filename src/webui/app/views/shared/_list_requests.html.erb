@@ -78,6 +78,6 @@
     </tbody>
   </table>
   <% javascript_tag do %>
-    $('#<%= request_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,1]], headers: {5: {sorter: false}} });
+    $('#<%= request_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {5: {sorter: false}} });
   <% end %>
 <% end %>
