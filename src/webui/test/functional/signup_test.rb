@@ -31,11 +31,7 @@ class WebratTest < ActionController::IntegrationTest
       assert_contain("Welcome to the ")
 
       click_link "Configuration"
-      assert_contain("Connect a remote OBS instance")
-
-      #click_button "Save changes"
-      #assert_contain("Project 'openSUSE.org' was created successfully")
-
+      assert_contain("Connect to a remote OBS instance")
       logout
     end
 
