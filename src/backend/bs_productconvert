@@ -1307,7 +1307,7 @@ foreach my $medium ( @$media ){
           $buildflags->{'enable'} = \@archs;
 
           # add implicit the release packages to media
-          if ( $kiwi->{instsource}->{repopackages}[0] ){
+          if ( $kiwi->{instsource}->{repopackages}[0] && (!defined($medium->{'skip_release_package'}) || $medium->{'skip_release_package'} ne "true") ){
             my %product_pack;
             my $addarch = join( ",", @productarch );
             my $name = $product."-release";

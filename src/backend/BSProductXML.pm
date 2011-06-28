@@ -222,8 +222,9 @@ our $productdesc = [
             'sourcemedia',
             'debugmedia',
             'create_pattern',
-            'ignore_missing_packages', # may be "true", default for mediastyle 11.3 and before
+            'ignore_missing_packages',      # may be "true", default for mediastyle 11.3 and before
             'ignore_missing_meta_packages', # may be "true", default for mediastyle 11.3 and before
+            'skip_release_package',         # skip adding the release packages to the media
             'run_media_check',
             'run_hybridiso',
             'run_make_listings',
