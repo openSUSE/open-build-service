@@ -39,7 +39,9 @@
         <element name="reponame">
           <text/>
         </element>
-        <ref name="icon-element"/>
+        <zeroOrMore>
+          <ref name="icon-element"/>
+        </zeroOrMore>
         <element name="link">
           <text/>
         </element>
