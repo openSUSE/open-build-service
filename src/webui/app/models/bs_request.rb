@@ -67,7 +67,6 @@ class BsRequest < ActiveXML::Base
       begin
         r = transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
-        # FIXME add a full error handler here
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
         message, _, _ = ActiveXML::Transport.extract_error_message e
