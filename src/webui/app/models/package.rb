@@ -142,7 +142,7 @@ class Package < ActiveXML::Base
     return result
   end
 
-  def user_has_role?(userid, role)
+  def user_has_role?(user, role)
     user = Person.find(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
     if user
       return true if user.is_admin?
