@@ -125,3 +125,12 @@ DOWNLOAD_URL='http://localhost:82/'
 #end
 
 RESPONSE_SCHEMA_VALIDATION = true
+
+#require 'memory_debugger'
+# dumps the objects after every request
+#config.middleware.insert(0, MemoryDebugger)
+
+#require 'memory_dumper'
+# dumps the full heap after next request on SIGURG
+#config.middleware.insert(0, MemoryDumper)
+
