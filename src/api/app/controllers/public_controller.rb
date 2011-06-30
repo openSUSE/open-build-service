@@ -134,7 +134,7 @@ class PublicController < ApplicationController
 
   # GET /public/lastevents
   def lastevents
-    valid_http_methods :get
+    valid_http_methods :post
     
     #FIXME2.2: discuss what to do with the events regarding hidden projects, must be solved in backend IMHO
 
