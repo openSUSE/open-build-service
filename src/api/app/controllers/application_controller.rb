@@ -430,11 +430,7 @@ class ApplicationController < ActionController::Base
   end
   private :strip_sensitive_data_from
 
-  def rescue_action_locally( exception )
-    rescue_action_in_public( exception )
-  end
-
-  def rescue_action_in_public( exception )
+  def rescue_action_without_handler( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
 
     case exception
