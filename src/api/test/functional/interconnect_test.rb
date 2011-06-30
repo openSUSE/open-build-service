@@ -9,6 +9,8 @@ class InterConnectTests < ActionController::IntegrationTest
     ActionController::IntegrationTest::reset_auth 
     get "/public/lastevents"
     assert_response :success
+    post "/public/lastevents", nil
+    assert_response :success
 
     # direct access
     get "/public/source/BaseDistro"

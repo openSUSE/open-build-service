@@ -48,11 +48,14 @@ class PublicControllerTest < ActionController::IntegrationTest
   end
 
   def test_lastevents
-    # old route
+    # very old route
     get "/lastevents"
     assert_response :success
-    # new route
+    # old method
     get "/public/lastevents"
+    assert_response :success
+    # new method (OBS 2.3)
+    post "/public/lastevents", nil
     assert_response :success
   end
 
