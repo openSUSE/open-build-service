@@ -698,16 +698,20 @@ class PackageController < ApplicationController
 
   def save_group
     valid_http_methods(:post)
-    group = find_cached(Group, params[:groupid])
+    #FIXME: API Group controller routes don't support this currently.
+    #group = find_cached(Group, params[:groupid])
+    group = Group.list(params[:groupid])
     unless group
       flash[:error] = "Unknown group with id '#{params[:groupid]}'"
       redirect_to :action => :add_group, :project => @project, :package => @package, :role => params[:role] and return
     end
-    @package.add_group(:groupid => group.title.to_s, :role => params[:role])
-    if @package.save
-      flash[:note] = "Added group #{group.title} with role #{params[:role]} to package #{@package}"
-    else
-      flash[:error] = "Failed to add group '#{params[:groupid]}'"
+    begin
+      @package.add_group(:groupid => params[:groupid], :role => params[:role])
+      @package.save
+      flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
+    rescue
+      flash[:error] = "Unable to add unknown group '#{params[:groupid]}'"
+      redirect_back_or_to :action => :users, :project => @project, :package => @package and return
     end
     redirect_to :action => :users, :project => @project, :package => @package
   end
