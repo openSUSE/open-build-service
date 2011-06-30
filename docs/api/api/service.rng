@@ -20,6 +20,11 @@
       <attribute name="name">
         <data type="string"/>
       </attribute>
+      <optional>
+        <attribute name="mode">
+          <ref name="service-modes"/>
+        </attribute>
+      </optional>
       <zeroOrMore>
         <ref name="param-element"/>
       </zeroOrMore>
