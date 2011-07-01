@@ -279,7 +279,7 @@ class Project < ActiveXML::Base
   end
 
   def user_has_role?(user, role)
-    user = Person.find(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
+    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
     if user
       return true if user.is_admin?
       each_person do |p|

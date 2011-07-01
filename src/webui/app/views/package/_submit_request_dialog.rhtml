@@ -76,7 +76,8 @@
       <p>Submit <b><%= h @package %></b> in revision <%= @revision %></p>
 
       <% tprj = "" %>
-      <% tprj = @package.linkinfo.project if @package.linkinfo %>
+      <% tprj = @package.linkinfo.project if @package.linkinfo # fill in from linkinfo %>
+      <% tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter %>
 
       <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
@@ -86,7 +87,17 @@
           <%= label_tag(:sourceproject, "From source project:") %><br/>
           <%= text_field_tag(:sourceproject, elide(@project.name, 40), :size => 40, :disabled => true) %><br/>
           <%= label_tag(:targetproject, "To target project:") %><br/>
-          <%= text_field_tag(:targetproject, tprj, :size => 40) %><br/>
+          <%= text_field_tag(:targetproject, tprj, :size => 40, :disabled => params[:readonly]) %><br/>
+          <% if params[:readonly] %>
+            <%= hidden_field_tag(:targetproject, tprj) %>
+          <% end %>
+          <% if params[:targetpackage] %>
+            <%= label_tag(:targetpackage, "To target package:") %><br/>
+            <%= text_field_tag(:targetpackage, params[:targetpackage], :size => 40, :disabled => params[:readonly]) %><br/>
+            <% if params[:readonly] %>
+              <%= hidden_field_tag(:targetpackage, params[:targetpackage]) %>
+            <% end %>
+          <% end %>
           <%= label_tag(:description, "Description:") %><br/>
           <%= text_area_tag(:description, "", :size => "40x3") %><br/>
           <span id="supersede_display" class="hidden">
