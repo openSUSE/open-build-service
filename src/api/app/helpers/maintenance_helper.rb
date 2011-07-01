@@ -81,12 +81,7 @@ module MaintenanceHelper
     # create package container, if missing
     unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
       new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-#FIXME2.3 validate that there are no build enable flags
       targetProject.db_packages << new
-      new.save
-      sourcePackage.flags.each do |f|
-        new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
-      end
       new.store
     end
 
@@ -153,11 +148,6 @@ module MaintenanceHelper
       unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
         new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
         targetProject.db_packages << new
-        new.save
-        sourcePackage.flags.each do |f|
-          # copy all flags except the lock flags from release request
-          new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "lock"
-        end
         new.store
       end
       Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
