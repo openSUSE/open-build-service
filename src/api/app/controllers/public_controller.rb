@@ -43,24 +43,7 @@ class PublicController < ApplicationController
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
 
-    if params[:view]
-      unless %w(names cpio cache binaryversions solvstate).include?(params[:view])
-        render_error :status => 400, :errorcode => "missing_parameter",
-          :message => "query parameter 'view' has to be either names, cpio or cache"
-        return
-      end
-
-      if %w{names binaryversions}.include?(params[:view])
-        pass_to_backend path
-      else
-        headers.update(
-          'Content-Type' => 'application/x-cpio'
-        )
-        render_stream(Net::HTTP::Get.new(path))
-      end
-    else
-      pass_to_backend path
-    end
+    pass_to_backend path
   end
 
   # GET /public/source/:prj/_meta
@@ -140,7 +123,7 @@ class PublicController < ApplicationController
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
-    render_stream(Net::HTTP::Get.new(path))
+    pass_to_backend path
   end
 
   # GET /public/distributions
@@ -224,20 +207,4 @@ class PublicController < ApplicationController
     end
   end
 
-  def render_stream(backend_request)
-    logger.info "streaming #{backend_request.path}"
-    render :status => 200, :text => Proc.new {|request,output|
-      response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
-        begin
-          http.request(backend_request) do |response|
-            response.read_body do |chunk|
-              output.write chunk
-            end
-          end
-        rescue Timeout::Error
-          logger.info "catched TIMEOUT: #{backend_request.path}"
-        end
-      end
-    }
-  end
 end
