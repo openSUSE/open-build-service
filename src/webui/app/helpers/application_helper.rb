@@ -197,13 +197,13 @@ module ApplicationHelper
     end
     description = case status
     when "published" then "Repository has been published"
-    when "publishing" then "Repository is created right now"
+    when "publishing" then "Repository is being created right now"
     when "unpublished" then "Build finished, but repository publishing is disabled"
     when "building" then "Build jobs exists"
     when "finished" then "Build jobs have been processed, new repository is not yet created"
     when "blocked" then "No build possible atm, waiting for jobs in other repositories"
-    when "broken" then "The setup of repository is broken, build not possible"
-    when "scheduling" then "The repository state is calculated right now"
+    when "broken" then "The repository setup is broken, build not possible"
+    when "scheduling" then "The repository state is being calculated right now"
     else "Unknown state of repository"
     end
 
