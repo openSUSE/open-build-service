@@ -144,7 +144,7 @@ class RequestController < ApplicationController
         :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
       @req.save(:create => true)
       Rails.cache.delete "requests_new"
-      flash[:note] = "Request #{params[id]} accepted and forwarded"
+      flash[:note] = "Request #{params[:id]} accepted and forwarded"
       redirect_to :controller => :request, :action => :show, :id => @req.data["id"] and return
     end
 
