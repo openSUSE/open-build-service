@@ -4333,13 +4333,14 @@ while(1) {
 	# have to be extra careful with those. if the package is in
         # (delayed)fetchprojpacks, delay event processing until we
         # updated the projpack data.
-        my $info = readxml("$myjobsdir/$ev-{'job'}", $BSXML::buildinfo, 1) || {};
+        my $info = readxml("$myjobsdir/$ev->{'job'}", $BSXML::buildinfo, 1) || {};
 	my $projid = $info->{'project'};
 	my $packid = $info->{'package'};
 	if (defined($projid) && defined($packid)) {
 	  if (grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks{$projid} || []}, @{$delayedfetchprojpacks{$projid} || []})) {
 	    push @{$fetchprojpacks{$projid}}, $packid;
 	    $fetchprojpacks_nodelay{$projid} = 1;
+	    $gotevent = 1;
 	    next;
 	  }
 	}
