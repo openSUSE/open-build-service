@@ -29,7 +29,7 @@
  </distribution>
  <distribution vendor="openSUSE" version="Tumbleweed" id="opensuse-Tumbleweed">
   <name>openSUSE Tumbleweed</name>
-  <project>openSUSE:Tumbleweed</project>
+  <project>openSUSE.org:openSUSE:Tumbleweed</project>
   <reponame>openSUSE_Tumbleweed</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-8.png"/>
