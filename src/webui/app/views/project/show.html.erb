@@ -84,28 +84,28 @@
               <% unless @project.is_remote? %>
                 <% if @is_incident_project %>
                   <li>
-                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Release this maintenance incident'), :url => { :action => :release_request_dialog, :project => @project }) -%>
-                    <%= link_to_remote('Release this maintenance incident', :url => { :action => :release_request_dialog, :project => @project }) -%>
+                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Release maintenance incident'), :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
+                    <%= link_to_remote('Release maintenance incident', :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
                   </li>
                 <% elsif @is_maintenance_project %>
                   <li>
-                    <%= link_to(image_tag('icons/brick_add.png', :title => 'Create incident'), :controller => 'project', :action => 'new_incident', :ns => @project.name) -%>
-                    <%= link_to('Create incident', :controller => 'project', :action => 'new_incident', :ns => @project.name) -%>
+                    <%= link_to(image_tag('icons/brick_add.png', :title => 'Create maintenance incident'), :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
+                    <%= link_to('Create maintenance incident', :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
                   </li>
                 <% else %>
                   <li>
-                    <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) -%>
-                    <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) -%>
+                    <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
+                    <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
                   </li>
                 <% end %>
               <% end %>
               <li>
-                <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit description"), :action => 'edit', :project => @project) -%>
-                <%= link_to("Edit description", :action => 'edit', :project => @project) -%>
+                <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit description"), :action => 'edit', :project => @project) %>
+                <%= link_to("Edit description", :action => 'edit', :project => @project) %>
               </li>
               <li>
-                <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) -%>
-                <%= link_to_remote('Delete project', :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) -%>
+                <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
+                <%= link_to_remote('Delete project', :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
               </li>
             <% else %>
               <li>

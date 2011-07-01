@@ -15,7 +15,7 @@ class ProjectController < ApplicationController
   before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
-    :rebuild_time_png]
+    :rebuild_time_png, :new_incident]
   before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :add_group, :remove_target,
@@ -164,46 +164,36 @@ class ProjectController < ApplicationController
   end
 
   def new_incident
-    valid_http_methods(:post)
-
     begin
-      path = "/source?cmd=createmaintenanceincident"
-      path += "?attribute=#{params[:attribute]}" if params[:attribute]
-      result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
-      target_project = result.find_first( "/status/data[@name='targetproject']" ).content
+      path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
+      result = XML::Document.string(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
+      target_project = result.find_first("/status/data[@name='targetproject']").content
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      redirect_to :controller => 'project', :action => 'show',
-        :project => params[:project]
-      return
+      redirect_to :action => 'show', :project => params[:ns] and return
     end
     flash[:success] = "Created maintenance incident project #{target_project}"
-    redirect_to :controller => 'project', :action => 'show', :project => target_project
-
-    return
+    redirect_to :action => 'show', :project => target_project and return
   end
 
+  def release_request_dialog
+  end
   def new_release_request
-    valid_http_methods(:post)
-
     if params[:skiprequest]
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        params[:type] = "maintenance_release"
         req = BsRequest.new(:project => params[:project], :type => "maintenance_release")
         req.save(:create => true)
         flash[:success] = "Created maintenance release request"
       rescue ActiveXML::Transport::NotFoundError => e
         message, _, _ = ActiveXML::Transport.extract_error_message(e)
         flash[:error] = message
-        redirect_to(:action => "show", :project => params[:project]) and return
+        redirect_to(:action => 'show', :project => params[:project]) and return
       end
     end
-
-    redirect_to :controller => 'project', :action => 'show', :project => params[:project]
-    return
+    redirect_to :action => 'show', :project => params[:project]
   end
 
   def load_packages_mainpage
