@@ -13,7 +13,7 @@
 <% end %>
 
 <% if @rdiff.empty? %>
-  <p><em>No difference</em></p>
+  <p><i>No difference</i></p>
 <% else %>
   <% if @addeditlink %>
     <p>
@@ -25,28 +25,22 @@
   <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @rdiff, :type => 'diff'} %>
 
   <% if @lastreq %>
-    <h2>The last request (<%= @lastreq.data[:id] %>) was declined <%= "%s by %s:" % [fuzzy_time_string(@lastreq.state.when), @lastreq.state.who ] %></h2>
+    <h3>The last request (<%= @lastreq.data[:id] %>) was declined <%= "%s by %s:" % [fuzzy_time_string(@lastreq.state.when), @lastreq.state.who ] %></h3>
     <p><%= @lastreq.state.comment %></p>
   <% end %>
 
-  <% if @package.can_edit?( session[:login] )%>
-    <h2>Create Submit Request</h2>
-    <% form_tag({:controller => 'package', :action => 'submit_request', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage, :rev => @rev}, {:method => :post}) do -%>
-      <% if params[:commit] %>
-        <p>Revert <%=h @project.name + "/" + @package.name %> to this revision</p>
-      <% else %>
-        <p>Submit these changes to <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %></p>
-      <% end %>
-
-      <p>Comment: <%= text_field_tag 'description', "", :size => "80" -%></p>
-      <div>
-        <% if params[:commit] %>
-          <!-- FIXME: Add an option to just revert this single commit -->
-          <p><%= submit_tag "Revert to this revision" %></p>
-        <% else %>
-          <p><%= submit_tag "Submit" %></p>
-        <% end %>
-      </div>
+  <% if session[:login] %>
+    <h3>Actions</h3>
+    <% if params[:commit] %>
+      <% msg = "Revert #{h(@project.to_s + ' / ' + @package.to_s)} to this revision" %>
+    <% else %>
+      <% msg = "Submit these changes to #{h(@oproject.to_s + ' / ' + @opackage.to_s)}" %>
     <% end %>
+    <p>
+      <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
+        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage, :revision => @rev, :readonly => true}) %>
+      <%= link_to_remote(msg,
+        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage, :revision => @rev, :readonly => true}) %>
+    </p>
   <% end %>
 <% end %>
