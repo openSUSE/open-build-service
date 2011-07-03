@@ -11,10 +11,10 @@
   $('#history_table').tablesorter({widgets: ['zebra'], sortList: [[0,0]], headers: {3: {sorter: false}}});
 <% end %>
 
-<h3><%= @pagetitle %> (<%= @req.state.name %>)</h3>
-
 <% if @superseded_by %>
-  <p>This request has been superseded by request #<%= link_to @superseded_by, :id => @superseded_by %></p>
+  <h3><%= @pagetitle %> (<%= @req.state.name %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
+<% else %>
+  <h3><%= @pagetitle %> (<%= @req.state.name %>)</h3>
 <% end %>
 
 <div>
