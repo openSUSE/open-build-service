@@ -15,7 +15,9 @@
       <% @open_maintenance_incident_list.each do |incident| %>
         <li>
            <%= link_to("#{incident.name}", :action => :show, :project => incident.name) %>
-           : <%= incident.title %>
+           <% if not incident.title.to_s.empty? %>
+             : <%= incident.title %>
+           <% end %>
         </li>
       <% end %>
     </ul>
