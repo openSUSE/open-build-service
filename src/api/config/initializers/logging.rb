@@ -12,7 +12,13 @@ module ActiveSupport
       sevstring = NUMBER_TO_NAME_MAP[severity]
       color = NUMBER_TO_COLOR_MAP[severity]
       message = (message || (block && block.call) || progname).to_s
-      message = "[\033[#{color}m%-5s\033[0m|#%5d] %s\n" % [sevstring, $$, message]
+      prefix=""
+      while message[0] == 13 or message[0] == 10
+        prefix = prefix.concat(message[0])
+        message = message[1..-1]
+      end
+   
+      message = prefix + "[\033[#{color}m%-5s\033[0m|#%5d] %s\n" % [sevstring, $$, message]
       buffer << message
       auto_flush
       message
