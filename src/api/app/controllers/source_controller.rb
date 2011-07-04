@@ -716,6 +716,11 @@ class SourceController < ApplicationController
       kind_element = rdata.elements["project/@kind"]
       if kind_element
         if kind_element.value == "maintenance"
+          # First remove all maintained project relations
+          DbProject.find_all_by_maintenance_project_id(prj.id).each do |maintained_project|
+            maintained_project.maintenance_project_id = nil
+            maintained_project.save
+          end
           # Set this project as the maintenance project for all maintained projects found in the XML
           rdata.elements.each("project/maintenance/maintains") do |maintains|
             maintained_project = DbProject.get_by_name(maintains.attributes['project'])
