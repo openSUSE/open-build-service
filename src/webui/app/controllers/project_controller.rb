@@ -1255,7 +1255,7 @@ class ProjectController < ApplicationController
 
   def maintenance_incidents
     @open_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident')").each do |p|
+    Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident' and repository/releasetarget/@trigger='maintenance')").each do |p|
       @open_maintenance_incident_list << p
     end
   end
