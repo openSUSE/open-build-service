@@ -945,7 +945,6 @@ class ProjectController < ApplicationController
   end
 
   def edit_meta
-    render :template => "project/edit_meta"
   end
 
   def meta
