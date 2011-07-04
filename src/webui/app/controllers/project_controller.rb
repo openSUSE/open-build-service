@@ -144,17 +144,18 @@ class ProjectController < ApplicationController
   def new
     @namespace = params[:ns]
     @project_name = params[:project]
-    begin
-      @project = find_cached(Project, @namespace)
-    rescue
-      flash[:error] = "Invalid project name '#{@namespace}'"
-      redirect_back_or_to :controller => 'project', :action => 'list_public' and return
-    end
-
-    if @namespace == "home:#{session[:login]}" and not @project
-      flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
-        " descriptive data and press the 'Create Project' button."
-      @project_name = @namespace
+    if @namespace
+      begin
+        @project = find_cached(Project, @namespace)
+        if @namespace == "home:#{session[:login]}" and not @project
+          flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+                             " descriptive data and press the 'Create Project' button."
+          @project_name = @namespace
+        end
+      rescue
+        flash[:error] = "Invalid namespace name '#{@namespace}'"
+        redirect_back_or_to :controller => 'project', :action => 'list_public' and return
+      end
     end
     if @project_name =~ /home:(.+)/
       @project_title = "#$1's Home Project"
