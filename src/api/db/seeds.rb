@@ -106,3 +106,4 @@ Configuration.create(:title => "Open Build Service", :description => <<-EOT
   </p>
 EOT
 )
+
