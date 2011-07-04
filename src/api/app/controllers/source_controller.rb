@@ -713,16 +713,16 @@ class SourceController < ApplicationController
 
       # Check for maintenance-related parts
       # The attribute 'type' is only set for maintenance and maintenance incident projects.
-      type_element = rdata.elements["project/@type"]
-      if type_element
-        if type_element.value == "maintenance"
+      kind_element = rdata.elements["project/@kind"]
+      if kind_element
+        if kind_element.value == "maintenance"
           # Set this project as the maintenance project for all maintained projects found in the XML
           rdata.elements.each("project/maintenance/maintains") do |maintains|
             maintained_project = DbProject.get_by_name(maintains.attributes['project'])
             maintained_project.maintenance_project_id = prj.id
             maintained_project.save
           end
-        elsif type_element.value == "maintenance_incident"
+        elsif kind_element.value == "maintenance_incident"
           # Handle maintenance incident project data
           #TODO
         end
