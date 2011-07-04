@@ -316,6 +316,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     # maintainer via group
     prepare_request_with_user "adrian", "so_alone"
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
+
+    # check history
+    get "/source/kde4/_project/_history?meta=1"
+    assert_response :success
+    assert_tag( :tag => "revisionlist" )
+    assert_tag( :tag => "user", :content => "adrian" )
   end
 
   def test_create_subproject
@@ -677,6 +683,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     # maintainer via group
     prepare_request_with_user "adrian", "so_alone"
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
+
+    # check history
+    get "/source/kde4/kdelibs/_history?meta=1"
+    assert_response :success
+    assert_tag( :tag => "revisionlist" )
+    assert_tag( :tag => "user", :content => "adrian" )
   end
 
   def test_put_package_meta_hidden_package

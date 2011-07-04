@@ -695,7 +695,7 @@ class DbProject < ActiveRecord::Base
     Rails.cache.delete('meta_project_%d' % id)
 
     if write_through?
-      path = "/source/#{self.name}/_meta"
+      path = "/source/#{self.name}/_meta?user=#{URI.escape(User.current.login)}"
       Suse::Backend.put_source( path, to_axml )
     end
 
