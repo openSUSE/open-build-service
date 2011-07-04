@@ -3,15 +3,43 @@
 
 <%= render :partial => 'tabs' %>
 
+<%= javascript_include_tag 'jquery.tablesorter' %>
+
 <h3>Maintained Projects</h3>
 <% if @maintained_projects.length > 0 %>
-  <ul>
-    <% @maintained_projects.each do |maintained_project| %>
-      <li>
-        <%= link_to(maintained_project, :action => 'show', :project => maintained_project) %>
-      </li>
-    <% end %>
-  </ul>
+  <table cellspacing='1' id="maintained_projects_table" class="tablesorter">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <% if @project.can_edit?(session[:login]) %>
+          <th style="width: 1%">Actions</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @maintained_projects.each do |maintained_project| %>
+        <tr>
+          <td><%= link_to(maintained_project, :action => 'show', :project => maintained_project) %></td>
+          <% if @project.can_edit?(session[:login]) %>
+            <td>
+              <%# TODO: Convert into a dialog and use link_to_remote %>
+              <%= link_to(image_tag('icons/brick_delete.png', :title => 'Remove project from maintenance'), :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project) %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% javascript_tag do %>
+    $('#maintained_projects_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {1: {sorter: false}}});
+  <% end %>
 <% else %>
   <p>No projects in maintenance</p>
+<% end %>
+
+<% if @project.can_edit?(session[:login]) %>
+  <p>
+    <%= link_to_remote(image_tag('icons/brick_add.png', :title => 'Add project to maintenance'), :url => {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}) %>
+    <%= link_to_remote('Add project to maintenance', :url => {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}) %>
+  </p>
 <% end %>

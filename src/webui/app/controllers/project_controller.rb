@@ -1252,6 +1252,38 @@ class ProjectController < ApplicationController
   def maintained_projects
   end
 
+  def add_maintained_project_dialog
+  end
+  def add_maintained_project
+    if params[:maintained_project].nil? or params[:maintained_project].empty?
+      flash[:error] = 'Please provide a valid project name'
+      redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
+    end
+
+    @project.add_maintained_project(params[:maintained_project])
+    if @project.save
+      flash[:note] = "Added project '#{params[:maintained_project]}' to maintenance"
+    else
+      flash[:error] = "Failed to add project '#{params[:maintained_project]}' to maintenance"
+    end
+    redirect_to(:action => 'maintained_projects', :project => @project) and return
+  end
+
+  def remove_maintained_project
+    if params[:maintained_project].nil? or params[:maintained_project].empty?
+      flash[:error] = 'Please provide a valid project name'
+      redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
+    end
+
+    @project.remove_maintained_project(params[:maintained_project])
+    if @project.save
+      flash[:note] = "Removed project '#{params[:maintained_project]}' from maintenance"
+    else
+      flash[:error] = "Failed to remove project '#{params[:maintained_project]}' from maintenance"
+    end
+    redirect_to(:action => 'maintained_projects', :project => @project) and return
+  end
+
   def maintenance_incidents
     @open_maintenance_incident_list = []
     Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident' and repository/releasetarget/@trigger='maintenance')").each do |p|

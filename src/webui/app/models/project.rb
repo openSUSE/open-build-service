@@ -236,6 +236,19 @@ class Project < ActiveXML::Base
     delete_element "repository[@name='#{repository}']"
   end
 
+
+  def add_maintained_project(maintained_project)
+    return nil if not maintained_project
+    add_element('maintenance') if not has_element?('maintenance')
+    maintenance.add_element('maintains', 'project' => maintained_project)
+  end
+
+  def remove_maintained_project(maintained_project)
+    return nil if not maintained_project
+    return nil if not has_element?('maintenance')
+    maintenance.delete_element("maintains[@project='#{maintained_project}']")
+  end
+
   #get all architectures used in this project
   #TODO could/should be optimized... somehow...here are many possibilities
   #eg. object attribute, ...

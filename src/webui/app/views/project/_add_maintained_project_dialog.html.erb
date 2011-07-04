@@ -1,0 +1,33 @@
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+<%= javascript_include_tag 'jquery.autocomplete.pack' %>
+
+<% javascript_tag do %>
+  $('#maintained_project').autocomplete('<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', {
+    minChars: 2, matchCase: true, max: 50
+  });
+<% end %>
+
+<div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Add Project to Maintenance</b>
+      </div>
+
+      <% form_tag({:controller => 'project', :action => 'add_maintained_project'}) do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <p>
+          <%= label_tag(:maintained_project, 'Project to maintain:') %><br/>
+          <%= text_field_tag(:maintained_project, '', :size => 40) %>
+        </p>
+        <div class="buttons">
+          <%= submit_tag('Ok') %>
+          <%= link_to_function("Cancel", 'remove_dialog()') %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
