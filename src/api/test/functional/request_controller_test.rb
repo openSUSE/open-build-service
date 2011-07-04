@@ -1366,5 +1366,52 @@ end
 
   end
 
+  def test_project_delete_request_with_pending
+    ActionController::IntegrationTest::reset_auth
+
+    # try to replay rq 74774
+    prepare_request_with_user "Iggy", "asdfasdf"
+    meta="<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
+      <path repository='BaseDistroUpdateProject_repo' project='BaseDistro:Update'/>
+        <arch>i586</arch>
+        <arch>x86_64</arch>
+     </repository>
+     </project>"
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:Iggy:todo"), meta
+    assert_response :success 
+ 
+    meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:Iggy:todo", :package => "realfun"), meta
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:Iggy:todo/realfun", :cmd => "branch"
+    assert_response :success
+    
+    # verify
+    get "/source/home:tom:branches:home:Iggy:todo/realfun/_meta"
+    assert_response :success
+
+    # now try to delete the original project
+    # and create a delete request
+    rq = '<request>
+           <action type="delete">
+             <target project="home:Iggy:todo"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    iddelete = node.data['id']
+    
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
+    assert_response :success
+  end
+
 end
 
