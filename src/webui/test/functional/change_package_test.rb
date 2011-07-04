@@ -9,7 +9,7 @@ class ChangePackageTest < ActionController::IntegrationTest
       fill_in "Password", :with => "asdfasdf"
       click_button "Login"
       assert_contain("You are logged in now")
-      assert_contain("Welcome to the ")
+      assert_contain("Welcome to ")
    end
 
    def test_add_and_submit_file
