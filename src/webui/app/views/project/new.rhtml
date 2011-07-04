@@ -2,18 +2,18 @@
    @pagetitle = "Create New Subproject" if @namespace %>
 <% project_bread_crumb 'New Project' %>
 
-<h2><%= @pagetitle %></h2>
-
-<div class="description">
+<h3><%= @pagetitle %></h3>
+<% if not @user.is_admin? %>
   <p>
-  All users have a <strong>home:&lt;login&gt;</strong> project by default, and can also create new sub projects. New project outside of your home namespace can get requested via
-  <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&amp;product=openSUSE.org&amp;submit=Use+This+Product&amp;component=OBS%20Request">bugzilla</a>.
-  To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing list.</p>
-</div>
+    All users have a <b>home:&lt;login&gt;</b> project by default, and can also create new sub projects. New project outside of your home namespace can get requested via
+    <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&amp;product=openSUSE.org&amp;submit=Use+This+Product&amp;component=OBS%20Request">bugzilla</a>.
+    To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing list.
+  </p>
+<% end %>
 
 <% form_tag :action => 'save_new' do -%>
   <p>
-    <strong>Project Name:</strong><br/>
+    <b>Project Name:</b><br/>
     <% if @project_name %>
       <%= @project_name %>
       <%= hidden_field_tag( "name", @project_name ) %>
@@ -24,9 +24,9 @@
       <%end-%>
       <%= text_field_tag 'name', @new_project_name, :size => 50 %>
     <% end %><br/>
-    <label for="title"><strong>Title: </strong></label><br/>
+    <label for="title"><b>Title: </b></label><br/>
     <%= text_field_tag 'title', @project_title, :size => 80 %><br/>
-    <label for="description"><strong>Description:</strong></label><br/>
+    <label for="description"><b>Description:</b></label><br/>
     <%= text_area_tag 'description', @project_description, :cols => 80, :rows => 10 %><br/>
     <% unless HIDE_PRIVATE_OPTIONS == true %>
       <%= check_box_tag :access_protection, false %>Hide the entire project.<br/>
