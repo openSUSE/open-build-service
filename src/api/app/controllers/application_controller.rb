@@ -430,9 +430,23 @@ class ApplicationController < ActionController::Base
   end
   private :strip_sensitive_data_from
 
-  def rescue_action_without_handler( exception )
-    logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
+  # default uses logger.fatal, but we have too many unknown object exceptions to make that useful
+  # in production
+  def log_error(exception)
+    if exception === DbProject::UnknownObjectError || exception == DbPackage::UnknownObjectError
+      logger.debug("\n#{exception.class} (#{exception.message}):\n  " +
+                   clean_backtrace(exception).join("\n  ") + "\n\n")
+    else
+      super
+    end
+  end
 
+  def rescue_action_locally( exception )
+    # there is no point in answering HTML even for local usage - osc won't get it
+    rescue_action_in_public( exception )
+  end
+
+  def rescue_action_in_public( exception )
     case exception
     when Suse::Backend::HTTPError
       xml = REXML::Document.new( exception.message.body )
