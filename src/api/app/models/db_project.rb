@@ -8,6 +8,8 @@ class DbProject < ActiveRecord::Base
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
 
+  before_destroy :cleanup_before_destroy?
+
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :project_group_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
@@ -37,6 +39,36 @@ class DbProject < ActiveRecord::Base
     self.name.gsub(/:/, ':/')
   end
   
+  def destroy
+    # basically empty, but needed here to get the cleanup_before_destroy? method called
+    super
+  end
+
+  def cleanup_before_destroy?
+    # find linking repositories
+    lreps = Array.new
+    self.repositories.each do |repo|
+      repo.linking_repositories.each do |lrep|
+        lreps << lrep
+      end
+    end
+    if lreps.length > 0
+      #replace links to this projects with links to the "deleted" project
+      del_repo = DbProject.find_by_name("deleted").repositories[0]
+      lreps.each do |link_rep|
+        link_rep.path_elements.find(:all, :include => ["link"]).each do |pe|
+          next unless Repository.find_by_id(pe.repository_id).db_project_id == self.id
+          pe.link = del_repo
+          pe.save
+          #update backend
+          link_prj = link_rep.db_project
+          logger.info "updating project '#{link_prj.name}'"
+          Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+        end
+      end
+    end
+  end
+
 #  def before_validation
 #  def after_create
 #    raise ReadAccessError.new "Unknown project" unless DbProject.check_access?(self)

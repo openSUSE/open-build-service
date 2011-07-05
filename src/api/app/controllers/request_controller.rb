@@ -1211,31 +1211,8 @@ class RequestController < ApplicationController
             source_package = source_project.db_packages.find_by_name(action.source.package)
             delete_path = nil
             if source_project.db_packages.count == 1
-              # find linking repos
-              lreps = Array.new
-              source_project.repositories.each do |repo|
-                repo.linking_repositories.each do |lrep|
-                  lreps << lrep
-                end
-              end
-              if lreps.length > 0
-                #replace links to this projects with links to the "deleted" project
-                del_repo = DbProject.find_by_name("deleted").repositories[0]
-                lreps.each do |link_rep|
-                  link_rep.path_elements.find(:all, :include => ["link"]) do |pe|
-                    next unless Repository.find_by_id(pe.repository_id).db_project_id == source_project.id
-                    pe.link = del_repo
-                    pe.save
-                    #update backend
-                    link_prj = link_rep.db_project
-                    logger.info "updating project '#{link_prj.name}'"
-                    Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
-                  end
-                end
-              end
-
+              # remove source project, if this is the only package and not the user's home project
               if source_project.name != "home:" + user.login
-                # remove source project, if this is the only package and not the user's home project
                 source_project.destroy
                 delete_path = "/source/#{action.source.project}"
               end
