@@ -95,6 +95,7 @@ class XpathEngine
     @base_table = ""
     @conditions = [1]
     @condition_values = []
+    @condition_values_needed = 1 # see xpath_func_not
     @joins = []
   end
 
@@ -244,9 +245,9 @@ class XpathEngine
           if tvalues.size != 2
             raise XpathEngine::IllegalXpathError, "attributes must be $NAMESPACE:$NAME"
           end
-          @condition_values << tvalues
+          @condition_values_needed.times { @condition_values << tvalues }
         else
-          @condition_values << value
+          @condition_values_needed.times { @condition_values << value }
         end
         @last_key = nil
         return "?"
@@ -340,12 +341,26 @@ class XpathEngine
   def xpath_func_not(expr)
     #logger.debug "-- xpath_func_not(#{expr}) --"
 
+    # An XPath query like "not(@foo='bar')" in the SQL world means, all rows where the 'foo' column
+    # is not 'bar' and where it is NULL. As a result, 'cond' below occurs twice in the resulting SQL.
+    # This implies that the values to # fill those 'p.name = ?' fragments (@condition_values) have to
+    # occor twice, hence the @condition_values_needed counter. For our example, the resulting SQL will
+    # look like:
+    #
+    #   SELECT * FROM db_projects p LEFT JOIN db_project_types t ON p.type_id = t.id 
+    #            WHERE (NOT t.name = 'maintenance_incident' OR t.name IS NULL);
+    #
+    # Note that this can result in bloated SQL statements, so some trust in the query optimization
+    # capabilities of your DBMS is neeed :-)
+
+    @condition_values_needed = 2
     parse_predicate(expr)
     cond = @conditions.pop
 
-    condition = "(NOT #{cond})"
+    condition = "(NOT #{cond} OR #{cond} IS NULL)"
     #logger.debug "-- condition : [#{condition}]"
 
+    @condition_values_needed = 1
     @conditions << condition
   end
 
