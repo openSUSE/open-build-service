@@ -4339,6 +4339,9 @@ while(1) {
 	if (defined($projid) && defined($packid)) {
 	  if (grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks{$projid} || []}, @{$delayedfetchprojpacks{$projid} || []})) {
 	    push @{$fetchprojpacks{$projid}}, $packid;
+	    # remove package from delayedfetchprojpacks to prevent looping
+	    $delayedfetchprojpacks{$projid} = [ grep {$_ ne $packid} @{$delayedfetchprojpacks{$projid} || []} ];
+	    delete $delayedfetchprojpacks{$projid} unless @{$delayedfetchprojpacks{$projid}};
 	    $fetchprojpacks_nodelay{$projid} = 1;
 	    $gotevent = 1;
 	    next;
@@ -4650,8 +4653,14 @@ while(1) {
 	  # single package (source) changes
 	  my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
 	  get_projpacks($projid, sort keys %packids) if %packids;
+	  # remove em from the delay queue
+	  if ($delayedfetchprojpacks{$projid}) {
+	    $delayedfetchprojpacks{$projid} = [ grep {!$packids{$_}} @{$delayedfetchprojpacks{$projid} || []} ];
+	    delete $delayedfetchprojpacks{$projid} unless @{$delayedfetchprojpacks{$projid}};
+	  }
+	} else {
+	  delete $delayedfetchprojpacks{$projid};
 	}
-	delete $delayedfetchprojpacks{$projid} if $fetchedall;
       }
       get_projpacks_postprocess();
 
