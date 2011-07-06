@@ -90,6 +90,8 @@ class ProjectController < ApplicationController
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
+    predicate += " and " if !predicate.empty?
+    predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
     result = find_cached Collection, :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
     @projects = Array.new
     result.each { |p| @projects << p.name }
