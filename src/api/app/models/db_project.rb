@@ -180,7 +180,11 @@ class DbProject < ActiveRecord::Base
             options[:conditions] = cond
           else
             if options[:conditions].class == String
-              options[:conditions] = options[:conditions]
+              options[:conditions] = options[:conditions] # TDWTF ?!?
+            elsif options[:conditions].class == Hash
+              wacky = ''
+              options[:conditions].keys.each {|k| wacky += ' AND (' + k.to_s + ')'}
+              options[:conditions] = cond + wacky
             else
               options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")"
             end
