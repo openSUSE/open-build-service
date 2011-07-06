@@ -55,7 +55,10 @@ my $nosrcchangescale = 3;	# -4.77
 my %powerpkgs;
 
 if ($BSConfig::powerpkgs) {
-  %powerpkgs = map {$_ => 1} @{$BSConfig::powerpkgs || []};
+  my $i = 1;
+  for (@{$BSConfig::powerpkgs || []}) {
+    $powerpkgs{$_} = $i++;
+  }
 }
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
@@ -538,11 +541,14 @@ while (1) {
 	my $jn = $job;
 	$jn =~ s/-[0-9a-f]{32}$//s;
 	my ($projid, $repoid, $packid) = split('::', $jn);
-	$powerjobs{$job} = 1 if $powerpkgs{$packid};
+	$powerjobs{$job} = $powerpkgs{$packid} if $powerpkgs{$packid};
       }
       if (%powerjobs) {
 	# bring em to front!
-	@b = ((grep {$powerjobs{$_}} @b), (grep {!$powerjobs{$_}} @b));
+	my @nb = grep {!$powerjobs{$_}} @b;
+	@b = grep {$powerjobs{$_}} @b;
+	@b = sort {$powerjobs{$a} <=> $powerjobs{$b}} @b;
+	push @b, @nb;
       }
     }
     my %srcchange = map {$_ => 1} @srcchange;
