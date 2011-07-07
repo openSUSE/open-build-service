@@ -109,7 +109,7 @@ class RenameDebugFlagToDebuginfo < ActiveRecord::Migration
            
            puts "[MIGRATION PROJECT-FLAGUPDATE] #{project.name} \t old: #{old_flags} \t new: #{new_flags}"
            ActiveRecord::Base.logger.debug "[MIGRATION PROJECT-FLAGUPDATE] #{project.name} \t old: #{old_flags} \t new: #{new_flags}"
-       end
+        end
 
       rescue Suse::Frontend::UnspecifiedError => error
         puts error.to_s

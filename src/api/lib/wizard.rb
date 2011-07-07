@@ -59,7 +59,7 @@ class Wizard
     @data[name] = value
 # to be removed
     case name
-    when "name":
+    when "name"
       if value =~ /^perl-/i
         @guess["packtype"] = "perl"
       elsif value =~ /^python-/i

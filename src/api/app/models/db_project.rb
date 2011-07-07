@@ -277,7 +277,7 @@ class DbProject < ActiveRecord::Base
     def store_axml( project )
       dbp = nil
       DbProject.transaction do
-        if not (dbp = DbProject.find_by_name project.name)
+        if !(dbp = DbProject.find_by_name(project.name))
           dbp = DbProject.new( :name => project.name.to_s )
         end
         dbp.store_axml( project )
@@ -492,7 +492,7 @@ class DbProject < ActiveRecord::Base
             raise SaveError, "illegal role name '#{ge.role}'"
           end
 
-          if not (group=Group.find_by_title(ge.groupid))
+          if !(group=Group.find_by_title(ge.groupid))
             # check with LDAP
             if defined?( LDAP_MODE ) && LDAP_MODE == :on
               if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on

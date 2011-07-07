@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
@@ -412,7 +413,7 @@ class SourceControllerTest < ActionController::IntegrationTest
    # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => project)
     assert_response response1
-    if not ( response2 and tag2 )
+    if !( response2 && tag2 )
       #dummy write to check blocking
       put url_for(:action => :project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 403 #4
@@ -632,7 +633,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
     assert_response response1
 
-    if not ( response2 and tag2 )
+    if !( response2 && tag2 )
       #dummy write to check blocking
       put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
@@ -840,7 +841,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
     get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
     assert_response response1
-    if not (response2 or tag2 or response3 or select3)
+    if !(response2 || tag2 || response3 || select3)
       #dummy write to check blocking
       put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404

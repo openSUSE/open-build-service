@@ -11,9 +11,9 @@ class MemoryDumper
      @toexit = 1
      old_handler.call if old_handler
    }
- end
+  end
  
- def call(env)
+  def call(env)
    ret = @app.call(env)
    if @toexit == 1
      pid = Process.pid
@@ -27,7 +27,7 @@ class MemoryDumper
      @toexit = 0
    end
    ret
- end
+  end
 end
 
 

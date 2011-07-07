@@ -8,7 +8,12 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 require 'tasks/rails'
-require 'delayed/tasks'
+begin
+  require 'delayed/tasks'
+rescue LoadError
+  puts "delayed tasks not available"
+end
+
 begin
   require 'ci/reporter/rake/test_unit'
 rescue LoadError

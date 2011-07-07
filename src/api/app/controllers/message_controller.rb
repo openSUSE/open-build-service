@@ -14,7 +14,7 @@ class MessageController < ApplicationController
     if request.get?
 
       if id = params[:id]
-        @messages = [ Message.find id ]
+        @messages = [ Message.find(id) ]
       elsif @package
         @messages = @package.messages
       elsif @project

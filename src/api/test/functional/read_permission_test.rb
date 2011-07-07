@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
@@ -398,7 +399,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
- end
+  end
 
   def test_create_links_hidden_project
     # user without any special roles

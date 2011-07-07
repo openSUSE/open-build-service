@@ -969,5 +969,5 @@ module UserMixins
         end
       end
     end
-  end
+end
 end

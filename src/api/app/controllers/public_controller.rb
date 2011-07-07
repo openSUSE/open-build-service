@@ -181,9 +181,9 @@ class PublicController < ApplicationController
           end
 
           @binary_links[dist_id][:binary] ||= []
-          binary_map[repo.name].each do |binary|
-            binary_type = binary.method_missing(:type)
-            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => binary.arch, :url => download_url(binary.filepath)}
+          binary_map[repo.name].each do |b|
+            binary_type = b.method_missing(:type)
+            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.arch, :url => download_url(b.filepath)}
             if @binary_links[dist_id][:repository].blank?
               repo_filename = (binary_type == 'rpm') ? "#{@pkg.db_project.name}.repo" : ''
               repository_path = File.join(@pkg.db_project.download_name, repo.name, repo_filename)

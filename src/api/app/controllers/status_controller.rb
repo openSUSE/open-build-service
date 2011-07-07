@@ -95,7 +95,7 @@ class StatusController < ApplicationController
         b.data.attributes['project'] = "---"
         b.data.attributes['repository'] = "---"
         b.data.attributes['package'] = "---"
-     end
+      end
     end
     send_data data.dump_xml
   end
@@ -264,8 +264,8 @@ class StatusController < ApplicationController
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(sproj.name)
     sources.each do |key, value|
-      if targets.has_key?(key): 
-          tocheck_repos << sources[key]
+      if targets.has_key?(key)
+        tocheck_repos << sources[key]
       end
     end
 
@@ -413,7 +413,7 @@ class StatusController < ApplicationController
 	  end
         end
 
-        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1:
+        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
           buildcode='failed' # has to be
         end
  

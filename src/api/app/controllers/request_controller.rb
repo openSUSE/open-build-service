@@ -339,11 +339,11 @@ class RequestController < ApplicationController
 
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
           newPackages.each do |pkg|
-            newTargets.each do |prj|
+            newTargets.each do |p|
               newAction = action.clone
               newAction.add_element 'target' unless newAction.has_element? 'target'
               newAction.source.data.attributes["package"] = pkg
-              newAction.target.data.attributes["project"] = prj
+              newAction.target.data.attributes["project"] = p
               newAction.target.data.attributes["package"] = pkg + incident_suffix
               req.add_node newAction.data
             end

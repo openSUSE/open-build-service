@@ -402,7 +402,7 @@ class User < ActiveRecord::Base
         rels = ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN roles_static_permissions rolperm ON rolperm.role_id = project_group_role_relationships.role_id", 
                                                   :conditions => ["rolperm.static_permission_id = ? and db_project_id = ?", static_permission_id, object],
                                                   :include => :group
-      end    
+    end    
 
     for rel in rels
       return false if rel.group.nil?
@@ -423,7 +423,7 @@ class User < ActiveRecord::Base
       when DbProject
         rels = ProjectGroupRoleRelationship.find :all, :conditions => ["db_project_id = ? and role_id = ?", object, role],
                                                      :include => [:group]
-      end
+    end
     for rel in rels
       return false if rel.group.nil?
       #check whether current user is in this group
@@ -465,7 +465,7 @@ class User < ActiveRecord::Base
         end
 
         return false
-      end
+    end
     return false
   end
 

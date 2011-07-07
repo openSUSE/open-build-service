@@ -151,7 +151,7 @@ class TagcloudTest < ActiveSupport::TestCase
           assert_equal 1, tag.count, "Wrong tag-count for #{tag.name}."
         else
           flunk "Unexpected tag in this tag-cloud."
-        end
+      end
     end
     
     
@@ -178,7 +178,7 @@ class TagcloudTest < ActiveSupport::TestCase
           assert_equal 1, tag.count, "Wrong tag-count for #{tag.name}."
         else
           flunk "Unexpected tag in this tag-cloud."
-        end
+      end
     end
   end
   
