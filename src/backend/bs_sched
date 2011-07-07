@@ -1346,7 +1346,21 @@ sub compile_exportfilter {
 #
 
 sub update_dst_full {
-  my ($prp, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath) = @_;
+  my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+
+  # check for lock
+  if ($projpacks->{$projid} && $projpacks->{$projid}->{'package'} && $projpacks->{$projid}->{'package'}->{$packid}) {
+    my $locked = 0;
+    $locked = enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked) if $projpacks->{$projid}->{'lock'};
+    my $pdata = $projpacks->{$projid}->{'package'}->{$packid};
+    $locked = enabled($repoid, $pdata->{'lock'}, $locked) if $pdata->{'lock'};
+    if ($locked) {
+      print "    package is locked\n";
+      return;
+    }
+  }
 
   my $jobrepo;
   my @jobfiles;
@@ -1399,9 +1413,6 @@ sub update_dst_full {
 	unlink("$dst/$f") ;
       }
     }
-    my ($projid, $repoid) = split('/', $prp, 2);
-    my $packid = $dst;
-    $packid =~ s/^.*\///s;
     # we only check 'sourceaccess', not 'access' here. 'access' has
     # to be handled anyway, so we don't gain anything by limiting
     # source access.
@@ -1510,7 +1521,6 @@ sub update_dst_full {
     # if move to full is also disabled for them
     for my $exportarch (sort keys %exports) {
       # check if this prp supports the arch
-      my ($projid, $repoid) = split('/', $prp, 2);
       next unless $projpacks->{$projid};
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
@@ -2428,7 +2438,7 @@ sub jobfinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -2491,7 +2501,7 @@ sub aggregatefinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -2573,7 +2583,7 @@ sub uploadbuildevent {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -2601,7 +2611,7 @@ sub importevent {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
@@ -4494,7 +4504,7 @@ while(1) {
 	my $useforbuildenabled = 1;
 	$useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
         $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-	update_dst_full($prp, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
+	update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
         delete $repounchanged{$prp};
 	# delete other files
 	unlink("$gdst/:logfiles.success/$packid");
@@ -4577,7 +4587,7 @@ while(1) {
 	  next unless $useforbuildenabled;
 	  my $meta = "$gdst/:meta/$packid";
           undef $meta unless -s $meta;
-	  update_dst_full($prp, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
+	  update_dst_full($prp, $packid, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
 	}
 	for $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
@@ -4972,7 +4982,7 @@ while(1) {
     # delete full entries
     my $useforbuildenabled = 1;
     $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-    update_dst_full($prp, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
+    update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
     $changed_med{$prp} = 2;
     sendrepochangeevent($prp);
     # delete other files
@@ -5161,6 +5171,8 @@ while(1) {
 
   my $projbuildenabled = 1;
   $projbuildenabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1) if $projpacks->{$projid}->{'build'};
+  my $projlocked = 0;
+  $projlocked = enabled($repoid, $projpacks->{$projid}->{'lock'}, 0) if $projpacks->{$projid}->{'lock'};
 
   # fetch relsync data
   my $relsyncmax;
@@ -5263,21 +5275,28 @@ while(1) {
 
     if ($pdata->{'build'}) {
       if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled)) {
-	if ($projbuildenabled) {
-	  print "      - $packid (disabled)\n";
-	} else {
-	  print "      - $packid (disabled on project level, not enabled)\n";
-	}
 	$packstatus{$packid} = 'disabled';
 	next;
       }
     } else {
       if (!$projbuildenabled) {
-	print "      - $packid (disabled on project level)\n";
 	$packstatus{$packid} = 'disabled';
 	next;
       }
     }
+
+    if ($pdata->{'lock'}) {
+      if (enabled($repoid, $pdata->{'lock'}, $projlocked)) {
+        $packstatus{$packid} = 'locked';
+        next;
+      }
+    } else {
+      if ($projlocked) {
+        $packstatus{$packid} = 'locked';
+        next;
+      }
+    }
+
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
     if (!$info) {
@@ -5685,8 +5704,8 @@ relsynccheck:
 	delete $ourjobs{$job};
 	next;
       }
-      if ($status eq 'disabled' || $status eq 'excluded') {
-        print "        killing old job $job, now in disabled/excluded state\n";
+      if ($status eq 'disabled' || $status eq 'excluded' || $status eq 'locked') {
+        print "        killing old job $job, now in disabled/excluded/locked state\n";
         killjob($job);
       } elsif ($status eq 'blocked' || $status eq 'unresolvable' || $status eq 'broken') {
         # blocked jobs get removed, if they are currently not building. building jobs
