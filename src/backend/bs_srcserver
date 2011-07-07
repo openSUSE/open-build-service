@@ -6171,7 +6171,15 @@ sub sourceinfo {
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
     die("no source uploaded\n") if !$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq 'd41d8cd98f00b204e9800998ecf8427e';
-    $files = lsrev($rev);
+    my $linkinfo = {};
+    $files = lsrev($rev, $linkinfo);
+    if ($linkinfo->{'xservicemd5'}) {
+      $files = handleservice($rev, $files, $linkinfo->{'xservicemd5'});
+      $r->{'srcmd5'} = $rev->{'srcmd5'};
+      my $meta = '';
+      $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+      $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+    }
     die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
     die("source update failed\n") if $files->{'_service_error'};
   };
