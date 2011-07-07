@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class LinkedProjectTest < ActiveSupport::TestCase
   fixtures :linked_projects, :db_projects
