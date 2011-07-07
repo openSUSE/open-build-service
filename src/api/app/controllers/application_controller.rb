@@ -433,7 +433,8 @@ class ApplicationController < ActionController::Base
   # default uses logger.fatal, but we have too many unknown object exceptions to make that useful
   # in production
   def log_error(exception)
-    if exception === DbProject::UnknownObjectError || exception == DbPackage::UnknownObjectError
+    case exception
+    when DbProject::UnknownObjectError, DbPackage::UnknownObjectError
       logger.debug("\n#{exception.class} (#{exception.message}):\n  " +
                    clean_backtrace(exception).join("\n  ") + "\n\n")
     else
