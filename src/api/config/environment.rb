@@ -77,6 +77,10 @@ Rails::Initializer.run do |config|
   end
 
   # See Rails::Configuration for more options
+  config.after_initialize do
+    ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
+    ExceptionNotifier.sender_address = CONFIG["exception_sender"]
+  end unless Rails.env.test?
 end
 
 # rake gems:install doesn't load initializers, load options manually if CONFIG is undefined
@@ -116,9 +120,6 @@ ActiveXML::Base.config do |conf|
 
   end
 end
-
-ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
-ExceptionNotifier.sender_address = CONFIG["exception_sender"]
 
 if defined? API_DATE
   CONFIG['version'] = api_version + ".git" + API_DATE
