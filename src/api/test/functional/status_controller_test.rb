@@ -43,7 +43,7 @@ class StatusControllerTest < ActionController::IntegrationTest
    
     get "/status/messages" 
     messages = ActiveXML::XMLNode.new @response.body
-    assert 0, messages.each.size
+    assert_equal 0, messages.each.size
   end
 
   def test_workerstatus

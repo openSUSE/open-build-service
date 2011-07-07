@@ -286,7 +286,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     puts @response.body if debug
     assert_response delresp if delresp
     get url_for(:controller => :source, :action => :package_meta, :project => "#{destprj}", :package => "#{destpkg}")
-    put "/source/#{destprj}/#{destpkg}/_meta", orig
+    put "/source/#{destprj}/#{destpkg}/_meta", orig.dup
   end
   protected :do_test_copy_package
 

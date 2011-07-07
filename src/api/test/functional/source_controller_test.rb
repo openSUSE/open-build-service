@@ -456,7 +456,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kde5' ) 
     put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
-    assert_response(:success, message="--> #{name} was not allowed to create a project")
+    assert_response(:success, message="--> king was not allowed to create a project")
     assert_tag( :tag => "status", :attributes => { :code => "ok" })
 
     # Get data again and check that the maintainer was added
@@ -1886,7 +1886,7 @@ end
     assert_response 404
 
     # check if package creation is doing the right thing
-    put "/source/home:tom:temporary/kdelibs/_meta", meta
+    put "/source/home:tom:temporary/kdelibs/_meta", meta.dup
     assert_response :success
     delete "/source/home:tom:temporary/kdelibs"
     assert_response :success

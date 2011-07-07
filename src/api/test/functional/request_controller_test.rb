@@ -507,7 +507,7 @@ end
     assert_tag :tag => "status", :attributes => { :code => "delete_error" }
 
     # cleanup
-    put "/source/home:Iggy/TestPack/_meta", oldmeta
+    put "/source/home:Iggy/TestPack/_meta", oldmeta.dup
     assert_response :success
   end
 

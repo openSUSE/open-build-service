@@ -109,7 +109,7 @@ class InterConnectTests < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     get "/source/RemoteInstance/_meta"
     assert_response :success
-    put "/source/RemoteInstance/_meta", @response.body
+    put "/source/RemoteInstance/_meta", @response.body.dup
     assert_response :success
 
     # cleanup     
