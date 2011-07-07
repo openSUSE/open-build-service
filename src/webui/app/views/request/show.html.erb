@@ -218,9 +218,11 @@
       </p>
       <p>
         <%= hidden_field_tag("id", @id) %>
-        <% if @is_maintainer %>
-          <% linked = @target_pkg.linked_to if @target_pkg -%>
+        <% if @is_author %>
+          <%= submit_tag "Revoke request", :name => 'revoked' %>
+        <% elsif @is_maintainer %>
           <% if !@diff_error -%>
+            <% linked = @target_pkg.linked_to if @target_pkg -%>
             <% if linked and not linked.empty? and @req.action.data["type"] == "submit" -%>
               <%= hidden_field_tag("forward_project", linked[0]) %>
               <%= hidden_field_tag("forward_package", linked[1]) %>
@@ -233,8 +235,6 @@
             <% end %>
           <% end %>
           <%= submit_tag "Decline request", :name => 'declined' %>
-        <% elsif @is_author %>
-          <%= submit_tag "Revoke request", :name => 'revoked' %>
         <% end %>
       </p>
     <% end %>
