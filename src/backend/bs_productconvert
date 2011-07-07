@@ -1191,7 +1191,7 @@ if (defined($product->{migrationtarget})){
   # enforce correct upgrade product name
   for my $upgrade ( @{$product->{upgrades}->{upgrade}||[]} ) {
     $upgrade->{name} = $productname;
-    $upgrade->{product} = $productname;
+    $upgrade->{product} = $packagename;
   }
 
   mkdir_p( "$outdir/_product:$productname" ) || die ("Unable to create migration directory\n");
