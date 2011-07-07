@@ -1262,9 +1262,7 @@ foreach my $medium ( @$media ){
     if ( defined(@{$medium->{archsets}}) ) {
       my @archSets = @{$medium->{archsets}};
       foreach my $arch ( @archSets ) {
-          my $buildflags;
           my @archs;
-          $buildflags->{'disable'} = [{}]; # disabled by default
       
           my $kiwi = Storable::dclone(\%generalImage);
 	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
@@ -1304,7 +1302,6 @@ foreach my $medium ( @$media ){
                   push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
               }
           }
-          $buildflags->{'enable'} = \@archs;
 
           # add implicit the release packages to media
           if ( $kiwi->{instsource}->{repopackages}[0] && (!defined($medium->{'skip_release_package'}) || $medium->{'skip_release_package'} ne "true") ){
