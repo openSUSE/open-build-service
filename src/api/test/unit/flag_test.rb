@@ -31,7 +31,10 @@ class FlagTest < ActiveSupport::TestCase
     f = Flag.find_by_repo("999.999")
     assert_kind_of Flag, f
     
-    assert_equal '<enable repository="999.999" arch="i586"/>', f.to_xml(Builder::XmlMarkup.new)
+    generated_xml = f.to_xml(Builder::XmlMarkup.new)
+    # there is no guarantee on the order
+    assert ('<enable repository="999.999" arch="i586"/>' == generated_xml ||
+            '<enable arch="i586" repository="999.999"/>' == generated_xml)
     
   end
   
