@@ -4,6 +4,25 @@ require 'source_controller'
 class MaintenanceTests < ActionController::IntegrationTest 
   fixtures :all
   
+  def test_create_maintenance_project
+    ActionController::IntegrationTest::reset_auth 
+    prepare_request_with_user "tom", "thunder"
+    
+    put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" > <title/> <description/> </project>'
+    assert_response :success
+    put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> </project>'
+    assert_response :success
+    delete "/source/home:tom:maintenance"
+    assert_response :success
+
+    put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> </project>'
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:tom:maintenance" 
+    assert_response :success
+  end
+
   def test_branch_package
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
