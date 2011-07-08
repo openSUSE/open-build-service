@@ -463,7 +463,7 @@ class ProjectController < ApplicationController
     f=File.open(outdir + "/rebuild.png")
     png=f.read
     f.close 
-    @pngkey = MD5::md5( params.to_s )
+    @pngkey = Digest::MD5.hexdigest( params.to_s )
     Rails.cache.write("rebuild-%s.png" % @pngkey, png)
     f=File.open(outdir + "/longest.xml")
     longest = ActiveXML::LibXMLNode.new(f.read)

@@ -1,4 +1,4 @@
-require 'md5'
+require 'digest/md5'
 
 require 'action_view/helpers/asset_tag_helper.rb'
 module ActionView
@@ -112,7 +112,7 @@ module ApplicationHelper
   end
 
   def gravatar_image(email, size=20)
-    hash = MD5::md5(email.downcase)
+    hash = Digest::MD5.hexdigest(email.downcase)
     return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=#{size}&d=" + image_url('local/default_face.png'), 
       :alt => "Gravatar for #{email}", :width => size, :height => size
   end
