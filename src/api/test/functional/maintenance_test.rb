@@ -200,8 +200,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # accept request
     prepare_request_with_user "maintenance_coord", "power"
@@ -222,14 +222,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_not_nil node.repository.data
+    assert_not_nil node.repository.element_name
     # repository definition must be the same, except for the maintenance trigger
     node.each_repository do |r|
-      assert_equal r.releasetarget.data.attributes["trigger"], "maintenance"
+      assert_equal r.releasetarget.value("trigger"), "maintenance"
       r.releasetarget.delete_attribute("trigger")
     end
-    assert_equal node.repository.data, oprojectmeta.repository.data
-    assert_equal node.build.data, oprojectmeta.build.data
+    assert_equal node.repository.dump_xml, oprojectmeta.repository.dump_xml
+    assert_equal node.build.dump_xml, oprojectmeta.build.dump_xml
 
     get "/source/#{maintenanceProject}"
     assert_response :success
@@ -398,8 +398,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    reqid = node.data['id']
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
 
     # source packages got locked
     [ "pack2.BaseDistro2", "pack2.BaseDistro3", "patchinfo" ].each do |pack|
@@ -473,8 +473,8 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    reqid = node.data['id']
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
 
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
@@ -504,8 +504,8 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    reqid = node.data['id']
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
 
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"

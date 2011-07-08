@@ -92,9 +92,9 @@ class StatusController < ApplicationController
       # no prj -> we are not allowed
       if prj.nil?
         logger.debug "workerstatus2clean: hiding #{b.project} for user #{@http_user.login}"
-        b.data.attributes['project'] = "---"
-        b.data.attributes['repository'] = "---"
-        b.data.attributes['package'] = "---"
+        b.set_attribute('project', "---")
+        b.set_attribute('repository', "---")
+        b.set_attribute('package', "---")
       end
     end
     send_data data.dump_xml

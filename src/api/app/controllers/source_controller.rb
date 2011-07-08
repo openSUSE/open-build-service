@@ -487,7 +487,7 @@ class SourceController < ApplicationController
       # init
       begin
         req = BsRequest.new(request.body.read)
-        req.data # trigger XML parsing
+        req.element_name # trigger XML parsing
       rescue ActiveXML::ParseError => e
         render_error :message => "Invalid XML",
           :status => 400, :errorcode => "invalid_xml"

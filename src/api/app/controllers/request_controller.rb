@@ -332,9 +332,9 @@ class RequestController < ApplicationController
                   :message => "Current sources are broken"
                 return
               end
-              newAction.source.set_attribute("rev", = rev)
+              newAction.source.set_attribute("rev", rev)
             end
-            req.add_node newAction.data
+            req.add_node newAction
           end
 
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
@@ -345,7 +345,7 @@ class RequestController < ApplicationController
               newAction.source.set_attribute("package", pkg)
               newAction.target.set_attribute("project", p)
               newAction.target.set_attribute("package", pkg + incident_suffix)
-              req.add_node newAction.data
+              req.add_node newAction
             end
           end
 
@@ -607,25 +607,25 @@ class RequestController < ApplicationController
     if reviewers.length > 0
       reviewers.each do |r|
         e = req.add_element "review"
-        e.data.attributes["by_user"] = r.login
-        e.data.attributes["state"] = "new"
+        e.set_attribute "by_user", r.login
+        e.set_attribute "state", "new"
       end
     end
     review_groups.uniq!
     if review_groups.length > 0
       review_groups.each do |g|
         e = req.add_element "review"
-        e.data.attributes["by_group"] = g.title
-        e.data.attributes["state"] = "new"
+        e.set_attribute "by_group", g.title
+        e.set_attribute "state", "new"
       end
     end
     review_packages.uniq!
     if review_packages.length > 0
       review_packages.each do |p|
         e = req.add_element "review"
-        e.data.attributes["by_project"] = p[:by_project]
-        e.data.attributes["by_package"] = p[:by_package] if p[:by_package]
-        e.data.attributes["state"] = "new"
+        e.set_attribute "by_project", p[:by_project]
+        e.set_attribute("by_package", p[:by_package]) if p[:by_package]
+        e.set_attribute "state", "new"
       end
     end
 
@@ -662,15 +662,15 @@ class RequestController < ApplicationController
           # OBS 2.1 adds acceptinfo on request accept
           path = "/source/%s/%s?cmd=diff" %
                [CGI.escape(action.target.project), CGI.escape(action.target.package)]
-          if action.acceptinfo.data.attributes["xsrcmd5"]
-            path += "&rev=" + action.acceptinfo.data.attributes["xsrcmd5"]
+          if action.acceptinfo.value("xsrcmd5")
+            path += "&rev=" + action.acceptinfo.value("xsrcmd5")
           else
-            path += "&rev=" + action.acceptinfo.data.attributes["srcmd5"]
+            path += "&rev=" + action.acceptinfo.value("srcmd5")
           end
-          if action.acceptinfo.data.attributes["oxsrcmd5"]
-            path += "&orev=" + action.acceptinfo.data.attributes["oxsrcmd5"]
-          elsif action.acceptinfo.data.attributes["osrcmd5"]
-            path += "&orev=" + action.acceptinfo.data.attributes["osrcmd5"]
+          if action.acceptinfo.value("oxsrcmd5")
+            path += "&orev=" + action.acceptinfo.value("oxsrcmd5")
+          elsif action.acceptinfo.value("osrcmd5")
+            path += "&orev=" + action.acceptinfo.value("osrcmd5")
           else
             # md5sum of empty package
             path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
@@ -750,7 +750,7 @@ class RequestController < ApplicationController
       # old style, convert to new style on the fly
       node = req.submit
       node.data.name = 'action'
-      node.data.attributes['type'] = 'submit'
+      node.set_attribute('type', 'submit')
       req.delete_attribute('type')
     end
 
@@ -776,7 +776,7 @@ class RequestController < ApplicationController
     if params[:cmd] == "changestate"
        if params[:newstate] == "new" and req.has_element? 'review'
           req.each_review do |r|
-            params[:newstate] = "review" if r.data.attributes['state'] == "new"
+            params[:newstate] = "review" if r.value('state') == "new"
           end
        end
     end
@@ -901,7 +901,7 @@ class RequestController < ApplicationController
           target_project = DbProject.get_by_name(action.target.project)
           if action.value("type") == "change_devel" and not action.target.has_attribute? :package
             render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+              :message => "Target package is missing in request #{req.id} (type #{action.value('type')})"
             return
           end
           if action.source.has_attribute? :package or action.value("type") == "change_devel"
@@ -911,7 +911,7 @@ class RequestController < ApplicationController
           if [ "change_devel" ].include? action.value("type")
             unless source_package
               render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Local source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+                :message => "Local source package is missing for request #{req.id} (type #{action.value('type')})"
               return
             end
           end
@@ -919,7 +919,7 @@ class RequestController < ApplicationController
           if source_package.nil? and [ "submit" ].include? action.value("type")
             unless DbPackage.exists_by_project_and_name( source_project.name, action.source.package, follow_project_links=true, allow_remote_packages=true)
               render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+                :message => "Source package is missing for request #{req.id} (type #{action.value('type')})"
               return
             end
           end
@@ -950,7 +950,7 @@ class RequestController < ApplicationController
            if ( source_package and not @http_user.can_modify_package? source_package ) or
               ( not source_package and not @http_user.can_modify_project? source_project )
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
+               :message => "No permission to revoke request #{req.id} (type #{action.value('type')})"
              return
            end
         end
@@ -976,7 +976,7 @@ class RequestController < ApplicationController
         end
       else
         render_error :status => 400, :errorcode => "post_request_no_permission",
-          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.value('type')})"
         return
       end
 
@@ -1002,7 +1002,7 @@ class RequestController < ApplicationController
 
       # abort immediatly if we want to write and can't.
       if params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] and not write_permission_in_this_action
-        msg = "No permission to modify target of request #{req.id} (type #{action.data.attributes['type']}): project #{action.target.project}"
+        msg = "No permission to modify target of request #{req.id} (type #{action.value('type')}): project #{action.target.project}"
         msg += ", package #{action.target.package}" if action.target.has_attribute? :package
         render_error :status => 403, :errorcode => "post_request_no_permission",
           :message => msg
@@ -1248,7 +1248,7 @@ class RequestController < ApplicationController
 
         # update request with real target project
         # FIXME2.3: Discuss this, changing the target on state change is not nice, but avoids an extra element/attribute
-        action.target.data["project"] = incident.db_project.name
+        action.target.set_attribute("project", incident.db_project.name)
         req.save
 
       elsif action.value("type") == "maintenance_release"

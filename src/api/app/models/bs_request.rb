@@ -3,12 +3,12 @@ class BsRequest < ActiveXML::Base
 
   # override Object#type to get access to the request type attribute
   def type(*args, &block)
-    data[:type]
+    self.value(:type)
   end
 
   # override Object#id to get access to the request id attribute
   def id(*args, &block)
-    data[:id]
+    self.value(:id)
   end
 
   def creator
@@ -28,15 +28,15 @@ class BsRequest < ActiveXML::Base
 
     self.each_review do |r|
       if r.has_attribute? 'by_user'
-        return true if user.login == r.data.attributes["by_user"]
+        return true if user.login == r.value("by_user")
       elsif r.has_attribute? 'by_group'
-        return true if user.is_in_group? r.data.attributes["by_group"]
+        return true if user.is_in_group? r.value("by_group")
       elsif r.has_attribute? 'by_project'
         if r.has_attribute? 'by_package'
-           pkg = DbPackage.find_by_project_and_name r.data.attributes["by_project"], r.data.attributes["by_package"]
+           pkg = DbPackage.find_by_project_and_name r.value("by_project"), r.value("by_package")
            return true if pkg and user.can_modify_package? pkg
         else
-           prj = DbProject.find_by_name r.data.attributes["by_project"]
+           prj = DbProject.find_by_name r.value("by_project")
            return true if prj and user.can_modify_project? prj
         end
       end
@@ -50,9 +50,12 @@ class BsRequest < ActiveXML::Base
 
     if self.has_element? 'submit' and self.has_attribute? 'type'
       # old style, convert to new style on the fly
-      node = self.submit
-      node.data.name = 'action'
-      node.data.attributes['type'] = 'submit'
+      node = self.submit.dump_xml
+      node.sub!('<submit ', '<action ')
+      puts node
+      self.delete_element('submit')
+      node = self.add_node(node)
+      node.set_attribute('type', 'submit')
       self.delete_attribute('type')
     end
   end

@@ -285,8 +285,8 @@ class InterConnectTests < ActionController::IntegrationTest
                                  </request>'
       assert_response :success
       node = ActiveXML::XMLNode.new(@response.body)
-      assert_equal node.has_attribute?(:id), true
-      id = node.data['id']
+      assert node.has_attribute?(:id)
+      id = node.value('id')
 
       # ignores the review state
       post "/request/#{id}?cmd=changestate&newstate=accepted"
