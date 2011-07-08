@@ -343,31 +343,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=i586&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=enable"
     assert_response :success
 
-    # create release request
-    post "/request?cmd=create", '<request>
-                                   <action type="maintenance_release">
-                                     <source project="' + maintenanceProject + '" />
-                                   </action>
-                                   <state name="new" />
-                                 </request>'
-    assert_response :success
-    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
-    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
-    node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    reqid = node.data['id']
-
-    # source packages got locked
-    [ "pack2.BaseDistro2", "pack2.BaseDistro3", "patchinfo" ].each do |pack|
-      get "/source/#{maintenanceProject}/#{pack}/_meta"
-      assert_response :success
-      assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
-    end
-
     ### the backend is now building the packages, injecting results
     perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
     # run scheduler once to create job file. x86_64 scheduler gets no work
@@ -404,6 +379,31 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     # FIXME2.3: we have an "id" tag, but without content. Shall this really exist here ?
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
+
+    # create release request
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="' + maintenanceProject + '" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
+    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2." + incidentID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.has_attribute?(:id), true
+    reqid = node.data['id']
+
+    # source packages got locked
+    [ "pack2.BaseDistro2", "pack2.BaseDistro3", "patchinfo" ].each do |pack|
+      get "/source/#{maintenanceProject}/#{pack}/_meta"
+      assert_response :success
+      assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    end
 
     # release packages
     prepare_request_with_user "king", "sunflower"
