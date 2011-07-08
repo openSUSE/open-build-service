@@ -360,8 +360,7 @@ class DbProject < ActiveRecord::Base
       self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
       self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
       self.updated_at = Time.now
-      kind = "standard"
-      kind = project.data.attributes['kind'] unless project.data.attributes['kind'].blank?
+      kind = project.value('kind') || "standard"
       project_type = DbProjectType.find_by_name(kind)
       raise SaveError, "unable to find project kind '#{kind}'" if project_type.nil?
       self.type_id = project_type.id
