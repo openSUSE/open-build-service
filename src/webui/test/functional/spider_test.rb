@@ -433,7 +433,7 @@ module SpiderIntegrator
   SpiderIntegrator::Form = Struct.new( :method, :action, :query, :source )
 end 
 
-require File.dirname(__FILE__) + '/../test_helper'        
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
 
 class SpiderTest < ActionController::IntegrationTest
 
