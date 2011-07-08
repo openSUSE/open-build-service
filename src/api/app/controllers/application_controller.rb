@@ -186,7 +186,7 @@ class ApplicationController < ActionController::Base
         authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
       end
 
-      logger.debug( "AUTH: #{authorization}" )
+      logger.debug( "AUTH: #{authorization.inspect}" )
 
       if authorization and authorization[0] == "Basic"
         # logger.debug( "AUTH2: #{authorization}" )

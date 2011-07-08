@@ -121,7 +121,8 @@ class DbPackage < ActiveRecord::Base
       dbp = nil
       DbPackage.transaction do
         project_name = package.parent_project_name
-        if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
+        dbp = DbPackage.find_by_project_and_name(project_name, package.name)
+        unless dbp
           pro = DbProject.find_by_name project_name
           raise SaveError, "unknown project '#{project_name}'" unless pro
           dbp = DbPackage.new( :name => package.name.to_s )

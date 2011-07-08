@@ -404,7 +404,7 @@ class User < ActiveRecord::Base
                                                   :include => :group
     end    
 
-    for rel in rels
+    rels.each do |rel|
       return false if rel.group.nil?
       #check whether current user is in this group
       return true if user_in_group_ldap?(self.login, rel.group.title) 
