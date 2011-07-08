@@ -40,14 +40,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
 
-    # branch a package which does exist in update project
+    # branch a package which does exist in update project and even have a devel package defined there
     post "/source/BaseDistro/pack2", :cmd => :branch
     assert_response :success
     # check source link
-    get "/source/home:tom:branches:BaseDistro:Update/pack2/_link"
+    get "/source/home:tom:branches:Devel:BaseDistro:Update/pack2/_link"
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.project, "BaseDistro:Update"
+    assert_equal ret.project, "Devel:BaseDistro:Update"
     assert_equal ret.package, "pack2"
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
@@ -122,6 +122,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro:Update", :package => "pack2" }
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro/_history"
+    assert_response :success
+    assert_tag :tag => "comment", :content => "fetch updates from devel package"
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }

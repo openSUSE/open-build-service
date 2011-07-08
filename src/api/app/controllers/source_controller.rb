@@ -1216,6 +1216,7 @@ class SourceController < ApplicationController
       branch_target_package = pac.name
       proj_name = branch_target_project.gsub(':', '_')
       pack_name = branch_target_package.gsub(':', '_') + "." + proj_name
+      devel_package = nil
 
       # check for update project
       if not params[:request] and a = p[:target_project].find_attribute(name_parts[0], name_parts[1]) and a.values[0]
@@ -1225,6 +1226,10 @@ class SourceController < ApplicationController
           branch_target_project = pac.db_project.name
           branch_target_project = pac.db_project.name
           branch_target_package = pac.name
+          if pac.develpackage
+            # verify read permissions, so get the object again
+            devel_package = DbPackage.get_by_project_and_name(pac.develpackage.db_project.name, pac.develpackage.name)
+          end
         else
           # package exists not yet in update project, but it may have a project link ?
           if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=true )
@@ -1266,7 +1271,12 @@ class SourceController < ApplicationController
       tpkg.store
 
       # branch sources in backend
-      Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
+      Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}&user=#{CGI.escape(@http_user.login)}", nil
+
+      # fetch newer sources from devel package, if defined
+      if devel_package
+        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(devel_package.db_project.name)}&opackage=#{CGI.escape(devel_package.name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
+      end
     end
 
     # store project data in DB and XML
