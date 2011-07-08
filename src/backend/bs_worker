@@ -193,6 +193,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --xen       : enable xen
 
+       --lxc       : enable lxc
+
        --tmpfs     : uses tmpfs (memory) for for the build root
 
        --device    : set kvm or xen root device (default is <root>/root file)
@@ -316,6 +318,11 @@ while (@ARGV) {
   }
   if ($ARGV[0] eq '--xen') {
     $vm = ' --xen';
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--lxc') {
+    $vm = 'lxc';
     shift @ARGV;
     next;
   }
@@ -1519,7 +1526,7 @@ sub dobuild {
   }
 
   push @args, "$statedir/build/build";
-  if ($vm) {
+  if ($vm =~ /(xen|kvm)/) {
     # add a bit delay - not all workers should start at the same time after idle.
     sleep (int(rand(5)) + 1); 
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
@@ -1534,6 +1541,9 @@ sub dobuild {
     push @args, '--vmdisk-rootsize', $vmdisk_rootsize if $vmdisk_rootsize;
     push @args, '--vmdisk-swapsize', $vmdisk_swapsize if $vmdisk_swapsize;
     push @args, '--vmdisk-filesystem', $vmdisk_filesystem if $vmdisk_filesystem;
+  } elsif ($vm =~ /lxc/) {
+    push @args, '--root', $buildroot;
+    push @args, '--vm-type', $vm;
   } else {
     push @args, '--root', $buildroot;
   }
@@ -1580,7 +1590,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm) {
+  if ($vm =~ /(xen|kvm)/) {
     rm_rf("$buildroot/.build.packages");
     if (! -d "$buildroot/.mount/.build.packages") {
       # old style, call extractbuild
