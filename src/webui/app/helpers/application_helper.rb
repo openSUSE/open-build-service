@@ -25,7 +25,7 @@ module ActionView
         return super(_source)
       end
       source=Pathname.new("#{RAILS_ROOT}/public#{source}").realpath
-      source="/" + Pathname.new(source).relative_path_from(real_public)
+      source="/" + Pathname.new(source).relative_path_from(real_public).to_s
       Rails.logger.debug "using themed file: #{_source} -> #{source}"
       source = super(source)
       @@icon_cache[_source] = source
