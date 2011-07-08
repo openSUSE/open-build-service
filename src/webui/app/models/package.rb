@@ -228,11 +228,6 @@ class Package < ActiveXML::Base
     @serviceinfo
   end
 
-  def linked_to
-    return [linkinfo.project, linkinfo.package] if linkinfo
-    return []
-  end
-
   def self.current_xsrcmd5(project, package )
     Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_cached( :project => project, :package => package )

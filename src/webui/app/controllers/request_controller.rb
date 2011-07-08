@@ -116,38 +116,14 @@ class RequestController < ApplicationController
     end
 
     changestate = nil
-    %w{forward accepted declined revoked}.each do |s|
+    ['accepted', 'declined', 'revoked'].each do |s|
       if params.has_key? s
         changestate = s
         break
       end
     end
 
-    Directory.free_cache( :project => @req.action.target.project, :package => @req.action.target.value('package') )
-
-    if changestate == 'forward' # special case
-      description = @req.description.text
-      logger.debug 'request ' +  @req.dump_xml
-
-      if @req.has_element? 'state'
-        who = @req.state.data["who"].to_s
-        description += " (forwarded request %d from %s)" % [params[:id], who]
-      end
-
-      if not change_request('accepted', params)
-        redirect_to :action => :show, :id => params[:id] and return
-      end
-    
-      add_maintainer(@req) if params[:add_submitter_as_maintainer]
-      rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
-      @req = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
-        :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
-      @req.save(:create => true)
-      Rails.cache.delete "requests_new"
-      flash[:note] = "Request #{params[:id]} accepted and forwarded"
-      redirect_to :controller => :request, :action => :show, :id => @req.data["id"] and return
-    end
-
+    Directory.free_cache(:project => @req.action.target.project, :package => @req.action.target.value('package'))
     if change_request(changestate, params)
       if params[:add_submitter_as_maintainer]
         if changestate != 'accepted'
@@ -157,8 +133,26 @@ class RequestController < ApplicationController
         end
       end
     end
+    flash[:note] = "Request #{params[:id]} accepted"
 
-    redirect_to :action => :show, :id => params[:id]
+    # Check if we have to forward this request to other projects / packages
+    params.keys.grep(/^forward_.*/).each do |fwd|
+      tgt_prj, tgt_pkg = fwd.split('_', 2)[1].split('_#_') # split off 'forward_' and split into project and package
+      description = @req.description.text
+      if @req.has_element? 'state'
+        who = @req.state.data["who"].to_s
+        description += " (forwarded request %d from %s)" % [params[:id], who]
+      end
+
+      rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
+      @req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+                           :project => @req.action.target.project, :package => @req.action.target.package,
+                           :rev => rev, :description => description)
+      @req.save(:create => true)
+      Rails.cache.delete('requests_new')
+      flash[:note] += " and forwarded to #{tgt_prj}"
+    end
+    redirect_to :action => 'show', :id => params[:id]
   end
 
   def diff
