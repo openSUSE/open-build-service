@@ -1,5 +1,5 @@
 
-<h3 class="centered">Welcome to the <%= @configuration['title'] %></h3>
+<h3 class="centered">Welcome to Open Build Service <%= @configuration['title'] %></h3>
 
 
 <% if !session[:login] -%>
@@ -9,7 +9,7 @@
 
 <% if session[:login] -%>
   <%= link_to 'My Projects', {:controller => "home", :action => :list_my}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
-  <%= link_to "Requests (#{@nr_involved_requests})", {:controller => "home", :action => :list_requests}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <%= link_to "Requests", {:controller => "home", :action => :list_requests}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
 <% end %>
 
 
