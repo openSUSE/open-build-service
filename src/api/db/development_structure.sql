@@ -192,30 +192,6 @@ CREATE TABLE `delayed_jobs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `distribution_icons` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `width` int(11) NOT NULL,
-  `height` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-CREATE TABLE `distribution_icons_distributions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `distribution_id` int(11) DEFAULT NULL,
-  `distribution_icon_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-CREATE TABLE `distributions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `vendor` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `version` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 CREATE TABLE `download_stats` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) DEFAULT NULL,
@@ -802,8 +778,6 @@ INSERT INTO schema_migrations (version) VALUES ('20110615083666');
 INSERT INTO schema_migrations (version) VALUES ('20110627001200');
 
 INSERT INTO schema_migrations (version) VALUES ('20110628095456');
-
-INSERT INTO schema_migrations (version) VALUES ('20110629101603');
 
 INSERT INTO schema_migrations (version) VALUES ('20110703001200');
 
