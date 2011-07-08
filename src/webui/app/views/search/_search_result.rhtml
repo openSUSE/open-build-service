@@ -9,38 +9,38 @@
   <table cellspacing='1' id="search_result" >
     <% i = 1 %>
 
-    <% @results.each do |@result| %>
+    <% @results.each do |result| %>
 
       <tr class='<% if i%2 != 0 %>odd<% end %>' valign='top'>
         <% i += 1 %>
 
         <td>
           <p>
-          <% if @result[:type] == 'project' %>
+          <% if result[:type] == 'project' %>
 
             <%= image_tag('project.png') %>
-            <strong><%= link_to "#{@result[:data].name}", { :controller => 'project',
-              :action => :show, :project => @result[:data] } -%></strong>
+            <strong><%= link_to "#{result[:data].name}", { :controller => 'project',
+              :action => :show, :project => result[:data] } -%></strong>
 
-          <% elsif @result[:type] == 'package' %>
+          <% elsif result[:type] == 'package' %>
 
             <%= image_tag('package.png') %>
-            <strong><%= link_to "#{@result[:data].name}", { :controller => 'package',
-              :action => :show, :package => @result[:data], :project => @result[:data].project } -%></strong>
-            (project <%= link_to @result[:data].project, { :controller => 'project',
-              :action => :show, :project => @result[:data].project } -%>)
+            <strong><%= link_to "#{result[:data].name}", { :controller => 'package',
+              :action => :show, :package => result[:data], :project => result[:data].project } -%></strong>
+            (project <%= link_to result[:data].project, { :controller => 'project',
+              :action => :show, :project => result[:data].project } -%>)
 
           <% end %>
 
-          <% if @result[:data].has_element?( 'title' ) && !@result[:data].title.to_s.empty? %>
-            ( <%= highlight( h(@result[:data].title.to_s.dup), @search_text ) -%> )
+          <% if result[:data].has_element?( 'title' ) && !result[:data].title.to_s.empty? %>
+            ( <%= highlight( h(result[:data].title.to_s.dup), @search_text ) -%> )
           <% end %>
          </p>
 
-          <% if @result[:data].has_element?( 'description' ) && !@result[:data].description.to_s.empty? %>
+          <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
             <p>
-            <% descr = @result[:data].description.to_s.dup[0,150] + '...' if not
-            descr = excerpt( @result[:data].description.to_s.dup, @search_text, 150 ) %>
+            <% descr = result[:data].description.to_s.dup[0,150] + '...' if not
+            descr = excerpt( result[:data].description.to_s.dup, @search_text, 150 ) %>
 
             <% descr.split(/\n/).each do |line| -%>
               <%= highlight( h(line), @search_text) -%><br/>
