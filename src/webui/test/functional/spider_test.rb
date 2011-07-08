@@ -413,9 +413,9 @@ module SpiderIntegrator
     dest.gsub!(/([?]\d+)$/, '') # fix asset caching
     unless dest =~ %r{^(http://|mailto:|#|&#)} 
       dest = dest.split('#')[0] if dest.index("#") # don't want page anchors
-      next unless dest.any?
+      return if dest.empty?
       return if spider_should_ignore_url?( dest )
-      @links_to_visit << SpiderIntegrator::Link.new( dest, source ) if dest.any? # could be empty, make sure there's no empty links queueing
+      @links_to_visit << SpiderIntegrator::Link.new( dest, source ) # could be empty, make sure there's no empty links queueing
     end
   end
 
