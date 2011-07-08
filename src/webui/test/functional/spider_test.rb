@@ -72,9 +72,11 @@ module SpiderIntegrator
       value = mutate ? nil : input['value'] 
 
       return value || case input['name']
-        when /amount/: rand(10000) - 5000
-        when /_id$/:   rand(500)
-        when /uploaded_data/: # attachment_fu
+        when /amount/ 
+           rand(10000) - 5000
+        when /_id$/   
+           rand(500)
+        when /uploaded_data/ # attachment_fu
           nil
         when nil
           # wtf!
@@ -339,7 +341,7 @@ module SpiderIntegrator
           
         @stacktraces[next_link.uri] = @response.body
       end
-      @response.each { |body| consume_page( body, next_link.uri ) }
+      @response.each { |chunk| consume_page( chunk, next_link.uri ) }
       @visited_urls[next_link.uri] = true
     end
 

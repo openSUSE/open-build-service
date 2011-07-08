@@ -132,7 +132,7 @@ class UserController < ApplicationController
     if params[:current_password] == params[:new_password]
       errmsg = "The new password is the same as your current password. Please enter the new password again."
     end
-    if errmsg:
+    if errmsg
       flash[:error] = errmsg
       redirect_to :controller => :user, :action => :change_my_password
       return

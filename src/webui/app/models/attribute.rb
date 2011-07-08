@@ -1,6 +1,6 @@
 class Attribute < ActiveXML::Base
 
- class << self
+  class << self
     def make_stub( opt )
 
      reply = "<attributes></attributes>"

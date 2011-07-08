@@ -1050,13 +1050,13 @@ class ProjectController < ApplicationController
     end
     return nil unless dir
     changes = []
-    dir.each_entry do |e|
-      name = e.name.to_s
+    dir.each_entry do |entry|
+      name = entry.name.to_s
       if name =~ /.changes$/
         if name == package + ".changes"
-          return e.md5.to_s
+          return entry.md5.to_s
         end
-        changes << e.md5.to_s
+        changes << entry.md5.to_s
       end
     end
     if changes.size == 1
