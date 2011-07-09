@@ -55,15 +55,15 @@ class Project < ActiveXML::Base
       project, repository = path.split("/")
       @paths.push path
       e = add_element('path')
-      e.data.attributes['repository'] = repository
-      e.data.attributes['project'] = project
+      e.set_attribute('repository', repository)
+      e.set_attribute('project', project)
     end
 
     def remove_path (path)
       return nil unless paths.include? path
       project, repository = path.split("/")
       each_path do |p|
-        delete_element p if p.data.attributes['project'] == project and p.data.attributes['repository'] == repository
+        delete_element p if p.value('project') == project && p.value('repository') == repository
       end
       @paths.delete path
     end
@@ -99,10 +99,6 @@ class Project < ActiveXML::Base
       set_paths new_paths
     end
 
-    #    def name= (name)
-    #      data.attributes['name'] = name
-    #    end
-
   end
 
   #check if named project exists
@@ -126,43 +122,26 @@ class Project < ActiveXML::Base
     return false unless opt[:userid] and opt[:role]
     logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if( has_element? :remoteurl )
-      elem_cache = split_data_after :remoteurl
-    else
-      elem_cache = split_data_after :description
-    end
-
-    #add the new person
     add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
-    merge_data elem_cache
   end
 
   def add_group(opt={})
     return false unless opt[:groupid] and opt[:role]
     logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if has_element?(:remoteurl)
-      elem_cache = split_data_after :remoteurl
-    else
-      elem_cache = split_data_after :description
-    end
-
     # add the new group
     add_element 'group', 'groupid' => opt[:groupid], 'role' => opt[:role]
-    merge_data elem_cache
   end
 
   def set_remoteurl(url)
     logger.debug "set remoteurl"
 
     delete_element 'remoteurl'
-    elem_cache = split_data_after :description
 
     unless url.nil?
       add_element 'remoteurl'
       remoteurl.text = url
     end
-    merge_data elem_cache
   end
 
   #removes persons based on attributes
@@ -174,7 +153,7 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.find(xpath.to_s).each {|e| e.remove!}
+    find(xpath.to_s) {|e| delete_element e}
   end
 
   def remove_group(opt={})
@@ -185,7 +164,7 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing groups using xpath '#{xpath}'"
-    data.find(xpath.to_s).each {|e| e.remove!}
+    find(xpath.to_s) {|e| delete_element e}
   end
 
   def add_path_to_repository(opt={})
@@ -349,16 +328,16 @@ class Project < ActiveXML::Base
   end
 
   def name
-    @name ||= data.attributes['name']
+    @name ||= value('name')
   end
 
   def project_type
-    return data.attributes['kind']
+    return value('kind')
   end
 
   def set_project_type(project_type)
     if ['maintenance', 'maintenance_incident', 'standard'].include?(project_type)
-      data.attributes['kind'] = project_type
+      set_attribute('kind', project_type)
       return true
     end
     return false

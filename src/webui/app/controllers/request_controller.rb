@@ -44,10 +44,10 @@ class RequestController < ApplicationController
       redirect_back_or_to :controller => "home", :action => "list_requests" and return
     end
 
-    @id = @req.data.attributes["id"]
-    @state = @req.state.data.attributes["name"]
+    @id = @req.value("id")
+    @state = @req.state.value("name")
     @is_author = @req.creator == session[:login]
-    @superseded_by = @req.state.data.attributes["superseded_by"] if @req.state.has_attribute? :superseded_by and not @req.state.data.attributes["superseded_by"].empty?
+    @superseded_by = @req.state.value("superseded_by")
     @newpackage = []
 
     @is_reviewer = false
@@ -74,7 +74,7 @@ class RequestController < ApplicationController
     @is_maintainer = nil
     @contains_submit_action = false
     @req.each_action do |action|
-      if action.data.attributes["type"] == "submit"
+      if action.value("type") == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
         @contains_submit_action = true
@@ -140,7 +140,7 @@ class RequestController < ApplicationController
       tgt_prj, tgt_pkg = fwd.split('_', 2)[1].split('_#_') # split off 'forward_' and split into project and package
       description = @req.description.text
       if @req.has_element? 'state'
-        who = @req.state.data["who"].to_s
+        who = @req.state.value("who")
         description += " (forwarded request %d from %s)" % [params[:id], who]
       end
 
@@ -190,7 +190,7 @@ class RequestController < ApplicationController
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+    redirect_to :controller => :request, :action => :show, :id => req.value("id")
   end
 
   def add_role_request_dialog
@@ -209,7 +209,7 @@ class RequestController < ApplicationController
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+    redirect_to :controller => :request, :action => :show, :id => req.value("id")
   end
 
 private

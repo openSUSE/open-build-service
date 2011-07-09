@@ -25,10 +25,10 @@
             <% else %>
               <span><%= h path.project + "/" + path.repository %></span>
               <% if repository.each_path.length > 1 %>
-                <% if path.data != repository.each_path.first.data %>
+                <% if path != repository.each_path.first %>
                     <%= link_to(image_tag('icons/arrow_up.png'), {:action => :move_path_up, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>
                 <% end %>
-                <% if path.data != repository.each_path.last.data %>
+                <% if path != repository.each_path.last %>
                     <%= link_to(image_tag('icons/arrow_down.png'), {:action => :move_path_down, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>
                 <% end %>
               <% end %>

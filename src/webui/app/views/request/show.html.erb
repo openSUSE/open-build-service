@@ -31,7 +31,7 @@
     <tbody>
       <% @req.each_action do |ae| %>
         <tr>
-          <td><%= ae.data.attributes["type"] %></td>
+          <td><%= ae.value(:type) %></td>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> -->
               <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
@@ -60,14 +60,14 @@
             <% else %>
               <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
                 <%= link_to(elide(ae.target.package, 64), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-              <% elsif ae.data.attributes[:type] == "delete" %>
+              <% elsif ae.value(:type) == "delete" %>
                 This project
               <% end %>
             <% end %>
           <% end %>
           </td>
           <td>
-            <% if ae.data.attributes["type"] == "add_role" %>
+            <% if ae.value(:type) == "add_role" %>
               <% if ae.has_element? :group %>
                 Role <b><%= ae.group.role %></b> for <b><%= ae.group.name %></b>
               <% elsif ae.has_element? :person %>
@@ -214,7 +214,7 @@
             <%= check_box_tag(:add_submitter_as_maintainer) %> Add
             <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
           <% end %>
-          <% if !@diff_error and @req.action.data["type"] == "submit" and @target_pkg %>
+          <% if !@diff_error and @req.action.value("type") == "submit" and @target_pkg %>
             <% linkinfo = @target_pkg.linkinfo %>
             <% if linkinfo %>
               <%= check_box_tag("forward_#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package

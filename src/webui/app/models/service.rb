@@ -241,7 +241,7 @@ class Service < ActiveXML::Base
     fc = FrontendCompat.new
     if data.find("/services/service").count > 0
       logger.debug "storing _service file"
-      fc.put_file self.data.to_s, opt
+      fc.put_file self.dump_xml, opt
       opt.delete :filename
       opt[:cmd] = "runservice"
       fc.do_post nil, opt

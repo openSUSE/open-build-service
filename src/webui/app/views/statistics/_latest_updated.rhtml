@@ -29,9 +29,9 @@
         <% title = "updated " +
           distance_of_time_in_words_to_now( Time.parse( item.updated ) ) +
           " ago" %>
-        <% if item.data.to_s =~ /^<package / %>
+        <% if item.element_name == 'package' %>
           <%= link_to_package_view( item.name, item.project, title, length ) -%>
-        <% elsif item.data.to_s =~ /^<project / %>
+        <% elsif item.element_name == 'project' %>
           <%= link_to_project_view( item.name, title, length ) -%>
         <% end %>
       </li>

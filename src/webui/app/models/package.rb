@@ -68,15 +68,8 @@ class Package < ActiveXML::Base
     return false unless opt[:groupid] and opt[:role]
     logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if has_element?(:remoteurl)
-      elem_cache = split_data_after :remoteurl
-    else
-      elem_cache = split_data_after :description
-    end
-
     # add the new group
     add_element('group', 'groupid' => opt[:groupid], 'role' => opt[:role])
-    merge_data elem_cache
   end
 
   #removes persons based on attributes

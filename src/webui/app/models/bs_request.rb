@@ -131,7 +131,7 @@ class BsRequest < ActiveXML::Base
       requests = Collection.find_cached :what => :request, :predicate => pred
       last = nil
       requests.each_request do |r|
-        last = r if not last or Integer(r.data[:id]) > Integer(last.data[:id])
+        last = r if not last or r.value(:id).to_i > last.value(:id).to_i
       end
       return last
     end

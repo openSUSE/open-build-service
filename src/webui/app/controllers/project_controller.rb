@@ -169,8 +169,8 @@ class ProjectController < ApplicationController
   def new_incident
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
-      result = XML::Document.string(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
-      target_project = result.find_first("/status/data[@name='targetproject']").content
+      result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
+      result.find("/status/data[@name='targetproject']") { |n| target_project = n.text }
     rescue ActiveXML::Transport::Error => e
       message, _, _ = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
@@ -220,12 +220,11 @@ class ProjectController < ApplicationController
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
+      ret = Array.new
       if buildresult
-        results = buildresult.data.find( 'result/status' )
-        results.map{|e| e.attributes['package'] }.uniq.size
-      else
-        0
+        buildresult.find( 'result/status' ) { |e| ret << e.value('package') }
       end
+      ret.uniq.size
     end
 
     linking_projects
@@ -469,7 +468,7 @@ class ProjectController < ApplicationController
     longest = ActiveXML::LibXMLNode.new(f.read)
     @timings = Hash.new
     longest.timings.each_package do |p|
-      @timings[p.value :name] = [p.value(:buildtime), p.value(:finished)]
+      @timings[p.value(:name)] = [p.value(:buildtime), p.value(:finished)]
     end
     @rebuildtime = Integer(longest.value :rebuildtime)
     f.close
@@ -491,9 +490,9 @@ class ProjectController < ApplicationController
   def rebuild_time_png
     redirect_to :action => "list_public" and return unless request.xhr?
     key = params[:key]
-    data = Rails.cache.read("rebuild-%s.png" % key)
+    png = Rails.cache.read("rebuild-%s.png" % key)
     headers['Content-Type'] = 'image/png'
-    send_data(data, :type => 'image/png', :disposition => 'inline')
+    send_data(png, :type => 'image/png', :disposition => 'inline')
   end
 
   def load_packages
@@ -1090,10 +1089,9 @@ class ProjectController < ApplicationController
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
-    attributes.data.find('/attribute/project/package/values').each do |p|
-      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-      p.each_element do |v|
-        comments[p.parent['name']] = v.content
+    attributes.find('/attribute/project/package/values') do |p|
+      p.each do |v|
+        comments[p.parent['name']] = v.text
       end
     end if attributes
 
@@ -1103,16 +1101,16 @@ class ProjectController < ApplicationController
     if @include_versions || @limit_to_old
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
-      attributes.data.find('//package//values').each do |p|
-        # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-        p.each_element do |v|
-          upstream_versions[p.parent['name']] = v.content
+      attributes.each_package do |p|
+        pname = p.value(:name)
+        p.each_value do |v|
+          upstream_versions[pname] = v.text
         end
       end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
-      attributes.data.find('//package//values').each do |p|
+      attributes.find('//package//values') do |p|
         # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
         p.each_element do |v|
           upstream_urls[p.parent['name']] = v.content
@@ -1127,12 +1125,12 @@ class ProjectController < ApplicationController
     @requests = Hash.new
     submits = Hash.new
     raw_requests.each_request do |r|
-      id = Integer(r.data['id'])
+      id = r.value('id').to_i
       @requests[id] = r
-      #logger.debug r.dump_xml + " " + (r.has_element?('action') ? r.action.data['type'] : "false")
-      if r.has_element?('action') && r.action.data['type'] == "submit"
-        target = r.action.target.data
-        key = target['project'] + "/" + target['package']
+      #logger.debug r.dump_xml + " " + (r.has_element?('action') ? r.action.value('type') : "false")
+      if r.has_element?('action') && r.action.value('type') == "submit"
+        target = r.action.target
+        key = target.value('project') + "/" + target.value('package')
         submits[key] ||= Array.new
         submits[key] << id
       end
@@ -1348,8 +1346,8 @@ class ProjectController < ApplicationController
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     if @is_maintenance_project
       @maintained_projects = []
-      @project.data.find("maintenance/maintains/@project").each do |maintained_project_name|
-        @maintained_projects << maintained_project_name.value
+      @project.find("maintenance/maintains") do |maintained_project_name|
+        @maintained_projects << maintained_project_name.value(:project)
       end
       @open_maintenance_incident_list = maintenance_incidents()
     end
@@ -1389,10 +1387,11 @@ class ProjectController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name}) \
-              + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name})
+    pname=@project.value(:name)
+    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
+              + BsRequest.list({:states => 'new', :roles => "target", :project => pname})
     if @is_maintenance_project
-      pred = "((state/@name='new') and starts-with(action/source/@project='#{@project.name}:') and (action/@type='maintenance_release'))"
+      pred = "((state/@name='new') and starts-with(action/source/@project='#{pname}:') and (action/@type='maintenance_release'))"
       requests = Collection.find_cached :what => :request, :predicate => pred
       requests.each_request do |r|
         @requests << r

@@ -10,10 +10,10 @@
       <% @latest_updates.each do |update| %>
         <tr>
           <td>
-            <% if update.data.name == 'package' %>
+            <% if update.element_name == 'package' %>
               <%= image_tag 'package.png' %>
               <%= link_to(elide(update.name, 20), :controller => 'package', :action => 'show', :project => update.project, :package => update.name) %>
-            <% elsif update.data.name == 'project' %>
+            <% elsif update.element_name == 'project' %>
               <%= image_tag 'project.png' %>
               <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => update.name) %>
             <% end %>

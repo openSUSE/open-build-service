@@ -10,20 +10,23 @@ class AttributeController < ApplicationController
       return
     end
     if params[:namespace] and params[:name]
-      selected_attribute = @attributes.data.find_first( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']")
+      selected_attribute = nil
+      @attributes.find( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']") { |n| selected_attribute = n }
       @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
-      @selected_attribute_value = selected_attribute.find("value").map{|value| value.content.strip}.join(', ') if selected_attribute
+      @selected_attribute_value = Array.new
+      selected_attribute.find("value") {|value| @selected_attribute_value << value.text } if selected_attribute
+      @selected_attribute_value = @selected_attribute_value.join(', ')
     else
       namespaces = find_cached(Attribute, :namespaces)
       attributes = []
       @attribute_list = []
       namespaces.each do |d|
-         attributes << find_cached(Attribute, :attributes, :namespace => d.data[:name].to_s, :expires_in => 10.minutes)
+         attributes << find_cached(Attribute, :attributes, :namespace => d.value(:name), :expires_in => 10.minutes)
       end
       attributes.each do |d|
         if d.has_element? :entry
           d.each do |f|
-            @attribute_list << "#{d.init_options[:namespace]}:#{f.data[:name]}"
+            @attribute_list << "#{d.init_options[:namespace]}:#{f.value(:name)}"
           end
         end
       end

@@ -188,9 +188,9 @@ class PackageController < ApplicationController
     if params[:supersede]
       pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => "new,review", :types => "submit")
       pending_requests.each do |request|
-        next if request.data[:id] == req.data[:id] # ignore newly created request
+        next if request.value(:id) == req.value(:id) # ignore newly created request
         begin
-          BsRequest.modify(request.data[:id], "superseded", :reason => "Superseded by request #{req.data[:id]}", :superseded_by => req.data[:id])
+          BsRequest.modify(request.value(:id), "superseded", :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
         rescue BsRequest::ModifyError => e
           flash[:error] = e.message
           redirect_to(:action => "list_requests", :project => params[:project], :package => params[:package]) and return
@@ -199,7 +199,7 @@ class PackageController < ApplicationController
     end
 
     Rails.cache.delete "requests_new"
-    redirect_to(:controller => "request", :action => "show", :id => req.data[:id])
+    redirect_to(:controller => "request", :action => "show", :id => req.value(:id))
   end
 
   def service_parameter

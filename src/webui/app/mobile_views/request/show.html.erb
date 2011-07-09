@@ -9,7 +9,7 @@
   <h3>Actions</h3>
 
   <% @req.each_action do |ae| %>
-    Type: <%= ae.data.attributes["type"] %> request <br/>
+    Type: <%= ae.value("type") %> request <br/>
     <% if ae.has_element? :source %>
       Source:
       <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 35) %>

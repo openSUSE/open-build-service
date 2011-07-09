@@ -34,7 +34,7 @@
 
         <% if @package.has_element? :devel %>
           <li>
-            <% dpackage = @package.devel.data["package"] || @package.name %>
+            <% dpackage = @package.devel.value("package") || @package.name %>
             <%= image_tag 'icons/information.png' %>
             Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
           </li>
