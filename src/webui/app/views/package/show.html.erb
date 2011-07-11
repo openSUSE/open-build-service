@@ -30,7 +30,7 @@
           </li>
         <% end %>
 
-        <li><%= render :partial => "shared/open_requests" %></li>
+        <%= render :partial => "shared/open_requests" %>
 
         <% if @package.has_element? :devel %>
           <li>

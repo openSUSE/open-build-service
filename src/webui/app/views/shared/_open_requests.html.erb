@@ -1,4 +1,5 @@
 <% unless @requests.blank? %>
+  <li>
   <%= image_tag("icons/information.png") %>
   <% if @requests.size == 1 %>
     1 <%= link_to("open request", :action => "show", :controller => "request", :id => @requests[0].value(:id)) %>
@@ -10,4 +11,5 @@
       <%= link_to("open request#{@requests.size > 1 ? "s" : ""}", :action => "list_requests", :project => @project) %>
     <% end %>
   <% end %>
+  </li>
 <% end %>
