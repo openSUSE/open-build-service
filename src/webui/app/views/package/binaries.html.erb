@@ -11,7 +11,7 @@
   <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
 </p>
 
-<% @buildresult.find('result') do |result|
+<% @buildresult.each('result') do |result|
      repocode='unknown'
      repocode=result.value('state') if result.has_element?('status') %>
 
@@ -21,7 +21,7 @@
     <p><i>No published binaries</i></p>
   <% else %>
     <ul>
-      <% result.find('binarylist/binary') do |binary| %>
+      <% result.each('binarylist/binary') do |binary| %>
         <% if binary.value('filename') == 'rpmlint.log' %>
           <li><%= binary.value('filename') %></li>
         <% else %>

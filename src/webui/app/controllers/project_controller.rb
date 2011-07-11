@@ -170,7 +170,7 @@ class ProjectController < ApplicationController
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
       result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
-      result.find("/status/data[@name='targetproject']") { |n| target_project = n.text }
+      result.each("/status/data[@name='targetproject']") { |n| target_project = n.text }
     rescue ActiveXML::Transport::Error => e
       message, _, _ = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
@@ -222,7 +222,7 @@ class ProjectController < ApplicationController
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       ret = Array.new
       if buildresult
-        buildresult.find( 'result/status' ) { |e| ret << e.value('package') }
+        buildresult.each( 'result/status' ) { |e| ret << e.value('package') }
       end
       ret.uniq.size
     end
@@ -1089,9 +1089,9 @@ class ProjectController < ApplicationController
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
-    attributes.find('/attribute/project/package/values') do |p|
-      p.each do |v|
-        comments[p.parent['name']] = v.text
+    attributes.each('/attribute/project/package') do |p|
+      p.find_first("values/value") do |v|
+        comments[p.value('name')] = v.text
       end
     end if attributes
 
@@ -1110,10 +1110,9 @@ class ProjectController < ApplicationController
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
-      attributes.find('//package//values') do |p|
-        # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-        p.each_element do |v|
-          upstream_urls[p.parent['name']] = v.content
+      attributes.each('/attribute/project/package') do |p|
+        p.find_first("values/value") do |v|
+          upstream_urls[p.value['name']] = v.text
         end
       end if attributes
     end
@@ -1346,7 +1345,7 @@ class ProjectController < ApplicationController
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     if @is_maintenance_project
       @maintained_projects = []
-      @project.find("maintenance/maintains") do |maintained_project_name|
+      @project.each("maintenance/maintains") do |maintained_project_name|
         @maintained_projects << maintained_project_name.value(:project)
       end
       @open_maintenance_incident_list = maintenance_incidents()

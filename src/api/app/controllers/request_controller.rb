@@ -334,7 +334,7 @@ class RequestController < ApplicationController
               end
               newAction.source.set_attribute("rev", rev)
             end
-            req.add_node newAction
+            req.add_node newAction.dump_xml
           end
 
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
@@ -345,7 +345,7 @@ class RequestController < ApplicationController
               newAction.source.set_attribute("package", pkg)
               newAction.target.set_attribute("project", p)
               newAction.target.set_attribute("package", pkg + incident_suffix)
-              req.add_node newAction
+              req.add_node newAction.dump_xml
             end
           end
 

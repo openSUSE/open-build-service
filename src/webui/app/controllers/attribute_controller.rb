@@ -11,10 +11,10 @@ class AttributeController < ApplicationController
     end
     if params[:namespace] and params[:name]
       selected_attribute = nil
-      @attributes.find( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']") { |n| selected_attribute = n }
+      selected_attribute = @attributes.find_first( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']")
       @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
       @selected_attribute_value = Array.new
-      selected_attribute.find("value") {|value| @selected_attribute_value << value.text } if selected_attribute
+      selected_attribute.each("value") {|value| @selected_attribute_value << value.text } if selected_attribute
       @selected_attribute_value = @selected_attribute_value.join(', ')
     else
       namespaces = find_cached(Attribute, :namespaces)
