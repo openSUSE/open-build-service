@@ -803,7 +803,7 @@ sub writeMigrationSPECfile( $$$$$ )
     $content.="License:        BSD 3-Clause\n";
     $content.="Group:          System/Fhs\n";
     $content.="Provides:       product()\n";
-    $content.="Provides:       product(%name) = %{version}-%{release}\n";
+    $content.="Provides:       product(".$mproduct->{name}.") = %{version}-%{release}\n";
     $content.="Requires:       product(".$product->{name}.") = ".$product->{version}."\n";
     $content.="AutoReqProv:    on\n";
     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
