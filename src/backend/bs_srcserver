@@ -5658,7 +5658,7 @@ sub postrequest {
       }
     }
   } elsif ($cmd eq 'changereviewstate') {
-    die("request is not in review state\n") unless $req->{'state'} && ($req->{'state'}->{'name'} eq "review" || ($req->{'state'}->{'name'} eq "new" && $cgi->{'newstate'} eq 'new'));
+    die("request is not in review state\n") unless $req->{'state'}->{'name'} eq "review" || ($req->{'state'}->{'name'} eq "new" && $cgi->{'newstate'} eq 'new');
     die("request review item is not specified via by_user, by_group or by_project\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'} and not $cgi->{'by_project'};
     die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
     die("review state must be new, accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
@@ -5678,11 +5678,11 @@ sub postrequest {
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
         $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
         $found = 1;
-        $go_new_state = 'new' if $go_new_state eq "review" and $r->{'state'} eq 'accepted';
-        $go_new_state = $r->{'state'} if $go_new_state eq "review"; # take decline
+        $go_new_state = 'new' if $go_new_state eq "review" && $r->{'state'} eq 'accepted';
+        $go_new_state = $r->{'state'} if $go_new_state eq "review" and $r->{'state'} ne 'new'; # take decline
       } else {
         # don't touch the request state if a review is still open, except the
-        # review got declined or superseded.
+        # review got declined or superseded or reopened.
         $go_new_state = '' if $r->{'state'} eq 'new' and $go_new_state ne 'declined' and $go_new_state ne 'superseded';
       }
     }
@@ -5692,7 +5692,7 @@ sub postrequest {
       if ($cgi->{'newstate'} eq 'superseded') { # superseded
          $req->{'state'} = {'name' => 'superseded'};
          $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
-      } else { # no open reviews anymore
+      } else { # either no open reviews anymore or going back to review
          $req->{'state'} = {'name' => $go_new_state} if $go_new_state;
       }
       $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};

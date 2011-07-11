@@ -822,9 +822,9 @@ class RequestController < ApplicationController
       # allow request creator to add further reviewers
       permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
     elsif params[:cmd] == "changereviewstate"
-      unless req.state.name == "review"
+      unless req.state.name == "review" or req.state.name == "new"
         render_error :status => 403, :errorcode => "review_change_state_no_permission",
-              :message => "The request is not in state review"
+                :message => "The request is neither in state review nor new"
         return
       end
       if params[:by_user]

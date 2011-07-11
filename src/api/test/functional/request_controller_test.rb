@@ -893,18 +893,43 @@ end
     prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
 
     # a review has been added because we are not maintainer of current devel package, accept it.
     prepare_request_with_user "king", "sunflower"
     get "/request/#{id}"
     assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
     assert_tag( :tag => "review", :attributes => { :by_project => "home:coolo:test", :by_package => "kdelibs_DEVEL_package" } )
-    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package"
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+
+    # reopen the review
+    prepare_request_with_user "tom", "thunder"
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    # and accept it again
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
 
     # validate our existing test data and fixtures
+    prepare_request_with_user "king", "sunflower"
     get "/source/home:Iggy/ToBeDeletedTestPack/_meta"
     assert_response :success
     get "/source/home:fred:DeleteProject/_meta"
