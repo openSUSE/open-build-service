@@ -45,6 +45,11 @@ namespace :db do
       end
 
       structure.gsub!(%r{AUTO_INCREMENT=[0-9]* }, '')
+      structure.gsub!('auto_increment', 'AUTO_INCREMENT')
+      structure.gsub!(%r{default([, ])}, 'DEFAULT\1')
+      structure.gsub!(' COLLATE=utf8_unicode_ci', '')
+      structure.gsub!(' COLLATE utf8_unicode_ci', '')
+      structure.gsub!(%r{KEY  *}, 'KEY ')
       structure += "\n"
       File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << structure }
     end
