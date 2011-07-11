@@ -329,7 +329,7 @@ class DbPackage < ActiveRecord::Base
       raise CycleError.new "Package defines itself as devel package"
       return nil
     end
-    while ( pkg.develproject or pkg.develpackage )
+    while ( pkg.develproject or pkg.develpackage or pkg.db_project.develproject )
       #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -344,17 +344,24 @@ class DbPackage < ActiveRecord::Base
       processed[str] = 1
       # get project and package name
       if pkg.develpackage
-        #logger.debug "pkg devel package #{pkg.develpackage.inspect}"
+        # A package has a devel package definition
         pkg = pkg.develpackage
         prj_name = pkg.db_project.name
-      else
-        #logger.debug "pkg devel project #{pkg.develproject.inspect}"
+      elsif pkg.develproject
+        # A package has a devel package definition via project name (not used anymore)
         # Supporting the obsolete, but not yet migrated devel project table
         prj = pkg.develproject
         prj_name = prj.name
-        pkg = prj.db_packages.find_by_name(pkg.name)
+        pkg = prj.db_packages.get_by_name(pkg.name)
         if pkg.nil?
-          raise CycleError.new "The devel project of #{str} does not contain package: #{prj_name}"
+          return nil
+        end
+      else
+        # Take project wide devel project definitions into account
+        prj = pkg.db_project.develproject
+        prj_name = prj.name
+        pkg = prj.db_packages.get_by_name(pkg.name)
+        if pkg.nil?
           return nil
         end
       end

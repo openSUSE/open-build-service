@@ -53,6 +53,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
 
+    # branch a package which does exist in update project and a stage project is defined via project wide devel project
+    post "/source/BaseDistro/pack3", :cmd => :branch
+    assert_response :success
+    # check source link
+    get "/source/home:tom:branches:Devel:BaseDistro:Update/pack3/_link"
+    assert_response :success
+    ret = ActiveXML::XMLNode.new @response.body
+    assert_equal ret.project, "Devel:BaseDistro:Update"
+    assert_equal ret.package, "pack3"
+    assert_not_nil ret.baserev
+    assert_not_nil ret.patches
+    assert_not_nil ret.patches.branch
+
     # branch a package which does not exist in update project, but update project is linked
     post "/source/BaseDistro2/pack2", :cmd => :branch
     assert_response :success
@@ -65,6 +78,10 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # check if we can upload a link to a packge only exist via project link
     put "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/pack2/_link", @response.body
+    assert_response :success
+
+    #cleanup
+    delete "/source/home:tom:branches:Devel:BaseDistro:Update"
     assert_response :success
   end
 

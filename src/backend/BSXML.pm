@@ -112,6 +112,9 @@ our $proj = [
 	'remoteurl',
 	'remoteproject',
 	'mountproject',
+      [ 'devel', =>
+	    'project',
+      ],
      [[ 'person' =>
             'role',
             'userid',

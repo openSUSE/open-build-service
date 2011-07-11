@@ -1226,15 +1226,16 @@ class SourceController < ApplicationController
           branch_target_project = pac.db_project.name
           branch_target_project = pac.db_project.name
           branch_target_package = pac.name
-          if pac.develpackage
-            # verify read permissions, so get the object again
-            devel_package = DbPackage.get_by_project_and_name(pac.develpackage.db_project.name, pac.develpackage.name)
-          end
+          # Do we have a devel package instance ?
+          devel_package = pac.resolve_devel_package
         else
           # package exists not yet in update project, but it may have a project link ?
           if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=true )
             prj = DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
+            if prj.develproject and p = prj.develproject.find_package(pac.name)
+              devel_package = p
+            end
           else
             render_error :status => 404, :errorcode => "unknown_package",
               :message => "branch source package does not exist in UpdateProject #{a.values[0].value}. Missing project link ?"
@@ -1825,15 +1826,21 @@ class SourceController < ApplicationController
           update_pkg = update_prj.find_package( pkg.name )
           if update_pkg
             # We have no package in the update project yet, but sources are reachable via project link
-            pkg = update_pkg
-            prj = update_prj
+            if update_prj.develproject and p = update_prj.develproject.find_package(pkg.name)
+              # nevertheless, check if update project has a devel project which contains an instance
+              pkg = p
+              prj = pkg.db_project
+            else
+              pkg = update_pkg
+              prj = update_prj
+            end
           end
         end
       end
     end
 
     # validate and resolve devel package or devel project definitions
-    if not params[:ignoredevel] and pkg and ( pkg.develproject or pkg.develpackage )
+    if not params[:ignoredevel] and pkg and ( pkg.develproject or pkg.develpackage or pkg.db_project.develproject )
       pkg = pkg.resolve_devel_package
       prj = pkg.db_project
       logger.debug "devel project is #{prj.name} #{pkg.name}"

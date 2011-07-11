@@ -163,9 +163,11 @@ CREATE TABLE `db_projects` (
   `remoteproject` varchar(255) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
   `type_id` int(11) DEFAULT NULL,
+  `develproject_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
-  KEY `updated_at_index` (`updated_at`)
+  KEY `updated_at_index` (`updated_at`),
+  KEY `devel_project_id_index` (`develproject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `db_projects_tags` (
@@ -779,7 +781,11 @@ INSERT INTO schema_migrations (version) VALUES ('20110627001200');
 
 INSERT INTO schema_migrations (version) VALUES ('20110628095456');
 
+INSERT INTO schema_migrations (version) VALUES ('20110629101603');
+
 INSERT INTO schema_migrations (version) VALUES ('20110703001200');
+
+INSERT INTO schema_migrations (version) VALUES ('20110711001200');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

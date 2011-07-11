@@ -820,6 +820,26 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_devel_project_cycle
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> </project>"
+    assert_response :success
+    put "/source/home:tom:B/_meta", "<project name='home:tom:B'> <title/> <description/> <devel project='home:tom:A'/> </project>"
+    assert_response :success
+    get "/source/home:tom:B/_meta"
+    assert_response :success
+    assert_tag :tag => 'devel', :attributes => { :project => 'home:tom:A' }
+    put "/source/home:tom:C/_meta", "<project name='home:tom:C'> <title/> <description/> <devel project='home:tom:B'/> </project>"
+    assert_response :success
+    # no self reference
+    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:A'/> </project>"
+    assert_response 400
+    # create a cycle via new package
+    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:C'/> </project>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "project_cycle"} )
+  end
+
   def test_devel_package_cycle
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
@@ -828,6 +848,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response :success
+    # no self reference
+    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
+    assert_response 400
     # create a cycle via new package
     put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
     assert_response 400

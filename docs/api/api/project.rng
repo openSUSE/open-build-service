@@ -9,6 +9,8 @@
     An optional list of persons
   group
     An optional list of groups
+  devel
+    An optional devel project
   build
     build flags
   publish
@@ -94,6 +96,13 @@
         <optional>
           <element ns="" name="remoteurl">
             <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="devel">
+            <attribute name="project"/>
+            <empty/>
           </element>
         </optional>
 

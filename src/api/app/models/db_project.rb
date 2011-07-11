@@ -31,9 +31,12 @@ class DbProject < ActiveRecord::Base
 
   has_one :db_project_type
 
-  # self-reference between projects and maintenance projects
+  # self-reference between devel projects and maintenance projects
   has_many :maintained_projects, :class_name => "DbProject", :foreign_key => "maintenance_project_id"
   belongs_to :maintenance_project, :class_name => "DbProject"
+
+  has_many  :develprojects, :class_name => "DbProject", :foreign_key => 'develproject_id'
+  belongs_to :develproject, :class_name => "DbProject"
 
   def download_name
     self.name.gsub(/:/, ':/')
@@ -397,9 +400,43 @@ class DbProject < ActiveRecord::Base
         position += 1
       end
       #--- end of linked projects update  ---#
+
+      #--- devel project ---#
+      self.develproject = nil
+      if project.has_element? :devel
+        if project.devel.has_attribute? 'project'
+          prj_name = project.devel.project.to_s
+          unless develprj = DbProject.get_by_name(prj_name)
+            raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+          end
+          if develprj == self
+            raise SaveError, "Devel project can not point to itself"
+          end
+          self.develproject = develprj
+
+        end
+      end
+      #--- end devel project ---#
       # FIXME: it would be nicer to store only as needed
       self.updated_at = Time.now
       self.save!
+      # cycle detection
+      prj = self
+      processed = {}
+      while ( prj and prj.develproject )
+        prj_name = prj.name
+        # cycle detection
+        if processed[prj_name]
+          str = ""
+          processed.keys.each do |key|
+            str = str + " -- " + key
+          end
+          raise CycleError.new "There is a cycle in devel definition at #{str}"
+          return nil
+        end
+        processed[prj_name] = 1
+        prj = prj.develproject
+      end
 
       #--- update users ---#
       usercache = Hash.new
@@ -947,6 +984,7 @@ class DbProject < ActiveRecord::Base
 
       project.remoteurl(remoteurl) unless remoteurl.blank?
       project.remoteproject(remoteproject) unless remoteproject.blank?
+      project.devel( :project => develproject.name ) unless develproject.nil?
 
       each_user do |u|
         project.person( :userid => u.login, :role => u.role_name )
