@@ -2247,6 +2247,10 @@ end
 
     get "/source/home:Iggy/TestPack/bnc#620675.diff"
     assert_response :success
+
+    #cleanup
+    delete "/source/home:Iggy/TestPack/bnc#620675.diff"
+    assert_response :success
   end
 
 end
