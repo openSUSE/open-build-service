@@ -161,8 +161,8 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
-  `maintenance_project_id` int(11) DEFAULT NULL,
   `type_id` int(11) DEFAULT NULL,
+  `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
@@ -446,30 +446,6 @@ CREATE TABLE `roles_users` (
 CREATE TABLE `schema_migrations` (
   `version` varchar(255) NOT NULL,
   UNIQUE KEY `unique_schema_migrations` (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `source_service_parameter_choices` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `source_service_parameter_id` int(11) DEFAULT NULL,
-  `value` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `source_service_parameters` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `source_service_id` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `required` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `source_services` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  `summary` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `static_permissions` (
@@ -765,23 +741,11 @@ INSERT INTO schema_migrations (version) VALUES ('20110519000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110527000000');
 
-INSERT INTO schema_migrations (version) VALUES ('20110527083007');
-
-INSERT INTO schema_migrations (version) VALUES ('20110527083666');
-
-INSERT INTO schema_migrations (version) VALUES ('20110609083665');
-
-INSERT INTO schema_migrations (version) VALUES ('20110609083666');
-
 INSERT INTO schema_migrations (version) VALUES ('20110615083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20110615083666');
 
 INSERT INTO schema_migrations (version) VALUES ('20110627001200');
-
-INSERT INTO schema_migrations (version) VALUES ('20110628095456');
-
-INSERT INTO schema_migrations (version) VALUES ('20110629101603');
 
 INSERT INTO schema_migrations (version) VALUES ('20110703001200');
 
