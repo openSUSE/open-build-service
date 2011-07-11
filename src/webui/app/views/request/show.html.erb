@@ -222,7 +222,7 @@
             <% end %>
             <% @target_pkg.developed_packages.each do |pkg| %>
               <% if not(linkinfo and linkinfo.project == pkg.project and linkinfo.package == pkg.name) %>
-                <%= check_box_tag("forward_#{valid_xml_id(pkg.project)}_#_#{valid_xml_id(pkg.name)}", true) %> Forward to developed package
+                <%= check_box_tag("forward_#{valid_xml_id(pkg.project)}_#_#{valid_xml_id(pkg.name)}", '', true) %> Forward to developed package
                 <%= link_to("#{pkg.project} / #{pkg.name}", :controller => 'package', :action => 'show', :project => pkg.project, :package => pkg.name) %><br/>
               <% end %>
             <% end %>
