@@ -210,7 +210,11 @@ module SpiderIntegrator
   # todo: use hpricot or something else more fun (we will need to validate 
   # the html in this case since HTML::Document does it by default)
   def consume_page( html, url )
-    body = HTML::Document.new html
+    begin
+      body = HTML::Document.new html
+    rescue
+      puts "HARDCORE!! #{url}"
+    end
     body.find_all(:tag=>'a').each do |tag|
       queue_link( tag, url ) unless tag['onclick']
     end
@@ -324,7 +328,7 @@ module SpiderIntegrator
         if exists = File.exist?(File.expand_path("#{RAILS_ROOT}/public/#{next_link.uri}"))
           console "STATIC: #{next_link.uri}"
           case File.extname(next_link.uri)
-          when /jpe?g|gif|psd|png|eps|pdf/
+          when /jpe?g|gif|psd|png|eps|pdf|css/
             console "Not parsing #{next_link.uri} because it looks like non-text" 
           when /html|te?xt|css|js/
             @response.body = File.open("#{RAILS_ROOT}/public/#{next_link.uri}").read
