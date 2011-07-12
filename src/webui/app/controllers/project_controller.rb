@@ -26,6 +26,7 @@ class ProjectController < ApplicationController
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
+  before_filter :require_maintenance_incident_lists, :only => [:show, :maintenance_incidents, :closed_maintenance_incidents]
 
   def index
     redirect_to :action => 'list_public'
@@ -1284,21 +1285,9 @@ class ProjectController < ApplicationController
   end
 
   def maintenance_incidents
-    @open_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
-      project.each_repository do |repo|
-        @open_maintenance_incident_list << project if repo.has_element?('releasetarget')
-      end
-    end
   end
 
   def closed_maintenance_incidents
-    @closed_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
-      project.each_repository do |repo|
-        @closed_maintenance_incident_list << project if not repo.has_element?('releasetarget')
-      end
-    end
   end
 
   private
@@ -1352,7 +1341,6 @@ class ProjectController < ApplicationController
       @project.each("maintenance/maintains") do |maintained_project_name|
         @maintained_projects << maintained_project_name.value(:project)
       end
-      @open_maintenance_incident_list = maintenance_incidents()
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
@@ -1386,6 +1374,22 @@ class ProjectController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Available architectures not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+    end
+  end
+
+  def require_maintenance_incident_lists
+    @open_maintenance_incident_list = []
+    @closed_maintenance_incident_list = []
+    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
+      has_releasetarget = false
+      project.each_repository do |repo|
+        has_releasetarget = true if repo.has_element?('releasetarget')
+      end
+      if has_releasetarget
+        @open_maintenance_incident_list << project
+      else
+        @closed_maintenance_incident_list << project
+      end
     end
   end
 
