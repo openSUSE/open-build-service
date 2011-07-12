@@ -1,3 +1,4 @@
+require 'base64'
 
 include MaintenanceHelper
 include ProductHelper
@@ -654,6 +655,7 @@ class RequestController < ApplicationController
     diff_text = ""
 
     req.each_action do |action|
+      action_diff = ''
       if ['submit', 'maintenance_release'].include?(action.value('type')) and action.target.project and action.target.package
         target_project = action.target.project
         target_package = action.target.package
@@ -699,22 +701,32 @@ class RequestController < ApplicationController
               path += "&rev=#{action.source.rev}"
             end
             if linked_tpkg
-              diff_text = "New package instance: " + target_project + "/" + target_package + " following diff contains diff to package from linked project.\n" + diff_text
+              action_diff = "New package instance: " + target_project + "/" + target_package + " following diff contains diff to package from linked project.\n" + action_diff
             end
           else
-            diff_text = "Additional package: " + target_project + "/" + target_package + "\n" + diff_text
+            action_diff = "Additional package: " + target_project + "/" + target_package + "\n" + action_diff
           end
         end
 
         begin
-          diff_text += Suse::Backend.post(path, nil).body if path
+          action_diff += Suse::Backend.post(path, nil).body if path
         rescue ActiveXML::Transport::Error => e
           render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
         end
       end
+      if params[:fullxml]
+        action.add_element('diff').text = Base64.encode64(action_diff) # XML comes with a price!
+        diff_text += action.dump_xml() + "\n"
+      else
+        diff_text += action_diff
+      end
     end
 
-    send_data(diff_text, :type => "text/plain")
+    if params[:fullxml]
+      send_data(diff_text, :type => "text/xml")
+    else
+      send_data(diff_text, :type => "text/plain")
+    end
   end
 
   def command_addreview
