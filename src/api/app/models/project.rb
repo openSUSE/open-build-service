@@ -18,11 +18,11 @@ class Project < ActiveXML::Base
   end
 
   def title=(new_title)
-    self.title.data.text = new_title.to_s
+    self.title.text = new_title.to_s
   end
 
   def description=(new_desc)
-    self.description.data.text = new_desc.to_s
+    self.description.text = new_desc.to_s
   end
 
   def disabled_for?(flag_type)

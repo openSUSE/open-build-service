@@ -690,7 +690,7 @@ class RequestController < ApplicationController
           if tpkg
             path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
                    [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
-            if action.source.data['rev']
+            if action.source.value('rev')
               path += "&rev=#{action.source.rev}"
             end
             if linked_tpkg
@@ -749,7 +749,7 @@ class RequestController < ApplicationController
     if req.has_element? 'submit' and req.has_attribute? 'type'
       # old style, convert to new style on the fly
       node = req.submit
-      node.data.name = 'action'
+      node.element_name = 'action'
       node.set_attribute('type', 'submit')
       req.delete_attribute('type')
     end
