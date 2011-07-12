@@ -662,9 +662,7 @@ class RequestController < ApplicationController
         # Ruby has no 'rsplit' method, needs elitist hack:
         target_package = target_package.split(/\.([^.]*)$/)[0] if action.value('type') == 'maintenance_release'
 
-        transport = ActiveXML::Config::transport_for(:request)
         path = nil
-
         if action.has_element? :acceptinfo
           # OBS 2.1 adds acceptinfo on request accept
           path = "/source/%s/%s?cmd=diff" %
@@ -711,11 +709,8 @@ class RequestController < ApplicationController
         begin
           diff_text += Suse::Backend.post(path, nil).body if path
         rescue ActiveXML::Transport::Error => e
-          render_error :status => 404, :errorcode => 'diff_failure',
-                       :message => "The diff call for #{path} failed"
-          return
+          render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
         end
-
       end
     end
 
