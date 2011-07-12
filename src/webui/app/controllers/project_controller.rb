@@ -243,12 +243,7 @@ class ProjectController < ApplicationController
 
   # TODO we need the architectures in api/distributions
   def add_repository_from_default_list
-    Rails.cache.delete("distributions") if discard_cache?
-    dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
-      frontend = ActiveXML::Config::transport_for( :package )
-      frontend.direct_http URI("/distributions"), :method => "GET"
-    end
-    @distributions = XML::Document.string dist_xml
+    @distributions = find_cached(Distribution, :all)
   end
 
   def add_repository

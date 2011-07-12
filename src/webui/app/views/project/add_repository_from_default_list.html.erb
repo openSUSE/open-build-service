@@ -18,16 +18,16 @@
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
 
-  <% vendors = @distributions.find( 'distribution/@vendor' ).map{|d| d.value}.uniq %>
+  <% vendors = @distributions.all_vendors %>
 
   <% vendors.each do |vendor| %>
     <h3><%= image_tag( "distributions/#{vendor.downcase}.png", :width => 40 ) %> <%=h vendor -%> distributions</h3>
     <p>
-      <% for dist in @distributions.find("distribution[@vendor='#{vendor}']")
-        name = dist.find('name').first.content
-        project = dist.find('project').first.content
-        repo = dist.find('repository').first.content
-        reponame = dist.find('reponame').first.content
+      <% @distributions.each("distribution[@vendor='#{vendor}']") do |dist|
+        name = dist.find_first('name').text
+        project = dist.find_first('project').text
+        repo = dist.find_first('repository').text
+        reponame = dist.find_first('reponame').text
         selected = false
         selected = true if @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
         -%>

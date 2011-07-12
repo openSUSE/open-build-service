@@ -135,6 +135,8 @@ ActiveXML::Base.config do |conf|
     map.connect :person, "rest:///person/:login"
     map.connect :group, "rest:///group/show/:name",
       :all => "rest:///group/"
+    map.connect :persongroup, "rest:///person/:login/group"
+
     map.connect :unregisteredperson, "rest:///person/register"
     map.connect :userchangepasswd, "rest:///person/changepasswd"
 
@@ -203,6 +205,8 @@ ActiveXML::Base.config do |conf|
     map.connect :projectstatus, 'rest:///status/project/:project'
 
     map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
+
+    map.connect :distribution, 'rest:///distributions', :all => 'rest:///distributions'
 
   end
   ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )

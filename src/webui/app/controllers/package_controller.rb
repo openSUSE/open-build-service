@@ -412,9 +412,9 @@ class PackageController < ApplicationController
     valid_http_methods(:post)
     begin
       path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
-      result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
-      result_project = result.find_first( "/status/data[@name='targetproject']" ).content
-      result_package = result.find_first( "/status/data[@name='targetpackage']" ).content
+      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST", :data => "" ))
+      result_project = result.find_first( "/status/data[@name='targetproject']" ).text
+      result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
@@ -473,7 +473,7 @@ class PackageController < ApplicationController
       begin
         path = "/source/#{CGI.escape(@linked_project)}/#{CGI.escape(@linked_package)}?cmd=branch&target_project=#{CGI.escape(@project.name)}&target_package=#{CGI.escape(@target_package)}"
         path += "&rev=#{CGI.escape(@revision)}" if @revision
-        result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
+        frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
         flash[:success] = "Branched package #{@project.name} / #{@target_package}"
       rescue ActiveXML::Transport::Error => e
         message, code, api_exception = ActiveXML::Transport.extract_error_message e

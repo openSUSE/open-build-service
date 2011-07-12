@@ -123,12 +123,12 @@ class Package < ActiveXML::Base
     fc = FrontendCompat.new
     answer = fc.do_post nil, opt
 
-    doc = XML::Parser.string(answer).parse
+    doc = ActiveXML::Base.new(answer)
     result = []
-    doc.find("/collection/package").each do |e|
+    doc.each("/collection/package") do |e|
       hash = {}
-      hash[:project] = e.attributes["project"]
-      hash[:package] = e.attributes["name"]
+      hash[:project] = e.value("project")
+      hash[:package] = e.value("name")
       result.push( hash )
     end
 
@@ -271,20 +271,20 @@ class Package < ActiveXML::Base
     end
 
     c = {}
-    doc = XML::Parser.string(answer).parse.root
-    doc.find("/revisionlist/revision").each do |s|
-         c[:revision]= s.attributes["rev"]
-         c[:user]    = s.find_first("user").content
-         c[:version] = s.find_first("version").content
-         c[:time]    = s.find_first("time").content
-         c[:srcmd5]  = s.find_first("srcmd5").content
+    doc = ActiveXML::Base.new(answer)
+    doc.each("/revisionlist/revision") do |s|
+         c[:revision]= s.value("rev")
+         c[:user]    = s.find_first("user").text
+         c[:version] = s.find_first("version").text
+         c[:time]    = s.find_first("time").text
+         c[:srcmd5]  = s.find_first("srcmd5").text
          c[:comment] = nil
          c[:requestid] = nil
          if comment=s.find_first("comment")
-           c[:comment] = comment.content
+           c[:comment] = comment.text
          end
          if requestid=s.find_first("requestid")
-           c[:requestid] = requestid.content
+           c[:requestid] = requestid.text
          end
          Rails.cache.fetch( cache_key ) { c } if cache_key and c[:revision]
     end

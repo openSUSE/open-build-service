@@ -103,22 +103,10 @@ class Person < ActiveXML::Base
   end
 
   def groups
-    cachekey = "#{login}_groups"
-    mygroups = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      groups=[]
-
-      path = "/person/#{login}/group"
-      frontend = ActiveXML::Config::transport_for( :person )
-      answer = frontend.direct_http URI(path), :method => "GET"
-
-      doc = XML::Parser.string(answer).parse.root
-      doc.find("/directory/entry").each do |e|
-        groups.push e.attributes["name"]
-      end
-
-      groups
+    mygroups = Array.new
+    PersonGroup.find(login.to_s).each('/directory/entry') do |e|
+        mygroups << e.value("name")
     end
-
     return mygroups
   end
 

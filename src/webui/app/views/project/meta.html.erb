@@ -9,8 +9,8 @@
 
 <% if @project.can_edit?(session[:login]) %>
   <p>
-    <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit raw configuration' ), :action => :edit_meta, :project => @project) %>
-    <%= link_to('Edit raw configuration', :action => :edit_meta, :project => @project) %>
+    <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit configuration' ), :action => :edit_meta, :project => @project) %>
+    <%= link_to('Edit configuration', :action => :edit_meta, :project => @project) %>
   </p>
 <% end %>
 

@@ -1,5 +1,3 @@
-require 'xml'
-
 class Unregisteredperson < ActiveXML::Base
 
   default_find_parameter :login
@@ -33,7 +31,7 @@ class Unregisteredperson < ActiveXML::Base
         </unregisteredperson>
       ENDE
 
-      return XML::Parser.string(reply).parse.root
+      return ActiveXML::Base(reply)
     end
   end
 end

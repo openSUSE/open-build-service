@@ -260,9 +260,9 @@ class Project < ActiveXML::Base
   def linking_projects
     fc = FrontendCompat.new
     answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
-    doc = XML::Parser.string(answer).parse
+    doc = ActiveXML::Base.new(answer)
     result = []
-    doc.find('/collection/project').each {|e| result << e.attributes['name']}
+    doc.each('/collection/project') {|e| result << e.value('name')}
     return result
   end
 
