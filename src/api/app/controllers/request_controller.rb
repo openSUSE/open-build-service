@@ -654,14 +654,21 @@ class RequestController < ApplicationController
     diff_text = ""
 
     req.each_action do |action|
-      if action.value("type") == "submit" and action.target.project and action.target.package
+      if ['submit', 'maintenance_release'].include?(action.value('type')) and action.target.project and action.target.package
+        target_project = action.target.project
+        target_package = action.target.package
+
+        # Cut off '.$FOO' from package name ($FOO is the release target) when it's a maintenance release.
+        # Ruby has no 'rsplit' method, needs elitist hack:
+        target_package = target_package.split(/\.([^.]*)$/)[0] if action.value('type') == 'maintenance_release'
+
         transport = ActiveXML::Config::transport_for(:request)
         path = nil
 
         if action.has_element? :acceptinfo
           # OBS 2.1 adds acceptinfo on request accept
           path = "/source/%s/%s?cmd=diff" %
-               [CGI.escape(action.target.project), CGI.escape(action.target.package)]
+               [CGI.escape(target_project), CGI.escape(target_package)]
           if action.acceptinfo.value("xsrcmd5")
             path += "&rev=" + action.acceptinfo.value("xsrcmd5")
           else
@@ -679,25 +686,25 @@ class RequestController < ApplicationController
           # for requests not yet accepted or accepted with OBS 2.0 and before
           spkg = DbPackage.get_by_project_and_name( action.source.project, action.source.package )
           tpkg = linked_tpkg = nil
-          if DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = false )
-            tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
-          elsif DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = true )
-            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+          if DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = false )
+            tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
+          elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = true )
+            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
           else
-            tprj = DbProject.get_by_name( action.target.project )
+            tprj = DbProject.get_by_name( target_project )
           end
 
           if tpkg
             path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
-                   [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
+                   [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(target_project), CGI.escape(target_package)]
             if action.source.value('rev')
               path += "&rev=#{action.source.rev}"
             end
             if linked_tpkg
-              diff_text = "New package instance: " + action.target.project + "/" + action.target.package + " following diff contains diff to package from linked project.\n" + diff_text
+              diff_text = "New package instance: " + target_project + "/" + target_package + " following diff contains diff to package from linked project.\n" + diff_text
             end
           else
-            diff_text = "Additional package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
+            diff_text = "Additional package: " + target_project + "/" + target_package + "\n" + diff_text
           end
         end
 
