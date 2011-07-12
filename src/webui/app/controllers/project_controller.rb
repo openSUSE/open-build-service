@@ -1285,15 +1285,19 @@ class ProjectController < ApplicationController
 
   def maintenance_incidents
     @open_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident' and repository/releasetarget/@trigger='maintenance')").each do |p|
-      @open_maintenance_incident_list << p
+    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
+      project.each_repository do |repo|
+        @open_maintenance_incident_list << project if repo.has_element?('releasetarget')
+      end
     end
   end
 
   def closed_maintenance_incidents
     @closed_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident' and not(repository/releasetarget/@trigger='maintenance'))").each do |p|
-      @closed_maintenance_incident_list << p
+    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
+      project.each_repository do |repo|
+        @closed_maintenance_incident_list << project if not repo.has_element?('releasetarget')
+      end
     end
   end
 
