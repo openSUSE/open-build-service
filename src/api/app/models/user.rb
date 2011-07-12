@@ -71,7 +71,7 @@ class User < ActiveRecord::Base
   end
 
   def render_axml( watchlist = false )
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
  
     logger.debug "----------------- rendering person #{self.login} ------------------------"
     xml = builder.person() do |person|
@@ -98,7 +98,7 @@ class User < ActiveRecord::Base
       end
     end
 
-    xml.target!
+    xml
   end
 
   # Returns true if the the state transition from "from" state to "to" state

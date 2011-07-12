@@ -962,7 +962,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def render_axml(view = nil)
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
 
@@ -1052,7 +1052,7 @@ class DbProject < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
-    return xml.target!
+    return xml
   end
 
   def to_axml_id

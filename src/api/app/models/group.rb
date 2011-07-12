@@ -61,12 +61,12 @@ class Group < ActiveRecord::Base
   end
 
   def render_axml
-    builder = FasterBuilder::XmlMarkup.new(:indent => 2)
+    builder = Builder::XmlMarkup.new(:indent => 2)
     logger.debug "----------------- rendering group #{self.title} ------------------------"
     xml = builder.group() do |group|
       group.title(self.title)
     end
-    xml.target!
+    xml
   end
 
 end

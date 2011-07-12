@@ -1,4 +1,3 @@
-require 'xml'
 require 'ostruct'
 require 'digest/md5'
 
@@ -136,7 +135,7 @@ class ProjectStatusHelper
     d = Rails.cache.fetch(key, :expires_in => 2.hours) do
       backend.direct_http( URI(uri), :timeout => 1000 )
     end
-    XML::Parser.string(d).parse
+    ActiveXML::Base.new(d)
   end
 
   def self.check_md5(proj, backend, packages, mypackages)
@@ -145,13 +144,13 @@ class ProjectStatusHelper
       uri += "&package=" + CGI.escape(package.name)
     end
     data = get_xml(backend, uri)
-    data.find('/projpack/project/package').each do |p|
-      packname = p.attributes['name']
+    data.each('/projpack/project/package') do |p|
+      packname = p.value('name')
       key = proj + "/" + packname
       next unless mypackages.has_key?(key)
-      mypackages[key].srcmd5 = p.attributes['srcmd5']
-      if p.attributes['verifymd5']
-        mypackages[key].verifymd5 = p.attributes['verifymd5']
+      mypackages[key].srcmd5 = p.value('srcmd5')
+      if p.value('verifymd5')
+        mypackages[key].verifymd5 = p.value('verifymd5')
       end
     end if data
   end
@@ -165,21 +164,21 @@ class ProjectStatusHelper
     end
 
     data = get_xml(backend, uri)
-    data.find('/projpack/project/package').each do |p|
-      packname = p.attributes['name']
+    data.each('/projpack/project/package') do |p|
+      packname = p.value('name')
       key = proj + "/" + packname
       next unless mypackages.has_key?(key)
-      if p.attributes['verifymd5']
-	mypackages[key].verifymd5 = p.attributes['verifymd5']
+      if p.value('verifymd5')
+	mypackages[key].verifymd5 = p.value('verifymd5')
       end
-      mypackages[key].srcmd5 = p.attributes['srcmd5']
-      p.find('linked').each do |l|
-	mypackages[key].link.project = l.attributes['project']
-	mypackages[key].link.package = l.attributes['package']
+      mypackages[key].srcmd5 = p.value('srcmd5')
+      p.each('linked') do |l|
+	mypackages[key].link.project = l.value('project')
+	mypackages[key].link.package = l.value('package')
         break # the first link will do
       end
-      p.find('error').each do |e|
-	mypackages[key].error = e.content
+      p.each('error') do |e|
+	mypackages[key].error = e.text
       end
     end if data
   end
@@ -214,21 +213,21 @@ class ProjectStatusHelper
     Rails.cache.fetch(key) do
       Rails.cache.write(key + '_last', currentlast)
       d = backend.direct_http( URI(uri) , :timeout => 1000 )
-      data = XML::Parser.string(d).parse unless d.blank?
+      data = ActiveXML::Base.new(d) unless d.blank?
       return nil unless data
       ret = Hash.new
       reponame = repo + "/" + arch
-      data.find('/jobhistlist/jobhist').each do |p|
-	packname = p.attributes['package']
+      data.each('/jobhistlist/jobhist') do |p|
+	packname = p.value('package')
 	ret[packname] = BuildInfo.new
-	code = p.attributes['code']
+	code = p.value('code')
 	readytime = begin Integer(p['readytime']) rescue 0 end
 	if code == "unchanged" || code == "succeeded"
-	  ret[packname].success(reponame, readytime, p['srcmd5'])
+	  ret[packname].success(reponame, readytime, p.value('srcmd5'))
 	else
-	  ret[packname].failure(reponame, readytime, p['srcmd5'])
+	  ret[packname].failure(reponame, readytime, p.value('srcmd5'))
 	end
-	versrel = p.attributes['versrel'].split('-')
+	versrel = p.value('versrel').split('-')
 	ret[packname].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
       end
       ret

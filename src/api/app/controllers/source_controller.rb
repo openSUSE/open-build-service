@@ -1295,7 +1295,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.get_by_name(project_name)
 
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
       pro.find_linking_projects.each do |l|
         p={}
@@ -1303,7 +1303,7 @@ class SourceController < ApplicationController
         c.project(p)
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
   # POST /source/<project>?cmd=extendkey
@@ -1555,7 +1555,7 @@ class SourceController < ApplicationController
       return
     end
 
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
       pack.find_linking_packages.each do |l|
         p={}
@@ -1564,7 +1564,7 @@ class SourceController < ApplicationController
         c.package(p)
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
   # POST /source/<project>/<package>?cmd=undelete

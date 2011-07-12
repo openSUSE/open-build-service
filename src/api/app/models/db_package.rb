@@ -709,7 +709,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def render_attribute_axml(params)
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
 
     xml = builder.attributes() do |a|
       done={}
@@ -766,11 +766,11 @@ class DbPackage < ActiveRecord::Base
         end
       end
     end
-    xml.target!
+    xml
   end
 
   def render_axml(view = nil)
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
@@ -810,7 +810,7 @@ class DbPackage < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 
-    return xml.target!
+    return xml
   end
 
   def to_axml_id

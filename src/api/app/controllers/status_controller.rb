@@ -110,14 +110,14 @@ class StatusController < ApplicationController
     starttime = Time.now.to_i - hours.to_i * 3600
     data = Array.new
     values = StatusHistory.find(:all, :conditions => [ "time >= ? AND \`key\` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.history do
       StatusHelper.resample(values, samples).each do |time,val|
 	builder.value( :time => time,
 		      :value => val ) # for debug, :timestring => Time.at(time)  )
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
   def update_workerstatus_cache
