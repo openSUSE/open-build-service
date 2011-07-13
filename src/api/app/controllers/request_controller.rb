@@ -720,7 +720,17 @@ class RequestController < ApplicationController
       if params[:view] == 'xml'
         diff_element = action.add_element('diff')
         diff_element.set_attribute('encoding', 'base64')
-        diff_element.text = Base64.encode64(action_diff) # XML comes with a price!
+
+        # Try to split unified diff from backend by file and to create a suiteble XML representation
+        splitted = action_diff.split(/^Index: ([\w\.\-]*)\n[=]*\n/)
+        splitted.shift # First element is an empty string
+        if splitted.length.even?
+          splitted.each_slice(2) do |file, diff|
+            file_element = diff_element.add_element('file')
+            file_element.set_attribute('name', file)
+            file_element.text = Base64.encode64(diff)
+          end
+        end
         diff_text += action.dump_xml() + "\n"
       else
         diff_text += action_diff
