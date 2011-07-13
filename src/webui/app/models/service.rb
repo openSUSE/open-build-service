@@ -14,29 +14,29 @@ class Service < ActiveXML::Base
        frontend = ActiveXML::Config::transport_for( :service )
        answer = frontend.direct_http URI("/service"), :method => "GET"
 
-       doc = XML::Parser.string(answer).parse.root
-       doc.find("/servicelist/service").each do |s|
-         serviceName = s.attributes["name"]
-         next if s.attributes["hidden"] == "true"
+       doc = ActiveXML::Base.new(answer)
+       doc.each("/servicelist/service") do |s|
+         serviceName = s.value("name")
+         next if s.value("hidden") == "true"
          hash = {}
          hash[:name]        = serviceName
-         hash[:summary]     = s.find_first("summary").content
-         hash[:description] = s.find_first("description").content
+         hash[:summary]     = s.find_first("summary").text
+         hash[:description] = s.find_first("description").text
          @serviceList.push( hash )
 
          @serviceParameterList[serviceName] = {}
-         s.find("parameter").each do |p|
+         s.each("parameter") do |p|
            hash = {}
-           hash[:description] = p.find_first("description").content
-           hash[:required] = true if p.find_first("required")
+           hash[:description] = p.find_first("description").text
+           hash[:required] = true if p.has_elemnt?("required")
 
            allowedvalues = []
-           p.find("allowedvalue").each do |a|
-             allowedvalues.push(a.content)
+           p.each("allowedvalue") do |a|
+             allowedvalues.push(a.text)
            end
            hash[:allowedvalues] = allowedvalues
 
-           @serviceParameterList[serviceName][p.attributes["name"]] = hash
+           @serviceParameterList[serviceName][p.value("name")] = hash
          end
        end
     end
