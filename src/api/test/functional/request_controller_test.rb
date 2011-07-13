@@ -554,6 +554,30 @@ end
     assert_response :success
   end
 
+  # osc is still submitting with old style by default
+  def test_old_style_submit_request
+    prepare_request_with_user "hidden_homer", "homer"
+    post "/request?cmd=create", '<request type="submit">
+                                   <submit>
+                                     <source project="HiddenProject" package="pack" rev="1"/>
+                                     <target project="kde4" package="DUMMY"/>
+                                   </submit>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # test that old style request got converted
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_tag :tag => 'submit'
+    assert_tag :tag => 'action', :attributes => { :type => 'submit' }
+  end
+
   def test_submit_request_from_hidden_project_and_hidden_source
     prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", '<request>
