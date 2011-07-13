@@ -48,71 +48,50 @@ alter table attrib_namespace_modifiable_bies add FOREIGN KEY (bs_user_id) refere
 alter table attrib_namespace_modifiable_bies add FOREIGN KEY (bs_group_id) references groups (id);
 END_SQL
 
-    self.transaction do
-      sql.each_line do |line|
-        begin
-          r = ActiveRecord::Base.connection().execute( line )
-        rescue
-          puts "ERROR: The database is inconsistent, FOREIGN KEYs can not be added!"
-          puts "       please run    script/check_database    script to fix the data."
-        end
+    sql.each_line do |line|
+      begin
+        r = ActiveRecord::Base.connection().execute( line )
+      rescue
+        puts "WARNING: The database is inconsistent, some FOREIGN KEYs (aka CONSTRAINTS) can not be added!"
+        puts "         please run    script/check_database    script to fix the data."
+        raise IllegalMigrationNameError.new("migration failed due to inconsistent database")
+      end
+    end
+  end
+
+  def self.drop_constraint( table, count )
+    for nr in (1..count)
+      begin
+        r = ActiveRecord::Base.connection().execute( "alter table #{table} drop FOREIGN KEY #{table}_ibfk_#{nr};" )
+      rescue
       end
     end
   end
 
   def self.down
-
-    sql =<<-END_SQL
-alter table db_packages drop FOREIGN KEY db_project_id;
-alter table db_packages drop FOREIGN KEY develproject_id;
-alter table db_packages drop FOREIGN KEY develpackage_id;
-alter table architectures_repositories drop FOREIGN KEY repository_id;
-alter table architectures_repositories drop FOREIGN KEY architecture_id;
-alter table watched_projects drop FOREIGN KEY bs_user_id;
-alter table db_projects_tags drop FOREIGN KEY db_project_id;
-alter table db_projects_tags drop FOREIGN KEY tag_id;
-alter table attribs drop FOREIGN KEY attrib_type_id;
-alter table attribs drop FOREIGN KEY db_package_id;
-alter table attribs drop FOREIGN KEY db_project_id;
-alter table flags drop FOREIGN KEY db_project_id;
-alter table flags drop FOREIGN KEY db_package_id;
-alter table flags drop FOREIGN KEY architecture_id;
-alter table attrib_values drop FOREIGN KEY attrib_id;
-alter table attrib_types drop FOREIGN KEY attrib_namespace_id;
-alter table groups_roles drop FOREIGN KEY group_id;
-alter table groups_roles drop FOREIGN KEY role_id;
-alter table groups_users drop FOREIGN KEY group_id;
-alter table groups_users drop FOREIGN KEY user_id;
-alter table package_user_role_relationships drop FOREIGN KEY db_package_id;
-alter table package_user_role_relationships drop FOREIGN KEY bs_user_id;
-alter table package_user_role_relationships drop FOREIGN KEY role_id;
-alter table project_user_role_relationships drop FOREIGN KEY db_project_id;
-alter table project_user_role_relationships drop FOREIGN KEY bs_user_id;
-alter table project_user_role_relationships drop FOREIGN KEY role_id;
-alter table path_elements drop FOREIGN KEY parent_id;
-alter table path_elements drop FOREIGN KEY repository_id;
-alter table ratings drop FOREIGN KEY user_id;
-alter table repositories drop FOREIGN KEY db_project_id;
-alter table roles drop FOREIGN KEY parent_id;
-alter table roles_static_permissions drop FOREIGN KEY role_id;
-alter table roles_static_permissions drop FOREIGN KEY static_permission_id;
-alter table roles_users drop FOREIGN KEY user_id;
-alter table roles_users drop FOREIGN KEY role_id;
-alter table taggings drop FOREIGN KEY tag_id;
-alter table taggings drop FOREIGN KEY user_id;
-alter table user_registrations drop FOREIGN KEY user_id;
-alter table attrib_allowed_values drop FOREIGN KEY attrib_type_id;
-alter table attrib_default_values drop FOREIGN KEY attrib_type_id;
-alter table attrib_namespace_modifiable_bies drop FOREIGN KEY attrib_namespace_id;
-alter table attrib_namespace_modifiable_bies drop FOREIGN KEY bs_user_id;
-alter table attrib_namespace_modifiable_bies drop FOREIGN KEY bs_group_id;
-END_SQL
-
-    self.transaction do
-      sql.each_line do |line|
-        r = ActiveRecord::Base.connection().execute( line )
-      end
-    end
+    drop_constraint("db_packages", 3)
+    drop_constraint("architectures_repositories", 2)
+    drop_constraint("watched_projects", 1)
+    drop_constraint("db_projects_tags", 2)
+    drop_constraint("attribs", 3)
+    drop_constraint("flags", 3)
+    drop_constraint("attrib_values", 1)
+    drop_constraint("attrib_types", 1)
+    drop_constraint("groups_roles", 2)
+    drop_constraint("groups_users", 2)
+    drop_constraint("package_user_role_relationships", 3)
+    drop_constraint("project_user_role_relationships", 3)
+    drop_constraint("path_elements", 2)
+    drop_constraint("ratings", 1)
+    drop_constraint("repositories", 1)
+    drop_constraint("roles", 1)
+    drop_constraint("roles_static_permissions", 2)
+    drop_constraint("roles_users", 2)
+    drop_constraint("taggings", 2)
+    drop_constraint("user_registrations", 1)
+    drop_constraint("attrib_allowed_values", 1)
+    drop_constraint("attrib_allowed_values", 1)
+    drop_constraint("attrib_namespace_modifiable_bies", 3)
   end
 
 end
