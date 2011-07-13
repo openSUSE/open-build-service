@@ -48,15 +48,11 @@ class BsRequest < ActiveXML::Base
   def initialize( _data )
     super(_data)
 
-    if self.has_element? 'submit' and self.has_attribute? 'type'
+    if has_element? 'submit' and has_attribute? 'type'
       # old style, convert to new style on the fly
-      node = self.submit.dump_xml
-      node.sub!('<submit ', '<action ')
-      puts node
-      self.delete_element('submit')
-      node = self.add_node(node)
-      node.set_attribute('type', 'submit')
-      self.delete_attribute('type')
+      delete_attribute('type')
+      submit.element_name = 'action' # Rename 'submit' element to 'action'
+      action.set_attribute('type', 'submit')
     end
   end
 
