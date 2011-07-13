@@ -1,3 +1,5 @@
+require 'base64'
+
 class RequestController < ApplicationController
   include ApplicationHelper
 
@@ -101,7 +103,17 @@ class RequestController < ApplicationController
     # get the entire diff from the api
     begin
       transport ||= ActiveXML::Config::transport_for :bsrequest
-      @diff_text = transport.direct_http URI("/request/#{@id}?cmd=diff"), :method => "POST", :data => ""
+      ret = transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => 'POST', :data => '')
+      doc = XML::Parser.string(ret).parse.root
+      @diff_per_action_hash = {}
+      # Parse each action and get the it's diff (per file)
+      doc.find('/action').each_with_index do |action_element, index|
+        file_diff_hash = {}
+        action_element.find('diff/file').each do |file_element|
+          file_diff_hash[file_element.attributes['name']] = Base64.decode64(file_element.content)
+        end
+        @diff_per_action_hash["#{index}_#{action_element.attributes['type']}"] = file_diff_hash
+      end
     rescue ActiveXML::Transport::Error => e
       @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
       logger.debug "Can't get diff for request: #{@diff_error}"
