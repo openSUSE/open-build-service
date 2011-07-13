@@ -708,13 +708,16 @@ class RequestController < ApplicationController
           end
         end
 
-        begin
-          action_diff += Suse::Backend.post(path, nil).body if path
-        rescue ActiveXML::Transport::Error => e
-          render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+        if path
+          path += '&unified=1' if params[:view] == 'xml' # Request unified diff in full XML view
+          begin
+            action_diff += Suse::Backend.post(path, nil).body
+          rescue ActiveXML::Transport::Error => e
+            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+          end
         end
       end
-      if params[:fullxml]
+      if params[:view] == 'xml'
         diff_element = action.add_element('diff')
         diff_element.set_attribute('encoding', 'base64')
         diff_element.text = Base64.encode64(action_diff) # XML comes with a price!
@@ -724,7 +727,7 @@ class RequestController < ApplicationController
       end
     end
 
-    if params[:fullxml]
+    if params[:view] == 'xml'
       send_data(diff_text, :type => "text/xml")
     else
       send_data(diff_text, :type => "text/plain")
