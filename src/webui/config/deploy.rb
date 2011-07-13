@@ -147,6 +147,10 @@ Git log:
       puts "Error in syntax check - will not deploy"
       exit 1
     end
+    if !system("rake test")
+      puts "Error on rake test - will not deploy"
+      exit 1
+    end
   end
 
 end
