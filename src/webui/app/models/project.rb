@@ -153,7 +153,7 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    find(xpath.to_s) {|e| delete_element e}
+    each(xpath) {|e| delete_element e}
   end
 
   def remove_group(opt={})
@@ -164,7 +164,7 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing groups using xpath '#{xpath}'"
-    find(xpath.to_s) {|e| delete_element e}
+    each(xpath) {|e| delete_element e}
   end
 
   def add_path_to_repository(opt={})

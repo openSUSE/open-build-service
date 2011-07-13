@@ -84,7 +84,7 @@ class Package < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.find(xpath).each {|e| e.remove!}
+    each(xpath) {|e| delete_element e}
   end
 
   def remove_group(opt={})
@@ -95,7 +95,7 @@ class Package < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing groups using xpath '#{xpath}'"
-    data.find(xpath.to_s).each {|e| e.remove!}
+    each(xpath) {|e| delete_element e }
   end
 
   def set_url( new_url )
@@ -107,7 +107,7 @@ class Package < ActiveXML::Base
 
   def remove_url
     logger.debug "remove url from package #{self.name} (project #{self.project})"
-    data.find('//url').each { |e| e.remove! }
+    each('//url') { |e| delete_element e }
     save
   end
 
