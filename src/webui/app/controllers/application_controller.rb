@@ -3,6 +3,7 @@
 
 require 'common/activexml/transport'
 require 'person'
+require 'xml'
 
 #Note: This is a SUSE-sepecific debugging extension that saves the last
 #      exception's scope. This method needs a patched Ruby interpreter.
@@ -359,6 +360,12 @@ class ApplicationController < ActionController::Base
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
     
+    LibXML::XML::Error.set_handler { |msg| errors << msg }
+    begin
+      document = LibXML::XML::Document.string xmlbody
+    rescue LibXML::XML::Error => e
+    end
+
     if document
       tmp = Tempfile.new('xml_out')
       tmp.write(xmlbody)
