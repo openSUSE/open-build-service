@@ -2,9 +2,7 @@ class Service < ActiveXML::Base
 
   class << self
     def make_stub( opt )
-      logger.debug "make stub params: #{opt.inspect}"
-      doc = XML::Document.new
-      doc.root = XML::Node.new 'services'
+      "<service/>"
     end
 
     def updateServiceList

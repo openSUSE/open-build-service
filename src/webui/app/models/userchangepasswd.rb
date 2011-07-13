@@ -13,7 +13,7 @@ class Userchangepasswd < ActiveXML::Base
            <password>#{password}</password>
         </userchangepasswd>
       ENDE
-      return ActiveXML::Base.new(reply)
+      return reply
     end
   end
 end

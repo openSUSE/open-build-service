@@ -21,17 +21,16 @@ class Person < ActiveXML::Base
     if opt.has_key? :email
       email = opt[:email]
     end
-    doc = XML::Document.new
-    doc.root = XML::Node.new 'person'
-    element = doc.root << 'login'
-    element.content = opt[:login]
-    element = doc.root << 'realname'
-    element.content = realname
-    element = doc.root << 'email'
-    element.content = email
-    element = doc.root << 'state'
-    element.content = 5
-    doc.root
+    doc = ActiveXML::Base.new '<person/>'
+    element = doc.add_element 'login'
+    element.text = opt[:login]
+    element = doc.add_element 'realname'
+    element.text = realname
+    element = doc.add_element 'email'
+    element.text = email
+    element = doc.add_element 'state'
+    element.text = 5
+    doc
   end
   
   def self.email_for_login(person)

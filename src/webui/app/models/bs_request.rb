@@ -52,7 +52,7 @@ class BsRequest < ActiveXML::Base
           <description>#{opt[:description].to_xs}</description>
         </request>
       EOF
-      return XML::Parser.string(reply).parse.root
+      return reply
     end
 
     def addReview(id, opts)

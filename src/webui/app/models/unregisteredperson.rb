@@ -31,7 +31,7 @@ class Unregisteredperson < ActiveXML::Base
         </unregisteredperson>
       ENDE
 
-      return ActiveXML::Base(reply)
+      return reply
     end
   end
 end
