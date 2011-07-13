@@ -133,24 +133,26 @@ class RequestController < ApplicationController
         end
       end
     end
-    flash[:note] = "Request #{params[:id]} accepted"
+    if changestate == 'accepted'
+      flash[:note] = "Request #{params[:id]} accepted"
 
-    # Check if we have to forward this request to other projects / packages
-    params.keys.grep(/^forward_.*/).each do |fwd|
-      tgt_prj, tgt_pkg = fwd.split('_', 2)[1].split('_#_') # split off 'forward_' and split into project and package
-      description = @req.description.text
-      if @req.has_element? 'state'
-        who = @req.state.value("who")
-        description += " (forwarded request %d from %s)" % [params[:id], who]
+      # Check if we have to forward this request to other projects / packages
+      params.keys.grep(/^forward_.*/).each do |fwd|
+        tgt_prj, tgt_pkg = fwd.split('_', 2)[1].split('_#_') # split off 'forward_' and split into project and package
+        description = @req.description.text
+        if @req.has_element? 'state'
+          who = @req.state.value("who")
+          description += " (forwarded request %d from %s)" % [params[:id], who]
+        end
+
+        rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
+        @req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+                             :project => @req.action.target.project, :package => @req.action.target.package,
+                             :rev => rev, :description => description)
+        @req.save(:create => true)
+        Rails.cache.delete('requests_new')
+        flash[:note] += " and forwarded to #{tgt_prj}"
       end
-
-      rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
-      @req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
-                           :project => @req.action.target.project, :package => @req.action.target.package,
-                           :rev => rev, :description => description)
-      @req.save(:create => true)
-      Rails.cache.delete('requests_new')
-      flash[:note] += " and forwarded to #{tgt_prj}"
     end
     redirect_to :action => 'show', :id => params[:id]
   end
