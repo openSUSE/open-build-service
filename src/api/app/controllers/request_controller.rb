@@ -715,7 +715,9 @@ class RequestController < ApplicationController
         end
       end
       if params[:fullxml]
-        action.add_element('diff').text = Base64.encode64(action_diff) # XML comes with a price!
+        diff_element = action.add_element('diff')
+        diff_element.set_attribute('encoding', 'base64')
+        diff_element.text = Base64.encode64(action_diff) # XML comes with a price!
         diff_text += action.dump_xml() + "\n"
       else
         diff_text += action_diff
