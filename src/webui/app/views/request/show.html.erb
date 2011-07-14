@@ -217,7 +217,7 @@
           <% if !@diff_error and @req.action.value("type") == "submit" and @target_pkg %>
             <% linkinfo = @target_pkg.linkinfo %>
             <% if linkinfo %>
-              <%= check_box_tag("forward_#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package
+              <%= check_box_tag("forward_#{valid_xml_id(linkinfo.project)}_#_#{valid_xml_id(linkinfo.package)}") %> Forward to linked package
               <%= link_to("#{linkinfo.project} / #{linkinfo.package}", :controller => 'package', :action => 'show', :project => linkinfo.project, :package => linkinfo.package) %><br/>
             <% end %>
             <% @target_pkg.developed_packages.each do |pkg| %>
