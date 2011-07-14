@@ -1,7 +1,6 @@
 class HomeController < ApplicationController
   
   before_filter :require_login
-  before_filter :check_user
   
   def index
     user = find_cached(Person, params['user'] ) if params['user']
@@ -41,13 +40,11 @@ class HomeController < ApplicationController
 
   def remove_watched_project
     project = params[:project]
-    if check_user
-      logger.debug "removing watched project '#{project}' from user '#@user'"
-      @user.remove_watched_project project
-      @user.save
-      set_watchlist @user
-      render :partial => 'watch_list'
-    end
+    logger.debug "removing watched project '#{project}' from user '#@user'"
+    @user.remove_watched_project project
+    @user.save
+    set_watchlist @user
+    render :partial => 'watch_list'
   end
 
   #extract a list of project names and sort them case insensitive

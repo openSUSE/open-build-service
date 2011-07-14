@@ -1302,7 +1302,6 @@ class ProjectController < ApplicationController
       end
     end
     @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
-    check_user
     unless @project
       if @user and params[:project] == "home:#{@user}"
         # checks if the user is registered yet

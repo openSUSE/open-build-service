@@ -1,6 +1,5 @@
 class MonitorController < ApplicationController
 
-  skip_before_filter :check_user, :only => [ :plothistory ]
   before_filter :require_settings, :only => [:old, :index, :filtered_list, :update_building]
   before_filter :require_available_architectures, :only => [:index]
 
