@@ -217,12 +217,12 @@
           <% if !@diff_error and @req.action.value("type") == "submit" and @target_pkg %>
             <% linkinfo = @target_pkg.linkinfo %>
             <% if linkinfo %>
-              <%= check_box_tag("forward_#{valid_xml_id(linkinfo.project)}_#_#{valid_xml_id(linkinfo.package)}") %> Forward to linked package
+              <%= check_box_tag('forward_link', "#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package
               <%= link_to("#{linkinfo.project} / #{linkinfo.package}", :controller => 'package', :action => 'show', :project => linkinfo.project, :package => linkinfo.package) %><br/>
             <% end %>
-            <% @target_pkg.developed_packages.each do |pkg| %>
+            <% @target_pkg.developed_packages.each_with_index do |pkg,index| %>
               <% if not(linkinfo and linkinfo.project == pkg.project and linkinfo.package == pkg.name) %>
-                <%= check_box_tag("forward_#{valid_xml_id(pkg.project)}_#_#{valid_xml_id(pkg.name)}", '', true) %> Forward to developed package
+                <%= check_box_tag("forward_devel_#{index}", "#{pkg.project}_#_#{pkg.name}", true) %> Forward to developed package
                 <%= link_to("#{pkg.project} / #{pkg.name}", :controller => 'package', :action => 'show', :project => pkg.project, :package => pkg.name) %><br/>
               <% end %>
             <% end %>

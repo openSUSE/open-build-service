@@ -151,7 +151,7 @@ class RequestController < ApplicationController
 
       # Check if we have to forward this request to other projects / packages
       params.keys.grep(/^forward_.*/).each do |fwd|
-        tgt_prj, tgt_pkg = fwd.split('_', 2)[1].split('_#_') # split off 'forward_' and split into project and package
+        tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
         description = @req.description.text
         if @req.has_element? 'state'
           who = @req.state.value("who")
@@ -164,7 +164,8 @@ class RequestController < ApplicationController
                              :rev => rev, :description => description)
         @req.save(:create => true)
         Rails.cache.delete('requests_new')
-        flash[:note] += " and forwarded to #{tgt_prj}"
+        # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
+        flash[:note] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => @req.value('id'))}'>#{@req.value('id')}</a>)"
       end
     end
     redirect_to :action => 'show', :id => params[:id]
