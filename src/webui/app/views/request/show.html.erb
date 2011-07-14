@@ -252,13 +252,13 @@
   <h3>Diff Error</h3>
   <p><%= @diff_error %></p>
 <% elsif @diff_per_action_hash and not @diff_per_action_hash.empty? %>
-  <h3>Diff</h3>
+  <h3>Diff View</h3>
   <% @diff_per_action_hash.each do |action_index_and_type, file_diff_hash| %>
     <% action_index, action_type = action_index_and_type.split('_', 2) %>
     <h4><%= action_type %> action (#<%= action_index %>)</h4>
     <% file_diff_hash.each do |filename, diff| %>
       <h5><%= filename %></h5>
-      <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff'} %>
+      <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff', :collapse => true} %>
     <% end %>
   <% end %>
 <% end %>
