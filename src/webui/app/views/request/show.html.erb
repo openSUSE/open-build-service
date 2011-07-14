@@ -248,17 +248,34 @@
   <% end %>
 <% end %>
 
-<% if @diff_error %>
-  <h3>Diff Error</h3>
-  <p><%= @diff_error %></p>
-<% elsif @diff_per_action_hash and not @diff_per_action_hash.empty? %>
+<% if @diff_per_action_hash and not @diff_per_action_hash.empty? %>
   <h3>Diff View</h3>
+  <% if @diff_per_action_hash.keys.length != 1 %>
+    <p>
+      <%= label_tag(:diff_action, 'Display file differences for action ') %>
+      <%= select_tag(:diff_action, options_for_select(@diff_per_action_hash.keys)) %>:
+    </p>
+    <% javascript_tag do %>
+      $('#diff_action').change(function () {
+        $('#diff_action option:selected').each(function() {
+          $('diff_action_display').hide();
+          $('#diff_action_" + $(this).attr('value')).show();
+        });
+      });
+    <% end %>
+  <% end %>
+
   <% @diff_per_action_hash.each do |action_index_and_type, file_diff_hash| %>
     <% action_index, action_type = action_index_and_type.split('_', 2) %>
-    <h4><%= action_type %> action (#<%= action_index %>)</h4>
-    <% file_diff_hash.each do |filename, diff| %>
-      <h5><%= filename %></h5>
-      <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff', :collapse => true} %>
-    <% end %>
+    <div class="diff_action_display" id="diff_action_<%= action_index_and_type %>" <%= 'class="hidden"' if action_index != '0' %>>
+      <% file_diff_hash.each do |filename, diff| %>
+        <p><b>File <%= filename %>:</b></p>
+        <% if filename.ends_with?('.spec') or filename.ends_with?('.changes') %>
+          <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff'} %>
+        <% else %>
+          <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff', :collapse => true} %>
+        <% end %>
+      <% end %>
+    </div>
   <% end %>
 <% end %>

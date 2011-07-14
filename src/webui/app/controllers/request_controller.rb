@@ -116,8 +116,8 @@ class RequestController < ApplicationController
         diff_per_action_hash
       end
     rescue ActiveXML::Transport::Error => e
-      @diff_error, _, _ = ActiveXML::Transport.extract_error_message(e)
-      logger.debug("Can't get diff for request: #{@diff_error}")
+      project, code = ActiveXML::Transport.extract_error_message(e)
+      flash[:error] = "Unable to fetch diff for #{project}: #{code}"
     end
   end
 
