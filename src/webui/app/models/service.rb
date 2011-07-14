@@ -28,7 +28,7 @@ class Service < ActiveXML::Base
          s.each("parameter") do |p|
            hash = {}
            hash[:description] = p.find_first("description").text
-           hash[:required] = true if p.has_elemnt?("required")
+           hash[:required] = true if p.has_element?("required")
 
            allowedvalues = []
            p.each("allowedvalue") do |a|
