@@ -6,8 +6,7 @@
 <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrush' + type.capitalize %>
 
 <% content_for :ready_function do %>
-  SyntaxHighlighter.defaults['collapse'] = <%= collapse %>;
   SyntaxHighlighter.all();
 <% end %>
 
-<pre class="brush: <%= type %>"><%= h(code) %></pre>
+<pre class="brush: <%= type %> collapse: <%= collapse %>"><%= h(code) %></pre>
