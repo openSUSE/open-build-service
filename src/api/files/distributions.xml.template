@@ -38,7 +38,7 @@
  </distribution>
  <distribution vendor="openSUSE" version="Tumbleweed" id="opensuse-Tumbleweed">
   <name>openSUSE Tumbleweed</name>
-  <project>openSUSE:Tumbleweed</project>
+  <project>openSUSE.org:openSUSE:Tumbleweed</project>
   <reponame>openSUSE_Tumbleweed</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-8.png"/>
@@ -63,14 +63,14 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLE-10-16.png"/>
   <link>http://www.suse.com/</link>
  </distribution>
- <distribution vendor="SUSE" version="SLES-9" id="suse-SLES-9">
-  <name>SUSE SLES-9</name>
-  <project>openSUSE.org:SUSE:SLES-9</project>
-  <reponame>SLES_9</reponame>
+ <distribution vendor="MeeGo" version="1.2 oss" id="1.2-oss">
+  <name>MeeGo 1.2 oss</name>
+  <project>MeeGo.com:MeeGo:1.2:oss</project>
+  <reponame>MeeGo_1.2</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/suse-SLES-9-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLES-9-16.png"/>
-  <link>http://www.suse.com/</link>
+  <link>http://www.meego.com/</link>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/meego-1.2-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/meego-1.2-16.png"/>
  </distribution>
  <distribution vendor="Debian" version="6.0" id="debian-6.0">
   <name>Debian 6.0</name>
@@ -90,37 +90,37 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-5.0-16.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
- <distribution vendor="Fedora" version="14" id="fedora-14">
-  <name>Fedora 14</name>
-  <project>openSUSE.org:Fedora:14</project>
-  <reponame>Fedora_14</reponame>
+ <distribution vendor="Fedora" version="16" id="fedora-15">
+  <name>Fedora 16</name>
+  <project>openSUSE.org:Fedora:16</project>
+  <reponame>Fedora_16</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-14-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-14-16.png"/>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
- <distribution vendor="Fedora" version="13" id="fedora-13">
-  <name>Fedora 13</name>
-  <project>openSUSE.org:Fedora:13</project>
-  <reponame>Fedora_13</reponame>
+ <distribution vendor="Fedora" version="15" id="fedora-15">
+  <name>Fedora 15</name>
+  <project>openSUSE.org:Fedora:15</project>
+  <reponame>Fedora_15</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-13-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-13-16.png"/>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
- <distribution vendor="Fedora" version="12" id="fedora-12">
-  <name>Fedora 12</name>
-  <project>openSUSE.org:Fedora:12</project>
-  <reponame>Fedora_12</reponame>
+ <distribution vendor="ScientificLinux" version="ScientificLinux-6" id="ScientificLinux-RHEL-6">
+  <name>ScientificLinux 6</name>
+  <project>openSUSE.org:ScientificLinux:6</project>
+  <reponame>ScientificLinux_6</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-12-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-12-16.png"/>
-  <link>http://fedoraproject.org/</link>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/scientificlinux-6-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/scientificlinux-6-16.png"/>
+  <link>http://www.scientificlinux.org/</link>
  </distribution>
  <distribution vendor="RedHat" version="RHEL-6" id="redhat-RHEL-6">
   <name>RedHat RHEL-6</name>
   <project>openSUSE.org:RedHat:RHEL-6</project>
-  <reponame>RedHat_RHEL-6</reponame>
+  <reponame>RHEL_6</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-16.png"/>
@@ -129,7 +129,7 @@
  <distribution vendor="RedHat" version="RHEL-5" id="redhat-RHEL-5">
   <name>RedHat RHEL-5</name>
   <project>openSUSE.org:RedHat:RHEL-5</project>
-  <reponame>RedHat_RHEL-5</reponame>
+  <reponame>RHEL_5</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-5-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-5-16.png"/>
@@ -138,16 +138,25 @@
  <distribution vendor="RedHat" version="RHEL-4" id="redhat-RHEL-4">
   <name>RedHat RHEL-4</name>
   <project>openSUSE.org:RedHat:RHEL-4</project>
-  <reponame>RedHat_RHEL-4</reponame>
+  <reponame>RHEL_4</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-16.png"/>
   <link>http://www.redhat.com/</link>
  </distribution>
+ <distribution vendor="CentOS" version="CentOS-6" id="centos-CentOS-6">
+  <name>CentOS CentOS-6</name>
+  <project>openSUSE.org:CentOS:CentOS-6</project>
+  <reponame>CentOS_6</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/centos-CentOS-6-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-6-16.png"/>
+  <link>http://www.centos.org/</link>
+ </distribution>
  <distribution vendor="CentOS" version="CentOS-5" id="centos-CentOS-5">
   <name>CentOS CentOS-5</name>
   <project>openSUSE.org:CentOS:CentOS-5</project>
-  <reponame>CentOS_CentOS-5</reponame>
+  <reponame>CentOS_5</reponame>
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-16.png"/>
