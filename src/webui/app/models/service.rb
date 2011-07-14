@@ -2,7 +2,7 @@ class Service < ActiveXML::Base
 
   class << self
     def make_stub( opt )
-      "<service/>"
+      "<services/>"
     end
 
     def updateServiceList
