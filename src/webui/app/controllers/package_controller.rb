@@ -151,7 +151,7 @@ class PackageController < ApplicationController
     # hard coded value for the number of visible commit items in browser
     @visible_commits = 9
     @maxrevision = Package.current_rev(@project, @package.name).to_i
-    @browserrevision = params[:rev]
+    @browserrevision = params[:rev].to_i
     @browserrevision = @maxrevision if not @browserrevision
 
     # we need to fetch commits alltogether for the cache and not each single one
