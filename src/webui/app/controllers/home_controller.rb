@@ -1,7 +1,8 @@
 class HomeController < ApplicationController
-  
+
   before_filter :require_login
-  
+  before_filter :check_user
+
   def index
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
