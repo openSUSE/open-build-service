@@ -5,7 +5,6 @@ class Statusmessage < ActiveXML::Base
   class << self
 
     def make_stub( opt )
-      logger.debug "--> creating stub element for #{self.name}, arguments: #{opt.inspect}"
       doc = ActiveXML::Base.new "<message/>"
       doc.text = opt[:message]
       doc.set_attribute('severity', opt[:severity]) if opt[:severity]

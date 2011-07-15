@@ -125,7 +125,7 @@ class MainController < ApplicationController
     end
 
     begin
-      message = Statusmessage.new(:message => params[:message], :severity => params[:severity].to_i)
+      message = Statusmessage.new(:message => params[:message], :severity => params[:severity])
       message.save
       Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
     rescue ActiveXML::Transport::ForbiddenError
