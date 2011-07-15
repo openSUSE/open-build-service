@@ -373,4 +373,29 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1"
     assert_response :success
   end
+
+  def test_setup_remote_propject
+    p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost</remoteurl> </project>'
+
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:remote/_meta", p
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:tom:remote/_meta", p
+    assert_response :success
+    p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost2</remoteurl> </project>'
+    put "/source/home:tom:remote/_meta", p
+    assert_response :success
+    get "/source/home:tom:remote/_meta"
+    assert_response :success
+    assert_tag :tag => 'remoteurl', :content => 'http://localhost2'
+    p='<project name="home:tom:remote"> <title/> <description/>  </project>'
+    put "/source/home:tom:remote/_meta", p
+    assert_response :success
+
+    #cleanup
+    delete "/source/home:tom:remote"
+    assert_response :success
+  end
 end
