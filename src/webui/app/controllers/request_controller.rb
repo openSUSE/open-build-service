@@ -106,7 +106,7 @@ class RequestController < ApplicationController
         result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
         diff_per_action_hash = {}
         # Parse each action and get the it's diff (per file)
-        result.each_with_index('/action') do |action_element, index|
+        result.each_with_index('/request/action') do |action_element, index|
           file_diff_hash = {}
           action_element.each('diff/file') do |file_element|
             file_diff_hash[file_element.value('name')] = Base64.decode64(file_element.text)

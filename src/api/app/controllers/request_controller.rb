@@ -738,6 +738,8 @@ class RequestController < ApplicationController
     end
 
     if params[:view] == 'xml'
+      # Wrap diff text into <request> tag as it may contain multiple <action> tags
+      diff_text = "<request id=\"#{req.value('id')}\">\n  #{diff_text}</request>"
       send_data(diff_text, :type => "text/xml")
     else
       send_data(diff_text, :type => "text/plain")
