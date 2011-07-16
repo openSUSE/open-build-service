@@ -221,7 +221,7 @@ class ProjectStatusHelper
 	packname = p.value('package')
 	ret[packname] = BuildInfo.new
 	code = p.value('code')
-	readytime = begin Integer(p['readytime']) rescue 0 end
+	readytime = begin Integer(p.value('readytime')) rescue 0 end
 	if code == "unchanged" || code == "succeeded"
 	  ret[packname].success(reponame, readytime, p.value('srcmd5'))
 	else
@@ -278,7 +278,7 @@ class ProjectStatusHelper
   end
 
   def self.filter_by_package_name(name)
-    #return (name =~ /Botan/)
+    #return (name =~ /webyast/)
     return true
   end
 
