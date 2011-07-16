@@ -4,11 +4,11 @@ class Package < ActiveXML::Base
   end
 
   def name=(new_name)
-    data["name"] = new_name.to_s
+    set_attribute("name", new_name.to_s)
   end
 
   def project=(new_project)
-    data["project"] = new_project.to_s
+    set_attribute("project", new_project.to_s)
   end
 
   def parent_project

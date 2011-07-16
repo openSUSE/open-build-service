@@ -13,8 +13,8 @@ class BsRequest < ActiveXML::Base
 
   def creator
     if self.has_element?(:history)
-      e = self.history('@name="new"') 
-      e = self.history('@name="review"') if e.nil?
+      e = self.find_first('history[@name="new"]') ||
+          self.find_first('history[@name="review"]') 
     else
       e = state
     end
