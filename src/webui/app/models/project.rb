@@ -31,7 +31,7 @@ class Project < ActiveXML::Base
     def remove_arch (arch)
       return nil unless archs.include? arch
       each_arch do |a|
-        delete_element a if a.to_s == arch
+        delete_element a if a.text == arch
       end
       @archs.delete arch
     end
@@ -62,9 +62,7 @@ class Project < ActiveXML::Base
     def remove_path (path)
       return nil unless paths.include? path
       project, repository = path.split("/")
-      each_path do |p|
-        delete_element p if p.value('project') == project && p.value('repository') == repository
-      end
+      delete_element "//path[@project='#{project.to_xs}' and @repository='#{repository.to_xs}']"
       @paths.delete path
     end
 
@@ -169,18 +167,15 @@ class Project < ActiveXML::Base
 
   def add_path_to_repository(opt={})
     return nil if opt == {}
-    repository = data.find("//repository[@name='#{opt[:reponame]}']").first
+    repository = self.find_first("//repository[@name='#{opt[:reponame]}']")
 
     unless opt[:repo_path].blank?
       opt[:repo_path] =~ /(.*)\/(.*)/;
-      param = XML::Node.new 'path'
-      param['project'] = $1
-      param['repository'] = $2
+      param = self.add_element('path', :project => $1, :repository => $2)
       # put it on top
-      if repository.children?
-        repository.children.first.prev = param
-      else
-        repository << param
+      first = repository.each.first
+      if first != param
+	first.move_after(param)
       end
     end
   end
@@ -237,8 +232,8 @@ class Project < ActiveXML::Base
       return my_architectures
     end
     archs = Hash.new
-    self.each_repository do |repo|
-      repo.each_arch {|arch| archs[arch.to_s] = nil}
+    self.each('repository/arch') do |arch|
+      archs[arch.to_s] = nil
     end
     #hash to array
     self.my_architectures = archs.keys.sort
@@ -372,7 +367,7 @@ class Project < ActiveXML::Base
   def self.maintenance_project(project_name)
     predicate = "maintenance/maintains/@project='#{project_name}'"
     mp = Collection.find_cached(:id, :what => 'project', :predicate => predicate, :expires_in => 30.minutes)
-    return mp.each.first.name if mp.each.first
+    return mp.each.first.name if mp.has_elements?
     return nil
   end
 
