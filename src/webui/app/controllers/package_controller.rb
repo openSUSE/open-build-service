@@ -636,7 +636,7 @@ class PackageController < ApplicationController
 
   def remove_service
     required_parameters :id
-    id = params[:id].gsub( %r{^service_}, '' )
+    id = params[:id].gsub( %r{^service_}, '' ).to_i
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services
       flash[:error] = "Service \##{id} not found"

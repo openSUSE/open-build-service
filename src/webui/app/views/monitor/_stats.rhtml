@@ -12,8 +12,8 @@
   </thead>
   <tbody>
     <% @workerstatus.each_waiting.sort {|a,b| a.arch <=> b.arch }.each do |entrywaiting| %>
-      <% outblocked = " - " %>
-      <% outbuildavg = " - " %>
+      <% outblocked = nil %>
+      <% outbuildavg = nil %>
       <tr>
         <td class="arch">
           <%= entrywaiting.arch %>
@@ -22,24 +22,14 @@
           <span class="aligncenter"><%= entrywaiting.jobs %></span>
         </td>
         <td class="blocked">
-          <% if @workerstatus.has_element? :blocked -%>
-            <% if !@workerstatus.blocked("@arch='#{entrywaiting.arch}'").nil? -%>
-              <% if @workerstatus.blocked("@arch='#{entrywaiting.arch}'").has_attribute? :jobs -%>
-                <% outblocked = @workerstatus.blocked("@arch='#{entrywaiting.arch}'").jobs %>
-              <% end %>
-            <% end %>
-          <% end %>
-          <span class="aligncenter"><%= outblocked %></span>
+	  <% @workerstatus.each("blocked[@arch='#{entrywaiting.arch}']") { |w| outblocked = w.value(:jobs) } -%>
+          <span class="aligncenter"><%= outblocked || " - "%></span>
         </td>
         <td class="avgjobtime">
-          <% if @workerstatus.has_element? :buildavg -%>
-            <% if !@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").nil? -%>
-              <% if @workerstatus.buildavg("@arch='#{entrywaiting.arch}'").has_attribute? :buildavg -%>
-                <% outbuildavg = distance_of_time_in_words(Time.at(@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").buildavg.to_i), Time.at(0), true) %>
-              <% end %>
-            <% end %>
-          <% end %>
-          <span class="aligncenter"><%= outbuildavg %> </span>
+          <% @workerstatus.each("buildavg[@arch='#{entrywaiting.arch}']") do |w| 
+               outbuildavg = distance_of_time_in_words(Time.at(w.value(:buildavg).to_i), Time.at(0), true)
+             end -%>
+          <span class="aligncenter"><%= outbuildavg || " - " %> </span>
         </td>
       </tr>
     <% end %>

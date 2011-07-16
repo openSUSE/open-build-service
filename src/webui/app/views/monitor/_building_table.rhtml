@@ -89,7 +89,7 @@
             warning_style = nil
           end
         %>
-        <td class="starttime" <%= warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
+        <td class="starttime" <%= raw warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
               <%= distance_of_time_in_words(@time_now, start_time, true) %>
 	      <span style="display: none" class="sorttime"><%= b.starttime.to_i %></span>
         </td>

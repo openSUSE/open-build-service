@@ -360,10 +360,15 @@ class ApplicationController < ActionController::Base
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
     
-    LibXML::XML::Error.set_handler { |msg| errors << msg }
     begin
-      document = LibXML::XML::Document.string xmlbody
-    rescue LibXML::XML::Error => e
+      document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
+    rescue Nokogiri::XML::SyntaxError => e
+      errors << e.inspect
+      file = Tempfile.new('xml').path
+      file = File.open(file + ".xml", "w")
+      file.write(xmlbody)
+      file.close
+      errors << file.path
     end
 
     if document
