@@ -147,16 +147,13 @@ class Service < ActiveXML::Base
 
   # parameters need to be given as an array with hash pairs :name and :value
   def addService( name, position=-1, parameters=[] )
-     if position < 0 # append it
-        element = add_element 'service', 'name' => name
-     else
+     element = add_element 'service', 'name' => name
+     if position >= 0 
         service_elements = each("/services/service")
-        return false if service_elements.count < position or service_elements.count <= 0
-        service_elements[position-1].prev = XML::Node.new 'service'
-        element = service_elements[position-1].prev
-        element['name'] = name.to_s
+        if service_elements.count >= position
+          element.move_before(service_elements[position-1])
+	end
      end
-     logger.debug parameters.inspect
      parameters.each{ |p|
        param = element.add_element('param', :name => p[:name])
        param.text = p[:value]
@@ -174,28 +171,25 @@ class Service < ActiveXML::Base
   end
 
   def setParameters( serviceid, parameters=[] )
-     service = data.find("/services/service[#{serviceid}]")
+     service = find_first("/services/service[#{serviceid}]")
      return false if not service or service.count <= 0
 
      # remove all existing parameters
-     data.find("/services/service[#{serviceid}]/param").each do |p|
-       p.remove!
+     each("/services/service[#{serviceid}]/param") do |p|
+       delete_element p
      end
 
-     # remove all existing parameters
      parameters.each{ |p|
-       param = XML::Node.new 'param'
-       param['name'] = p[:name]
-       param << p[:value]
-       service.first << param
+        param = service.add_element('param', :name => p[:name])
+        param.text = p[:value]
      }
      return true
   end
 
   def moveService( from, to )
-     service_elements = data.find("/services/service")
+     service_elements = each("/services/service")
      return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
-     service_elements[to-1].prev = service_elements[from-1]
+     service_elements[from-1].move_before(service_elements[to-1])
   end
 
   def error
@@ -207,8 +201,8 @@ class Service < ActiveXML::Base
     begin
       fc = FrontendCompat.new
       answer = fc.get_source opt
-      doc = XML::Parser.string(answer).parse.root
-      doc.find("/directory/serviceinfo/error").each do |e|
+      doc = ActiveXML::Base.new(answer)
+      doc.each("/directory/serviceinfo/error") do |e|
          return e.text
       end
     rescue
