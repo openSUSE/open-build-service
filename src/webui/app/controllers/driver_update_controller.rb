@@ -8,7 +8,7 @@ class DriverUpdateController < PackageController
   def create
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
-    if services.data.find( "service[@name='generator_driver_update_disk']" ).first
+    if services.find_first( "service[@name='generator_driver_update_disk']" )
       flash[:warn] = "Existing Driver update disk section found in _services, editing that one"
       redirect_to :action => :edit, :project => @project, :package => @package and return
     end
@@ -23,7 +23,7 @@ class DriverUpdateController < PackageController
     # find the 'create_dud_kiwi' service
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
-    service = services.data.find( "service[@name='generator_driver_update_disk']" ).first
+    service = services.find_first( "service[@name='generator_driver_update_disk']" )
 
     if service.blank?
       flash[:warn] = "No Driver update disk section found in _services, creating new"
@@ -31,22 +31,23 @@ class DriverUpdateController < PackageController
     end
 
     #parse name, archs, repos from services file
-    @repositories = service.find( 'param[@name="instrepo"]' ).map{|repo| repo.content}
-    @name = service.find( 'param[@name="name"]' ).first.content if service.find( 'param[@name="name"]' ).first
-    @distname = service.find( 'param[@name="distname"]' ).first.content if service.find( 'param[@name="distname"]' ).first
-    @flavour = service.find( 'param[@name="flavour"]' ).first.content if service.find( 'param[@name="flavour"]' ).first
-    @architectures = service.find( 'param[@name="arch"]' ).map{|arch| arch.content} 
+    @repositories = service.each( 'param[@name="instrepo"]' ).map{|repo| repo.text}
+    @name = service.find_first( 'param[@name="name"]' ).text if service.find_first( 'param[@name="name"]' )
+    @distname = service.find_first( 'param[@name="distname"]' ).text if service.find_first( 'param[@name="distname"]' )
+    @flavour = service.find_first( 'param[@name="flavour"]' ).text if service.find_first( 'param[@name="flavour"]' )
+    @architectures = service.each( 'param[@name="arch"]' ).map{|arch| arch.text} 
 
     #parse packages, binary packages from dud_packlist.xml file
     packlist = frontend.get_source( :project => @project.to_s, :package => @package.to_s, :filename => "dud_packlist.xml" )
-    xml = XML::Document.string(packlist)
+    xml = ActiveXML::Base.new(packlist)
     @packages = []
     @binary_packages = {}
-    xml.find( "//binarylist" ).each do |binarylist|
-      @packages << binarylist['package']
-      @binary_packages[binarylist['package']] = []
-      binarylist.find( "binary" ).each do |binary|
-        @binary_packages[binarylist['package']] << binary['filename']
+    xml.each( "//binarylist" ) do |binarylist|
+      package = binarylist.value('package')
+      @packages << package
+      @binary_packages[package] = []
+      binarylist.each( "binary" ) do |binary|
+        @binary_packages[package] << binary.value('filename')
       end
     end
 
@@ -143,7 +144,7 @@ class DriverUpdateController < PackageController
     @repository = params[:repository]
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
-    @binaries = @buildresult.data.find('//binary').map{|binary| binary['filename']}
+    @binaries = @buildresult.each('//binary').map{|binary| binary['filename']}
     render :partial => 'binary_packages'
   end
 
