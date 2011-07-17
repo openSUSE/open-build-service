@@ -42,6 +42,7 @@ Rails::Initializer.run do |config|
   # rake gems:install (installs the needed gems)
   # rake gems:unpack (this unpacks the gems to vendor/gems)
 
+  config.gem 'nokogiri'
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'exception_notification'
