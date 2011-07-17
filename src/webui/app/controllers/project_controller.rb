@@ -1382,15 +1382,20 @@ class ProjectController < ApplicationController
 
   def load_requests
     pname=@project.value(:name)
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
-              + BsRequest.list({:states => 'new', :roles => "target", :project => pname})
-    if @is_maintenance_project
-      pred = "((state/@name='new') and starts-with(action/source/@project='#{pname}:') and (action/@type='maintenance_release'))"
-      requests = Collection.find_cached :what => :request, :predicate => pred
-      requests.each_request do |r|
-        @requests << r
-      end
-    end
+    cachekey="project_requests_#{pname}"
+    Rails.cache.delete(cachekey) if discard_cache?
+    @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+       req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
+           + BsRequest.list({:states => 'new', :roles => "target", :project => pname})
+       if @is_maintenance_project
+         pred = "((state/@name='new') and starts-with(action/source/@project='#{pname}:') and (action/@type='maintenance_release'))"
+         requests = Collection.find :what => :request, :predicate => pred
+         requests.each_request do |r|
+            req << r
+         end
+       end
+       req
+     end
   end
 
 end

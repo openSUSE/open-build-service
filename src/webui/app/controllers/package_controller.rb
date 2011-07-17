@@ -1212,7 +1212,12 @@ class PackageController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
+    cachekey="package_reviews_#{@project.name}_#{@package.name}"
+    Rails.cache.delete(cachekey) if discard_cache?
+    @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + 
+      BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
+    end
   end
 
 end
