@@ -10,12 +10,8 @@ class Service < ActiveXML::Base
        @serviceList = []
        @serviceParameterList = {}
 
-       path = "/service"
-       frontend = ActiveXML::Config::transport_for( :service )
-       answer = frontend.direct_http URI("/service"), :method => "GET"
-
-       doc = ActiveXML::Base.new(answer)
-       doc.each("/servicelist/service") do |s|
+       doc = Service.find_cached :all
+       doc.each("//servicelist/service") do |s|
          serviceName = s.value("name")
          next if s.value("hidden") == "true"
          hash = {}
