@@ -715,10 +715,10 @@ class DbProject < ActiveRecord::Base
         current_repo.architectures.clear
 
         repo.each_arch do |arch|
-          unless Architecture.archcache.has_key? arch.to_s
+          unless Architecture.archcache.has_key? arch.text
             raise SaveError, "unknown architecture: '#{arch}'"
           end
-          current_repo.architectures << Architecture.archcache[arch.to_s]
+          current_repo.architectures << Architecture.archcache[arch.text]
           was_updated = true
         end
 

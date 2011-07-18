@@ -556,7 +556,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/CopyOfBaseDistro"
     assert_response :success
     packages = ActiveXML::XMLNode.new(@response.body)
-    assert_equal opackages.to_s, packages.to_s
+    assert_equal opackages.dump_xml, packages.dump_xml
 
     # compare revisions
     get "/source/BaseDistro/pack2/_history"

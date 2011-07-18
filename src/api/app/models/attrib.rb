@@ -21,7 +21,7 @@ class Attrib < ActiveRecord::Base
     update_values = true unless node.each_value.length == self.values.count
 
     node.each_value.each_with_index do |val, i|
-      next if val.to_s == self.values[i].value
+      next if val.text == self.values[i].value
       update_values = true
       break
     end unless update_values
@@ -31,7 +31,7 @@ class Attrib < ActiveRecord::Base
       self.values.delete_all
       position = 1
       node.each_value do |val|
-        self.values << AttribValue.new(:value => val.to_s, :position => position)
+        self.values << AttribValue.new(:value => val.text, :position => position)
         position += 1
       end
     end
