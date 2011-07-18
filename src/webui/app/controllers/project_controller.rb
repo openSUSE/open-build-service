@@ -321,8 +321,8 @@ class ProjectController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
     end
-    if @project.parent_projects
-      redirect_to :action => 'show', :project => @project.parent_projects.first[0]
+    if @project.parent_projects and @project.parent_projects.length > 1
+      redirect_to :action => 'show', :project => @project.parent_projects.last[0]
     else
       redirect_to :action => 'list_public'
     end
