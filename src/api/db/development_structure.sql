@@ -13,8 +13,8 @@ CREATE TABLE `architectures_repositories` (
   `position` int(11) NOT NULL DEFAULT '0',
   UNIQUE KEY `arch_repo_index` (`repository_id`,`architecture_id`),
   KEY `architecture_id` (`architecture_id`),
-  CONSTRAINT `architectures_repositories_ibfk_2` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`),
-  CONSTRAINT `architectures_repositories_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+  CONSTRAINT `architectures_repositories_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `architectures_repositories_ibfk_2` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `attrib_allowed_values` (
@@ -45,9 +45,9 @@ CREATE TABLE `attrib_namespace_modifiable_bies` (
   UNIQUE KEY `attrib_namespace_user_role_all_index` (`attrib_namespace_id`,`bs_user_id`,`bs_group_id`),
   KEY `bs_user_id` (`bs_user_id`),
   KEY `bs_group_id` (`bs_group_id`),
-  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_3` FOREIGN KEY (`bs_group_id`) REFERENCES `groups` (`id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`),
-  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_3` FOREIGN KEY (`bs_group_id`) REFERENCES `groups` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `attrib_namespaces` (
@@ -100,9 +100,9 @@ CREATE TABLE `attribs` (
   UNIQUE KEY `attribs_index` (`attrib_type_id`,`db_package_id`,`db_project_id`,`binary`),
   KEY `db_package_id` (`db_package_id`),
   KEY `db_project_id` (`db_project_id`),
-  CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
   CONSTRAINT `attribs_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`),
-  CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`)
+  CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `blacklist_tags` (
@@ -141,9 +141,12 @@ CREATE TABLE `db_packages` (
   KEY `devel_package_id_index` (`develpackage_id`),
   KEY `index_db_packages_on_db_project_id` (`db_project_id`),
   KEY `updated_at_index` (`updated_at`),
-  CONSTRAINT `db_packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `db_packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
-  CONSTRAINT `db_packages_ibfk_2` FOREIGN KEY (`develproject_id`) REFERENCES `db_projects` (`id`)
+  CONSTRAINT `db_packages_ibfk_2` FOREIGN KEY (`develproject_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `db_packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `db_packages_ibfk_4` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `db_packages_ibfk_5` FOREIGN KEY (`develproject_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `db_packages_ibfk_6` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `db_project_types` (
@@ -175,8 +178,8 @@ CREATE TABLE `db_projects_tags` (
   `tag_id` int(11) NOT NULL,
   UNIQUE KEY `projects_tags_all_index` (`db_project_id`,`tag_id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `db_projects_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`),
-  CONSTRAINT `db_projects_tags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`)
+  CONSTRAINT `db_projects_tags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `db_projects_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `delayed_jobs` (
@@ -238,9 +241,9 @@ CREATE TABLE `flags` (
   KEY `index_flags_on_db_project_id` (`db_project_id`),
   KEY `index_flags_on_flag` (`flag`),
   KEY `architecture_id` (`architecture_id`),
-  CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`),
   CONSTRAINT `flags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
-  CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`)
+  CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `groups` (
@@ -259,8 +262,8 @@ CREATE TABLE `groups_roles` (
   `created_at` datetime DEFAULT NULL,
   UNIQUE KEY `groups_roles_all_index` (`group_id`,`role_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `groups_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
-  CONSTRAINT `groups_roles_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`)
+  CONSTRAINT `groups_roles_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`),
+  CONSTRAINT `groups_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `groups_users` (
@@ -269,8 +272,8 @@ CREATE TABLE `groups_users` (
   `created_at` datetime DEFAULT NULL,
   UNIQUE KEY `groups_users_all_index` (`group_id`,`user_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `groups_users_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `groups_users_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`)
+  CONSTRAINT `groups_users_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`),
+  CONSTRAINT `groups_users_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `incident_counter` (
@@ -334,9 +337,9 @@ CREATE TABLE `package_user_role_relationships` (
   UNIQUE KEY `package_user_role_all_index` (`db_package_id`,`bs_user_id`,`role_id`),
   KEY `index_package_user_role_relationships_on_bs_user_id` (`bs_user_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `package_user_role_relationships_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
   CONSTRAINT `package_user_role_relationships_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
-  CONSTRAINT `package_user_role_relationships_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `package_user_role_relationships_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `package_user_role_relationships_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `path_elements` (
@@ -348,8 +351,10 @@ CREATE TABLE `path_elements` (
   UNIQUE KEY `parent_repository_index` (`parent_id`,`repository_id`),
   UNIQUE KEY `parent_repo_pos_index` (`parent_id`,`position`),
   KEY `repository_id` (`repository_id`),
-  CONSTRAINT `path_elements_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `path_elements_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `repositories` (`id`)
+  CONSTRAINT `path_elements_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `path_elements_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `path_elements_ibfk_3` FOREIGN KEY (`parent_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `path_elements_ibfk_4` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `project_group_role_relationships` (
@@ -370,9 +375,9 @@ CREATE TABLE `project_user_role_relationships` (
   UNIQUE KEY `project_user_role_all_index` (`db_project_id`,`bs_user_id`,`role_id`),
   KEY `bs_user_id` (`bs_user_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `project_user_role_relationships_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
   CONSTRAINT `project_user_role_relationships_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
-  CONSTRAINT `project_user_role_relationships_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `project_user_role_relationships_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `project_user_role_relationships_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `ratings` (
@@ -429,8 +434,8 @@ CREATE TABLE `roles_static_permissions` (
   `created_at` datetime DEFAULT NULL,
   UNIQUE KEY `roles_static_permissions_all_index` (`static_permission_id`,`role_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `roles_static_permissions_ibfk_2` FOREIGN KEY (`static_permission_id`) REFERENCES `static_permissions` (`id`),
-  CONSTRAINT `roles_static_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
+  CONSTRAINT `roles_static_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
+  CONSTRAINT `roles_static_permissions_ibfk_2` FOREIGN KEY (`static_permission_id`) REFERENCES `static_permissions` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `roles_users` (
@@ -439,8 +444,8 @@ CREATE TABLE `roles_users` (
   `created_at` datetime DEFAULT NULL,
   UNIQUE KEY `roles_users_all_index` (`user_id`,`role_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `roles_users_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
-  CONSTRAINT `roles_users_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `roles_users_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `roles_users_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schema_migrations` (
@@ -490,8 +495,8 @@ CREATE TABLE `taggings` (
   KEY `index_taggings_on_taggable_type` (`taggable_type`),
   KEY `tag_id` (`tag_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `taggings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `taggings_ibfk_1` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
+  CONSTRAINT `taggings_ibfk_1` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`),
+  CONSTRAINT `taggings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tags` (
@@ -741,6 +746,10 @@ INSERT INTO schema_migrations (version) VALUES ('20110519000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110527000000');
 
+INSERT INTO schema_migrations (version) VALUES ('20110527083007');
+
+INSERT INTO schema_migrations (version) VALUES ('20110527083666');
+
 INSERT INTO schema_migrations (version) VALUES ('20110615083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20110615083666');
@@ -752,6 +761,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110703001200');
 INSERT INTO schema_migrations (version) VALUES ('20110711001200');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
+
+INSERT INTO schema_migrations (version) VALUES ('2147483647');
 
 INSERT INTO schema_migrations (version) VALUES ('22');
 

@@ -1176,7 +1176,7 @@ class RequestController < ApplicationController
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
-          unless action.has_element? 'options' and action.options.has_element? 'updatelink' and action.options.updatelink == "true"
+          unless action.has_element? 'options' and action.options.has_element? 'updatelink' and action.options.updatelink.text == "true"
             cp_params[:expand] = 1
             cp_params[:keeplink] = 1
           end
