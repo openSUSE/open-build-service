@@ -1113,8 +1113,7 @@ class RequestController < ApplicationController
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
 
     # use the request description as comments for history
-    params[:comment] = nil
-    params[:comment] = req.description if req.has_element? "description"
+    params[:comment] = req.value(:description)
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
@@ -1168,15 +1167,15 @@ class RequestController < ApplicationController
           cp_params = {
             :cmd => "copy",
             :user => @http_user.login,
-            :oproject => src.project,
-            :opackage => src.package,
+            :oproject => src.value(:project),
+            :opackage => src.value(:package),
             :noservice => "1",
             :requestid => params[:id],
             :comment => params[:comment]
           }
-          cp_params[:orev] = src.rev if src.has_attribute? :rev
+          cp_params[:orev] = src.value(:rev)
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
-          unless action.has_element? 'options' and action.options.has_element? 'updatelink' and action.options.updatelink.text == "true"
+          unless action.has_element? 'options' and action.options.value(:updatelink) == "true"
             cp_params[:expand] = 1
             cp_params[:keeplink] = 1
           end

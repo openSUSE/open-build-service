@@ -358,12 +358,12 @@ class DbProject < ActiveRecord::Base
         raise SaveError, "project name mismatch: #{self.name} != #{project.name}"
       end
 
-      self.title = project.title.to_s
-      self.description = project.description.to_s
-      self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
-      self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
+      self.title = project.value(:title)
+      self.description = project.value(:description)
+      self.remoteurl = project.value(:remoteurl)
+      self.remoteproject = project.value(:remoteproject)
       self.updated_at = Time.now
-      kind = project.value('kind') || "standard"
+      kind = project.value(:kind) || "standard"
       project_type = DbProjectType.find_by_name(kind)
       raise SaveError, "unable to find project kind '#{kind}'" if project_type.nil?
       self.type_id = project_type.id

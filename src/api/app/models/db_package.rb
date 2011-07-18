@@ -375,10 +375,10 @@ class DbPackage < ActiveRecord::Base
 
   def store_axml( package )
     DbPackage.transaction do
-      self.title = package.title.to_s
-      self.description = package.description.to_s
+      self.title = package.value(:title)
+      self.description = package.value(:description)
       self.bcntsynctag = nil
-      self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
+      self.bcntsynctag = package.value(:bcntsynctag)
 
       # old column, get removed now always and migrated to new develpackage
       # might get reused later for defining devel projects in project meta
@@ -386,14 +386,8 @@ class DbPackage < ActiveRecord::Base
       #--- devel project ---#
       self.develpackage = nil
       if package.has_element? :devel
-        prj_name = package.project.to_s
-        pkg_name = package.name.to_s
-        if package.devel.has_attribute? 'project'
-          prj_name = package.devel.project.to_s
-        end
-        if package.devel.has_attribute? 'package'
-          pkg_name = package.devel.package.to_s
-        end
+        prj_name = package.devel.value(:project) || package.value(:project)
+        pkg_name = package.devel.value(:package) || package.value(:name)
         unless develprj = DbProject.find_by_name(prj_name)
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
@@ -538,13 +532,7 @@ class DbPackage < ActiveRecord::Base
       update_all_flags(package)
       
       #--- update url ---#
-      if package.has_element? :url
-        if self.url != package.url.to_s
-          self.url = package.url.to_s
-        end
-      else
-        self.url = nil
-      end
+      self.url = package.value(:url)
       #--- end update url ---#
       
       #--- regenerate cache and write result to backend ---#
@@ -575,7 +563,7 @@ class DbPackage < ActiveRecord::Base
       attrib.each_value.each do |value|
         found = 0
         atype.allowed_values.each do |allowed|
-          if allowed.value == value.to_s
+          if allowed.value == value.text
             found = 1
             break
           end
