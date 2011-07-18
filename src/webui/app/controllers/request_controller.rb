@@ -244,7 +244,7 @@ private
   end
 
   def add_maintainer(req)
-    if req.action.target.has_element?('package')
+    if req.action.target.has_attribute?('package')
       target = find_cached(Package, req.action.target.package, :project => req.action.target.project)
     else
       target = find_cached(Project, req.action.target.project)
