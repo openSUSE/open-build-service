@@ -270,7 +270,7 @@
     <div class="diff_action_display" id="diff_action_<%= action_index_and_type %>" <%= 'class="hidden"' if action_index != '0' %>>
       <% file_diff_hash.each do |filename, diff| %>
         <p><b>File <%= filename %>:</b></p>
-        <% if filename.ends_with?('.spec') or filename.ends_with?('.changes') or diff.lines.count <= 1 %>
+        <% if filename.ends_with?('.spec') or filename.ends_with?('.changes') or diff.count("\n") == 0 %>
           <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff'} %>
         <% else %>
           <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff', :collapse => true} %>
