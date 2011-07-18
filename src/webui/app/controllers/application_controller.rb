@@ -3,7 +3,6 @@
 
 require 'common/activexml/transport'
 require 'person'
-require 'xml'
 
 #Note: This is a SUSE-sepecific debugging extension that saves the last
 #      exception's scope. This method needs a patched Ruby interpreter.
@@ -348,9 +347,7 @@ class ApplicationController < ActionController::Base
   end
 
   def validate_xhtml
-    # find out how to cache the w3 data before using it for test env
-    #return unless (Rails.env.development? || Rails.env.test?)
-    return unless Rails.env.development?
+    return if Rails.env.production?
     return if request.xhr?
     return if mobile_request?
     return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
@@ -372,14 +369,12 @@ class ApplicationController < ActionController::Base
     end
 
     if document
-      tmp = Tempfile.new('xml_out')
-      tmp.write(xmlbody)
-      tmp.close
-
-      out = `xmllint --noout --schema #{RAILS_ROOT}/lib/xml/xhtml1-strict.xsd #{tmp.path} 2>&1`
-      if $?.exitstatus != 0
+      ses = XHTML_XSD.validate(document)
+      unless ses.empty?
         document = nil
-        errors = [out]
+        ses.each do |e|
+          errors << e.inspect
+        end
       end
     end
 
