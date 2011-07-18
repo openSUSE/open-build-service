@@ -1238,11 +1238,14 @@ class ProjectController < ApplicationController
   end
 
   def maintained_projects
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
 
   def add_maintained_project_dialog
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
   def add_maintained_project
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].nil? or params[:maintained_project].empty?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
@@ -1258,6 +1261,7 @@ class ProjectController < ApplicationController
   end
 
   def remove_maintained_project
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].nil? or params[:maintained_project].empty?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
