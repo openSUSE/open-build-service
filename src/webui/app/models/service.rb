@@ -168,7 +168,7 @@ class Service < ActiveXML::Base
 
   def setParameters( serviceid, parameters=[] )
      service = find_first("/services/service[#{serviceid}]")
-     return false if not service or service.count <= 0
+     return false if not service
 
      # remove all existing parameters
      each("/services/service[#{serviceid}]/param") do |p|
