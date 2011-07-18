@@ -51,7 +51,9 @@ module ActionController
       opt = params()
       opt[:method] = request.method.to_s
       opt[:type] = "response"
-      Suse::Validator.validate(opt, response.body.to_s)
+      if response.status.to_s == "200"
+        Suse::Validator.validate(opt, response.body.to_s)
+      end
     end
 
   end
@@ -122,15 +124,10 @@ module Suse
         else
           raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"
         end
-        if content.nil?
-          raise "illegal option; need content"
-        end
-        if content.empty?
-          logger.debug "no content, skipping validation"
-          raise ValidationError, "Document is empty"
-        end
 
         schema_base_filename = schema_location + "/" + schema_file
+        schema = nil
+        s = Benchmark.realtime do
         if File.exists? schema_base_filename + ".rng"
           schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + ".rng"))
         elsif File.exists? schema_base_filename + ".xsd"
@@ -139,7 +136,17 @@ module Suse
           logger.debug "no schema found, skipping validation"
           return true
         end
+        end
 
+        if content.nil?
+          raise "illegal option; need content for #{schema_base_filename}"
+        end
+        if content.empty?
+          logger.debug "no content, skipping validation"
+          raise ValidationError, "Document is empty, not allowed for #{schema_base_filename}"
+        end
+
+        v = Benchmark.realtime do
         begin
           doc = Nokogiri::XML(content, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
           schema.validate(doc).each do |error|
@@ -147,11 +154,12 @@ module Suse
             # Only raise an exception for user-input validation!
             raise ValidationError, "#{opt[:type]} validation error: #{error}"
           end
-          #logger.debug "#{opt[:type]} validation succeeded: #{opt.inspect}"
-          return true
         rescue Nokogiri::XML::SyntaxError => error
           raise ValidationError, "#{opt[:type]} validation error: #{error}"
         end
+        end
+        logger.debug "Validatated #{schema_file} schema:#{s} validate:#{v}"
+        return true
       end
     end
 

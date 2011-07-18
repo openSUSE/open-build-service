@@ -71,9 +71,6 @@
         </attribute>
       </optional>
       <optional>
-        <attribute name="mountproject"/>
-      </optional>
-      <optional>
         <attribute name="created"/>
       </optional>
       <optional>
@@ -87,6 +84,10 @@
       <element ns="" name="description">
         <text/>
       </element>
+
+     <element ns="" name="mountproject">
+        <text/>
+      </optional>
 
       <interleave>
         <zeroOrMore>
