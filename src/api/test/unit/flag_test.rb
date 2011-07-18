@@ -33,8 +33,8 @@ class FlagTest < ActiveSupport::TestCase
     
     generated_xml = f.to_xml(Builder::XmlMarkup.new)
     # there is no guarantee on the order
-    assert ('<enable repository="999.999" arch="i586"/>' == generated_xml ||
-            '<enable arch="i586" repository="999.999"/>' == generated_xml)
+    assert (('<enable repository="999.999" arch="i586"/>' == generated_xml) ||
+            ('<enable arch="i586" repository="999.999"/>' == generated_xml))
     
   end
   
