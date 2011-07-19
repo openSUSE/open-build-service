@@ -295,7 +295,7 @@ class Package < ActiveXML::Base
 
   def files( rev = nil, expand = nil )
     # files whose name ends in the following extensions should not be editable and viewable
-    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
+    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip .ttf .0 .otf .ccf }
     files = []
     p = {}
     p[:project] = project
