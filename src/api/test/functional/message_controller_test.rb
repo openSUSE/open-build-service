@@ -28,7 +28,7 @@ class MessageControllerTest < ActionController::IntegrationTest
 
     put "/message/1", "<hallo/>"
     assert_response 400
-    assert_match(/element hallo: Schemas validity error/, @response.body)
+    assert_match(/validation error/, @response.body)
 
     put "/message/1", '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 400

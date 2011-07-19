@@ -288,7 +288,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # invalid xml
     put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<asd/>"
     assert_response 400
-    assert_match(/validation failed/, @response.body)
+    assert_match(/validation error/, @response.body)
 
     # new project
     put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
@@ -1453,7 +1453,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_no_match(/_pattern/, @response.body)
     put "/source/home:coolo:test/_pattern/mypattern", "broken"
     assert_response 400
-    assert_match(/validation failed/, @response.body)
+    assert_match(/validation error/, @response.body)
     put "/source/home:coolo:test/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
     assert_response :success
     get "/source/home:coolo:test/_pattern/mypattern"
