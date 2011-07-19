@@ -71,7 +71,6 @@ end
 ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG['relative_url_root']
 
 require 'ostruct'
-require "cache_immutable_fix.rb"
 
 # Exception notifier plugin configuration
 ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
