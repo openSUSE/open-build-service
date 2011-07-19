@@ -277,6 +277,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{maintenanceProject}/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
 
     # create a maintenance incident under embargo
     post "/source/My:Maintenance?cmd=createmaintenanceincident&noaccess=1", nil
@@ -288,6 +289,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{maintenanceProject}/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
   end
 
   def test_create_maintenance_project_and_release_packages
