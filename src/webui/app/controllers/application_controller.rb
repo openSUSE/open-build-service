@@ -354,7 +354,7 @@ class ApplicationController < ActionController::Base
   private :put_body_to_tempfile
 
   def validate_xhtml
-    return if Rails.env.production?
+    return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
     return if mobile_request?
     return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
