@@ -969,17 +969,13 @@ class SourceController < ApplicationController
 
       # file validation where possible
       if params[:file] == "_link"
-         validator = Suse::Validator.new( "link" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "link", request.raw_post.to_s)
       elsif params[:file] == "_aggregate"
-         validator = Suse::Validator.new( "aggregate" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
       elsif params[:package] == "_pattern"
-         validator = Suse::Validator.new( "pattern" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
       elsif params[:file] == "_service"
-         validator = Suse::Validator.new( "service" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "service", request.raw_post.to_s)
       end
 
       if params[:file] == "_link"
