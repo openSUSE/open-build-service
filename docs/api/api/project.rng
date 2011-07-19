@@ -85,14 +85,16 @@
         <text/>
       </element>
 
-     <element ns="" name="mountproject">
-        <text/>
-      </optional>
-
       <interleave>
         <zeroOrMore>
           <ref name="project-link-element"/>
         </zeroOrMore>
+
+        <optional> 
+          <element ns="" name="mountproject">
+            <text/>
+          </element>
+        </optional>
 
         <optional>
           <element ns="" name="remoteurl">
