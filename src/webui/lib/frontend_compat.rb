@@ -1,3 +1,4 @@
+require 'xml'
 class FrontendCompat
 
   def esc(str)
@@ -101,11 +102,9 @@ class FrontendCompat
     logger.debug "get log entry"
     path = "#{@url_prefix}/build/#{esc project}/#{esc repo}/#{esc arch}/#{esc package}/_log?view=entry"
     data = transport.direct_http URI("#{path}"), :timeout => 500
-    if ! data
-      return 0
-    end
-    xml = XML::Parser.string(data).parse.root
-    return Integer(xml.find_first('//entry')['size'])
+    return 0 unless data
+    doc = Nokogiri::XML(data)
+    return doc.root.first_element_child().attributes['size'].value.to_i
   end
 
   def gethistory(key, range, cache=1)
@@ -114,9 +113,9 @@ class FrontendCompat
     return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
       hash = Hash.new
       data = transport.direct_http(URI('/public/status/history?key=%s&hours=%d&samples=400' % [key, range]))
-      d = XML::Parser.string(data).parse
-      d.root.each_element do |v|
-        hash[Integer(v.attributes['time'])] = v.attributes['value'].to_f
+      doc = Nokogiri::XML(data)
+      doc.root.elements.each do |value|
+        hash[value.attributes['time'].value.to_i] = value.attributes['value'].value.to_f
       end
       hash.sort {|a,b| a[0] <=> b[0]}
     end
