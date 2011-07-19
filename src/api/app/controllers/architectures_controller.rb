@@ -16,7 +16,8 @@ class ArchitecturesController < ApplicationController
     respond_to do |format|
       format.xml do 
         builder = Builder::XmlMarkup.new(:indent => 2)
-        xml = builder.directory(:count => @architectures.length) do |directory|
+        arch_count = 0
+        xml = builder.directory(:count => '@@@') do |directory|
           @architectures.each do |arch|
             # Check for 'recommended' or 'available' filters
             next unless arch.recommended if ["1", "true"].include?(params[:recommended])
@@ -25,8 +26,11 @@ class ArchitecturesController < ApplicationController
             next if arch.available if ["0", "false"].include?(params[:available])
             # Add directory entry that survived filtering
             directory.entry(:name => arch.name, :available => arch.available, :recommended => arch.recommended)
+            arch_count += 1
           end
         end
+        # Builder::XML doesn't allow setting attributes later on, thus the usage of a placeholder
+        xml.gsub!(/@@@/, arch_count.to_s)
         render :xml => xml
       end
     end
