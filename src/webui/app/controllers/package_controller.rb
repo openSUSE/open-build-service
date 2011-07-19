@@ -1015,6 +1015,9 @@ class PackageController < ApplicationController
   end
 
   def reload_buildstatus
+    unless request.xhr?
+      render :text => 'no ajax', :status => 400 and return
+    end
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
