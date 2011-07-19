@@ -1,4 +1,3 @@
-require 'xml'
 class FrontendCompat
 
   def esc(str)
