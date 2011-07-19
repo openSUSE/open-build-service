@@ -51,7 +51,22 @@ namespace :db do
       structure.gsub!(' COLLATE utf8_unicode_ci', '')
       structure.gsub!(%r{KEY  *}, 'KEY ')
       structure += "\n"
-      File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << structure }
+      # sort the constraint lines always in the same order
+      new_structure = ''
+      constraints = Array.new
+      structure.each_line do |line|
+        if line.match(/[ ]*CONSTRAINT/)
+          constraints << line
+        else
+          if constraints.count > 0
+            constraints.sort!
+            new_structure += constraints.join()
+            constraints = Array.new
+          end
+          new_structure += line
+        end
+      end
+      File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << new_structure }
     end
      
     task :load => :environment do
