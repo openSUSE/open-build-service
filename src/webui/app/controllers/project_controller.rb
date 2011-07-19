@@ -374,6 +374,7 @@ class ProjectController < ApplicationController
     # overwrite @project with different view
     # TODO to get this cached we need to make sure it gets purged on repo updates
     @project = Project.find( params[:project], :view => :flagdetails )
+    @user_is_maintainer = (@user && @user.is_maintainer?(@project, nil))
   end
 
   def repository_state

@@ -266,22 +266,20 @@ class Project < ActiveXML::Base
   end
 
   def user_has_role?(user, role)
-    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
+    user = Person.find_cached(user.to_s) if user.class == String
     if user
       return true if user.is_admin?
-      each_person do |p|
-        return true if p.role == role and p.userid == user.to_s
-      end
-      each_group do |g|
-        return true if g.role == role and user.is_in_group?(g.groupid)
+      return true if find_first("person[@role='#{role}' and @userid='#{user.login}']")
+      each("group[@role='#{role}']") do |g|
+        return true if user.is_in_group?(g.value(:groupid))
       end
     end
     return false
   end
 
   def group_has_role?(group, role)
-    each_group do |g|
-      return true if g.role == role and g.groupid == group
+    each("group") do |g|
+      return true if g.value(:role) == role and g.value(:groupid) == group
     end
     return false
   end

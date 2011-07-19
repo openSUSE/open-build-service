@@ -56,10 +56,15 @@ class Person < ActiveXML::Base
   def initialize(data)
     @mygroups = nil
     super(data)
+    @login = self.value(:login)
+  end
+
+  def login
+    @login
   end
 
   def to_s
-    login.to_s
+    @login
   end
 
   def add_watched_project(name)
@@ -128,7 +133,6 @@ class Person < ActiveXML::Base
   end
 
   def is_in_group?(group)
-    logger.debug "groups #{groups.inspect}"
     return groups.include?(group)
   end
 
