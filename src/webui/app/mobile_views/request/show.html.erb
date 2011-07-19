@@ -6,7 +6,16 @@
 <% end %>
 
 <div data-role="collapsible" data-collapsed="false">
-  <h3>Actions</h3>
+	<h3>Actions</h3>
+	<%= link_to 'Accept', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "check", 'data-role' => "button" %>
+	<%= link_to 'Decline', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+	<%= link_to 'Modify', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "gear", 'data-role' => "button" %>
+	<%= link_to 'Delete', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "delete", 'data-role' => "button" %>
+</div>
+
+<div data-role="collapsible" data-collapsed="false">
+	  <h3>Info</h3>
+
 
   <% @req.each_action do |ae| %>
     Type: <%= ae.value("type") %> request <br/>
@@ -66,3 +75,8 @@
     <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @diff_text, :type => 'diff'} %>
   </div>
 <% end %>
+
+
+<div data-role="collapsible" data-collapsed="true">
+    <h3>Build Status</h3>
+  </div>
