@@ -344,6 +344,15 @@ class ApplicationController < ActionController::Base
   def assert_xml_validates
   end
 
+  def put_body_to_tempfile(xmlbody)
+    file = Tempfile.new('xml').path
+    file = File.open(file + ".xml", "w")
+    file.write(xmlbody)
+    file.close
+    return file.path
+  end
+  private :put_body_to_tempfile
+
   def validate_xhtml
     return if Rails.env.production?
     return if request.xhr?
@@ -359,17 +368,14 @@ class ApplicationController < ActionController::Base
       document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
     rescue Nokogiri::XML::SyntaxError => e
       errors << e.inspect
-      file = Tempfile.new('xml').path
-      file = File.open(file + ".xml", "w")
-      file.write(xmlbody)
-      file.close
-      errors << file.path
+      errors << put_body_to_tempfile(xmlbody)
     end
 
     if document
       ses = XHTML_XSD.validate(document)
       unless ses.empty?
         document = nil
+        errors << put_body_to_tempfile(xmlbody) 
         ses.each do |e|
           errors << e.inspect
         end

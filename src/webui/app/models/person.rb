@@ -70,9 +70,8 @@ class Person < ActiveXML::Base
   def add_watched_project(name)
     return nil unless name
     add_element 'watchlist' unless has_element? :watchlist
-    watchlist.add_element 'project', 'name' => name
     logger.debug "user '#{login}' is now watching project '#{name}'"
-    @@person_cache.remove(login)
+    @@person_cache.delete(login)
   end
 
   def remove_watched_project(name)

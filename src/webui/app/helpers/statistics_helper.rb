@@ -4,6 +4,7 @@ module StatisticsHelper
   def statistics_limit_form( action, title='' )
     out = ''
     out << form_tag( nil, :method => :get ) do
+     content_tag(:p) do
       statistics_limit_select( "#{title} " )
       hidden_field_tag( 'more', params[:more] )
       hidden_field_tag( 'package', @package ) if @package
@@ -12,6 +13,7 @@ module StatisticsHelper
       hidden_field_tag( 'arch', @arch) if @arch
       image_submit_tag( 'system-search.png' )
       image_tag( 'rotating-tail.gif', :style => 'display: none;', :id => 'spinner' )
+     end
     end
     out << observe_field( :limit, :update => action,
       :url => { :action  => action, :more => true,

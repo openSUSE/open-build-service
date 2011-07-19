@@ -251,10 +251,11 @@ class Package < ActiveXML::Base
     end
     rev = Package.current_rev(project, name) unless rev
 
+    cache_key = nil
     if rev and not cacheAll
       path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
       cache_key = "Commit/#{project}/#{name}/#{rev}"
-      c = Rails.cache.fetch(cache_key, :expires_in => 30.minutes)
+      c = Rails.cache.read(cache_key, :expires_in => 30.minutes)
       if c
         return c
       end
@@ -286,7 +287,6 @@ class Package < ActiveXML::Base
          if requestid=s.find_first("requestid")
            c[:requestid] = requestid.text
          end
-         Rails.cache.fetch( cache_key ) { c } if cache_key and c[:revision]
     end
 
     return nil unless c[:revision]
