@@ -159,13 +159,13 @@ class RequestController < ApplicationController
         end
 
         rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
-        @req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+        req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
                              :project => @req.action.target.project, :package => @req.action.target.package,
                              :rev => rev, :description => description)
-        @req.save(:create => true)
+        req.save(:create => true)
         Rails.cache.delete('requests_new')
         # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
-        flash[:note] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => @req.value('id'))}'>#{@req.value('id')}</a>)"
+        flash[:note] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
       end
     end
     redirect_to :action => 'show', :id => params[:id]
