@@ -33,6 +33,14 @@ class Person < ActiveXML::Base
     doc
   end
   
+  @@person_cache = Hash.new
+  def self.find_cached(login)
+     if @@person_cache.has_key? login
+       return @@person_cache[login]
+     end
+     @@person_cache[login] = super
+  end
+
   def self.email_for_login(person)
     p = Person.find_cached(person)
     return p.value(:email) if p
@@ -45,6 +53,11 @@ class Person < ActiveXML::Base
     return ''
   end
 
+  def initialize(data)
+    @mygroups = nil
+    super(data)
+  end
+
   def to_s
     login.to_s
   end
@@ -54,7 +67,7 @@ class Person < ActiveXML::Base
     add_element 'watchlist' unless has_element? :watchlist
     watchlist.add_element 'project', 'name' => name
     logger.debug "user '#{login}' is now watching project '#{name}'"
-    Rails.cache.delete("person_#{login}")
+    @@person_cache.remove(login)
   end
 
   def remove_watched_project(name)
@@ -62,7 +75,7 @@ class Person < ActiveXML::Base
     return nil unless watches? name
     watchlist.delete_element "project[@name='#{name}']"
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
-    Rails.cache.delete("person_#{login}")
+    @@person_cache.remove(login)
   end
 
   def watches?(name)
@@ -102,11 +115,12 @@ class Person < ActiveXML::Base
   end
 
   def groups
-    mygroups = Array.new
+    return @mygroups if @mygroups
+    @mygroups = Array.new
     PersonGroup.find(login.to_s).each('/directory/entry') do |e|
-        mygroups << e.value("name")
+        @mygroups << e.value("name")
     end
-    return mygroups
+    return @mygroups
   end
 
   def packagesorter(a, b)
@@ -114,6 +128,7 @@ class Person < ActiveXML::Base
   end
 
   def is_in_group?(group)
+    logger.debug "groups #{groups.inspect}"
     return groups.include?(group)
   end
 
