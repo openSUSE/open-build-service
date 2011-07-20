@@ -5,97 +5,83 @@ TagA_assigned_by_Iggy_to_the_project_with_id_1:
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 1 #kde
-  created_at: 2007-05-16 14:18:23
 TagA_assigned_by_Iggy_to_the_project_with_id_2:
   tag_id: 461
   id: 1732
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 2 #kde4
-  created_at: 2007-05-16 14:18:23
 TagA_assigned_by_Iggy_to_the_project_with_id_502:
   tag_id: 461
   id: 1733 
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 502 #home:Iggy
-  created_at: 2007-05-16 14:18:23
 TagB_assigned_by_Iggy_to_the_project_with_id_502:
   tag_id: 462
   id: 1735
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 502 #home:Iggy
-  created_at: 2007-05-16 14:18:55
 TagB_assigned_by_Iggy_to_the_package_with_id_10095:
   tag_id: 462
   id: 1736
   taggable_type: DbPackage
   user_id: 267  #Iggy
   taggable_id: 10095 #TestPack
-  created_at: 2007-05-16 14:18:55
 TagB_assigned_by_fred_to_the_project_with_id_502:
   tag_id: 462
   id: 1744
   taggable_type: DbProject
   user_id: 1  #fred
   taggable_id: 502 #home:Iggy
-  created_at: 2007-05-16 14:21:44
 TagB_assigned_by_fred_to_the_package_with_id_10095:
   tag_id: 462
   id: 1745
   taggable_type: DbPackage
   user_id: 1  #fred
   taggable_id: 10095 #TestPack
-  created_at: 2007-05-16 14:21:44
 TagC_assigned_by_Iggy_to_the_project_with_id_502:
   tag_id: 463
   id: 1737
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 502 #home:Iggy
-  created_at: 2007-05-16 14:18:55
 TagC_assigned_by_Iggy_to_the_project_with_id_1:
   tag_id: 463
   id: 1738
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 1 #kde
-  created_at: 2007-05-16 14:18:55
 TagC_assigned_by_Iggy_to_the_package_with_id_10095:
   tag_id: 463
   id: 1742
   taggable_type: DbPackage
   user_id: 267  #Iggy
   taggable_id: 10095 #TestPack
-  created_at: 2007-05-16 14:20:06
 TagC_assigned_by_fred_to_the_project_with_id_502:
   tag_id: 463
   id: 1743
   taggable_type: DbProject
   user_id: 1  #fred
   taggable_id: 502 #home:Iggy
-  created_at: 2007-05-16 14:21:44
 TagD_assigned_by_Iggy_to_the_package_with_id_10095:
   tag_id: 464
   id: 1740
   taggable_type: DbPackage
   user_id: 267  #Iggy
   taggable_id: 10095 #TestPack
-  created_at: 2007-05-16 14:20:06
 TagE_assigned_by_Iggy_to_the_package_with_id_10095:
   tag_id: 465
   id: 1741
   taggable_type: DbPackage
   user_id: 267  #Iggy
   taggable_id: 10095 #TestPack
-  created_at: 2007-05-16 14:20:06
 TagF_assigned_by_Iggy_to_the_project_with_id_502:
   tag_id: 388
   id: 1734
   taggable_type: DbProject
   user_id: 267  #Iggy
   taggable_id: 502 #home:Iggy
-  created_at: 2007-05-16 14:18:35
   
   

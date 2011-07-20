@@ -3,8 +3,6 @@ admin_role:
   parent_id:  NULL
   title:      Admin
   global:     true
-  created_at: 2006-02-14 13:12:11
-  updated_at: 2006-02-14 14:11:11
 
 User_role:
   id:         2
