@@ -150,8 +150,9 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_package_name_read? name
-    return true if name =~ /^_project$/
-    return true if name =~ /^_product$/
+    return true if name == "_project"
+    return true if name == "_product"
+    return true if name == "_deltas"
     return true if name =~ /^_product:[-_+\w\.:]*$/
     return true if name =~ /^_patchinfo:[-_+\w\.:]*$/
     name =~ /^[[:alnum:]][-_+\w\.:]*$/
