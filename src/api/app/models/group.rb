@@ -27,7 +27,7 @@ class Group < ActiveRecord::Base
            begin
              list = User.render_grouplist_ldap(Group.find(:all), user.login)
            rescue Exception
-             logger.debug "Error occured in rendering grouplist in ldap."
+             logger.debug "Error occurred in rendering grouplist in ldap."
            end
          else
            list = user.groups
@@ -37,7 +37,7 @@ class Group < ActiveRecord::Base
            begin
              list = User.render_grouplist_ldap(Group.find(:all))
            rescue Exception
-             logger.debug "Error occured in rendering grouplist in ldap."
+             logger.debug "Error occurred in rendering grouplist in ldap."
            end
          else
            list = Group.find(:all)

@@ -359,7 +359,7 @@ class User < ActiveRecord::Base
       begin
         ldapgroups = User.render_grouplist_ldap(grouplist, self.login)
       rescue Exception
-        logger.debug "Error occured in searching user_group in ldap."
+        logger.debug "Error occurred in searching user_group in ldap."
       end
     end        
     return ldapgroups
@@ -376,7 +376,7 @@ class User < ActiveRecord::Base
     begin      
       return true unless User.render_grouplist_ldap(grouplist, user).empty?
     rescue Exception
-      logger.debug "Error occured in searching user_group in ldap."
+      logger.debug "Error occurred in searching user_group in ldap."
     end
 
     return false

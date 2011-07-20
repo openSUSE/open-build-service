@@ -61,7 +61,7 @@ class ActiveRbac::RoleController < ActiveRbac::ComponentController
   end
 
   # Display a form to edit the given role on GET. Handle the form submission
-  # of this form on POST and display errors if any occured.
+  # of this form on POST and display errors if any occurred.
   def update
 
     if request.get?
