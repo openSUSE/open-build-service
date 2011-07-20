@@ -80,8 +80,8 @@ Rails::Initializer.run do |config|
 
   # See Rails::Configuration for more options
   config.after_initialize do
-    ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
-    ExceptionNotifier.sender_address = CONFIG["exception_sender"]
+    ExceptionNotification::Notifier.exception_recipients = CONFIG["exception_recipients"]
+    ExceptionNotification::Notifier.sender_address = CONFIG["exception_sender"]
   end unless Rails.env.test?
 end
 

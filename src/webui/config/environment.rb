@@ -44,7 +44,7 @@ init = Rails::Initializer.run do |config|
 
   config.gem 'daemons'
   config.gem 'delayed_job'
-  config.gem 'exception_notification', :version => '<= 1.1'
+  config.gem 'exception_notification'
   config.gem 'erubis'
   config.gem 'rails_xss'
   config.gem 'nokogiri'
@@ -74,9 +74,9 @@ ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG
 require 'ostruct'
 
 # Exception notifier plugin configuration
-ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
-ExceptionNotifier.email_prefix = "[OBS web error] "
-ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
+ExceptionNotification::Notifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
+ExceptionNotification::Notifier.email_prefix = "[OBS web error] "
+ExceptionNotification::Notifier.exception_recipients = CONFIG['exception_recipients']
 
 if CONFIG['hide_private_options'] == true
    HIDE_PRIVATE_OPTIONS = true

@@ -21,6 +21,8 @@ end
 
 class ApplicationController < ActionController::Base
 
+  include ExceptionNotification::Notifiable
+
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
 
   before_filter :instantiate_controller_and_action_names
@@ -217,7 +219,7 @@ class ApplicationController < ActionController::Base
       elsif code == "unconfirmed_user"
         render :template => "user/unconfirmed" and return
       else
-        #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
+        #ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
         if @user
           render_error :status => 403, :message => message
         else
@@ -225,7 +227,7 @@ class ApplicationController < ActionController::Base
         end
       end
     when ActiveXML::Transport::UnauthorizedError
-      #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
+      #ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render_error :status => 401, :message => 'Unauthorized access, please login'
     when ActionController::InvalidAuthenticityToken
       render_error :status => 401, :message => 'Invalid authenticity token'
@@ -234,7 +236,7 @@ class ApplicationController < ActionController::Base
     when Timeout::Error
       render :template => "timeout" and return
     when ValidationError
-      ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
+      ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
     when MissingParameterError 
       render_error :status => 400, :message => message
@@ -248,9 +250,9 @@ class ApplicationController < ActionController::Base
         #Note: This is a SUSE-sepecific debugging extension that saves the last
         #      exception's scope. This method needs a patched Ruby interpreter.
         if defined?(set_trace_func_for_raise)
-          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), $exception_scope)
+          ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), $exception_scope)
         else
-          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+          ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
         end
       end
       render_error :status => 400, :code => code, :message => message,
@@ -309,7 +311,7 @@ class ApplicationController < ActionController::Base
   end
 
   def send_exception_mail?
-    return !local_request? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
+    return !local_request? && !Rails.env.development? && ExceptionNotification::Notifier.exception_recipients && ExceptionNotification::Notifier.exception_recipients.length > 0
   end
 
   def instantiate_controller_and_action_names
