@@ -386,6 +386,24 @@ module ApplicationHelper
     return text
   end
 
+  def force_utf8_and_transform_nonprintables(text)
+    # Unknown input encoding, try really badass conversion
+    begin
+      new_text = Iconv.iconv('US-ASCII//IGNORE//TRANSLIT', 'UTF-8', text + ' ')[0]
+    rescue Iconv::IllegalSequence # Be more badass'ed
+      new_text = Iconv.iconv('UTF-8//IGNORE//TRANSLIT', 'UTF-8', text + ' ')[0]
+    end
+    # Ged rid of stuff that shouldn't be part of PCDATA:
+    new_text.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
+      if $1[0].to_i < 32
+        ''
+      else
+        $1
+      end
+    end
+    return new_text
+  end
+
   def reload_to_remote(opts)
     {:title => "Reload", :url => nil, :update => nil}.merge(opts)
 

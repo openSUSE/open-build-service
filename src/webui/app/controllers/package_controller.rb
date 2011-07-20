@@ -774,20 +774,6 @@ class PackageController < ApplicationController
     end
     begin
       @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @srcmd5)
-      # Unknown input encoding, try really badass conversion
-      begin
-        @file = Iconv.iconv('US-ASCII//IGNORE//TRANSLIT', 'UTF-8', @file + ' ')[0]
-      rescue Iconv::IllegalSequence # Be more badass'ed
-        @file = Iconv.iconv('UTF-8//IGNORE//TRANSLIT', 'UTF-8', @file + ' ')[0]
-      end
-      # Ged rid of stuff that shouldn't be part of PCDATA:
-      @file.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
-        if $1[0].to_i < 32
-          ''
-        else
-          $1
-        end
-      end
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :files, :package => @package, :project => @project
