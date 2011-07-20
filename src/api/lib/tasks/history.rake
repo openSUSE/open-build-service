@@ -6,12 +6,16 @@ namespace :db do
     task :rescale => :environment do
       logger = RAILS_DEFAULT_LOGGER
       # we try to make sure all keys are in the same time slots, so start with the overall time
-      mintime = StatusHistory.find( :first, :select => 'min(`time`) as time' ).time
       offset = 3600 * 6
-      mintime = (mintime / offset) * offset
-      maxtime = maxtime = StatusHistory.find( :first, :select => 'max(`time`) as time' ).time
+      maxtime = StatusHistory.find( :first, :select => 'max(`time`) as time' ).time
       maxtime -= 24 * 3600 * 21
       maxtime = (maxtime / offset) * offset
+
+      sql = ActiveRecord::Base.connection()
+      sql.execute "delete from status_histories where time < #{maxtime-365*24*3600}"
+      mintime = StatusHistory.find( :first, :select => 'min(`time`) as time' ).time
+      mintime = (mintime / offset) * offset
+
 
       keys = StatusHistory.find( :all, :select => 'DISTINCT `key`' ).collect {|item| item.key}
       keys.each do |key|
@@ -38,10 +42,8 @@ namespace :db do
           curmintime += offset
         end
       end
-      #sql = ActiveRecord::Base.connection();
-      #sql.execute "optimize table status_histories;"
+      sql.execute "optimize table status_histories;"
     end
-
 
   end
 end
