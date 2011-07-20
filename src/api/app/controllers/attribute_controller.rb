@@ -11,6 +11,8 @@ class AttributeController < ApplicationController
   validate_action :attribute_definition => {:method => :put, :request => :attrib_type, :response => :status}
 
   def index
+    valid_http_methods :get
+
     if params[:namespace]
       if not AttribNamespace.find_by_name( params[:namespace] )
         render_error :status => 400, :errorcode => 'unknown_namespace',
@@ -34,6 +36,8 @@ class AttributeController < ApplicationController
 
   # /attribute/:namespace/_meta
   def namespace_definition
+    valid_http_methods :get, :delete, :post
+
     if params[:namespace].nil?
       render_error :status => 400, :errorcode => 'missing_parameter',
         :message => "parameter 'namespace' is missing"
@@ -95,6 +99,8 @@ class AttributeController < ApplicationController
 
   # /attribute/:namespace/:name/_meta
   def attribute_definition
+    valid_http_methods :get, :delete, :post
+
     if params[:namespace].nil?
       render_error :status => 400, :errorcode => 'missing_parameter',
         :message => "parameter 'namespace' is missing"
