@@ -1110,7 +1110,7 @@ class SourceController < ApplicationController
       end
       if params[:value]
         DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |pkg|
-          @packages.push({ :target_project => pkg.db_project, :package => pkg }) if @http_user.can_access? pkg.db_project
+          @packages.push({ :target_project => pkg.db_project, :package => pkg })
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
@@ -1126,7 +1126,7 @@ class SourceController < ApplicationController
               prj.linkedprojects.each do |lprj|
                 if lprj.linked_db_project
                   if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                    @packages.push({ :target_project => prj, :package => pkg }) unless pkg.db_project.disabled_for? 'access', nil, nil and not @http_user.can_access? pkg.db_project
+                    @packages.push({ :target_project => prj, :package => pkg })
                   else
                     # FIXME: add support for branching from remote projects
                   end
@@ -1138,9 +1138,11 @@ class SourceController < ApplicationController
       end
     end
 
-    # check for source access permission. Hidden projects must not exist here anymore!
+    # add packages which link them in the same project to support build of source with multiple build descriptions
     @packages.each do |p|
-      DbPackage.get_by_project_and_name( p[:package].db_project.name, p[:package].name )
+      p[:package].find_project_local_linking_packages.each do |llp|
+        @packages.push({ :target_project => llp.db_project, :package => llp, :local_link => 1 })
+      end
     end
 
     unless @packages.length > 0
@@ -1229,8 +1231,8 @@ class SourceController < ApplicationController
           if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=true )
             prj = DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
-            if prj.develproject and p = prj.develproject.find_package(pac.name)
-              devel_package = p
+            if prj.develproject and dp = prj.develproject.find_package(pac.name)
+              devel_package = dp
             end
           else
             render_error :status => 404, :errorcode => "unknown_package",
@@ -1267,12 +1269,23 @@ class SourceController < ApplicationController
       end
       tpkg.store
 
-      # branch sources in backend
-      Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}&user=#{CGI.escape(@http_user.login)}", nil
+      if p[:local_link]
+        # copy project local linked packages
+        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}&user=#{CGI.escape(@http_user.login)}", nil
+        # and fix the link
+        link = backend_get "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link"
+        ret = ActiveXML::XMLNode.new(link)
+        ret.delete_attribute('project')
+        ret.set_attribute('package', ret.package + "." + proj_name)
+        Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+      else
+        # branch sources in backend
+        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}&user=#{CGI.escape(@http_user.login)}", nil
 
-      # fetch newer sources from devel package, if defined
-      if devel_package
-        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(devel_package.db_project.name)}&opackage=#{CGI.escape(devel_package.name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
+        # fetch newer sources from devel package, if defined
+        if devel_package
+          Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(devel_package.db_project.name)}&opackage=#{CGI.escape(devel_package.name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
+        end
       end
     end
 

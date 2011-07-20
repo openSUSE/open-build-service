@@ -214,7 +214,7 @@ class DbPackage < ActiveRecord::Base
 
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
       ret = result[0]
-      return unless DbPackage.check_access?(ret)
+      return nil unless DbPackage.check_access?(ret)
       return ret
     end
 
@@ -302,8 +302,14 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def find_linking_packages
-    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\")"
+  def find_project_local_linking_packages
+    find_linking_packages(project_local=1)
+  end
+
+  def find_linking_packages(project_local=nil)
+    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\""
+    path += "+and+@project=\"#{CGI.escape(self.db_project.name)}\"" if project_local
+    path += ")"
     answer = Suse::Backend.post path, nil
     data = REXML::Document.new(answer.body)
     result = []
@@ -311,7 +317,7 @@ class DbPackage < ActiveRecord::Base
     data.elements.each("collection/package") do |e|
       p = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
       if p.nil?
-        logger.error "Data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
+        logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
       else
         result.push( p )
       end
