@@ -14,6 +14,9 @@
       <h4>Information</h4>
       <ul class="clean_list">
         <li>
+          <%= image_tag 'icons/application_get.png' %> <a href="http://software.opensuse.org/download.html?prj=<%= @project %>&amp;pkg=<%= @package %>">Downloads page</a>
+        </li>
+        <li>
           <% nr_files = @package.files.size %>
           <% if nr_files == 0 %>
             <%= image_tag 'icons/exclamation.png' %>
