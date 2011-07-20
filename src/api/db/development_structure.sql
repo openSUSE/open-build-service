@@ -161,8 +161,8 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
-  `type_id` int(11) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
@@ -189,8 +189,6 @@ CREATE TABLE `delayed_jobs` (
   `locked_at` datetime DEFAULT NULL,
   `failed_at` datetime DEFAULT NULL,
   `locked_by` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -413,8 +411,6 @@ CREATE TABLE `repositories` (
 
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
   `title` varchar(100) NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   `global` tinyint(1) DEFAULT '0',
@@ -426,7 +422,6 @@ CREATE TABLE `roles` (
 CREATE TABLE `roles_static_permissions` (
   `role_id` int(11) NOT NULL DEFAULT '0',
   `static_permission_id` int(11) NOT NULL DEFAULT '0',
-  `created_at` datetime DEFAULT NULL,
   UNIQUE KEY `roles_static_permissions_all_index` (`static_permission_id`,`role_id`),
   KEY `role_id` (`role_id`),
   CONSTRAINT `roles_static_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
@@ -451,8 +446,6 @@ CREATE TABLE `schema_migrations` (
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(200) NOT NULL DEFAULT '',
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `static_permissions_title_index` (`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -484,7 +477,6 @@ CREATE TABLE `taggings` (
   `taggable_type` varchar(255) DEFAULT NULL,
   `tag_id` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `taggings_taggable_id_index` (`taggable_id`,`taggable_type`,`tag_id`,`user_id`),
   KEY `index_taggings_on_taggable_type` (`taggable_type`),
@@ -750,6 +742,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110627001200');
 INSERT INTO schema_migrations (version) VALUES ('20110703001200');
 
 INSERT INTO schema_migrations (version) VALUES ('20110711001200');
+
+INSERT INTO schema_migrations (version) VALUES ('20110719142500');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
