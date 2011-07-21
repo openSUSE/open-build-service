@@ -50,19 +50,19 @@ function remove_dialog() {
 }
 
 
-function setup_buildresult_tooltip(reqid, url) {
-    $('#req_' + reqid).tooltip({
+function setup_buildresult_tooltip(element_id, url) {
+    $('#' + element_id).tooltip({
         showURL: false,
         track: true,
         fade: 250,
         opacity: 1,
         bodyHandler: function() {
-            return "<div id='req_" + reqid + "_tooltip' style='width: 500px;'>loading buildresult...</div>";
+            return "<div id='" + element_id + "_tooltip' style='width: 500px;'>loading buildresult...</div>";
         }
     });
-    $('#req_' + reqid ).mouseover(function() {
-        if ($('#req_' + reqid + '_tooltip').html() == 'loading buildresult...') {
-            $('#req_' + reqid + '_tooltip').load(url);
+    $('#' + element_id).mouseover(function() {
+        if ($('#' + element_id + '_tooltip').html() == 'loading buildresult...') {
+            $('#' + element_id + '_tooltip').load(url);
         }
     });
 }

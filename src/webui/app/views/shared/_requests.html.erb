@@ -1,7 +1,10 @@
 <% elide_len ||= 40 %>
 <% request_table_id ||= 'request_table' %>
 
-<%= javascript_include_tag 'jquery.tablesorter' %>
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.tooltip' %>
+<% end %>
+<%= javascript_include_tag 'jquery.tablesorter', 'jquery.tooltip.min' %>
 
 <% if requests.blank? %>
   <p>No requests.</p>
@@ -69,7 +72,7 @@
             <% if ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
               <% javascript_tag do %>
-                setup_buildresult_tooltip( <%= req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
+                setup_buildresult_tooltip('<%= "req_#{req.value(:id)}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
               <% end %>
             <% end %>
           </td>
