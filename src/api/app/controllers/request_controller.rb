@@ -103,18 +103,14 @@ class RequestController < ApplicationController
         # find requests where user is maintainer in target project
         if roles.count == 0 or roles.include? "maintainer"
           maintained_projects = Array.new
-          maintained_projects_hash = Hash.new
           user.involved_projects.each do |ip|
             inner_or << ["action/target/@project='#{ip.name}'"]
-            maintained_projects_hash[ip.id] = true
           end
 
           ## find request where user is maintainer in target package, except we have to project already
           maintained_packages = Array.new
           user.involved_packages.each do |ip|
-            unless maintained_projects_hash.has_key?(ip.db_project_id)
-              inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
-            end
+            inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
           end
         end
 
@@ -130,18 +126,14 @@ class RequestController < ApplicationController
 
             # find requests where user is maintainer in target project
             maintained_projects = Array.new
-            maintained_projects_hash = Hash.new
             user.involved_projects.each do |ip|
               inner_or << ["(review[@state='#{r}' and @by_project='#{ip.name}'] and state/@name='review')"]
-              maintained_projects_hash[ip.id] = true
             end
 
             ## find request where user is maintainer in target package, except we have to project already
             maintained_packages = Array.new
             user.involved_packages.each do |ip|
-              unless maintained_projects_hash.has_key?(ip.db_project_id)
-                inner_or << ["(review[@state='#{r}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
-              end
+              inner_or << ["(review[@state='#{r}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
             end
           end
         end
