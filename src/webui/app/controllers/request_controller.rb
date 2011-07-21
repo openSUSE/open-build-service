@@ -43,7 +43,7 @@ class RequestController < ApplicationController
     end
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to :controller => "home", :action => "list_requests" and return
+      redirect_back_or_to :controller => "home", :action => "requests" and return
     end
 
     @id = @req.value("id")
@@ -177,17 +177,17 @@ class RequestController < ApplicationController
   end
 
   def list
-    redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
+    redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
-    render :partial => 'shared/list_requests', :locals => {:requests => requests, :elide_len => elide_len}
+    render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len}
   end
 
   def list_small
-    redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
+    redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
-    render :partial => "shared/list_requests_small", :locals => {:requests => requests}
+    render :partial => "shared/requests_small", :locals => {:requests => requests}
   end
 
   def delete_request_dialog

@@ -22,7 +22,7 @@
     <% if @project.has_element?(:repository) -%>
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
-    <%= tab "Requests", :controller => :project, :action => 'list_requests' %>
+    <%= tab "Requests", :controller => :project, :action => 'requests' %>
     <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
     <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
 

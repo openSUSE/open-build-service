@@ -1,5 +1,5 @@
 <% @pagetitle = "Request ##{@id}" %>
-<% @crumb_list = [link_to('Requests', :controller => :home, :action => :list_requests), @pagetitle] %>
+<% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @pagetitle] %>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'jquery.autocomplete', 'jquery.tooltip' %>

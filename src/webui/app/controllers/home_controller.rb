@@ -15,7 +15,7 @@ class HomeController < ApplicationController
     @open_reviews = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => @user.to_s})
   end
 
-  def list_requests
+  def requests
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
     @requests = @user.involved_requests(:cache => false)

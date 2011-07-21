@@ -19,7 +19,7 @@ class ProjectController < ApplicationController
   before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :add_group, :remove_target,
-    :show, :monitor, :edit_prjconf, :list_requests,
+    :show, :monitor, :edit_prjconf, :requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
@@ -521,7 +521,7 @@ class ProjectController < ApplicationController
     end
   end
 
-  def list_requests
+  def requests
   end
 
   def save_new

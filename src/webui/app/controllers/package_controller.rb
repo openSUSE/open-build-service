@@ -105,7 +105,7 @@ class PackageController < ApplicationController
     @roles = Role.local_roles
   end
 
-  def list_requests
+  def requests
   end
 
   def commit
@@ -192,7 +192,7 @@ class PackageController < ApplicationController
           BsRequest.modify(request.value(:id), "superseded", :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
         rescue BsRequest::ModifyError => e
           flash[:error] = e.message
-          redirect_to(:action => "list_requests", :project => params[:project], :package => params[:package]) and return
+          redirect_to(:action => "requests", :project => params[:project], :package => params[:package]) and return
         end
       end
     end

@@ -91,7 +91,7 @@ class MainController < ApplicationController
   end
 
   def sitemap_projects_requests
-    sitemap_projects_subpage(:list_requests, 'monthly', 0.1)
+    sitemap_projects_subpage(:requests, 'monthly', 0.1)
   end
  
   def sitemap_projects_prjconf
