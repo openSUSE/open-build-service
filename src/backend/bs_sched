@@ -338,6 +338,10 @@ sub enabled {
 sub getconfig {
   my ($arch, $path) = @_;
   my $config = '';
+  if (@$path) {
+    my ($p, $r) = split('/', $path->[0], 2);
+    $config .= "%define _project $p\n";
+  }
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
@@ -815,6 +819,9 @@ sub makedeltas {
   my @needdelta;
   my %deltaids;
 
+  my $partial_job;
+  my $jobsize = 0;
+
   for my $packid (@{$packs || []}) {
     next if $pubenabled && !$pubenabled->{$packid};
     my $pdir = "$reporoot/$prp/$myarch/$packid";
@@ -830,6 +837,8 @@ sub makedeltas {
       next unless $bin =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/;
       my $binname = $1;
       my $binarch = $2;
+      my @binstat = stat("$pdir/$bin");
+      next unless @binstat;
 
       # find all delta candidates for this package. we currently just
       # use the searchpath, this may be configurable in a later version
@@ -867,17 +876,25 @@ sub makedeltas {
 	    }
 	  } else {
 	    push @needdelta, [ "$aextrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
+	    $jobsize += $s[7] + $binstat[7];
+	    if ($jobsize > 100000000) {
+	      $partial_job = 1;
+	      last;
+	    }
 	  }
 	}
       }
     }
+    last if $partial_job;
   }
 
   # ddir maintenance
-  my @ddir = sort(ls($ddir));
-  for my $deltaid (grep {!$deltaids{$_} && !/\.dseq$/} @ddir) {
-    unlink("$ddir/$deltaid");		# no longer need this one
-    unlink("$ddir/$deltaid.dseq");	# no longer need this one
+  if (!$partial_job) {
+    my @ddir = sort(ls($ddir));
+    for my $deltaid (grep {!$deltaids{$_} && !/\.dseq$/} @ddir) {
+      unlink("$ddir/$deltaid");		# no longer need this one
+      unlink("$ddir/$deltaid.dseq");	# no longer need this one
+    }
   }
 
   if (@needdelta) {
@@ -4126,6 +4143,7 @@ my $notlow = 0;
 my $notmed = 0;
 my $schedulerstart = time();
 my $gotevent = 1;
+$gotevent = 0 if $testprojid;
 
 while(1) {
   if (%changed_low || %changed_med || %changed_high) {
@@ -4300,6 +4318,7 @@ while(1) {
     $slept += time() - $sleepstart;
   }
   if ($gotevent) {
+    die if $testprojid;
     $gotevent = 0;
     # drain ping pipe
     fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
