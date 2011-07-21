@@ -1,2 +1,2 @@
-<% url = 'http://' + url if !/^http/.match( url )  %>
-<%= link_to(h(elide(url, 25)), h(url), :title => url) -%>
+<% url = 'http://' + url unless url.starts_with?('http://') %>
+<%= link_to(h(url), h(url)) %>
