@@ -67,19 +67,13 @@ case "$1" in
 	;;
 	stop)
 		echo -n "Shutting down obssrcserver"
-		killproc "$obsdir"/bs_srcserver 
+		"$obsdir"/bs_srcserver --stop
 		rc_status -v
 	;;
 	restart)
 		## If first returns OK call the second, if first or
 		## second command fails, set echo return value.
-		$0 status
-                if test $? = 0; then
-			touch "$rundir"/bs_srcserver.restart
-		else
-			$0 stop
-			$0 start
-		fi
+		"$obsdir"/bs_srcserver --restart
 		rc_status
 	;;
 	try-restart)
@@ -95,7 +89,7 @@ case "$1" in
 	reload)
 		$0 status
                 if test $? = 0; then
-                        touch "$rundir"/bs_srcserver.restart
+		        "$obsdir"/bs_srcserver --restart
 		fi
 		rc_status
 	;;
