@@ -11,12 +11,12 @@
 
 <div class="box-header header-tabs">
   <ul id="package_tabs">
-    <%= tab 'Overview', :controller => :package, :action => :show %>
-    <%= tab 'Sources', :controller => :package, :action => :files %>
-    <%= tab 'Repositories', :controller => :package, :action => :repositories %>
-    <%= tab 'Revisions', :controller => :package, :action => :source_history %>
-    <%= tab "Requests", :controller => :package, :action => 'list_requests' %>
-    <%= tab 'Users', :controller => :package, :action => :users %>
+    <%= tab 'Overview', :controller => 'package', :action => 'show' %>
+    <%= tab 'Sources', :controller => 'package', :action => 'files' %>
+    <%= tab 'Repositories', :controller => 'package', :action => 'repositories' %>
+    <%= tab 'Revisions', :controller => 'package', :action => 'revisions' %>
+    <%= tab "Requests", :controller => 'package', :action => 'list_requests' %>
+    <%= tab 'Users', :controller => 'package', :action => 'users' %>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>
@@ -28,8 +28,8 @@
   </ul>
   <div id="advanced_tabs">
     <ul>
-      <%= tab 'Attributes', :controller => :package, :action => :attributes %>
-      <%= tab 'Raw Config', :controller => :package, :action => :meta %>
+      <%= tab 'Attributes', :controller => 'package', :action => 'attributes' %>
+      <%= tab 'Raw Config', :controller => 'package', :action => 'meta' %>
     </ul>
   </div>
 </div>

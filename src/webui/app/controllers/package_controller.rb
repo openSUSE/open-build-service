@@ -147,19 +147,18 @@ class PackageController < ApplicationController
            :locals => { :servicename => params[:servicename], :parameter => params[:parameter], :number => params[:number], :value => params[:value], :setid => params[:setid] }
   end
 
-  def source_history
-    # hard coded value for the number of visible commit items in browser
-    @visible_commits = 9
-    @maxrevision = Package.current_rev(@project, @package.name).to_i
-    @browserrevision = params[:rev].to_i
-    @browserrevision = @maxrevision if not @browserrevision
-
-    # we need to fetch commits alltogether for the cache and not each single one
+  def revisions
+    @max_revision = Package.current_rev(@project, @package.name).to_i
+    @upper_bound = @max_revision
     if params[:showall]
       p = find_cached(Package, @package.name, :project => @project)
-      p.cacheAllCommits
-      @browserrevision = @visible_commits = @maxrevision
+      p.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
+      @visible_commits = @max_revision
+    else
+      @upper_bound = params[:rev].to_i if params[:rev]
+      @visible_commits = [9, @upper_bound].min # Don't show more than 9 requests
     end
+    @lower_bound = [1, @upper_bound - @visible_commits + 1].max
   end
 
   def add_service
