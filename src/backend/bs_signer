@@ -282,7 +282,9 @@ sub signjob {
 	signiso("$jobdir/$signfile", @signargs);
 	next;
       }
-      if (system($BSConfig::sign, @signargs, "$jobdir/$signfile")) {
+      my @signmode;
+      @signmode = ('-r') if $signfile =~ /\.drpm$/;
+      if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
 	close F;
 	die("sign $jobdir/$signfile failed: $?\n");
