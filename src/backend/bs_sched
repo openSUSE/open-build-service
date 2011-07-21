@@ -892,6 +892,7 @@ sub makedeltas {
   if (!$partial_job) {
     my @ddir = sort(ls($ddir));
     for my $deltaid (grep {!$deltaids{$_} && !/\.dseq$/} @ddir) {
+      next if $deltaid eq 'logfile';
       unlink("$ddir/$deltaid");		# no longer need this one
       unlink("$ddir/$deltaid.dseq");	# no longer need this one
     }
@@ -2555,7 +2556,17 @@ sub deltafinished {
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
-  for my $f (sort(ls($jobdatadir))) {
+  my $code = $js->{'result'} || 'failed';
+  if ($code ne 'succeeded') {
+    print "  - $job: build failed\n";
+    unlink("$dst/logfile");
+    rename("$jobdatadir/logfile", "$dst/logfile");
+    unlink("$reporoot/$prp/$myarch/:repodone");
+    return;
+  }
+  my @all = sort(ls($jobdatadir));
+  print "  - $prp: $packid built: ".(@all). " files\n";
+  for my $f (@all) {
     next unless $f =~ /^(.*)\.(drpm|out|dseq)$/s;
     my $deltaid = $1;
     if ($2 ne 'dseq') {
@@ -2567,6 +2578,7 @@ sub deltafinished {
   $changed->{$prp} ||= 1;
   unlink("$reporoot/$prp/$myarch/:repodone");
   unlink("$dst/logfile");
+  rename("$jobdatadir/logfile", "$dst/logfile");
 }
 
 sub uploadbuildevent {
