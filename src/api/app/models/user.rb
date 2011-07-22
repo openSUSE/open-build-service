@@ -538,7 +538,7 @@ class User < ActiveRecord::Base
     "SELECT prj.id
     FROM db_projects prj
     LEFT JOIN project_user_role_relationships ur ON prj.id = ur.db_project_id
-    WHERE ur.bs_user_id = #{id} and ur.role_id = #{role.id}"
+    WHERE ur.bs_user_id = #{id} AND ur.role_id = #{role.id}"
     projects = ActiveRecord::Base.connection.select_values sql
 
     # all projects where user is maintainer via a group
@@ -547,7 +547,7 @@ class User < ActiveRecord::Base
     FROM db_projects prj
     LEFT JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
     LEFT JOIN groups_users ug ON ug.group_id = gr.bs_group_id
-    WHERE ug.user_id = #{id} and gr.role_id = #{role.id}"
+    WHERE ug.user_id = #{id} AND gr.role_id = #{role.id}"
 
     projects += ActiveRecord::Base.connection.select_values sql
     projects.uniq.map {|p| p.to_i }
@@ -558,11 +558,11 @@ class User < ActiveRecord::Base
     projects = involved_projects_ids
     return [] if projects.empty?
     # now filter the projects that are not visible
-    return DbProject.find_by_sql("SELECT distinct prj.* FROM db_projects prj 
-                                  LEFT JOIN flags f on f.db_project_id = prj.id
+    return DbProject.find_by_sql("SELECT prj.* FROM db_projects prj
+                                  LEFT JOIN flags f ON f.db_project_id = prj.id
                                   LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id
-                                  where prj.id in (#{projects.join(',')})
-                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
+                                  WHERE prj.id IN (#{projects.join(',')})
+                                  AND (f.flag IS NULL OR f.flag != 'access' OR aur.id = #{User.currentID})")
   end
 
   # lists packages maintained by this user and are not in maintained projects
@@ -579,8 +579,7 @@ class User < ActiveRecord::Base
     FROM db_packages pkg
     LEFT JOIN db_projects prj ON prj.id = pkg.db_project_id
     LEFT JOIN package_user_role_relationships ur ON pkg.id = ur.db_package_id
-    WHERE ur.bs_user_id = #{id} and ur.role_id = #{role.id} and
-    prj.id not in (#{projects.join(',')})
+    WHERE ur.bs_user_id = #{id} AND ur.role_id = #{role.id} AND prj.id NOT IN (#{projects.join(',')})
     END_SQL
     packages = ActiveRecord::Base.connection.select_values sql
 
@@ -591,18 +590,17 @@ class User < ActiveRecord::Base
     LEFT JOIN db_projects prj ON prj.id = pkg.db_project_id
     LEFT JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
     LEFT JOIN groups_users ug ON ug.group_id = gr.bs_group_id
-    WHERE ug.user_id = #{id} and gr.role_id = #{role.id} and
-    prj.id not in (#{projects.join(',')})
+    WHERE ug.user_id = #{id} AND gr.role_id = #{role.id} AND prj.id NOT IN (#{projects.join(',')})
     END_SQL
     packages += ActiveRecord::Base.connection.select_values sql
     packages = packages.uniq.map {|p| p.to_i } 
 
     return [] if packages.empty?
-    return DbPackage.find_by_sql("SELECT distinct pkg.* FROM db_packages pkg
-                                  LEFT JOIN flags f on f.db_project_id = pkg.db_project_id
+    return DbPackage.find_by_sql("SELECT pkg.* FROM db_packages pkg
+                                  LEFT JOIN flags f ON f.db_project_id = pkg.db_project_id
                                   LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id
-                                  where pkg.id in (#{packages.join(',')})
-                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
+                                  WHERE pkg.id IN (#{packages.join(',')})
+                                  AND (f.flag IS NULL OR f.flag != 'access' OR aur.id = #{User.currentID})")
  
   end
 end
