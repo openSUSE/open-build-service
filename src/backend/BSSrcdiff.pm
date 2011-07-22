@@ -521,29 +521,40 @@ sub ubeautify {
   return $d;
 }
 
+sub udiffhdr {
+  my ($unified, $f, $fmd5, $tmd5) = @_;
+  my $hdr;
+  if ($unified && $unified == 2) {
+    $fmd5 ||= 'd41d8cd98f00b204e9800998ecf8427e';
+    $tmd5 ||= 'd41d8cd98f00b204e9800998ecf8427e';
+    return "Index: $f $fmd5 $tmd5\n" . ("=" x 67) . "\n";
+  } else {
+    return "Index: $f\n" . ("=" x 67) . "\n";
+  }
+}
+
 sub udiff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax) = @_;
+  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $unified) = @_;
   my @changed;
   my @added;
   my @deleted;
-  my $d = '';
-  for (keys %$new) {
-    if (defined($old->{$_})) {
-      push @changed, $_ if $old->{$_} ne $new->{$_};
-    } else {
+  for (sort(keys %{ { %$old, %$new } })) {
+    if (!defined($old->{$_})) {
       push @added, $_;
-    } 
+    } elsif (!defined($old->{$_})) {
+      push @deleted, $_;
+    } elsif ($old->{$_} ne $new->{$_}) {
+      push @changed, $_;
+    }
   }
-  @deleted = grep { !defined($new->{$_}) } keys %$old;
-  
-  my $hdr = "Index: %s\n" . "=" x 67 . "\n";
+  my $d = '';
   for my $f (@changed) {
-    $d .= sprintf($hdr, $f);
+    $d .= udiffhdr($unified, $f, $old->{$f}, $new->{$f});
     my $r .= filediff("$pold/$old->{$f}-$f", "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, undef, 1);
     $d .= ubeautify($r, $f, $orev, $rev);
   }
   for my $f (@added) {
-    $d .= sprintf($hdr, $f);
+    $d .= udiffhdr($unified, $f, undef, $new->{$f});
     my $lcnt = -2;
     my $r = filediff(undef, "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, \$lcnt, 1);
     $r =~ s/(\Q+++ $f\E)$/$1\n@@ -0,0 +1,\Q$lcnt\E @@/m;
@@ -551,7 +562,7 @@ sub udiff {
     $d .= $r eq '' ? "Binary file $f added\n" : $r;
   }
   for my $f (@deleted) {
-    $d .= sprintf($hdr, $f);
+    $d .= udiffhdr($unified, $f, $old->{$f}, undef);
     my $lcnt = -2;
     my $r = filediff("$pold/$old->{$f}-$f", undef, $f, $f, $fmax, undef, \$lcnt, 1);
     $r =~ s/(\Q+++ $f\E)$/$1\n@@ -1,\Q$lcnt\E \+0,0 @@/m;
@@ -564,7 +575,7 @@ sub udiff {
 sub diff {
   my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $tmax, $edir, $unified) = @_;
   if ($unified) {
-    return udiff($pold, $old, $orev, $pnew, $new, $rev, $fmax)
+    return udiff($pold, $old, $orev, $pnew, $new, $rev, $fmax, $unified)
   } else {
     return srcdiff($pold, $old, $pnew, $new, $fmax, $tmax, $edir);
   }
