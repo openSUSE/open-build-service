@@ -510,8 +510,17 @@ sub retrieve {
   return $dd;
 }
 
+sub ping {
+  my ($pingfile) = @_;
+  local *F;
+  if (sysopen(F, $pingfile, POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
 sub restartexit {
-  my ($arg, $name, $runfile) = @_;
+  my ($arg, $name, $runfile, $pingfile) = @_;
   return unless $arg;
   if ($arg eq '--stop' || $arg eq '--exit') {
     if (!(-e "$runfile.lock") || lockcheck('>>', "$runfile.lock")) {
@@ -520,6 +529,7 @@ sub restartexit {
     }    
     print "exiting $name...\n";
     BSUtil::touch("$runfile.exit");
+    ping($pingfile) if $pingfile;
     BSUtil::waituntilgone("$runfile.exit");
     exit(0);
   }
@@ -527,6 +537,7 @@ sub restartexit {
     die("$name not running.\n") if !(-e "$runfile.lock") || BSUtil::lockcheck('>>', "$runfile.lock");
     print "restarting $name...\n";
     BSUtil::touch("$runfile.restart");
+    ping($pingfile) if $pingfile;
     BSUtil::waituntilgone("$runfile.restart");
     exit(0);
   }

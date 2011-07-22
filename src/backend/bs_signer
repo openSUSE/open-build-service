@@ -351,7 +351,7 @@ sub signevent {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer");
+BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer", "$myeventdir/.ping");
 print "starting build service signer\n";
 
 # get lock
