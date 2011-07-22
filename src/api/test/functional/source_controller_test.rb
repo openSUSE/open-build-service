@@ -770,6 +770,53 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "status", :attributes => { :code => "create_package_no_permission"} )
   end
 
+  def test_captial_letter_change
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    assert_response :success
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    assert_response :success
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'home:tom:projecta' }
+
+    # write again with a capital letter change
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => 'unknown_project' }
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'home:tom:projecta' }
+
+    # change back using remote project
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projectA' repository='repoA' /> </repository> </project>"
+    assert_response :success
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
+
+if $ENABLE_BROKEN_TEST
+# FIXME: the case insensitive database select is not okay.
+    # and switch letter again
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => 'unknown_project' }
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
+end
+
+    # cleanup
+    delete "/source/home:tom:projectB"
+    assert_response :success
+    delete "/source/home:tom:projectA"
+    assert_response :success
+  end
+
   def test_repository_dependencies
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
