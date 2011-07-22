@@ -4641,13 +4641,16 @@ while(1) {
 	next if $fetchprojpacks_nodelay{$projid};
 	next if grep {!defined($_)} @{$fetchprojpacks{$projid}};
 	# only source updates, delay them
-	push @{$delayedfetchprojpacks{$projid}}, @{$fetchprojpacks{$projid}};
+	my $foundit;
 	for my $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_high{$prp} ||= 1;
-            $changed_dirty{$prp} = 1;
+	    $changed_dirty{$prp} = 1;
+	    $foundit = 1;
 	  }
 	}
+	next unless $foundit;	# can't delay it, we never look at the project
+	push @{$delayedfetchprojpacks{$projid}}, @{$fetchprojpacks{$projid}};
 	my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
 	my %changedproj;
 	for my $packid (sort keys %packids) {
