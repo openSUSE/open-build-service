@@ -8,7 +8,7 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-require "common/libxmlactivexml"
+require "activexml/activexml"
 
 init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here

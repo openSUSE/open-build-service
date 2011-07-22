@@ -1,0 +1,11 @@
+begin
+  require 'active_support'
+rescue LoadError
+  require 'rubygems'
+  gem 'activesupport'
+end
+
+require File.join(File.dirname(__FILE__), 'config')
+require File.join(File.dirname(__FILE__), 'node')
+require File.join(File.dirname(__FILE__), 'base')
+require File.join(File.dirname(__FILE__), 'transport')

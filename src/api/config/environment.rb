@@ -12,7 +12,7 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
-require "common/libxmlactivexml"
+require "activexml/activexml"
 
 # define our current api version
 api_version = '2.3.0'

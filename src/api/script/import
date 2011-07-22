@@ -14,12 +14,11 @@ DUMMY_USER_ATTR = {
   :email => "noone@localhost"
 }
 
-require "common/libxmlactivexml"
+require "activexml/activexml"
 
 ### boot rails ###
 Rails::Initializer.run do |config|
   config.frameworks -= [ :action_web_service, :active_resource ]
-  #config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
 
   config.action_controller.session = {
     :session_key => "_frontend_session",
@@ -27,8 +26,6 @@ Rails::Initializer.run do |config|
   }
 
 end
-
-require "common/libxmlactivexml"
 
 ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
