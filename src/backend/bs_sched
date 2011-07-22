@@ -877,8 +877,9 @@ sub makedeltas {
 	  } else {
 	    push @needdelta, [ "$aextrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
 	    $jobsize += $s[7] + $binstat[7];
-	    if ($jobsize > 100000000) {
+	    if ($jobsize > 500000000) {
 	      $partial_job = 1;
+	      print "    partial delta job\n";
 	      last;
 	    }
 	  }
@@ -915,7 +916,7 @@ sub makedeltas {
     BSUtil::cleandir($jobdatadir);
     return undef unless -d $jobdatadir;
     for my $delta (@needdelta) {
-      print Dumper($delta);
+      #print Dumper($delta);
       my $deltaid = $delta->[2];
       link($delta->[0], "$jobdatadir/$deltaid.old") || return undef;
       link($delta->[1], "$jobdatadir/$deltaid.new") || return undef;
