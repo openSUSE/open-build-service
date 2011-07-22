@@ -686,17 +686,14 @@ class RequestController < ApplicationController
             tprj = DbProject.get_by_name( target_project )
           end
 
+          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?cmd=diff&expand=1"
           if tpkg
-            path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
-                   [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(target_project), CGI.escape(target_package)]
-            if action.source.value('rev')
-              path += "&rev=#{action.source.rev}"
-            end
-            if linked_tpkg
-              action_diff = "New package instance: " + target_project + "/" + target_package + " following diff contains diff to package from linked project.\n" + action_diff
-            end
+            path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
+            path += "&rev=#{action.source.rev}" if action.source.value('rev')
           else
-            action_diff = "Additional package: " + target_project + "/" + target_package + "\n" + action_diff
+            # No target means diffing all source package changes (rev 0 - rev latest)
+            spkg_rev = Directory.find(:project => action.source.project, :package => action.source.package).rev
+            path += "&orev=0&rev=#{spkg_rev}"
           end
         end
 
@@ -714,7 +711,7 @@ class RequestController < ApplicationController
         diff_element.set_attribute('encoding', 'base64')
 
         # Try to split unified diff from backend by file and to create a suiteble XML representation
-        splitted = action_diff.split(/^Index: ([\w\.\-]*)\n[=]*\n/)
+        splitted = action_diff.split(/^Index: (.*)\n[=]*\n/)
         splitted.shift # First element is an empty string
         if splitted.length.even?
           splitted.each_slice(2) do |file, diff|
