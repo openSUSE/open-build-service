@@ -26,12 +26,6 @@ config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace
 # Enable threaded mode
 # config.threadsafe!
 
-config.action_controller.session = {
-    :prefix => "ruby_webclient_session",
-    :session_key => "buildservice_webclient_session",
-    :secret => "iofupo3i4u6097p09gfsnaf7g8974lh1j3khdlsufdzg9p877234"
-}
-
 FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
