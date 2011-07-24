@@ -219,7 +219,7 @@ class ProjectStatusHelper
       reponame = repo + "/" + arch
       data.each('/jobhistlist/jobhist') do |p|
 	packname = p.value('package')
-	ret[packname] = BuildInfo.new
+	ret[packname] ||= BuildInfo.new
 	code = p.value('code')
 	readytime = begin Integer(p.value('readytime')) rescue 0 end
 	if code == "unchanged" || code == "succeeded"
