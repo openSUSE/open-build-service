@@ -67,6 +67,13 @@ sub getvalues {
   return _getdata($db, "$table\0$key");
 }
 
+# reladd: relations to add to db
+# relrem: relations to remove from db
+# relations are triplets:
+#   rel[0] - key
+#   rel[1] - value
+#   rel[2] - data
+#
 sub modify {
   my ($db, $relrem, $reladd) = @_;
   my %usedfiles;
