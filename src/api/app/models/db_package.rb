@@ -764,8 +764,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def render_axml(view = nil)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
-
+    builder = Nokogiri::XML::Builder.new
     logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
@@ -790,7 +789,7 @@ class DbPackage < ActiveRecord::Base
         if view == 'flagdetails'
           db_project.expand_flags(builder, flag_name, flaglist)
         else
-          package.tag!(flag_name) do
+          package.send(flag_name) do
             flaglist.each do |flag|
               flag.to_xml(builder)
             end
@@ -804,7 +803,9 @@ class DbPackage < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 
-    return xml
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id

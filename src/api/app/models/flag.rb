@@ -11,7 +11,7 @@ class Flag < ActiveRecord::Base
     options = Hash.new
     options['arch'] = self.architecture.name unless self.architecture.nil?
     options['repository'] = self.repo unless self.repo.nil?
-    builder.tag! self.status.to_s, options
+    builder.send(status.to_s, options)
   end
 
   def is_explicit_for?(in_repo, in_arch)

@@ -962,8 +962,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def render_axml(view = nil)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
-
+    builder = Nokogiri::XML::Builder.new
     logger.debug "----------------- rendering project #{name} ------------------------"
 
     project_attributes = {:name => name}
@@ -1004,7 +1003,7 @@ class DbProject < ActiveRecord::Base
           expand_flags(builder, flag_name)
         else
           flaglist = type_flags(flag_name)
-          project.tag! flag_name do
+          project.send(flag_name) do
             flaglist.each do |flag|
               flag.to_xml(builder)
             end
@@ -1052,7 +1051,9 @@ class DbProject < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
-    return xml
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id
@@ -1214,7 +1215,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def project_type
-    mytype = DbProjectType.find_by_id(type_id)
+    mytype = DbProjectType.find_by_id(type_id) if type_id
     return 'standard' unless mytype
     return mytype.name
   end
