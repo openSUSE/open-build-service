@@ -318,7 +318,12 @@ class Package < ActiveXML::Base
   end
 
   def developed_packages
-     Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
+    packages = []
+    candidates = Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
+    candidates.each do |candidate|
+      packages << candidate unless candidate.linkinfo
+    end
+    return packages
   end
 
   def self.exists?(project, package)

@@ -39,7 +39,7 @@
             Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
           </li>
         <% end %>
-        <% if not @package.developed_packages.is_empty? %>
+        <% if not @package.developed_packages.blank? %>
           <li>
             <%= image_tag 'icons/information.png' %>
             Devel package for
