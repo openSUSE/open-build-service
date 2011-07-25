@@ -167,7 +167,8 @@ CREATE TABLE `db_projects` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
-  KEY `devel_project_id_index` (`develproject_id`)
+  KEY `devel_project_id_index` (`develproject_id`),
+  KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `db_projects_tags` (
@@ -744,6 +745,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110703001200');
 INSERT INTO schema_migrations (version) VALUES ('20110711001200');
 
 INSERT INTO schema_migrations (version) VALUES ('20110719142500');
+
+INSERT INTO schema_migrations (version) VALUES ('20110725105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
