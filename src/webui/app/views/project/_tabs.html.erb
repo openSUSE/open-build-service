@@ -12,19 +12,21 @@
 <div class="box-header header-tabs">
   <ul>
     <%= tab 'Overview', :controller => :project, :action => :show %>
-    <% if @is_maintenance_project %>
+    <% if @is_maintenance_project && !@spider_bot %>
       <%= tab 'Incidents', :controller => :project, :action => :maintenance_incidents %>
       <%= tab 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
     <% else %> <!-- also for incident project -->
       <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
-      <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? %>
+      <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
     <% end %>
-    <% if @project.has_element?(:repository) -%>
+    <% if @project.has_element?(:repository) && !@spider_bot -%>
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
-    <%= tab "Requests", :controller => :project, :action => 'requests' %>
-    <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-    <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
+    <% unless @spider_bot -%>
+      <%= tab "Requests", :controller => :project, :action => 'requests' %>
+      <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
+      <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
+    <% end -%>
 
     <% if @controller.is_advanced_tab? %>
       <% content_for :ready_function do %>
@@ -37,9 +39,11 @@
   <div id="advanced_tabs">
     <ul>
       <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
-      <%= tab 'Attributes', :controller => :project, :action => :attributes %>
-      <%= tab "Raw Config", :controller => :project, :action => :meta %>
-      <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
+      <% unless @spider_bot -%>
+        <%= tab 'Attributes', :controller => :project, :action => :attributes %>
+        <%= tab "Raw Config", :controller => :project, :action => :meta %>
+        <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
+      <% end -%>
     </ul>
   </div>
 </div>

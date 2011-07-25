@@ -14,13 +14,13 @@
       <h4>Information</h4>
       <ul class="clean_list">
         <li>
-          <% nr_files = @package.files.size %>
-          <% if nr_files == 0 %>
+          <% @nr_files %>
+          <% if @nr_files == 0 %>
             <%= image_tag 'icons/exclamation.png' %>
           <% else %>
             <%= image_tag 'icons/accept.png' %>
           <% end %>
-          <%= nr_files %> <%= link_to "file#{nr_files == 1 ? "" : "s"}", :action => :files, :project => @project, :package => @package %>
+          <%= @nr_files %> <%= link_to "file#{@nr_files == 1 ? "" : "s"}", :action => :files, :project => @project, :package => @package %>
         </li>
         <% if @failures and @failures > 0 %>
           <li>

@@ -15,7 +15,8 @@ class PackageController < ApplicationController
 
   def show
     begin 
-      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', 
+                                              :expires_in => 5.minutes ) unless @spider_bot
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
@@ -23,12 +24,15 @@ class PackageController < ApplicationController
     (@package.bugowners + @project.bugowners).uniq.each do |bugowner|
         mail = find_cached(Person, bugowner).email
         @bugowners_mail.push(mail.to_s) if mail
-    end
+    end unless @spider_bot
     fill_status_cache unless @buildresult.blank?
     linking_packages
+    @nr_files = 0
+    @nr_files = @package.files.size unless @spider_bot
   end
 
   def linking_packages
+    return if @spider_bot
     cache_string = "%s/%s_linking_packages" % [ @project, @package ]
     Rails.cache.delete(cache_string) if discard_cache?
     @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
@@ -82,6 +86,7 @@ class PackageController < ApplicationController
   end
 
   def binaries
+    return if @spider_bot
     required_parameters :repository
     @repository = params[:repository]
     begin
@@ -780,6 +785,10 @@ class PackageController < ApplicationController
       flash[:error] = "Error: #{e}"
       redirect_back_or_to :action => :files, :project => @project, :package => @package
     end
+    if @spider_bot
+      render :template => "package/simple_file_view"
+      return
+    end
   end
 
   def save_modified_file
@@ -1214,6 +1223,7 @@ class PackageController < ApplicationController
   end
 
   def load_requests
+    return if @spider_bot
     cachekey="package_reviews_#{@project.name}_#{@package.name}"
     Rails.cache.delete(cachekey) if discard_cache?
     @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do

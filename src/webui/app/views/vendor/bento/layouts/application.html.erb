@@ -110,7 +110,9 @@
         <ul>
           <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
           <li><%= link_to "Search", :controller => 'search', :action => 'index' %></li>
-          <li><%= link_to "Status Monitor", :controller => "monitor", :action => :index %></li>
+          <% unless @spider_bot -%>
+            <li><%= link_to "Status Monitor", :controller => "monitor", :action => :index %></li>
+          <% end -%>
         </ul>
       </div>
       <% end -%>

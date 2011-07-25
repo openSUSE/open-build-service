@@ -201,6 +201,10 @@ class ProjectController < ApplicationController
   end
 
   def load_packages_mainpage
+    if @spider_bot
+      @packages = nil
+      return
+    end
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
     end
@@ -212,7 +216,7 @@ class ProjectController < ApplicationController
     @project.bugowners.each do |bugowner|
       mail = find_cached(Person, bugowner).email
       @bugowners_mail.push(mail.to_s) if mail
-    end
+    end unless @spider_bot
 
     load_packages_mainpage
 
@@ -220,7 +224,9 @@ class ProjectController < ApplicationController
     @nr_packages = @packages.each.size if @packages
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
-      buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
+      buildresult = find_cached(Buildresult, :project => @project, :view => 'status', 
+                                             :code => ['failed', 'broken', 'unresolvable'], 
+                                             :expires_in => 2.minutes ) unless @spider_bot
       ret = Array.new
       if buildresult
         buildresult.each( 'result/status' ) { |e| ret << e.value('package') }
@@ -230,11 +236,15 @@ class ProjectController < ApplicationController
 
     linking_projects
     load_buildresult
+    @project_maintenance_project = @project.maintenance_project unless @spider_bot
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def linking_projects
+    if @spider_bot
+      @linking_projects = [] and return
+    end
     Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
     @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
@@ -263,7 +273,9 @@ class ProjectController < ApplicationController
     unless cache
       Buildresult.free_cache( :project => params[:project], :view => 'summary' )
     end
-    @buildresult = find_cached(Buildresult, :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
+    unless @spider_bot
+      @buildresult = find_cached(Buildresult, :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
+    end
 
     @repohash = Hash.new
     @statushash = Hash.new
@@ -1376,6 +1388,7 @@ class ProjectController < ApplicationController
   def require_maintenance_incident_lists
     @open_maintenance_incident_list = []
     @closed_maintenance_incident_list = []
+    return if @spider_bot
     Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
       has_releasetarget = false
       project.each_repository do |repo|
@@ -1390,6 +1403,9 @@ class ProjectController < ApplicationController
   end
 
   def load_requests
+    if @spider_bot
+      @requests = [] and return
+    end
     pname=@project.value(:name)
     cachekey="project_requests_#{pname}"
     Rails.cache.delete(cachekey) if discard_cache?

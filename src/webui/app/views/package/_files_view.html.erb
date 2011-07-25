@@ -57,7 +57,7 @@
     </p>
   <% end %>
 
-  <% unless @files.empty? %>
+  <% unless @files.empty? or @spider_bot %>
     <% if @revision && !(@revision == @current_rev)%>
       <h3>Revision <%= @revision %> (latest revision is <%=  @current_rev %>)</h3>
     <% else %>

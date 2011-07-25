@@ -35,7 +35,9 @@
           <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
           <%= proceed_link "document-new.png", 'New Project', :controller => 'project', :action => 'new', :ns => "home:#{session[:login]}" if session[:login] %>
         <% end %>
-        <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
+        <% unless @spider_bot -%>
+          <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
+        <% end -%>
       </ul>
     <% end %>
   </div>
