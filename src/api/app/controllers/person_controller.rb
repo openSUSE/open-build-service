@@ -16,7 +16,7 @@ class PersonController < ApplicationController
       logger.debug "No user logged in, permission to index denied"
       @errorcode = 401
       @summary = "No user logged in, permission to index denied"
-      render :template => 'error', :status => 401
+      render :template => 'error', :status => @errorcode
       return
     end
 
@@ -40,61 +40,36 @@ class PersonController < ApplicationController
       logger.debug "No user logged in, permission to userinfo denied"
       @errorcode = 401
       @summary = "No user logged in, permission to userinfo denied"
-      render :template => 'error', :status => 401
-      return
+      render :template => 'error', :status => @errorcode and return
     end
 
+    user = User.find_by_login(URI.unescape(params[:login])) if params[:login]
     if request.get?
-      with_watchlist = false
-      if params[:login]
-        login = URI.unescape( params[:login] )
-        logger.debug "Generating for user from parameter #{login}"
-        @render_user = User.get_by_login( login )
-      else 
+      if user and user.login != @http_user.login
+        logger.debug "Generating for user from parameter #{user.login}"
+        render :text => user.render_axml(false), :content_type => "text/xml"
+      else
         logger.debug "Generating user info for logged in user #{@http_user.login}"
-        @render_user = @http_user
+        render :text => @http_user.render_axml(true), :content_type => "text/xml"
       end
-      if @http_user.is_admin? or @http_user == @render_user
-        with_watchlist = true
-      end
-      render :text => @render_user.render_axml( with_watchlist ), :content_type => "text/xml"
     elsif request.put?
-      user = @http_user
-    
-      if user 
-        if params[:login]
-          login = URI.unescape( params[:login] )
-          user = User.find_by_login( login )
-          if user and user.login != @http_user.login 
-            unless @http_user.is_admin?
-              logger.debug "User has no permission to change userinfo"
-              render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
-                :message => "no permission to change userinfo for user #{user.login}"
-              return
-            end
-          end
-          if !user and @http_user.is_admin?
-            user = User.create( 
-                   :login => login,
-                   :password => "notset",
-                   :password_confirmation => "notset",
-                   :email => "TEMP" )
-            user.state = User.states["locked"]
-          end
-        end
-      
-        xml = REXML::Document.new( request.raw_post )
-
-        logger.debug( "XML: #{request.raw_post}" )
-
-        user.email = xml.elements["/person/email"].text
-        user.realname = xml.elements["/person/realname"].text
-
-        update_watchlist( user, xml )
-
-        user.save!
-        render_ok
+      if user and user.login != @http_user.login and !@http_user.is_admin?
+        logger.debug "User has no permission to change userinfo"
+        render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
+          :message => "no permission to change userinfo for user #{user.login}" and return
       end
+      if !user and @http_user.is_admin?
+        user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
+        user.state = User.states["locked"]
+      end
+
+      xml = REXML::Document.new(request.raw_post)
+      logger.debug("XML: #{request.raw_post}")
+      user.email = xml.elements["/person/email"].text
+      user.realname = xml.elements["/person/realname"].text
+      update_watchlist(user, xml)
+      user.save!
+      render_ok
     end
   end
 
