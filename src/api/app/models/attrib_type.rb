@@ -42,11 +42,12 @@ class AttribType < ActiveRecord::Base
     write_attribute :attrib_namespace, val
   end
 
-  def render_axml(node = Nokogiri::XML::Builder.new)
-     p = {}
-     p[:name]      = self.name
-     p[:namespace] = attrib_namespace.name
-     node.definition(p) do |attr|
+  def render_axml
+     builder = Nokogiri::XML::Builder.new do |node|
+      p = {}
+      p[:name]      = self.name
+      p[:namespace] = attrib_namespace.name
+      node.definition(p) do |attr|
 
        if default_values.length > 0
          attr.default do |default|
@@ -77,8 +78,9 @@ class AttribType < ActiveRecord::Base
            attr.modifiable_by(p)
          end
        end
-
+      end
      end
+     builder.to_xml
   end
 
   def update_from_xml(node)
