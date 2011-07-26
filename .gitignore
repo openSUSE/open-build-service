@@ -24,6 +24,7 @@
 /docs/api/books/en/*.zip
 /src/api/config/database.yml
 /src/api/config/environments/development.*.rb
+/src/api/config/options.yml
 /src/api/config/secret.key
 /src/api/coverage
 /src/api/coverage.data
@@ -45,6 +46,7 @@
 /src/webui/app/views/maintenance/released_*
 /src/webui/config/database.yml
 /src/webui/config/environments/development.*.rb
+/src/webui/config/options.yml
 /src/webui/config/repositories.rb
 /src/webui/config/secret.key
 /src/webui/coverage
