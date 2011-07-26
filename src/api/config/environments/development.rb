@@ -1,12 +1,11 @@
 # base settings have moved to development_base.rb
 
-begin
-  require 'socket'
-  fname = "#{RAILS_ROOT}/config/environments/development.#{Socket.gethostname}.rb"
-  eval File.read(fname)
+require 'socket'
+fname = "#{RAILS_ROOT}/config/environments/development.#{Socket.gethostname}.rb"
+if File.exists? fname
   STDERR.puts "Using local environment #{fname}"
-rescue Object
+else
   fname = "#{RAILS_ROOT}/config/environments/development_base.rb"
-  eval File.read(fname)
-  STDERR.puts "Using global environment #{fname}" 
+  STDERR.puts "Using global environment #{fname} (development.#{Socket.gethostname}.rb not found)"
 end
+eval File.read(fname)
