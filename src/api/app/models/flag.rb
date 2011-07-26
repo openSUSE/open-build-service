@@ -11,7 +11,7 @@ class Flag < ActiveRecord::Base
     options = Hash.new
     options['arch'] = self.architecture.name unless self.architecture.nil?
     options['repository'] = self.repo unless self.repo.nil?
-    builder.tag! self.status.to_s, options
+    builder.send(status.to_s, options)
   end
 
   def is_explicit_for?(in_repo, in_arch)
@@ -64,7 +64,8 @@ class Flag < ActiveRecord::Base
   def validate
     errors.add("name", "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
     errors.add("name", "Please set either project_id or package_id.") if self.db_project_id.nil? and self.db_package_id.nil?
-    errors.add("flag", "There needs to be a flag.") if self.flag.nil?
+    errors.add("flag", "There needs to be a flag.") if self.flag.empty?
+    errors.add("flag", "There needs to be a valid flag.") unless FlagHelper::TYPES.has_key?(self.flag)
     errors.add("status", "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
     if self.position.nil?
       if self.db_project

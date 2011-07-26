@@ -8,7 +8,7 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-require "common/libxmlactivexml"
+require "activexml/activexml"
 
 init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -44,10 +44,10 @@ init = Rails::Initializer.run do |config|
 
   config.gem 'daemons'
   config.gem 'delayed_job'
-  config.gem 'libxml-ruby'
   config.gem 'exception_notification', :version => '<= 1.1'
   config.gem 'erubis'
   config.gem 'rails_xss'
+  config.gem 'nokogiri'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
@@ -72,7 +72,6 @@ end
 ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG['relative_url_root']
 
 require 'ostruct'
-require "cache_immutable_fix.rb"
 
 # Exception notifier plugin configuration
 ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
@@ -136,17 +135,21 @@ ActiveXML::Base.config do |conf|
     map.connect :person, "rest:///person/:login"
     map.connect :group, "rest:///group/show/:name",
       :all => "rest:///group/"
+    map.connect :persongroup, "rest:///person/:login/group"
+
     map.connect :unregisteredperson, "rest:///person/register"
     map.connect :userchangepasswd, "rest:///person/changepasswd"
 
-    map.connect :architecture, "rest:///architectures/:name", :all => "rest://architectures/"
+    map.connect :architecture, "rest:///architectures/:name", :all => "rest:///architectures/", 
+                :available => "rest:///architectures?available=1"
     map.connect :configuration, "rest:///configuration/"
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
     map.connect :directory, "rest:///source/:project/:package?:expand&:rev"
     map.connect :link, "rest:///source/:project/:package/_link"
-    map.connect :service, "rest:///source/:project/:package/_service"
+    map.connect :service, "rest:///source/:project/:package/_service",
+                :all => "rest://source/service"
     map.connect :file, "rest:///source/:project/:package/:filename?:expand&:rev"
     map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
 
@@ -204,6 +207,8 @@ ActiveXML::Base.config do |conf|
     map.connect :projectstatus, 'rest:///status/project/:project'
 
     map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
+
+    map.connect :distribution, 'rest:///distributions', :all => 'rest:///distributions'
 
   end
   ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )

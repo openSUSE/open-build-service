@@ -126,7 +126,7 @@ module UserMixins
           # This method writes the attribute "password" to the hashed version. It is 
           # called in the after_validation hook set by the "after_validation" command
           # above.
-          # The password is only encrypted when no errors occured on validation, the
+          # The password is only encrypted when no errors occurred on validation, the
           # password is new and the password is not nil.
           # This method also sets the "password_salt" property's value used in 
           # User#hash_string.
@@ -333,7 +333,7 @@ module UserMixins
           end
 
           # This static method tries to update the entry with the given info in the 
-          # active directory server.  Return the error msg if any error occured
+          # active directory server.  Return the error msg if any error occurred
           def self.update_entry_ldap(login, newlogin, newemail, newpassword)
             logger.debug( " Modifying #{login} to #{newlogin} #{newemail} using ldap" )
             
@@ -390,7 +390,7 @@ module UserMixins
           end
 
           # This static method tries to add the new entry with the given name/password/mail info in the 
-          # active directory server.  Return the error msg if any error occured
+          # active directory server.  Return the error msg if any error occurred
           def self.new_entry_ldap(login, password, mail)
             require 'ldap'
             logger.debug( "Add new entry for #{login} using ldap" )
@@ -431,7 +431,7 @@ module UserMixins
           end
 
           # This static method tries to delete the entry with the given login in the 
-          # active directory server.  Return the error msg if any error occured
+          # active directory server.  Return the error msg if any error occurred
           def self.delete_entry_ldap(login)
             logger.debug( "Deleting #{login} using ldap" )
             if @@ldap_search_con.nil?
@@ -607,7 +607,7 @@ module UserMixins
           end
 
           # This static method tries to update the password with the given login in the 
-          # active directory server.  Return the error msg if any error occured
+          # active directory server.  Return the error msg if any error occurred
           def self.change_password_ldap(login, password)
             if @@ldap_search_con.nil?
               @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
@@ -969,5 +969,5 @@ module UserMixins
         end
       end
     end
-  end
+end
 end

@@ -12,7 +12,7 @@
         <strong>Timeframe:</strong>
         <%= select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "700"]], "24")) %>
       </p> 
-    <% end %>
+    <% end unless @available_arch_list.empty? %>
   </div>
 </div>
 

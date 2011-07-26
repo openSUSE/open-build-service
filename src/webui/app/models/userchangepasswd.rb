@@ -1,4 +1,3 @@
-require 'xml'
 
 class Userchangepasswd < ActiveXML::Base
   class << self
@@ -14,7 +13,7 @@ class Userchangepasswd < ActiveXML::Base
            <password>#{password}</password>
         </userchangepasswd>
       ENDE
-      return XML::Parser.string(reply).parse.root
+      return reply
     end
   end
 end

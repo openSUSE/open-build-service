@@ -31,9 +31,12 @@ class DbProject < ActiveRecord::Base
 
   has_one :db_project_type
 
-  # self-reference between projects and maintenance projects
+  # self-reference between devel projects and maintenance projects
   has_many :maintained_projects, :class_name => "DbProject", :foreign_key => "maintenance_project_id"
   belongs_to :maintenance_project, :class_name => "DbProject"
+
+  has_many  :develprojects, :class_name => "DbProject", :foreign_key => 'develproject_id'
+  belongs_to :develproject, :class_name => "DbProject"
 
   def download_name
     self.name.gsub(/:/, ':/')
@@ -277,7 +280,7 @@ class DbProject < ActiveRecord::Base
     def store_axml( project )
       dbp = nil
       DbProject.transaction do
-        if not (dbp = DbProject.find_by_name project.name)
+        if !(dbp = DbProject.find_by_name(project.name))
           dbp = DbProject.new( :name => project.name.to_s )
         end
         dbp.store_axml( project )
@@ -355,13 +358,12 @@ class DbProject < ActiveRecord::Base
         raise SaveError, "project name mismatch: #{self.name} != #{project.name}"
       end
 
-      self.title = project.title.to_s
-      self.description = project.description.to_s
-      self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
-      self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
+      self.title = project.value(:title)
+      self.description = project.value(:description)
+      self.remoteurl = project.value(:remoteurl)
+      self.remoteproject = project.value(:remoteproject)
       self.updated_at = Time.now
-      kind = "standard"
-      kind = project.data.attributes['kind'] unless project.data.attributes['kind'].blank?
+      kind = project.value(:kind) || "standard"
       project_type = DbProjectType.find_by_name(kind)
       raise SaveError, "unable to find project kind '#{kind}'" if project_type.nil?
       self.type_id = project_type.id
@@ -398,9 +400,43 @@ class DbProject < ActiveRecord::Base
         position += 1
       end
       #--- end of linked projects update  ---#
+
+      #--- devel project ---#
+      self.develproject = nil
+      if project.has_element? :devel
+        if project.devel.has_attribute? 'project'
+          prj_name = project.devel.project.to_s
+          unless develprj = DbProject.get_by_name(prj_name)
+            raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+          end
+          if develprj == self
+            raise SaveError, "Devel project can not point to itself"
+          end
+          self.develproject = develprj
+
+        end
+      end
+      #--- end devel project ---#
       # FIXME: it would be nicer to store only as needed
       self.updated_at = Time.now
       self.save!
+      # cycle detection
+      prj = self
+      processed = {}
+      while ( prj and prj.develproject )
+        prj_name = prj.name
+        # cycle detection
+        if processed[prj_name]
+          str = ""
+          processed.keys.each do |key|
+            str = str + " -- " + key
+          end
+          raise CycleError.new "There is a cycle in devel definition at #{str}"
+          return nil
+        end
+        processed[prj_name] = 1
+        prj = prj.develproject
+      end
 
       #--- update users ---#
       usercache = Hash.new
@@ -492,7 +528,7 @@ class DbProject < ActiveRecord::Base
             raise SaveError, "illegal role name '#{ge.role}'"
           end
 
-          if not (group=Group.find_by_title(ge.groupid))
+          if !(group=Group.find_by_title(ge.groupid))
             # check with LDAP
             if defined?( LDAP_MODE ) && LDAP_MODE == :on
               if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
@@ -679,10 +715,10 @@ class DbProject < ActiveRecord::Base
         current_repo.architectures.clear
 
         repo.each_arch do |arch|
-          unless Architecture.archcache.has_key? arch.to_s
+          unless Architecture.archcache.has_key? arch.text
             raise SaveError, "unknown architecture: '#{arch}'"
           end
-          current_repo.architectures << Architecture.archcache[arch.to_s]
+          current_repo.architectures << Architecture.archcache[arch.text]
           was_updated = true
         end
 
@@ -926,8 +962,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def render_axml(view = nil)
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
-
+    builder = Nokogiri::XML::Builder.new
     logger.debug "----------------- rendering project #{name} ------------------------"
 
     project_attributes = {:name => name}
@@ -948,6 +983,7 @@ class DbProject < ActiveRecord::Base
 
       project.remoteurl(remoteurl) unless remoteurl.blank?
       project.remoteproject(remoteproject) unless remoteproject.blank?
+      project.devel( :project => develproject.name ) unless develproject.nil?
 
       each_user do |u|
         project.person( :userid => u.login, :role => u.role_name )
@@ -967,7 +1003,7 @@ class DbProject < ActiveRecord::Base
           expand_flags(builder, flag_name)
         else
           flaglist = type_flags(flag_name)
-          project.tag! flag_name do
+          project.send(flag_name) do
             flaglist.each do |flag|
               flag.to_xml(builder)
             end
@@ -1015,7 +1051,9 @@ class DbProject < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
-    return xml.target!
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id
@@ -1177,7 +1215,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def project_type
-    mytype = DbProjectType.find_by_id(type_id)
+    mytype = DbProjectType.find_by_id(type_id) if type_id
     return 'standard' unless mytype
     return mytype.name
   end

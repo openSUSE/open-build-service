@@ -2,9 +2,7 @@ class Service < ActiveXML::Base
 
   class << self
     def make_stub( opt )
-      logger.debug "make stub params: #{opt.inspect}"
-      doc = XML::Document.new
-      doc.root = XML::Node.new 'services'
+      "<services/>"
     end
 
     def updateServiceList
@@ -12,33 +10,29 @@ class Service < ActiveXML::Base
        @serviceList = []
        @serviceParameterList = {}
 
-       path = "/service"
-       frontend = ActiveXML::Config::transport_for( :service )
-       answer = frontend.direct_http URI("/service"), :method => "GET"
-
-       doc = XML::Parser.string(answer).parse.root
-       doc.find("/servicelist/service").each do |s|
-         serviceName = s.attributes["name"]
-         next if s.attributes["hidden"] == "true"
+       doc = Service.find_cached :all
+       doc.each("//servicelist/service") do |s|
+         serviceName = s.value("name")
+         next if s.value("hidden") == "true"
          hash = {}
          hash[:name]        = serviceName
-         hash[:summary]     = s.find_first("summary").content
-         hash[:description] = s.find_first("description").content
+         hash[:summary]     = s.find_first("summary").text
+         hash[:description] = s.find_first("description").text
          @serviceList.push( hash )
 
          @serviceParameterList[serviceName] = {}
-         s.find("parameter").each do |p|
+         s.each("parameter") do |p|
            hash = {}
-           hash[:description] = p.find_first("description").content
-           hash[:required] = true if p.find_first("required")
+           hash[:description] = p.find_first("description").text
+           hash[:required] = true if p.has_element?("required")
 
            allowedvalues = []
-           p.find("allowedvalue").each do |a|
-             allowedvalues.push(a.content)
+           p.each("allowedvalue") do |a|
+             allowedvalues.push(a.text)
            end
            hash[:allowedvalues] = allowedvalues
 
-           @serviceParameterList[serviceName][p.attributes["name"]] = hash
+           @serviceParameterList[serviceName][p.value("name")] = hash
          end
        end
     end
@@ -137,69 +131,61 @@ class Service < ActiveXML::Base
   end
 
   def removeService( serviceid )
-     service_elements = data.find("/services/service")
-     return false if service_elements.count < serviceid.to_i or service_elements.count <= 0
-
-     service_elements[serviceid.to_i-1].remove!
-     return true
+     each("/services/service") do |service|
+        serviceid=serviceid-1
+	if serviceid == 0
+	  delete_element service
+	  return true
+	end
+     end
+     return false
   end
 
   # parameters need to be given as an array with hash pairs :name and :value
   def addService( name, position=-1, parameters=[] )
-     if position < 0 # append it
-        add_element 'service', 'name' => name
-        element = data.find("/services/service").last
-     else
-        service_elements = data.find("/services/service")
-        return false if service_elements.count < position or service_elements.count <= 0
-        service_elements[position-1].prev = XML::Node.new 'service'
-        element = service_elements[position-1].prev
-        element['name'] = name.to_s
+     element = add_element 'service', 'name' => name
+     if position >= 0 
+        service_elements = each("/services/service")
+        if service_elements.count >= position
+          element.move_before(service_elements[position-1])
+	end
      end
      parameters.each{ |p|
-       param = XML::Node.new 'param'
-       param['name'] = p[:name]
-       param << p[:value]
-       element << param
+       param = element.add_element('param', :name => p[:name])
+       param.text = p[:value]
      }
      return true
   end
 
   def getParameters(serviceid)
-     parameters = data.find("/services/service[#{serviceid}]/param")
-     return [] if not parameters or parameters.count <= 0
-
      ret = []
-     parameters.each do |p|
-       ret << { :name => p['name'].to_s, :value => p.first.to_s }
+     each("/services/service[#{serviceid}]/param") do |p|
+       ret << { :name => p.value(:name), :value => p.find_first(:value).text }
      end
 
      return ret
   end
 
   def setParameters( serviceid, parameters=[] )
-     service = data.find("/services/service[#{serviceid}]")
-     return false if not service or service.count <= 0
+     service = find_first("/services/service[#{serviceid}]")
+     return false if not service
 
      # remove all existing parameters
-     data.find("/services/service[#{serviceid}]/param").each do |p|
-       p.remove!
+     each("/services/service[#{serviceid}]/param") do |p|
+       delete_element p
      end
 
-     # remove all existing parameters
      parameters.each{ |p|
-       param = XML::Node.new 'param'
-       param['name'] = p[:name]
-       param << p[:value]
-       service.first << param
+        param = service.add_element('param', :name => p[:name])
+        param.text = p[:value]
      }
      return true
   end
 
   def moveService( from, to )
-     service_elements = data.find("/services/service")
+     service_elements = each("/services/service")
      return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
-     service_elements[to-1].prev = service_elements[from-1]
+     service_elements[from-1].move_before(service_elements[to-1])
   end
 
   def error
@@ -211,8 +197,8 @@ class Service < ActiveXML::Base
     begin
       fc = FrontendCompat.new
       answer = fc.get_source opt
-      doc = XML::Parser.string(answer).parse.root
-      doc.find("/directory/serviceinfo/error").each do |e|
+      doc = ActiveXML::Base.new(answer)
+      doc.each("/directory/serviceinfo/error") do |e|
          return e.text
       end
     rescue
@@ -232,22 +218,12 @@ class Service < ActiveXML::Base
   end
 
   def save
-    opt = Hash.new
-    opt[:project] = self.init_options[:project]
-    opt[:package] = self.init_options[:package]
-    opt[:filename] = "_service"
-    opt[:comment] = "Modified via webui"
-
-    fc = FrontendCompat.new
-    if data.find("/services/service").count > 0
-      logger.debug "storing _service file"
-      fc.put_file self.data.to_s, opt
-      opt.delete :filename
-      opt[:cmd] = "runservice"
-      fc.do_post nil, opt
+    if !has_element?("/services/service")
+	delete
     else
-      logger.debug "remove _service file"
-      fc.delete_file opt
+	super(:comment => "Modified via webui")
+        fc = FrontendCompat.new
+        fc.do_post nil, self.init_options.merge(:cmd => "runservice")
     end
     true
   end

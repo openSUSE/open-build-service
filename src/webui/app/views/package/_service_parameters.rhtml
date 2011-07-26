@@ -81,7 +81,7 @@
                 list += [p]
               end
            end %>
-           <% unless not defined? str or str.blank? %>
+           <% unless list.empty? %>
              <tr class="addrow"><td>
                  <select name="add_parameter_name" id="add_new_parameter">
                    <% list.each do |str| %>

@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/../test_helper'
+# encoding: UTF-8
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 class ReadPermissionTest < ActionController::IntegrationTest 
@@ -285,7 +286,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     puts @response.body if debug
     assert_response delresp if delresp
     get url_for(:controller => :source, :action => :package_meta, :project => "#{destprj}", :package => "#{destpkg}")
-    put "/source/#{destprj}/#{destpkg}/_meta", orig
+    put "/source/#{destprj}/#{destpkg}/_meta", orig.dup
   end
   protected :do_test_copy_package
 
@@ -398,7 +399,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # maintainer
     prepare_request_with_user "king", "sunflower"
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
- end
+  end
 
   def test_create_links_hidden_project
     # user without any special roles

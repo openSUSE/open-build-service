@@ -7,10 +7,10 @@ xml.rss :version => '2.0' do
 
     for update in @latest_updates
       xml.item do
-        if update.data.name == 'package'
+        if update.element_name == 'package'
           xml.title "Package #{update.name} in.project #{update.project} updated"
           xml.link url_for(:only_path => false, :controller => 'project', :action => 'show', :project => update.project, :package => update.name)
-        elsif update.data.name == 'project'
+        elsif update.element_name == 'project'
           xml.title "Project #{update.name} updated"
           xml.link url_for(:only_path => false, :controller => 'project', :action => 'show', :project => update.name)
         end

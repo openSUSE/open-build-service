@@ -43,7 +43,7 @@
 
 <h4>Related Links</h4>
 <ul>
-  <li><%= link_to "Home project", :controller => "project", :action => "show", :project => "home:" + user.to_s %></li>
-  <li><%= link_to("Involved projects", :controller => :home, :action => :list_my, :user => user.to_s) %></li>
-  <li><%= link_to("Involved requests", :controller => :home, :action => :list_requests, :user => user.to_s) %></li>
+  <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => "home:#{user.to_s}") %></li>
+  <li><%= link_to('Involved projects', :action => 'list_my', :user => user.to_s) %></li>
+  <li><%= link_to('Involved requests', :action => 'requests', :user => user.to_s) %></li>
 </ul>

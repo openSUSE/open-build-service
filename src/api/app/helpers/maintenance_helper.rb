@@ -7,12 +7,6 @@ module MaintenanceHelper
     tprj = nil
     DbProject.transaction do
       tprj = DbProject.new :name => mi.project_name
-      maintenanceProject.project_user_role_relationships.each do |r| 
-        tprj.project_user_role_relationships.new( :user => r.user, :role => r.role )
-      end
-      maintenanceProject.project_group_role_relationships.each do |r| 
-        tprj.project_group_role_relationships.new( :group => r.group, :role => r.role )
-      end
       if baseProject
         # copy as much as possible from base project
         tprj.title = baseProject.title.dup
@@ -38,6 +32,21 @@ module MaintenanceHelper
       end
       if noaccess
         tprj.flags.create( :flag => 'access', :status => "disable" )
+      end
+      # take over roles from maintenance project
+      maintenanceProject.project_user_role_relationships.each do |r| 
+        ProjectUserRoleRelationship.create(
+              :user => r.user,
+              :role => r.role,
+              :db_project => tprj
+            )
+      end
+      maintenanceProject.project_group_role_relationships.each do |r| 
+        ProjectGroupRoleRelationship.create(
+              :group => r.group,
+              :role => r.role,
+              :db_project => tprj
+            )
       end
       tprj.set_project_type "maintenance_incident"
       tprj.store

@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PublishFlagTest < ActiveSupport::TestCase
   fixtures :all
@@ -101,7 +101,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     #reload required!
     @project.reload
     assert_equal 1, @project.type_flags('publish').size
-    assert_equal 1, count -Flag.find(:all).size
+    assert_equal 1, count - Flag.find(:all).size
     
     @project.type_flags('publish')[0].destroy
     #reload required

@@ -1,3 +1,4 @@
+require 'base64'
 
 include MaintenanceHelper
 include ProductHelper
@@ -5,7 +6,7 @@ include ProductHelper
 class RequestController < ApplicationController
   #TODO: request schema validation
 
-  # the simple writing action.type instead of action.data.attributes['type'] can not be used, since it is a rails function
+  # the simple writing action.type instead of action.value('type') can not be used, since it is a rails function
 
   # POST /request?cmd=create
   alias_method :create, :dispatch_command
@@ -102,18 +103,14 @@ class RequestController < ApplicationController
         # find requests where user is maintainer in target project
         if roles.count == 0 or roles.include? "maintainer"
           maintained_projects = Array.new
-          maintained_projects_hash = Hash.new
           user.involved_projects.each do |ip|
             inner_or << ["action/target/@project='#{ip.name}'"]
-            maintained_projects_hash[ip.id] = true
           end
 
           ## find request where user is maintainer in target package, except we have to project already
           maintained_packages = Array.new
           user.involved_packages.each do |ip|
-            unless maintained_projects_hash.has_key?(ip.db_project_id)
-              inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
-            end
+            inner_or << ["(action/target/@project='#{ip.db_project.name}' and action/target/@package='#{ip.name}')"]
           end
         end
 
@@ -129,18 +126,14 @@ class RequestController < ApplicationController
 
             # find requests where user is maintainer in target project
             maintained_projects = Array.new
-            maintained_projects_hash = Hash.new
             user.involved_projects.each do |ip|
               inner_or << ["(review[@state='#{r}' and @by_project='#{ip.name}'] and state/@name='review')"]
-              maintained_projects_hash[ip.id] = true
             end
 
             ## find request where user is maintainer in target package, except we have to project already
             maintained_packages = Array.new
             user.involved_packages.each do |ip|
-              unless maintained_projects_hash.has_key?(ip.db_project_id)
-                inner_or << ["(review[@state='#{r}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
-              end
+              inner_or << ["(review[@state='#{r}' and @by_project='#{ip.db_project.name}' and @by_package='#{ip.name}'] and state/@name='review')"]
             end
           end
         end
@@ -283,7 +276,7 @@ class RequestController < ApplicationController
 
     # expand release and submit request targets if not specified
     req.each_action do |action|
-      if [ "submit", "maintenance_release" ].include?(action.data.attributes["type"])
+      if [ "submit", "maintenance_release" ].include?(action.value("type"))
         unless action.has_element? 'target'
           packages = Array.new
           if action.source.has_attribute? 'package'
@@ -293,7 +286,7 @@ class RequestController < ApplicationController
             packages = prj.db_packages
           end
           incident_suffix = ""
-          if action.data.attributes["type"] == "maintenance_release"
+          if action.value("type") == "maintenance_release"
             # The maintenance ID is always the sub project name of the maintenance project
             incident_suffix = "." + action.source.project.gsub(/.*:/, "")
           end
@@ -305,7 +298,7 @@ class RequestController < ApplicationController
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
             e = data.elements["directory/linkinfo"]
             unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"], follow_project_links=true, allow_remote_packages=true)
-              if action.data.attributes["type"] == "maintenance_release"
+              if action.value("type") == "maintenance_release"
                 newPackages << pkg.name
                 next
               else
@@ -317,10 +310,10 @@ class RequestController < ApplicationController
             newTargets << e.attributes["project"]
             newAction = action.clone
             newAction.add_element 'target' unless newAction.has_element? 'target'
-            newAction.source.data.attributes["package"] = pkg.name
-            newAction.target.data.attributes["project"] = e.attributes["project"]
-            newAction.target.data.attributes["package"] = e.attributes["package"] + incident_suffix
-            if action.data.attributes["type"] == "maintenance_release" and not newAction.source.has_attribute? 'rev'
+            newAction.source.set_attribute("package", pkg.name)
+            newAction.target.set_attribute("project", e.attributes["project"])
+            newAction.target.set_attribute("package", e.attributes["package"] + incident_suffix)
+            if action.value("type") == "maintenance_release" and not newAction.source.has_attribute? 'rev'
               # maintenance_release needs the binaries, so we always use the current source
               rev=nil
               if e.attributes["xsrcmd5"]
@@ -332,20 +325,20 @@ class RequestController < ApplicationController
                   :message => "Current sources are broken"
                 return
               end
-              newAction.source.data.attributes["rev"] = rev
+              newAction.source.set_attribute("rev", rev)
             end
-            req.add_node newAction.data
+            req.add_node newAction.dump_xml
           end
 
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
           newPackages.each do |pkg|
-            newTargets.each do |prj|
+            newTargets.each do |p|
               newAction = action.clone
               newAction.add_element 'target' unless newAction.has_element? 'target'
-              newAction.source.data.attributes["package"] = pkg
-              newAction.target.data.attributes["project"] = prj
-              newAction.target.data.attributes["package"] = pkg + incident_suffix
-              req.add_node newAction.data
+              newAction.source.set_attribute("package", pkg)
+              newAction.target.set_attribute("project", p)
+              newAction.target.set_attribute("package", pkg + incident_suffix)
+              req.add_node newAction.dump_xml
             end
           end
 
@@ -369,7 +362,7 @@ class RequestController < ApplicationController
       end
       if action.has_element? 'group'
         # validate group object
-        Group.get_by_title(action.group.data.attributes["name"])
+        Group.get_by_title(action.group.value("name"))
         role = action.group.role if action.group.has_attribute? 'role'
       end
       if role
@@ -401,7 +394,7 @@ class RequestController < ApplicationController
           return
         end
         if action.target.has_attribute? 'package' 
-          if DbPackage.exists_by_project_and_name(action.target.project, action.target.package) or ["delete", "change_devel", "add_role", "set_bugowner"].include? action.data.attributes["type"]
+          if DbPackage.exists_by_project_and_name(action.target.project, action.target.package) or ["delete", "change_devel", "add_role", "set_bugowner"].include? action.value("type")
             tpkg = DbPackage.get_by_project_and_name action.target.project, action.target.package
           end
           
@@ -414,21 +407,21 @@ class RequestController < ApplicationController
       end
 
       # Type specific checks
-      if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
+      if action.value("type") == "delete" or action.value("type") == "add_role" or action.value("type") == "set_bugowner"
         #check existence of target
         unless tprj
           render_error :status => 404, :errorcode => 'unknown_project',
             :message => "No target project specified"
           return
         end
-        if action.data.attributes["type"] == "add_role"
+        if action.value("type") == "add_role"
           unless role
             render_error :status => 404, :errorcode => 'unknown_role',
               :message => "No role specified"
             return
           end
         end
-      elsif [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include?(action.data.attributes["type"])
+      elsif [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include?(action.value("type"))
         #check existence of source
         unless sprj
           # no support for remote projects yet, it needs special support during accept as well
@@ -437,7 +430,7 @@ class RequestController < ApplicationController
           return
         end
 
-        if action.data.attributes["type"] == "submit"
+        if action.value("type") == "submit"
           # validate that the sources are not broken
           begin
             pr = ""
@@ -453,7 +446,7 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] == "maintenance_incident"
+        if action.value("type") == "maintenance_incident"
           if action.source.has_attribute?(:package)
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only entire projects as source"
@@ -482,13 +475,13 @@ class RequestController < ApplicationController
                 :message => "There is no project flagged as maintenance project on server and no target in request defined."
               return
             end
-            action.target.data.attributes["project"] = prj.name
+            action.target.set_attribute("project", prj.name)
           end
         end
 
         # source update checks
 #FIXME2.3: support this also for maintenance requests
-        if action.data.attributes["type"] == "submit"
+        if action.value("type") == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
              sourceupdate = action.options.sourceupdate.text
@@ -512,7 +505,7 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] == "change_devel"
+        if action.value("type") == "change_devel"
           unless tpkg
             render_error :status => 404, :errorcode => 'unknown_package',
               :message => "No target package specified"
@@ -522,7 +515,7 @@ class RequestController < ApplicationController
 
       else
         render_error :status => 403, :errorcode => "create_unknown_request",
-          :message => "Request type is unknown '#{action.data.attributes["type"]}'"
+          :message => "Request type is unknown '#{action.value("type")}'"
         return
       end
     end
@@ -543,11 +536,11 @@ class RequestController < ApplicationController
         tprj = DbProject.find_by_name action.target.project
         if action.target.has_attribute? 'package'
           tpkg = tprj.db_packages.find_by_name action.target.package
-          if action.data.attributes["type"] == "delete"
+          if action.value("type") == "delete"
             tpkg.can_be_deleted?    # raises exception if not
           end
         else
-          if action.data.attributes["type"] == "delete"
+          if action.value("type") == "delete"
             tprj.can_be_deleted?    # raises exception if not
           elsif action.has_element? 'source' and action.source.has_attribute? 'package'
             tpkg = tprj.db_packages.find_by_name action.source.package
@@ -556,11 +549,11 @@ class RequestController < ApplicationController
       end
       if action.has_element? 'source'
         # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-        if action.data.attributes["type"] == "change_devel" and tpkg.develpackage and not @http_user.can_modify_package?(tpkg.develpackage, 1)
+        if action.value("type") == "change_devel" and tpkg.develpackage and not @http_user.can_modify_package?(tpkg.develpackage, 1)
           review_packages.push({ :by_project => tpkg.develpackage.db_project.name, :by_package => tpkg.develpackage.name })
         end
 
-        if action.data.attributes["type"] == "maintenance_release"
+        if action.value("type") == "maintenance_release"
           # creating release requests is also locking the source package, therefore we require write access there.
           spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
           unless spkg or not @http_user.can_modify_package? spkg
@@ -607,25 +600,25 @@ class RequestController < ApplicationController
     if reviewers.length > 0
       reviewers.each do |r|
         e = req.add_element "review"
-        e.data.attributes["by_user"] = r.login
-        e.data.attributes["state"] = "new"
+        e.set_attribute "by_user", r.login
+        e.set_attribute "state", "new"
       end
     end
     review_groups.uniq!
     if review_groups.length > 0
       review_groups.each do |g|
         e = req.add_element "review"
-        e.data.attributes["by_group"] = g.title
-        e.data.attributes["state"] = "new"
+        e.set_attribute "by_group", g.title
+        e.set_attribute "state", "new"
       end
     end
     review_packages.uniq!
     if review_packages.length > 0
       review_packages.each do |p|
         e = req.add_element "review"
-        e.data.attributes["by_project"] = p[:by_project]
-        e.data.attributes["by_package"] = p[:by_package] if p[:by_package]
-        e.data.attributes["state"] = "new"
+        e.set_attribute "by_project", p[:by_project]
+        e.set_attribute("by_package", p[:by_package]) if p[:by_package]
+        e.set_attribute "state", "new"
       end
     end
 
@@ -654,23 +647,29 @@ class RequestController < ApplicationController
     diff_text = ""
 
     req.each_action do |action|
-      if action.data.attributes["type"] == "submit" and action.target.project and action.target.package
-        transport = ActiveXML::Config::transport_for(:request)
-        path = nil
+      action_diff = ''
+      if ['submit', 'maintenance_release'].include?(action.value('type')) and action.target.project and action.target.package
+        target_project = action.target.project
+        target_package = action.target.package
 
+        # Cut off '.$FOO' from package name ($FOO is the release target) when it's a maintenance release.
+        # Ruby has no 'rsplit' method, needs elitist hack:
+        target_package = target_package.split(/\.([^.]*)$/)[0] if action.value('type') == 'maintenance_release'
+
+        path = nil
         if action.has_element? :acceptinfo
           # OBS 2.1 adds acceptinfo on request accept
           path = "/source/%s/%s?cmd=diff" %
-               [CGI.escape(action.target.project), CGI.escape(action.target.package)]
-          if action.acceptinfo.data.attributes["xsrcmd5"]
-            path += "&rev=" + action.acceptinfo.data.attributes["xsrcmd5"]
+               [CGI.escape(target_project), CGI.escape(target_package)]
+          if action.acceptinfo.value("xsrcmd5")
+            path += "&rev=" + action.acceptinfo.value("xsrcmd5")
           else
-            path += "&rev=" + action.acceptinfo.data.attributes["srcmd5"]
+            path += "&rev=" + action.acceptinfo.value("srcmd5")
           end
-          if action.acceptinfo.data.attributes["oxsrcmd5"]
-            path += "&orev=" + action.acceptinfo.data.attributes["oxsrcmd5"]
-          elsif action.acceptinfo.data.attributes["osrcmd5"]
-            path += "&orev=" + action.acceptinfo.data.attributes["osrcmd5"]
+          if action.acceptinfo.value("oxsrcmd5")
+            path += "&orev=" + action.acceptinfo.value("oxsrcmd5")
+          elsif action.acceptinfo.value("osrcmd5")
+            path += "&orev=" + action.acceptinfo.value("osrcmd5")
           else
             # md5sum of empty package
             path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
@@ -679,40 +678,61 @@ class RequestController < ApplicationController
           # for requests not yet accepted or accepted with OBS 2.0 and before
           spkg = DbPackage.get_by_project_and_name( action.source.project, action.source.package )
           tpkg = linked_tpkg = nil
-          if DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = false )
-            tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
-          elsif DbPackage.exists_by_project_and_name( action.target.project, action.target.package, follow_project_links = true )
-            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( action.target.project, action.target.package )
+          if DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = false )
+            tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
+          elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = true )
+            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
           else
-            tprj = DbProject.get_by_name( action.target.project )
+            tprj = DbProject.get_by_name( target_project )
           end
 
+          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?cmd=diff&expand=1"
           if tpkg
-            path = "/source/%s/%s?oproject=%s&opackage=%s&cmd=diff&expand=1" %
-                   [CGI.escape(action.source.project), CGI.escape(action.source.package), CGI.escape(action.target.project), CGI.escape(action.target.package)]
-            if action.source.data['rev']
-              path += "&rev=#{action.source.rev}"
-            end
-            if linked_tpkg
-              diff_text = "New package instance: " + action.target.project + "/" + action.target.package + " following diff contains diff to package from linked project.\n" + diff_text
-            end
+            path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
+            path += "&rev=#{action.source.rev}" if action.source.value('rev')
           else
-            diff_text = "Additional package: " + action.target.project + "/" + action.target.package + "\n" + diff_text
+            # No target means diffing all source package changes (rev 0 - rev latest)
+            spkg_rev = Directory.find(:project => action.source.project, :package => action.source.package).rev
+            path += "&orev=0&rev=#{spkg_rev}"
           end
         end
 
-        begin
-          diff_text += Suse::Backend.post(path, nil).body if path
-        rescue ActiveXML::Transport::Error => e
-          render_error :status => 404, :errorcode => 'diff_failure',
-                       :message => "The diff call for #{path} failed"
-          return
+        if path
+          path += '&unified=1' if params[:view] == 'xml' # Request unified diff in full XML view
+          begin
+            action_diff += Suse::Backend.post(path, nil).body
+          rescue ActiveXML::Transport::Error => e
+            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+          end
         end
+      end
+      if params[:view] == 'xml'
+        diff_element = action.add_element('diff')
+        diff_element.set_attribute('encoding', 'base64')
 
+        # Try to split unified diff from backend by file and to create a suiteble XML representation
+        splitted = action_diff.split(/^Index: (.*)\n[=]*\n/)
+        splitted.shift # First element is an empty string
+        if splitted.length.even?
+          splitted.each_slice(2) do |file, diff|
+            file_element = diff_element.add_element('file')
+            file_element.set_attribute('name', file)
+            file_element.text = Base64.encode64(diff)
+          end
+        end
+        diff_text += action.dump_xml() + "\n"
+      else
+        diff_text += action_diff
       end
     end
 
-    send_data(diff_text, :type => "text/plain")
+    if params[:view] == 'xml'
+      # Wrap diff text into <request> tag as it may contain multiple <action> tags
+      diff_text = "<request id=\"#{req.value('id')}\">\n  #{diff_text}</request>"
+      send_data(diff_text, :type => "text/xml")
+    else
+      send_data(diff_text, :type => "text/plain")
+    end
   end
 
   def command_addreview
@@ -749,8 +769,8 @@ class RequestController < ApplicationController
     if req.has_element? 'submit' and req.has_attribute? 'type'
       # old style, convert to new style on the fly
       node = req.submit
-      node.data.name = 'action'
-      node.data.attributes['type'] = 'submit'
+      node.element_name = 'action'
+      node.set_attribute('type', 'submit')
       req.delete_attribute('type')
     end
 
@@ -776,7 +796,7 @@ class RequestController < ApplicationController
     if params[:cmd] == "changestate"
        if params[:newstate] == "new" and req.has_element? 'review'
           req.each_review do |r|
-            params[:newstate] = "review" if r.data.attributes['state'] == "new"
+            params[:newstate] = "review" if r.value('state') == "new"
           end
        end
     end
@@ -822,9 +842,9 @@ class RequestController < ApplicationController
       # allow request creator to add further reviewers
       permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
     elsif params[:cmd] == "changereviewstate"
-      unless req.state.name == "review"
+      unless req.state.name == "review" or req.state.name == "new"
         render_error :status => 403, :errorcode => "review_change_state_no_permission",
-              :message => "The request is not in state review"
+                :message => "The request is neither in state review nor new"
         return
       end
       if params[:by_user]
@@ -890,7 +910,7 @@ class RequestController < ApplicationController
         return
       end
 
-      if [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include? action.data.attributes["type"]
+      if [ "submit", "change_devel", "maintenance_release", "maintenance_incident" ].include? action.value("type")
         source_package = nil
         if [ "declined", "revoked", "superseded" ].include? params[:newstate]
           # relaxed access checks for getting rid of request
@@ -899,32 +919,32 @@ class RequestController < ApplicationController
           # full read access checks
           source_project = DbProject.get_by_name(action.source.project)
           target_project = DbProject.get_by_name(action.target.project)
-          if action.data.attributes["type"] == "change_devel" and not action.target.has_attribute? :package
+          if action.value("type") == "change_devel" and not action.target.has_attribute? :package
             render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+              :message => "Target package is missing in request #{req.id} (type #{action.value('type')})"
             return
           end
-          if action.source.has_attribute? :package or action.data.attributes["type"] == "change_devel"
+          if action.source.has_attribute? :package or action.value("type") == "change_devel"
             source_package = DbPackage.get_by_project_and_name source_project.name, action.source.package
           end
           # require a local source package
-          if [ "change_devel" ].include? action.data.attributes["type"]
+          if [ "change_devel" ].include? action.value("type")
             unless source_package
               render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Local source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+                :message => "Local source package is missing for request #{req.id} (type #{action.value('type')})"
               return
             end
           end
           # accept also a remote source package
-          if source_package.nil? and [ "submit" ].include? action.data.attributes["type"]
+          if source_package.nil? and [ "submit" ].include? action.value("type")
             unless DbPackage.exists_by_project_and_name( source_project.name, action.source.package, follow_project_links=true, allow_remote_packages=true)
               render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+                :message => "Source package is missing for request #{req.id} (type #{action.value('type')})"
               return
             end
           end
           # write access check in release targets
-          if [ "maintenance_release" ].include? action.data.attributes["type"]
+          if [ "maintenance_release" ].include? action.value("type")
             source_project.repositories.each do |repo|
               repo.release_targets.each do |releasetarget|
                 unless @http_user.can_modify_project? releasetarget.target_repository.db_project
@@ -939,7 +959,7 @@ class RequestController < ApplicationController
         if target_project
           if action.target.has_attribute? :package
             target_package = target_project.db_packages.find_by_name(action.target.package)
-          elsif [ "submit", "change_devel" ].include? action.data.attributes["type"]
+          elsif [ "submit", "change_devel" ].include? action.value("type")
             # fallback for old requests, new created ones get this one added in any case.
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
@@ -950,12 +970,12 @@ class RequestController < ApplicationController
            if ( source_package and not @http_user.can_modify_package? source_package ) or
               ( not source_package and not @http_user.can_modify_project? source_project )
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
+               :message => "No permission to revoke request #{req.id} (type #{action.value('type')})"
              return
            end
         end
 
-      elsif [ "delete", "add_role", "set_bugowner" ].include? action.data.attributes["type"]
+      elsif [ "delete", "add_role", "set_bugowner" ].include? action.value("type")
         # target must exist
         if params[:newstate] == "accepted"
           if action.target.has_attribute? :package
@@ -965,18 +985,18 @@ class RequestController < ApplicationController
                 :message => "Unable to process package #{action.target.project}/#{action.target.package}; it does not exist."
               return
             end
-            if action.data.attributes["type"] == "delete"
+            if action.value("type") == "delete"
               target_package.can_be_deleted?
             end
           else
-            if action.data.attributes["type"] == "delete"
+            if action.value("type") == "delete"
               target_project.can_be_deleted?
             end
           end
         end
       else
         render_error :status => 400, :errorcode => "post_request_no_permission",
-          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
+          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.value('type')})"
         return
       end
 
@@ -1002,7 +1022,7 @@ class RequestController < ApplicationController
 
       # abort immediatly if we want to write and can't.
       if params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] and not write_permission_in_this_action
-        msg = "No permission to modify target of request #{req.id} (type #{action.data.attributes['type']}): project #{action.target.project}"
+        msg = "No permission to modify target of request #{req.id} (type #{action.value('type')}): project #{action.target.project}"
         msg += ", package #{action.target.package}" if action.target.has_attribute? :package
         render_error :status => 403, :errorcode => "post_request_no_permission",
           :message => msg
@@ -1082,12 +1102,11 @@ class RequestController < ApplicationController
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
 
     # use the request description as comments for history
-    params[:comment] = nil
-    params[:comment] = req.description if req.has_element? "description"
+    params[:comment] = req.value(:description)
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
-      if action.data.attributes["type"] == "set_bugowner"
+      if action.value("type") == "set_bugowner"
           object = DbProject.find_by_name(action.target.project)
           bugowner = Role.get_by_title("bugowner")
           if action.target.has_attribute? 'package'
@@ -1102,7 +1121,7 @@ class RequestController < ApplicationController
           end
           object.add_user( action.person.name, bugowner )
           object.store
-      elsif action.data.attributes["type"] == "add_role"
+      elsif action.value("type") == "add_role"
           object = DbProject.find_by_name(action.target.project)
           if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
@@ -1116,7 +1135,7 @@ class RequestController < ApplicationController
              object.add_group( action.group.name, role )
           end
           object.store
-      elsif action.data.attributes["type"] == "change_devel"
+      elsif action.value("type") == "change_devel"
           target_project = DbProject.get_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
           target_package.develpackage = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
@@ -1128,7 +1147,7 @@ class RequestController < ApplicationController
             render_error :status => 403, :errorcode => "devel_cycle", :message => e.message
             return
           end
-      elsif action.data.attributes["type"] == "submit"
+      elsif action.value("type") == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
             sourceupdate = action.options.sourceupdate.text
@@ -1137,15 +1156,15 @@ class RequestController < ApplicationController
           cp_params = {
             :cmd => "copy",
             :user => @http_user.login,
-            :oproject => src.project,
-            :opackage => src.package,
+            :oproject => src.value(:project),
+            :opackage => src.value(:package),
             :noservice => "1",
             :requestid => params[:id],
             :comment => params[:comment]
           }
-          cp_params[:orev] = src.rev if src.has_attribute? :rev
+          cp_params[:orev] = src.value(:rev)
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
-          unless action.has_element? 'options' and action.options.has_element? 'updatelink' and action.options.updatelink == "true"
+          unless action.has_element? 'options' and action.options.value(:updatelink) == "true"
             cp_params[:expand] = 1
             cp_params[:keeplink] = 1
           end
@@ -1226,7 +1245,7 @@ class RequestController < ApplicationController
               Suse::Backend.delete delete_path
             end
           end
-      elsif action.data.attributes["type"] == "delete"
+      elsif action.value("type") == "delete"
           if action.target.has_attribute? :package
             package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
             package.destroy
@@ -1239,7 +1258,7 @@ class RequestController < ApplicationController
           h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
           delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
           Suse::Backend.delete delete_path
-      elsif action.data.attributes["type"] == "maintenance_incident"
+      elsif action.value("type") == "maintenance_incident"
 
         # create incident project
         source_project = DbProject.get_by_name(action.source.project)
@@ -1248,10 +1267,10 @@ class RequestController < ApplicationController
 
         # update request with real target project
         # FIXME2.3: Discuss this, changing the target on state change is not nice, but avoids an extra element/attribute
-        action.target.data["project"] = incident.db_project.name
+        action.target.set_attribute("project", incident.db_project.name)
         req.save
 
-      elsif action.data.attributes["type"] == "maintenance_release"
+      elsif action.value("type") == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
 
 #FIXME2.3: support limiters to specified repositories

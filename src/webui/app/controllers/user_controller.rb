@@ -1,3 +1,5 @@
+require 'base64'
+
 class UserController < ApplicationController
 
   include ApplicationHelper
@@ -132,16 +134,18 @@ class UserController < ApplicationController
     if params[:current_password] == params[:new_password]
       errmsg = "The new password is the same as your current password. Please enter the new password again."
     end
-    if errmsg:
+    if errmsg
       flash[:error] = errmsg
       redirect_to :controller => :user, :action => :change_my_password
       return
     end
 
-    require 'base64' 
-    new_password = Base64.encode64(params[:new_password]).chomp    
+    # Replace all '\n' characters (not just the last one) that Ruby thinks belong into
+    # Base64 encoded strings. Happens when people enter lengthy passwords with more than
+    # 60 characters (the Base64 module's magically hardcoded linebreak default).
+    new_password = Base64.encode64(params[:new_password]).gsub("\n", "")
     changepwd = Userchangepasswd.new(:login => session[:login], :password => new_password)
-    
+
     begin
       if changepwd.save(:create => true)
         session[:passwd] = params[:new_password]

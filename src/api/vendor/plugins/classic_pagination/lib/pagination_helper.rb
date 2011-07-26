@@ -105,7 +105,7 @@ module ActionView
 
         html << prefix if prefix
 
-        if always_show_anchors and not (wp_first = window_pages[0]).first?
+        if always_show_anchors and !(wp_first = window_pages[0]).first?
           html << yield(first.number)
           html << ' ... ' if wp_first.number - first.number > 1
           html << ' '
@@ -120,7 +120,7 @@ module ActionView
           html << ' '
         end
         
-        if always_show_anchors and not (wp_last = window_pages[-1]).last? 
+        if always_show_anchors and !(wp_last = window_pages[-1]).last? 
           html << ' ... ' if last.number - wp_last.number > 1
           html << yield(last.number)
         end

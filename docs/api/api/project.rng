@@ -9,6 +9,8 @@
     An optional list of persons
   group
     An optional list of groups
+  devel
+    An optional devel project
   build
     build flags
   publish
@@ -69,9 +71,6 @@
         </attribute>
       </optional>
       <optional>
-        <attribute name="mountproject"/>
-      </optional>
-      <optional>
         <attribute name="created"/>
       </optional>
       <optional>
@@ -91,9 +90,22 @@
           <ref name="project-link-element"/>
         </zeroOrMore>
 
+        <optional> 
+          <element ns="" name="mountproject">
+            <text/>
+          </element>
+        </optional>
+
         <optional>
           <element ns="" name="remoteurl">
             <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="devel">
+            <attribute name="project"/>
+            <empty/>
           </element>
         </optional>
 

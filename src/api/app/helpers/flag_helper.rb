@@ -72,7 +72,7 @@ module FlagHelper
 	   repo ||= nil
 
 	   #instantiate new flag object
-	   self.flags.create(:status => xmlflag.data.name, :position => position, :flag => flagtype) do |flag|
+	   self.flags.create(:status => xmlflag.element_name, :position => position, :flag => flagtype) do |flag|
 	     #set the flag attributes
 	     flag.repo = repo
 	     flag.architecture = arch
@@ -107,9 +107,9 @@ module FlagHelper
     unless status == 'enable' or status == 'disable'
       raise ArgumentError.new("Error: unknown status for flag '#{status}'")
     end
-    self.flags.create( :status => status, :flag => flag ) do |flag|
-      flag.architecture = Architecture.find_by_name(arch) if arch
-      flag.repo = repository
+    self.flags.create( :status => status, :flag => flag ) do |f|
+      f.architecture = Architecture.find_by_name(arch) if arch
+      f.repo = repository
     end
   end
 

@@ -27,7 +27,7 @@ class Group < ActiveRecord::Base
            begin
              list = User.render_grouplist_ldap(Group.find(:all), user.login)
            rescue Exception
-             logger.debug "Error occured in rendering grouplist in ldap."
+             logger.debug "Error occurred in rendering grouplist in ldap."
            end
          else
            list = user.groups
@@ -37,7 +37,7 @@ class Group < ActiveRecord::Base
            begin
              list = User.render_grouplist_ldap(Group.find(:all))
            rescue Exception
-             logger.debug "Error occured in rendering grouplist in ldap."
+             logger.debug "Error occurred in rendering grouplist in ldap."
            end
          else
            list = Group.find(:all)
@@ -61,12 +61,12 @@ class Group < ActiveRecord::Base
   end
 
   def render_axml
-    builder = FasterBuilder::XmlMarkup.new(:indent => 2)
+    builder = Builder::XmlMarkup.new(:indent => 2)
     logger.debug "----------------- rendering group #{self.title} ------------------------"
     xml = builder.group() do |group|
       group.title(self.title)
     end
-    xml.target!
+    xml
   end
 
 end

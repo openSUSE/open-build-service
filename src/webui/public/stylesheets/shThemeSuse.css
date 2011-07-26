@@ -65,7 +65,7 @@
   color: white !important;
   background: #669900 !important;
   border: none !important;
-  position: static !important;
+  /*position: static !important;*/
 }
 .syntaxhighlighter .toolbar a {
   color: white !important;

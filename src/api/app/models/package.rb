@@ -4,11 +4,11 @@ class Package < ActiveXML::Base
   end
 
   def name=(new_name)
-    data["name"] = new_name.to_s
+    set_attribute("name", new_name.to_s)
   end
 
   def project=(new_project)
-    data["project"] = new_project.to_s
+    set_attribute("project", new_project.to_s)
   end
 
   def parent_project
@@ -25,16 +25,7 @@ class Package < ActiveXML::Base
     logger.debug "add_person: role: #{role.inspect}"
 
     raise "add_person needs :userid argument" unless opt[:userid]
-
-    if( has_element? :person )
-      elem_cache = split_data_after :person
-    else
-      elem_cache = split_data_after :description
-    end
-
     add_element( 'person', 'userid' => opt[:userid], 'role' => opt[:role] )
-
-    merge_data elem_cache
   end
 
   def remove_all_persons

@@ -4,11 +4,10 @@ class Link < ActiveXML::Base
   class << self
     def make_stub( opt )
       logger.debug "make stub params: #{opt.inspect}"
-      doc = XML::Document.new
-      doc.root = XML::Node.new 'link'
-      doc.root['project'] = opt[:linked_project]
-      doc.root['package'] = opt[:linked_package]
-      doc.root
+      doc = ActiveXML::Base.new "<link/>"
+      doc.set_attribute('project', opt[:linked_project])
+      doc.set_attribute('package', opt[:linked_package])
+      doc
     end
   end
 

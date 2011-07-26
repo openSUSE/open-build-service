@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'find'
 
 RAILS_BASE_PATH = File.dirname(__FILE__) + '/../../'

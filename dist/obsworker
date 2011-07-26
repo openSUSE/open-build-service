@@ -101,7 +101,7 @@ elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
     vmopt=--xen
 fi
 
-if [ -n "$vmopt" ]; then
+if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
     # we start up in VM mode, check for the worker disk options
     if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" -a -n "$OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE" ]; then
         VMDISK_ROOT_FILESIZE="--vmdisk-rootsize ${OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE}"
@@ -170,7 +170,7 @@ case "$1" in
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
             TMPFS=
-            if [ -n "$vmopt" ]; then
+            if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
                 mkdir -p $R
                 DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
                 SWAP="$OBS_WORKER_DIRECTORY/root_$I/swap"

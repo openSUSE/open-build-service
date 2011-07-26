@@ -186,7 +186,7 @@ class ApplicationController < ActionController::Base
         authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
       end
 
-      logger.debug( "AUTH: #{authorization}" )
+      logger.debug( "AUTH: #{authorization.inspect}" )
 
       if authorization and authorization[0] == "Basic"
         # logger.debug( "AUTH2: #{authorization}" )
@@ -433,7 +433,8 @@ class ApplicationController < ActionController::Base
   # default uses logger.fatal, but we have too many unknown object exceptions to make that useful
   # in production
   def log_error(exception)
-    if exception === DbProject::UnknownObjectError || exception == DbPackage::UnknownObjectError
+    case exception
+    when DbProject::UnknownObjectError, DbPackage::UnknownObjectError
       logger.debug("\n#{exception.class} (#{exception.message}):\n  " +
                    clean_backtrace(exception).join("\n  ") + "\n\n")
     else
@@ -570,6 +571,7 @@ class ApplicationController < ActionController::Base
   end
 
   def send_exception_mail?
+    return false if Rails.env.test?
     return false unless ExceptionNotifier.exception_recipients
     return !local_request? && !Rails.env.development?
   end

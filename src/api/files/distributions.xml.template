@@ -144,6 +144,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-16.png"/>
   <link>http://www.redhat.com/</link>
  </distribution>
+ <distribution vendor="CentOS" version="CentOS-6" id="centos-CentOS-6">
+  <name>CentOS CentOS-6</name>
+  <project>openSUSE.org:CentOS:CentOS-6</project>
+  <reponame>CentOS_6</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/centos-CentOS-6-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-6-16.png"/>
+  <link>http://www.centos.org/</link>
+ </distribution>
  <distribution vendor="CentOS" version="CentOS-5" id="centos-CentOS-5">
   <name>CentOS CentOS-5</name>
   <project>openSUSE.org:CentOS:CentOS-5</project>

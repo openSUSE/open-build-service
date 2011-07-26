@@ -15,7 +15,8 @@ class PackageController < ApplicationController
 
   def show
     begin 
-      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', 
+                                              :expires_in => 5.minutes ) unless @spider_bot
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
@@ -23,12 +24,15 @@ class PackageController < ApplicationController
     (@package.bugowners + @project.bugowners).uniq.each do |bugowner|
         mail = find_cached(Person, bugowner).email
         @bugowners_mail.push(mail.to_s) if mail
-    end
+    end unless @spider_bot
     fill_status_cache unless @buildresult.blank?
     linking_packages
+    @nr_files = 0
+    @nr_files = @package.files.size unless @spider_bot
   end
 
   def linking_packages
+    return if @spider_bot
     cache_string = "%s/%s_linking_packages" % [ @project, @package ]
     Rails.cache.delete(cache_string) if discard_cache?
     @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
@@ -82,6 +86,7 @@ class PackageController < ApplicationController
   end
 
   def binaries
+    return if @spider_bot
     required_parameters :repository
     @repository = params[:repository]
     begin
@@ -105,7 +110,7 @@ class PackageController < ApplicationController
     @roles = Role.local_roles
   end
 
-  def list_requests
+  def requests
   end
 
   def commit
@@ -147,19 +152,18 @@ class PackageController < ApplicationController
            :locals => { :servicename => params[:servicename], :parameter => params[:parameter], :number => params[:number], :value => params[:value], :setid => params[:setid] }
   end
 
-  def source_history
-    # hard coded value for the number of visible commit items in browser
-    @visible_commits = 9
-    @maxrevision = Package.current_rev(@project, @package.name).to_i
-    @browserrevision = params[:rev]
-    @browserrevision = @maxrevision if not @browserrevision
-
-    # we need to fetch commits alltogether for the cache and not each single one
+  def revisions
+    @max_revision = Package.current_rev(@project, @package.name).to_i
+    @upper_bound = @max_revision
     if params[:showall]
       p = find_cached(Package, @package.name, :project => @project)
-      p.cacheAllCommits
-      @browserrevision = @visible_commits = @maxrevision
+      p.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
+      @visible_commits = @max_revision
+    else
+      @upper_bound = params[:rev].to_i if params[:rev]
+      @visible_commits = [9, @upper_bound].min # Don't show more than 9 requests
     end
+    @lower_bound = [1, @upper_bound - @visible_commits + 1].max
   end
 
   def add_service
@@ -188,18 +192,18 @@ class PackageController < ApplicationController
     if params[:supersede]
       pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => "new,review", :types => "submit")
       pending_requests.each do |request|
-        next if request.data[:id] == req.data[:id] # ignore newly created request
+        next if request.value(:id) == req.value(:id) # ignore newly created request
         begin
-          BsRequest.modify(request.data[:id], "superseded", :reason => "Superseded by request #{req.data[:id]}", :superseded_by => req.data[:id])
+          BsRequest.modify(request.value(:id), "superseded", :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
         rescue BsRequest::ModifyError => e
           flash[:error] = e.message
-          redirect_to(:action => "list_requests", :project => params[:project], :package => params[:package]) and return
+          redirect_to(:action => "requests", :project => params[:project], :package => params[:package]) and return
         end
       end
     end
 
     Rails.cache.delete "requests_new"
-    redirect_to(:controller => "request", :action => "show", :id => req.data[:id])
+    redirect_to(:controller => "request", :action => "show", :id => req.value(:id))
   end
 
   def service_parameter
@@ -412,9 +416,9 @@ class PackageController < ApplicationController
     valid_http_methods(:post)
     begin
       path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
-      result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
-      result_project = result.find_first( "/status/data[@name='targetproject']" ).content
-      result_package = result.find_first( "/status/data[@name='targetpackage']" ).content
+      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST", :data => "" ))
+      result_project = result.find_first( "/status/data[@name='targetproject']" ).text
+      result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
@@ -473,7 +477,7 @@ class PackageController < ApplicationController
       begin
         path = "/source/#{CGI.escape(@linked_project)}/#{CGI.escape(@linked_package)}?cmd=branch&target_project=#{CGI.escape(@project.name)}&target_package=#{CGI.escape(@target_package)}"
         path += "&rev=#{CGI.escape(@revision)}" if @revision
-        result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
+        frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
         flash[:success] = "Branched package #{@project.name} / #{@target_package}"
       rescue ActiveXML::Transport::Error => e
         message, code, api_exception = ActiveXML::Transport.extract_error_message e
@@ -636,7 +640,7 @@ class PackageController < ApplicationController
 
   def remove_service
     required_parameters :id
-    id = params[:id].gsub( %r{^service_}, '' )
+    id = params[:id].gsub( %r{^service_}, '' ).to_i
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services
       flash[:error] = "Service \##{id} not found"
@@ -773,14 +777,17 @@ class PackageController < ApplicationController
       end
     end
     begin
-      @file = frontend.get_source( :project => @project.to_s,
-        :package => @package.to_s, :filename => @filename, :rev => @srcmd5 )
+      @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @srcmd5)
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :files, :package => @package, :project => @project
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
       redirect_back_or_to :action => :files, :project => @project, :package => @package
+    end
+    if @spider_bot
+      render :template => "package/simple_file_view"
+      return
     end
   end
 
@@ -1015,6 +1022,9 @@ class PackageController < ApplicationController
   end
 
   def reload_buildstatus
+    unless request.xhr?
+      render :text => 'no ajax', :status => 400 and return
+    end
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
@@ -1074,6 +1084,7 @@ class PackageController < ApplicationController
 
   def repositories
     @package = find_cached(Package, params[:package], :project => params[:project], :view => :flagdetails )
+    @user_is_maintainer = (@user && @user.is_maintainer?(@project, @package))
   end
 
   def change_flag
@@ -1212,7 +1223,13 @@ class PackageController < ApplicationController
   end
 
   def load_requests
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
+    return if @spider_bot
+    cachekey="package_reviews_#{@project.name}_#{@package.name}"
+    Rails.cache.delete(cachekey) if discard_cache?
+    @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + 
+      BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
+    end
   end
 
 end

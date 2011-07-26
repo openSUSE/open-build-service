@@ -125,71 +125,7 @@ sub filediff {
   my ($f1, $f2, $p1, $p2, $max, $arg, $lcntp, $noarchive) = @_;
   $arg ||= '-u';
 
-  return unless defined($f1) || defined($f2);
-
-  if ((!defined($f1) || ref($f1)) && (!defined($f2) || ref($f2))) {
-    # no diff at all
-    my $d = '';
-    $d .= "--- $p1\n";
-    $d .= "+++ $p2\n";
-    if (defined($f1)) {
-      $d .= "-$_\n" for @$f1;;
-    }
-    if (defined($f2)) {
-      $d .= "+$_\n" for @$f2;;
-    }
-    $$lcntp += @{[split("\n", $d)]} if $lcntp;
-    return $d;
-  }
-  if (!defined($f1) || !defined($f2) || ref($f1) || ref($f2)) {
-    # no real diff
-    my $f = defined($f1) && !ref($f1) ? $f1 : $f2;
-    my $fx = defined($f1) && !ref($f1) ? '-' : '+';
-    my $lcnt = 0;
-    $lcnt = $$lcntp if $lcntp;
-    return '' if $f =~ /\.(?:zip|tar|jar|zoo)(?:\.gz|\.bz2|\.xz)?$/;
-    local *F;
-    if (!$noarchive) {
-      if ($f =~ /\.gz$/i) {
-        open(F, "-|", 'gunzip', '-dc', $f) || die("open $f: $!\n");
-      } elsif ($f =~ /\.bz2$/i) {
-        open(F, "-|", 'bzip2', '-dc', $f) || die("open $f: $!\n");
-      } elsif ($f =~ /\.xz$/i) {
-        open(F, "-|", 'xz', '-dc', $f) || die("open $f: $!\n");
-      }
-    }
-    open(F, '<', $f) || die("open $f: $!\n") if !defined(fileno(F));
-    my $d = '';
-    $d .= "--- $p1\n";
-    $d .= "+++ $p2\n";
-    $lcnt += 2;
-    if (defined($f1) && ref($f1)) {
-      $d .= "-$_\n" for @$f1;
-      $lcnt += @$f1;
-    }
-    my $bintest;
-    while(<F>) {
-      ++$lcnt;
-      if (!$bintest) {
-	if (tr/\000-\037// > 3) {
-	  close F;
-	  return '';
-	}
-        $bintest = 1;
-      }
-      $d .= "$fx$_" if !defined($max) || $lcnt <= $max;
-    }
-    close(F);
-    if (defined($max) && $lcnt > $max) {
-      $d .= "(".($lcnt - $max)." more lines skipped)\n";
-    }
-    if (defined($f2) && ref($f2)) {
-      $d .= "+$_\n" for @$f1;
-      $lcnt += @$f1;
-    }
-    $$lcntp = $lcnt if $lcntp;
-    return $d;
-  }
+  return '' unless defined($f1) || defined($f2);
 
   # the hard part: two real files
   local *D;
@@ -197,24 +133,28 @@ sub filediff {
   if (!$pid) {
     local *F1;
     local *F2;
-    if (!$noarchive) {
-      if ($f1 =~ /\.gz$/i) {
-        open(F1, "-|", 'gunzip', '-dc', $f1) || die("open $f1: $!\n");
-      } elsif ($f1 =~ /\.bz2$/i) {
-        open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
-      } elsif ($f1 =~ /\.xz$/i) {
-        open(F1, "-|", 'xz', '-dc', $f1) || die("open $f1: $!\n");
-      }
-      if ($f2 =~ /\.gz$/i) {
-        open(F2, "-|", 'gunzip', '-dc', $f2) || die("open $f2: $!\n");
-      } elsif ($f2 =~ /\.bz2$/i) {
-        open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
-      } elsif ($f2 =~ /\.xz$/i) {
-        open(F2, "-|", 'xz', '-dc', $f2) || die("open $f2: $!\n");
-      } 
+    if (!defined($f1) || ref($f1)) {
+      open(F1, "<", '/dev/null') || die("open /dev/null: $!\n");
+    } elsif (!$noarchive && $f1 =~ /\.gz$/i) {
+      open(F1, "-|", 'gunzip', '-dc', $f1) || die("open $f1: $!\n");
+    } elsif (!$noarchive && $f1 =~ /\.bz2$/i) {
+      open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
+    } elsif (!$noarchive && $f1 =~ /\.xz$/i) {
+      open(F1, "-|", 'xz', '-dc', $f1) || die("open $f1: $!\n");
+    } else {
+      open(F1, '<', $f1) || die("open $f1: $!\n");
     }
-    open(F1, '<', $f1) || die("open $f1: $!\n") if !defined(fileno(F1));
-    open(F2, '<', $f2) || die("open $f2: $!\n") if !defined(fileno(F2));
+    if (!defined($f2) || ref($f2)) {
+      open(F2, "<", '/dev/null') || die("open /dev/null: $!\n");
+    } elsif (!$noarchive && $f2 =~ /\.gz$/i) {
+      open(F2, "-|", 'gunzip', '-dc', $f2) || die("open $f2: $!\n");
+    } elsif (!$noarchive && $f2 =~ /\.bz2$/i) {
+      open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
+    } elsif (!$noarchive && $f2 =~ /\.xz$/i) {
+      open(F2, "-|", 'xz', '-dc', $f2) || die("open $f2: $!\n");
+    } else {
+      open(F2, '<', $f2) || die("open $f2: $!\n");
+    }
     fcntl(F1, F_SETFD, 0);
     fcntl(F2, F_SETFD, 0);
     exec 'diff', $arg, '/dev/fd/'.fileno(F1), '/dev/fd/'.fileno(F2);
@@ -223,17 +163,46 @@ sub filediff {
   my $lcnt = 0;
   $lcnt = $$lcntp if $lcntp;
   my $d = '';
+  my $havediff;
   while(<D>) {
     next if /^diff/;
     $lcnt++;
     if (!defined($max) || $lcnt <= $max) {
       s/^--- \/dev\/fd\/\d+.*/--- $p1/;
-      s/^\+\+\+ \/dev\/fd\/\d+.*/+++ $p2/;
-      s/^Files \/dev\/fd\/\d+ and \/dev\/fd\/\d+ differ.*/!!! $p1 and $p2 differ/;
+      if (s/^\+\+\+ \/dev\/fd\/\d+.*/+++ $p2/) {
+	$havediff = 1;
+	if (defined($f1) && ref($f1)) {
+          $d .= $_;
+	  $d .= "-$_\n" for @$f1;
+	  $lcnt += @$f1;
+	  next;
+	}
+      }
+      if (s/^(?:Binary )?[fF]iles \/dev\/fd\/\d+ and \/dev\/fd\/\d+ differ.*/Binary files $p1 and $p2 differ/) {
+        if (!defined($f1)) {
+	  $_ = "Binary file $p2 added\n";
+	} elsif (!defined($f2)) {
+	  $_ = "Binary file $p1 deleted\n";
+	}
+      }
       $d .= $_;
     }
   }
+  if ($d eq '' && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
+    $d .= "--- $p1\n";
+    $d .= "+++ $p2\n";
+    $lcnt += 2;
+    $havediff = 1;
+    if (defined($f1) && ref($f1)) {
+      $d .= "-$_\n" for @$f1;
+      $lcnt += @$f1;
+    }
+  }
   close(D);
+  if ($havediff && defined($f2) && ref($f2)) {
+    $d .= "+$_\n" for @$f2;
+    $lcnt += @$f2;
+  }
   if (defined($max) && $lcnt > $max) {
     $d .= "(".($lcnt - $max)." more lines skipped)\n";
   }
@@ -552,29 +521,40 @@ sub ubeautify {
   return $d;
 }
 
+sub udiffhdr {
+  my ($unified, $f, $fmd5, $tmd5) = @_;
+  my $hdr;
+  if ($unified && $unified == 2) {
+    $fmd5 ||= 'd41d8cd98f00b204e9800998ecf8427e';
+    $tmd5 ||= 'd41d8cd98f00b204e9800998ecf8427e';
+    return "Index: $f $fmd5 $tmd5\n" . ("=" x 67) . "\n";
+  } else {
+    return "Index: $f\n" . ("=" x 67) . "\n";
+  }
+}
+
 sub udiff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax) = @_;
+  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $unified) = @_;
   my @changed;
   my @added;
   my @deleted;
-  my $d = '';
-  for (keys %$new) {
-    if (defined($old->{$_})) {
-      push @changed, $_ if $old->{$_} ne $new->{$_};
-    } else {
+  for (sort(keys %{ { %$old, %$new } })) {
+    if (!defined($old->{$_})) {
       push @added, $_;
-    } 
+    } elsif (!defined($old->{$_})) {
+      push @deleted, $_;
+    } elsif ($old->{$_} ne $new->{$_}) {
+      push @changed, $_;
+    }
   }
-  @deleted = grep { !defined($new->{$_}) } keys %$old;
-  
-  my $hdr = "Index: %s\n" . "=" x 67 . "\n";
+  my $d = '';
   for my $f (@changed) {
-    $d .= sprintf($hdr, $f);
+    $d .= udiffhdr($unified, $f, $old->{$f}, $new->{$f});
     my $r .= filediff("$pold/$old->{$f}-$f", "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, undef, 1);
     $d .= ubeautify($r, $f, $orev, $rev);
   }
   for my $f (@added) {
-    $d .= sprintf($hdr, $f);
+    $d .= udiffhdr($unified, $f, undef, $new->{$f});
     my $lcnt = -2;
     my $r = filediff(undef, "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, \$lcnt, 1);
     $r =~ s/(\Q+++ $f\E)$/$1\n@@ -0,0 +1,\Q$lcnt\E @@/m;
@@ -582,7 +562,7 @@ sub udiff {
     $d .= $r eq '' ? "Binary file $f added\n" : $r;
   }
   for my $f (@deleted) {
-    $d .= sprintf($hdr, $f);
+    $d .= udiffhdr($unified, $f, $old->{$f}, undef);
     my $lcnt = -2;
     my $r = filediff("$pold/$old->{$f}-$f", undef, $f, $f, $fmax, undef, \$lcnt, 1);
     $r =~ s/(\Q+++ $f\E)$/$1\n@@ -1,\Q$lcnt\E \+0,0 @@/m;
@@ -595,7 +575,7 @@ sub udiff {
 sub diff {
   my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $tmax, $edir, $unified) = @_;
   if ($unified) {
-    return udiff($pold, $old, $orev, $pnew, $new, $rev, $fmax)
+    return udiff($pold, $old, $orev, $pnew, $new, $rev, $fmax, $unified)
   } else {
     return srcdiff($pold, $old, $pnew, $new, $fmax, $tmax, $edir);
   }

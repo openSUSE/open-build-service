@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/../test_helper'
+# encoding: UTF-8
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PersonControllerTest < ActionController::IntegrationTest 
 
@@ -118,7 +119,7 @@ class PersonControllerTest < ActionController::IntegrationTest
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
               <email>adrian@suse.de</email>
-              <realname>Adrian Schröter</realname>
+              <realname>Adrian Schroeter</realname>
               <state>locked</state>
               <password>so_alone</password>
               <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
@@ -131,7 +132,7 @@ class PersonControllerTest < ActionController::IntegrationTest
     assert_not_nil u
     assert_equal u.login, "adrianSuSE"
     assert_equal u.email, "adrian@suse.de"
-    assert_equal u.realname, "Adrian Schröter"
+    assert_equal u.realname, "Adrian Schroeter"
     assert_equal u.adminnote, ""
     u.destroy
 

@@ -15,7 +15,7 @@ end
   <% @wizard.each_entry do |entry| %>
     <p>
       <strong><label for="wizard[<%= entry.name %>]"><%= entry.label %></label></strong><br/>
-      <%= typ3 = entry.data.attributes["type"] # entry.type would call Oject#type
+      <%= typ3 = entry.value("type") # entry.type would call Oject#type
       case typ3
       when "text":
           text_field_tag("wizard[#{entry.name}]", entry.value)

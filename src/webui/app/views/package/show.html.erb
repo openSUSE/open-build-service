@@ -14,13 +14,13 @@
       <h4>Information</h4>
       <ul class="clean_list">
         <li>
-          <% nr_files = @package.files.size %>
-          <% if nr_files == 0 %>
+          <% @nr_files %>
+          <% if @nr_files == 0 %>
             <%= image_tag 'icons/exclamation.png' %>
           <% else %>
             <%= image_tag 'icons/accept.png' %>
           <% end %>
-          <%= nr_files %> <%= link_to "file#{nr_files == 1 ? "" : "s"}", :action => :files, :project => @project, :package => @package %>
+          <%= @nr_files %> <%= link_to "file#{@nr_files == 1 ? "" : "s"}", :action => :files, :project => @project, :package => @package %>
         </li>
         <% if @failures and @failures > 0 %>
           <li>
@@ -30,16 +30,16 @@
           </li>
         <% end %>
 
-        <li><%= render :partial => "shared/open_requests" %></li>
+        <%= render :partial => "shared/open_requests" %>
 
         <% if @package.has_element? :devel %>
           <li>
-            <% dpackage = @package.devel.data["package"] || @package.name %>
+            <% dpackage = @package.devel.value("package") || @package.name %>
             <%= image_tag 'icons/information.png' %>
             Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
           </li>
         <% end %>
-        <% if not @package.developed_packages.is_empty? %>
+        <% if not @package.developed_packages.blank? %>
           <li>
             <%= image_tag 'icons/information.png' %>
             Devel package for
@@ -51,12 +51,12 @@
         <% end %>
 
         <% if @package.name =~ %r{^_patchinfo} %>
-          <p>
+          <li>
             <%= image_tag 'icons/information.png' %>
             Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
             for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>
             <%#TODO: Fix this hard link %>
-          </p>
+          </li>
         <% end %>
 
         <% if @linking_packages and @linking_packages.size > 0 %>
@@ -78,6 +78,9 @@
               <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
             </li>
           <% end %>
+          <li>
+            <%= image_tag 'icons/application_get.png' %> <a href="http://software.opensuse.org/download.html?project=<%= @project %>&amp;package=<%= @package %>">Download package</a>
+          </li>
           <% if session[:login] %>
             <% if Package.current_rev(@project, @package) %>
               <li>

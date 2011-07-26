@@ -1,0 +1,59 @@
+<% @pagetitle = "Revision Log of #{@package}" %>
+<% package_bread_crumb 'Revisions'%>
+
+<%= render :partial => 'tabs' %>
+<%= render :partial => 'links' if @link %>
+
+<% if @max_revision %>
+  <h3><%= @pagetitle %></h3>
+  <p><%= button_to_function('Go up', 'go_up()', :id => 'go_up_button', :class => 'hidden') %></p>
+  <div id="revisions_view" style="margin-left: 1.2em">
+    <% @upper_bound.downto(@lower_bound) do |rev| %>
+      <div id="commit_item_<%= rev %>">
+        <%= render(:partial => 'commit_item', :locals => {:rev => rev }) %>
+        <%= link_to(image_tag('icons/folder_go.png'), :action => 'files', :project => @project, :package => @package, :rev => rev) %>
+        <%= link_to('Show source', :action => 'files', :project => @project, :package => @package, :rev => rev) %>
+      </div>
+    <% end %>
+  </div>
+  <p><%= button_to_function('Go down', 'go_down()', :id => 'go_down_button', :class => 'hidden') %></p>
+  <% if @lower_bound > 1 || @max_revision > @upper_bound %>
+    <p><%= link_to('Show all', :action  => 'revisions', :project => @project, :package => @package, :showall => 1) %></p>
+  <% end %>
+  <% javascript_tag do %>
+    <% if @max_revision > @upper_bound %>
+      $('#go_up_button').show();
+    <% end %>
+    <% if @lower_bound > 1 %>
+      $('#go_down_button').show(); 
+    <% end %>
+    var bounds_offset = 0;
+
+    function go_up() {
+      bounds_offset = bounds_offset + 1;
+      var new_upper_bound = <%= @upper_bound %> + bounds_offset;
+      $('#go_down_button').show();
+      if (<%= @max_revision %> == new_upper_bound) { $('#go_up_button').hide(); }
+      $('#revisions_view div:last').remove();
+      $('#revisions_view div:first').before('<div id=\"commit_item_'+new_upper_bound+'\">...</div>');
+
+      var path = "/package/commit?revision="+new_upper_bound+"&package=<%= @package %>&project=<%= @project %>";
+      $("#revisions_view div#commit_item_"+new_upper_bound).load(path);
+    }
+
+    function go_down() {
+      bounds_offset = bounds_offset - 1;
+      var new_lower_bound = <%= @lower_bound %> + bounds_offset;
+
+      $('#go_up_button').show();
+      if (new_lower_bound == 1) { $('#go_down_button').hide(); }
+      $('#revisions_view div:first').remove();
+      $('#revisions_view div:last').after('<div id=\"commit_item_'+new_lower_bound+'\">...</div>');
+
+      var path = "/package/commit?revision="+new_lower_bound+"&package=<%= @package %>&project=<%= @project %>";
+      $("#revisions_view div#commit_item_"+new_lower_bound).load(path);
+    }
+  <% end %>
+<% else %>
+  <i>No commits exists yet.</i>
+<% end %>

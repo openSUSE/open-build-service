@@ -121,7 +121,8 @@ class DbPackage < ActiveRecord::Base
       dbp = nil
       DbPackage.transaction do
         project_name = package.parent_project_name
-        if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
+        dbp = DbPackage.find_by_project_and_name(project_name, package.name)
+        unless dbp
           pro = DbProject.find_by_name project_name
           raise SaveError, "unknown project '#{project_name}'" unless pro
           dbp = DbPackage.new( :name => package.name.to_s )
@@ -213,7 +214,7 @@ class DbPackage < ActiveRecord::Base
 
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
       ret = result[0]
-      return unless DbPackage.check_access?(ret)
+      return nil unless DbPackage.check_access?(ret)
       return ret
     end
 
@@ -301,8 +302,14 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def find_linking_packages
-    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\")"
+  def find_project_local_linking_packages
+    find_linking_packages(project_local=1)
+  end
+
+  def find_linking_packages(project_local=nil)
+    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\""
+    path += "+and+@project=\"#{CGI.escape(self.db_project.name)}\"" if project_local
+    path += ")"
     answer = Suse::Backend.post path, nil
     data = REXML::Document.new(answer.body)
     result = []
@@ -310,7 +317,7 @@ class DbPackage < ActiveRecord::Base
     data.elements.each("collection/package") do |e|
       p = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
       if p.nil?
-        logger.error "Data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
+        logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
       else
         result.push( p )
       end
@@ -328,7 +335,7 @@ class DbPackage < ActiveRecord::Base
       raise CycleError.new "Package defines itself as devel package"
       return nil
     end
-    while ( pkg.develproject or pkg.develpackage )
+    while ( pkg.develproject or pkg.develpackage or pkg.db_project.develproject )
       #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -343,17 +350,24 @@ class DbPackage < ActiveRecord::Base
       processed[str] = 1
       # get project and package name
       if pkg.develpackage
-        #logger.debug "pkg devel package #{pkg.develpackage.inspect}"
+        # A package has a devel package definition
         pkg = pkg.develpackage
         prj_name = pkg.db_project.name
-      else
-        #logger.debug "pkg devel project #{pkg.develproject.inspect}"
+      elsif pkg.develproject
+        # A package has a devel package definition via project name (not used anymore)
         # Supporting the obsolete, but not yet migrated devel project table
         prj = pkg.develproject
         prj_name = prj.name
-        pkg = prj.db_packages.find_by_name(pkg.name)
+        pkg = prj.db_packages.get_by_name(pkg.name)
         if pkg.nil?
-          raise CycleError.new "The devel project of #{str} does not contain package: #{prj_name}"
+          return nil
+        end
+      else
+        # Take project wide devel project definitions into account
+        prj = pkg.db_project.develproject
+        prj_name = prj.name
+        pkg = prj.db_packages.get_by_name(pkg.name)
+        if pkg.nil?
           return nil
         end
       end
@@ -367,10 +381,10 @@ class DbPackage < ActiveRecord::Base
 
   def store_axml( package )
     DbPackage.transaction do
-      self.title = package.title.to_s
-      self.description = package.description.to_s
+      self.title = package.value(:title)
+      self.description = package.value(:description)
       self.bcntsynctag = nil
-      self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
+      self.bcntsynctag = package.value(:bcntsynctag)
 
       # old column, get removed now always and migrated to new develpackage
       # might get reused later for defining devel projects in project meta
@@ -378,14 +392,8 @@ class DbPackage < ActiveRecord::Base
       #--- devel project ---#
       self.develpackage = nil
       if package.has_element? :devel
-        prj_name = package.project.to_s
-        pkg_name = package.name.to_s
-        if package.devel.has_attribute? 'project'
-          prj_name = package.devel.project.to_s
-        end
-        if package.devel.has_attribute? 'package'
-          pkg_name = package.devel.package.to_s
-        end
+        prj_name = package.devel.value(:project) || package.value(:project)
+        pkg_name = package.devel.value(:package) || package.value(:name)
         unless develprj = DbProject.find_by_name(prj_name)
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
@@ -530,13 +538,7 @@ class DbPackage < ActiveRecord::Base
       update_all_flags(package)
       
       #--- update url ---#
-      if package.has_element? :url
-        if self.url != package.url.to_s
-          self.url = package.url.to_s
-        end
-      else
-        self.url = nil
-      end
+      self.url = package.value(:url)
       #--- end update url ---#
       
       #--- regenerate cache and write result to backend ---#
@@ -567,7 +569,7 @@ class DbPackage < ActiveRecord::Base
       attrib.each_value.each do |value|
         found = 0
         atype.allowed_values.each do |allowed|
-          if allowed.value == value.to_s
+          if allowed.value == value.text
             found = 1
             break
           end
@@ -701,7 +703,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def render_attribute_axml(params)
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
 
     xml = builder.attributes() do |a|
       done={}
@@ -758,12 +760,11 @@ class DbPackage < ActiveRecord::Base
         end
       end
     end
-    xml.target!
+    xml
   end
 
   def render_axml(view = nil)
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
-
+    builder = Nokogiri::XML::Builder.new
     logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
@@ -788,7 +789,7 @@ class DbPackage < ActiveRecord::Base
         if view == 'flagdetails'
           db_project.expand_flags(builder, flag_name, flaglist)
         else
-          package.tag!(flag_name) do
+          package.send(flag_name) do
             flaglist.each do |flag|
               flag.to_xml(builder)
             end
@@ -802,7 +803,9 @@ class DbPackage < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 
-    return xml.target!
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id

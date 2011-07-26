@@ -1,5 +1,5 @@
 <% @pagetitle = "Request ##{@id}" %>
-<% @crumb_list = [link_to('Requests', :controller => :home, :action => :list_requests), @pagetitle] %>
+<% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @pagetitle] %>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'jquery.autocomplete', 'jquery.tooltip' %>
@@ -29,9 +29,9 @@
       </tr>
     </thead>
     <tbody>
-      <% @req.each_action do |ae| %>
+      <% @req.each_with_index('action') do |ae, index| %>
         <tr>
-          <td><%= ae.data.attributes["type"] %></td>
+          <td><%= ae.value(:type) %></td>
           <td>
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> -->
               <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
@@ -60,23 +60,23 @@
             <% else %>
               <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
                 <%= link_to(elide(ae.target.package, 64), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-              <% elsif ae.data.attributes[:type] == "delete" %>
+              <% elsif ae.value(:type) == "delete" %>
                 This project
               <% end %>
             <% end %>
           <% end %>
           </td>
           <td>
-            <% if ae.data.attributes["type"] == "add_role" %>
+            <% if ae.value(:type) == "add_role" %>
               <% if ae.has_element? :group %>
                 Role <b><%= ae.group.role %></b> for <b><%= ae.group.name %></b>
               <% elsif ae.has_element? :person %>
                 Role <b><%= ae.person.role %></b> for <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => ae.person.name, :no_gravatar => true} %>
               <% end %>
             <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
-              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{@req.value(:id)}_action_#{index}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
               <% javascript_tag do %>
-                setup_buildresult_tooltip( <%= @req.value(:id) %>, '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>' )
+                setup_buildresult_tooltip('<%= "req_#{@req.value(:id)}_action_#{index}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
               <% end %>
             <% end %>
           </td>
@@ -209,9 +209,24 @@
     <% form_tag(:action => "changerequest") do %>
       <h3>Handle Request</h3>
       <p>
-        <% if @contains_submit_action and @is_maintainer and not @submitter_is_target_maintainer %>
-          <%= check_box_tag(:add_submitter_as_maintainer) %> Add
-          <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
+        <% if @is_maintainer %>
+          <% if @contains_submit_action and not @submitter_is_target_maintainer %>
+            <%= check_box_tag(:add_submitter_as_maintainer) %> Add
+            <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
+          <% end %>
+          <% if !@diff_error and @req.action.value("type") == "submit" and @target_pkg %>
+            <% linkinfo = @target_pkg.linkinfo %>
+            <% if linkinfo %>
+              <%= check_box_tag('forward_link', "#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package
+              <%= link_to("#{linkinfo.project} / #{linkinfo.package}", :controller => 'package', :action => 'show', :project => linkinfo.project, :package => linkinfo.package) %><br/>
+            <% end %>
+            <% @target_pkg.developed_packages.each_with_index do |pkg,index| %>
+              <% if not(linkinfo and linkinfo.project == pkg.project and linkinfo.package == pkg.name) %>
+                <%= check_box_tag("forward_devel_#{index}", "#{pkg.project}_#_#{pkg.name}", true) %> Forward to developed package
+                <%= link_to("#{pkg.project} / #{pkg.name}", :controller => 'package', :action => 'show', :project => pkg.project, :package => pkg.name) %><br/>
+              <% end %>
+            <% end %>
+          <% end %>
         <% end %>
         <b>Comment:</b><br/>
         <%= text_field_tag(:reason, '', :style => "width: 99%") %>
@@ -219,18 +234,10 @@
       <p>
         <%= hidden_field_tag("id", @id) %>
         <% if @is_maintainer %>
-          <% linked = @target_pkg.linked_to if @target_pkg -%>
-          <% if !@diff_error -%>
-            <% if linked and not linked.empty? and @req.action.data["type"] == "submit" -%>
-              <%= hidden_field_tag("forward_project", linked[0]) %>
-              <%= hidden_field_tag("forward_package", linked[1]) %>
-              <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-            <% end -%>
-            <% if @req.state.name.to_s == "review" %>
-              <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
-            <% else %>
-              <%= submit_tag "Accept request", :name => 'accepted' %>
-            <% end %>
+          <% if @req.state.name.to_s == "review" %>
+            <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
+          <% else %>
+            <%= submit_tag "Accept request", :name => 'accepted' %>
           <% end %>
           <%= submit_tag "Decline request", :name => 'declined' %>
         <% elsif @is_author %>
@@ -241,10 +248,34 @@
   <% end %>
 <% end %>
 
-<% if @diff_error %>
-  <h3>Diff Error</h3>
-  <p><%= @diff_error %></p>
-<% elsif @diff_text and not @diff_text.empty? %>
-  <h3>Diff</h3>
-  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @diff_text, :type => 'diff'} %>
+<% if @diff_per_action_hash and not @diff_per_action_hash.empty? %>
+  <h3>Diff View</h3>
+  <% if @diff_per_action_hash.keys.length != 1 %>
+    <p>
+      <%= label_tag(:diff_action, 'Display file differences for action ') %>
+      <%= select_tag(:diff_action, options_for_select(@diff_per_action_hash.keys)) %>:
+    </p>
+    <% javascript_tag do %>
+      $('#diff_action').change(function () {
+        $('#diff_action option:selected').each(function() {
+          $('diff_action_display').hide();
+          $('#diff_action_" + $(this).attr('value')).show();
+        });
+      });
+    <% end %>
+  <% end %>
+
+  <% @diff_per_action_hash.each do |action_index_and_type, file_diff_hash| %>
+    <% action_index, action_type = action_index_and_type.split('_', 2) %>
+    <div class="diff_action_display" id="diff_action_<%= action_index_and_type %>" <%= 'class="hidden"' if action_index != '0' %>>
+      <% file_diff_hash.each do |filename, diff| %>
+        <p><b>File <%= filename %>:</b></p>
+        <% if filename.ends_with?('.spec') or filename.ends_with?('.changes') or diff.count("\n") <= 1 %>
+          <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff'} %>
+        <% else %>
+          <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff', :collapse => true} %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>

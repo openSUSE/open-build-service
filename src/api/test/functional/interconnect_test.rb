@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 class InterConnectTests < ActionController::IntegrationTest 
@@ -109,7 +109,7 @@ class InterConnectTests < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     get "/source/RemoteInstance/_meta"
     assert_response :success
-    put "/source/RemoteInstance/_meta", @response.body
+    put "/source/RemoteInstance/_meta", @response.body.dup
     assert_response :success
 
     # cleanup     
@@ -285,8 +285,8 @@ class InterConnectTests < ActionController::IntegrationTest
                                  </request>'
       assert_response :success
       node = ActiveXML::XMLNode.new(@response.body)
-      assert_equal node.has_attribute?(:id), true
-      id = node.data['id']
+      assert node.has_attribute?(:id)
+      id = node.value('id')
 
       # ignores the review state
       post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -371,6 +371,31 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cpio"
     assert_response :success
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1"
+    assert_response :success
+  end
+
+  def test_setup_remote_propject
+    p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost</remoteurl> </project>'
+
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:remote/_meta", p
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:tom:remote/_meta", p
+    assert_response :success
+    p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost2</remoteurl> </project>'
+    put "/source/home:tom:remote/_meta", p
+    assert_response :success
+    get "/source/home:tom:remote/_meta"
+    assert_response :success
+    assert_tag :tag => 'remoteurl', :content => 'http://localhost2'
+    p='<project name="home:tom:remote"> <title/> <description/>  </project>'
+    put "/source/home:tom:remote/_meta", p
+    assert_response :success
+
+    #cleanup
+    delete "/source/home:tom:remote"
     assert_response :success
   end
 end

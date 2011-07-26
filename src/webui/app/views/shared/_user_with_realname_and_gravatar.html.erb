@@ -7,7 +7,12 @@
 <% end %>
 
 <% unless realname.empty? or short == true %>
-  <%= link_to(realname + ' (' + user + ')', :controller => 'home', :user => user) %>
+  <% printed_name = realname + ' (' + user + ')' %>
 <% else %>
-  <%= link_to(user, :controller => 'home', :user => user) %>
+  <% printed_name = user %>
+<% end %>
+<% if @user %>
+  <%= link_to(printed_name, :controller => 'home', :user => user) %>
+<% else %>
+  <%= printed_name %>
 <% end %>

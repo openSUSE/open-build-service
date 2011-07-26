@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/../test_helper'
+# encoding: UTF-8
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'request_controller'
 
 class RequestControllerTest < ActionController::IntegrationTest 
@@ -123,8 +124,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/set_bugowner')
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value('id')
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner_fail')
@@ -153,8 +154,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value('id')
 
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -176,8 +177,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # do the real mbranch for default maintained packages
     ActionController::IntegrationTest::reset_auth
@@ -206,8 +207,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # add reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -217,12 +218,12 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
     # try update comment
-    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment='blahfasel'"
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response 403
 
     # update comment for real
     prepare_request_with_user 'tom', 'thunder'
-    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment='blahfasel'"
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
@@ -247,8 +248,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
@@ -275,8 +276,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
     assert_response :success
@@ -292,8 +293,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # add reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -327,8 +328,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # add reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -457,8 +458,8 @@ end
     post "/request?cmd=create", rq
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # and create a delete request
     rq = '<request>
@@ -471,8 +472,8 @@ end
     post "/request?cmd=create", rq
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    iddelete = node.data['id']
+    assert node.has_attribute?(:id)
+    iddelete = node.value(:id)
 
     # try to approve change_devel
     prepare_request_with_user "adrian", "so_alone"
@@ -506,7 +507,7 @@ end
     assert_tag :tag => "status", :attributes => { :code => "delete_error" }
 
     # cleanup
-    put "/source/home:Iggy/TestPack/_meta", oldmeta
+    put "/source/home:Iggy/TestPack/_meta", oldmeta.dup
     assert_response :success
   end
 
@@ -553,6 +554,30 @@ end
     assert_response :success
   end
 
+  # osc is still submitting with old style by default
+  def test_old_style_submit_request
+    prepare_request_with_user "hidden_homer", "homer"
+    post "/request?cmd=create", '<request type="submit">
+                                   <submit>
+                                     <source project="HiddenProject" package="pack" rev="1"/>
+                                     <target project="kde4" package="DUMMY"/>
+                                   </submit>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # test that old style request got converted
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_tag :tag => 'submit'
+    assert_tag :tag => 'action', :attributes => { :type => 'submit' }
+  end
+
   def test_submit_request_from_hidden_project_and_hidden_source
     prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", '<request>
@@ -582,8 +607,8 @@ end
                                  </request>'
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
@@ -597,8 +622,8 @@ end
                                  </request>'
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
   end
@@ -616,8 +641,8 @@ end
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id1 = node.data['id']
+    assert node.has_attribute?(:id)
+    id1 = node.value(:id)
 
     post "/source/home:tom:branches:kde4/kdebase", :cmd => :branch
     assert_response :success
@@ -630,8 +655,8 @@ end
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id2 = node.data['id']
+    assert node.has_attribute?(:id)
+    id2 = node.value(:id)
 
     # delete projects
     delete "/source/home:tom:branches:kde4"
@@ -685,8 +710,8 @@ end
     assert_tag( :tag => "request" )
     assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id_by_package = node.data['id']
+    assert node.has_attribute?(:id)
+    id_by_package = node.value(:id)
 
     # find requests which are not in review
     get "/request?view=collection&user=Iggy&states=new"
@@ -712,8 +737,8 @@ end
     assert_tag( :tag => "request" )
     assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # add reviewer
     prepare_request_with_user 'tom', 'thunder'
@@ -818,8 +843,8 @@ end
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => "new" } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # revoke it
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -877,8 +902,8 @@ end
     post "/request?cmd=create", req
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
     assert_tag( :tag => "review", :attributes => { :by_user => "adrian", :state => "new" } )
 
     # do not accept request in review state
@@ -892,18 +917,43 @@ end
     prepare_request_with_user "adrian", "so_alone"
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
 
     # a review has been added because we are not maintainer of current devel package, accept it.
     prepare_request_with_user "king", "sunflower"
     get "/request/#{id}"
     assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
     assert_tag( :tag => "review", :attributes => { :by_project => "home:coolo:test", :by_package => "kdelibs_DEVEL_package" } )
-    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package"
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+
+    # reopen the review
+    prepare_request_with_user "tom", "thunder"
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    # and accept it again
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
 
     # validate our existing test data and fixtures
+    prepare_request_with_user "king", "sunflower"
     get "/source/home:Iggy/ToBeDeletedTestPack/_meta"
     assert_response :success
     get "/source/home:fred:DeleteProject/_meta"
@@ -967,8 +1017,8 @@ end
     assert_tag( :tag => "request", :child => { :tag => 'state' } )
     assert_tag( :tag => "state", :attributes => { :name => 'review' } )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # try to break permissions
     post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -1036,8 +1086,8 @@ end
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     get "/request/#{id}"
     assert_response :success
@@ -1062,8 +1112,8 @@ end
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     get "/request/#{id}"
     assert_response :success
@@ -1105,8 +1155,8 @@ end
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
     # accept the request
     prepare_request_with_user "king", "sunflower"
@@ -1139,20 +1189,20 @@ end
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
     post "/request?cmd=create", req
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id2 = node.data['id']
+    assert node.has_attribute?(:id)
+    id2 = node.value(:id)
     post "/request?cmd=create", req
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id3 = node.data['id']
+    assert node.has_attribute?(:id)
+    id3 = node.value(:id)
 
     # accept the request
     prepare_request_with_user "king", "sunflower"
@@ -1207,8 +1257,8 @@ end
     assert_response :success
     assert_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value('id')
 
     # show diffs
     post "/request/#{id}?cmd=diff", nil
@@ -1312,8 +1362,8 @@ end
                                  </request>'
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    id = node.data['id']
+    assert node.has_attribute?(:id)
+    id = node.value('id')
 
     # accept this request without permissions
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
@@ -1405,8 +1455,8 @@ end
     post "/request?cmd=create", rq
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
-    assert_equal node.has_attribute?(:id), true
-    iddelete = node.data['id']
+    assert node.has_attribute?(:id)
+    iddelete = node.value('id')
     
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"

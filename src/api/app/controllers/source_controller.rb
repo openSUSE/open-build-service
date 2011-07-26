@@ -487,7 +487,7 @@ class SourceController < ApplicationController
       # init
       begin
         req = BsRequest.new(request.body.read)
-        req.data # trigger XML parsing
+        req.element_name # trigger XML parsing
       rescue ActiveXML::ParseError => e
         render_error :message => "Invalid XML",
           :status => 400, :errorcode => "invalid_xml"
@@ -716,10 +716,12 @@ class SourceController < ApplicationController
       kind_element = rdata.elements["project/@kind"]
       if kind_element
         if kind_element.value == "maintenance"
-          # First remove all maintained project relations
-          DbProject.find_all_by_maintenance_project_id(prj.id).each do |maintained_project|
-            maintained_project.maintenance_project_id = nil
-            maintained_project.save
+          if prj
+            # First remove all maintained project relations, if project exists already
+            DbProject.find_all_by_maintenance_project_id(prj.id).each do |maintained_project|
+              maintained_project.maintenance_project_id = nil
+              maintained_project.save
+            end
           end
           # Set this project as the maintenance project for all maintained projects found in the XML
           rdata.elements.each("project/maintenance/maintains") do |maintains|
@@ -967,17 +969,13 @@ class SourceController < ApplicationController
 
       # file validation where possible
       if params[:file] == "_link"
-         validator = Suse::Validator.new( "link" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "link", request.raw_post.to_s)
       elsif params[:file] == "_aggregate"
-         validator = Suse::Validator.new( "aggregate" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
       elsif params[:package] == "_pattern"
-         validator = Suse::Validator.new( "pattern" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
       elsif params[:file] == "_service"
-         validator = Suse::Validator.new( "service" )
-         validator.validate(request)
+         validator = Suse::Validator.validate( "service", request.raw_post.to_s)
       end
 
       if params[:file] == "_link"
@@ -1112,7 +1110,7 @@ class SourceController < ApplicationController
       end
       if params[:value]
         DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |pkg|
-          @packages.push({ :target_project => pkg.db_project, :package => pkg }) if @http_user.can_access? pkg.db_project
+          @packages.push({ :target_project => pkg.db_project, :package => pkg })
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
@@ -1128,7 +1126,7 @@ class SourceController < ApplicationController
               prj.linkedprojects.each do |lprj|
                 if lprj.linked_db_project
                   if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                    @packages.push({ :target_project => prj, :package => pkg }) unless pkg.db_project.disabled_for? 'access', nil, nil and not @http_user.can_access? pkg.db_project
+                    @packages.push({ :target_project => prj, :package => pkg })
                   else
                     # FIXME: add support for branching from remote projects
                   end
@@ -1140,9 +1138,11 @@ class SourceController < ApplicationController
       end
     end
 
-    # check for source access permission. Hidden projects must not exist here anymore!
+    # add packages which link them in the same project to support build of source with multiple build descriptions
     @packages.each do |p|
-      DbPackage.get_by_project_and_name( p[:package].db_project.name, p[:package].name )
+      p[:package].find_project_local_linking_packages.each do |llp|
+        @packages.push({ :target_project => llp.db_project, :package => llp, :local_link => 1 })
+      end
     end
 
     unless @packages.length > 0
@@ -1214,6 +1214,7 @@ class SourceController < ApplicationController
       branch_target_package = pac.name
       proj_name = branch_target_project.gsub(':', '_')
       pack_name = branch_target_package.gsub(':', '_') + "." + proj_name
+      devel_package = nil
 
       # check for update project
       if not params[:request] and a = p[:target_project].find_attribute(name_parts[0], name_parts[1]) and a.values[0]
@@ -1223,11 +1224,16 @@ class SourceController < ApplicationController
           branch_target_project = pac.db_project.name
           branch_target_project = pac.db_project.name
           branch_target_package = pac.name
+          # Do we have a devel package instance ?
+          devel_package = pac.resolve_devel_package
         else
           # package exists not yet in update project, but it may have a project link ?
           if DbPackage.exists_by_project_and_name( a.values[0].value, p[:package].name, follow_project_links=true )
             prj = DbProject.get_by_name(a.values[0].value)
             branch_target_project = a.values[0].value
+            if prj.develproject and dp = prj.develproject.find_package(pac.name)
+              devel_package = dp
+            end
           else
             render_error :status => 404, :errorcode => "unknown_package",
               :message => "branch source package does not exist in UpdateProject #{a.values[0].value}. Missing project link ?"
@@ -1263,8 +1269,24 @@ class SourceController < ApplicationController
       end
       tpkg.store
 
-      # branch sources in backend
-      Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
+      if p[:local_link]
+        # copy project local linked packages
+        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}&user=#{CGI.escape(@http_user.login)}", nil
+        # and fix the link
+        link = backend_get "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link"
+        ret = ActiveXML::XMLNode.new(link)
+        ret.delete_attribute('project')
+        ret.set_attribute('package', ret.package + "." + proj_name)
+        Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+      else
+        # branch sources in backend
+        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}&user=#{CGI.escape(@http_user.login)}", nil
+
+        # fetch newer sources from devel package, if defined
+        if devel_package
+          Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(devel_package.db_project.name)}&opackage=#{CGI.escape(devel_package.name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
+        end
+      end
     end
 
     # store project data in DB and XML
@@ -1282,7 +1304,7 @@ class SourceController < ApplicationController
 
     pro = DbProject.get_by_name(project_name)
 
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
       pro.find_linking_projects.each do |l|
         p={}
@@ -1290,7 +1312,7 @@ class SourceController < ApplicationController
         c.project(p)
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
   # POST /source/<project>?cmd=extendkey
@@ -1542,7 +1564,7 @@ class SourceController < ApplicationController
       return
     end
 
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
       pack.find_linking_packages.each do |l|
         p={}
@@ -1551,7 +1573,7 @@ class SourceController < ApplicationController
         c.package(p)
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
   # POST /source/<project>/<package>?cmd=undelete
@@ -1813,15 +1835,21 @@ class SourceController < ApplicationController
           update_pkg = update_prj.find_package( pkg.name )
           if update_pkg
             # We have no package in the update project yet, but sources are reachable via project link
-            pkg = update_pkg
-            prj = update_prj
+            if update_prj.develproject and p = update_prj.develproject.find_package(pkg.name)
+              # nevertheless, check if update project has a devel project which contains an instance
+              pkg = p
+              prj = pkg.db_project
+            else
+              pkg = update_pkg
+              prj = update_prj
+            end
           end
         end
       end
     end
 
     # validate and resolve devel package or devel project definitions
-    if not params[:ignoredevel] and pkg and ( pkg.develproject or pkg.develpackage )
+    if not params[:ignoredevel] and pkg and ( pkg.develproject or pkg.develpackage or pkg.db_project.develproject )
       pkg = pkg.resolve_devel_package
       prj = pkg.db_project
       logger.debug "devel project is #{prj.name} #{pkg.name}"

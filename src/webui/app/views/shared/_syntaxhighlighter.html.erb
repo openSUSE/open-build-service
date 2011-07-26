@@ -1,11 +1,12 @@
+<% collapse ||= false %>
+
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'shCore', 'shThemeSuse' %>
 <% end %>
 <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrush' + type.capitalize %>
 
 <% content_for :ready_function do %>
-  SyntaxHighlighter.defaults['toolbar'] = false;
   SyntaxHighlighter.all();
 <% end %>
 
-<pre class="brush: <%= type %>"><%= h(code) %></pre>
+<pre class="brush: <%= type %> collapse: <%= collapse %>"><%= force_utf8_and_transform_nonprintables(code) %></pre>

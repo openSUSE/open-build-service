@@ -1,4 +1,4 @@
-require 'md5'
+require 'digest/md5'
 
 require 'action_view/helpers/asset_tag_helper.rb'
 module ActionView
@@ -25,7 +25,7 @@ module ActionView
         return super(_source)
       end
       source=Pathname.new("#{RAILS_ROOT}/public#{source}").realpath
-      source="/" + Pathname.new(source).relative_path_from(real_public)
+      source="/" + Pathname.new(source).relative_path_from(real_public).to_s
       Rails.logger.debug "using themed file: #{_source} -> #{source}"
       source = super(source)
       @@icon_cache[_source] = source
@@ -112,7 +112,7 @@ module ApplicationHelper
   end
 
   def gravatar_image(email, size=20)
-    hash = MD5::md5(email.downcase)
+    hash = Digest::MD5.hexdigest(email.downcase)
     return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=#{size}&d=" + image_url('local/default_face.png'), 
       :alt => "Gravatar for #{email}", :width => size, :height => size
   end
@@ -249,7 +249,7 @@ module ApplicationHelper
         end
       end
 
-      if @user and @user.is_maintainer?(@project, @package)
+      if @user_is_maintainer
         opts = { :project => @project, :repository => repository, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
         out = "<div class='flagimage'>" + image_tag(image) + "<div class='hidden flagtoggle'>"
         unless flag.has_attribute? :explicit and flag.element_name == 'disable'
@@ -384,6 +384,24 @@ module ApplicationHelper
     # they will not be transformed to U+20 during C&P.
     text.gsub!(/  /, " &nbsp;")
     return text
+  end
+
+  def force_utf8_and_transform_nonprintables(text)
+    # Unknown input encoding, try really badass conversion
+    begin
+      new_text = Iconv.iconv('US-ASCII//IGNORE//TRANSLIT', 'UTF-8', text + ' ')[0]
+    rescue Iconv::IllegalSequence # Be more badass'ed
+      new_text = Iconv.iconv('UTF-8//IGNORE//TRANSLIT', 'UTF-8', text + ' ')[0]
+    end
+    # Ged rid of stuff that shouldn't be part of PCDATA:
+    new_text.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
+      if $1[0].to_i < 32
+        ''
+      else
+        $1
+      end
+    end
+    return new_text
   end
 
   def reload_to_remote(opts)

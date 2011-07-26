@@ -1,34 +1,24 @@
 <div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box" id="linking_packages">
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        <b>Derived Packages</b>
+      </div>
 
-<div class="dialog" id="disable_mask"></div>
-<div class="dialog darkgrey_box" id="linking_packages">
-  <div class="box box-shadow">
-    <div class="box-header aligncenter">
-      Derived Packages
-    </div>
-
-
-    <p><div>
-      <table>
-        <tr>
-           <th>Packages refering to this package</th>
-        </tr>
-        <% @linking_packages.each do |lp|%>
-           <tr>
-              <%- name = lp[:project].dup
-                 name << "(#{lp[:package]})" if lp[:package] != @package.name
-               %>
-              <td><%=link_to(name, :controller => :package, :action => :show, :project => lp[:project], :package => lp[:package])%></td>
-           </tr>
+      <ul>
+        <% @linking_packages.each do |lp| %>
+          <% if lp[:package] != @package.name %>
+            <% name = elide_two(lp[:project], lp[:package], 46).join(' / ') %>
+          <% else %>
+            <% name = elide(lp[:project], 46) %>
+          <% end %>
+          <li><%= link_to(name, :controller => 'package', :action => 'show', :project => lp[:project], :package => lp[:package]) %></li>
         <% end %>
-      </table>
-    </div></p>
-
-    <p><div class="aligncenter buttons">
-        <%= link_to_function 'Close', 'remove_dialog()'%>
-    </div></p>
-
-
+      </ul>
+      <div class="buttons">
+        <%= link_to_function('Cancel', 'remove_dialog()') %>
+      </div>
+    </div>
   </div>
-
-</div></div>
+</div>

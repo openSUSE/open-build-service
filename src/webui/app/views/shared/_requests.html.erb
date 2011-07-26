@@ -1,0 +1,86 @@
+<% elide_len ||= 40 %>
+<% request_table_id ||= 'request_table' %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.tooltip' %>
+<% end %>
+<%= javascript_include_tag 'jquery.tablesorter', 'jquery.tooltip.min' %>
+
+<% if requests.blank? %>
+  <p>No requests.</p>
+<% else %>
+  <table cellspacing="1" id="<%= request_table_id %>" class="tablesorter" style="width: 95%">
+    <thead>
+      <tr>
+        <th style="width: 1%">Modified</th>
+        <th style="width: 40%">Source</th>
+        <th style="width: 40%">Target</th>
+        <th style="width: 5%">Requester</th>
+        <th style="width: 1%">Type</th>
+        <th style="width: 1%">State</th>
+        <th style="width: 1%">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% requests.each do |req| -%>
+        <% ae = req.submit if req.has_element? :submit
+        ae = req.action if req.has_element? :action %>
+        <tr>
+          <% if req.has_element? :state %>
+            <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
+          <% end %>
+          <td>
+            <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
+              <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
+                <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, elide_len) %>
+                <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
+                <% if Package.exists?(ae.source.project, ae.source.package) %>
+                  <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                <% else %>
+                  <%= src_pack %>
+                <% end %>
+              <% else %>
+                <%# Happens for maintenance requests, no source package there %>
+                <%= link_to(elide(ae.source.project, elide_len), :controller => :project, :action => :show, :project => ae.source.project) %>
+              <% end %>
+            <% end %>
+          </td>
+          <td>
+            <% if ae.has_element?(:target) %>
+              <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
+                <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and Package.exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                  <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
+                  <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
+                  <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                <% else %>
+                  <%= link_to(elide(ae.target.project, elide_len), :controller => :project, :action => :show, :project => ae.target.project) %>
+                <% end %>
+              <% else %>
+                <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
+                  <%= link_to(elide(ae.target.package, elide_len), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                <% elsif ae.value(:type) == "delete" %>
+                  This project
+                <% end %>
+              <% end %>
+            <% end %>
+          </td>
+          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req), :short => true}%></td>
+          <td class="nowrap"><%= reqtype(req) %></td>
+          <td class="nowrap"><%= req.state.name %></td>
+          <td>
+            <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle Request'), :controller => :request, :action => :show, :id => req.value(:id)) -%>
+            <% if ae.has_element? :source and ae.source.has_attribute? :package %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build Results', :id => "req_#{req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
+              <% javascript_tag do %>
+                setup_buildresult_tooltip('<%= "req_#{req.value(:id)}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
+              <% end %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% javascript_tag do %>
+    $('#<%= request_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {5: {sorter: false}} });
+  <% end %>
+<% end %>

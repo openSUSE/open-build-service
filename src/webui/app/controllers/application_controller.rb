@@ -1,8 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'common/activexml/transport'
-require 'libxml'
 require 'person'
 
 #Note: This is a SUSE-sepecific debugging extension that saves the last
@@ -151,8 +149,9 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_package_name_read? name
-    return true if name =~ /^_project$/
-    return true if name =~ /^_product$/
+    return true if name == "_project"
+    return true if name == "_product"
+    return true if name == "_deltas"
     return true if name =~ /^_product:[-_+\w\.:]*$/
     return true if name =~ /^_patchinfo:[-_+\w\.:]*$/
     name =~ /^[[:alnum:]][-_+\w\.:]*$/
@@ -318,11 +317,14 @@ class ApplicationController < ActionController::Base
   end
 
   def check_user
+    @spider_bot = false
+    if defined? TREAT_USER_LIKE_BOT or request.env.has_key? 'HTTP_OBS_SPIDER'
+      @spider_bot = true
+      return
+    end
     return unless session[:login]
     Rails.cache.delete("person_#{session[:login]}") if discard_cache?
-    @user ||= Rails.cache.fetch("person_#{session[:login]}", :expires_in => 10.minutes) do 
-       Person.find( session[:login] )
-    end
+    @user ||= find_cached(Person, session[:login])
     if @user
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
       begin
@@ -347,10 +349,17 @@ class ApplicationController < ActionController::Base
   def assert_xml_validates
   end
 
+  def put_body_to_tempfile(xmlbody)
+    file = Tempfile.new('xml').path
+    file = File.open(file + ".xml", "w")
+    file.write(xmlbody)
+    file.close
+    return file.path
+  end
+  private :put_body_to_tempfile
+
   def validate_xhtml
-    # find out how to cache the w3 data before using it for test env
-    #return unless (Rails.env.development? || Rails.env.test?)
-    return unless Rails.env.development?
+    return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
     return if mobile_request?
     return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
@@ -360,21 +369,21 @@ class ApplicationController < ActionController::Base
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
     
-    LibXML::XML::Error.set_handler { |msg| errors << msg }
     begin
-      document = LibXML::XML::Document.string xmlbody
-    rescue LibXML::XML::Error => e
+      document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
+    rescue Nokogiri::XML::SyntaxError => e
+      errors << e.inspect
+      errors << put_body_to_tempfile(xmlbody)
     end
 
     if document
-      tmp = Tempfile.new('xml_out')
-      tmp.write(xmlbody)
-      tmp.close
-
-      out = `xmllint --noout --schema #{RAILS_ROOT}/lib/xml/xhtml1-strict.xsd #{tmp.path} 2>&1`
-      if $?.exitstatus != 0
+      ses = XHTML_XSD.validate(document)
+      unless ses.empty?
         document = nil
-        errors = [out]
+        errors << put_body_to_tempfile(xmlbody) 
+        ses.each do |e|
+          errors << e.inspect
+        end
       end
     end
 
@@ -386,14 +395,14 @@ class ApplicationController < ActionController::Base
 
   @@frontend = nil
   def start_test_api
-     return if @@frontend
-     @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
-     puts "Starting test API with pid: #{@@frontend.pid}"
-     while true do
-         line = @@frontend.gets
-         raise RuntimeError.new('Frontend died') unless line
-         break if line =~ /Test API ready/
-         logger.debug line.strip
+    return if @@frontend
+    @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
+    puts "Starting test API with pid: #{@@frontend.pid}"
+    while true do
+      line = @@frontend.gets
+      raise RuntimeError.new('Frontend died') unless line
+      break if line =~ /Test API ready/
+      logger.debug line.strip
     end
     puts "Test API up and running with pid: #{@@frontend.pid}"
     at_exit do

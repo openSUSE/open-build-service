@@ -412,13 +412,13 @@ class TagController < ApplicationController
     
     #make tag objects
     tags = []
-    taglist.each do |@tagname|
+    taglist.each do |tagname|
       begin
-        tags << s_to_tag(@tagname)
+        tags << s_to_tag(tagname)
       
       rescue RuntimeError => error
         @unsaved_tags ||= []
-        @unsaved_tags << @tagname
+        @unsaved_tags << tagname
         logger.debug "[TAG:] #{error}" 
       end      
     end 

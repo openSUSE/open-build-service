@@ -4,23 +4,20 @@ require 'models/latest_updated'
 
 class MainController < ApplicationController
 
-  before_filter :require_available_architectures, :only => [:index]
-
   def index
-    @user ||= Person.find :login => session[:login] if session[:login]
-
     begin
       @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
         Workerstatus.find :all
-      end
+      end unless @spider_bot
 
       @waiting_packages = 0
       # If it crashes here due to @workerstatus.nil? the user tries to run a webui without an api connection ...
       @workerstatus.each_waiting do |waiting|
         @waiting_packages += waiting.jobs.to_i
-      end
+      end if @workerstatus
 
       @busy = nil
+      require_available_architectures unless @spider_bot
       if @available_architectures
         @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
           archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
@@ -35,8 +32,10 @@ class MainController < ApplicationController
       end
 
       @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
-      @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
-      @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
+      unless @spider_bot
+        @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+        @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
+      end
     rescue ActiveXML::Transport::UnauthorizedError => e
       @anonymous_forbidden = true
       logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
@@ -91,7 +90,7 @@ class MainController < ApplicationController
   end
 
   def sitemap_projects_requests
-    sitemap_projects_subpage(:list_requests, 'monthly', 0.1)
+    sitemap_projects_subpage(:requests, 'monthly', 0.1)
   end
  
   def sitemap_projects_prjconf
@@ -125,7 +124,7 @@ class MainController < ApplicationController
     end
 
     begin
-      message = Statusmessage.new(:message => params[:message], :severity => params[:severity].to_i)
+      message = Statusmessage.new(:message => params[:message], :severity => params[:severity])
       message.save
       Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
     rescue ActiveXML::Transport::ForbiddenError

@@ -1,4 +1,3 @@
-require 'faster_builder'
 
 class SearchController < ApplicationController
 
@@ -56,7 +55,7 @@ class SearchController < ApplicationController
     output << "<collection>\n"
 
     begin
-      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order)) do |item|
+      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order).merge({"render_all" => render_all})) do |item|
         if item.kind_of? DbPackage or item.kind_of? DbProject
           # already checked in this case
         elsif item.kind_of? Repository
@@ -132,7 +131,7 @@ class SearchController < ApplicationController
     end
     packages.sort! { |x,y| x.name <=> y.name }
     projects = packages.collect { |p| p.db_project }.uniq
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.attribute(:namespace => namespace, :name => name) do
       projects.each do |proj|
         builder.project(:name => proj.name) do
@@ -150,7 +149,7 @@ class SearchController < ApplicationController
         end
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
 end

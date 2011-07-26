@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/../test_helper'
+# encoding: UTF-8
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 class SourceControllerTest < ActionController::IntegrationTest 
@@ -287,7 +288,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # invalid xml
     put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<asd/>"
     assert_response 400
-    assert_match(/validation failed/, @response.body)
+    assert_match(/validation error/, @response.body)
 
     # new project
     put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
@@ -412,7 +413,7 @@ class SourceControllerTest < ActionController::IntegrationTest
    # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => project)
     assert_response response1
-    if not ( response2 and tag2 )
+    if !( response2 && tag2 )
       #dummy write to check blocking
       put url_for(:action => :project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 403 #4
@@ -455,7 +456,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kde5' ) 
     put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
-    assert_response(:success, message="--> #{name} was not allowed to create a project")
+    assert_response(:success, message="--> king was not allowed to create a project")
     assert_tag( :tag => "status", :attributes => { :code => "ok" })
 
     # Get data again and check that the maintainer was added
@@ -632,7 +633,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
     assert_response response1
 
-    if not ( response2 and tag2 )
+    if !( response2 && tag2 )
       #dummy write to check blocking
       put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
@@ -769,6 +770,53 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "status", :attributes => { :code => "create_package_no_permission"} )
   end
 
+  def test_captial_letter_change
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    assert_response :success
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    assert_response :success
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'home:tom:projecta' }
+
+    # write again with a capital letter change
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => 'unknown_project' }
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'home:tom:projecta' }
+
+    # change back using remote project
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projectA' repository='repoA' /> </repository> </project>"
+    assert_response :success
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
+
+if $ENABLE_BROKEN_TEST
+# FIXME: the case insensitive database select is not okay.
+    # and switch letter again
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => 'unknown_project' }
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
+    assert_no_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
+end
+
+    # cleanup
+    delete "/source/home:tom:projectB"
+    assert_response :success
+    delete "/source/home:tom:projectA"
+    assert_response :success
+  end
+
   def test_repository_dependencies
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
@@ -819,6 +867,26 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_devel_project_cycle
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> </project>"
+    assert_response :success
+    put "/source/home:tom:B/_meta", "<project name='home:tom:B'> <title/> <description/> <devel project='home:tom:A'/> </project>"
+    assert_response :success
+    get "/source/home:tom:B/_meta"
+    assert_response :success
+    assert_tag :tag => 'devel', :attributes => { :project => 'home:tom:A' }
+    put "/source/home:tom:C/_meta", "<project name='home:tom:C'> <title/> <description/> <devel project='home:tom:B'/> </project>"
+    assert_response :success
+    # no self reference
+    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:A'/> </project>"
+    assert_response 400
+    # create a cycle via new package
+    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:C'/> </project>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "project_cycle"} )
+  end
+
   def test_devel_package_cycle
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
@@ -827,6 +895,9 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response :success
+    # no self reference
+    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
+    assert_response 400
     # create a cycle via new package
     put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
     assert_response 400
@@ -840,7 +911,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
     get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
     assert_response response1
-    if not (response2 or tag2 or response3 or select3)
+    if !(response2 || tag2 || response3 || select3)
       #dummy write to check blocking
       put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
@@ -1429,7 +1500,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_no_match(/_pattern/, @response.body)
     put "/source/home:coolo:test/_pattern/mypattern", "broken"
     assert_response 400
-    assert_match(/validation failed/, @response.body)
+    assert_match(/validation error/, @response.body)
     put "/source/home:coolo:test/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
     assert_response :success
     get "/source/home:coolo:test/_pattern/mypattern"
@@ -1885,7 +1956,7 @@ end
     assert_response 404
 
     # check if package creation is doing the right thing
-    put "/source/home:tom:temporary/kdelibs/_meta", meta
+    put "/source/home:tom:temporary/kdelibs/_meta", meta.dup
     assert_response :success
     delete "/source/home:tom:temporary/kdelibs"
     assert_response :success
@@ -2245,6 +2316,10 @@ end
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "bnc#620675.diff" } } }
 
     get "/source/home:Iggy/TestPack/bnc#620675.diff"
+    assert_response :success
+
+    #cleanup
+    delete "/source/home:Iggy/TestPack/bnc#620675.diff"
     assert_response :success
   end
 

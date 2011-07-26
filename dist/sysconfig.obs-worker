@@ -75,7 +75,7 @@ OBS_WORKER_TEST_MODE=""
 ## Default:     ""
 ## Config:      OBS
 #
-# This is /srv/obs/run by default
+# This is /var/run/obs by default
 #
 OBS_RUN_DIR=""
 
@@ -85,7 +85,7 @@ OBS_RUN_DIR=""
 ## Default:     ""
 ## Config:      OBS
 #
-# This is /srv/obs/log by default
+# This is /var/log/obs by default
 #
 OBS_LOG_DIR=""
 
@@ -135,7 +135,7 @@ OBS_WORKER_NICE_LEVEL=18
 
 ## Path:        Applications/OBS
 ## Description: Set used VM type by worker
-## Type:        ("auto" | "xen" | "kvm" | "none")
+## Type:        ("auto" | "xen" | "kvm" | "lxc" | "none")
 ## Default:     "auto"
 ## Config:      OBS
 #

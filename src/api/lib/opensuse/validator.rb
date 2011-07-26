@@ -3,7 +3,7 @@ require 'tempfile'
 # This module encapsulates XML schema validation for individual controller actions.
 # It allows to verify incoming and outgoing XML data and to set different schemas based
 # on the request type (GET, PUT, POST, etc.) and direction (in, out). Supported schema
-# types are Schematron, RelaxNG and XML Schema (xsd).
+# types are RelaxNG and XML Schema (xsd).
 module ActionController
   class Base
 
@@ -43,7 +43,7 @@ module ActionController
       opt = params()
       opt[:method] = request.method.to_s
       opt[:type] = "request"
-      Suse::Validator.new(opt).validate(request)
+      Suse::Validator.validate(opt, request.raw_post.to_s)
     end
 
     # This method should be called in the ApplicationController of your Rails app.
@@ -51,13 +51,8 @@ module ActionController
       opt = params()
       opt[:method] = request.method.to_s
       opt[:type] = "response"
-      begin
-        Suse::Validator.new(opt).validate(response)
-      rescue Suse::ValidationError => e
-        # TODO: temporary fix until the libxml-based validator gets merged
-        logger.debug "reponse validation error occurred: #{e}"
-      rescue RuntimeError => e
-        logger.debug "runtime error occured: #{e}"
+      if response.status.to_s == "200"
+        Suse::Validator.validate(opt, response.body.to_s)
       end
     end
 
@@ -91,7 +86,7 @@ module Suse
         unless opt.has_key?(:method) and (opt.has_key?(:request) or opt.has_key?(:response))
           raise "missing (or wrong) parameters, #{opt.inspect}"
         end
-        logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
+        #logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
 
         controller = controller.to_s
         @schema_map ||= Hash.new
@@ -113,84 +108,59 @@ module Suse
         c = opt[:controller].to_s
         key = opt[:action].to_s + "-" + opt[:method].to_s + "-" + opt[:type].to_s
 
-        logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
-       
+        #logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return nil if @schema_map.nil?
         return nil unless @schema_map.has_key? c and @schema_map[c].has_key? key
         return @schema_map[c][key].to_s
       end
-    end
 
-    def logger
-      RAILS_DEFAULT_LOGGER
-    end
-
-    def initialize( opt )
-      case opt
-      when String, Symbol
-        schema_file = opt.to_s
-      when Hash
-        schema_file = self.class.get_schema(opt)
-      else
-        raise "illegal initialization option to Suse::Validator; need: Hash/Symbol/String, seen: #{opt.class.name}"
-      end
-
-      logger.debug "schema_file: #{schema_file}"
-      return if schema_file.nil?
-
-      schema_file += ".xsd" unless schema_file =~ /\.xsd$/
-      schema_path = self.class.schema_location + schema_file
-      @xmllint_param = "--schema"
-
-      unless File.exist? schema_path
-        # no .xsd file found, try with an .rng
-        schema_file = schema_file.split(/\.xsd$/)[0] + ".rng" unless schema_file =~ /\.rng\.xsd$/
-        schema_path = self.class.schema_location + schema_file
-        @xmllint_param = "--relaxng"
-        unless File.exist? schema_path
-          # does not exist either ... error ...
-          raise "unable to read schema file '#{schema_path}' or .xsd: file not found"
+      # validate ('schema.xsd', '<foo>bar</foo>")
+      def validate( opt, content )
+        case opt
+        when String, Symbol
+          schema_file = opt.to_s
+        when Hash, HashWithIndifferentAccess
+          schema_file = get_schema(opt).to_s
+        else
+          raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"
         end
-      end
 
-      logger.debug "schema_path: #{schema_path}"
-      @schema_path = schema_path
-    end
+        schema_base_filename = schema_location + "/" + schema_file
+        schema = nil
+        s = Benchmark.realtime do
+        if File.exists? schema_base_filename + ".rng"
+          schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + ".rng"))
+        elsif File.exists? schema_base_filename + ".xsd"
+          schema = Nokogiri::XML::Schema(File.open(schema_base_filename + ".xsd"))
+        else
+          logger.debug "no schema found, skipping validation"
+          return true
+        end
+        end
 
-    def validate( content )
-      if @schema_path.nil?
-        logger.debug "schema path not set, skipping validation"
+        if content.nil?
+          raise "illegal option; need content for #{schema_base_filename}"
+        end
+        if content.empty?
+          logger.debug "no content, skipping validation"
+          raise ValidationError, "Document is empty, not allowed for #{schema_base_filename}"
+        end
+
+        v = Benchmark.realtime do
+        begin
+          doc = Nokogiri::XML(content, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
+          schema.validate(doc).each do |error|
+            logger.error "#{opt[:type]} validation error: #{error}"
+            # Only raise an exception for user-input validation!
+            raise ValidationError, "#{opt[:type]} validation error: #{error}"
+          end
+        rescue Nokogiri::XML::SyntaxError => error
+          raise ValidationError, "#{opt[:type]} validation error: #{error}"
+        end
+        end
+        logger.debug "Validatated #{schema_file} schema:#{s} validate:#{v}"
         return true
       end
-      logger.debug "trying to validate against schema '#{@schema_path}'"
-
-      case content
-      when String, Symbol
-        content = content.to_s
-      when ActionController::Request
-        content = content.raw_post.to_s
-      when ActionController::Response
-        content = content.body
-      end
-
-      tmp = Tempfile.new('opensuse_frontend_validator')
-      tmp.print content
-      tmp_path = tmp.path
-      tmp.close
-      logger.debug "validation tmpfile: #{tmp_path}"
-
-      cmd = "/usr/bin/xmllint --noout #{@xmllint_param} #{@schema_path} #{tmp_path}"
-      out = `#{cmd} 2>&1`
-      exitstatus = $?.exitstatus 
-      logger.debug "#{cmd} returned #{exitstatus}"
-      if exitstatus != 0
-        logger.debug "xmllint return value: #{$?.exitstatus}"
-        logger.debug "XML: #{content} #{out}"
-        raise ValidationError, "validation failed, output:\n#{out}"
-      end
-      logger.debug "validation succeeded"
-
-      return true
     end
 
   end

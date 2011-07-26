@@ -18,6 +18,7 @@
       <span class="strong filterlink" id="statuslink">Status <%= image_tag 'arrow.png' %></span>
       <div id="statusbox" class="filterbox hidden">
         <a class="filterbox_close" href="#" id="statusbox_close">[x]</a>
+        <% unless @avail_status_values.empty? -%>
         <ul>
           <% @avail_status_values.each do |s| %>
             <% id=h(s).gsub(' ', '') -%>
@@ -27,6 +28,7 @@
             </li>
           <% end %>
         </ul>
+        <% end -%>
         <a href="#" id="statusbox_all" class="filterbox_all">Select all</a><a href="#" id="statusbox_none" class="filterbox_none">Select none</a>
       </div>
       <label for="pkgname" class="strong">Packagename: </label><%= text_field_tag "pkgname", @name_filter %>
@@ -34,6 +36,7 @@
       <span class="strong filterlink" id="repolink">Repository <%= image_tag 'arrow.png' %></span>
       <div id="repobox" class="hidden filterbox">
         <a class="filterbox_close" href="#" id="repobox_close">[x]</a>
+        <% unless @avail_repo_values.empty? -%>
         <ul>
           <% @avail_repo_values.each do |s| %>
             <li class="nowrap filteritem">
@@ -43,12 +46,14 @@
             </li>
           <% end %>
         </ul>
+        <% end -%>
         <a href="#" id="repobox_all" class="filterbox_all">Select all</a><a href="#" id="repobox_none" class="filterbox_none">Select none</a>
       </div>
 
       <span class="strong filterlink" id="archlink">Architecture <%= image_tag 'arrow.png' %></span>
       <div id="archbox" class="hidden filterbox">
         <a class="filterbox_close" href="#" id="archbox_close">[x]</a>
+        <% unless @avail_arch_values.empty? -%>
         <ul>
           <% @avail_arch_values.each do |s| %>
             <li class="nowrap filteritem">
@@ -58,6 +63,7 @@
             </li>
           <% end %>
         </ul>
+        <% end -%>
         <a href="#" id="archbox_all" class="filterbox_all">Select all</a><a href="#" id="archbox_none" class="filterbox_none">Select none</a>
       </div>
       <label for="lastbuild" class="strong">Last time results: </label><%= check_box_tag "lastbuild", 1, @lastbuild_switch %>
@@ -118,7 +124,7 @@
       <li><strong>succeeded: </strong><span class="descr">Package has built successfully and can be used to build further packages.</span></li>
       <li><strong>failed: </strong><span class="descr">The package does not build successfully. No packages have been created. Packages that depend on this package will be built using any previously created packages, if they exist.</span></li>
       <li><strong>unresolvable: </strong><span class="descr">The build can not begin, because required packages are either missing or not explicitly defined.</span></li>
-      <li><strong>broken: </strong><span class="descr">The sources either contain no build description (eg specfile) or a source link does not work.</span></li>
+      <li><strong>broken: </strong><span class="descr">The sources either contain no build description (e.g. specfile) or a source link does not work.</span></li>
 
       <li><strong>blocked: </strong><span class="descr">This package waits for other packages to be built. These can be in the same or other projects.</span></li>
       <li><strong>dispatching: </strong><span class="descr">A package is being copied to a build host. This is an intermediate state before building.</span></li>

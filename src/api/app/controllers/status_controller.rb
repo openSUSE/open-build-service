@@ -92,10 +92,10 @@ class StatusController < ApplicationController
       # no prj -> we are not allowed
       if prj.nil?
         logger.debug "workerstatus2clean: hiding #{b.project} for user #{@http_user.login}"
-        b.data.attributes['project'] = "---"
-        b.data.attributes['repository'] = "---"
-        b.data.attributes['package'] = "---"
-     end
+        b.set_attribute('project', "---")
+        b.set_attribute('repository', "---")
+        b.set_attribute('package', "---")
+      end
     end
     send_data data.dump_xml
   end
@@ -110,14 +110,14 @@ class StatusController < ApplicationController
     starttime = Time.now.to_i - hours.to_i * 3600
     data = Array.new
     values = StatusHistory.find(:all, :conditions => [ "time >= ? AND \`key\` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.history do
       StatusHelper.resample(values, samples).each do |time,val|
 	builder.value( :time => time,
 		      :value => val ) # for debug, :timestring => Time.at(time)  )
       end
     end
-    render :text => xml.target!, :content_type => "text/xml"
+    render :text => xml, :content_type => "text/xml"
   end
 
   def update_workerstatus_cache
@@ -264,8 +264,8 @@ class StatusController < ApplicationController
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(sproj.name)
     sources.each do |key, value|
-      if targets.has_key?(key): 
-          tocheck_repos << sources[key]
+      if targets.has_key?(key)
+        tocheck_repos << sources[key]
       end
     end
 
@@ -413,7 +413,7 @@ class StatusController < ApplicationController
 	  end
         end
 
-        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1:
+        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
           buildcode='failed' # has to be
         end
  

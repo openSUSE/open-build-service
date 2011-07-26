@@ -1,6 +1,3 @@
-[submodule "shared"]
-	path = shared
-	url = git://gitorious.org/opensuse/shared-resources.git
 [submodule "src/backend/build"]
 	path = src/backend/build
 	url = git://gitorious.org/opensuse/build.git

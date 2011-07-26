@@ -45,8 +45,37 @@ namespace :db do
       end
 
       structure.gsub!(%r{AUTO_INCREMENT=[0-9]* }, '')
+      structure.gsub!('auto_increment', 'AUTO_INCREMENT')
+      structure.gsub!(%r{default([, ])}, 'DEFAULT\1')
+      structure.gsub!(' COLLATE=utf8_unicode_ci', '')
+      structure.gsub!(' COLLATE utf8_unicode_ci', '')
+      structure.gsub!(%r{KEY  *}, 'KEY ')
       structure += "\n"
-      File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << structure }
+      # sort the constraint lines always in the same order
+      new_structure = ''
+      constraints = Array.new
+      added_comma = false
+      structure.each_line do |line|
+        if line.match(%{[ ]*CONSTRAINT})
+          unless line.end_with?(",\n")
+            added_comma = true
+            line = line[0..-2] + ",\n"
+          end
+          constraints << line
+        else
+          if constraints.count > 0
+            constraints.sort!
+            new_structure += constraints.join()
+            if added_comma
+              new_structure = new_structure[0..-3] + "\n"
+            end
+            constraints = Array.new
+          end
+          added_comma = false
+          new_structure += line
+        end
+      end
+      File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << new_structure }
     end
      
     task :load => :environment do

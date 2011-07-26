@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 #
@@ -22,7 +22,7 @@ class Consistency < ActionController::IntegrationTest
       assert_response :success
       r = @response.body
       # FIXME: add some more validation checks here
-      put "/source/#{e.name}/_meta", r
+      put "/source/#{e.name}/_meta", r.dup
       assert_response :success
       get "/source/#{e.name}/_meta"
       assert_response :success
@@ -38,7 +38,7 @@ class Consistency < ActionController::IntegrationTest
         assert_response :success
         r = @response.body
         # FIXME: add some more validation checks here
-        put "/source/#{e.name}/#{p.name}/_meta", r
+        put "/source/#{e.name}/#{p.name}/_meta", r.dup
         assert_response :success
         get "/source/#{e.name}/#{p.name}/_meta"
         assert_response :success

@@ -112,6 +112,9 @@ our $proj = [
 	'remoteurl',
 	'remoteproject',
 	'mountproject',
+      [ 'devel', =>
+	    'project',
+      ],
      [[ 'person' =>
             'role',
             'userid',
@@ -851,14 +854,17 @@ our $opstatus = [
 	[],
 	'summary',
 	'details',
-        [ 'exception' =>
-            'type',
-            'message',
-            [ 'backtrace' =>
-                [ 'line',
-                ],
-            ],
-        ],
+     [[ 'data' =>
+	    'name',
+	    '_content',
+     ]],
+      [ 'exception' =>
+	    'type',
+	    'message',
+	  [ 'backtrace' =>
+	      [ 'line' ],
+	  ],
+      ],
 ];
 
 my $rpm_entry = [

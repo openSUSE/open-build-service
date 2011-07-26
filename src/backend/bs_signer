@@ -282,7 +282,9 @@ sub signjob {
 	signiso("$jobdir/$signfile", @signargs);
 	next;
       }
-      if (system($BSConfig::sign, @signargs, "$jobdir/$signfile")) {
+      my @signmode;
+      @signmode = ('-r') if $signfile =~ /\.drpm$/;
+      if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
 	close F;
 	die("sign $jobdir/$signfile failed: $?\n");
@@ -349,7 +351,7 @@ sub signevent {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer");
+BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer", "$myeventdir/.ping");
 print "starting build service signer\n";
 
 # get lock

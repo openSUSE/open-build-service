@@ -180,7 +180,7 @@ module RailsExtensions
             "WHERE #{foreign_key} = #{@owner.id} AND #{list_item_foreign_key} = #{item.id}"
           )
           if @target
-            obj = @target.find {|obj| obj.id == item.id}
+            obj = @target.find {|o| o.id == item.id}
             obj[position_column] = position if obj
           end
         end
@@ -200,7 +200,7 @@ module RailsExtensions
             "WHERE #{foreign_key} = #{@owner.id} AND #{list_item_foreign_key} = #{item.id}"
           )
           if @target
-            obj = @target.find {|obj| obj.id == item.id}
+            obj = @target.find {|o| o.id == item.id}
             obj[position_column] = obj[position_column].to_i + increment if obj
           end
         end

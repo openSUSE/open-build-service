@@ -31,7 +31,7 @@ class Project < ActiveXML::Base
     def remove_arch (arch)
       return nil unless archs.include? arch
       each_arch do |a|
-        delete_element a if a.to_s == arch
+        delete_element a if a.text == arch
       end
       @archs.delete arch
     end
@@ -55,16 +55,14 @@ class Project < ActiveXML::Base
       project, repository = path.split("/")
       @paths.push path
       e = add_element('path')
-      e.data.attributes['repository'] = repository
-      e.data.attributes['project'] = project
+      e.set_attribute('repository', repository)
+      e.set_attribute('project', project)
     end
 
     def remove_path (path)
       return nil unless paths.include? path
       project, repository = path.split("/")
-      each_path do |p|
-        delete_element p if p.data.attributes['project'] == project and p.data.attributes['repository'] == repository
-      end
+      delete_element "//path[@project='#{project.to_xs}' and @repository='#{repository.to_xs}']"
       @paths.delete path
     end
 
@@ -99,10 +97,6 @@ class Project < ActiveXML::Base
       set_paths new_paths
     end
 
-    #    def name= (name)
-    #      data.attributes['name'] = name
-    #    end
-
   end
 
   #check if named project exists
@@ -126,43 +120,26 @@ class Project < ActiveXML::Base
     return false unless opt[:userid] and opt[:role]
     logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if( has_element? :remoteurl )
-      elem_cache = split_data_after :remoteurl
-    else
-      elem_cache = split_data_after :description
-    end
-
-    #add the new person
     add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
-    merge_data elem_cache
   end
 
   def add_group(opt={})
     return false unless opt[:groupid] and opt[:role]
     logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if has_element?(:remoteurl)
-      elem_cache = split_data_after :remoteurl
-    else
-      elem_cache = split_data_after :description
-    end
-
     # add the new group
     add_element 'group', 'groupid' => opt[:groupid], 'role' => opt[:role]
-    merge_data elem_cache
   end
 
   def set_remoteurl(url)
     logger.debug "set remoteurl"
 
     delete_element 'remoteurl'
-    elem_cache = split_data_after :description
 
     unless url.nil?
       add_element 'remoteurl'
       remoteurl.text = url
     end
-    merge_data elem_cache
   end
 
   #removes persons based on attributes
@@ -174,7 +151,7 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.find(xpath.to_s).each {|e| e.remove!}
+    each(xpath) {|e| delete_element e}
   end
 
   def remove_group(opt={})
@@ -185,23 +162,20 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing groups using xpath '#{xpath}'"
-    data.find(xpath.to_s).each {|e| e.remove!}
+    each(xpath) {|e| delete_element e}
   end
 
   def add_path_to_repository(opt={})
     return nil if opt == {}
-    repository = data.find("//repository[@name='#{opt[:reponame]}']").first
+    repository = self.find_first("//repository[@name='#{opt[:reponame]}']")
 
     unless opt[:repo_path].blank?
       opt[:repo_path] =~ /(.*)\/(.*)/;
-      param = XML::Node.new 'path'
-      param['project'] = $1
-      param['repository'] = $2
+      param = self.add_element('path', :project => $1, :repository => $2)
       # put it on top
-      if repository.children?
-        repository.children.first.prev = param
-      else
-        repository << param
+      first = repository.each.first
+      if first != param
+	first.move_after(param)
       end
     end
   end
@@ -258,8 +232,8 @@ class Project < ActiveXML::Base
       return my_architectures
     end
     archs = Hash.new
-    self.each_repository do |repo|
-      repo.each_arch {|arch| archs[arch.to_s] = nil}
+    self.each('repository/arch') do |arch|
+      archs[arch.to_s] = nil
     end
     #hash to array
     self.my_architectures = archs.keys.sort
@@ -281,9 +255,9 @@ class Project < ActiveXML::Base
   def linking_projects
     fc = FrontendCompat.new
     answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
-    doc = XML::Parser.string(answer).parse
+    doc = ActiveXML::Base.new(answer)
     result = []
-    doc.find('/collection/project').each {|e| result << e.attributes['name']}
+    doc.each('/collection/project') {|e| result << e.value('name')}
     return result
   end
 
@@ -292,22 +266,20 @@ class Project < ActiveXML::Base
   end
 
   def user_has_role?(user, role)
-    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
+    user = Person.find_cached(user.to_s) if user.class == String
     if user
       return true if user.is_admin?
-      each_person do |p|
-        return true if p.role == role and p.userid == user.to_s
-      end
-      each_group do |g|
-        return true if g.role == role and user.is_in_group?(g.groupid)
+      return true if find_first("person[@role='#{role}' and @userid='#{user.login}']")
+      each("group[@role='#{role}']") do |g|
+        return true if user.is_in_group?(g.value(:groupid))
       end
     end
     return false
   end
 
   def group_has_role?(group, role)
-    each_group do |g|
-      return true if g.role == role and g.groupid == group
+    each("group") do |g|
+      return true if g.value(:role) == role and g.value(:groupid) == group
     end
     return false
   end
@@ -349,16 +321,16 @@ class Project < ActiveXML::Base
   end
 
   def name
-    @name ||= data.attributes['name']
+    @name ||= value('name')
   end
 
   def project_type
-    return data.attributes['kind']
+    return value('kind')
   end
 
   def set_project_type(project_type)
     if ['maintenance', 'maintenance_incident', 'standard'].include?(project_type)
-      data.attributes['kind'] = project_type
+      set_attribute('kind', project_type)
       return true
     end
     return false
@@ -369,20 +341,23 @@ class Project < ActiveXML::Base
   end
 
   # Returns a list of pairs (full name, short name) for each parent
-  def self.parent_projects(project_name)
-    atoms = project_name.split(':')
-    projects = []
-    unused = 0
 
-    for i in 1..atoms.length do
-      p = atoms.slice(0, i).join(":")
-      r = atoms.slice(unused, i - unused).join(":")
-      if Project.exists? p
-        projects << [p, r]
-        unused = i
+  def self.parent_projects(project_name)
+    return Rails.cache.fetch("parent_projects_#{project_name}", :expires_in => 7.days) do
+      atoms = project_name.split(':')
+      projects = []
+      unused = 0
+
+      for i in 1..atoms.length do
+        p = atoms.slice(0, i).join(":")
+        r = atoms.slice(unused, i - unused).join(":")
+        if Project.exists? p
+          projects << [p, r]
+          unused = i
+        end
       end
+      projects
     end
-    return projects
   end
 
   def parent_projects
@@ -393,7 +368,7 @@ class Project < ActiveXML::Base
   def self.maintenance_project(project_name)
     predicate = "maintenance/maintains/@project='#{project_name}'"
     mp = Collection.find_cached(:id, :what => 'project', :predicate => predicate, :expires_in => 30.minutes)
-    return mp.each.first.name if mp.each.first
+    return mp.each.first.name if mp.has_elements?
     return nil
   end
 

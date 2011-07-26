@@ -165,13 +165,19 @@ class XpathEngine
     #logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
 
     model = nil
+    select = nil
     case @base_table
     when 'db_packages'
       model = DbPackage
       includes = [:db_project]
     when 'db_projects'
       model = DbProject
-      includes = [:repositories]
+      if opt["render_all"]
+        includes = [:repositories]
+      else
+        includes = []
+        select = "db_projects.id,db_projects.name"
+      end
     when 'repositories'
       model = Repository
       includes = [:db_project]
@@ -186,7 +192,7 @@ class XpathEngine
     end
 
     #logger.debug "-- cond_ary: #{cond_ary.inspect} --"
-    model.find_each(:include => includes, :joins => @joins.flatten.uniq.join(" "),
+    model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
                     :conditions => cond_ary, :order => @sort_order ) do |item|
       yield(item)
     end

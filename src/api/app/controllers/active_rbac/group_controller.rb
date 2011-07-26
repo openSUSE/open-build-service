@@ -65,7 +65,7 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
   end
 
   # Display a form to edit the given group on GET. Handle the form submission
-  # of this form on POST and display errors if any occured.
+  # of this form on POST and display errors if any occurred.
   def update
     @group = Group.find(params[:id].to_i)
 

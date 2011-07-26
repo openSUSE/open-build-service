@@ -35,7 +35,9 @@
           <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
           <%= proceed_link "document-new.png", 'New Project', :controller => 'project', :action => 'new', :ns => "home:#{session[:login]}" if session[:login] %>
         <% end %>
-        <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
+        <% unless @spider_bot -%>
+          <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
+        <% end -%>
       </ul>
     <% end %>
   </div>
@@ -57,8 +59,7 @@
 
       <% if @global_counters %>
         <p class="description">
-          According to <%= link_to 'the statistics', :controller => 'statistics' %>, <%= @configuration['title'] %> hosts
-          <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
+          <%= @configuration['title'] %> hosts <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
           <b><%= number_with_delimiter @global_counters.packages %></b> packages, in <b><%= number_with_delimiter @global_counters.repos %></b> repositories
           and is used by <b><%= number_with_delimiter @global_counters.users %></b> confirmed developers.
         </p>

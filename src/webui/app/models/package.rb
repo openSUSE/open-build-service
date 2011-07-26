@@ -68,15 +68,8 @@ class Package < ActiveXML::Base
     return false unless opt[:groupid] and opt[:role]
     logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if has_element?(:remoteurl)
-      elem_cache = split_data_after :remoteurl
-    else
-      elem_cache = split_data_after :description
-    end
-
     # add the new group
     add_element('group', 'groupid' => opt[:groupid], 'role' => opt[:role])
-    merge_data elem_cache
   end
 
   #removes persons based on attributes
@@ -91,7 +84,7 @@ class Package < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.find(xpath).each {|e| e.remove!}
+    each(xpath) {|e| delete_element e}
   end
 
   def remove_group(opt={})
@@ -102,7 +95,7 @@ class Package < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing groups using xpath '#{xpath}'"
-    data.find(xpath.to_s).each {|e| e.remove!}
+    each(xpath) {|e| delete_element e }
   end
 
   def set_url( new_url )
@@ -114,7 +107,7 @@ class Package < ActiveXML::Base
 
   def remove_url
     logger.debug "remove url from package #{self.name} (project #{self.project})"
-    data.find('//url').each { |e| e.remove! }
+    each('//url') { |e| delete_element e }
     save
   end
 
@@ -130,12 +123,12 @@ class Package < ActiveXML::Base
     fc = FrontendCompat.new
     answer = fc.do_post nil, opt
 
-    doc = XML::Parser.string(answer).parse
+    doc = ActiveXML::Base.new(answer)
     result = []
-    doc.find("/collection/package").each do |e|
+    doc.each("/collection/package") do |e|
       hash = {}
-      hash[:project] = e.attributes["project"]
-      hash[:package] = e.attributes["name"]
+      hash[:project] = e.value("project")
+      hash[:package] = e.value("name")
       result.push( hash )
     end
 
@@ -228,11 +221,6 @@ class Package < ActiveXML::Base
     @serviceinfo
   end
 
-  def linked_to
-    return [linkinfo.project, linkinfo.package] if linkinfo
-    return []
-  end
-
   def self.current_xsrcmd5(project, package )
     Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_cached( :project => project, :package => package )
@@ -263,10 +251,11 @@ class Package < ActiveXML::Base
     end
     rev = Package.current_rev(project, name) unless rev
 
+    cache_key = nil
     if rev and not cacheAll
       path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
       cache_key = "Commit/#{project}/#{name}/#{rev}"
-      c = Rails.cache.fetch(cache_key, :expires_in => 30.minutes)
+      c = Rails.cache.read(cache_key, :expires_in => 30.minutes)
       if c
         return c
       end
@@ -283,22 +272,21 @@ class Package < ActiveXML::Base
     end
 
     c = {}
-    doc = XML::Parser.string(answer).parse.root
-    doc.find("/revisionlist/revision").each do |s|
-         c[:revision]= s.attributes["rev"]
-         c[:user]    = s.find_first("user").content
-         c[:version] = s.find_first("version").content
-         c[:time]    = s.find_first("time").content
-         c[:srcmd5]  = s.find_first("srcmd5").content
+    doc = ActiveXML::Base.new(answer)
+    doc.each("/revisionlist/revision") do |s|
+         c[:revision]= s.value("rev")
+         c[:user]    = s.find_first("user").text
+         c[:version] = s.find_first("version").text
+         c[:time]    = s.find_first("time").text
+         c[:srcmd5]  = s.find_first("srcmd5").text
          c[:comment] = nil
          c[:requestid] = nil
          if comment=s.find_first("comment")
-           c[:comment] = comment.content
+           c[:comment] = comment.text
          end
          if requestid=s.find_first("requestid")
-           c[:requestid] = requestid.content
+           c[:requestid] = requestid.text
          end
-         Rails.cache.fetch( cache_key ) { c } if cache_key and c[:revision]
     end
 
     return nil unless c[:revision]
@@ -307,7 +295,7 @@ class Package < ActiveXML::Base
 
   def files( rev = nil, expand = nil )
     # files whose name ends in the following extensions should not be editable and viewable
-    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
+    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip .ttf .0 .otf .ccf }
     files = []
     p = {}
     p[:project] = project
@@ -330,7 +318,12 @@ class Package < ActiveXML::Base
   end
 
   def developed_packages
-     Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
+    packages = []
+    candidates = Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
+    candidates.each do |candidate|
+      packages << candidate unless candidate.linkinfo
+    end
+    return packages
   end
 
   def self.exists?(project, package)

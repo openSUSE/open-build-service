@@ -19,13 +19,14 @@ class ProjectController < ApplicationController
   before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :add_group, :remove_target,
-    :show, :monitor, :edit_prjconf, :list_requests,
+    :show, :monitor, :edit_prjconf, :requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
+  before_filter :require_maintenance_incident_lists, :only => [:show, :maintenance_incidents, :closed_maintenance_incidents]
 
   def index
     redirect_to :action => 'list_public'
@@ -169,8 +170,8 @@ class ProjectController < ApplicationController
   def new_incident
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
-      result = XML::Document.string(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
-      target_project = result.find_first("/status/data[@name='targetproject']").content
+      result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
+      result.each("/status/data[@name='targetproject']") { |n| target_project = n.text }
     rescue ActiveXML::Transport::Error => e
       message, _, _ = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
@@ -200,6 +201,10 @@ class ProjectController < ApplicationController
   end
 
   def load_packages_mainpage
+    if @spider_bot
+      @packages = nil
+      return
+    end
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
     end
@@ -211,7 +216,7 @@ class ProjectController < ApplicationController
     @project.bugowners.each do |bugowner|
       mail = find_cached(Person, bugowner).email
       @bugowners_mail.push(mail.to_s) if mail
-    end
+    end unless @spider_bot
 
     load_packages_mainpage
 
@@ -219,22 +224,27 @@ class ProjectController < ApplicationController
     @nr_packages = @packages.each.size if @packages
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
-      buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
+      buildresult = find_cached(Buildresult, :project => @project, :view => 'status', 
+                                             :code => ['failed', 'broken', 'unresolvable'], 
+                                             :expires_in => 2.minutes ) unless @spider_bot
+      ret = Array.new
       if buildresult
-        results = buildresult.data.find( 'result/status' )
-        results.map{|e| e.attributes['package'] }.uniq.size
-      else
-        0
+        buildresult.each( 'result/status' ) { |e| ret << e.value('package') }
       end
+      ret.uniq.size
     end
 
     linking_projects
     load_buildresult
+    @project_maintenance_project = @project.maintenance_project unless @spider_bot
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def linking_projects
+    if @spider_bot
+      @linking_projects = [] and return
+    end
     Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
     @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
@@ -243,12 +253,7 @@ class ProjectController < ApplicationController
 
   # TODO we need the architectures in api/distributions
   def add_repository_from_default_list
-    Rails.cache.delete("distributions") if discard_cache?
-    dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
-      frontend = ActiveXML::Config::transport_for( :package )
-      frontend.direct_http URI("/distributions"), :method => "GET"
-    end
-    @distributions = XML::Document.string dist_xml
+    @distributions = find_cached(Distribution, :all)
   end
 
   def add_repository
@@ -268,7 +273,9 @@ class ProjectController < ApplicationController
     unless cache
       Buildresult.free_cache( :project => params[:project], :view => 'summary' )
     end
-    @buildresult = find_cached(Buildresult, :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
+    unless @spider_bot
+      @buildresult = find_cached(Buildresult, :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
+    end
 
     @repohash = Hash.new
     @statushash = Hash.new
@@ -326,7 +333,11 @@ class ProjectController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
     end
-    redirect_to :action => :list_public
+    if @project.parent_projects and @project.parent_projects.length > 1
+      redirect_to :action => 'show', :project => @project.parent_projects.last[0]
+    else
+      redirect_to :action => 'list_public'
+    end
   end
 
   def repository_arch_list
@@ -375,6 +386,7 @@ class ProjectController < ApplicationController
     # overwrite @project with different view
     # TODO to get this cached we need to make sure it gets purged on repo updates
     @project = Project.find( params[:project], :view => :flagdetails )
+    @user_is_maintainer = (@user && @user.is_maintainer?(@project, nil))
   end
 
   def repository_state
@@ -463,13 +475,13 @@ class ProjectController < ApplicationController
     f=File.open(outdir + "/rebuild.png")
     png=f.read
     f.close 
-    @pngkey = MD5::md5( params.to_s )
+    @pngkey = Digest::MD5.hexdigest( params.to_s )
     Rails.cache.write("rebuild-%s.png" % @pngkey, png)
     f=File.open(outdir + "/longest.xml")
     longest = ActiveXML::LibXMLNode.new(f.read)
     @timings = Hash.new
     longest.timings.each_package do |p|
-      @timings[p.value :name] = [p.value(:buildtime), p.value(:finished)]
+      @timings[p.value(:name)] = [p.value(:buildtime), p.value(:finished)]
     end
     @rebuildtime = Integer(longest.value :rebuildtime)
     f.close
@@ -491,9 +503,9 @@ class ProjectController < ApplicationController
   def rebuild_time_png
     redirect_to :action => "list_public" and return unless request.xhr?
     key = params[:key]
-    data = Rails.cache.read("rebuild-%s.png" % key)
+    png = Rails.cache.read("rebuild-%s.png" % key)
     headers['Content-Type'] = 'image/png'
-    send_data(data, :type => 'image/png', :disposition => 'inline')
+    send_data(png, :type => 'image/png', :disposition => 'inline')
   end
 
   def load_packages
@@ -521,7 +533,7 @@ class ProjectController < ApplicationController
     end
   end
 
-  def list_requests
+  def requests
   end
 
   def save_new
@@ -1050,13 +1062,13 @@ class ProjectController < ApplicationController
     end
     return nil unless dir
     changes = []
-    dir.each_entry do |e|
-      name = e.name.to_s
+    dir.each_entry do |entry|
+      name = entry.name.to_s
       if name =~ /.changes$/
         if name == package + ".changes"
-          return e.md5.to_s
+          return entry.md5.to_s
         end
-        changes << e.md5.to_s
+        changes << entry.md5.to_s
       end
     end
     if changes.size == 1
@@ -1090,11 +1102,8 @@ class ProjectController < ApplicationController
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
-    attributes.data.find('/attribute/project/package/values').each do |p|
-      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-      p.each_element do |v|
-        comments[p.parent['name']] = v.content
-      end
+    attributes.each('/attribute/project/package') do |p|
+      comments[p.value(:name)] = p.find_first("values/value").text
     end if attributes
 
     upstream_versions = Hash.new
@@ -1103,20 +1112,14 @@ class ProjectController < ApplicationController
     if @include_versions || @limit_to_old
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
-      attributes.data.find('//package//values').each do |p|
-        # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-        p.each_element do |v|
-          upstream_versions[p.parent['name']] = v.content
-        end
+      attributes.each('/attribute/project/package') do |p|
+        upstream_versions[p.value(:name)] = p.find_first("values/value").text
       end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
-      attributes.data.find('//package//values').each do |p|
-        # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-        p.each_element do |v|
-          upstream_urls[p.parent['name']] = v.content
-        end
+      attributes.each('/attribute/project/package') do |p|
+        upstream_urls[p.value(:name)] = p.find_first("values/value").text
       end if attributes
     end
 
@@ -1127,12 +1130,12 @@ class ProjectController < ApplicationController
     @requests = Hash.new
     submits = Hash.new
     raw_requests.each_request do |r|
-      id = Integer(r.data['id'])
+      id = r.value('id').to_i
       @requests[id] = r
-      #logger.debug r.dump_xml + " " + (r.has_element?('action') ? r.action.data['type'] : "false")
-      if r.has_element?('action') && r.action.data['type'] == "submit"
-        target = r.action.target.data
-        key = target['project'] + "/" + target['package']
+      #logger.debug r.dump_xml + " " + (r.has_element?('action') ? r.action.value('type') : "false")
+      if r.has_element?('action') && r.action.value('type') == "submit"
+        target = r.action.target
+        key = target.value('project') + "/" + target.value('package')
         submits[key] ||= Array.new
         submits[key] << id
       end
@@ -1252,11 +1255,14 @@ class ProjectController < ApplicationController
   end
 
   def maintained_projects
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
 
   def add_maintained_project_dialog
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
   def add_maintained_project
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].nil? or params[:maintained_project].empty?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
@@ -1272,6 +1278,7 @@ class ProjectController < ApplicationController
   end
 
   def remove_maintained_project
+    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].nil? or params[:maintained_project].empty?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
@@ -1287,17 +1294,9 @@ class ProjectController < ApplicationController
   end
 
   def maintenance_incidents
-    @open_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident' and repository/releasetarget/@trigger='maintenance')").each do |p|
-      @open_maintenance_incident_list << p
-    end
   end
 
   def closed_maintenance_incidents
-    @closed_maintenance_incident_list = []
-    Collection.find(:what => "project", :predicate => "(starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident' and not(repository/releasetarget/@trigger='maintenance'))").each do |p|
-      @closed_maintenance_incident_list << p
-    end
   end
 
   private
@@ -1324,7 +1323,6 @@ class ProjectController < ApplicationController
       end
     end
     @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
-    check_user
     unless @project
       if @user and params[:project] == "home:#{@user}"
         # checks if the user is registered yet
@@ -1348,10 +1346,9 @@ class ProjectController < ApplicationController
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     if @is_maintenance_project
       @maintained_projects = []
-      @project.data.find("maintenance/maintains/@project").each do |maintained_project_name|
-        @maintained_projects << maintained_project_name.value
+      @project.each("maintenance/maintains") do |maintained_project_name|
+        @maintained_projects << maintained_project_name.value(:project)
       end
-      @open_maintenance_incident_list = maintenance_incidents()
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
@@ -1388,16 +1385,42 @@ class ProjectController < ApplicationController
     end
   end
 
-  def load_requests
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name}) \
-              + BsRequest.list({:states => 'new', :roles => "target", :project => @project.name})
-    if @is_maintenance_project
-      pred = "((state/@name='new') and starts-with(action/source/@project='#{@project.name}:') and (action/@type='maintenance_release'))"
-      requests = Collection.find_cached :what => :request, :predicate => pred
-      requests.each_request do |r|
-        @requests << r
+  def require_maintenance_incident_lists
+    @open_maintenance_incident_list = []
+    @closed_maintenance_incident_list = []
+    return if @spider_bot
+    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
+      has_releasetarget = false
+      project.each_repository do |repo|
+        has_releasetarget = true if repo.has_element?('releasetarget')
+      end
+      if has_releasetarget
+        @open_maintenance_incident_list << project
+      else
+        @closed_maintenance_incident_list << project
       end
     end
+  end
+
+  def load_requests
+    if @spider_bot
+      @requests = [] and return
+    end
+    pname=@project.value(:name)
+    cachekey="project_requests_#{pname}"
+    Rails.cache.delete(cachekey) if discard_cache?
+    @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+       req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
+           + BsRequest.list({:states => 'new', :roles => "target", :project => pname})
+       if @is_maintenance_project
+         pred = "((state/@name='new') and starts-with(action/source/@project='#{pname}:') and (action/@type='maintenance_release'))"
+         requests = Collection.find :what => :request, :predicate => pred
+         requests.each_request do |r|
+            req << r
+         end
+       end
+       req
+     end
   end
 
 end

@@ -42,7 +42,7 @@ class AttribType < ActiveRecord::Base
     write_attribute :attrib_namespace, val
   end
 
-  def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
+  def render_axml(node = Nokogiri::XML::Builder.new)
      p = {}
      p[:name]      = self.name
      p[:namespace] = attrib_namespace.name

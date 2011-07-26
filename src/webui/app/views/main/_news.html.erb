@@ -12,8 +12,8 @@
           <% @news.each_message do |msg| %>
             <tr id="message_<%= msg.msg_id %>">
               <td>
-                <% case msg.severity.to_i %>
-                  <% when 3 %>
+                <% case msg.severity.to_i 
+                   when 3 %>
                     <%= image_tag('icons/exclamation.png') %>
                   <% when 2 %>
                     <%= image_tag('icons/error.png') %>

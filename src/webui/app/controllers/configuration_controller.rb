@@ -10,7 +10,7 @@ class ConfigurationController < ApplicationController
 
   def update_configuration
     valid_http_methods :post
-    if not (params[:title] or params[:target_project])
+    if ! (params[:title] || params[:target_project])
       flash[:error] = "Missing arguments (title or description)"
       redirect_back_or_to :action => 'index' and return
     end

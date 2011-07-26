@@ -1,3 +1,5 @@
+require 'base64'
+
 class RequestController < ApplicationController
   include ApplicationHelper
 
@@ -41,13 +43,13 @@ class RequestController < ApplicationController
     end
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to :controller => "home", :action => "list_requests" and return
+      redirect_back_or_to :controller => "home", :action => "requests" and return
     end
 
-    @id = @req.data.attributes["id"]
-    @state = @req.state.data.attributes["name"]
+    @id = @req.value("id")
+    @state = @req.state.value("name")
     @is_author = @req.creator == session[:login]
-    @superseded_by = @req.state.data.attributes["superseded_by"] if @req.state.has_attribute? :superseded_by and not @req.state.data.attributes["superseded_by"].empty?
+    @superseded_by = @req.state.value("superseded_by")
     @newpackage = []
 
     @is_reviewer = false
@@ -74,7 +76,7 @@ class RequestController < ApplicationController
     @is_maintainer = nil
     @contains_submit_action = false
     @req.each_action do |action|
-      if action.data.attributes["type"] == "submit"
+      if action.value("type") == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
         @contains_submit_action = true
@@ -100,11 +102,22 @@ class RequestController < ApplicationController
 
     # get the entire diff from the api
     begin
-      transport ||= ActiveXML::Config::transport_for :bsrequest
-      @diff_text = transport.direct_http URI("/request/#{@id}?cmd=diff"), :method => "POST", :data => ""
+      @diff_per_action_hash = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
+        result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
+        diff_per_action_hash = {}
+        # Parse each action and get the it's diff (per file)
+        result.each_with_index('/request/action') do |action_element, index|
+          file_diff_hash = {}
+          action_element.each('diff/file') do |file_element|
+            file_diff_hash[file_element.value('name')] = Base64.decode64(file_element.text)
+          end
+          diff_per_action_hash["#{index}_#{action_element.value('type')}"] = file_diff_hash
+        end
+        diff_per_action_hash
+      end
     rescue ActiveXML::Transport::Error => e
-      @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
-      logger.debug "Can't get diff for request: #{@diff_error}"
+      project, code = ActiveXML::Transport.extract_error_message(e)
+      flash[:error] = "Unable to fetch diff for #{project}: #{code}"
     end
   end
 
@@ -116,38 +129,14 @@ class RequestController < ApplicationController
     end
 
     changestate = nil
-    %w{forward accepted declined revoked}.each do |s|
+    ['accepted', 'declined', 'revoked'].each do |s|
       if params.has_key? s
         changestate = s
         break
       end
     end
 
-    Directory.free_cache( :project => @req.action.target.project, :package => @req.action.target.value('package') )
-
-    if changestate == 'forward' # special case
-      description = @req.description.text
-      logger.debug 'request ' +  @req.dump_xml
-
-      if @req.has_element? 'state'
-        who = @req.state.data["who"].to_s
-        description += " (forwarded request %d from %s)" % [params[:id], who]
-      end
-
-      if not change_request('accepted', params)
-        redirect_to :action => :show, :id => params[:id] and return
-      end
-    
-      add_maintainer(@req) if params[:add_submitter_as_maintainer]
-      rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
-      @req = BsRequest.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
-        :project => @req.action.target.project, :package => @req.action.target.package, :rev => rev, :description => description)
-      @req.save(:create => true)
-      Rails.cache.delete "requests_new"
-      flash[:note] = "Request #{params[:id]} accepted and forwarded"
-      redirect_to :controller => :request, :action => :show, :id => @req.data["id"] and return
-    end
-
+    Directory.free_cache(:project => @req.action.target.project, :package => @req.action.target.value('package'))
     if change_request(changestate, params)
       if params[:add_submitter_as_maintainer]
         if changestate != 'accepted'
@@ -157,8 +146,29 @@ class RequestController < ApplicationController
         end
       end
     end
+    if changestate == 'accepted'
+      flash[:note] = "Request #{params[:id]} accepted"
 
-    redirect_to :action => :show, :id => params[:id]
+      # Check if we have to forward this request to other projects / packages
+      params.keys.grep(/^forward_.*/).each do |fwd|
+        tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
+        description = @req.description.text
+        if @req.has_element? 'state'
+          who = @req.state.value("who")
+          description += " (forwarded request %d from %s)" % [params[:id], who]
+        end
+
+        rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
+        req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+                             :project => @req.action.target.project, :package => @req.action.target.package,
+                             :rev => rev, :description => description)
+        req.save(:create => true)
+        Rails.cache.delete('requests_new')
+        # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
+        flash[:note] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
+      end
+    end
+    redirect_to :action => 'show', :id => params[:id]
   end
 
   def diff
@@ -167,17 +177,17 @@ class RequestController < ApplicationController
   end
 
   def list
-    redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
+    redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
-    render :partial => 'shared/list_requests', :locals => {:requests => requests, :elide_len => elide_len}
+    render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len}
   end
 
   def list_small
-    redirect_to :controller => :home, :action => :list_requests and return unless request.xhr?  # non ajax request
+    redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
-    render :partial => "shared/list_requests_small", :locals => {:requests => requests}
+    render :partial => "shared/requests_small", :locals => {:requests => requests}
   end
 
   def delete_request_dialog
@@ -196,7 +206,7 @@ class RequestController < ApplicationController
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+    redirect_to :controller => :request, :action => :show, :id => req.value("id")
   end
 
   def add_role_request_dialog
@@ -215,7 +225,7 @@ class RequestController < ApplicationController
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
+    redirect_to :controller => :request, :action => :show, :id => req.value("id")
   end
 
 private
@@ -234,7 +244,7 @@ private
   end
 
   def add_maintainer(req)
-    if req.action.target.has_element?('package')
+    if req.action.target.has_attribute?('package')
       target = find_cached(Package, req.action.target.package, :project => req.action.target.project)
     else
       target = find_cached(Project, req.action.target.project)

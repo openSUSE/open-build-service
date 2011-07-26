@@ -50,7 +50,7 @@ class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
   end
 
   # Display a form to edit the given permission on GET. Handle the form submission
-  # of this form on POST and display errors if any occured.
+  # of this form on POST and display errors if any occurred.
   def update
     @permission = StaticPermission.find(params[:id])
 

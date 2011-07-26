@@ -10,15 +10,7 @@ class Project < ActiveXML::Base
 
     raise "add_person needs :userid argument" unless opt[:userid]
 
-    if( has_element? :person )
-      elem_cache = split_data_after :person
-    else
-      elem_cache = split_data_after :description
-    end
-
     add_element( 'person', 'userid' => opt[:userid], 'role' => opt[:role] )
-
-    merge_data elem_cache
   end
 
   def name=(new_name)
@@ -26,11 +18,11 @@ class Project < ActiveXML::Base
   end
 
   def title=(new_title)
-    self.title.data.text = new_title.to_s
+    self.title.text = new_title.to_s
   end
 
   def description=(new_desc)
-    self.description.data.text = new_desc.to_s
+    self.description.text = new_desc.to_s
   end
 
   def disabled_for?(flag_type)

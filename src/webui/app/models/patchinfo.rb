@@ -1,8 +1,7 @@
 class Patchinfo < ActiveXML::Base
   class << self
     def make_stub( opt )
-      reply = "<patchinfo></patchinfo>"
-      return XML::Parser.string(reply).parse.root
+      "<patchinfo/>"
     end
   end
 

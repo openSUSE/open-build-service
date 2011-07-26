@@ -296,7 +296,7 @@ class PatchinfoController < ApplicationController
       @patchinfo.set_buglist(buglist)
       @patchinfo.set_relogin(relogin.to_s)
       @patchinfo.set_reboot(reboot.to_s)
-      @patchinfo = @patchinfo.data.to_s
+      @patchinfo = @patchinfo.dump_xml
       @patchinfo.gsub!( /\r\n/, "\n" )
       begin
         frontend.put_file( @patchinfo, :project => @project,

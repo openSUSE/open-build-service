@@ -70,6 +70,13 @@ home:tom:
   id: 1001
 
 # Used for maintenance tests:
+Devel:BaseDistro:Update:
+  name: Devel:BaseDistro:Update
+  updated_at: 2005-01-01 00:00:01
+  title: This is a a devel project container for update project for the base distro
+  id: 3043
+  description: "contains candidate changes for next updates"
+  created_at: 2005-01-01 00:00:01
 BaseDistro:
   name: BaseDistro
   updated_at: 2005-01-01 00:00:01
@@ -83,6 +90,7 @@ BaseDistro:Update:
   updated_at: 2005-01-01 00:00:01
   title: This is an update project for the base distro
   id: 2043
+  develproject_id: 3043
   description: "contains official released updates"
   created_at: 2005-01-01 00:00:01
 home:adrian:BaseDistro:

@@ -12,7 +12,7 @@ RAILS_GEM_VERSION = '~>2.3.8' unless defined? RAILS_GEM_VERSION
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
-require "common/libxmlactivexml"
+require "activexml/activexml"
 
 # define our current api version
 api_version = '2.3.0'
@@ -42,6 +42,7 @@ Rails::Initializer.run do |config|
   # rake gems:install (installs the needed gems)
   # rake gems:unpack (this unpacks the gems to vendor/gems)
 
+  config.gem 'nokogiri'
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'exception_notification'
@@ -77,6 +78,10 @@ Rails::Initializer.run do |config|
   end
 
   # See Rails::Configuration for more options
+  config.after_initialize do
+    ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
+    ExceptionNotifier.sender_address = CONFIG["exception_sender"]
+  end unless Rails.env.test?
 end
 
 # rake gems:install doesn't load initializers, load options manually if CONFIG is undefined
@@ -117,14 +122,9 @@ ActiveXML::Base.config do |conf|
   end
 end
 
-ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
-ExceptionNotifier.sender_address = CONFIG["exception_sender"]
-
 if defined? API_DATE
   CONFIG['version'] = api_version + ".git" + API_DATE
 else
   CONFIG['version'] = api_version
 end
-
-LibXML::XML::Error.set_handler(&LibXML::XML::Error::QUIET_HANDLER)
 

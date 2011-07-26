@@ -72,9 +72,11 @@ module SpiderIntegrator
       value = mutate ? nil : input['value'] 
 
       return value || case input['name']
-        when /amount/: rand(10000) - 5000
-        when /_id$/:   rand(500)
-        when /uploaded_data/: # attachment_fu
+        when /amount/ 
+           rand(10000) - 5000
+        when /_id$/   
+           rand(500)
+        when /uploaded_data/ # attachment_fu
           nil
         when nil
           # wtf!
@@ -208,7 +210,11 @@ module SpiderIntegrator
   # todo: use hpricot or something else more fun (we will need to validate 
   # the html in this case since HTML::Document does it by default)
   def consume_page( html, url )
-    body = HTML::Document.new html
+    begin
+      body = HTML::Document.new html
+    rescue
+      puts "HARDCORE!! #{url}"
+    end
     body.find_all(:tag=>'a').each do |tag|
       queue_link( tag, url ) unless tag['onclick']
     end
@@ -322,7 +328,7 @@ module SpiderIntegrator
         if exists = File.exist?(File.expand_path("#{RAILS_ROOT}/public/#{next_link.uri}"))
           console "STATIC: #{next_link.uri}"
           case File.extname(next_link.uri)
-          when /jpe?g|gif|psd|png|eps|pdf/
+          when /jpe?g|gif|psd|png|eps|pdf|css/
             console "Not parsing #{next_link.uri} because it looks like non-text" 
           when /html|te?xt|css|js/
             @response.body = File.open("#{RAILS_ROOT}/public/#{next_link.uri}").read
@@ -339,7 +345,7 @@ module SpiderIntegrator
           
         @stacktraces[next_link.uri] = @response.body
       end
-      @response.each { |body| consume_page( body, next_link.uri ) }
+      @response.each { |chunk| consume_page( chunk, next_link.uri ) }
       @visited_urls[next_link.uri] = true
     end
 
@@ -411,9 +417,9 @@ module SpiderIntegrator
     dest.gsub!(/([?]\d+)$/, '') # fix asset caching
     unless dest =~ %r{^(http://|mailto:|#|&#)} 
       dest = dest.split('#')[0] if dest.index("#") # don't want page anchors
-      next unless dest.any?
+      return if dest.empty?
       return if spider_should_ignore_url?( dest )
-      @links_to_visit << SpiderIntegrator::Link.new( dest, source ) if dest.any? # could be empty, make sure there's no empty links queueing
+      @links_to_visit << SpiderIntegrator::Link.new( dest, source ) # could be empty, make sure there's no empty links queueing
     end
   end
 
@@ -431,7 +437,7 @@ module SpiderIntegrator
   SpiderIntegrator::Form = Struct.new( :method, :action, :query, :source )
 end 
 
-require File.dirname(__FILE__) + '/../test_helper'        
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
 
 class SpiderTest < ActionController::IntegrationTest
 

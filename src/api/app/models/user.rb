@@ -71,7 +71,7 @@ class User < ActiveRecord::Base
   end
 
   def render_axml( watchlist = false )
-    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
  
     logger.debug "----------------- rendering person #{self.login} ------------------------"
     xml = builder.person() do |person|
@@ -98,7 +98,7 @@ class User < ActiveRecord::Base
       end
     end
 
-    xml.target!
+    xml
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -359,7 +359,7 @@ class User < ActiveRecord::Base
       begin
         ldapgroups = User.render_grouplist_ldap(grouplist, self.login)
       rescue Exception
-        logger.debug "Error occured in searching user_group in ldap."
+        logger.debug "Error occurred in searching user_group in ldap."
       end
     end        
     return ldapgroups
@@ -376,7 +376,7 @@ class User < ActiveRecord::Base
     begin      
       return true unless User.render_grouplist_ldap(grouplist, user).empty?
     rescue Exception
-      logger.debug "Error occured in searching user_group in ldap."
+      logger.debug "Error occurred in searching user_group in ldap."
     end
 
     return false
@@ -402,9 +402,9 @@ class User < ActiveRecord::Base
         rels = ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN roles_static_permissions rolperm ON rolperm.role_id = project_group_role_relationships.role_id", 
                                                   :conditions => ["rolperm.static_permission_id = ? and db_project_id = ?", static_permission_id, object],
                                                   :include => :group
-      end    
+    end    
 
-    for rel in rels
+    rels.each do |rel|
       return false if rel.group.nil?
       #check whether current user is in this group
       return true if user_in_group_ldap?(self.login, rel.group.title) 
@@ -423,7 +423,7 @@ class User < ActiveRecord::Base
       when DbProject
         rels = ProjectGroupRoleRelationship.find :all, :conditions => ["db_project_id = ? and role_id = ?", object, role],
                                                      :include => [:group]
-      end
+    end
     for rel in rels
       return false if rel.group.nil?
       #check whether current user is in this group
@@ -465,7 +465,7 @@ class User < ActiveRecord::Base
         end
 
         return false
-      end
+    end
     return false
   end
 
@@ -528,76 +528,81 @@ class User < ActiveRecord::Base
     end
   end
 
-  def involved_projects
+  def involved_projects_ids
     # just for maintainer for now.
-    role = "maintainer"
+    role = Role.find_by_title "maintainer"
 
     ### all projects where user is maintainer
-    # ur is the target user role relationship, aur is the asking user role relation ship
-    sql =<<-END_SQL
-    SELECT DISTINCT prj.*
+    # ur is the target user role relationship
+    sql =
+    "SELECT prj.id
     FROM db_projects prj
-    LEFT OUTER JOIN project_user_role_relationships ur ON prj.id = ur.db_project_id
-    LEFT OUTER JOIN roles r ON ur.role_id = r.id
-    LEFT OUTER JOIN flags f ON f.db_project_id = prj.id
-    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id 
-    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
-    WHERE ur.bs_user_id = BINARY ? and r.title = BINARY ?
-          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
-    END_SQL
-    projects = DbProject.find_by_sql [sql, id, role, User.currentID]
+    LEFT JOIN project_user_role_relationships ur ON prj.id = ur.db_project_id
+    WHERE ur.bs_user_id = #{id} and ur.role_id = #{role.id}"
+    projects = ActiveRecord::Base.connection.select_values sql
 
     # all projects where user is maintainer via a group
-    sql =<<-END_SQL
-    SELECT DISTINCT prj.*
+    sql =
+    "SELECT prj.id
     FROM db_projects prj
-    LEFT OUTER JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
-    LEFT OUTER JOIN roles r ON gr.role_id = r.id
-    LEFT OUTER JOIN flags f ON f.db_project_id = prj.id
-    LEFT OUTER JOIN groups_users ug ON ug.group_id = gr.bs_group_id
-    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id 
-    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
-    WHERE ug.user_id = BINARY ? and r.title = BINARY ?
-          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
-    END_SQL
-    projects += DbProject.find_by_sql [sql, id, role, User.currentID]
+    LEFT JOIN project_group_role_relationships gr ON prj.id = gr.db_project_id
+    LEFT JOIN groups_users ug ON ug.group_id = gr.bs_group_id
+    WHERE ug.user_id = #{id} and gr.role_id = #{role.id}"
 
-    return projects.uniq
+    projects += ActiveRecord::Base.connection.select_values sql
+    projects.uniq.map {|p| p.to_i }
+  end
+  protected :involved_projects_ids
+  
+  def involved_projects
+    projects = involved_projects_ids
+    return [] if projects.empty?
+    # now filter the projects that are not visible
+    return DbProject.find_by_sql("SELECT distinct prj.* FROM db_projects prj 
+                                  LEFT JOIN flags f on f.db_project_id = prj.id
+                                  LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id
+                                  where prj.id in (#{projects.join(',')})
+                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
   end
 
+  # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = "maintainer"
+    role = Role.find_by_title "maintainer"
+
+    projects = involved_projects_ids
+    projects << -1 if projects.empty?
 
     # all packages where user is maintainer
     sql =<<-END_SQL
-    SELECT DISTINCT pkg.*
+    SELECT pkg.id
     FROM db_packages pkg
-    LEFT OUTER JOIN package_user_role_relationships ur ON pkg.id = ur.db_package_id
-    LEFT OUTER JOIN roles r ON ur.role_id = r.id
-    LEFT OUTER JOIN flags f ON f.db_project_id = pkg.db_project_id
-    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id 
-    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
-    WHERE ur.bs_user_id = BINARY ? and r.title = BINARY ?
-          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
+    LEFT JOIN db_projects prj ON prj.id = pkg.db_project_id
+    LEFT JOIN package_user_role_relationships ur ON pkg.id = ur.db_package_id
+    WHERE ur.bs_user_id = #{id} and ur.role_id = #{role.id} and
+    prj.id not in (#{projects.join(',')})
     END_SQL
-    packages = DbPackage.find_by_sql [sql, id, role, User.currentID]
+    packages = ActiveRecord::Base.connection.select_values sql
 
     # all packages where user is maintainer via a group
     sql =<<-END_SQL
-    SELECT DISTINCT pkg.*
+    SELECT pkg.id
     FROM db_packages pkg
-    LEFT OUTER JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
-    LEFT OUTER JOIN roles r ON gr.role_id = r.id
-    LEFT OUTER JOIN groups_users ug ON ug.group_id = gr.bs_group_id
-    LEFT OUTER JOIN flags f ON f.db_project_id = pkg.db_project_id
-    LEFT OUTER JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id 
-    LEFT OUTER JOIN users au ON aur.bs_user_id = au.id
-    WHERE ug.user_id = BINARY ? and r.title = BINARY ?
-          and (ISNULL(f.flag) or f.flag != 'access' or au.id = BINARY ?)
+    LEFT JOIN db_projects prj ON prj.id = pkg.db_project_id
+    LEFT JOIN package_group_role_relationships gr ON pkg.id = gr.db_package_id
+    LEFT JOIN groups_users ug ON ug.group_id = gr.bs_group_id
+    WHERE ug.user_id = #{id} and gr.role_id = #{role.id} and
+    prj.id not in (#{projects.join(',')})
     END_SQL
-    packages += DbPackage.find_by_sql [sql, id, role, User.currentID]
+    packages += ActiveRecord::Base.connection.select_values sql
+    packages = packages.uniq.map {|p| p.to_i } 
 
-    return packages.uniq
+    return [] if packages.empty?
+    return DbPackage.find_by_sql("SELECT distinct pkg.* FROM db_packages pkg
+                                  LEFT JOIN flags f on f.db_project_id = pkg.db_project_id
+                                  LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id
+                                  where pkg.id in (#{packages.join(',')})
+                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
+ 
   end
 end

@@ -21,19 +21,26 @@ class Person < ActiveXML::Base
     if opt.has_key? :email
       email = opt[:email]
     end
-    doc = XML::Document.new
-    doc.root = XML::Node.new 'person'
-    element = doc.root << 'login'
-    element.content = opt[:login]
-    element = doc.root << 'realname'
-    element.content = realname
-    element = doc.root << 'email'
-    element.content = email
-    element = doc.root << 'state'
-    element.content = 5
-    doc.root
+    doc = ActiveXML::Base.new '<person/>'
+    element = doc.add_element 'login'
+    element.text = opt[:login]
+    element = doc.add_element 'realname'
+    element.text = realname
+    element = doc.add_element 'email'
+    element.text = email
+    element = doc.add_element 'state'
+    element.text = 5
+    doc
   end
   
+  @@person_cache = Hash.new
+  def self.find_cached(login)
+     if @@person_cache.has_key? login
+       return @@person_cache[login]
+     end
+     @@person_cache[login] = super
+  end
+
   def self.email_for_login(person)
     p = Person.find_cached(person)
     return p.value(:email) if p
@@ -46,16 +53,26 @@ class Person < ActiveXML::Base
     return ''
   end
 
+  def initialize(data)
+    @mygroups = nil
+    super(data)
+    @login = self.value(:login)
+  end
+
+  def login
+    @login
+  end
+
   def to_s
-    login.to_s
+    @login
   end
 
   def add_watched_project(name)
     return nil unless name
-    add_element 'watchlist' unless has_element? :watchlist
-    watchlist.add_element 'project', 'name' => name
+    add_element('watchlist') unless has_element?(:watchlist)
+    watchlist.add_element('project', :name => name)
     logger.debug "user '#{login}' is now watching project '#{name}'"
-    Rails.cache.delete("person_#{login}")
+    @@person_cache.delete(login)
   end
 
   def remove_watched_project(name)
@@ -63,7 +80,7 @@ class Person < ActiveXML::Base
     return nil unless watches? name
     watchlist.delete_element "project[@name='#{name}']"
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
-    Rails.cache.delete("person_#{login}")
+    @@person_cache.remove(login)
   end
 
   def watches?(name)
@@ -103,23 +120,12 @@ class Person < ActiveXML::Base
   end
 
   def groups
-    cachekey = "#{login}_groups"
-    mygroups = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      groups=[]
-
-      path = "/person/#{login}/group"
-      frontend = ActiveXML::Config::transport_for( :person )
-      answer = frontend.direct_http URI(path), :method => "GET"
-
-      doc = XML::Parser.string(answer).parse.root
-      doc.find("/directory/entry").each do |e|
-        groups.push e.attributes["name"]
-      end
-
-      groups
+    return @mygroups if @mygroups
+    @mygroups = Array.new
+    PersonGroup.find(login.to_s).each('/directory/entry') do |e|
+        @mygroups << e.value("name")
     end
-
-    return mygroups
+    return @mygroups
   end
 
   def packagesorter(a, b)

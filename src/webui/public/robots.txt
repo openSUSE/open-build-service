@@ -4,6 +4,8 @@ Disallow: /package/live_build_log
 Disallow: /ICSLogin
 Disallow: /project/monitor
 Disallow: /project/buildresult
+Disallow: /package/reload_buildstatus
+Disallow: /project/buildstatus
 Disallow: /stage
 
 # unfortunately the sitemap needs to be full URL,
