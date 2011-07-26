@@ -43,9 +43,17 @@ class PersonController < ApplicationController
       render :template => 'error', :status => @errorcode and return
     end
 
-    user = User.find_by_login(URI.unescape(params[:login])) if params[:login]
+    login = URI.unescape(params[:login]) if params[:login]
+    user = User.find_by_login(login) if login
+
     if request.get?
-      if user and user.login != @http_user.login
+      if not user
+        logger.debug "Requested non-existing user"
+        @errorcode = 404
+        @summary = "Requested non-existing user"
+        render :template => 'error', :status => @errorcode and return
+      end
+      if user.login != @http_user.login
         logger.debug "Generating for user from parameter #{user.login}"
         render :text => user.render_axml(false), :content_type => "text/xml"
       else
