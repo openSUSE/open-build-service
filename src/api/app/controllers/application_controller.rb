@@ -201,7 +201,8 @@ class ApplicationController < ActionController::Base
           read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
           if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
             # Fixed list of clients which do support the read only mode
-            if request.env['HTTP_USER_AGENT'].match(/^obs-webui/) or request.env['HTTP_USER_AGENT'].match(/^obs-software/)
+            hua = request.env['HTTP_USER_AGENT']
+            if hua && (hua.match(/^obs-webui/) || hua.match(/^obs-software/))
               @http_user = User.find_by_login( "_nobody_" )
               @user_permissions = Suse::Permission.new( @http_user )
               return true
