@@ -1199,6 +1199,7 @@ our $updateinfoitem = [
 	    [],
 	    'id',
 	    'title',
+	    'severity',
 	    'release',
 	  [ 'issued' =>
 		'date',
