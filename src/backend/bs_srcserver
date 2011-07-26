@@ -3254,6 +3254,9 @@ sub remote_getrev {
     addfile($projid, $packid, "$uploaddir/$$", $entry->{'name'}, $entry->{'md5'});
   }
   my $srcmd5 = addmeta($projid, $packid, $files);
+  if ($dir->{'serviceinfo'}) {
+    $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
+  }
   if ($dir->{'linkinfo'}) {
     $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
     $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
