@@ -1,7 +1,4 @@
-path = "#{RAILS_ROOT}/config/options.#{Socket.gethostname}.yml"
-unless File.exists? path
-  path = "#{RAILS_ROOT}/config/options.yml"
-end
+path = "#{RAILS_ROOT}/config/options.yml"
 
 begin
   CONFIG = YAML.load_file(path)
