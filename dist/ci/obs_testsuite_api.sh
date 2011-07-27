@@ -73,5 +73,5 @@ echo "Prepare for rcov"
 mkdir coverage
 
 echo "Invoke rake"
-rake -f /usr/lib64/ruby/gems/1.8/gems/ci_reporter-1.6.4/stub.rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
+rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
 

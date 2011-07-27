@@ -32,6 +32,7 @@
 # Post Build Actions:
 #   Archive the artifacts:
 #     Files to archive: **/*
+#     Discard all but the last successful/stable artifact to save disk space: 1
 #
 
 ###############################################################################
