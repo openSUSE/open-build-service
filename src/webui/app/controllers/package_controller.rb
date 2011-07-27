@@ -787,9 +787,11 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :files, :package => @package, :project => @project
+      return
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
       redirect_back_or_to :action => :files, :project => @project, :package => @package
+      return
     end
     if @spider_bot
       render :template => "package/simple_file_view"
