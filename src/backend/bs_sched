@@ -1667,7 +1667,7 @@ my %watchremote;	# remote_url => { eventdescr => projid }
 my %watchremote_start;	# remote_url => lasteventno
 
 my %repounchanged;
-my %prpnotready;
+my %prpnotready;	# maps prp => { packid => 1, ... }
 
 my %watchremoteprojs;	# tmp, only set in addwatchremote
 
@@ -4108,13 +4108,13 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     # update prpnotready hash
     my $oldprpnotready = $schedstate->{'globalnotready'} || {};
     for my $prp (@prps) {
-      $prpnotready{$prp} = $oldprpnotready->{$prp} if exists $oldprpnotready->{$prp};
+      $prpnotready{$prp} = $oldprpnotready->{$prp} if %{$oldprpnotready->{$prp} || {}};
     }
 
     # update delayedfetchprojpacks hash
     my $olddelayedfetchprojpacks = $schedstate->{'delayedfetchprojpacks'} || {};
     for my $projid (keys %$projpacks) {
-      $delayedfetchprojpacks{$projid} = $olddelayedfetchprojpacks->{$projid};
+      $delayedfetchprojpacks{$projid} = $olddelayedfetchprojpacks->{$projid} if $olddelayedfetchprojpacks->{$projid};
     }
 
     # use old start values
@@ -5069,7 +5069,7 @@ while(1) {
     if ($rprp eq $prp) {
       $depislocal{$n} = 1;
     } else {
-      $notready{$n} = 2 if $prpnotready{$rprp}->{$n};
+      $notready{$n} = 2 if $prpnotready{$rprp} && $prpnotready{$rprp}->{$n};
     }
   }
 
