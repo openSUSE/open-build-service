@@ -57,7 +57,7 @@ class MainController < ApplicationController
   end
 
   def sitemap
-    render :layout => false
+    render :layout => false, :content_type => "application/xml"
   end
 
   def require_projects
@@ -81,18 +81,6 @@ class MainController < ApplicationController
     sitemap_projects_subpage(:packages, 'monthly', 0.7)
   end
 
-  def sitemap_projects_users
-    sitemap_projects_subpage(:users, 'monthly', 0.1)
-  end
-
-  def sitemap_projects_attributes
-    sitemap_projects_subpage(:attributes, 'monthly', 0.3)
-  end
-
-  def sitemap_projects_requests
-    sitemap_projects_subpage(:requests, 'monthly', 0.1)
-  end
- 
   def sitemap_projects_prjconf
     sitemap_projects_subpage(:prjconf, 'monthly', 0.1)
   end
@@ -101,8 +89,8 @@ class MainController < ApplicationController
     category = params[:category].to_s
     @packages = Array.new
     predicate = ''
-    if category == 'home'
-      predicate = "starts-with(@project,'home:')"
+    if category =~ %r{home}
+      predicate = "starts-with(@project,'#{category}')"
     elsif category == 'opensuse'
       predicate = "starts-with(@project,'openSUSE:')"
     elsif category == 'main'
