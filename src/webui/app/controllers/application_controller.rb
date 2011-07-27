@@ -316,12 +316,26 @@ class ApplicationController < ActionController::Base
     @current_controller = controller_name
   end
 
-  def check_user
+  def check_spiders
     @spider_bot = false
     if defined? TREAT_USER_LIKE_BOT or request.env.has_key? 'HTTP_OBS_SPIDER'
       @spider_bot = true
       return
     end
+  end
+  private :check_spiders
+
+  def lockout_spiders
+    check_spiders
+    if @spider_bot
+       render :nothing => true
+       return true
+    end
+    return false
+  end
+
+  def check_user
+    check_spiders
     return unless session[:login]
     Rails.cache.delete("person_#{session[:login]}") if discard_cache?
     @user ||= find_cached(Person, session[:login])

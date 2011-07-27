@@ -27,6 +27,7 @@ class ProjectController < ApplicationController
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
   before_filter :require_maintenance_incident_lists, :only => [:show, :maintenance_incidents, :closed_maintenance_incidents]
+  prepend_before_filter :lockout_spiders, :only => [:requests]
 
   def index
     redirect_to :action => 'list_public'

@@ -12,6 +12,7 @@ class PackageController < ApplicationController
   before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
+  prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
     begin 
@@ -32,7 +33,9 @@ class PackageController < ApplicationController
   end
 
   def linking_packages
-    return if @spider_bot
+    if @spider_bot
+      @linking_packages = [] and return
+    end
     cache_string = "%s/%s_linking_packages" % [ @project, @package ]
     Rails.cache.delete(cache_string) if discard_cache?
     @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
@@ -86,7 +89,6 @@ class PackageController < ApplicationController
   end
 
   def binaries
-    return if @spider_bot
     required_parameters :repository
     @repository = params[:repository]
     begin
@@ -118,12 +120,16 @@ class PackageController < ApplicationController
   end
 
   def files
+    if (params[:rev] || params[:srcmd5]) && lockout_spiders
+       return
+    end
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
     @srcmd5   = params[:srcmd5]
     @revision = params[:rev]
     @current_rev = Package.current_rev(@project, @package.name)
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
+    @expand = 0 if @spider_bot
     begin
       set_file_details
     rescue ActiveXML::Transport::Error => e
