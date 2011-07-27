@@ -1,0 +1,30 @@
+OBS Continuous Integration
+==========================
+
+This directory contains scripts and configuration templates to setup a
+Continuous Integration (CI) environment based on Hudson/Jenkins.
+
+
+OBS job setup
+-------------
+
+The following list of CI jobs should be set up as described in their
+corresponding helper scripts:
+
+ * obs_common
+ * obs_testsuite_api
+ * obs_testsuite_webui
+
+
+Plugin dependencies
+-------------------
+
+Next to Hudson/Jenkins, you need to have the following list of plugins
+installed:
+
+ * Jenkins GIT plugin
+ * Copy Artifacts
+ * Jenkins Rake plugin
+ * Jenkins ruby metrics plugin
+ * Hudson Ruby Plugin
+
