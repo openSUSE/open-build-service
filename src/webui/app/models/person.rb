@@ -80,7 +80,7 @@ class Person < ActiveXML::Base
     return nil unless watches? name
     watchlist.delete_element "project[@name='#{name}']"
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
-    @@person_cache.remove(login)
+    @@person_cache.delete(login)
   end
 
   def watches?(name)
