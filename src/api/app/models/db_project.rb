@@ -1142,13 +1142,13 @@ class DbProject < ActiveRecord::Base
     ret = 'enable' if ret == :enabled
     ret = 'disable' if ret == :disabled
     # we allow to only check the return value
-    builder.tag! ret, opts if builder
+    builder.send(ret, opts) if builder
     return ret
   end
 
   # give out the XML for all repos/arch combos
   def expand_flags(builder, flag_name, pkg_flags = nil)
-    builder.tag! flag_name do
+    builder.send(flag_name) do
       flaglist = self.type_flags(flag_name)
       flag_default = FlagHelper.default_for(flag_name)
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
