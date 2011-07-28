@@ -287,7 +287,16 @@ sub signjob {
       if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
 	close F;
-	die("sign $jobdir/$signfile failed: $?\n");
+	print("sign failed: $? - checking digest\n");
+        if (system('rpm', '--checksig', '--nodigest', "$jobdir/$signfile")) {
+	  print("rpm checksig failed: $? - restarting job\n");
+	  BSUtil::cleandir($jobdir);
+	  rmdir($jobdir);
+	  unlink("$jobsdir/$arch/$job:status");
+	  close F;
+	  return undef;
+	}
+	die("sign $jobdir/$signfile failed\n");
       }
     }
     unlink("$uploaddir/signer.$$") if $signkey;
