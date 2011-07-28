@@ -3795,9 +3795,12 @@ sub sourcediff {
       die("bad link: $ofiles\n") unless ref $ofiles;
     }
   }
-  $cgi->{'unified'} = 2 if $cgi->{'unifiedmd5'};
+  my $view = $cgi->{'view'} || '';
+  $view = 'unified' if $cgi->{'unified'};
+  die("unsupported view '$view'\n") if $view && ($view ne 'xml' && $view ne 'unified');
   my $cacheid = "$orev->{'srcmd5'}/$rev->{'srcmd5'}";
-  $cacheid .= "/unified:$cgi->{'unified'}" if $cgi->{'unified'};
+  $cacheid .= "/unified:1" if $view && $view eq 'unified';
+  $cacheid .= "/view:$cgi->{'view'}" if $view && $view ne 'unified';
   $cacheid .= "/fmax:$fmax" if defined $fmax;
   $cacheid .= "/tmax:$tmax" if defined $tmax;
   if ($cgi->{'file'}) {
@@ -3811,19 +3814,42 @@ sub sourcediff {
     }
   }
   $cacheid = Digest::MD5::md5_hex($cacheid);
-  return ('', 'Content-Type: text/plain') unless grep {($ofiles->{$_} || '') ne ($files->{$_} || '')} (keys %$ofiles, keys %$files);
+  my $xmlret;
+  if ($view eq 'xml') {
+    $xmlret = {};
+    $rev->{'rev'} ||= 0;
+    $rev->{'srcmd5'} = 'd41d8cd98f00b204e9800998ecf8427e' if $rev->{'srcmd5'} eq 'empty';
+    $orev->{'rev'} ||= 0;
+    $orev->{'srcmd5'} = 'd41d8cd98f00b204e9800998ecf8427e' if $rev->{'srcmd5'} eq 'empty';
+    $xmlret->{'old'} = { 'project' => $orev->{'project'}, 'package' => $orev->{'package'}, 'rev' => $orev->{'rev'}, 'srcmd5' => $orev->{'srcmd5'} };
+    $xmlret->{'new'} = { 'project' => $rev->{'project'}, 'package' => $rev->{'package'}, 'rev' => $rev->{'rev'}, 'srcmd5' => $rev->{'srcmd5'} };
+    $xmlret->{'files'} = {};
+  }
+  if (!grep {($ofiles->{$_} || '') ne ($files->{$_} || '')} (keys %$ofiles, keys %$files)) {
+    # all files identical, don't bother
+    return ($xmlret, $BSXML::sourcediff) if $view eq 'xml';
+    return ('', 'Content-Type: text/plain');
+  }
   local *F;
   my $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
   if (open(F, '<', $cn)) {
     utime(time, time, $cn);
-    BSServer::reply_file(\*F, 'Content-Type: text/plain');
+    BSServer::reply_file(\*F, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
     return undef;
   }
   my $tmpdir = "$uploaddir/srcdiff$$";
-  my $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $fmax, $tmax, $tmpdir, $cgi->{'unified'});
+  my $d;
+  if ($view eq 'xml') {
+    my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax);
+    $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, %opts) };
+    BSUtil::data2utf8xml($xmlret);
+    $d = XMLout($BSXML::sourcediff, $xmlret);
+  } else {
+    $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $fmax, $tmax, $tmpdir, $view eq 'unified' ? 1 : 0);
+  }
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));
   writestr("$diffcache/.new$$", $cn, $d);
-  return ($d, 'Content-Type: text/plain');
+  return ($d, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
 }
 
 sub linkdiff {
@@ -6337,9 +6363,9 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? unifiedmd5:bool?' => \&sourcediff,
-  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? unifiedmd5:bool?' => \&linkdiff,
-  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? unifiedmd5:bool?' => \&servicediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? withhistory:bool? noservice:bool?' => \&sourcecopy,

@@ -1285,4 +1285,37 @@ our $prestodelta = [
       [ $deltapackage ],
 ];
 
+our $sourcediff = [
+    'sourcediff' =>
+      [ 'old' =>
+	    'project',
+	    'package',
+	    'rev',
+	    'srcmd5',
+      ],
+      [ 'new' =>
+	    'project',
+	    'package',
+	    'rev',
+	    'srcmd5',
+      ],
+      [ 'files' =>
+	 [[ 'file' =>
+		'state',	# added, deleted, changed
+	      [ 'old' =>
+		    'name',
+	      ],
+	      [ 'new' =>
+		    'name',
+	      ],
+	      [ 'diff' =>
+		    'binary',
+		    'lines',
+		    'shown',
+		    '_content',
+              ],
+         ]],
+      ],
+];
+
 1;

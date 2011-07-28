@@ -121,13 +121,20 @@ sub extracttar {
   close(F) || die("tar: $!\n");
 }
 
+#
+# diff file f1 against file f2
+#
 sub filediff {
-  my ($f1, $f2, $p1, $p2, $max, $arg, $lcntp, $noarchive) = @_;
-  $arg ||= '-u';
+  my ($f1, $f2, %opts) = @_;
 
-  return '' unless defined($f1) || defined($f2);
+  my $nodecomp = $opts{'nodecomp'};
+  my $arg = $opts{'diffarg'} || '-u';
+  my $max = $opts{'fmax'};
 
-  # the hard part: two real files
+  if (!defined($f1) && !defined($f2)) {
+    return { 'lines' => 0 , '_content' => ''};
+  }
+
   local *D;
   my $pid = open(D, '-|');
   if (!$pid) {
@@ -135,22 +142,22 @@ sub filediff {
     local *F2;
     if (!defined($f1) || ref($f1)) {
       open(F1, "<", '/dev/null') || die("open /dev/null: $!\n");
-    } elsif (!$noarchive && $f1 =~ /\.gz$/i) {
+    } elsif (!$nodecomp && $f1 =~ /\.gz$/i) {
       open(F1, "-|", 'gunzip', '-dc', $f1) || die("open $f1: $!\n");
-    } elsif (!$noarchive && $f1 =~ /\.bz2$/i) {
+    } elsif (!$nodecomp && $f1 =~ /\.bz2$/i) {
       open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
-    } elsif (!$noarchive && $f1 =~ /\.xz$/i) {
+    } elsif (!$nodecomp && $f1 =~ /\.xz$/i) {
       open(F1, "-|", 'xz', '-dc', $f1) || die("open $f1: $!\n");
     } else {
       open(F1, '<', $f1) || die("open $f1: $!\n");
     }
     if (!defined($f2) || ref($f2)) {
       open(F2, "<", '/dev/null') || die("open /dev/null: $!\n");
-    } elsif (!$noarchive && $f2 =~ /\.gz$/i) {
+    } elsif (!$nodecomp && $f2 =~ /\.gz$/i) {
       open(F2, "-|", 'gunzip', '-dc', $f2) || die("open $f2: $!\n");
-    } elsif (!$noarchive && $f2 =~ /\.bz2$/i) {
+    } elsif (!$nodecomp && $f2 =~ /\.bz2$/i) {
       open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
-    } elsif (!$noarchive && $f2 =~ /\.xz$/i) {
+    } elsif (!$nodecomp && $f2 =~ /\.xz$/i) {
       open(F2, "-|", 'xz', '-dc', $f2) || die("open $f2: $!\n");
     } else {
       open(F2, '<', $f2) || die("open $f2: $!\n");
@@ -160,59 +167,62 @@ sub filediff {
     exec 'diff', $arg, '/dev/fd/'.fileno(F1), '/dev/fd/'.fileno(F2);
     die("diff: $!\n");
   }
-  my $lcnt = 0;
-  $lcnt = $$lcntp if $lcntp;
+  my $lcnt = $opts{'linestart'} || 0;
   my $d = '';
   my $havediff;
-  while(<D>) {
-    next if /^diff/;
-    $lcnt++;
-    if (!defined($max) || $lcnt <= $max) {
-      s/^--- \/dev\/fd\/\d+.*/--- $p1/;
-      if (s/^\+\+\+ \/dev\/fd\/\d+.*/+++ $p2/) {
-	$havediff = 1;
+  my $binary;
+  while (<D>) {
+    if (!$havediff) {
+      next if /^diff/;
+      next if /^--- \/dev\/fd\/\d+/;
+      if (/^\+\+\+ \/dev\/fd\/\d+/) {
 	if (defined($f1) && ref($f1)) {
-          $d .= $_;
 	  $d .= "-$_\n" for @$f1;
 	  $lcnt += @$f1;
-	  next;
 	}
+        $havediff = 1;
+	next;
       }
-      if (s/^(?:Binary )?[fF]iles \/dev\/fd\/\d+ and \/dev\/fd\/\d+ differ.*/Binary files $p1 and $p2 differ/) {
-        if (!defined($f1)) {
-	  $_ = "Binary file $p2 added\n";
-	} elsif (!defined($f2)) {
-	  $_ = "Binary file $p1 deleted\n";
-	}
+      if (/^(?:Binary )?[fF]iles \/dev\/fd\/\d+ and \/dev\/fd\/\d+ differ/) {
+        $binary = 1;
+	last;
       }
+    }
+    $lcnt++;
+    if (!defined($max) || $lcnt <= $max) {
       $d .= $_;
     }
   }
-  if ($d eq '' && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
-    $d .= "--- $p1\n";
-    $d .= "+++ $p2\n";
-    $lcnt += 2;
+  close(D);
+  if ($d eq '' && !$havediff && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
     $havediff = 1;
     if (defined($f1) && ref($f1)) {
       $d .= "-$_\n" for @$f1;
       $lcnt += @$f1;
     }
   }
-  close(D);
   if ($havediff && defined($f2) && ref($f2)) {
     $d .= "+$_\n" for @$f2;
     $lcnt += @$f2;
   }
-  if (defined($max) && $lcnt > $max) {
-    $d .= "(".($lcnt - $max)." more lines skipped)\n";
+  my $ret = {};
+  if (!defined($f1)) {
+    $ret->{'state'} = 'added';
+  } elsif (!defined($f2)) {
+    $ret->{'state'} = 'deleted';
+  } else {
+    $ret->{'state'} = 'changed';
   }
-  $$lcntp = $lcnt if $lcntp;
-  return $d;
+  $ret->{'binary'} = 1 if $binary;
+  $ret->{'lines'} = $lcnt;
+  $ret->{'shown'} = $max if defined($max) && $lcnt > $max;
+  $ret->{'_content'} = $d;
+  return $ret;
 }
 
 sub fixup {
   my ($e) = @_;
-  return (undef) unless defined $e;
+  return undef unless defined $e;
   if ($e->{'type'} eq 'd') {
     return [ '(directory)' ];
   } elsif ($e->{'type'} eq 'b') {
@@ -228,8 +238,53 @@ sub fixup {
   }
 }
 
+sub adddiffheader {
+  my ($r, $p1, $p2) = @_;
+  my ($h, $hl);
+  my $state = $r->{'state'} || 'changed';
+  $r->{'_content'} = '' unless defined $r->{'_content'};
+  if ($r->{'binary'}) {
+    if (defined($p1) && defined($p2) && $state eq 'changed') {
+      $h = "Binary files $p1 and $p2 differ\n";
+    } elsif (defined($p1) && $state ne 'added') {
+      $h = "Binary files $p1 deleted\n";
+    } elsif (defined($p2) && $state ne 'deleted') {
+      $h = "Binary files $p2 added\n";
+    }
+    $hl = 1;
+  } else {
+    if (defined($p1) && defined($p2) && $state eq 'changed') {
+      $h = "--- $p1\n+++ $p2\n";
+    } elsif (defined($p1) && $state ne 'added') {
+      $p2 = $p1 unless defined $p2;
+      $h = "--- $p1\n+++ $p2\n";
+    } elsif (defined($p2) && $state ne 'deleted') {
+      $p1 = $p2 unless defined $p1;
+      $h = "--- $p1\n+++ $p2\n";
+    }
+    $hl = 2;
+  }
+  if ($h) {
+    $r->{'_content'} = $h . $r->{'_content'};
+    $r->{'lines'} += $hl;
+    $r->{'shown'} += $hl if defined $r->{'shown'};
+  }
+  if (defined($r->{'shown'})) {
+    if ($r->{'shown'}) {
+      $r->{'_content'} .= "(".($r->{'lines'} - $r->{'shown'})." more lines skipped)\n";
+    } else {
+      $r->{'_content'} .= "(".($r->{'lines'})." lines skipped)\n";
+    }
+  }
+  return $r->{'_content'};
+}
+
 sub tardiff {
-  my ($f1, $f2, $p1, $p2, $max, $edir) = @_;
+  my ($f1, $f2, %opts) = @_;
+
+  my $max = $opts{'tmax'};
+  my $edir = $opts{'edir'};
+
   my @l1 = listtar($f1);
   my @l2 = listtar($f2);
 
@@ -299,30 +354,35 @@ sub tardiff {
   }
   my $lcnt = 0;
   my $d = '';
+  my @ret;
+  my $fmax = $max;
   for my $f (@f) {
     next if $f eq '';
     if ($ren{$f}) {
-      $d .= "--- $f\n";
-      $d .= "+++ $f\n";
+      my $r = {'lines' => 1, 'name' => $f};
       if ($l1{$f}) {
-	$d .= "(renamed to $ren{$f})\n";
+	$r->{'_content'} = "(renamed to $ren{$f})\n";
       } else {
-	$d .= "(renamed from $ren{$f})\n";
+	$r->{'_content'} = "(renamed from $ren{$f})\n";
       }
-      $lcnt += 3;
+      push @ret, $r;
+      $lcnt += $r->{'lines'};
       next;
     }
+    next unless $l1{$f} || $l2{$f};
     if ($l1{$f} && $l2{$f}) {
       next if $l1{$f}->{'type'} eq $l2{$f}->{'type'} && (!defined($l1{$f}->{'info'}) || $l1{$f}->{'info'} eq $l2{$f}->{'info'});
-      $d .= filediff(fixup($l1{$f}), fixup($l2{$f}), $f, $f, $max, undef, \$lcnt);
-    } elsif ($l1{$f}) {
-      $d .= filediff(fixup($l1{$f}), undef, $f, $f, $max, undef, \$lcnt);
-    } elsif ($l2{$f}) {
-      $d .= filediff(undef, fixup($l2{$f}), $f, $f, $max, undef, \$lcnt);
     }
+    $fmax = $max > $lcnt ? $max - $lcnt : 0 if defined $max;
+    my $r = filediff(fixup($l1{$f}), fixup($l2{$f}), %opts, 'fmax' => $fmax);
+    $r->{'name'} = $f;
+
+    push @ret, $r;
+    $lcnt += $r->{'lines'};
   }
   if (defined($max) && $lcnt > $max) {
-    $d = "$lcnt lines of diff (skipped)\n";
+    my $r = {'lines' => $lcnt, 'shown' => 0};
+    @ret = ($r);
   }
   while ($e1cnt > 0) {
     $e1cnt--;
@@ -333,7 +393,7 @@ sub tardiff {
     unlink("$edir/b$e2cnt");
   }
   rmdir($edir);
-  return $d;
+  return @ret;
 }
 
 my @simclasses = (
@@ -345,22 +405,23 @@ my @simclasses = (
 );
 
 sub findsim {
-  my ($s, @f) = @_;
+  my ($of, @f) = @_;
 
-  my %s = map {$_ => 1} @$s;
+  my %s = map {$_ => 1} @$of;	# old file pool
   my %sim;
 
-  my %fc;
-  my %ft;
+  my %fc;	# file base name
+  my %ft;	# file class
 
   for my $f (@f) {
     if ($s{$f}) {
-      $sim{$f} = $f;
+      $sim{$f} = $f;	# trivial mapped
       delete $s{$f};
     }
   }
 
-  for my $f (@f, @$s) {
+  # classify all files
+  for my $f (@f, @$of) {
     next if $sim{$f};	# trivial mapped
     next unless $f =~ /\./;
     next if exists $fc{$f};
@@ -381,6 +442,7 @@ sub findsim {
     }
   }
 
+  # first pass: exact matches
   for my $f (grep {!exists($sim{$_})} @f) {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
@@ -392,6 +454,7 @@ sub findsim {
     }
   }
 
+  # second pass: ignore version
   for my $f (grep {!exists($sim{$_})} @f) {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
@@ -414,9 +477,10 @@ sub findsim {
 }
 
 sub srcdiff {
-  my ($pold, $old, $pnew, $new, $fmax, $tmax, $edir) = @_;
+  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
 
   my $d = '';
+  my $fmax = $opts{'fmax'};
 
   my @old = sort keys %$old;
   my @new = sort keys %$new;
@@ -452,17 +516,19 @@ sub srcdiff {
       $d .= "$extra files:\n";
       $d .= "-------".('-' x length($extra))."\n";
     }
+    my $arg = '-ub';
+    $arg = '-U0' if $extra eq 'changes';
     for my $f (@xnew) {
       if ($xold{$f}) {
         my $of = $f;
         delete $xold{$of};
         next if $old->{$of} eq $new->{$f};
-	my $arg = '-ub';
-	$arg = '-U0' if $extra eq 'changes';
-        $d .= filediff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", $of, $f, undef, $arg);
+	my $r = filediff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts, 'diffarg' => $arg, 'fmax' => undef);
+	$d .= adddiffheader($r, $of, $f);
       } else {
         $d .= "\n++++++ new $extra file:\n";
-        $d .= filediff(undef, "$pnew/$new->{$f}-$f", $f, $f);
+	my $r = filediff(undef, "$pnew/$new->{$f}-$f", %opts, 'diffarg' => $arg, 'fmax' => undef);
+	$d .= adddiffheader($r, undef, $f);
       }
     }
     if (%xold) {
@@ -491,7 +557,10 @@ sub srcdiff {
     }
     if ($f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz)$/) {
       if (defined $of) {
-        $d .= tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", $of, $f, $tmax, $edir);
+        my @r = tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
+	for my $r (@r) {
+	  $d .= adddiffheader($r, $r->{'name'}, $r->{'name'});
+	}
         next;
       } else {
 	$d .= "\n++++++ $f (new)\n";
@@ -499,10 +568,12 @@ sub srcdiff {
       }
     }
     if (defined $of) {
-      $d .= filediff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", $of, $f, $fmax);
+      my $r = filediff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
+      $d .= adddiffheader($r, $of, $f);
     } else {
       $d .= "\n++++++ $f (new)\n";
-      $d .= filediff(undef, "$pnew/$new->{$f}-$f", $f, $f, $fmax);
+      my $r = filediff(undef, "$pnew/$new->{$f}-$f", %opts);
+      $d .= adddiffheader($r, $of, $f);
     }
   }
   if (%oold) {
@@ -514,70 +585,101 @@ sub srcdiff {
   return $d;
 }
 
-sub ubeautify {
-  my ($d, $f, $orev, $rev) = @_;
-  $d =~ s/(--- \Q$f\E)$/$1 (revision \Q$orev\E)/m if defined $orev;
-  $d =~ s/((?:\+\+\+|---) \Q$f\E)$/$1 (revision \Q$rev\E)/m if defined $rev;
-  return $d;
-}
-
-sub udiffhdr {
-  my ($unified, $f, $fmd5, $tmd5) = @_;
-  my $hdr;
-  if ($unified && $unified == 2) {
-    $fmd5 ||= 'd41d8cd98f00b204e9800998ecf8427e';
-    $tmd5 ||= 'd41d8cd98f00b204e9800998ecf8427e';
-    return "Index: $f $fmd5 $tmd5\n" . ("=" x 67) . "\n";
-  } else {
-    return "Index: $f\n" . ("=" x 67) . "\n";
-  }
-}
-
 sub udiff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $unified) = @_;
+  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
+
+  $opts{'nodecomp'} = 1;
   my @changed;
   my @added;
   my @deleted;
   for (sort(keys %{ { %$old, %$new } })) {
     if (!defined($old->{$_})) {
       push @added, $_;
-    } elsif (!defined($old->{$_})) {
+    } elsif (!defined($new->{$_})) {
       push @deleted, $_;
     } elsif ($old->{$_} ne $new->{$_}) {
       push @changed, $_;
     }
   }
+  my $orevb = defined($orev) ? " (revision $orev)" : '';
+  my $revb = defined($rev) ? " (revision $rev)" : '';
   my $d = '';
   for my $f (@changed) {
-    $d .= udiffhdr($unified, $f, $old->{$f}, $new->{$f});
-    my $r .= filediff("$pold/$old->{$f}-$f", "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, undef, 1);
-    $d .= ubeautify($r, $f, $orev, $rev);
+    $d .= "Index: $f\n" . ("=" x 67) . "\n";
+    my $r = filediff("$pold/$old->{$f}-$f", "$pnew/$new->{$f}-$f", %opts);
+    $d .= adddiffheader($r, "$f$orevb", "$f$revb");
   }
   for my $f (@added) {
-    $d .= udiffhdr($unified, $f, undef, $new->{$f});
-    my $lcnt = -2;
-    my $r = filediff(undef, "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, \$lcnt, 1);
-    $r =~ s/(\Q+++ $f\E)$/$1\n@@ -0,0 +1,\Q$lcnt\E @@/m;
-    $r = ubeautify($r, $f, 0, $rev);
-    $d .= $r eq '' ? "Binary file $f added\n" : $r;
+    $d .= "Index: $f\n" . ("=" x 67) . "\n";
+    my $r = filediff(undef, "$pnew/$new->{$f}-$f", %opts);
+    $d .= adddiffheader($r, "$f (added)", "$f$revb");
   }
   for my $f (@deleted) {
-    $d .= udiffhdr($unified, $f, $old->{$f}, undef);
-    my $lcnt = -2;
-    my $r = filediff("$pold/$old->{$f}-$f", undef, $f, $f, $fmax, undef, \$lcnt, 1);
-    $r =~ s/(\Q+++ $f\E)$/$1\n@@ -1,\Q$lcnt\E \+0,0 @@/m;
-    $r = ubeautify($r, $f, $orev, $rev);
-    $d .= $r eq '' ? "Binary file $f deleted\n" : $r if $lcnt;
+    $d .= "Index: $f\n" . ("=" x 67) . "\n";
+    my $r = filediff("$pold/$old->{$f}-$f", undef, %opts);
+    $d .= adddiffheader($r, "$f$orevb", "$f (deleted)");
   }
   return $d;
 }
 
+sub datadiff {
+  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
+
+  my @changed;
+  my @added;
+  my @deleted;
+
+  my $sim;
+  if ($opts{'similar'}) {
+    $sim = findsim([ keys %$old ], keys %$new);
+  }
+
+  my %done;
+  my @ret;
+  for my $f (sort(keys %$new)) {
+    my $of = $f;
+    $of = $sim->{$f} if defined $sim->{$f};
+    $done{$of} = 1;
+    if (!defined($old->{$of})) {
+      my $r = filediff(undef, "$pnew/$new->{$f}-$f", %opts);
+      delete $r->{'state'};
+      push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f}};
+    } elsif ($old->{$of} ne $new->{$f}) {
+      if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz)$/) {
+        my @r = tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
+	for my $r (@r) {
+	  my $n = delete($r->{'name'});
+	  my $state = delete($r->{'state'});
+	  $n = defined($n) ? "/$n" : '';
+	  $state ||= 'changed';
+	  push @changed, {'state' => $state, 'diff' => $r, 'old' => {'name' => "$of$n"}, 'new' => {'name' => "$f$n"}};
+	}
+      } else {
+        my $r = filediff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
+	delete $r->{'state'};
+        push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of}, 'new' => {'name' => $f}};
+      }
+    }
+  }
+  for my $of (grep {!$done{$_}} sort(keys %$old)) {
+    my $r = filediff("$pold/$old->{$of}-$of", undef, %opts);
+    delete $r->{'state'};
+    push @added, {'state' => 'deleted', 'diff' => $r, 'old' => {'name' => $of}};
+  }
+  return [ @changed, @added, @deleted ];
+}
+
 sub diff {
   my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $tmax, $edir, $unified) = @_;
+  my %opts;
+  $opts{'fmax'} = $fmax if defined $fmax;
+  $opts{'tmax'} = $tmax if defined $tmax;
+  $opts{'edir'} = $edir if defined $edir;
   if ($unified) {
-    return udiff($pold, $old, $orev, $pnew, $new, $rev, $fmax, $unified)
+    return udiff($pold, $old, $orev, $pnew, $new, $rev, %opts);
   } else {
-    return srcdiff($pold, $old, $pnew, $new, $fmax, $tmax, $edir);
+    $opts{'doarchive'} = 1;
+    return srcdiff($pold, $old, $orev, $pnew, $new, $rev, %opts);
   }
 }
 
