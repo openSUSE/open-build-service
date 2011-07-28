@@ -9,8 +9,8 @@ class IssueTrackersController < ApplicationController
     @issue_trackers = IssueTracker.all(:include => :acronyms)
 
     respond_to do |format|
-      format.xml  { render :xml => @issue_trackers.to_xml(:include => :acronyms) }
-      format.json { render :json => @issue_trackers.to_json(:include => :acronyms) }
+      format.xml  { render :xml => @issue_trackers.to_xml(:include => { :acronyms => { :only => :name } }) }
+      format.json { render :json => @issue_trackers.to_json(:include => { :acronyms => { :only => :name } }) }
     end
   end
 
@@ -28,8 +28,8 @@ class IssueTrackersController < ApplicationController
     @issue_tracker = IssueTracker.find(issue_tracker_acronym.issue_tracker_id)
 
     respond_to do |format|
-      format.xml  { render :xml => @issue_tracker.to_xml(:include => :acronyms) }
-      format.json { render :json => @issue_tracker.to_json(:include => :acronyms) }
+      format.xml  { render :xml => @issue_tracker.to_xml(:include => { :acronyms => { :only => :name } }) }
+      format.json { render :json => @issue_tracker.to_json(:include => { :acronyms => { :only => :name } }) }
     end
   end
 
@@ -55,8 +55,8 @@ class IssueTrackersController < ApplicationController
 
     respond_to do |format|
       if success
-        format.xml  { render :xml => @issue_tracker.to_xml(:include => :acronyms), :status => :created, :location => @issue_tracker }
-        format.json { render :json => @issue_tracker.to_json(:include => :acronyms), :status => :created, :location => @issue_tracker }
+        format.xml  { render :xml => @issue_tracker.to_xml(:include => { :acronyms => { :only => :name } }), :status => :created, :location => @issue_tracker }
+        format.json { render :json => @issue_tracker.to_json(:include => { :acronyms => { :only => :name } }), :status => :created, :location => @issue_tracker }
       else
         format.xml  { render :xml => @issue_tracker.errors, :status => :unprocessable_entity }
         format.json { render :json => @issue_tracker.errors, :status => :unprocessable_entity }
