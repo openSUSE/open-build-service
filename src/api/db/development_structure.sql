@@ -279,6 +279,21 @@ CREATE TABLE `incident_counter` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `issue_tracker_acronyms` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `issue_tracker_id` int(11) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `issue_trackers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `show_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -747,6 +762,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110711001200');
 INSERT INTO schema_migrations (version) VALUES ('20110719142500');
 
 INSERT INTO schema_migrations (version) VALUES ('20110725105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20110728072502');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
