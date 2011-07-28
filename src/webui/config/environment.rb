@@ -143,6 +143,7 @@ ActiveXML::Base.config do |conf|
     map.connect :architecture, "rest:///architectures/:name", :all => "rest:///architectures/", 
                 :available => "rest:///architectures?available=1"
     map.connect :configuration, "rest:///configuration/"
+    map.connect :issuetracker, "rest:///issue_trackers/:name", :all => "rest:///issue_trackers/"
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
