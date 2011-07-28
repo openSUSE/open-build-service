@@ -386,7 +386,7 @@ class RequestController < ApplicationController
         end
       end
 
-      if action.has_element?('target') and action.target.has_attribute?('project')
+      if action.has_element?('target') and action.target.has_attribute?('project') and action.value('type') == 'submit'
         tprj = DbProject.get_by_name action.target.project
         if tprj.class == DbProject and a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first
           render_error :status => 403, :errorcode => 'request_rejected',
