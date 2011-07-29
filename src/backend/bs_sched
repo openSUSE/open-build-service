@@ -4158,6 +4158,8 @@ my $schedulerstart = time();
 my $gotevent = 1;
 $gotevent = 0 if $testprojid;
 
+my $lastschedinfo = 0;
+
 while(1) {
   if (%changed_low || %changed_med || %changed_high) {
     changed2lookat(\%changed_low, \%changed_med, \%changed_high, \@lookat_high, \@lookat_med, \%lookat_next);
@@ -5894,35 +5896,38 @@ relsynccheck:
   }
   $prplastcheck{$prp} = $now;
 
-  # update scheduler stats
-  my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
-  $sinfo->{'projects'} = keys %$projpacks;
-  $sinfo->{'repositories'} = @prps;
-  my $unfinishedsum = 0;
-  $unfinishedsum += $_ for values %prpunfinished;
-  $sinfo->{'notready'} = $unfinishedsum;
-  $sinfo->{'queue'} = {};
-  $sinfo->{'queue'}->{'high'} = @lookat_high;
-  $sinfo->{'queue'}->{'med'} = @lookat_med;
-  $sinfo->{'queue'}->{'low'} = @lookat_low;
-  $sinfo->{'queue'}->{'next'} = keys %lookat_next;
-  my $sum = 0;
-  my $sum2 = 0;
-  my $n = keys %prpchecktimes;
-  for my $prp (sort keys %prpchecktimes) {
-    my $t = $prpchecktimes{$prp};
-    $sum += $t;
-    $sum2 += $t * $t;
+  if ($now - $lastschedinfo > 60) {
+    # update scheduler stats
+    my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
+    $sinfo->{'projects'} = keys %$projpacks;
+    $sinfo->{'repositories'} = @prps;
+    my $unfinishedsum = 0;
+    $unfinishedsum += $_ for values %prpunfinished;
+    $sinfo->{'notready'} = $unfinishedsum;
+    $sinfo->{'queue'} = {};
+    $sinfo->{'queue'}->{'high'} = @lookat_high;
+    $sinfo->{'queue'}->{'med'} = @lookat_med;
+    $sinfo->{'queue'}->{'low'} = @lookat_low;
+    $sinfo->{'queue'}->{'next'} = keys %lookat_next;
+    my $sum = 0;
+    my $sum2 = 0;
+    my $n = keys %prpchecktimes;
+    for my $prp (sort keys %prpchecktimes) {
+      my $t = $prpchecktimes{$prp};
+      $sum += $t;
+      $sum2 += $t * $t;
+    }
+    $sinfo->{'avg'} = $sum / $n;
+    $sinfo->{'variance'} = sqrt(abs(($sum2 - $sum * $sum / $n) / $n));
+    for my $prp (splice(@{[sort {$prpchecktimes{$b} <=> $prpchecktimes{$a}} keys %prpchecktimes]}, 0, 10)) {
+      my ($projid, $repoid) = split('/', $prp, 2);
+      my $worst = {'project' => $projid, 'repository' => $repoid};
+      $worst->{'packages'} = keys %{($projpacks->{$projid} || {})->{'package'} || {}};
+      $worst->{'time'} = $prpchecktimes{$prp};
+      push @{$sinfo->{'worst'}}, $worst;
+    }
+    $sinfo->{'buildavg'} = $buildavg;
+    writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
+    $lastschedinfo = $now;
   }
-  $sinfo->{'avg'} = $sum / $n;
-  $sinfo->{'variance'} = sqrt(abs(($sum2 - $sum * $sum / $n) / $n));
-  for my $prp (splice(@{[sort {$prpchecktimes{$b} <=> $prpchecktimes{$a}} keys %prpchecktimes]}, 0, 10)) {
-    my ($projid, $repoid) = split('/', $prp, 2);
-    my $worst = {'project' => $projid, 'repository' => $repoid};
-    $worst->{'packages'} = keys %{($projpacks->{$projid} || {})->{'package'} || {}};
-    $worst->{'time'} = $prpchecktimes{$prp};
-    push @{$sinfo->{'worst'}}, $worst;
-  }
-  $sinfo->{'buildavg'} = $buildavg;
-  writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
 }
