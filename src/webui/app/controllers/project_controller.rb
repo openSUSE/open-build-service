@@ -997,13 +997,12 @@ class ProjectController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       @meta = params[:meta]
-      edit_meta
-      return
+      render :template => "project/edit_meta" and return
     end
 
     flash[:note] = "Config successfully saved"
     Project.free_cache params[:project]
-    redirect_to :action => :meta, :project => params[:project]
+    redirect_to :action => :meta, :project => params[:project] and return
   end
 
   def clear_failed_comment
