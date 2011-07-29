@@ -608,14 +608,14 @@ class SourceController < ApplicationController
       end
 
       # parse xml structure of uploaded data
-      rdata = REXML::Document.new(request.raw_post.to_s)
+      rdata = ActiveXML::Base.new(request.raw_post.to_s)
 
       # Need permission
       logger.debug "Checking permission for the put"
       if prj
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         ignoreLock = nil
-        ignoreLock = 1 if rdata.elements["/project/lock/disable"]
+        ignoreLock = 1 if rdata.has_element?("lock/disable")
 
         # project exists, change it
         unless @http_user.can_modify_project?(prj, ignoreLock)
@@ -651,9 +651,9 @@ class SourceController < ApplicationController
       end
 
       # the following code checks if the target project of a linked project exists or is not readable by user
-      rdata.elements.each("project/link") do |e|
+      rdata.each_link do |e|
         # permissions check
-        tproject_name = e.attributes["project"]
+        tproject_name = e.value("project")
         tprj = DbProject.get_by_name(tproject_name)
 
         # The read access protection for own and linked project must be the same.
@@ -668,9 +668,9 @@ class SourceController < ApplicationController
       end
 
       # Check used repo pathes for existens and read access permissions
-      rdata.elements.each("project/repository/path") do |e|
+      rdata.each("repository/path") do |e|
         # permissions check
-        tproject_name = e.attributes["project"]
+        tproject_name = e.value("project")
         tprj = DbProject.get_by_name(tproject_name)
         if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
           render_error :status => 404, :errorcode => "repository_access_failure" ,
@@ -685,7 +685,7 @@ class SourceController < ApplicationController
       removedRepositories = Array.new
       if prj
         prj.repositories.each do |repo|
-          if rdata.elements.each("project/repository/@name=#{CGI.escape(repo.name)}").length == 0 and not repo.remote_project_name
+          if !rdata.has_element?("repository[@name='#{repo.name}']") and not repo.remote_project_name
             repo.linking_repositories.each do |lrep|
               removedRepositories << lrep
             end
@@ -713,26 +713,24 @@ class SourceController < ApplicationController
 
       # Check for maintenance-related parts
       # The attribute 'type' is only set for maintenance and maintenance incident projects.
-      kind_element = rdata.elements["project/@kind"]
-      if kind_element
-        if kind_element.value == "maintenance"
-          if prj
-            # First remove all maintained project relations, if project exists already
-            DbProject.find_all_by_maintenance_project_id(prj.id).each do |maintained_project|
-              maintained_project.maintenance_project_id = nil
-              maintained_project.save
-            end
-          end
-          # Set this project as the maintenance project for all maintained projects found in the XML
-          rdata.elements.each("project/maintenance/maintains") do |maintains|
-            maintained_project = DbProject.get_by_name(maintains.attributes['project'])
-            maintained_project.maintenance_project_id = prj.id
+      kind_element = rdata.value(:kind)
+      if kind_element == "maintenance"
+        if prj
+          # First remove all maintained project relations, if project exists already
+          DbProject.find_all_by_maintenance_project_id(prj.id).each do |maintained_project|
+            maintained_project.maintenance_project_id = nil
             maintained_project.save
           end
-        elsif kind_element.value == "maintenance_incident"
-          # Handle maintenance incident project data
-          #TODO
         end
+        # Set this project as the maintenance project for all maintained projects found in the XML
+        rdata.each("maintenance/maintains") do |maintains|
+          maintained_project = DbProject.get_by_name(maintains.value('project'))
+          maintained_project.maintenance_project_id = prj.id
+          maintained_project.save
+        end
+      elsif kind_element == "maintenance_incident"
+        # Handle maintenance incident project data
+        #TODO
       end
 
       # exec
@@ -861,9 +859,9 @@ class SourceController < ApplicationController
       # check for project
       if DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links=false )
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
-        rdata = REXML::Document.new(request.raw_post.to_s)
+        rdata = ActiveXML::Base.new(request.raw_post.to_s)
         ignoreLock = nil
-        ignoreLock = 1 if rdata.elements["/package/lock/disable"]
+        ignoreLock = 1 if rdata.has_element?("lock/disable")
 
         pkg = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false )
         unless @http_user.can_modify_package?(pkg, ignoreLock)
@@ -979,12 +977,10 @@ class SourceController < ApplicationController
       end
 
       if params[:file] == "_link"
-        data = REXML::Document.new(request.raw_post.to_s)
-        data.elements.each("link") do |e|
-          tproject_name = e.attributes["project"]
-          tpackage_name = e.attributes["package"]
-          tproject_name = project_name if tproject_name.blank?
-          tpackage_name = package_name if tpackage_name.blank?
+        data = ActiveXML::Base.new(request.raw_post.to_s)
+        if data
+          tproject_name = data.value("project") || project_name
+          tpackage_name = data.value("package") || package_name
           tpkg = DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
         end
       end
@@ -1512,17 +1508,17 @@ class SourceController < ApplicationController
 
   def list_all_binaries_in_path path
     d = backend_get(path)
-    data = REXML::Document.new(d)
+    data = ActiveXML::Base.new(d)
     binaries = []
 
-    data.elements.each("directory/entry") do |e|
-      name = e.attributes["name"]
+    data.each("//directory/entry") do |e|
+      name = e.value("name")
       list_all_binaries_in_path("#{path}/#{name}").each do |l|
         binaries.push( l )
       end
     end
-    data.elements.each("binarylist/binary") do |b|
-      name = b.attributes["filename"]
+    data.each("//binarylist/binary") do |b|
+      name = b.value("filename")
       # strip main name from binary
       # patchinfos are only designed for rpms so far
       binaries.push( name.sub(/-[^-]*-[^-]*.rpm$/, '' ) )
