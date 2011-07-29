@@ -6018,11 +6018,12 @@ sub worker_getbinaryversions {
   return ($bvl, $BSXML::binaryversionlist);
 }
 
+# this is shared for AJAX requests
 my @lastev_cache;
 my @lastev_stat;
 
 sub worker_lastevents {
-  my ($cgi, $watch) = @_;
+  my ($cgi, $filter) = @_;
   if (!$cgi->{'start'}) {
     # just fetch the current event number
     my $lastev = BSFileDB::fdb_getlast("$eventdir/lastevents", $eventlay);
@@ -6033,15 +6034,16 @@ sub worker_lastevents {
   if (!$BSStdServer::isajax) {
     my @args;
     push @args, "obsname=$cgi->{'obsname'}" if $cgi->{'obsname'};
-    push @args, map {"filter=$_"} @{$watch || []};
+    push @args, map {"filter=$_"} @{$filter || []};
     push @args, "start=$cgi->{'start'}";
     BSHandoff::handoff($ajaxsocket, '/lastevents', undef, @args);
     exit(0);
   }
   BSWatcher::addfilewatcher("$eventdir/lastevents");
-  # get the last 5 events
+
   my @s = stat("$eventdir/lastevents");
   my @events;
+  my ($firstno, $nextno);
   if (@s && @lastev_stat && "$s[9]/$s[7]/$s[1]" eq "$lastev_stat[9]/$lastev_stat[7]/$lastev_stat[1]") {
     @events = @lastev_cache;
   } else {
@@ -6050,8 +6052,19 @@ sub worker_lastevents {
     @lastev_cache = @events;
     @lastev_stat = @s;
   }
-  my $firstno = @events ? $events[0]->{'number'} : 0;
-  my $nextno = @events ? $events[-1]->{'number'} + 1 : 1;
+  $firstno = @events ? $events[0]->{'number'} : 0;
+  $nextno = @events ? $events[-1]->{'number'} + 1 : 1;
+
+  if ($cgi->{'start'} < $firstno) {
+    # get last 5
+    @events = BSFileDB::fdb_getall_reverse("$eventdir/lastevents", $eventlay, 5);
+    @events = reverse @events;
+    @lastev_cache = @events;
+    @lastev_stat = @s;
+    $firstno = @events ? $events[0]->{'number'} : 0;
+    $nextno = @events ? $events[-1]->{'number'} + 1 : 1;
+  }
+
   if ($cgi->{'start'} < $firstno) {
     # we have to get them all
     @events = BSFileDB::fdb_getall("$eventdir/lastevents", $eventlay);
@@ -6063,18 +6076,19 @@ sub worker_lastevents {
       return ({'next' => $nextno, 'sync' => 'lost'}, $BSXML::events);
     }
   }
+
   # filter
   @events = grep {$_->{'number'} >= $cgi->{'start'}} @events;
-  if ($watch && @events) {
-    my %watch = map {$_ => 1} @$watch;
+  if ($filter && @events) {
+    my %filter = map {$_ => 1} @$filter;
     for my $ev (splice @events) {
       if ($ev->{'type'} eq 'package') {
         next unless defined $ev->{'package'};
-        next unless $watch{"package/$ev->{'project'}/$ev->{'package'}"} || $watch{"package/$ev->{'project'}"};
+        next unless $filter{"package/$ev->{'project'}/$ev->{'package'}"} || $filter{"package/$ev->{'project'}"};
       } elsif ($ev->{'type'} eq 'project') {
-        next unless $watch{"project/$ev->{'project'}"};
+        next unless $filter{"project/$ev->{'project'}"};
       } elsif ($ev->{'type'} eq 'repository') {
-        next unless $watch{"repository/$ev->{'project'}/$ev->{'repository'}/$ev->{'arch'}"};
+        next unless $filter{"repository/$ev->{'project'}/$ev->{'repository'}/$ev->{'arch'}"};
       } else {
 	next;
       }
