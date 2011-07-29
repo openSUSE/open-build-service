@@ -3,7 +3,6 @@
     $('#spinner').show();
     $.ajax({
       url: '<%= url_for(:controller => :request, :action => :list) %>',
-      type: 'post',
       data: {
         'states': $('#request_state_select')[0].value,
         'types': $('#request_type_select')[0].value,
