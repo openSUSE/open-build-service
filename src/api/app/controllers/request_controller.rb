@@ -386,9 +386,9 @@ class RequestController < ApplicationController
         end
       end
 
-      if action.has_element?('target') and action.target.has_attribute?('project') and action.value('type') == 'submit'
+      if action.has_element?('target') && action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
-        if tprj.class == DbProject and a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first
+        if tprj.class == DbProject && (a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first) && (action.value('type') == 'submit')
           render_error :status => 403, :errorcode => 'request_rejected',
             :message => "The target project #{action.target.project} is not accepting requests because: #{a.values.first.value.to_s}"
           return
@@ -398,7 +398,7 @@ class RequestController < ApplicationController
             tpkg = DbPackage.get_by_project_and_name action.target.project, action.target.package
           end
           
-          if tpkg and a = tpkg.find_attribute("OBS", "RejectRequests") and a.values.first
+          if tpkg && (a = tpkg.find_attribute("OBS", "RejectRequests") and a.values.first) && (action.value('type') == 'submit')
             render_error :status => 403, :errorcode => 'request_rejected',
               :message => "The target package #{action.target.project} / #{action.target.package} is not accepting requests because: #{a.values.first.value.to_s}"
             return
