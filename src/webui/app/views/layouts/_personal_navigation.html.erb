@@ -1,8 +1,8 @@
 <div class="grid_6 omega" style="text-align: right;">
   <% if session[:login] %>
     <%= link_to session[:login], :controller => 'home', :action => :index %>
-    <% if @nr_involved_requests and @nr_involved_requests > 0 %> |
-      <%= link_to pluralize(@nr_involved_requests, 'Request'), {:controller => 'home', :action => :my_work}, {:title => "Number of requests concerning #{@user}"} %>
+    <% if @nr_requests_that_need_work and @nr_requests_that_need_work > 0 %> |
+      <%= link_to pluralize(@nr_requests_that_need_work, 'Request'), {:controller => 'home', :action => 'my_work'}, {:title => "Number of requests concerning #{@user}"} %>
     <% end %> |
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
     <%= link_to 'Log Out', { :controller => 'user', :action => 'logout' }, :method => :post %>

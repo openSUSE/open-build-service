@@ -11,8 +11,7 @@ class HomeController < ApplicationController
   def my_work
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
-    @new_requests = BsRequest.list({:states => 'new', :roles => "maintainer", :user => @user.to_s})
-    @open_reviews = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => @user.to_s})
+    @new_requests, @open_reviews = @user.requests_that_need_work(:cache => false)
   end
 
   def requests

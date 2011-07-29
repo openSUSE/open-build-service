@@ -107,15 +107,24 @@ class Person < ActiveXML::Base
     Collection.find_cached(:id, :what => 'package', :predicate => predicate)
   end
 
+  # Returns all requests where this user is involved in any way
   def involved_requests(opts = {})
     opts = {:cache => true}.merge opts
-
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
-
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login.to_s}) +
-      BsRequest.list({:states => 'new', :roles => "maintainer", :user => login.to_s})
+      BsRequest.list(:states => 'new,review', :user => login.to_s)
+    end
+  end
+
+  # Returns a tuple (i.e., array) of open requests and open reviews.
+  def requests_that_need_work(opts = {})
+    opts = {:cache => true}.merge opts
+    cachekey = "#{login}_requests_that_need_work"
+    Rails.cache.delete cachekey unless opts[:cache]
+    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      [BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login.to_s}),
+       BsRequest.list({:states => 'new', :roles => "maintainer", :user => login.to_s})]
     end
   end
 
