@@ -7,7 +7,7 @@ module FlagHelper
      # more than a dozen flags in a object are very unlikely
      @next_position = 1
      ret = []
-     self.flags.each do |f|
+     flags.each do |f|
        ret << f if f.flag == type
        @next_position = f.position + 1
      end
@@ -143,4 +143,14 @@ module FlagHelper
 
     return state
   end
+
+  def flags_to_xml(builder, expand_flags)
+     FlagHelper.flag_types.each do |flag_name|
+       builder.send(flag_name) do
+         expand_flags[flag_name].each do |l|
+           builder.send(l[0], l[1])
+         end
+       end
+     end
+   end
 end

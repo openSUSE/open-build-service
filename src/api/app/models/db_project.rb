@@ -998,10 +998,10 @@ class DbProject < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
-      FlagHelper.flag_types.each do |flag_name|
-        if view == 'flagdetails'
-          expand_flags(builder, flag_name)
-        else
+      if view == 'flagdetails'
+        flags_to_xml(builder, expand_flags)
+      else
+        FlagHelper.flag_types.each do |flag_name|
           flaglist = type_flags(flag_name)
           project.send(flag_name) do
             flaglist.each do |flag|
@@ -1107,7 +1107,7 @@ class DbProject < ActiveRecord::Base
 
 
   # calculate enabled/disabled per repo/arch
-  def flag_status(builder, default, repo, arch, prj_flags, pkg_flags)
+  def flag_status(default, repo, arch, prj_flags, pkg_flags)
     ret = default
     expl = false
 
@@ -1142,29 +1142,35 @@ class DbProject < ActiveRecord::Base
     ret = 'enable' if ret == :enabled
     ret = 'disable' if ret == :disabled
     # we allow to only check the return value
-    builder.send(ret, opts) if builder
-    return ret
+    return ret, opts
   end
 
   # give out the XML for all repos/arch combos
-  def expand_flags(builder, flag_name, pkg_flags = nil)
-    builder.send(flag_name) do
+  def expand_flags(pkg = nil)
+    ret = Hash.new
+    repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)", :include => [:architectures] )
+    
+    FlagHelper.flag_types.each do |flag_name|
+      pkg_flags = nil
       flaglist = self.type_flags(flag_name)
+      pkg_flags = pkg.type_flags(flag_name) if pkg
       flag_default = FlagHelper.default_for(flag_name)
-      repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       archs = Array.new
+      flagret = Array.new
       repos.each do |repo|
-        flag_status(builder, flag_default, repo.name, nil, flaglist, pkg_flags)
+        flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
         repo.architectures.each do |arch|
-          flag_status(builder, flag_default, repo.name, arch.name, flaglist, pkg_flags)
+          flagret << flag_status(flag_default, repo.name, arch.name, flaglist, pkg_flags)
           archs << arch.name
         end
       end
       archs.uniq.each do |arch|
-        flag_status(builder, flag_default, nil, arch, flaglist, pkg_flags)
+        flagret << flag_status(flag_default, nil, arch, flaglist, pkg_flags)
       end
-      flag_status(builder, flag_default, nil, nil, flaglist, pkg_flags)
+      flagret << flag_status(flag_default, nil, nil, flaglist, pkg_flags)
+      ret[flag_name] = flagret
     end
+    ret
   end
 
   def complex_status(backend)

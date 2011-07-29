@@ -784,11 +784,11 @@ class DbPackage < ActiveRecord::Base
         package.group( :groupid => g.title, :role => g.role_name )
       end
 
-      FlagHelper.flag_types.each do |flag_name|
-        flaglist = type_flags(flag_name)
-        if view == 'flagdetails'
-          db_project.expand_flags(builder, flag_name, flaglist)
-        else
+      if view == 'flagdetails'
+        flags_to_xml(builder, expand_flags)
+      else
+        FlagHelper.flag_types.each do |flag_name|
+          flaglist = type_flags(flag_name)
           package.send(flag_name) do
             flaglist.each do |flag|
               flag.to_xml(builder)
@@ -850,6 +850,10 @@ class DbPackage < ActiveRecord::Base
     self.created_at ||= Time.now
     self.updated_at = Time.now
     self.update_counter += 1
+  end
+
+  def expand_flags
+    return db_project.expand_flags(self)
   end
 
 end
