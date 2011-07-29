@@ -4191,6 +4191,28 @@ while(1) {
       print "setting up watcher for $remoteurl\n";
     }
     my $watchlist = join("\0", sort keys %{$watchremote{$remoteurl}});
+    # collaps filter list, watch complete project if more than 3 packages are watched
+    my @filter;
+    my %filterpackage;
+    for (sort keys %{$watchremote{$remoteurl}}) {
+      if (substr($_, 0, 8) eq 'package/') {
+        my @s = split('/', $_);
+	if (!defined($s[2])) {
+	  unshift @{$filterpackage{$s[1]}}, undef;
+	} else {
+	  push @{$filterpackage{$s[1]}}, $_;
+	}
+      } else {
+	push @filter, $_;
+      }
+    }
+    for (sort keys %filterpackage) {
+      if (!defined($filterpackage{$_}->[0]) || @{$filterpackage{$_}} > 3) {
+	push @filter, "package/$_";
+      } else {
+	push @filter, @{$filterpackage{$_}};
+      }
+    }
     my $param = {
       'uri' => "$remoteurl/lastevents",
       'async' => 1,
@@ -4200,7 +4222,7 @@ while(1) {
     };
     my @args;
     push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;
-    push @args, map {"filter=$_"} sort keys %{$watchremote{$remoteurl}};
+    push @args, map {"filter=$_"} @filter;
     push @args, "start=$watchremote_start{$remoteurl}" if $watchremote_start{$remoteurl};
     my $ret;
     eval {
