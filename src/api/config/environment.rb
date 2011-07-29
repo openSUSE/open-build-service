@@ -48,6 +48,7 @@ Rails::Initializer.run do |config|
   config.gem 'exception_notification'
   config.gem 'erubis'
   config.gem 'rails_xss'
+  config.gem 'json'
   config.gem 'ci_reporter', :lib => false # ci_reporter generates XML reports for Test::Unit
 
   # default secret

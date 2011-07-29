@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require 'json'
 
 class DbProjectTest < ActiveSupport::TestCase
   fixtures :all
@@ -151,6 +152,13 @@ class DbProjectTest < ActiveSupport::TestCase
 
     @project.store_axml(ActiveXML::Base.new(original))
   end  
+
+  def test_benchmark_all
+    prjs = DbProject.find :all
+    x = Benchmark.realtime { prjs.each { |p| p.expand_flags.to_json } }
+    y = Benchmark.realtime { prjs.each { |p| p.to_axml('flagdetails') } }
+    #puts "#{x} #{y}"
+  end
 
   def test_create_maintenance_project_and_maintained_project
     maintenance_project = DbProject.new(:name => 'Maintenance:Project')

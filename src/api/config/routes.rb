@@ -45,6 +45,8 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'index_project', :project => /\w[^\/]*/
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta', :project => /[^\/]*/
+  map.connect 'source/:project/_webui_flags', :controller => 'source',
+    :action => 'project_flags', :project => /[^\/]*/
   map.connect 'source/:project/_attribute', :controller => 'source',
     :action => 'attribute_meta', :project => /[^\/]*/
   map.connect 'source/:project/_attribute/:attribute', :controller => 'source',
@@ -59,6 +61,8 @@ ActionController::Routing::Routes.draw do |map|
   # package level
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta', :project => /[^\/]*/, :package => /[^\/]*/
+  map.connect 'source/:project/:package/_webui_flags', :controller => 'source',
+    :action => 'package_flags', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute', :controller => 'source',
     :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute/:attribute', :controller => 'source',
