@@ -1,0 +1,6 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: Novell Bugzilla
+  url: http://bugzilla.novell.com
+  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@issue@@
