@@ -5,48 +5,80 @@ architectures_repositories_001:
 architectures_repositories_002: 
   position: "0"
   architecture_id: "1"
-  repository_id: "85"
+  repository_id: "82"
 architectures_repositories_003: 
   position: "1"
   architecture_id: "2"
-  repository_id: "85"
+  repository_id: "82"
 architectures_repositories_004: 
   position: "0"
   architecture_id: "1"
-  repository_id: "86"
+  repository_id: "85"
 architectures_repositories_005: 
-  position: "0"
+  position: "1"
   architecture_id: "2"
-  repository_id: "86"
+  repository_id: "85"
 architectures_repositories_006: 
   position: "0"
   architecture_id: "1"
-  repository_id: "87"
+  repository_id: "86"
 architectures_repositories_007: 
   position: "0"
-  architecture_id: "1"
-  repository_id: "88"
+  architecture_id: "2"
+  repository_id: "86"
 architectures_repositories_008: 
   position: "0"
   architecture_id: "1"
-  repository_id: "89"
+  repository_id: "87"
 architectures_repositories_009: 
   position: "0"
   architecture_id: "1"
-  repository_id: "90"
+  repository_id: "88"
 architectures_repositories_010: 
   position: "0"
   architecture_id: "1"
-  repository_id: "91"
+  repository_id: "89"
 architectures_repositories_011: 
   position: "0"
   architecture_id: "1"
-  repository_id: "92"
+  repository_id: "90"
 architectures_repositories_012: 
   position: "0"
   architecture_id: "1"
-  repository_id: "93"
+  repository_id: "91"
 architectures_repositories_013: 
   position: "0"
   architecture_id: "1"
+  repository_id: "92"
+architectures_repositories_014: 
+  position: "0"
+  architecture_id: "1"
+  repository_id: "93"
+architectures_repositories_015: 
+  position: "0"
+  architecture_id: "1"
   repository_id: "94"
+architectures_repositories_016: 
+  position: "0"
+  architecture_id: "1"
+  repository_id: "141"
+architectures_repositories_017: 
+  position: "1"
+  architecture_id: "2"
+  repository_id: "141"
+architectures_repositories_018: 
+  position: "0"
+  architecture_id: "1"
+  repository_id: "142"
+architectures_repositories_019: 
+  position: "1"
+  architecture_id: "2"
+  repository_id: "142"
+architectures_repositories_020: 
+  position: "0"
+  architecture_id: "1"
+  repository_id: "144"
+architectures_repositories_021: 
+  position: "1"
+  architecture_id: "2"
+  repository_id: "144"

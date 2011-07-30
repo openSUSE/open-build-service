@@ -1,10 +1,10 @@
 users_1: 
   realname: Frederic Feuerstone
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "1"
   password_salt: ""
@@ -15,11 +15,11 @@ users_1:
   login_failure_count: "0"
 users_172: 
   realname: our hero
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "172"
   password_salt: ""
@@ -30,11 +30,11 @@ users_172:
   login_failure_count: "0"
 users_2: 
   realname: The King
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "2"
   password_salt: ""
@@ -45,11 +45,11 @@ users_2:
   login_failure_count: "0"
 users_267: 
   realname: Iggy Pop
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "267"
   password_salt: ""
@@ -60,11 +60,11 @@ users_267:
   login_failure_count: "0"
 users_3: 
   realname: Thor
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "3"
   password_salt: ""
@@ -75,11 +75,11 @@ users_3:
   login_failure_count: "0"
 users_4: 
   realname: Frederic Feuerstone
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "4"
   password_salt: ""
@@ -90,11 +90,11 @@ users_4:
   login_failure_count: "0"
 users_42: 
   realname: Johnny Thunders
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "42"
   password_salt: ""
@@ -105,11 +105,11 @@ users_42:
   login_failure_count: "0"
 users_43: 
   realname: user has access to sources (and binaries ?)
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "43"
   password_salt: ""
@@ -120,11 +120,11 @@ users_43:
   login_failure_count: "0"
 users_44: 
   realname: user has access to binary files only
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "44"
   password_salt: ""
@@ -135,11 +135,11 @@ users_44:
   login_failure_count: "0"
 users_45: 
   realname: user exists, but has no permissions
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "45"
   password_salt: ""
@@ -150,11 +150,11 @@ users_45:
   login_failure_count: "0"
 users_46: 
   realname: user is maintainer in hidden project
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "46"
   password_salt: ""
@@ -165,11 +165,11 @@ users_46:
   login_failure_count: "0"
 users_47: 
   realname: user is maintainer in binary protected project (binarydownload)
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "47"
   password_salt: ""
@@ -180,11 +180,11 @@ users_47:
   login_failure_count: "0"
 users_49: 
   realname: user is maintainer in sourceaccess protected project (sourceaccess)
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "49"
   password_salt: ""
@@ -195,11 +195,11 @@ users_49:
   login_failure_count: "0"
 users_5: 
   realname: Anonymous User
-  created_at: 2011-07-30 14:11:32
+  created_at: 2011-07-29 12:00:21
   password_crypted: 
   password_hash_type: md5
   adminnote: 
-  updated_at: 2011-07-30 14:11:32
+  updated_at: 2011-07-29 12:00:21
   last_logged_in_at: 
   id: "5"
   password_salt: ""

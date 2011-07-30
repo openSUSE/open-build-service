@@ -12,10 +12,10 @@ db_projects_1:
   remoteproject: 
 db_projects_1000: 
   name: deleted
-  created_at: 2011-07-30 14:11:30
+  created_at: 2011-07-29 12:00:21
   maintenance_project_id: 
   title: 
-  updated_at: 2011-07-30 14:11:30
+  updated_at: 2011-07-29 12:00:21
   type_id: 
   remoteurl: 
   id: "1000"
@@ -24,14 +24,14 @@ db_projects_1000:
   remoteproject: 
 db_projects_1001: 
   name: home:tom
-  created_at: 2011-07-30 14:11:30
+  created_at: 2011-07-29 12:00:21
   maintenance_project_id: 
-  title: 
-  updated_at: 2011-07-30 14:11:30
-  type_id: 
+  title: ""
+  updated_at: 2011-07-29 14:13:50
+  type_id: "1"
   remoteurl: 
   id: "1001"
-  description: 
+  description: ""
   develproject_id: 
   remoteproject: 
 db_projects_2: 
@@ -120,10 +120,10 @@ db_projects_2047:
   remoteproject: 
 db_projects_2048: 
   name: My:Maintenance
-  created_at: 2011-07-30 14:11:30
+  created_at: 2011-07-29 12:00:21
   maintenance_project_id: 
   title: official maintenance space
-  updated_at: 2011-07-30 14:11:30
+  updated_at: 2011-07-29 12:00:21
   type_id: "2"
   remoteurl: 
   id: "2048"
@@ -276,10 +276,10 @@ db_projects_5002:
   remoteproject: 
 db_projects_5003: 
   name: c++
-  created_at: 2011-07-30 14:11:30
+  created_at: 2011-07-29 12:00:21
   maintenance_project_id: 
   title: 
-  updated_at: 2011-07-30 14:11:30
+  updated_at: 2011-07-29 12:00:21
   type_id: 
   remoteurl: 
   id: "5003"
@@ -336,22 +336,22 @@ db_projects_505:
   remoteproject: 
 db_projects_600: 
   name: home:coolo
-  created_at: 2011-07-30 14:11:30
+  created_at: 2011-07-29 12:00:21
   maintenance_project_id: 
-  title: 
-  updated_at: 2011-07-30 14:11:30
-  type_id: 
+  title: ""
+  updated_at: 2011-07-29 13:04:23
+  type_id: "1"
   remoteurl: 
   id: "600"
-  description: 
+  description: ""
   develproject_id: 
   remoteproject: 
 db_projects_601: 
   name: home:coolo:test
-  created_at: 2011-07-30 14:11:30
+  created_at: 2011-07-29 12:00:21
   maintenance_project_id: 
   title: only a test
-  updated_at: 2011-07-30 14:11:30
+  updated_at: 2011-07-29 12:00:21
   type_id: 
   remoteurl: 
   id: "601"

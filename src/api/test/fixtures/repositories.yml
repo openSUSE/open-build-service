@@ -1,3 +1,27 @@
+repositories_141: 
+  name: home_coolo_standard
+  db_project_id: "1001"
+  linkedbuild: 
+  id: "141"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_142: 
+  name: SourceprotectedProject_repo
+  db_project_id: "1001"
+  linkedbuild: 
+  id: "142"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_144: 
+  name: home_adrian_ProtectionTest_repo
+  db_project_id: "1001"
+  linkedbuild: 
+  id: "144"
+  block: 
+  rebuild: 
+  remote_project_name: 
 repositories_75: 
   name: SUSE_Linux_10.1
   db_project_id: "226"
