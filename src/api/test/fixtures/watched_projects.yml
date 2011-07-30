@@ -1,9 +1,8 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
-  id: 1
-  bs_user_id: 1
+watched_projects_1: 
   name: kde4
-second:
-  id: 2
-  bs_user_id: 1
+  bs_user_id: "1"
+  id: "1"
+watched_projects_2: 
   name: kde5
+  bs_user_id: "1"
+  id: "2"

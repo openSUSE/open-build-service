@@ -1,13 +1,9 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-standard:
-  id: 1
-  name: "standard"
-
-maintenance:
-  id: 2
-  name: "maintenance"
-
-maintenance_incident:
-  id: 3
-  name: "maintenance_incident"
+db_project_types_1: 
+  name: standard
+  id: "1"
+db_project_types_2: 
+  name: maintenance
+  id: "2"
+db_project_types_3: 
+  name: maintenance_incident
+  id: "3"

@@ -1,147 +1,210 @@
-# standard User: (without extra permissions)
-tom:
-  id: 3
-  login: tom
-  email: tschmidt@suse.de
-  state: 2
-  realname: Thor
-  password: <%= Digest::MD5.hexdigest("thunder") %>
-  password_salt: ""
+users_1: 
+  realname: Frederic Feuerstone
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-
-# standard User: ("maintainer" of kde4)
-fred:
-  id: 1
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "1"
+  password_salt: ""
+  password: 2dc36b2b9ccf93751ec0db81f4c7bc79
   login: fred
+  state: "2"
   email: fred@feuerstein.de
-  state: 2
-  realname: Frederic Feuerstone
-  password: <%= Digest::MD5.hexdigest("geröllheimer") %>
-  password_salt: ""
-  password_hash_type: md5
-
-# standard User: ("maintainer" of kdelibs)
-fredlibs:
-  id: 4
-  login: fredlibs
-  email: fred@feuerstein.de
-  state: 2
-  realname: Frederic Feuerstone
-  password: <%= Digest::MD5.hexdigest("geröllheimer") %>
-  password_salt: ""
-  password_hash_type: md5
-
-# Admin User (has static "change project" permission): 
-king:
-  id: 2
-  login: king
-  email: king@all-the-kings.org
-  state: 2
-  realname: The King
-  password: <%= Digest::MD5.hexdigest("sunflower") %>
-  password_salt: ""
-  password_hash_type: md5
-
-# nobody user as existing in default setup
-nobody:
-  id: 5
-  login: _nobody_
-  email: nobody@localhost
-  state: 3
-  realname: Anonymous User
-  password: <%= Digest::MD5.hexdigest("123456") %>
-  password_salt: ""
-  password_hash_type: md5
-
-# standard User for tagging tests
-Iggy:
-  id: 267
-  login: Iggy
-  email: Iggy@pop.org
-  state: 2
-  realname: Iggy Pop
-  password: <%= Digest::MD5.hexdigest("asdfasdf") %>
-  password_salt: ""
-  password_hash_type: md5
-  
-  
-# maintenance coordinator
-maintenance_coord:
-  id: 172
-  login: maintenance_coord
-  email: dirkmueller@suse.de
-  state: 2
+  login_failure_count: "0"
+users_172: 
   realname: our hero
-  password: <%= Digest::MD5.hexdigest("power") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-
-# standard User: (part of "gruppe" group)
-adrian:
-  id: 42
-  login: adrian
-  email: adrian@suse.de
-  state: 2
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "172"
+  password_salt: ""
+  password: 62cd275989e78ee56a81f0265a87562e
+  login: maintenance_coord
+  state: "2"
+  email: dirkmueller@suse.de
+  login_failure_count: "0"
+users_2: 
+  realname: The King
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
+  password_hash_type: md5
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "2"
+  password_salt: ""
+  password: e5e7105d5c05d9c0cc5944ff1341b533
+  login: king
+  state: "2"
+  email: king@all-the-kings.org
+  login_failure_count: "0"
+users_267: 
+  realname: Iggy Pop
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
+  password_hash_type: md5
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "267"
+  password_salt: ""
+  password: 6a204bd89f3c8348afd5c77c717a097a
+  login: Iggy
+  state: "2"
+  email: Iggy@pop.org
+  login_failure_count: "0"
+users_3: 
+  realname: Thor
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
+  password_hash_type: md5
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "3"
+  password_salt: ""
+  password: 5c7686c0284e0875b26de99c1008e998
+  login: tom
+  state: "2"
+  email: tschmidt@suse.de
+  login_failure_count: "0"
+users_4: 
+  realname: Frederic Feuerstone
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
+  password_hash_type: md5
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "4"
+  password_salt: ""
+  password: 2dc36b2b9ccf93751ec0db81f4c7bc79
+  login: fredlibs
+  state: "2"
+  email: fred@feuerstein.de
+  login_failure_count: "0"
+users_42: 
   realname: Johnny Thunders
-  password: <%= Digest::MD5.hexdigest("so_alone") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-
-# users for read permission tests
-adrian_reader:
-  id: 43
-  login: adrian_reader
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "42"
+  password_salt: ""
+  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  login: adrian
+  state: "2"
   email: adrian@suse.de
-  state: 2
+  login_failure_count: "0"
+users_43: 
   realname: user has access to sources (and binaries ?)
-  password: <%= Digest::MD5.hexdigest("so_alone") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-adrian_downloader:
-  id: 44
-  login: adrian_downloader
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "43"
+  password_salt: ""
+  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  login: adrian_reader
+  state: "2"
   email: adrian@suse.de
-  state: 2
+  login_failure_count: "0"
+users_44: 
   realname: user has access to binary files only
-  password: <%= Digest::MD5.hexdigest("so_alone") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-adrian_nobody:
-  id: 45
-  login: adrian_nobody
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "44"
+  password_salt: ""
+  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  login: adrian_downloader
+  state: "2"
   email: adrian@suse.de
-  state: 2
+  login_failure_count: "0"
+users_45: 
   realname: user exists, but has no permissions
-  password: <%= Digest::MD5.hexdigest("so_alone") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-
-user_of_hidden_project:
-  id: 46
-  login: hidden_homer
-  email: homer@nospam.net
-  state: 2
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "45"
+  password_salt: ""
+  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  login: adrian_nobody
+  state: "2"
+  email: adrian@suse.de
+  login_failure_count: "0"
+users_46: 
   realname: user is maintainer in hidden project
-  password: <%= Digest::MD5.hexdigest("homer") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-
-user_of_binary_protected_project:
-  id: 47
-  login: binary_homer
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "46"
+  password_salt: ""
+  password: dfa8327f5bfa4c672a04f9b38e348a70
+  login: hidden_homer
+  state: "2"
   email: homer@nospam.net
-  state: 2
+  login_failure_count: "0"
+users_47: 
   realname: user is maintainer in binary protected project (binarydownload)
-  password: <%= Digest::MD5.hexdigest("homer") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
-
-user_of_sourceaccess_protected_project:
-  id: 49
-  login: sourceaccess_homer
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "47"
+  password_salt: ""
+  password: dfa8327f5bfa4c672a04f9b38e348a70
+  login: binary_homer
+  state: "2"
   email: homer@nospam.net
-  state: 2
+  login_failure_count: "0"
+users_49: 
   realname: user is maintainer in sourceaccess protected project (sourceaccess)
-  password: <%= Digest::MD5.hexdigest("homer") %>
-  password_salt: ""
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
   password_hash_type: md5
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "49"
+  password_salt: ""
+  password: dfa8327f5bfa4c672a04f9b38e348a70
+  login: sourceaccess_homer
+  state: "2"
+  email: homer@nospam.net
+  login_failure_count: "0"
+users_5: 
+  realname: Anonymous User
+  created_at: 2011-07-30 14:11:32
+  password_crypted: 
+  password_hash_type: md5
+  adminnote: 
+  updated_at: 2011-07-30 14:11:32
+  last_logged_in_at: 
+  id: "5"
+  password_salt: ""
+  password: e10adc3949ba59abbe56e057f20f883e
+  login: _nobody_
+  state: "3"
+  email: nobody@localhost
+  login_failure_count: "0"

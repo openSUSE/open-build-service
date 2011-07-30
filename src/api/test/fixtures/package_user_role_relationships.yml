@@ -1,33 +1,30 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-kdelibs_fredlibs_maintainer:
-  db_package_id: 1
-  bs_user_id: 4
-  role_id: 3
-
-testpack_maintainer:
-  id: 2
-  db_package_id: 10095
-  bs_user_id: 267
-  role_id: 3
-
-testpack_without_project_maintainer:
-  db_package_id: 10095
-  bs_user_id: 1
-  role_id: 3
-
-testpack1_maintainer:
-  db_package_id: 11006
-  bs_user_id: 42
-  role_id: 3
-
-kdelibs_in_kde4_adrian_reviewer:
-  db_package_id: 1
-  bs_user_id: 42
-  role_id: 6
-
-ToBeDeleted_fred_maintainer:
-  db_package_id: 10195
-  bs_user_id: 1
-  role_id: 3
-
+package_user_role_relationships_1013880641: 
+  db_package_id: "10095"
+  role_id: "3"
+  bs_user_id: "1"
+  id: "1013880641"
+package_user_role_relationships_132136071: 
+  db_package_id: "10195"
+  role_id: "3"
+  bs_user_id: "1"
+  id: "132136071"
+package_user_role_relationships_2: 
+  db_package_id: "10095"
+  role_id: "3"
+  bs_user_id: "267"
+  id: "2"
+package_user_role_relationships_459963165: 
+  db_package_id: "11006"
+  role_id: "3"
+  bs_user_id: "42"
+  id: "459963165"
+package_user_role_relationships_639512723: 
+  db_package_id: "1"
+  role_id: "3"
+  bs_user_id: "4"
+  id: "639512723"
+package_user_role_relationships_950742816: 
+  db_package_id: "1"
+  role_id: "6"
+  bs_user_id: "42"
+  id: "950742816"

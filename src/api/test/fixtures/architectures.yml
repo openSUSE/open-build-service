@@ -1,13 +1,15 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-i586:
-  id: 1
+architectures_1: 
   name: i586
-  recommended: 1
-x86_64:
-  id: 2
+  available: "0"
+  id: "1"
+  recommended: "1"
+architectures_2: 
   name: x86_64
-  recommended: 1
-ppc:
-  id: 3
+  available: "0"
+  id: "2"
+  recommended: "1"
+architectures_3: 
   name: ppc
-  recommended: 0
+  available: "0"
+  id: "3"
+  recommended: "0"

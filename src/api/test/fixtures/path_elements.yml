@@ -1,15 +1,15 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-test_builds_against_home:
- parent_id: 83
- repository_id: 82
- position: 1
- 
-UpdateRepoAgainstBaseDistro:
- parent_id: 91
- repository_id: 95
- position: 1
-
-LinkedUpdateRepoAgainstBaseDistro2:
- parent_id: 86
- repository_id: 92
- position: 1
+path_elements_406836732: 
+  position: "1"
+  id: "406836732"
+  parent_id: "83"
+  repository_id: "82"
+path_elements_545748787: 
+  position: "1"
+  id: "545748787"
+  parent_id: "86"
+  repository_id: "92"
+path_elements_913785863: 
+  position: "1"
+  id: "913785863"
+  parent_id: "91"
+  repository_id: "95"

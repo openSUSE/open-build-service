@@ -1,5 +1,4 @@
-adrian_is_in_group:
-  user_id:      42
-  group_id:     99
-  created_at:   2009-10-26 10:34:16
-   
+groups_users_001: 
+  created_at: 2009-10-26 10:34:16
+  group_id: "99"
+  user_id: "42"

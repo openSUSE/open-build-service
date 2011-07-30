@@ -1,121 +1,153 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first_build_flag_for_project_home_Iggy:
-  status: "disable"
-  repo: "10.2"
-  architecture_id: 1
-  db_project_id: 502
-  flag: build
-  position: 1
-  
-second_build_flag_for_project_home_Iggy:
-  status: "disable"
-  repo: "10.2"
-  architecture_id: 2
-  db_project_id: 502
-  flag: build
-  position: 2
-  
-first_build_flag_for_package_TestPack:
-  status: "enable"
-  repo: "10.2"
-  architecture_id: 1
-  db_package_id: 10095
-  flag: build
-  position: 1
-
-first_publish_flag_for_project_home_Iggy:
-  status: "disable"
-  repo: "10.2"
-  architecture_id: 2
-  db_project_id: 502
+flags_129437008: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
   flag: publish
-  position: 1	
-  
-second_publish_flag_for_project_home_Iggy:
-  status: "enable"
+  db_project_id: "3006"
+  id: "129437008"
+  status: disable
+flags_212298610: 
+  position: "1"
+  architecture_id: "1"
   repo: "10.2"
-  architecture_id: 1
-  db_project_id: 502
-  flag: publish
-  position: 2	
-		
-first_publish_flag_for_package_TestPack:
-  status: "enable"
-  repo: "10.2"
-  architecture_id: 2
-  db_package_id: 10095
-  flag: publish
-  position: 1
-  
-first_debug_flag_for_project_home_Iggy:
-  status: "disable"
-  repo: "10.2"
-  architecture_id: 1
-  db_project_id: 502
+  db_package_id: 
   flag: debuginfo
-  position: 1	
-  
-second_debug_flag_for_project_home_Iggy:
-  status: "enable"
+  db_project_id: "502"
+  id: "212298610"
+  status: disable
+flags_220542956: 
+  position: "2"
+  architecture_id: "2"
   repo: "10.2"
-  architecture_id: 2
-  db_project_id: 502
+  db_package_id: 
   flag: debuginfo
-  position: 2	
-		
-first_debug_flag_for_package_TestPack:
-  status: "enable"
-  repo: "10.2"
-  architecture_id: 2
-  db_package_id: 10095
-  flag: debuginfo
-  position: 1
-
-hide_project:
-  status: "disable"
-  db_project_id: 3000
+  db_project_id: "502"
+  id: "220542956"
+  status: enable
+flags_238287425: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
   flag: access
-  position: 1
-
-no_publish_hide_project:
-  status: "disable"
-  db_project_id: 3000
+  db_project_id: "3000"
+  id: "238287425"
+  status: disable
+flags_361997832: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
   flag: publish
-  position: 1
-
-hide_remoteurlproject:
-  status: "disable"
-  db_project_id: 3006
-  flag: access
-  position: 1
-
-no_publish_hide_remoteurlproject:
-  status: "disable"
-  db_project_id: 3006
+  db_project_id: "3002"
+  id: "361997832"
+  status: disable
+flags_370537857: 
+  position: "1"
+  architecture_id: "2"
+  repo: "10.2"
+  db_package_id: "10095"
   flag: publish
-  position: 1
-
-source_protected_project:
-  status: "disable"
-  db_project_id: 3001
-  flag: sourceaccess
-  position: 1
-
-no_publish_source_protected_project:
-  status: "disable"
-  db_project_id: 3001
-  flag: publish
-  position: 1
-
-binary_protected_project:
-  status: "disable"
-  db_project_id: 3002
+  db_project_id: 
+  id: "370537857"
+  status: enable
+flags_377253800: 
+  position: "1"
+  architecture_id: "2"
+  repo: "10.2"
+  db_package_id: "10095"
+  flag: debuginfo
+  db_project_id: 
+  id: "377253800"
+  status: enable
+flags_421651534: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
   flag: binarydownload
-  position: 1
-
-no_publish_binary_protected_project:
-  status: "disable"
-  db_project_id: 3002
+  db_project_id: "3002"
+  id: "421651534"
+  status: disable
+flags_463292953: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
+  flag: access
+  db_project_id: "3006"
+  id: "463292953"
+  status: disable
+flags_512515298: 
+  position: "1"
+  architecture_id: "1"
+  repo: "10.2"
+  db_package_id: 
+  flag: build
+  db_project_id: "502"
+  id: "512515298"
+  status: disable
+flags_521011324: 
+  position: "2"
+  architecture_id: "2"
+  repo: "10.2"
+  db_package_id: 
+  flag: build
+  db_project_id: "502"
+  id: "521011324"
+  status: disable
+flags_632907309: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
+  flag: sourceaccess
+  db_project_id: "3001"
+  id: "632907309"
+  status: disable
+flags_688596071: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
   flag: publish
-  position: 1
-
+  db_project_id: "3001"
+  id: "688596071"
+  status: disable
+flags_792784507: 
+  position: "1"
+  architecture_id: 
+  repo: 
+  db_package_id: 
+  flag: publish
+  db_project_id: "3000"
+  id: "792784507"
+  status: disable
+flags_801465961: 
+  position: "1"
+  architecture_id: "1"
+  repo: "10.2"
+  db_package_id: "10095"
+  flag: build
+  db_project_id: 
+  id: "801465961"
+  status: enable
+flags_811918905: 
+  position: "1"
+  architecture_id: "2"
+  repo: "10.2"
+  db_package_id: 
+  flag: publish
+  db_project_id: "502"
+  id: "811918905"
+  status: disable
+flags_813496: 
+  position: "2"
+  architecture_id: "1"
+  repo: "10.2"
+  db_package_id: 
+  flag: publish
+  db_project_id: "502"
+  id: "813496"
+  status: enable

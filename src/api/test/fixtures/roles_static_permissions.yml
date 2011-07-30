@@ -1,87 +1,66 @@
-admin_project_change:
-  role_id:              1
-  static_permission_id: 1
-  
-admin_project_create:
-  role_id:              1
-  static_permission_id: 2
-  
-admin_package_change:
-  role_id:              1
-  static_permission_id: 3
-  
-admin_package_create:
-  role_id:              1
-  static_permission_id: 4
-
-admin_status_message_create:
-  role_id:              1
-  static_permission_id: 5
-
-admin_set_download_counters:
-  role_id:              1
-  static_permission_id: 6
-
-admin_7:
-  role_id:              1
-  static_permission_id: 7
-
-admin_8:
-  role_id:              1
-  static_permission_id: 8
-
-admin_9:
-  role_id:              1
-  static_permission_id: 9
-
-admin_10:
-  role_id:              1
-  static_permission_id: 10
-
-User_static_project_create:
-  role_id:              2
-  static_permission_id: 2
-
-maintainer_7:
-  role_id:              3
-  static_permission_id: 7
-
-maintainer_8:
-  role_id:              3
-  static_permission_id: 8
-
-maintainer_9:
-  role_id:              3
-  static_permission_id: 9
-
-maintainer_10:
-  role_id:              3
-  static_permission_id: 10
-
-maintainer_download:
-  role_id:              3
-  static_permission_id: 11
-
-maintainer_source:
-  role_id:              3
-  static_permission_id: 12
-
-maintainer_access:
-  role_id:              3
-  static_permission_id: 14
-
-admin_access:
-  role_id:              1
-  static_permission_id: 14
-
-admin_sourceaccess:
-  role_id:              1
-  static_permission_id: 12
-
-downloader:
-  role_id:              5
-  static_permission_id: 11
-
-reader:
-  role_id:              7
-  static_permission_id: 12
+roles_static_permissions_001: 
+  static_permission_id: "1"
+  role_id: "1"
+roles_static_permissions_002: 
+  static_permission_id: "2"
+  role_id: "1"
+roles_static_permissions_003: 
+  static_permission_id: "3"
+  role_id: "1"
+roles_static_permissions_004: 
+  static_permission_id: "4"
+  role_id: "1"
+roles_static_permissions_005: 
+  static_permission_id: "5"
+  role_id: "1"
+roles_static_permissions_006: 
+  static_permission_id: "6"
+  role_id: "1"
+roles_static_permissions_007: 
+  static_permission_id: "7"
+  role_id: "1"
+roles_static_permissions_008: 
+  static_permission_id: "8"
+  role_id: "1"
+roles_static_permissions_009: 
+  static_permission_id: "9"
+  role_id: "1"
+roles_static_permissions_010: 
+  static_permission_id: "10"
+  role_id: "1"
+roles_static_permissions_011: 
+  static_permission_id: "12"
+  role_id: "1"
+roles_static_permissions_012: 
+  static_permission_id: "14"
+  role_id: "1"
+roles_static_permissions_013: 
+  static_permission_id: "2"
+  role_id: "2"
+roles_static_permissions_014: 
+  static_permission_id: "7"
+  role_id: "3"
+roles_static_permissions_015: 
+  static_permission_id: "8"
+  role_id: "3"
+roles_static_permissions_016: 
+  static_permission_id: "9"
+  role_id: "3"
+roles_static_permissions_017: 
+  static_permission_id: "10"
+  role_id: "3"
+roles_static_permissions_018: 
+  static_permission_id: "11"
+  role_id: "3"
+roles_static_permissions_019: 
+  static_permission_id: "12"
+  role_id: "3"
+roles_static_permissions_020: 
+  static_permission_id: "14"
+  role_id: "3"
+roles_static_permissions_021: 
+  static_permission_id: "11"
+  role_id: "5"
+roles_static_permissions_022: 
+  static_permission_id: "12"
+  role_id: "7"

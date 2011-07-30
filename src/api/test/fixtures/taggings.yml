@@ -1,87 +1,84 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-TagA_assigned_by_Iggy_to_the_project_with_id_1:
-  tag_id: 461
-  id: 1731
+taggings_1731: 
+  tag_id: "461"
+  id: "1731"
+  user_id: "267"
+  taggable_id: "1"
   taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 1 #kde
-TagA_assigned_by_Iggy_to_the_project_with_id_2:
-  tag_id: 461
-  id: 1732
+taggings_1732: 
+  tag_id: "461"
+  id: "1732"
+  user_id: "267"
+  taggable_id: "2"
   taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 2 #kde4
-TagA_assigned_by_Iggy_to_the_project_with_id_502:
-  tag_id: 461
-  id: 1733 
+taggings_1733: 
+  tag_id: "461"
+  id: "1733"
+  user_id: "267"
+  taggable_id: "502"
   taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 502 #home:Iggy
-TagB_assigned_by_Iggy_to_the_project_with_id_502:
-  tag_id: 462
-  id: 1735
+taggings_1734: 
+  tag_id: "388"
+  id: "1734"
+  user_id: "267"
+  taggable_id: "502"
   taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 502 #home:Iggy
-TagB_assigned_by_Iggy_to_the_package_with_id_10095:
-  tag_id: 462
-  id: 1736
+taggings_1735: 
+  tag_id: "462"
+  id: "1735"
+  user_id: "267"
+  taggable_id: "502"
+  taggable_type: DbProject
+taggings_1736: 
+  tag_id: "462"
+  id: "1736"
+  user_id: "267"
+  taggable_id: "10095"
   taggable_type: DbPackage
-  user_id: 267  #Iggy
-  taggable_id: 10095 #TestPack
-TagB_assigned_by_fred_to_the_project_with_id_502:
-  tag_id: 462
-  id: 1744
+taggings_1737: 
+  tag_id: "463"
+  id: "1737"
+  user_id: "267"
+  taggable_id: "502"
   taggable_type: DbProject
-  user_id: 1  #fred
-  taggable_id: 502 #home:Iggy
-TagB_assigned_by_fred_to_the_package_with_id_10095:
-  tag_id: 462
-  id: 1745
+taggings_1738: 
+  tag_id: "463"
+  id: "1738"
+  user_id: "267"
+  taggable_id: "1"
+  taggable_type: DbProject
+taggings_1740: 
+  tag_id: "464"
+  id: "1740"
+  user_id: "267"
+  taggable_id: "10095"
   taggable_type: DbPackage
-  user_id: 1  #fred
-  taggable_id: 10095 #TestPack
-TagC_assigned_by_Iggy_to_the_project_with_id_502:
-  tag_id: 463
-  id: 1737
-  taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 502 #home:Iggy
-TagC_assigned_by_Iggy_to_the_project_with_id_1:
-  tag_id: 463
-  id: 1738
-  taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 1 #kde
-TagC_assigned_by_Iggy_to_the_package_with_id_10095:
-  tag_id: 463
-  id: 1742
+taggings_1741: 
+  tag_id: "465"
+  id: "1741"
+  user_id: "267"
+  taggable_id: "10095"
   taggable_type: DbPackage
-  user_id: 267  #Iggy
-  taggable_id: 10095 #TestPack
-TagC_assigned_by_fred_to_the_project_with_id_502:
-  tag_id: 463
-  id: 1743
-  taggable_type: DbProject
-  user_id: 1  #fred
-  taggable_id: 502 #home:Iggy
-TagD_assigned_by_Iggy_to_the_package_with_id_10095:
-  tag_id: 464
-  id: 1740
+taggings_1742: 
+  tag_id: "463"
+  id: "1742"
+  user_id: "267"
+  taggable_id: "10095"
   taggable_type: DbPackage
-  user_id: 267  #Iggy
-  taggable_id: 10095 #TestPack
-TagE_assigned_by_Iggy_to_the_package_with_id_10095:
-  tag_id: 465
-  id: 1741
-  taggable_type: DbPackage
-  user_id: 267  #Iggy
-  taggable_id: 10095 #TestPack
-TagF_assigned_by_Iggy_to_the_project_with_id_502:
-  tag_id: 388
-  id: 1734
+taggings_1743: 
+  tag_id: "463"
+  id: "1743"
+  user_id: "1"
+  taggable_id: "502"
   taggable_type: DbProject
-  user_id: 267  #Iggy
-  taggable_id: 502 #home:Iggy
-  
-  
+taggings_1744: 
+  tag_id: "462"
+  id: "1744"
+  user_id: "1"
+  taggable_id: "502"
+  taggable_type: DbProject
+taggings_1745: 
+  tag_id: "462"
+  id: "1745"
+  user_id: "1"
+  taggable_id: "10095"
+  taggable_type: DbPackage

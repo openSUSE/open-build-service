@@ -1,6 +1,6 @@
-test:
+attrib_namespaces_8: 
   name: NSTEST
-  id: 8
-OBS:
+  id: "8"
+attrib_namespaces_9: 
   name: OBS
-  id: 9
+  id: "9"

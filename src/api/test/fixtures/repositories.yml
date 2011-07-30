@@ -1,68 +1,128 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-SUSE_Linux_101:
+repositories_75: 
   name: SUSE_Linux_10.1
-  db_project_id: 226
-  id: 75
-SUSE_Linux_Factory:
+  db_project_id: "226"
+  linkedbuild: 
+  id: "75"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_81: 
   name: SUSE_Linux_Factory
-  db_project_id: 226
-  id: 81
-coolo_standard:
+  db_project_id: "226"
+  linkedbuild: 
+  id: "81"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_82: 
   name: standard
-  db_project_id: 600
-  id: 82
-test_against_standard:
+  db_project_id: "600"
+  linkedbuild: 
+  id: "82"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_83: 
   name: home_coolo
-  db_project_id: 601
-  id: 83
-deleted:
+  db_project_id: "601"
+  linkedbuild: 
+  id: "83"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_84: 
   name: gone
-  db_project_id: 1000
-  id: 84
-home_Iggy_102:
-  name: 10.2
-  db_project_id: 502
-  id: 85
-BaseDistro2:LinkedUpdateProject:
+  db_project_id: "1000"
+  linkedbuild: 
+  id: "84"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_85: 
+  name: "10.2"
+  db_project_id: "502"
+  linkedbuild: 
+  id: "85"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_86: 
   name: BaseDistro2LinkedUpdateProject_repo
-  db_project_id: 2046
-  rebuild: 'local'
-  id: 86
-UseRemoteInstance:
+  db_project_id: "2046"
+  linkedbuild: 
+  id: "86"
+  block: 
+  rebuild: local
+  remote_project_name: 
+repositories_87: 
   name: pop
-  db_project_id: 5001
-  id: 87
-LocalProject:
+  db_project_id: "5001"
+  linkedbuild: 
+  id: "87"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_88: 
   name: pop
-  db_project_id: 5002
-  id: 88
-HiddenProjectRepo:
+  db_project_id: "5002"
+  linkedbuild: 
+  id: "88"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_89: 
   name: nada
-  db_project_id: 3000
-  id: 89
-BinaryprotectedProjectRepo:
+  db_project_id: "3000"
+  linkedbuild: 
+  id: "89"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_90: 
   name: nada
-  db_project_id: 3002
-  id: 90
-BaseDistro:
+  db_project_id: "3002"
+  linkedbuild: 
+  id: "90"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_91: 
   name: BaseDistro_repo
-  db_project_id: 2042
-  id: 91
-BaseDistro2:
+  db_project_id: "2042"
+  linkedbuild: 
+  id: "91"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_92: 
   name: BaseDistro2_repo
-  db_project_id: 2045
-  id: 92
-SourceprotectedProject:
+  db_project_id: "2045"
+  linkedbuild: 
+  id: "92"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_93: 
   name: repo
-  db_project_id: 3001
-  id: 93
-homeadrianProtectionTest:
+  db_project_id: "3001"
+  linkedbuild: 
+  id: "93"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_94: 
   name: repo
-  db_project_id: 3005
-  id: 94
-BaseDistro:UpdateProject:
+  db_project_id: "3005"
+  linkedbuild: 
+  id: "94"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_95: 
   name: BaseDistroUpdateProject_repo
-  db_project_id: 2043
-  id: 95
-
-
+  db_project_id: "2043"
+  linkedbuild: 
+  id: "95"
+  block: 
+  rebuild: 
+  remote_project_name: 

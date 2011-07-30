@@ -1,18 +1,36 @@
-dmueller_can_update_maintenance:
-  bs_user_id: 172
-  attrib_type_id: 58
-dmueller_can_update_update_project:
-  bs_user_id: 172
-  attrib_type_id: 57
-test_group_can_update_maintained:
-  bs_group_id: 99
-  attrib_type_id: 58
-maintainer_role_can_update_maintenance:
-  bs_role_id: 3
-  attrib_type_id: 58
-maintainer_role_can_set_reject_requests:
-  bs_role_id: 3
-  attrib_type_id: 64
-maintainer_role_can_set_approve_requests:
-  bs_role_id: 3
-  attrib_type_id: 65
+attrib_type_modifiable_bies_287526233: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "58"
+  bs_user_id: "172"
+  id: "287526233"
+attrib_type_modifiable_bies_32682476: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "58"
+  bs_user_id: 
+  id: "32682476"
+attrib_type_modifiable_bies_37119725: 
+  bs_group_id: "99"
+  bs_role_id: 
+  attrib_type_id: "58"
+  bs_user_id: 
+  id: "37119725"
+attrib_type_modifiable_bies_502960485: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "65"
+  bs_user_id: 
+  id: "502960485"
+attrib_type_modifiable_bies_670068592: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "64"
+  bs_user_id: 
+  id: "670068592"
+attrib_type_modifiable_bies_922754163: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "57"
+  bs_user_id: "172"
+  id: "922754163"
