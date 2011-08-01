@@ -22,9 +22,9 @@ Plugin dependencies
 Next to Hudson/Jenkins, you need to have the following list of plugins
 installed:
 
- * Jenkins GIT plugin
- * Copy Artifacts
- * Jenkins Rake plugin
- * Jenkins ruby metrics plugin
- * Hudson Ruby Plugin
+ * Copy Artifact Plugin
+ * GIT Plugin
+ * Rake plugin
+ * Ruby Plugin
+ * Ruby metrics plugin
 
