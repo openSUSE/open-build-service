@@ -41,7 +41,7 @@ please issue the following commands as root user in your shell:
                   perl perl-Net-Domain perl-Net-SSLeay perl-BSSolv \
                   perl-GD \
                   ruby ruby-mysql rubygems rubygem-sqlite3 rubygem-rails-2_3 \
-                  rubygem-delayed_job rubygem-gruff rubygem-libxml-ruby \
+                  rubygem-delayed_job rubygem-gruff rubygem-nokogiri \
                   rubygem-sqlite3 rubygem-daemons rubygem-ci_reporter \
                   rubygem-exception_notification rubygem-erubis rubygem-rails_xss \
                   rubygem-ci_reporter
