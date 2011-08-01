@@ -219,7 +219,11 @@ class Service < ActiveXML::Base
 
   def save
     if !has_element?("/services/service")
-	delete
+        begin
+	   delete
+        rescue ActiveXML::Transport::NotFoundError
+           # to be ignored, if it's gone, it's gone
+        end
     else
 	super(:comment => "Modified via webui")
         fc = FrontendCompat.new
