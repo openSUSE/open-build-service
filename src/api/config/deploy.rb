@@ -54,7 +54,6 @@ namespace :config do
 
   desc "Install saved configs from /shared/ dir"
   task :symlink_shared_config do
-    run "rm #{release_path}#{git_subdir}/config/options.yml"
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/secret.key #{release_path}#{git_subdir}/config/"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/"
