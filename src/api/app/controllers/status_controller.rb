@@ -405,9 +405,7 @@ class StatusController < ApplicationController
 	# if the package does not appear in build history, check flags
 	if everbuilt == 0
 	  spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
-	  pkg_flags = spkg.type_flags("build")
-          buildflag=spkg.db_project.flag_status(nil, FlagHelper.default_for("build"), srep.name, 
-						arch.to_s, sproj.type_flags("build"), pkg_flags)
+          buildflag=spkg.find_flag_state("build", srep.name, arch.to_s)
 	  if buildflag == 'disable'
 	    buildcode='disabled'
 	  end
