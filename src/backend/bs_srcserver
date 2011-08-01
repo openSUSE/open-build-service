@@ -1272,7 +1272,7 @@ sub applylink {
     chomp $log;
     $log =~ s/.*\n//s;
     $log ||= "unknown error";
-    return $log;
+    return str2utf8xml($log);
   }
   my $flnk = lsrev($llnk);
   my $fsrc = lsrev($lsrc);
@@ -1498,7 +1498,7 @@ sub applylink {
     }
     unlink("$tmpdir/$_") for ls($tmpdir);
     rmdir($tmpdir);
-    return $failed;
+    return str2utf8xml($failed);
   }
   my @newf = grep {!/^\./} ls($tmpdir);
   my $newf = {};
@@ -1666,13 +1666,23 @@ sub handleservice {
   my $lsrcmd5 = $rev->{'srcmd5'};
   $rev->{'srcmd5'} = $smd5;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
+  my $sfiles;
   if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$smd5-MD5SUMS" && -e "$srcrep/$rev->{'package'}/$smd5-MD5SUMS") {
-    return lsrev($rev);
+    $sfiles = lsrev($rev);
+  } elsif (-e "$treedir/$smd5-MD5SUMS") {
+    $sfiles = lsrev($rev);
   }
-  return lsrev($rev) if -e "$treedir/$smd5-MD5SUMS";	# we have a result
+  if ($sfiles) {
+    if ($sfiles->{'_service_error'}) {
+      my $error = repreadstr($rev, '_service_error', $sfiles->{'_service_error'});
+      chomp $error;
+      die(str2utf8xml($error ? "$error\n" : "unknown service error\n"));
+    }
+    return $sfiles;
+  }
   my $error = readstr("$treedir/$smd5-_serviceerror", 1);
-  $error =~ s/\n$//s if $error;
-  die("$error\n") if $error && $error ne '';
+  chomp $error if $error;
+  die(str2utf8xml("$error\n")) if $error && $error ne '';
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $smd5;
   $rev->{'srcmd5'} = $lsrcmd5;	# so that runservice can put it in /LSRCMD5
