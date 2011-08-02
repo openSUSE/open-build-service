@@ -29,6 +29,7 @@ class ApplicationController < ActionController::Base
   before_filter :require_configuration
   after_filter :set_charset
   after_filter :validate_xhtml
+  after_filter :clean_cache
   protect_from_forgery
   has_mobile_views
 
@@ -449,4 +450,8 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # After filter to clean up caches
+  def clean_cache
+    Person.clean_cache
+  end
 end

@@ -34,6 +34,10 @@ class Person < ActiveXML::Base
   end
   
   @@person_cache = Hash.new
+  def self.clean_cache
+    @@person_cache.clear
+  end
+
   def self.find_cached(login)
      if @@person_cache.has_key? login
        return @@person_cache[login]
