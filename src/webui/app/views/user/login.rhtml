@@ -28,12 +28,16 @@
   </div>
 
   <p>
-    Or
     <% if PROXY_AUTH_MODE == :on %>
+      Or
       <%= link_to "register", PROXY_AUTH_REGISTER_PAGE + "?%22#{@return_to_host}#{@return_to_path}%22" %>
+      as a new user.
     <% else %>
-      <%= link_to "register", :controller => :user, :action => :register_user %>
+      <% unless FRONTEND_LDAP_MODE == :on %>
+        Or
+        <%= link_to "register", :controller => :user, :action => :register_user %>
+        as a new user.
+      <% end %>
     <% end %>
-    as a new user.
   </p>
 </form>
