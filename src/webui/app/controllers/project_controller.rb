@@ -130,6 +130,7 @@ class ProjectController < ApplicationController
     sub_names.each do |sub|
       @subprojects[sub.name] = find_cached( Project, sub.name )
     end
+    @subprojects = @subprojects.sort # Sort by hash key for better display
     @parentprojects = Hash.new
     parent_names = @project.name.split ':'
     parent_names.each_with_index do |parent, idx|
@@ -139,6 +140,7 @@ class ProjectController < ApplicationController
         @parentprojects[parent_name] = parent_project unless parent_project.blank?
       end
     end
+    @parentprojects = @parentprojects.sort # Sort by hash key for better display
   end
 
   def attributes
