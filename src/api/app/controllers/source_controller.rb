@@ -91,8 +91,13 @@ class SourceController < ApplicationController
         else
           # for access check
           pro = DbProject.get_by_name project_name
-          @dir = Package.find :all, :project => project_name
-          render :text => @dir.dump_xml, :content_type => "text/xml"
+          # we let the backend list the packages after we verified the project is visible
+          if params.has_key? :view
+            pass_to_backend
+          else
+            @dir = Package.find :all, :project => project_name
+            render :text => @dir.dump_xml, :content_type => "text/xml"
+          end
         end
       end
       return
