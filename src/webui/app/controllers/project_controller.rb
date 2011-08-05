@@ -23,7 +23,7 @@ class ProjectController < ApplicationController
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
   before_filter :require_meta, :only => [:edit_meta, :meta]
-  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete]
+  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
   before_filter :require_maintenance_incident_lists, :only => [:show, :maintenance_incidents, :closed_maintenance_incidents]
