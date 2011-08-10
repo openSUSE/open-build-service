@@ -136,8 +136,14 @@ case "$1" in
             # start one build backend per CPU
             NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
         fi
-        I=0
+
+	# print some config data
         echo "Run $NUM obsworker using $OBS_WORKER_DIRECTORY"
+        echo -n "Type of obsworker is "
+	if [ "--kvm" == "$vmopt" ]; then echo "KVM virtual machine"
+	elif [ "--xen" == "$vmopt" ]; then echo "XEN virtual machine"
+	else  echo "chroot"
+	fi
 
         # find SLP announced OBS servers
         if [ "$OBS_USE_SLP" == "yes" ]; then
@@ -158,7 +164,9 @@ case "$1" in
         ln -s . XML 
         chmod 755 bs_worker
         popd > /dev/null
+
         OBS_WORKER_OPT1="$OBS_WORKER_OPT"
+        I=0
         while test "$NUM" -gt "$I"; do
             if [ "$OBS_WORKER_PORTBASE" -gt 0 ]; then
                 port="--port $((OBS_WORKER_PORTBASE + I))"
@@ -212,7 +220,9 @@ case "$1" in
 	    popd > /dev/null
         done
 	wait
-        killall bs_worker 
+        killall bs_worker 2>/dev/null
+        sleep 2
+        killall -s 9 bs_worker 2>/dev/null
         rc_status -v
     ;;
     restart)
