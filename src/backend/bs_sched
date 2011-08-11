@@ -1215,7 +1215,9 @@ sub prpfinished {
       BSUtil::cleandir("$rdir/$rbin");
       rmdir("$rdir/$rbin") || die("rmdir $rdir/$rbin: $!\n");
     } else {
-      unlink("$rdir/$rbin") || die("unlink $rdir/$rbin: $!\n");
+      if (-f "$rdir/$rbin") {
+       unlink("$rdir/$rbin") || die("unlink $rdir/$rbin: $!\n");
+      }
     }
     $changed = 1;
   }
