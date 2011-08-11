@@ -2336,16 +2336,19 @@ sub abortbuild {
   return $BSStdServer::return_ok;
 }
 
-# XXX: does not make much sense, as the host architecture of the repo server
-# might be different than the worker architecture
+#
+# if there is a qemu dir in OBS backend install dir workers load qemu from OBS backend server
+# this is similiar to the rest of build script code
+# if that does also not exist, workers copy qemu from worker local installed qemu
 #
 sub getqemuinterpreters {
   my @send;
-  for my $l (split("\n", readstr("build/qemu-reg", 1))) {
-    my @f = split(':', $l);
-    next unless $f[6] && -f $f[6];
-    next unless $f[6] =~ /([^\/]+)$/;
-    push @send, {'name' => $1, 'filename' => $f[6]};
+
+  if (-d "qemu") {
+      for my $file (grep {!/^\./} ls("qemu")) {
+	  next unless -f "qemu/$file";
+	  push @send, {'name' => "$file", 'filename' => "qemu/$file"};
+      }
   }
   return @send;
 }
