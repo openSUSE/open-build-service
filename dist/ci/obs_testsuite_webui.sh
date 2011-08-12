@@ -23,6 +23,7 @@
 # Build:
 #   Copy artifacts from another project:
 #     Project name: obs_testsuite_api
+#     Artifacts to copy: **/*
 #   Execute shell:
 #     Command: sh dist/ci/obs_testsuite_webui.sh
 #
