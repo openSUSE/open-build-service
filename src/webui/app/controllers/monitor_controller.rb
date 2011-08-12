@@ -128,14 +128,6 @@ private
     return ret
   end
 
-  def require_available_architectures
-    @available_architectures = Architecture.find_cached(:available)
-    unless @available_architectures
-      flash[:error] = "Available architectures not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
-    end
-  end
-
   def require_settings
     @project_filter = params[:project]
 

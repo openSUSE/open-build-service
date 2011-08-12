@@ -151,18 +151,6 @@ class DriverUpdateController < PackageController
 
   private
 
-  def require_available_architectures
-    begin
-      transport = ActiveXML::Config::transport_for(:architecture)
-      response = transport.direct_http(URI("/architectures?available=1"), :method => "GET")
-      @available_architectures = Collection.new(response)
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Available architectures not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
-    end
-  end
-
-
   def check_images_repo
     unless @project.repositories.include? "images"
       flash.now[:warn] = "You need to add an 'images' repository to your project " +
