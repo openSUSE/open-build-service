@@ -18,11 +18,11 @@
 #
 # Build Triggers:
 #   Build after other projects are built:
-#     Project names: obs_common
+#     Project names: obs_testsuite_api
 #
 # Build:
 #   Copy artifacts from another project:
-#     Project name: obs_common
+#     Project name: obs_testsuite_api
 #   Execute shell:
 #     Command: sh dist/ci/obs_testsuite_webui.sh
 #
@@ -45,7 +45,7 @@
 #
 
 echo "Replace backend worspace path with current job's workspace"
-sed -i "s|our \$bsdir = '/srv/obs';|our \$bsdir = '$WORKSPACE';|" src/backend/BSConfig.pm
+sed -i "s|our \$bsdir = '/srv/obs';|our \$bsdir = '$WORKSPACE/backend';|" src/backend/BSConfig.pm
 
 echo "Enter WebUI rails root"
 cd src/webui
@@ -63,6 +63,9 @@ ruby script/plugin install http://svn.codahale.com/rails_rcov
 echo "Set environment variables"
 export CI_REPORTS=results
 export RAILS_ENV=test
+
+echo "Fix executable bits broken by 'Copy Artifacts' plugin"
+chmod +x script/start_test_api
 
 echo "Initialize test database, run migrations, load seed data"
 rake db:drop db:create db:migrate

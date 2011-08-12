@@ -47,7 +47,8 @@ git submodule init
 git submodule update
 
 echo "Setup backend configuration"
+# Fix BSConfig.pm.template, this is used by 'src/api/script/start_test_backend'
+sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
+       -e "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" \
+       -e "s|our \$bsgroup = 'obsrun';|our \$bsgroup = 'jenkins';|" src/backend/BSConfig.pm.template
 cp src/backend/BSConfig.pm.template src/backend/BSConfig.pm
-sed -i "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" src/backend/BSConfig.pm
-sed -i "s|our \$bsgroup = 'obsrun';|our \$bsuser = 'jenkins';|" src/backend/BSConfig.pm
-

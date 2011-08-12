@@ -45,7 +45,7 @@
 #
 
 echo "Replace backend worspace path with current job's workspace"
-sed -i "s|our \$bsdir = '/srv/obs';|our \$bsdir = '$WORKSPACE';|" src/backend/BSConfig.pm
+sed -i "s|our \$bsdir = '/srv/obs';|our \$bsdir = '$WORKSPACE/backend';|" src/backend/BSConfig.pm
 
 echo "Enter API rails root"
 cd src/api
@@ -64,6 +64,9 @@ ruby script/plugin install http://svn.codahale.com/rails_rcov
 echo "Set environment variables"
 export CI_REPORTS=results
 export RAILS_ENV=test
+
+echo "Fix executable bits broken by 'Copy Artifacts' plugin"
+chmod +x script/start_test_backend
 
 echo "Initialize test database, run migrations, load seed data"
 rake db:drop db:create db:setup db:migrate
