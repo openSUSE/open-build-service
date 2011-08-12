@@ -44,7 +44,7 @@ please issue the following commands as root user in your shell:
                   rubygem-delayed_job rubygem-gruff rubygem-nokogiri \
                   rubygem-sqlite3 rubygem-daemons rubygem-ci_reporter \
                   rubygem-exception_notification rubygem-erubis rubygem-rails_xss \
-                  rubygem-ci_reporter
+                  rubygem-ci_reporter rubygem-webrat rubygem-rack-test
 
 Deployment with RPM packages
 ============================
