@@ -15,6 +15,33 @@ as well as managing users and groups.
       <li><%= link_to('Connect to a remote OBS instance', :action => 'connect_instance') %></li>
     </ul>
   </div>
+  <% if @available_architectures %>
+    <div class="show_left box">
+      <h3>Available Scheduler Architectures</h3>
+      <p>You can recommended architectures to be selected by default when a new project or package is created. The new project or package will then build against this architecture (for it's configured repositories).</p>
+      <% form_tag(:action => 'update_architectures') do %>
+        <table>
+          <thead>
+            <tr>
+              <th>Architecture</th>
+              <th>Available</th>
+              <th>Recommended</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @available_architectures.each do |arch| %>
+              <tr>
+                <td><%= arch.name %></td>
+                <td><%= check_box_tag("arch_available_#{arch.name}", '', arch.available == 'true', :disabled => true) %></td>
+                <td><%= check_box_tag("arch_recommended[#{arch.name}]", '', arch.recommended == 'true') %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <p><%= submit_tag('Update') %></p>
+      <% end %>
+    </div>
+  <% end %>
 </div>
 
 <div class="grid_8 omega">
