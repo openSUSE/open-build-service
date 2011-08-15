@@ -32,7 +32,6 @@
       url += ';' + type + 'id=' + str + ';role=' + role;
       $.ajax({
         url: url,
-        type: 'POST',
         complete: function() {
           $('#' + type + '_spinner').hide();
           $('#' + type + '_table input').animate({opacity: 1}, 200);
