@@ -702,11 +702,13 @@ class ProjectController < ApplicationController
 
   def save_person
     valid_http_methods(:post)
-    user = find_cached( Person, params[:userid] )
-    unless user
-      flash[:error] = "Unknown user with id '#{params[:userid]}'"
-      redirect_to :action => :add_person, :project => @project, :role => params[:role]
-      return
+    user = find_cached(Person, params[:userid])
+    # FIXME/PITA: For invalid input, the lovely API person controller does a 'LIKE' SQL search to still return data.
+    # This leads to a valid Person model instance with no 'name' set. Instead, it contains a list of _all_ users.
+    # TODO: Add a new API 'show' route that only returns a valid user or nothing.
+    if not user or user.name.nil?
+      flash[:error] = "Unknown user '#{params[:userid]}'"
+      redirect_back_or_to :action => :add_person, :project => @project, :role => params[:role] and return
     end
     @project.add_person( :userid => user.login.to_s, :role => params[:role] )
     if @project.save
