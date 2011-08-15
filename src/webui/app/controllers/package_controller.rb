@@ -582,7 +582,7 @@ class PackageController < ApplicationController
 
       if !valid_file_name?(filename)
         flash[:error] = "'#{filename}' is not a valid filename."
-        redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
 
       @package.save_file :file => file, :filename => filename
@@ -592,19 +592,28 @@ class PackageController < ApplicationController
       unless @services
         @services = Service.new( :project => @project, :package => @package )
       end
-      if @services.addDownloadURL( file_url )
-         @services.save
-         Service.free_cache :project => @project, :package => @package
-      else
-         flash[:error] = "Failed to add URL #{file_url} to service."
-         redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+      begin
+        if @services.addDownloadURL(file_url)
+           @services.save
+           Service.free_cache :project => @project, :package => @package
+        else
+          raise 'foo' # same result as if an exception was thrown (will be catched in the surrounding block)
+        end
+      rescue
+         flash[:error] = "Failed to add file from URL '#{file_url}'."
+         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
     else
       if filename.blank?
         flash[:error] = 'No file or URI given.'
-        redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       else
-        @package.save_file :filename => filename
+        begin
+          @package.save_file :filename => filename
+        rescue
+          flash[:error] = "Filename invalid '#{filename}'."
+          redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+        end
       end
     end
 
