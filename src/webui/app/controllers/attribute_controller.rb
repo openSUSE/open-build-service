@@ -1,20 +1,17 @@
 class AttributeController < ApplicationController
-
   helper :all
-
   before_filter :requires
 
   def edit
     if @attributes.nil? # fails if package does not exist in project anymore
-      redirect_to :controller => :project, :action => :attributes, :project => params[:project]
-      return
+      redirect_to :controller => :project, :action => :attributes, :project => params[:project] and return
     end
     if params[:namespace] and params[:name]
       selected_attribute = nil
       selected_attribute = @attributes.find_first( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']")
       @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
       @selected_attribute_value = Array.new
-      selected_attribute.each("value") {|value| @selected_attribute_value << value.text } if selected_attribute
+      selected_attribute.each("value") {|value| @selected_attribute_value << value.text} if selected_attribute
       @selected_attribute_value = @selected_attribute_value.join(', ')
     else
       namespaces = find_cached(Attribute, :namespaces)
@@ -25,14 +22,10 @@ class AttributeController < ApplicationController
       end
       attributes.each do |d|
         if d.has_element? :entry
-          d.each do |f|
-            @attribute_list << "#{d.init_options[:namespace]}:#{f.value(:name)}"
-          end
+          d.each {|f| @attribute_list << "#{d.init_options[:namespace]}:#{f.value(:name)}" }
         end
       end
-      @attributes.each do |d|
-        @attribute_list.delete(d.name)  
-      end
+      @attributes.each {|d| @attribute_list.delete(d.name)}
     end
   end
 
@@ -67,20 +60,19 @@ class AttributeController < ApplicationController
     redirect_to opt
   end
 
-  
 private
 
   def requires
     @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public"
-      return
+      redirect_to :controller => "project", :action => "list_public" and return
     end
+    @is_maintenance_project = false
+    @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     @package = params[:package] if params[:package]
     @attribute_opts = {:project => @project.name}
     @attribute_opts.store(:package, @package.to_s) if @package
     @attributes = find_cached(Attribute, @attribute_opts, :expires_in => 2.minutes)
   end
-
 end
