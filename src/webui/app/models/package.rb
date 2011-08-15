@@ -138,7 +138,6 @@ class Package < ActiveXML::Base
   def user_has_role?(user, role)
     user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
     if user
-      return true if user.is_admin?
       each_person do |p|
         return true if p.role == role and p.userid == user.to_s
       end

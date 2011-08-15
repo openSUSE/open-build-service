@@ -268,7 +268,6 @@ class Project < ActiveXML::Base
   def user_has_role?(user, role)
     user = Person.find_cached(user.to_s) if user.class == String
     if user
-      return true if user.is_admin?
       return true if find_first("person[@role='#{role}' and @userid='#{user.login}']")
       each("group[@role='#{role}']") do |g|
         return true if user.is_in_group?(g.value(:groupid))
@@ -317,6 +316,8 @@ class Project < ActiveXML::Base
   end
 
   def can_edit?(user)
+    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
+    return true if user.is_admin?
     return is_maintainer?(user)
   end
 
