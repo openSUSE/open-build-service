@@ -33,8 +33,6 @@ end
 
 class ApplicationController < ActionController::Base
 
-  include ExceptionNotification::Notifiable
-
   # Do never use a layout here since that has impact on every controller
   layout nil
   # session :disabled => true
@@ -564,9 +562,9 @@ class ApplicationController < ActionController::Base
         #Note: This is a SUSE-sepecific debugging extension that saves the last
         #      exception's scope. This method needs a patched Ruby interpreter.
         if defined?(set_trace_func_for_raise)
-          ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), $exception_scope)
+          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), $exception_scope)
         else
-          ExceptionNotification::Notifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+          ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
         end
       end
       render_error :message => "Uncaught exception: #{exception.message}", :status => 400
@@ -575,7 +573,7 @@ class ApplicationController < ActionController::Base
 
   def send_exception_mail?
     return false if Rails.env.test?
-    return false unless ExceptionNotification::Notifier.exception_recipients
+    return false unless ExceptionNotifier.exception_recipients
     return !local_request? && !Rails.env.development?
   end
 
