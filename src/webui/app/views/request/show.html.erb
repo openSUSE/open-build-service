@@ -79,6 +79,9 @@
                 setup_buildresult_tooltip('<%= "req_#{@req.value(:id)}_action_#{index}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
               <% end %>
             <% end %>
+            <% if ae.has_element? :options and ae.options.has_element? :sourceupdate and ae.options.sourceupdate.text == 'cleanup' %>
+              <%= image_tag('icons/package_delete.png', :size => '16x16', :title => 'Package will be deleted after request was accepted', :alt => 'Package will be deleted after request was accepted') %>
+            <% end %>
           </td>
         </tr>
       <% end %>
