@@ -45,7 +45,7 @@
  <history name="new" who="freitag" when="2007-12-12T07:00:00">
    <comment>Please add this to openSUSE</comment>
  </history>
- <history name="reviewed" who="mls" when="2007-12-22T23:00:00">
+ <history name="review" who="mls" when="2007-12-22T23:00:00">
    <comment>I don't want to make Klaas my enemy...</comment>
  </history>
  <title>Kraft</title>

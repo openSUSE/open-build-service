@@ -33,6 +33,33 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="sourceupdateoptions">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="update"/>
+      <xs:enumeration value="noupdate"/>
+      <xs:enumeration value="cleanup"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="sourceupdate">
+    <xs:simpleType>
+      <xs:restriction base="sourceupdateoptions" />
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:simpleType name="updatelinkoptions">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="updatelink">
+    <xs:simpleType>
+      <xs:restriction base="updatelinkoptions" />
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="request">
     <xs:annotation>
       <xs:documentation>
@@ -115,7 +142,7 @@
   <xs:element name="target" >
     <xs:complexType>
       <xs:attribute name="project" type="xs:string" use="required" />
-      <xs:attribute name="package" type="xs:string" use="required" />
+      <xs:attribute name="package" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 
@@ -136,8 +163,8 @@
   <xs:element name="options" >
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="sourceupdate" minOccurs="0" maxOccurs="1" />
-        <xs:element name="updatelink"   minOccurs="0" maxOccurs="1" />
+        <xs:element ref="sourceupdate" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="updatelink"   minOccurs="0" maxOccurs="1" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
