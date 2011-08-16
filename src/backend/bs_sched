@@ -4219,6 +4219,7 @@ while(1) {
       'uri' => "$remoteurl/lastevents",
       'async' => 1,
       'request' => 'POST',
+      'timeout' => 900, # 15 minutes timeout
       'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
       'proxy' => $proxy,
     };
