@@ -105,7 +105,7 @@
             <span id="pending_requests"></span>
             <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
           </span>
-          <%= check_box_tag(:sourceupdate) %> Remove local package if request is accepted
+          <%= check_box_tag(:sourceupdate, 'cleanup') %> Remove local package if request is accepted
         </p>
         <p id="devel_project_warning" class="hidden">
           You are about to bypass the devel project, please submit to <b id="devel_project_name"></b> instead.
