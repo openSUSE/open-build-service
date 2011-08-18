@@ -109,6 +109,18 @@ class SourceServicesTest < ActionController::IntegrationTest
     get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
     assert_response :success
 
+    put "/source/home:tom/service/_service", '<services/>' # empty list
+    assert_response :success
+    post "/source/home:tom/service?cmd=runservice"
+    assert_response :success
+    wait_for_service( "home:tom", "service" )
+    get "/source/home:tom/service"
+    assert_response :success
+    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
+    assert_response 404
+
     # cleanup
     delete "/source/home:tom/service"
     assert_response :success
