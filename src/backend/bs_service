@@ -126,6 +126,10 @@ sub run_source_update {
     unlink($file);
   }
 
+  # set environment
+  $::ENV{'OBS_SERVICE_PROJECT'} = $projid;
+  $::ENV{'OBS_SERVICE_PACKAGE'} = $packid;
+
   # run all services
   mkdir_p($myworkdir."/.tmp");
   for my $sf ('_service', '_serviceproject') {
