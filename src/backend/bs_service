@@ -177,8 +177,11 @@ sub run_source_update {
       if (close SERVICE) {
         # SUCCESS, copy files inside and add prefix
         for my $file (grep {!/^[:\.]/} ls("$myworkdir/.tmp")) {
-          my $tfile = "_service:".$service->{'name'}.":".$file;
-          rename("$myworkdir/.tmp/".$file, $tfile);
+          my $mode = (stat("$myworkdir/.tmp/$file"))[2];
+          if (!S_ISDIR($mode)) {
+            my $tfile = "_service:".$service->{'name'}.":".$file;
+            rename("$myworkdir/.tmp/".$file, $tfile);
+          }
         }
       } else { 
         # FAILURE, Create error file
