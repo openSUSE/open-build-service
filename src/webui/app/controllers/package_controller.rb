@@ -456,10 +456,9 @@ class PackageController < ApplicationController
       redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
-    linked_package = Package.find( @linked_package, :project => @linked_project )
+    linked_package = Package.find(@linked_package, :project => @linked_project)
     unless linked_package
-      flash[:error] = "Unable to find package '#{@linked_package}' in" +
-        " project '#{@linked_project}'."
+      flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
       redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
     end
 
@@ -473,10 +472,14 @@ class PackageController < ApplicationController
       redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
     end
 
-    if @current_revision
-      @revision = Package.current_xsrcmd5(@linked_project, @linked_package)
-      @revision = Package.current_rev(@linked_project, @linked_package) unless @revision
+    revision = Package.current_xsrcmd5(@linked_project, @linked_package)
+    revision = Package.current_rev(@linked_project, @linked_package) unless revision
+    unless revision
+      flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
+      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
     end
+
+    @revision = revision if @current_revision
 
     if @use_branch
       logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
