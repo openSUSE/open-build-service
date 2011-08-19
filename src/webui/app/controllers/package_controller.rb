@@ -448,29 +448,29 @@ class PackageController < ApplicationController
 
     if !valid_package_name_read? @linked_package
       flash[:error] = "Invalid package name: '#{@linked_package}'"
-      redirect_to :controller => :project, :action => 'new_package_link', :project => params[:project] and return
+      redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
     if !valid_project_name? @linked_project
       flash[:error] = "Invalid project name: '#{@linked_project}'"
-      redirect_to :controller => :project, :action => 'new_package_link', :project => params[:project] and return
+      redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
     linked_package = Package.find( @linked_package, :project => @linked_project )
     unless linked_package
       flash[:error] = "Unable to find package '#{@linked_package}' in" +
         " project '#{@linked_project}'."
-      redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
+      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
     end
 
     @target_package = @linked_package if @target_package.blank?
     if !valid_package_name_write? @target_package
       flash[:error] = "Invalid target package name: '#{@target_package}'"
-      redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
+      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
     end
     if Package.exists? @project, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
-      redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
+      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
     end
 
     if @current_revision
@@ -506,14 +506,12 @@ class PackageController < ApplicationController
         saved = false
         message, code, api_exception = ActiveXML::Transport.extract_error_message e
         flash[:error] = message
-        redirect_to :controller => 'project', :action => 'new_package_link',
-          :project => @project and return
+        redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
       end
 
       unless saved
         flash[:note] = "Failed to save package '#{package}'"
-        redirect_to :controller => 'project', :action => 'new_package_link',
-          :project => @project and return
+        redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
         logger.debug "link params: #{@linked_project}, #{@linked_package}"
         link = Link.new( :project => @project,
           :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
