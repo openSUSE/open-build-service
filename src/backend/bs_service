@@ -120,10 +120,12 @@ sub run_source_update {
 
   die("no _service file !") unless -e "_service" || -e "_serviceproject";
 
-  # remove all files from former service run
+  # move all files from former service run to '.old'
+  # so that they're available for services
+  mkdir_p($myworkdir."/.old");
   for my $file (grep {/^_service[:_]/} ls(".")) {
-    print "remove ".$file."\n";
-    unlink($file);
+    print "moving old file ".$file." to .old\n";
+    rename($file,".old/".$file);
   }
 
   # set environment
@@ -193,6 +195,10 @@ sub run_source_update {
   }
   BSUtil::cleandir("$myworkdir/.tmp");
   rmdir("$myworkdir/.tmp");
+
+  # remove old files (from former service run)
+  BSUtil::cleandir("$myworkdir/.old");
+  rmdir("$myworkdir/.old");
 
   # return modified sources
   my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service[_:]/} ls(".");
