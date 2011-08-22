@@ -806,13 +806,21 @@ class SourceController < ApplicationController
     # DELETE /source/:project/_pubkey
     elsif request.delete?
       #check for permissions
-      unless @http_user.can_modify_project?(prj)
-        render_error :status => 403, :errorcode => 'delete_project_pubkey_no_permission',
-          :message => "No permission to delete public key for project '#{params[:project]}'"
-        return
+      upperProject = prj.name.gsub(/:[^:]*$/,"")
+      while upperProject != prj.name and not upperProject.blank?
+        if DbProject.exists_by_name(upperProject) and @http_user.can_modify_project?(DbProject.get_by_name(upperProject))
+          pass_to_backend path
+          return
+        end
+        upperProject = upperProject.gsub(/:[^:]*$/,"")
       end
 
-      pass_to_backend path
+      if @http_user.is_admin?
+        pass_to_backend path
+      else
+        render_error :status => 403, :errorcode => 'delete_project_pubkey_no_permission',
+          :message => "No permission to delete public key for project '#{params[:project]}'. Either maintainer permissions by upper project or admin permissions is needed."
+      end
       return
     end
   end
