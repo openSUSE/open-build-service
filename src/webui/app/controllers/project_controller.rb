@@ -1271,10 +1271,11 @@ class ProjectController < ApplicationController
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
     end
 
-    @project.add_maintained_project(params[:maintained_project])
-    if @project.save
+    begin
+      @project.add_maintained_project(params[:maintained_project])
+      @project.save
       flash[:note] = "Added project '#{params[:maintained_project]}' to maintenance"
-    else
+    rescue
       flash[:error] = "Failed to add project '#{params[:maintained_project]}' to maintenance"
     end
     redirect_to(:action => 'maintained_projects', :project => @project) and return
