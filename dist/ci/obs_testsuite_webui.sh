@@ -12,10 +12,6 @@
 # Description:
 #   OBS WebUI testsuite. Runs unit and integration tests, generated coverage reports.
 #
-# Discard Old Builds:
-#   Days to keep builds: 5
-#   Max # of builds to keep: 10
-#
 # Build Triggers:
 #   Build after other projects are built:
 #     Project names: obs_testsuite_api
@@ -35,7 +31,7 @@
 #   Publish Rails stats report: 1
 #     Rake working directory: src/webui
 #   Publish Rcov report:
-#     Rcov report directory:  src/webui/coverage
+#     Rcov report directory:  src/webui/coverage/test
 #
 
 ###############################################################################
@@ -44,9 +40,6 @@
 #
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
-
-echo "Replace backend worspace path with current job's workspace"
-sed -i "s|our \$bsdir = '/srv/obs';|our \$bsdir = '$WORKSPACE/backend';|" src/backend/BSConfig.pm
 
 echo "Enter WebUI rails root"
 cd src/webui
@@ -78,3 +71,5 @@ mkdir coverage
 echo "Invoke rake"
 rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
 
+echo "Remove unneded logfiles"
+rm -f src/api/log/*

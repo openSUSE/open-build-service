@@ -13,8 +13,7 @@
 #   environment for all further tasks.
 #
 # Discard Old Builds:
-#   Days to keep builds: 5
-#   Max # of builds to keep: 5
+#   Max # of builds to keep: 3
 #
 # Source Code Management:
 #   Git:

@@ -48,6 +48,7 @@ init = Rails::Initializer.run do |config|
   config.gem 'erubis'
   config.gem 'rails_xss'
   config.gem 'nokogiri'
+  config.gem 'ci_reporter', :lib => false # ci_reporter generates XML reports for Test::Unit
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector

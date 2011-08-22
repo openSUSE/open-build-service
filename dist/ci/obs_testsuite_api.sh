@@ -12,10 +12,6 @@
 # Description:
 #   OBS API testsuite. Runs unit and integration tests, generated coverage reports.
 #
-# Discard Old Builds:
-#   Days to keep builds: 5
-#   Max # of builds to keep: 10
-#
 # Build Triggers:
 #   Build after other projects are built:
 #     Project names: obs_common
@@ -28,6 +24,9 @@
 #     Command: sh dist/ci/obs_testsuite_api.sh
 #
 # Post Build Actions:
+#   Archive the artifacts:
+#     Files to archive: **/*
+#     Discard all but the last successful/stable artifact to save disk space: 1
 #   Publish JUnit test result report:
 #     Test report XMLs: src/api/results/*.xml
 #   Publish Rails Notes report: 1
@@ -35,7 +34,7 @@
 #   Publish Rails stats report: 1
 #     Rake working directory: src/api
 #   Publish Rcov report:
-#     Rcov report directory:  src/api/coverage
+#     Rcov report directory:  src/api/coverage/test
 #
 
 ###############################################################################
@@ -44,9 +43,6 @@
 #
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
-
-echo "Replace backend worspace path with current job's workspace"
-sed -i "s|our \$bsdir = '/srv/obs';|our \$bsdir = '$WORKSPACE/backend';|" src/backend/BSConfig.pm
 
 echo "Enter API rails root"
 cd src/api
@@ -67,7 +63,10 @@ export CI_REPORTS=results
 export RAILS_ENV=test
 
 echo "Fix executable bits broken by 'Copy Artifacts' plugin"
-chmod +x script/start_test_backend
+chmod +x script/start_test_backend \
+         test/fixtures/backend/services/download_files \
+         test/fixtures/backend/services/download_url \
+         test/fixtures/backend/services/set_version
 
 echo "Initialize test database, run migrations, load seed data"
 rake db:drop db:create db:setup db:migrate
@@ -79,3 +78,5 @@ mkdir coverage
 echo "Invoke rake"
 rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
 
+echo "Remove unneded logfiles"
+rm -f src/api/log/*
