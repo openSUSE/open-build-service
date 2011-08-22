@@ -317,6 +317,7 @@ class Project < ActiveXML::Base
 
   def can_edit?(user)
     user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
+    return false if not user
     return true if user.is_admin?
     return is_maintainer?(user)
   end
