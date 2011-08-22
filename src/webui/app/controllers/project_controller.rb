@@ -171,6 +171,7 @@ class ProjectController < ApplicationController
   end
 
   def new_incident
+    target_project = ''
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
       result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
