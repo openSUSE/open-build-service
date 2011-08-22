@@ -622,10 +622,14 @@ class ProjectController < ApplicationController
     # extend an existing repository with a path
     if params.has_key?(:torepository)
       repo_path = "#{params[:target_project]}/#{target_repo}"
-      @project.add_path_to_repository(:reponame => params[:torepository], :repo_path => repo_path)
-      @project.save
-      flash[:success] = "Repository #{params['target_project']}/#{target_repo} added successfully"
-      redirect_to :action => 'repositories', :project => @project and return
+      if @project.add_path_to_repository(:reponame => params[:torepository], :repo_path => repo_path)
+        @project.save
+        flash[:success] = "Path #{params['target_project']}/#{target_repo} added successfully"
+        redirect_to :action => 'repositories', :project => @project and return
+      else
+        flash[:error] = "Path #{params['target_project']}/#{target_repo} is already set for this repository"
+        redirect_to :action => 'add_repository', :project => @project, :torepository => params[:torepository] and return
+      end
     elsif params.has_key?(:repo)
       # add new repositories
       params[:repo].each do |repo|

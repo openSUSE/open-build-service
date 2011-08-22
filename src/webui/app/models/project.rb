@@ -171,6 +171,10 @@ class Project < ActiveXML::Base
 
     unless opt[:repo_path].blank?
       opt[:repo_path] =~ /(.*)\/(.*)/;
+      repository.each_path do |path| # Check if the path to add is already existant
+        return false if path.project == $1 and path.repository == $2
+      end
+
       param = self.add_element('path', :project => $1, :repository => $2)
       # put it on top
       first = repository.each.first
