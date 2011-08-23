@@ -28,7 +28,6 @@ class HomeController < ApplicationController
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
     @user.free_cache if discard_cache?
-    set_watchlist @user
     @iprojects = @user.involved_projects.each.map {|x| x.name}.uniq.sort
     @ipackages = Hash.new
     pkglist = @user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
@@ -39,19 +38,10 @@ class HomeController < ApplicationController
   end
 
   def remove_watched_project
-    project = params[:project]
-    logger.debug "removing watched project '#{project}' from user '#@user'"
-    @user.remove_watched_project project
+    logger.debug "removing watched project '#{params[:project]}' from user '#@user'"
+    @user.remove_watched_project(params[:project])
     @user.save
-    set_watchlist @user
     render :partial => 'watch_list'
-  end
-
-  #extract a list of project names and sort them case insensitive
-  def set_watchlist user
-    if user.has_element? :watchlist
-      @watchlist = user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
-    end
   end
 
 end

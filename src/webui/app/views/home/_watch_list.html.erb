@@ -1,11 +1,11 @@
 <div id="__watchlist">
-  <%- if @watchlist and not @watchlist.empty? -%>
+  <% if @user and @user.watched_projects and @user.watched_projects.empty? %>
     <table style="width: 46%" id="watched_projects-table" class="grid" title="Watched Projects">
       <tr>
         <th>Project</th>
         <th style="width: 1%">Actions</th>
       </tr>
-      <%- @watchlist.each do |project| -%>
+      <% @user.watched_projects.each do |project| %>
         <tr>
           <td><%= link_to elide(project, 60), :action => :show, :project => project, :controller => :project %></td>
           <td>
@@ -15,10 +15,10 @@
                 {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %>
           </td>
         </tr>
-      <%- end -%>
+      <% end %>
     </table>
-  <%- else -%>
+  <% else %>
     <p><em>No projects marked to be watched.</em></p>
     <p>Add a project in watchlist menu to watch a project.</p>
-  <%- end -%>
+  <% end %>
 </div>

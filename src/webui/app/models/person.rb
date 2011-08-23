@@ -77,6 +77,7 @@ class Person < ActiveXML::Base
     watchlist.add_element('project', :name => name)
     logger.debug "user '#{login}' is now watching project '#{name}'"
     @@person_cache.delete(login)
+    Rails.cache.delete("person_#{login}_watchlist")
   end
 
   def remove_watched_project(name)
@@ -85,6 +86,17 @@ class Person < ActiveXML::Base
     watchlist.delete_element "project[@name='#{name}']"
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
     @@person_cache.delete(login)
+    Rails.cache.delete("person_#{login}_watchlist")
+  end
+
+  def watched_projects
+    if has_element?(:watchlist)
+      return Rails.cache.fetch("person_#{login}_watchlist") do
+        watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}
+      end
+    else
+      return {}
+    end
   end
 
   def watches?(name)
@@ -93,6 +105,7 @@ class Person < ActiveXML::Base
 
   def free_cache
     Rails.cache.delete("person_#{login}")
+    Rails.cache.delete("person_#{login}_watchlist")
     predicate = "person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
     Collection.free_cache(:id, :what => 'project', :predicate => predicate)
