@@ -6,7 +6,7 @@ class PublishedController < ApplicationController
     prj = DbProject.get_by_name(params[:project]) if params[:project]
 
     if prj 
-#FIXME2.2: this is incomplete and ignores packages. it is no security feature.
+      # This is no security feature as documented
       if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
         render_error :status => 403, :errorcode => "download_binary_no_permission",
         :message => "No permission for binaries from project #{params[:project]}"

@@ -170,7 +170,7 @@ class DbProject < ActiveRecord::Base
       def securedfind_every(options)
         unless User.currentAdmin
           # limit to projects which have no "access" flag, except user has any role inside
-          # FIXME2.2: we should limit this to maintainer and reader role only ?
+          # FIXME3.0: we should limit this to maintainer and reader role only ?
           #            
           options[:joins] = "" if options[:joins].nil?
           options[:joins] += " LEFT JOIN flags f ON f.db_project_id = db_projects.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag

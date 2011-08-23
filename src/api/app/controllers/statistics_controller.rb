@@ -19,7 +19,8 @@ class StatisticsController < ApplicationController
 
     def initialize
 
-      # ACL(initialize) this call grabs all projects/packages/repos/archs. This call is not used in config/routes.
+      # This loads all data, basically makes statistic controller not really usable on a large
+      # installation
       @errors = []
       # build hashes for caching id-/name- combinations
       projects = DbProject.find :all, :select => 'id, name'
@@ -35,7 +36,6 @@ class StatisticsController < ApplicationController
 
     def tag_start name, attrs
 
-      # ACL(tag_start): only the Admin can do this, so call is protected?
       case name
       when 'project'
         @@project_name = attrs['name']
@@ -201,7 +201,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     #    response.time_to_live = 30.minutes
 
-    # FIXME2.2: ACL(download_counter) TODO: this call is not instrumented
+    # FIXME: download stats are currently not supported and needs a re-implementation
 
     # initialize @stats
     @stats = []

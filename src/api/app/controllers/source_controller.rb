@@ -2027,7 +2027,6 @@ class SourceController < ApplicationController
     pkg_name = params[:package]
 
     pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
-    # FIXME2.2: sourceaccess flag enable/removal is not checked here
 
     # first remove former flags of the same class
     begin
