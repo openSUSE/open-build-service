@@ -1100,7 +1100,6 @@ class PackageController < ApplicationController
 
   def repositories
     @package = find_cached(Package, params[:package], :project => params[:project], :view => :flagdetails )
-    @user_is_maintainer = (@user && @user.is_maintainer?(@project, @package))
   end
 
   def change_flag

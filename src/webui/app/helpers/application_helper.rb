@@ -249,7 +249,7 @@ module ApplicationHelper
         end
       end
 
-      if @user_is_maintainer
+      if @user && @user.is_maintainer?(@project, @package)
         opts = { :project => @project, :repository => repository, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
         out = "<div class='flagimage'>" + image_tag(image) + "<div class='hidden flagtoggle'>"
         unless flag.has_attribute? :explicit and flag.element_name == 'disable'
