@@ -1279,7 +1279,7 @@ class ProjectController < ApplicationController
       @project.add_maintained_project(params[:maintained_project])
       @project.save
       flash[:note] = "Added project '#{params[:maintained_project]}' to maintenance"
-    rescue
+    rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Failed to add project '#{params[:maintained_project]}' to maintenance"
     end
     redirect_to(:action => 'maintained_projects', :project => @project) and return
