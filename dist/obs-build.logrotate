@@ -6,10 +6,8 @@
   size +4096k
   notifempty
   missingok
+  copytruncate
   create 664 wwwrun www
-  postrotate
-    /etc/init.d/apache2 reload
-  endscript
 }
 
 /srv/www/obs/webui/log/production.log {
@@ -20,10 +18,8 @@
   size +4096k
   notifempty
   missingok
+  copytruncate
   create 664 wwwrun www
   sharedscripts
-  postrotate
-    /etc/init.d/apache2 reload
-  endscript
 }
 
