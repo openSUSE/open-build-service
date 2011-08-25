@@ -74,6 +74,7 @@ end
 namespace :deploy do
   task :restart do
     run "touch #{current_path}/tmp/restart.txt"
+    run "/etc/init.d/obsapidelayed restart"
   end
 
   task :use_subdir do
