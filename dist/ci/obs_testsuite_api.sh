@@ -10,16 +10,21 @@
 #
 # Project name: obs_testsuite_api
 # Description:
-#   OBS API testsuite. Runs unit and integration tests, generated coverage reports.
+#   OBS API testsuite on git master branch.
+#
+#   Updates source code repository and sets up a working environment for all
+#   further tasks. Runs unit and integration tests generated coverage reports.
+#
+# Source Code Management:
+#   Git:
+#     Repositories: git://gitorious.org/opensuse/build-service.git
+#     Branches to build: master
 #
 # Build Triggers:
-#   Build after other projects are built:
-#     Project names: obs_common
+#   Poll SCM:
+#     Schedule: */5 * * * *
 #
 # Build:
-#   Copy artifacts from another project:
-#     Project name: obs_common
-#     Artifacts to copy: **/*
 #   Execute shell:
 #     Command: sh dist/ci/obs_testsuite_api.sh
 #
@@ -44,6 +49,16 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
+echo "Setup git submodules"
+git submodule init
+git submodule update
+
+echo "Setup backend configuration template"
+sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
+       -e "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" \
+       -e "s|our \$bsgroup = 'obsrun';|our \$bsgroup = 'jenkins';|" src/backend/BSConfig.pm.template
+cp src/backend/BSConfig.pm.template src/backend/BSConfig.pm
+
 echo "Enter API rails root"
 cd src/api
 
@@ -62,12 +77,6 @@ echo "Set environment variables"
 export CI_REPORTS=results
 export RAILS_ENV=test
 
-echo "Fix executable bits broken by 'Copy Artifacts' plugin"
-chmod +x script/start_test_backend \
-         test/fixtures/backend/services/download_files \
-         test/fixtures/backend/services/download_url \
-         test/fixtures/backend/services/set_version
-
 echo "Initialize test database, run migrations, load seed data"
 rake db:drop db:create db:setup db:migrate
 
@@ -78,5 +87,6 @@ mkdir coverage
 echo "Invoke rake"
 rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
 
-echo "Remove unneded logfiles"
-rm -f src/api/log/*
+echo "Remove unneded files to save disc space"
+rm -rf src/api/log/* \
+       src/api/tmp/*

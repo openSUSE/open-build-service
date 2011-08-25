@@ -10,7 +10,9 @@
 #
 # Project name: obs_testsuite_webui
 # Description:
-#   OBS WebUI testsuite. Runs unit and integration tests, generated coverage reports.
+#   OBS WebUI testsuite on git master branch.
+#
+#   Runs unit and integration tests, generated coverage reports.
 #
 # Build Triggers:
 #   Build after other projects are built:
@@ -71,5 +73,6 @@ mkdir coverage
 echo "Invoke rake"
 rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
 
-echo "Remove unneded logfiles"
-rm -f src/api/log/*
+echo "Remove unneded files to save disc space"
+rm -rf src/api/log/* \
+       src/api/tmp/*
