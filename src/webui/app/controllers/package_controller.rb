@@ -649,8 +649,12 @@ class PackageController < ApplicationController
 
   def execute_services
     @services = find_cached(Service,  :project => @project, :package => @package )
-    @services.execute()
-    flash[:note] = "Service execution got triggered"
+    if @services
+      @services.execute()
+      flash[:note] = "Service execution got triggered"
+    else
+      flash[:error] = "No services to execute"
+    end
     redirect_to :action => :files, :project => @project, :package => @package and return
   end
 
