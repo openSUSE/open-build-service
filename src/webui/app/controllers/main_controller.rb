@@ -5,41 +5,46 @@ require 'models/latest_updated'
 class MainController < ApplicationController
 
   def index
-    begin
+    @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
+    unless @spider_bot
+      @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+    end
+  rescue ActiveXML::Transport::UnauthorizedError => e
+    @anonymous_forbidden = true
+    logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
+  end
+
+  # This action does the heavy lifting for the index method and is only invoked by an AJAX request
+  def systemstatus
+    return if not request.xhr? # Only serve AJAX-requests
+    if not @spider_bot
       @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
         Workerstatus.find :all
-      end unless @spider_bot
-
-      @waiting_packages = 0
-      # If it crashes here due to @workerstatus.nil? the user tries to run a webui without an api connection ...
-      @workerstatus.each_waiting do |waiting|
-        @waiting_packages += waiting.jobs.to_i
-      end if @workerstatus
-
-      @busy = nil
-      require_available_architectures unless @spider_bot
-      if @available_architectures
-        @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
-          archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
-          if archret.length > 0
-            if @busy
-              @busy = MonitorController.addarrays(@busy, archret)
-            else
-              @busy = archret
-            end
+      end
+    end
+    @waiting_packages = 0
+    if @workerstatus
+      @workerstatus.each_waiting {|waiting| @waiting_packages += waiting.jobs.to_i}
+    end
+    @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
+    @busy = nil
+    require_available_architectures unless @spider_bot
+    if @available_architectures
+      @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
+        archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
+        if archret.length > 0
+          if @busy
+            @busy = MonitorController.addarrays(@busy, archret)
+          else
+            @busy = archret
           end
         end
       end
-
-      @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
-      unless @spider_bot
-        @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
-        @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
-      end
-    rescue ActiveXML::Transport::UnauthorizedError => e
-      @anonymous_forbidden = true
-      logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
     end
+    render :partial => 'main/systemstatus'
+  rescue ActiveXML::Transport::UnauthorizedError => e
+    @anonymous_forbidden = true
+    render :text => '' # AJAX-request means no 'flash' available, don't render anything if we aren't allowed
   end
 
   def news
@@ -125,22 +130,18 @@ class MainController < ApplicationController
   end
 
   def delete_message
-    begin
-      message = Statusmessage.find(:id => params[:message_id])
-      message.delete
-    rescue ActiveXML::Transport::ForbiddenError
-      flash[:error] = 'Only admin users may delete status messages'
-    end
+    message = Statusmessage.find(:id => params[:message_id])
+    message.delete
     redirect_to(:action => 'index')
+  rescue ActiveXML::Transport::ForbiddenError
+    flash[:error] = 'Only admin users may delete status messages'
   end
 
   def require_available_architectures
-    begin
-      super # Call ApplicationController implementation, but catch an additional exception
-    rescue ActiveXML::Transport::UnauthorizedError => e
-      @anonymous_forbidden = true
-      logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
-    end
+    super # Call ApplicationController implementation, but catch an additional exception
+  rescue ActiveXML::Transport::UnauthorizedError => e
+    @anonymous_forbidden = true
+    logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
   end
 
 end

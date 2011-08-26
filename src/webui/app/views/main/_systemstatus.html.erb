@@ -1,0 +1,32 @@
+<% if @workerstatus and (@busy or @global_counters) %>
+  <%= javascript_include_tag 'jquery.flot' %>
+
+  <div class="box box-shadow">
+    <div class="box-header aligncenter">System Status</div>
+    <div class="clear"></div>
+    <% if @busy %>
+      <div class="aligncenter" id="overallgraph" style="height:250px; margin: 0px 20px 20px 20px"></div>
+      <p class="description">
+        The above graphs show the number of active build jobs last week, 
+        currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
+        At the moment <%= @waiting_packages %> packages are waiting on the different architectures.
+      </p>
+      <% javascript_tag do %>
+        $.plot($("#overallgraph"), [ { data: <%= MonitorHelper.print_statistics_array(@busy) %>, label: "Busy workers", color: 3} ],
+        {
+          series: { stack: true, lines: { show: true, steps: false, fill: true } }, 
+          xaxis: { mode: 'time' },
+          yaxis: { min: 0, position: "left" },
+        });
+      <% end %>
+    <% end %>
+
+    <% if @global_counters %>
+      <p class="description">
+        <%= @configuration['title'] %> hosts <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
+        <b><%= number_with_delimiter @global_counters.packages %></b> packages, in <b><%= number_with_delimiter @global_counters.repos %></b> repositories
+        and is used by <b><%= number_with_delimiter @global_counters.users %></b> confirmed developers.
+      </p>
+    <% end %>
+  </div>
+<% end %>
