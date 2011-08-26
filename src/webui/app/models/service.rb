@@ -56,7 +56,7 @@ class Service < ActiveXML::Base
          updateServiceList
       end
 
-      return [] unless @serviceParameterList[serviceName]
+      return {} unless @serviceParameterList[serviceName]
       @serviceParameterList[serviceName]
     end
 
