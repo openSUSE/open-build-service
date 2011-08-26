@@ -151,7 +151,7 @@ ActiveXML::Base.config do |conf|
     map.connect :directory, "rest:///source/:project/:package?:expand&:rev"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service",
-                :all => "rest://source/service"
+                :all => "rest:///service"
     map.connect :file, "rest:///source/:project/:package/:filename?:expand&:rev"
     map.connect :jobhislist, "rest:///build/:project/:repository/:arch/_jobhistory?:limit&:code"
 

@@ -11,7 +11,7 @@ class Service < ActiveXML::Base
        @serviceParameterList = {}
 
        doc = Service.find_cached :all
-       doc.each("//servicelist/service") do |s|
+       doc.each_service do |s|
          serviceName = s.value("name")
          next if s.value("hidden") == "true"
          hash = {}
