@@ -190,7 +190,7 @@ class PackageController < ApplicationController
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, _, _ = ActiveXML::Transport.extract_error_message(e)
-      flash[:error] = message
+      flash[:error] = "Unable to submit to #{message}"
       redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
     end
 
