@@ -56,4 +56,40 @@ class BsRequest < ActiveXML::Base
     end
   end
 
+  def remove_reviews(opts)
+    return false unless opts[:by_user] or opts[:by_group] or opts[:by_project] or opts[:by_package]
+    each_review do |review|
+      if review.by_user and review.by_user == opts[:by_user] or
+         review.by_group and review.by_group == opts[:by_group] or
+         review.by_project and review.by_project == opts[:by_project] or
+         review.by_package and review.by_package == opts[:by_package]
+        logger.debug "Removing review #{review.dump_xml}"
+        self.delete_element(review)
+      end
+    end
+    return self.save()
+  end
+
+  def change_state(state, user, opts)
+    opts = {:superseded_by => nil, :comment => ''}.merge(opts)
+    if ['new', 'review', 'accepted', 'declined', 'revoked', 'superseded'].include?(state)
+      begin
+        path = "/request/#{self.id}?cmd=changestate&newstate=#{CGI.escape(state)}&user=#{CGI.escape(user)}&comment=#{CGI.escape(opts[:comment])}"
+        path += "&superseded_by=#{CGI.escape(opts[:superseded_by])}" if opts[:superseded_by]
+        response = Suse::Backend.post(path, '')
+        if response.code == "200"
+          self.state.set_value('name', state) # Set local state to match change sent to backend
+          logger.debug "Changed state of request '#{self.id}' to '#{state}'"
+          return true
+        else
+          return false
+        end
+      rescue Suse::Backend::HTTPError => e
+        logger.debug "Unable to change state of request '#{self.id}' to '#{state}'"
+        return false
+      end
+    end
+    return false
+  end
+
 end
