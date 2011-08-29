@@ -668,7 +668,7 @@ end
     post "/request/#{id1}?cmd=changestate&newstate=declined"
     assert_response 403
     post "/request/#{id2}?cmd=changestate&newstate=revoked"
-    assert_response :success
+    assert_response 403
 
     # test decline and revoke
     prepare_request_with_user 'adrian', 'so_alone'
