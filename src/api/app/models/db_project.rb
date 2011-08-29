@@ -1254,6 +1254,18 @@ class DbProject < ActiveRecord::Base
     return false
   end
 
-  private
+  def open_requests_with_project_as_source_or_target
+    # Includes also requests for packages contained in this project
+    predicate = "(state/@name='new' or state/@name='review') and (action/source/@project='#{self.name}' or action/target/@project='#{self.name}')"
+    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
+    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+  end
+
+  def open_requests_with_by_project_review
+    # Includes also by_package reviews for packages contained in this project
+    predicate = "(state/@name='new' or state/@name='review') and (review[@state='new' and @by_project='#{self.name}'])"
+    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
+    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+  end
 
 end

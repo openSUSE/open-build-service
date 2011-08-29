@@ -856,4 +856,16 @@ class DbPackage < ActiveRecord::Base
     return db_project.expand_flags(self)
   end
 
+  def open_requests_with_package_as_source_or_target
+    predicate = "(state/@name='new' or state/@name='review') and ((action/source/@project='#{self.db_project.name}' and action/source/@package='#{self.name}') or (action/target/@project='#{self.db_project.name}' and action/target/@project='#{self.name}'))"
+    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
+    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+  end
+
+  def open_requests_with_by_package_review
+    predicate = "(state/@name='new' or state/@name='review') and (review[@state='new' and @by_project='#{self.db_project.name}' and @by_package='#{self.name}'])"
+    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
+    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+  end
+
 end
