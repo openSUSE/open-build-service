@@ -144,9 +144,29 @@ class SourceController < ApplicationController
         end
       end
 
-      # FIXME: find requests that have this project as a source or target and remove them
-      # FIXME: find all requests which have a by_project review and remove them
-      # FIXME: same for by_package review of all packages in this project
+      # Find open requests with 'pro' as source or target and decline/revoke them.
+      # Revoke if source or decline if target went away, pick the first action that matches to decide...
+      # Note: As requests are a backend matter, it's pointless to include them into the transaction below
+      pro.open_requests_with_project_as_source_or_target.each do |request_id|
+        request = BsRequest.find(request_id)
+        request.each_action do |action|
+          if action.source and action.source.project == pro.name
+            request.change_state('revoked', @http_user.login, :comment => "The source project '#{pro.name}' was removed")
+            break
+          end
+          if action.target and action.target.project == pro.name
+            request.change_state('declined', @http_user.login, :comment => "The target project '#{pro.name}' was removed")
+            break
+          end
+        end
+      end
+
+      # Find open requests which have a review involving this project (or it's packages) and remove those reviews
+      # but leave the requests otherwise untouched.
+      pro.open_requests_with_by_project_review.each do |request_id|
+        BsRequest.find(request_id).remove_reviews(:by_project => pro.name)
+      end
+
 
       DbProject.transaction do
         logger.info "destroying project object #{pro.name}"
@@ -357,8 +377,28 @@ class SourceController < ApplicationController
       # Shall we ask the other package owner accepting to be a devel package ?
       tpkg.can_be_deleted?
 
-      #FIXME: Check for all requests that have this package as either source or target
-      #FIXME: Check all requests in state review that have a by_package review on this one
+      # Find open requests with 'tpkg' as source or target and decline/revoke them.
+      # Revoke if source or decline if target went away, pick the first action that matches to decide...
+      # Note: As requests are a backend matter, it's pointless to include them into the transaction below
+      tpkg.open_requests_with_package_as_source_or_target.each do |request_id|
+        request = BsRequest.find(request_id)
+        request.each_action do |action|
+          if action.source and action.source.project == tpkg.db_project.name and action.source.package == tpkg.name
+            request.change_state('revoked', @http_user.login, :comment => "The source package '#{tpkg.db_project.name} / #{tpkg.name}' was removed")
+            break
+          end
+          if action.target and action.target.project == tpkg.db_project.name and action.target.package == tpkg.name
+            request.change_state('declined', @http_user.login, :comment => "The target package '#{tpkg.db_project.name} / #{tpkg.name}' was removed")
+            break
+          end
+        end
+      end
+
+      # Find open requests which have a review involving this package and remove those reviews
+      # but leave the requests otherwise untouched.
+      tpkg.open_requests_with_by_package_review.each do |request_id|
+        BsRequest.find(request_id).remove_reviews(:by_project => tpkg.db_project.name, :by_package => tpkg.name)
+      end
 
       # exec
       DbPackage.transaction do
