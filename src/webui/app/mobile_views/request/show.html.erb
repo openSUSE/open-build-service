@@ -7,10 +7,8 @@
 
 <div data-role="collapsible" data-collapsed="false">
 	<h3>Actions</h3>
-	<%= link_to 'Accept', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "check", 'data-role' => "button" %>
-	<%= link_to 'Decline', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
-	<%= link_to 'Modify', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "gear", 'data-role' => "button" %>
-	<%= link_to 'Delete', {:controller => 'search', :action => 'index'}, 'data-transition' => "slide", 'data-icon' => "delete", 'data-role' => "button" %>
+	<%= link_to 'Accept', {:controller => 'request', :action => 'changerequest', :id => @id, :accepted => 'true'}, 'data-transition' => "slide", 'data-icon' => "check", 'data-role' => "button" %>
+	<%= link_to 'Decline', {:controller => 'request', :action => 'changerequest', :id => @id, :declined => 'true'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
 </div>
 
 <div data-role="collapsible" data-collapsed="false">

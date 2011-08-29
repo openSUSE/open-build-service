@@ -17,11 +17,26 @@
 
     <title><%= h "#{@page_title || 'OBS'}" %></title>
 
+    <script type="text/javascript">
+      function flashMessage(message) {
+        $("<div class='ui-loader ui-overlay-shadow ui-body-b ui-corner-all'><h1>" + message + "</h1></div>")
+        .css({
+          display: "block",
+          opacity: 0.96,
+          top: window.pageYOffset+100
+        })
+        .appendTo("body").delay(3000)
+        .fadeOut(400, function(){
+          $(this).remove();
+        });
+      }
+    </script>
+
   </head>
 
   <body>
 
-    <div data-role="page" data-theme="a">
+    <div data-role="page" data-theme="a" class="layout">
       <div data-role="header" >
         <h1><%= image_tag("obs-logo_small.png", :height => "25") %> <%= h "#{@page_title}" %></h1>
 
@@ -34,8 +49,17 @@
       <div data-role="content">
         <%= @content_for_layout %>
       </div>
-      
+
+      <% unless flash.blank? %>
+        <script type="text/javascript">
+    flashMessage("<%= flash.first.last %>");
+        </script>
+      <% end %>
+
     </div>
+
+
+
 
   </body>
 </html>
