@@ -1057,6 +1057,31 @@ sub compile_publishfilter {
 
 my $default_publishfilter;
 
+sub publishdelta {
+  my ($prp, $delta, $bin, $rdir, $rbin, $origin, $packid) = @_;
+
+  my @s = stat("$reporoot/$prp/$myarch/_deltas/$delta->[0]");
+  return 0 unless @s && $s[7];		# zero size means skip it
+  return 0 unless -s "$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq";	# need dseq file
+  my $deltaname = mkdeltaname($delta->[1], $bin);
+  my $deltaseqname = $deltaname;
+  $deltaseqname =~ s/\.drpm$//;
+  $deltaseqname .= '.dseq';
+  my @sr = stat("$rdir/${rbin}::$deltaname");
+  my $changed;
+  if (!@sr || "$s[9]/$s[7]/$s[1]" ne "$sr[9]/$sr[7]/$sr[1]") {
+    print @sr ? "      ! :repo/${rbin}::$deltaname\n" : "      + :repo/${rbin}::$deltaname\n";
+    unlink("$rdir/$rbin.$deltaname");
+    unlink("$rdir/$rbin.$deltaseqname");
+    link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
+    link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
+    $changed = 1;
+  }
+  $origin->{"${rbin}::$deltaname"} = $packid;
+  $origin->{"${rbin}::$deltaseqname"} = $packid;
+  return $changed;
+}
+
 sub prpfinished {
   my ($prp, $packs, $pubenabled, $bconf, $prpsearchpath) = @_;
 
@@ -1159,7 +1184,15 @@ sub prpfinished {
         my @s = lstat("$pdir/$bin");
 	my $pisdir = -d _ ? 1 : 0;
         next unless @s;
-        next if "$s[9]/$s[7]/$s[1]" eq "$sr[9]/$sr[7]/$sr[1]";
+	if ("$s[9]/$s[7]/$s[1]" eq "$sr[9]/$sr[7]/$sr[1]") {
+	  # unchanged file, check deltas
+	  if ($deltas->{"$packid/$bin"}) {
+	    for my $delta (@{$deltas->{"$packid/$bin"}}) {
+	      $changed = 1 if publishdelta($prp, $delta, $bin, $rdir, $rbin, \%origin, $packid);
+	    }
+	  }
+	  next;
+	}
 	if ($risdir && $pisdir) {
 	  my $rinfo = BSUtil::treeinfo("$rdir/$rbin");
 	  my $pinfo = BSUtil::treeinfo("$pdir/$bin");
@@ -1182,17 +1215,7 @@ sub prpfinished {
         link("$pdir/$bin", "$rdir/$rbin") || die("link $pdir/$bin $rdir/$rbin: $!\n");
 	if ($deltas->{"$packid/$bin"}) {
 	  for my $delta (@{$deltas->{"$packid/$bin"}}) {
-	    next unless -s "$reporoot/$prp/$myarch/_deltas/$delta->[0]";	# zero size means skip it
-	    my $deltaname = mkdeltaname($delta->[1], $bin);
-	    my $deltaseqname = $deltaname;
-	    $deltaseqname =~ s/\.drpm$//;
-	    $deltaseqname .= ".dseq";
-	    unlink("$rdir/$rbin.$deltaname");
-	    print "      + :repo/${rbin}::$deltaname\n";
-	    link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
-	    link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
-	    $origin{"${rbin}::$deltaname"} = $packid;
-	    $origin{"${rbin}::$deltaseqname"} = $packid;
+	    publishdelta($prp, $delta, $bin, $rdir, $rbin, \%origin, $packid);
 	  }
 	}
       }
