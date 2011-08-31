@@ -33,14 +33,16 @@
     <h3>Actions</h3>
     <% if params[:commit] %>
       <% msg = "Revert #{h(@project.to_s + ' / ' + @package.to_s)} to this revision" %>
+      <% target_project, target_package = @project, nil %>
     <% else %>
       <% msg = "Submit these changes to #{h(@oproject.to_s + ' / ' + @opackage.to_s)}" %>
+      <% target_project, target_package = @oproject, @opackage %>
     <% end %>
     <p>
       <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
-        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage, :revision => @rev, :readonly => true}) %>
+        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
       <%= link_to_remote(msg,
-        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage, :revision => @rev, :readonly => true}) %>
+        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
     </p>
   <% end %>
 <% end %>
