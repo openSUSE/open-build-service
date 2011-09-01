@@ -673,7 +673,7 @@ end
     # test decline and revoke
     prepare_request_with_user 'adrian', 'so_alone'
     post "/request/#{id1}?cmd=changestate&newstate=declined"
-    assert_response :success
+    assert_response 403 # Request was already revoked because the source was deleted above
   end
 
   def test_revoke_and_decline_when_projects_are_not_existing_anymore
