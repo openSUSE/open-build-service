@@ -321,7 +321,7 @@ class StatusController < ApplicationController
       if trepo.empty?
 	render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
       end
-      logger.debug trepo.inspect
+      logger.debug "trepo #{trepo.inspect}"
       archs.each do |arch|
         everbuilt = 0
         eversucceeded = 0
@@ -340,8 +340,9 @@ class StatusController < ApplicationController
 	    break
 	  end
 	end
+        logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
 	missingdeps=[]
-	if eversucceeded
+	if eversucceeded == 1
 	  uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
           begin
 	     buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
@@ -406,6 +407,7 @@ class StatusController < ApplicationController
 	if everbuilt == 0
 	  spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
           buildflag=spkg.find_flag_state("build", srep.name, arch.to_s)
+          logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
 	  if buildflag == 'disable'
 	    buildcode='disabled'
 	  end

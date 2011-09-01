@@ -128,8 +128,13 @@ module FlagHelper
   def find_flag_state(flag_type, repo, arch)
     state = :default
 
+    flags = Array.new
     self.type_flags(flag_type).each do |flag|
-      state = flag.status if flag.is_relevant_for?(repo, arch)
+       flags << flag if flag.is_relevant_for?(repo, arch)
+    end
+    flags.sort! { |a,b| a.specifics <=> b.specifics }
+    flags.each do |flag|
+      state = flag.status
     end
 
     if state == :default
