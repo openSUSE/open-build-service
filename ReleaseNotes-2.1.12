@@ -1,0 +1,24 @@
+#
+# openSUSE Build Service 2.1.12
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* backend: support projects with defined devel projects (from OBS 2.3)
+
+Bugfixes:
+=========
+
+* webui: Fix revert to revision button by using the revision to revert to.
+* webui: fix link to new forum location of OBS forums.
+
