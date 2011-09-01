@@ -66,7 +66,7 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R obsapirun #{current_path}/tmp"
+    run "chown -R apirun #{current_path}/tmp"
   end
 end
 
