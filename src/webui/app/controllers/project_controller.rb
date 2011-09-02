@@ -357,6 +357,11 @@ class ProjectController < ApplicationController
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
     @scheduler = params[:scheduler] || 'needed'
+    unless ["fifo", "lifo", "random", "btime", "needed", "neededb", "longest_data", "longested_triedread", "longest"].include? @scheduler
+      flash[:error] = "Invalid scheduler type, check mkdiststats docu - aehm, source"
+      redirect_to :action => :show, :project => @project
+      return
+    end
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
             :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
@@ -373,9 +378,16 @@ class ProjectController < ApplicationController
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
-    cmd="perl ./mkdiststats '--srcdir=#{indir}' '--destdir=#{outdir}' --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910 --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
-    logger.debug "cd #{RAILS_ROOT}/vendor/diststats && #{cmd}"
-    system("cd #{RAILS_ROOT}/vendor/diststats && #{cmd}")
+    logger.debug "cd #{RAILS_ROOT}/vendor/diststats && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir} 
+             --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
+             --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
+    fork do
+      Dir.chdir("#{RAILS_ROOT}/vendor/diststats")
+      system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}", 
+             "--outfmt=xml", "#{@project.name}/#{@repository}/#{@arch}", "--width=910",
+             "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
+    end
+    Process.wait
     f=File.open(outdir + "/rebuild.png")
     png=f.read
     f.close 
