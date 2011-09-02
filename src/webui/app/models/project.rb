@@ -134,10 +134,12 @@ class Project < ActiveXML::Base
   def set_remoteurl(url)
     logger.debug "set remoteurl"
 
-    delete_element 'remoteurl'
+    urlexists = has_element? 'remoteurl'
 
-    unless url.nil?
-      add_element 'remoteurl'
+    if url.nil?
+      delete_element if urlexists
+    else
+      add_element 'remoteurl' unless urlexists
       remoteurl.text = url
     end
   end
