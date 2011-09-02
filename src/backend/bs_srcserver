@@ -6259,6 +6259,7 @@ sub sourceinfo {
       $r->{'error'} = $files || 'could not get file list';
       return $r;
     }
+    $r->{'lsrcmd5'} = $r->{'srcmd5'};
     $r->{'srcmd5'} = $rev->{'srcmd5'};
     my $meta = '';
     $meta .= "$files->{$_}  $_\n" for sort keys %$files;

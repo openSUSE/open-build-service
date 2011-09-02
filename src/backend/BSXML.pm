@@ -406,6 +406,7 @@ our $sourceinfo = [
 	'rev',
 	'vrev',
 	'srcmd5',
+	'lsrcmd5',
 	'verifymd5',
 	[],
 	'filename',
