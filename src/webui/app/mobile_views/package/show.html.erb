@@ -1,7 +1,7 @@
 
 <h3><%=h elide( @project.name, 20 ) %>/<%=h @package.name %><br/>
 <%=h @package.title if( !@package.title.blank? && @package.title.to_s != @package.name.to_s) %></h3>
-<!--
+
 <% description = @package.description.text %>
 <% unless description.blank? %>
   <div data-role="collapsible" data-collapsed="true">
@@ -13,7 +13,6 @@
     </p>
   </div>
 <% end -%>
--->
 
 <!-- Files -->
 <div data-role="collapsible" data-collapsed="true">
@@ -33,23 +32,6 @@
     <% end -%>
 </div>
 
-<!-- Failures -->
-<div data-role="collapsible" data-collapsed="true">
-       <h3>Failures (0)</h3>
-    <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>
-    <%= @failures %> <%= plural(@failures, "failure", "failures") %>
-</div>
-
-<!-- Repositories -->
-<div data-role="collapsible" data-collapsed="true">
-	 <h3>Repositories</h3>
-</div>
-
-<!-- Change Log -->
-<div data-role="collapsible" data-collapsed="true">
-	  <h3>Change Log</h3>
-  </div>
-
  <!-- Users -->
 <div data-role="collapsible" data-collapsed="true">
 	 <h3>Users</h3>
@@ -66,12 +48,12 @@
           <h3>Raw Config</h3>
 </div>
 
+
 <!-- Build status -->
 <% if @project.has_element?(:repository) && !@buildresult.blank? %>
   <div data-role="collapsible" data-collapsed="true">
     <h3>Build Status
-      <% #FIXME: broken, needs to check in @statushash %>
-      <% if @buildresult.flatten.select{|state| ['failed', 'unresolvable', 'broken'].include? state }.empty? %>
+      <% if @failures == 0 %>
         <%= image_tag 'icons/accept.png' %>
       <% else %>
         <%= image_tag 'icons/exclamation.png' %>
@@ -83,15 +65,6 @@
   </div>
 <% end -%>
 
- <!-- Notes -->
- <div data-role="collapsible" data-collapsed="true">
-	 <h3>Notes</h3>
-	 <p>These packages might trigger it to rebuild:<br/><br/> </p>
-	 <ul data-role="listview" data-theme="a">
-		 <li><%= link_to 'test package 1' %></li>
-		 <li><%= link_to 'test package 2' %></li>
-	</ul>       
-</div>
 
 
 
