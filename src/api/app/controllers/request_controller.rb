@@ -534,13 +534,8 @@ class RequestController < ApplicationController
         tprj = DbProject.find_by_name action.target.project
         if action.target.has_attribute? 'package'
           tpkg = tprj.db_packages.find_by_name action.target.package
-          if action.value("type") == "delete"
-            tpkg.can_be_deleted?    # raises exception if not
-          end
         else
-          if action.value("type") == "delete"
-            tprj.can_be_deleted?    # raises exception if not
-          elsif action.has_element? 'source' and action.source.has_attribute? 'package'
+          if action.has_element? 'source' and action.source.has_attribute? 'package'
             tpkg = tprj.db_packages.find_by_name action.source.package
           end
         end
