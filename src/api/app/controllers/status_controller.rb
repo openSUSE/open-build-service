@@ -208,14 +208,14 @@ class StatusController < ApplicationController
 
   def bsrequest_repo_list(project, repo, arch)
     ret = Hash.new
-    data = Rails.cache.fetch(CGI.escape("repo_list_%s_%s_%s" % [project, repo, arch]), :expires_in => 5.minutes) do
-      uri = URI( "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{CGI.escape(arch)}/_repository")
+    data = Rails.cache.fetch(CGI.escape("vers_repo_list_%s_%s_%s" % [project, repo, arch]), :expires_in => 5.minutes) do
+      uri = URI( "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{CGI.escape(arch)}/_repository?view=binaryversions&nometa")
       backend.direct_http( uri )
     end
 
     repo = ActiveXML::Base.new( data )
     repo.each_binary do |b|
-      name=b.value(:filename).sub('.rpm', '')
+      name=b.value(:name).sub('.rpm', '')
       ret[name] = 1
     end
     return ret
