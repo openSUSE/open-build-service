@@ -497,14 +497,13 @@ end
          </request>'
 
     post "/request?cmd=create", rq
-    assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "delete_error" }
+    # this used to verify it can't delete devel links, but that was changed
+    assert_response :success
 
     # try to delete package via old request, it should fail
     prepare_request_with_user "king", "sunflower"
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "delete_error" }
 
     # cleanup
     put "/source/home:Iggy/TestPack/_meta", oldmeta.dup
