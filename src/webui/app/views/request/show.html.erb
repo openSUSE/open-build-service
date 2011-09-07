@@ -12,9 +12,9 @@
 <% end %>
 
 <% if @superseded_by %>
-  <h3><%= @pagetitle %> (<%= @req.state.name %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
+  <h3 id="request_heading"><%= @pagetitle %> (<%= @req.state.name %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
 <% else %>
-  <h3><%= @pagetitle %> (<%= @req.state.name %>)</h3>
+  <h3 id="request_heading"><%= @pagetitle %> (<%= @req.state.name %>)</h3>
 <% end %>
 
 <div>
@@ -131,8 +131,18 @@
       $.ajax({url: path,
         success: function(data) {
           $('#review_table td#review_state_' + id).text(data);
-          $('#review_table td#review_buttons_' + id).text("");
+          $('#review_table td#review_buttons_' + id).remove();
           $('#review_table td #review_comment_' + id).parent().html(comment);
+          if ($('.review_buttons').length == 0) {
+            var new_text = '';
+            if (data == 'accepted') {
+              new_text = $('#request_heading').text().replace(/\(.*\)/, '(new)');
+            } else if (data == 'declined') {
+              new_text = $('#request_heading').text().replace(/\(.*\)/, '(declined)');
+            }
+            $('#request_heading').text(new_text);
+            $('#review_action_heading').remove();
+          }
         }
       })
     }
@@ -147,8 +157,8 @@
         <th style="width: 1%">Type</th>
         <th style="width: 8%">Reviewer</th>
         <th style="width: 89%">Reviewer Comment</th>
-        <% if @is_reviewer and (@req.state.name == "review" or @req.state.name == "new") %>
-          <th style="width: 1%">Actions</th>
+        <% if @is_reviewer and @req.state.name == "review" %>
+          <th id="review_action_heading" style="width: 1%">Actions</th>
         <% end %>
       </tr>
       <%-
@@ -179,13 +189,13 @@
             <% end %>
           <% end %>
 
-          <% if @is_reviewer and (@req.state.name == "review" or @req.state.name == "new") and r.state != "accepted" and
+          <% if @is_reviewer and @req.state.name == "review" and r.state != "accepted" and
                 ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
                  (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
                  (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
                  (r.has_attribute? :by_package and @user.is_maintainer?(r.by_project, r.by_package))) %>
             <td><%= text_field_tag "review_comment_#{revnum}", comment, :style => "width: 99%" %></td>
-            <td id="review_buttons_<%= revnum %>">
+            <td class="review_buttons" id="review_buttons_<%= revnum %>">
               <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{revnum}, 'accepted')") %>
               <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{revnum}, 'declined')") %>
             </td>
