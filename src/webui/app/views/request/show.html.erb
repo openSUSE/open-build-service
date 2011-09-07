@@ -128,7 +128,7 @@
       } else {
         path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
       }
-      $.ajax({type: "POST", url: path,
+      $.ajax({url: path,
         success: function(data) {
           $('#review_table td#review_state_' + id).text(data);
           $('#review_table td#review_buttons_' + id).text("");
