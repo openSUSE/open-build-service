@@ -52,21 +52,20 @@ class RequestController < ApplicationController
     @superseded_by = @req.state.value("superseded_by")
     @newpackage = []
 
-    @is_reviewer = false
+    @open_reviews = 0
     @req.each_review do |review|
-      if review.has_attribute? :by_user
-        if review.by_user.to_s == session[:login]
-          @is_reviewer = true
-          break
+      if review.state == 'new'
+        if review.has_attribute? :by_user
+          @open_reviews += 1 if review.by_user.to_s == session[:login]
         end
-      end
 
-      if session[:login]
-        user = find_cached(Person, session[:login])
-        if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
-           (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
-           (review.has_attribute? :by_project and review.has_attribute? :by_package and user.is_maintainer?(review.by_project, review.by_package))
-          @is_reviewer = true and break
+        if session[:login]
+          user = find_cached(Person, session[:login])
+          if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
+             (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
+             (review.has_attribute? :by_project and review.has_attribute? :by_package and user.is_maintainer?(review.by_project, review.by_package))
+            @open_reviews += 1
+          end
         end
       end
     end

@@ -114,7 +114,7 @@
   </table>
 </div>
 
-<% if @is_reviewer and (@req.state.name == 'review' or @req.state.name == 'new') %>
+<% if @open_reviews > 0 and @req.state.name == 'review' %>
   <% content_for :head_javascript do %>
     function modifyReview(id, new_state) {
       var comment = $('#review_comment_' + id).attr('value');
@@ -134,6 +134,18 @@
           $('#review_table td#review_buttons_' + id).remove();
           $('#review_table td #review_comment_' + id).parent().html(comment);
           if ($('.review_buttons').length == 0) {
+            $('#review_action_heading').remove(); // Remove 'Action' column if there are no buttons left
+          }
+
+          // The following is necessary to correctly set the request state in the heading ;-)
+          var review_states = $('.review_states');
+          var all_reviews_done = true;
+          for (var i=0, len=review_states.length; i<len; ++i) {
+            if (review_states[i].textContent == 'new') {
+              all_reviews_done = false; break;
+            }
+          }
+          if (all_reviews_done) {
             var new_text = '';
             if (data == 'accepted') {
               new_text = $('#request_heading').text().replace(/\(.*\)/, '(new)');
@@ -141,7 +153,6 @@
               new_text = $('#request_heading').text().replace(/\(.*\)/, '(declined)');
             }
             $('#request_heading').text(new_text);
-            $('#review_action_heading').remove();
           }
         }
       })
@@ -157,7 +168,7 @@
         <th style="width: 1%">Type</th>
         <th style="width: 8%">Reviewer</th>
         <th style="width: 89%">Reviewer Comment</th>
-        <% if @is_reviewer and @req.state.name == "review" %>
+        <% if @open_reviews > 0 and @req.state.name == "review" %>
           <th id="review_action_heading" style="width: 1%">Actions</th>
         <% end %>
       </tr>
@@ -167,7 +178,7 @@
 	   revnum=revnum+1
            comment = r.comment if r.has_element? :comment or nil%>
         <tr>
-          <td id="review_state_<%= revnum %>" class="nowrap"><%= r.state %></td>
+          <td id="review_state_<%= revnum %>" class="review_states nowrap"><%= r.state %></td>
           <% if r.has_attribute? :by_user %>
             <td id="review_type_<%= revnum %>">user</td>
             <td id="review_name_<%= revnum %>" class="nowrap">
@@ -189,7 +200,7 @@
             <% end %>
           <% end %>
 
-          <% if @is_reviewer and @req.state.name == "review" and r.state != "accepted" and
+          <% if @open_reviews > 0 and @req.state.name == "review" and r.state != "accepted" and
                 ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
                  (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
                  (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
