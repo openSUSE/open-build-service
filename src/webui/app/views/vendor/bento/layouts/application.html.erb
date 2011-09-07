@@ -14,7 +14,6 @@
     <title><%=h "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
     <%= stylesheet_link_tag "/themes/bento/css/style", :media => "screen", :title => "Normal" %>
-    <%= stylesheet_link_tag "/themes/bento/css/style.fluid.css", :media => "screen", :title => "Stretch Limo", :rel => "alternate stylesheet" %>
     <%= stylesheet_link_tag "style", :media => "screen" %>
 
     <%= yield :content_for_head %>
