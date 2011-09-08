@@ -1071,8 +1071,8 @@ sub publishdelta {
   my $changed;
   if (!@sr || "$s[9]/$s[7]/$s[1]" ne "$sr[9]/$sr[7]/$sr[1]") {
     print @sr ? "      ! :repo/${rbin}::$deltaname\n" : "      + :repo/${rbin}::$deltaname\n";
-    unlink("$rdir/$rbin.$deltaname");
-    unlink("$rdir/$rbin.$deltaseqname");
+    unlink("$rdir/${rbin}::$deltaname");
+    unlink("$rdir/${rbin}::$deltaseqname");
     link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
     link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
     $changed = 1;
