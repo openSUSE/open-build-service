@@ -2682,6 +2682,8 @@ sub checkkiwiimage {
 
   my $prp = "$projid/$repoid";
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  return ('broken', 'missing repo') unless $repo;	# can't happen
 
   # get config from path
   my $bconf = getconfig($myarch, \@aprps);
@@ -2736,27 +2738,30 @@ sub checkkiwiimage {
   for (@{$info->{'extrasource'} || []}) {
     push @new_meta, "$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}";
   }
-  my @blocked;
-  for my $repo ($pool->repos()) {
-    my $aprp = $repo->name();
-    my $nr = ($prp eq $aprp ? $notready : $prpnotready{$aprp}) || {};
-    my @b = grep {$nr->{$_}} @edeps;
-    if (@b) {
-      @b = map {"$aprp/$_"} @b if $prp ne $aprp;
-      push @blocked, @b;
+
+  if (!$repo->{'block'} || $repo->{'block'} ne 'never') {
+    my @blocked;
+    for my $repo ($pool->repos()) {
+      my $aprp = $repo->name();
+      my $nr = ($prp eq $aprp ? $notready : $prpnotready{$aprp}) || {};
+      my @b = grep {$nr->{$_}} @edeps;
+      if (@b) {
+        @b = map {"$aprp/$_"} @b if $prp ne $aprp;
+        push @blocked, @b;
+      }
+      next if @blocked;
+      my %names = $repo->pkgnames();
+      for my $dep (sort(@edeps)) {
+        my $p = $names{$dep};
+        next unless $p;
+        push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$dep";
+      }
     }
-    next if @blocked;
-    my %names = $repo->pkgnames();
-    for my $dep (sort(@edeps)) {
-      my $p = $names{$dep};
-      next unless $p;
-      push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$dep";
+    if (@blocked) {
+      print "      - $packid (kiwi-image)\n";
+      print "        blocked (@blocked)\n";
+      return ('blocked', join(', ', @blocked));
     }
-  }
-  if (@blocked) {
-    print "      - $packid (kiwi-image)\n";
-    print "        blocked (@blocked)\n";
-    return ('blocked', join(', ', @blocked));
   }
   my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
   if (!@meta || !$meta[0]) {
@@ -2775,6 +2780,11 @@ sub checkkiwiimage {
       print "        rebuild counter sync\n";
       return ('scheduled', [ $bconf, \@edeps, {'explain' => 'rebuild counter sync'} ]);
     }
+    print "      - $packid (kiwi-image)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
     print "      - $packid (kiwi-image)\n";
     print "        nothing changed\n";
     return ('done');
@@ -3132,6 +3142,11 @@ sub checkkiwiproduct {
       print "        rebuild counter sync\n";
       return ('scheduled', [ $bconf, \@rpms, {'explain' => 'rebuild counter sync'} ]);
     }
+    print "      - $packid (kiwi-product)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
     print "      - $packid (kiwi-product)\n";
     print "        nothing changed\n";
     return ('done');
