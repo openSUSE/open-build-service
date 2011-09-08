@@ -2784,7 +2784,7 @@ sub checkkiwiimage {
     print "        nothing changed\n";
     return ('done');
   }
-  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
+  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
     print "      - $packid (kiwi-image)\n";
     print "        nothing changed\n";
     return ('done');
@@ -3146,7 +3146,7 @@ sub checkkiwiproduct {
     print "        nothing changed\n";
     return ('done');
   }
-  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
+  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
     print "      - $packid (kiwi-product)\n";
     print "        nothing changed\n";
     return ('done');
