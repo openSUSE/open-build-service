@@ -61,7 +61,9 @@ export CI_REPORTS=results
 export RAILS_ENV=test
 
 echo "Fix executable bits broken by 'Copy Artifacts' plugin"
-chmod +x script/start_test_api
+chmod +x script/start_test_api \
+         ../api/script/server \
+         ../api/script/start_test_backend
 
 echo "Initialize test database, run migrations, load seed data"
 rake db:drop db:create db:migrate
