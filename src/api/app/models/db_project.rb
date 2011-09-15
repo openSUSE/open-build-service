@@ -760,14 +760,15 @@ class DbProject < ActiveRecord::Base
     end #transaction
   end
 
-  def store
+  def store(login=nil)
     # update timestamp and save
     self.save!
     # expire cache
     Rails.cache.delete('meta_project_%d' % id)
 
     if write_through?
-      path = "/source/#{self.name}/_meta?user=#{URI.escape(User.current.login)}"
+      login = User.current.login unless login # Allow to override if User.current isn't available yet
+      path = "/source/#{self.name}/_meta?user=#{URI.escape(login)}"
       Suse::Backend.put_source( path, to_axml )
     end
 

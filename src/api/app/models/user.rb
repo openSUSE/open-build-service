@@ -101,6 +101,17 @@ class User < ActiveRecord::Base
     xml
   end
 
+  # This method can be used to lookup or create the user's home project
+  def find_or_create_home_project
+    home_project = DbProject.find_by_name("home:#{self.login}")
+    unless home_project # Create the user's home repository
+      home_project = DbProject.new(:name => "home:#{self.login}", :title => "#{self.login}'s Home Project", :description => "Please add a suitable description and don't forget to add some repositories you want to build your packages against (just click on 'Repositories' above). Have fun!")
+      home_project.add_user(self, 'maintainer')
+      home_project.store(self.login)
+    end
+    return home_project
+  end
+
   # Returns true if the the state transition from "from" state to "to" state
   # is valid. Returns false otherwise. +new_state+ must be the integer value
   # of the state as returned by +User.states['state_name']+.
