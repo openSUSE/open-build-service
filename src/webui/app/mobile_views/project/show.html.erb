@@ -32,6 +32,20 @@
   </div>
 <% end -%>
 
+<!-- Requests -->
+<% unless @requests.blank? %>
+<div data-role="collapsible" data-collapsed="true">
+  <h3>Requests (<%= @requests.size %>)</h3>
+  <%= image_tag 'icons/information.png' %> There <%= plural(@requests.size, "is", "are") %>
+  <% if @requests.size == 1 -%>
+    1 open <%= link_to "request", :action => :show, :controller => :request, :id => @requests[0].value(:id) %>
+  <% else -%>
+    <%= @requests.size %> open <%= link_to "requests", :action => :requests, :project => @project %>
+  <% end -%>
+</div>
+<% end %>
+
+
 <% if @project.has_element?(:repository) && !@buildresult.blank? %>
   <div data-role="collapsible" data-collapsed="true">
     <h3>Build Status
