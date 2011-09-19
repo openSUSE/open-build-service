@@ -38,9 +38,10 @@ class Person < ActiveXML::Base
     @@person_cache.clear
   end
 
-  def self.find_cached(login)
-     if session[:login] == login
-       return Person.find login
+  def self.find_cached(login, opts = {})
+     if opts.has_key?(:is_current)
+       # skip memcache
+       @@person_cache[login] = Person.find login
      end
      if @@person_cache.has_key? login
        return @@person_cache[login]

@@ -316,8 +316,11 @@ class ApplicationController < ActionController::Base
   def check_user
     check_spiders
     return unless session[:login]
-    Rails.cache.delete("person_#{session[:login]}") if discard_cache?
-    @user ||= find_cached(Person, session[:login])
+    if discard_cache?
+      Rails.cache.delete("person_#{session[:login]}")
+      Person.free_cache(session[:login])
+    end
+    @user ||= Person.find_cached(session[:login], :is_current => true)
     if @user
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
       begin
