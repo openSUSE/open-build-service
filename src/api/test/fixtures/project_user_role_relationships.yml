@@ -8,6 +8,11 @@ project_user_role_relationships_1064202227:
   db_project_id: "502"
   bs_user_id: "267"
   id: "1064202227"
+project_user_role_relationships_1064202231: 
+  role_id: "3"
+  db_project_id: "5007"
+  bs_user_id: "42"
+  id: "1064202231"
 project_user_role_relationships_109602552: 
   role_id: "5"
   db_project_id: "3000"
