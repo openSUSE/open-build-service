@@ -6,13 +6,17 @@
 <% end %>
 
 <div data-role="collapsible" data-collapsed="false">
-	<h3>Actions</h3>
-	<%= link_to 'Accept', {:controller => 'request', :action => 'changerequest', :id => @id, :accepted => 'true'}, 'data-transition' => "slide", 'data-icon' => "check", 'data-role' => "button" %>
-	<%= link_to 'Decline', {:controller => 'request', :action => 'changerequest', :id => @id, :declined => 'true'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <h3>Actions</h3>
+  <% if @is_maintainer %>
+    <%= link_to 'Accept', {:controller => 'request', :action => 'changerequest', :id => @id, :accepted => 'true'}, 'data-transition' => "slide", 'data-icon' => "check", 'data-role' => "button" %>
+    <%= link_to 'Decline', {:controller => 'request', :action => 'changerequest', :id => @id, :declined => 'true'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <% elsif @is_author %>
+    <%= link_to 'Revoke', {:controller => 'request', :action => 'changerequest', :id => @id, :revoked => 'true'}, 'data-transition' => "slide", 'data-icon' => "grid", 'data-role' => "button" %>
+  <% end %>
 </div>
 
 <div data-role="collapsible" data-collapsed="false">
-	  <h3>Info</h3>
+  <h3>Info</h3>
 
 
   <% @req.each_action do |ae| %>
@@ -76,5 +80,5 @@
 
 
 <div data-role="collapsible" data-collapsed="true">
-    <h3>Build Status</h3>
-  </div>
+  <h3>Build Status</h3>
+</div>
