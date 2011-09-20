@@ -196,7 +196,7 @@ class RequestController < ApplicationController
 
   def delete_request
     begin
-      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package])
+      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::Error => e
