@@ -1941,7 +1941,7 @@ sub getbuildinfo {
     # packages used for build environment
     @deps = ('kiwi');
     push @deps, 'createrepo', 'tar' if $kiwitype ne 'product';
-    push @deps, grep {/^kiwi-/} @{$info->{'dep'} || []};
+    push @deps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
   }
 
   my $epool;
