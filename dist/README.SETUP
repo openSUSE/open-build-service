@@ -171,7 +171,7 @@ Install the required packages via
 
 Add the follwing apache modules in /etc/sysconfig/apache2:
  
- APACHE_MODULES="... passenger rewrite proxy proxy_http xforward"
+ APACHE_MODULES="... passenger rewrite proxy proxy_http xforward headers"
 
 Enable SSL in /etc/sysconfig/apache2 via
 
@@ -206,7 +206,7 @@ as well here.
 If you change the hostnames/ips of the api, you need to adjust 
 "source_server_url" accordingly in
 
-  /srv/www/obs/webui/config/options.yml
+  /srv/www/obs/api/config/options.yml
 
 It is recommended to enable 
 
