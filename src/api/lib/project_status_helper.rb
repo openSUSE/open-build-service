@@ -70,7 +70,7 @@ end
 
 class PackInfo
   attr_accessor :devel_project, :devel_package
-  attr_accessor :srcmd5, :verifymd5, :error, :link
+  attr_accessor :srcmd5, :verifymd5, :changesmd5, :error, :link
   attr_reader :name, :project, :key
   attr_accessor :develpack
   attr_accessor :buildinfo
@@ -99,6 +99,7 @@ class PackInfo
              :name => name,
              :version => version,
              :srcmd5 => srcmd5,
+             :changesmd5 => changesmd5,
              :release => release }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
@@ -152,26 +153,6 @@ class ProjectStatusHelper
       if p.value('verifymd5')
         mypackages[key].verifymd5 = p.value('verifymd5')
       end
-    end if data
-  end
-
-  def self.update_projpack(proj, backend, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % CGI.escape(proj)
-    mypackages.each do |key, package|
-      if package.project == proj
-	uri += "&package=" + CGI.escape(package.name)
-      end
-    end
-
-    data = get_xml(backend, uri)
-    data.each('/projpack/project/package') do |p|
-      packname = p.value('name')
-      key = proj + "/" + packname
-      next unless mypackages.has_key?(key)
-      if p.value('verifymd5')
-	mypackages[key].verifymd5 = p.value('verifymd5')
-      end
-      mypackages[key].srcmd5 = p.value('srcmd5')
       p.each('linked') do |l|
 	mypackages[key].link.project = l.value('project')
 	mypackages[key].link.package = l.value('package')
@@ -179,8 +160,33 @@ class ProjectStatusHelper
       end
       p.each('error') do |e|
 	mypackages[key].error = e.text
+        break
+      end
+      cmd5 = Rails.cache.fetch("changes-%s" % p.value('srcmd5')) do
+        directory = Directory.find(:project => proj, :package => packname, :expand => 1)
+        changesfile="%s.changes" % packname
+        md5 = ''
+        directory.each_entry do |e|
+          if e.value(:name) == changesfile
+            md5 = e.value(:md5)
+          end
+        end
+        md5
+      end
+      mypackages[key].changesmd5 = cmd5 if len(cmd5)
       end
     end if data
+  end
+
+  def self.update_projpack(proj, backend, mypackages)
+    packages = []
+    mypackages.each do |key, package|
+      if package.project == proj
+        packages << package
+      end
+    end
+    
+    check_md5(proj, backend, packages, mypackages)
   end
 
   def self.fetch_jobhistory(backend, proj, repo, arch, mypackages)
