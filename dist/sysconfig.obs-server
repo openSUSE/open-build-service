@@ -16,7 +16,7 @@
 # If you also have workers on this host, each worker can also need 1
 # GB RAM in some known cases (e.g. compiling gcc)
 #
-OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
+OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 armv7l"
 
 ## Path:        Applications/OBS
 ## Description: The OBS backend code directory
