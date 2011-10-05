@@ -22,7 +22,7 @@ namespace :db do
       
       allitems = StatusHistory.find( :all, :conditions => [ '`key` = ? and `time` < ?',
                                      key, maxtime ], :order => :time )
-	next unless allitems.length > 0
+	return unless allitems.length > 0
         curmintime = mintime
         while allitems.length > 0
           items = []
