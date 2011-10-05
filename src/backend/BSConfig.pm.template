@@ -32,6 +32,16 @@ our $ipaccess = {
    '.*' => 'worker',  # build results can be delivered from any client in the network
 };
 
+# defined list of supported bugzilla servers:
+our $bugreportid_url = {
+   '*' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",       # default is SUSE/Novell/Attachmate bugzilla
+   'suse' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",
+   'novell' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",
+   'kde' => "http://bugs.kde.org/show_bug.cgi?id=%ID%",
+   'gnome' => "https://bugzilla.gnome.org//show_bug.cgi?id=%ID%",
+   'mozilla' => "https://bugzilla.mozilla.org//show_bug.cgi?id=%ID%",
+};
+
 our $obsname = $hostname; # unique identifier for this Build Service instance
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
 our $srcserver = "http://$hostname:5352";

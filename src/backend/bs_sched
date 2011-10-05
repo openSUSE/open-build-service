@@ -3558,9 +3558,18 @@ sub rebuildpatchinfo {
   $update->{'release'} =~ s/[_:]+/ /g;
   $update->{'issued'} = { 'date' => $now };
   my @references;
-  for my $b (@{$patchinfo->{'bugzilla'} || []}) {
-    # XXX: title should actually be the bugzilla bug title
-    push @references, {'href' => "$b->{'name'}/show_bug.cgi?id=$b->{'_content'}", 'id' => $b->{'_content'}, 'title' => "bug number $b->{'_content'}", 'type' => 'bugzilla'};
+  if ($BSConfig::bugreportid_url{'*'}) {
+    for my $b (@{$patchinfo->{'bugzilla'} || []}) {
+      my $url = $BSConfig::bugreportid_url{'*'};
+      if ($b->{'name'}) {
+        $url = undef;
+        $url = $BSConfig::bugreportid_url{$b->{'name'}} if $BSConfig::bugreportid_url{$b->{'name'}};
+      }
+      if ($url) {
+        $url =~ s/%ID%/$b->{'_content'}/g;
+        push @references, {'href' => $url, 'id' => $b->{'_content'}, 'title' => "bug number $b->{'_content'}", 'type' => 'bugzilla'};
+      }
+    }
   }
   for my $b (@{$patchinfo->{'CVE'} || []}) {
     push @references, {'href' => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=$b", 'id' => $b, 'title' => $b, 'type' => 'cve'};
