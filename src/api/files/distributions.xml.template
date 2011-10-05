@@ -63,15 +63,6 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLE-10-16.png"/>
   <link>http://www.suse.com/</link>
  </distribution>
- <distribution vendor="SUSE" version="SLES-9" id="suse-SLES-9">
-  <name>SUSE SLES-9</name>
-  <project>openSUSE.org:SUSE:SLES-9</project>
-  <reponame>SLES_9</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/suse-SLES-9-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLES-9-16.png"/>
-  <link>http://www.suse.com/</link>
- </distribution>
  <distribution vendor="MeeGo" version="1.2 oss" id="1.2-oss">
   <name>MeeGo 1.2 oss</name>
   <project>MeeGo.com:MeeGo:1.2:oss</project>
