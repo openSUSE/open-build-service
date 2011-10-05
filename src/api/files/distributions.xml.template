@@ -36,6 +36,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
+ <distribution vendor="openSUSE" version="FactoryARM" id="opensuse-Factory-ARM">
+  <name>openSUSE Factory ARM</name>
+  <project>openSUSE.org:openSUSE:Factory:ARM</project>
+  <reponame>openSUSE_Factory_ARM</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
+  <link>http://www.opensuse.org/</link>
+ </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11">
   <name>SUSE SLE-11</name>
   <project>openSUSE.org:SUSE:SLE-11</project>
