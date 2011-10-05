@@ -3553,19 +3553,21 @@ sub rebuildpatchinfo {
   $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
   $update->{'id'} = $patchinfo->{'incident'} || $patchinfo->{'name'};
   $update->{'title'} = $patchinfo->{'summary'};
+  $update->{'description'} = $patchinfo->{'description'};
   # XXX
   $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;
   $update->{'release'} =~ s/[_:]+/ /g;
   $update->{'issued'} = { 'date' => $now };
   my @references;
-  if ($BSConfig::bugreportid_url{'*'}) {
+  if (defined($BSConfig::bugreportid_url)) {
     for my $b (@{$patchinfo->{'bugzilla'} || []}) {
-      my $url = $BSConfig::bugreportid_url{'*'};
-      if ($b->{'name'}) {
-        $url = undef;
-        $url = $BSConfig::bugreportid_url{$b->{'name'}} if $BSConfig::bugreportid_url{$b->{'name'}};
+      my $url = undef;
+      if (defined($b->{'name'})) {
+        $url = $BSConfig::bugreportid_url->{$b->{'name'}} if $BSConfig::bugreportid_url->{$b->{'name'}};
+      } else {
+        $url = $BSConfig::bugreportid_url->{'*'} if $BSConfig::bugreportid_url->{'*'};
       }
-      if ($url) {
+      if ($url && $b->{'_content'}) {
         $url =~ s/%ID%/$b->{'_content'}/g;
         push @references, {'href' => $url, 'id' => $b->{'_content'}, 'title' => "bug number $b->{'_content'}", 'type' => 'bugzilla'};
       }
@@ -3574,7 +3576,7 @@ sub rebuildpatchinfo {
   for my $b (@{$patchinfo->{'CVE'} || []}) {
     push @references, {'href' => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=$b", 'id' => $b, 'title' => $b, 'type' => 'cve'};
   }
-  $update->{'description'} = $patchinfo->{'description'};
+  $update->{'references'} = { 'reference' => \@references };
   # XXX: set name and short
   my $col = {
     'package' => \@upackages,
