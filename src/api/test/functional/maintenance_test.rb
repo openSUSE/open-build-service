@@ -399,7 +399,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # run scheduler again to collect result
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
        # just for waiting until scheduler finishes
-       io.each {|line| puts line.strip.chomp unless line.blank? }
+       io.each {|line| line.strip.chomp unless line.blank? }
     end
     # find out about the triggered build job and write back dispatching data
     findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/i586/ -name #{maintenanceProject}::BaseDistro2_BaseDistro2LinkedUpdateProject_repo::pack2.BaseDistro2-*")
@@ -417,7 +417,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # run scheduler again to collect result
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
        # just for waiting until scheduler finishes
-       io.each {|line| puts line.strip.chomp unless line.blank? }
+       io.each {|line| line.strip.chomp unless line.blank? }
     end
 
     # check updateinfo
