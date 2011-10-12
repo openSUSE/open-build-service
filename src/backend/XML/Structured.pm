@@ -1,4 +1,3 @@
-
 package XML::Structured;
 
 use vars qw($VERSION @ISA @EXPORT);
@@ -90,12 +89,24 @@ sub _workin {
   }
 }
 
+# Prepare forbidden control codes http://www.w3.org/TR/REC-xml/#charsets                                      
+our $XML_forbidden;
+for my $c (0x01..0x1F) {
+  next if $c == 0x9 or $c == 0xA or $c == 0xD;
+# Ideally we'd use escapes as XML1.1 : http://www.w3.org/TR/xml11/#dt-charref
+# but expat doesn't support them
+#  $escapes{chr($c)} = sprintf("&#x%02X;", $c);
+  $XML_forbidden .= chr($c);
+}
+
 sub _escape {
   my ($d) = @_;
   $d =~ s/&/&amp;/sg;
   $d =~ s/</&lt;/sg;
   $d =~ s/>/&gt;/sg;
   $d =~ s/"/&quot;/sg;
+#  $d =~ s/([$XML_forbidden])/$escapes{$1}/sg; # Not possible yet
+  $d =~ s/([$XML_forbidden])//sg;
   return $d;
 }
 
