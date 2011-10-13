@@ -26,9 +26,11 @@ LDAP_MODE = :off
 # each connection to distribute load.
 LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
 # If you're using LDAP_AUTHENTICATE=:ldap then you should ensure that 
-# ldaps is used to transfer the credentials over SSL
+# ldaps is used to transfer the credentials over SSL or use the StartTLS extension
 LDAP_SSL = :on
-# LDAP port defaults to 389 for ldap and 636 for ldaps
+# Use StartTLS extension of LDAP
+LDAP_START_TLS = :off
+# LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS
 #LDAP_PORT=
 # Authentication with Windows 2003 AD requires
 LDAP_REFERRALS = :off

@@ -1,0 +1,525 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2011 Ruediger Oertel, SUSE LINUX Products GmbH
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The bs validator, a filesystem check for /bs
+# Combining instable storage and fragile filesystem implementations
+# is a bad idea. Try to find out what junk ended up in the tree today.
+#
+
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+$| = 1;
+
+
+my $check_jobs = 0;
+my $check_db = 0;
+my $check_event = 0;
+my $check_worker = 0;
+my $check_request = 0;
+my $check_build = 0;
+my $do_check_meta = 0;
+my $do_check_signatures = 0;
+my $check_one_project = "";
+
+use POSIX;
+use Data::Dumper;
+use Getopt::Long;
+use Storable ();
+use XML::Structured ':bytes';
+
+use Build;
+
+our $nosharedtrees;
+use BSConfig;
+use BSFileDB;
+use BSWatcher;
+use BSUtil;
+use BSXML;
+use BSKiwiXML;
+use BSProductXML;
+use BSDB;
+use BSDBIndex;
+use BSSolv;
+
+sub usage {
+   my $basedir = "$BSConfig::bsdir";
+   print "bs_check_consistency:   check integrity of the buildservice data tree\n";
+   print "        --check-jobs        check consistency for $basedir/jobs\n";
+   print "        --check-db          check consistency for $basedir/db\n";
+   print "        --check-event       check consistency for $basedir/events\n";
+   print "        --check-worker      check consistency for $basedir/workers\n";
+   print "        --check-request     check consistency for $basedir/requests\n";
+   print "        --check-build       check consistency for $basedir/build\n";
+   print "                            (WARNING: takes very long)\n";
+   print "        --check-all         (all of the above)\n";
+   print "\n";
+   print "        --do-check-meta               check content of .meta files (otherwise ignored for speed)\n";
+   print "        --do-check-signatures         check signatures of .rpm files (otherwise just the magic is checked)\n";
+   print "        --do-check-project PROJECT    check build tree of one project\n";
+   print "\n";
+   print "not yet implemented:\n";
+   print "        --check-projects\n";
+   print "        --check-sources\n";
+   print "    no checking yet for .deb files yet\n";
+}
+
+while (@ARGV) {
+  my $arg = shift @ARGV;
+  if ($arg eq "--help") {
+	usage();
+	exit(0);
+  } elsif ($arg eq "--check-jobs") {
+	$check_jobs = 1;
+  } elsif ($arg eq "--check-db") {
+	$check_db = 1;
+  } elsif ($arg eq "--check-event") {
+	$check_event = 1;
+  } elsif ($arg eq "--check-worker") {
+	$check_worker = 1;
+  } elsif ($arg eq "--check-request") {
+	$check_request = 1;
+  } elsif ($arg eq "--check-build") {
+	$check_build = 1;
+  } elsif ($arg eq "--check-all") {
+	$check_jobs = 1;
+	$check_db = 1;
+	$check_event = 1;
+	$check_worker = 1;
+	$check_request = 1;
+	$check_build = 1;
+  } elsif ($arg eq "--do-check-project") {
+	$check_build = 1;
+	$check_one_project = shift @ARGV;
+  } elsif ($arg eq "--do-check-meta") {
+	$do_check_meta = 1;
+  } elsif ($arg eq "--do-check-signatures") {
+	$do_check_signatures = 1;
+  } else {
+    usage();
+    exit 1;
+  }
+}
+
+unless ($check_jobs || $check_db || $check_event || $check_worker || $check_request || $check_build) {
+  usage();
+  exit 1;
+}
+
+sub is_rpm_package {
+  my ($pack) = @_;
+  open(FILE,$pack);
+  my $tag;
+  sysread(FILE,$tag,4);
+  warn "ERROR: $pack broken rpm" unless $tag eq "\xed\xab\xee\xdb";
+  if ($do_check_signatures) {
+    # just check integrity, no gpg verification
+    open(CHKSIG,'-|',"rpm --checksig --nosignature $pack 2>&1");
+    my $chksig = <CHKSIG>;
+    close (CHKSIG);
+    warn ("ERROR: $pack broken signature") unless $chksig =~ /md5 OK$/ || $chksig =~ /md5 gpg OK$/ || $chksig =~ /md5 pgp OK$/;
+  }
+}
+
+sub check_package_dir {
+  # used in package build dir and :full and :repo
+  my ($basedir) = @_;
+  opendir(PACK,$basedir);
+  my @entry = readdir(PACK);
+  closedir (PACK);
+  for my $ent (sort(@entry)) {
+    next if $ent eq "." || $ent eq "..";
+    if ($ent eq ".bininfo") {
+      open (BIN,"$basedir/$ent");
+      while (my $bini = <BIN>) {
+        chomp($bini);
+        if ($bini =~ /^[0-9a-f]{32}  \(..*\)$/) {
+  	warn "ERROR: $basedir/$ent bininfo missing rpm $2" unless grep {$_ eq $2} @entry;
+        }
+      }
+      close (BIN);
+    } elsif ($ent =~ /.meta$/) {
+      next unless $do_check_meta;
+      open (META,"$basedir/$ent");
+      while (<META>) {
+        warn ("ERROR: $basedir/$ent broken meta file") unless /^[0-9a-f]{32}  ..*$/;
+      }
+      close (META);
+    } elsif ($ent eq "history" || $ent eq "logfile" || $ent =~ /\.desktopfiles$/) {
+      # okay
+    } elsif ($ent eq "reason") {
+      eval {
+        my $rdx = readxml("$basedir/$ent",$BSXML::buildreason,0)
+      } || warn ("ERROR: $basedir/$ent broken xml file, $@");
+    } elsif ($ent eq "status") {
+      eval {
+        my $rdx = readxml("$basedir/$ent",$BSXML::buildstatus,0)
+      } || warn ("ERROR: $basedir/$ent broken xml file, $@");
+    } elsif ($ent =~ /\.rpm$/) {
+      is_rpm_package("$basedir/$ent");
+    } elsif ($ent =~ /\.sha256$/ || $ent =~ /\.md5$/ || $ent =~ /\.bz2$/ || $ent =~ /\.iso$/ || $ent =~ /\.tar\.gz$/) {
+      # fixme to be done
+    } elsif ($ent =~ /updateinfo.xml$/) {
+      eval {
+	my $rdx = readxml("$basedir/$ent",$BSXML::updateinfo,0);
+      } || warn ("ERROR: $basedir/$ent broken xml file, $@");
+    } elsif ($ent eq ".updateinfo" || $ent eq ".updateinfodata") {
+      eval {
+	  my $rdx = Storable::retrieve("$basedir/$ent") || {};
+      } || warn ("ERROR: $basedir/$ent broken storable file, $@");
+    } elsif ($ent =~ /^.waiting_for_/) {
+      # okay, might check for 0-size
+    } elsif (-d "$basedir/$ent" && $ent =~ /-Media[0-9]*$/) {
+      # okay, unpacked media tree
+    } elsif ($ent =~ /\.deb$/ || $ent =~ /\.diff\.gz$/ || $ent =~ /\.dsc$/ || $ent =~ /\.changes$/) {
+      # okay, debian stuff
+      # FIXME: not checked yet
+    } elsif ($ent eq ".errors") {
+      # seems to be some legacy file
+    } else {
+      warn ("WARNING: $basedir/$ent strange file in package dir");
+    }
+  }
+}
+
+$nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
+
+my $jobsroot  = "$BSConfig::bsdir/jobs";
+my $dbroot  = "$BSConfig::bsdir/db";
+my $buildroot  = "$BSConfig::bsdir/build";
+my $eventroot = "$BSConfig::bsdir/events";
+my $projectsdir = "$BSConfig::bsdir/projects";
+my $srcrepdir = "$BSConfig::bsdir/sources";
+my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
+my $workersroot = "$BSConfig::bsdir/workers";
+my $sourcedb = "$BSConfig::bsdir/db/source";
+my $requestsroot = "$BSConfig::bsdir/requests";
+
+if (-d $jobsroot && $check_jobs) {
+  print "PROGRESS: checking jobs\n";
+  for my $file ("$jobsroot/dispatchprios","$jobsroot/load") {
+    if (-f $file) {
+      eval {
+	my $dp = Storable::retrieve($file) || {};
+      } || warn ("ERROR: $file broken, $@");
+    } else {
+      warn ("WARNING: $file missing");
+    }
+  }
+  opendir (DIR, $jobsroot);
+  my @dir_a = readdir(DIR);
+  closedir(DIR);
+  for my $dir (sort(@dir_a)) {
+    next if $dir =~ /^\./;
+    next unless -d "$jobsroot/$dir";
+    my $jobsdir = "$jobsroot/$dir";
+    print "PROGRESS: working on $jobsdir\n";
+    opendir(JDIR,$jobsdir);
+    my @file_a = readdir(JDIR);
+    closedir(JDIR);
+    for my $file (sort(@file_a)) {
+      next if $file =~ /^\./;
+      if ($file =~ /:status$/) {
+        my $job = $file;
+        $job =~ s/:status$//;
+	unless (-f "$jobsdir/$job") {
+	  warn ("WARNING: $jobsdir/$file status file without existing job");
+	}
+	next unless -e "$jobsdir/$file";
+	my $status;
+	eval {
+	  $status = readxml("$jobsdir/$file",$BSXML::jobstatus,0);
+	} || warn ("ERROR: $jobsdir/$file broken status $@");
+	warn ("WARNING: $jobsdir/$file is dispatching") if $status->{'code'} eq "dispatching";
+      } elsif ($file =~ /:dir$/) {
+	warn ("ERROR: $jobsdir/$file is not a directory") unless -d "$jobsdir/$file";
+	my $curjob = "$jobsdir/$file";
+	opendir (JOB,$curjob);
+	my @jfile_a = readdir(JOB);
+        closedir(JOB);
+        for my $jfile (sort(@jfile_a)) {
+	  next if ($jfile =~ /^\./);
+          if ($jfile = "meta" && -f "$curjob/$jfile") {
+	    open(META,"$curjob/$jfile");
+            while (<META>) {
+	      warn ("ERROR: $curjob/$jfile broken entry $_") unless /^[0-9a-f]{32}  ..*$/;
+	    }
+            close (META);
+	  }
+	}
+      } else {
+	next unless -e "$jobsdir/$file";
+	# this better be a job file
+        my $jobentry;
+        eval {
+	  $jobentry = readxml("$jobsdir/$file",$BSXML::buildinfo,0);
+	} || warn ("ERROR: $jobsdir/$file broken buildinfo");
+      }
+    }
+  }
+}
+
+if (-d "$dbroot" && $check_db) {
+  opendir(DIR,$dbroot);
+  my @dbdir_a = readdir(DIR);
+  closedir(DIR);
+  for my $dbdir (sort(@dbdir_a)) {
+    next if $dbdir =~ /^\./;
+    if ($dbdir eq "published" || $dbdir eq "request") {
+      print "PROGRESS: checking $dbdir db\n";
+      if (-d "$dbroot/$dbdir") {
+      } else {
+	warn "ERROR: $dbroot/$dbdir is not a directory";
+      }
+      my $progress;
+      opendir (DBP, "$dbroot/$dbdir");
+      while (my $dbp = readdir(DBP)) {
+	next if $dbp =~ /^\./;
+	unless (-d "$dbroot/$dbdir/$dbp") {
+	  warn ("ERROR: $dbroot/$dbdir/$dbp is not a directory");
+	}
+	if ($progress ne substr($dbp,0,1)) {
+	  $progress = substr($dbp,0,1);
+	  print "$progress";
+	}
+	if ($dbp =~ /^[0-9a-f][0-9a-f]$/) {
+	  opendir (DBPP, "$dbroot/$dbdir/$dbp");
+	  while (my $dbpp = readdir(DBPP)) {
+	    next if $dbpp =~ /^\./;
+	    if ($dbpp !~ /^[0-9a-f]{30}$/) {
+	      warn ("ERROR: $dbroot/$dbdir/$dbp/$dbpp strange published entry");
+	    }
+	    eval {
+	     my $publ = Storable::retrieve("$dbroot/$dbdir/$dbp/$dbpp") || {};
+	    } || warn ("ERROR: $dbroot/$dbdir/$dbp/$dbpp broken, $@");
+	  }
+	  closedir (DBPP);
+	} else {
+	  warn ("ERROR: $dbroot/$dbdir/$dbp strange entry");
+	}
+      }
+      closedir (DBP);
+      print "\n";
+    } else {
+      warn ("WARNING: $dbroot/$dbdir unknown db dir entry");
+    }
+  }
+}
+
+if (-d "$eventroot" && $check_event) {
+  print "PROGRESS: checking events dir\n";
+  opendir(EVT,$eventroot);
+  while (my $evt = readdir(EVT)) {
+    next if $evt =~ /^\./;
+    if (-f "$eventroot/$evt") {
+      next if $evt eq "lastevents";
+      warn ("ERROR: $eventroot/$evt strange file");
+    } elsif (-d "$eventroot/$evt") {
+      opendir(EVTT,"$eventroot/$evt");
+      while (my $evtt = readdir(EVTT)) {
+	next if $evtt =~ /^\./;
+	eval {
+	  my $event = readxml("$eventroot/$evt/$evtt",$BSXML::event,0);
+	} || warn ("ERROR: $eventroot/$evt/$evtt broken event $@");
+      }
+      closedir(EVTT);
+    } else {
+      warn ("ERROR: $eventroot/$evt strange directory entry");
+    }
+  }
+  closedir(EVT);
+}
+
+if (-d "$workersroot" && $check_worker) {
+  print "PROGRESS: checking workers dir\n";
+  opendir(WRK,$workersroot);
+  while (my $wrk = readdir(WRK)) {
+    next if $wrk =~ /^\./;
+    if (-f "$workersroot/$wrk") {
+      warn ("ERROR: $workersroot/$wrk strange file");
+    } elsif (-d "$workersroot/$wrk") {
+      opendir(WRKR,"$workersroot/$wrk");
+      while (my $wrkr = readdir(WRKR)) {
+	next if $wrkr =~ /^\./;
+	if (-f "$workersroot/$wrk/$wrkr") {
+	# todo, check for valid arch
+	next if ($wrk eq "disable");
+	eval {
+	  my $worker = readxml("$workersroot/$wrk/$wrkr",$BSXML::worker,0);
+	} || warn ("ERROR: $workersroot/$wrk/$wrkr broken worker entry $@");
+	} elsif (-e "$workersroot/$wrk/$wrkr") {
+	  warn ("ERROR: $workersroot/$wrk/$wrkr strange directory entry");
+	}
+      }
+      closedir(WRKR);
+    } else {
+      warn ("ERROR: $workersroot/$wrk strange directory entry");
+    }
+  }
+  closedir(EVT);
+}
+
+if (-d "$requestsroot" && $check_request) {
+  print "PROGRESS: checking requests dir\n";
+  opendir(REQ,$requestsroot);
+  while (my $req = readdir(REQ)) {
+    next if $req =~ /^\./;
+    if (-f "$requestsroot/$req") {
+      eval {
+	my $request = readxml("$requestsroot/$req",$BSXML::request,0);
+      } || warn ("WARNING: $requestsroot/$req broken requests entry $@ (might as well be encoding issue)");
+    } else {
+      warn ("ERROR: $requestsroot/$req strange directory entry");
+    }
+  }
+  closedir(EVT);
+}
+
+if (-d "$buildroot" && $check_build) {
+  print "PROGRESS: checking build dir\n";
+  opendir(PRJ,$buildroot);
+  my @prjlist = readdir(PRJ);
+  closedir (PRJ);
+  for my $prj (sort (@prjlist)) {
+    next if $prj =~ /^\./;
+    if (-f "$buildroot/$prj") {
+      next if $prj eq "_repoid";
+      warn ("ERROR: $buildroot/$prj strange file");
+    } elsif (-d "$buildroot/$prj") {
+      next if $check_one_project && $prj ne $check_one_project;
+      # we have a project, look for repositories
+      my $proj = "$buildroot/$prj";
+      opendir (REP, $proj);
+      my @rep_a = readdir(REP);
+      closedir(REP);
+      for my $rep (sort(@rep_a)) {
+	next if $rep =~ /^\./;
+        if (-f "$proj/$rep") {
+	  warn ("WARNING: $proj/$rep strange file");
+	} elsif (-d "$proj/$rep") {
+	  # we have a repository, start checking
+	  opendir (ARCH,"$proj/$rep");
+          my @arch_a = readdir(ARCH);
+	  closedir (ARCH);
+          for my $arch (sort(@arch_a)) {
+	    next if $arch eq "." || $arch eq "..";
+	    if (-f "$proj/$rep/$arch") {
+	      if ($arch eq ":repoinfo") {
+		eval {
+		  my $dp = Storable::retrieve("$proj/$rep/$arch") || {};
+		} || warn ("ERROR: $proj/$rep/$arch broken, $@");
+	      } elsif ($arch eq ".finishedlock") {
+		# okay, should be 0 byte
+	      } else {
+		warn ("ERROR: $proj/$rep/$arch strange file");
+	      }
+	    } elsif (-d "$proj/$rep/$arch") {
+	      my $pra = "$proj/$rep/$arch";
+	      print "PROGRESS: running on $pra\n";
+	      opendir(PRAP,$pra);
+	      my @prap_a = readdir(PRAP);
+	      closedir(PRAP);
+	      for my $prap (sort(@prap_a)) {
+		next if $prap eq "." || $prap eq "..";
+		if (-f "$pra/$prap") {
+		  if ($prap eq ":depends"
+			|| $prap eq ":full.cache"
+			|| $prap eq ":relsync"
+			|| $prap eq ":relsync.max"
+			|| $prap eq ":relsync.sent"
+			|| $prap eq ":repoinfo") {
+		    eval {
+		      my $dp = Storable::retrieve("$pra/$prap") || {};
+		    } || warn ("ERROR: $pra/$prap broken, $@");
+		  } elsif ($prap eq ":packstatus") {
+		    # OMG ...
+		    eval {
+		      my $dp = Storable::retrieve("$pra/$prap") || {};
+		    } || eval {
+		      my $dp = readxml("$pra/$prap",$BSXML::packstatuslist,0);
+		    } || warn ("ERROR: $pra/$prap is not a perl storable and not a packstatuslist");
+		  } elsif ($prap eq ":jobhistory"
+			|| $prap eq ":repodone"
+			|| $prap eq ":schedulerstate"
+			|| $prap eq ":schedulerstate.dirty") {
+		    # fixme check content
+		  } elsif ($prap eq ":repostate") {
+		    eval {
+		      my $repstate = readxml("$pra/$prap",$BSXML::repositorystate,0);
+		    } || warn ("ERROR: $pra/$prap broken repostate $@");
+		  } elsif ($prap eq ":full.solv") {
+		    #my $pool = BSSolv::pool->new();
+		    #eval {
+		    #	my $cache = $pool->repofromfile($proj,"$pra/$prap");
+		    #} || warn ("ERROR: $pra/$prap broken file");
+		  } else {
+		    warn ("ERROR: strange file $pra/$prap");
+		  }
+		} elsif (-d "$pra/$prap") {
+		  if ($prap eq ":logfiles.fail"
+			|| $prap eq ":logfiles.success") {
+			# fine, probably no need to check
+		  } elsif ($prap eq ":meta") {
+		    next unless $do_check_meta;
+		    opendir(MTA,"$pra/$prap");
+		    while (my $mta = readdir(MTA)) {
+		      next if $mta eq "." || $mta eq "..";
+		      if (-f "$pra/$prap/$mta") {
+			warn ("WARNING: $pra/$prap/$mta meta file without existing package") unless -d "$pra/$mta";
+			open (META,"$pra/$prap/$mta");
+			while (<META>) {
+			  warn ("ERROR: $pra/$prap/$mta broken meta file") unless /^[0-9a-f]{32}  ..*$/;
+			}
+			close (META);
+		      } else {
+			warn ("ERROR: $pra/$prap/$mta strange entry");
+		      }
+		    }
+		    closedir (MTA);
+		  } elsif ($prap eq ":full") {
+		    check_package_dir("$pra/$prap") unless -l "$pra/$prap";
+		  } else {
+		    # probably a package, start checking
+		    check_package_dir("$pra/$prap");
+		  }
+		} else {
+		  warn ("ERROR: $pra/$prap strange directory entry in repository") if -e "$pra/$prap";
+		}
+	      }
+	    } else {
+	      warn ("ERROR: $proj/$rep/$arch strange directory entry in architecture");
+	    }
+	  }
+	} else {
+	  warn ("ERROR: $proj/$rep strange directory entry in project");
+        }
+      }
+    } else {
+      warn ("ERROR: $buildroot/$prj strange directory entry in build dir");
+    }
+  }
+}
+
+print "check finished\n";

@@ -553,11 +553,21 @@ while (@ARGV) {
       check_kiwi_xml($project, $package);
     }
   } elsif ($arg eq "--parse-build-desc") {
-    die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV != 1 and @ARGV != 2;
+    die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV < 1;
     my $file = shift @ARGV;
-    my $cf = undef;
-    $cf->{'arch'} = shift @ARGV if @ARGV == 1;
+    my $cf = $cfile = $arch = undef;
+    $arch = shift @ARGV if @ARGV > 0;
+    if (@ARGV > 0) {
+      $cfile = shift @ARGV if @ARGV == 1;
+      $cf = Build::read_config( $arch, $cfile );
+    };
+    $cf->{'arch'} = $arch if $arch;
     my $ret = Build::parse($cf, $file);
+    print Dumper($ret);
+  } elsif ($arg eq "--parse-hdrmd5") {
+    die("ERROR: need a file name as argument (rpm or deb)!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    my $ret = Build::queryhdrmd5($file);
     print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
     if (@ARGV == 1) {

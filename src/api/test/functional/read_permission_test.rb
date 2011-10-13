@@ -160,15 +160,21 @@ class ReadPermissionTest < ActionController::IntegrationTest
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
-    tprj="home:hidden_homer"
+    tprj="home:hidden_homer:tmp"
+    get "/source/#{tprj}"
+    assert_response 404
     resp=:success
     delresp=:success
     match=/>HiddenProject</
     testflag=/<access>/
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    delete "/source/#{tprj}"
+    assert_response :success
     # admin
     prepare_request_with_user "king", "sunflower"
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    delete "/source/#{tprj}"
+    assert_response :success
 
     # open -> hidden
     # unauthorized

@@ -355,18 +355,18 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add required informations about the update
     pi = REXML::Document.new( @response.body )
     pi.elements["//category"].text = "security"
+    pi.elements['/patchinfo'].add_element 'bugzilla'
+    pi.elements['/patchinfo'].add_element 'CVE'
+    pi.elements["//bugzilla"].text = "1042"
+    pi.elements["//CVE"].text = "0815"
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
 
     # disable the packages we do not like to test here
-    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=x86_64&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=disable"
-    assert_response :success
 #FIXME: the flag handling is currently broken
     post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=remove_flag&flag=build&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'"
-    assert_response :success
-    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=set_flag&flag=build&arch=i586&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'&status=enable"
     assert_response :success
 
     ### the backend is now building the packages, injecting results
@@ -381,6 +381,26 @@ class MaintenanceTests < ActionController::IntegrationTest
        # just for waiting until scheduler finishes
        io.each {|line| line.strip.chomp unless line.blank? }
     end
+
+    #### upload build result as a worker would do
+    # find out about the triggered build job and write back dispatching data
+    findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/x86_64/ -name #{maintenanceProject}::BaseDistro2_BaseDistro2LinkedUpdateProject_repo::pack2.BaseDistro2-*")
+    maintJob=findMaintJob.readlines.first.chomp
+    jobid=""
+    IO.popen("md5sum #{maintJob}|cut -d' ' -f 1") do |io|
+       jobid = io.readlines.first.chomp
+    end
+    f = File.open("#{maintJob}:status", 'w')
+    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+    f.close
+    # for x86_64
+    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*x86_64.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=x86_64&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
+    system("echo \"1acf9baa96c2cee07035b2b156020d9b  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
+    # run scheduler again to collect result
+    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
+       # just for waiting until scheduler finishes
+       io.each {|line| line.strip.chomp unless line.blank? }
+    end
     # find out about the triggered build job and write back dispatching data
     findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/i586/ -name #{maintenanceProject}::BaseDistro2_BaseDistro2LinkedUpdateProject_repo::pack2.BaseDistro2-*")
     maintJob=findMaintJob.readlines.first.chomp
@@ -391,7 +411,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     f = File.open("#{maintJob}:status", 'w')
     f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
     f.close
-    # upload build result as a worker would do
+    # for i586
     system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
     system("echo \"1acf9baa96c2cee07035b2b156020d9b  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
     # run scheduler again to collect result
@@ -403,8 +423,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     # check updateinfo
     get "/build/#{maintenanceProject}/BaseDistro2_BaseDistro2LinkedUpdateProject_repo/i586/patchinfo/updateinfo.xml"
     assert_response :success
-    # FIXME2.3: we have an "id" tag, but without content. Shall this really exist here ?
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
+    assert_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=1042", :id => "1042",  :type => "bugzilla" } 
+    assert_tag :tag => "reference", :attributes => { :href => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=0815", :id => "0815",  :type => "cve" } 
+    assert_no_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=" } 
+    assert_no_tag :tag => "reference", :attributes => { :id => "" }
 
     # create release request
     post "/request?cmd=create", '<request>

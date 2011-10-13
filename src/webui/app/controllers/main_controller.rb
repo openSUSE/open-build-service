@@ -18,7 +18,7 @@ class MainController < ApplicationController
   def systemstatus
     return if not request.xhr? # Only serve AJAX-requests
     if not @spider_bot
-      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
+      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 5.minutes, :shared => true) do
         Workerstatus.find :all
       end
     end
