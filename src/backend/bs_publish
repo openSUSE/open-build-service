@@ -414,6 +414,29 @@ sub deleterepo_rpmmd {
   unlink("$extrep/$projid.repo");
 }
 
+sub createrepo_hdlist2 {
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
+
+  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+  my $repotag = "obsrepository://$obsname/$projid/$repoid";
+  my $prp_ext = "$projid/$repoid";
+  $prp_ext =~ s/:/:\//g;
+  print "    running hdlist2\n";
+
+  # create generic rpm-md meta data
+  if (qsystem('genhdlist2', $extrep)) {
+    print("    genhdlist2 failed: $?\n");
+  }
+
+  # signing is done only via rpm packages to my information
+}
+
+sub deleterepo_hdlist2 {
+  my ($extrep, $projid) = @_;
+
+  qsystem('rm', '-rf', "$extrep/media_info") if -d "$extrep/media_info";
+}
+
 sub createrepo_susetags {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
 
@@ -1267,6 +1290,12 @@ sub publish {
     createrepo_susetags($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   } else {
     deleterepo_susetags($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+  }
+  # Mandriva format:
+  if ($repotype{'hdlist2'}) {
+    createrepo_hdlist2($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+  } else {
+    deleterepo_hdlist2($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }
   if ($repotype{'debian'}) {
     createrepo_debian($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
