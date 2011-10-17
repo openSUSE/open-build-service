@@ -901,7 +901,7 @@ module UserMixins
                 else
                   port = defined?( LDAP_PORT ) ? LDAP_PORT : 389
                   # Use LDAP StartTLS. By default start_tls is off.
-		  if defined?( LDAP_START_TLS ) ? LDAP_START_TLS == :on
+		  if defined?( LDAP_START_TLS ) && LDAP_START_TLS == :on
                     conn = LDAP::SSLConn.new( server, port, true)
                   else
                     conn = LDAP::Conn.new( server, port)
