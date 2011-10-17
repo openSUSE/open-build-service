@@ -25,8 +25,8 @@
       <h3>Packages</h3>
       <p>
         <% @packages.each.select{|p| !/^_product/.match( p.name ) and !/^_patchinfo/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
-          <% if @current_char.blank? || @current_char != package.downcase[0,1]
-            @current_char = package.downcase[0,1] %>
+          <% if @current_char.blank? || @current_char != package[0,1]
+            @current_char = package[0,1] %>
           </p><p><b><%= @current_char %></b>
           <% end %>
           | <%= link_to highlight( h(package), @filterstring ), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %>
