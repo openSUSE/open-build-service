@@ -53,7 +53,7 @@
                 <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
                 <% if (!@project_filter) || (@project_filter != project) %>
                     <span class="filter_by">
-                        <%= link_to 'filter', { :controller => 'monitor' , :project => project } %>
+                      <%= link_to 'filter', { :controller => 'monitor', :action => 'old' , :project => project } %>
                     </span>
                 <% end %>
             <% end %>
