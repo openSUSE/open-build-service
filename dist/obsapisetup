@@ -66,6 +66,9 @@ case "$1" in
 	start)
                 if [ ! -d /obs/MySQL ]; then
 			mkdir -p /obs/MySQL
+                else
+                   # a distro update may mess up the mysql id
+                   chown -R mysql.mysql /obs/MySQL
 		fi
 
 		# If we've proper hostname resolution all is fine. But if
