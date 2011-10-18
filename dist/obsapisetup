@@ -67,8 +67,6 @@ case "$1" in
                 if [ ! -d /obs/MySQL ]; then
 			mkdir -p /obs/MySQL
 		fi
-                # a distro update may mess up the mysql id
-                chown -R mysql.mysql /obs/MySQL
 
 		# If we've proper hostname resolution all is fine. But if
 		# there's no proper hostname resolution, adapt BSConfig.pm et al.
