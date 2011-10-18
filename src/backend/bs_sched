@@ -2405,7 +2405,8 @@ sub jobfinished {
       return;
     }
     # severe failure, create src change fake...
-    writestr("$jobdatadir/meta", undef, "$info->{'srcmd5'}  $packid\nfake to detect source changes...  fake\n");
+    my $verifymd5 = $info->{'verifymd5'} || $info->{'srcmd5'};
+    writestr("$jobdatadir/meta", undef, "$verifymd5  $packid\nfake to detect source changes...  fake\n");
     push @all, "$jobdatadir/meta";
     $all{'meta'} = 1;
   }
@@ -2734,7 +2735,7 @@ sub checkkiwiimage {
   $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
 
   my @new_meta;
-  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for (@{$info->{'extrasource'} || []}) {
     push @new_meta, "$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}";
   }
@@ -3122,7 +3123,7 @@ sub checkkiwiproduct {
 
   # now create meta info
   my @new_meta;
-  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} grep {$rpms_meta{$_}} @rpms) {
     my $id = $rpms_hdrmd5{$rpm};
@@ -3436,7 +3437,7 @@ sub checkpatchinfo {
   }
 
   my @new_meta;
-  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for (sort(keys %metas)) {
     push @new_meta, "$metas{$_}  $_";
   }
@@ -3594,7 +3595,7 @@ sub rebuildpatchinfo {
     BSUtil::cleandir($jobdatadir);
     writestr("$jobdatadir/logfile", undef, "update built failed".localtime($now)."\n\n$broken\n");
   }
-  my @new_meta = "$pdata->{'srcmd5'}  $packid";
+  my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for my $apackid (sort(keys %metas)) {
     push @new_meta, "$metas{$apackid}  $apackid";
   }
@@ -5645,7 +5646,7 @@ while(1) {
       print "      - $packid ($packtype)\n";
       print "        start build\n";
       $reason = { 'explain' => 'new build' };
-    } elsif (substr($mylastcheck, 0, 32) ne $pdata->{'srcmd5'}) {
+    } elsif (substr($mylastcheck, 0, 32) ne ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})) {
       print "      - $packid ($packtype)\n";
       print "        src change, start build\n";
       $reason = { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) };
@@ -5715,7 +5716,7 @@ while(1) {
 	}
       }
       @new_meta = BSSolv::gen_meta($subpacks{$info->{'name'}} || [], @new_meta);
-      unshift @new_meta, "$pdata->{'srcmd5'}  $packid";
+      unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
       if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
 	# print "      - $packid ($packtype)\n";
 	# print "        nothing changed (looked harder)\n";

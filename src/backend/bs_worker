@@ -638,7 +638,7 @@ sub getsources {
   my ($buildinfo, $dir) = @_;
 
   my @meta;
-  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  push @meta, ($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $buildinfo->{'package'}";
   my $server = $buildinfo->{'srcserver'} || $srcserver;
 
   my $res = BSRPC::rpc({
@@ -694,7 +694,7 @@ sub getdeltasources {
   my ($buildinfo, $dir) = @_;
 
   my @meta;
-  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  push @meta, ($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $buildinfo->{'package'}";
   my $server = $buildinfo->{'reposerver'};
   my $res = BSRPC::rpc({
     'uri' => "$server/getjobdata",
@@ -1318,7 +1318,7 @@ sub getbinaries {
 	}
       }
     }
-    @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @meta);
+    @meta = BSBuild::gen_meta(($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @meta);
     shift @meta;	# strip srcinfo again
   }
   return @meta;
