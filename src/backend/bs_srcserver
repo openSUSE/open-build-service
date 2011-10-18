@@ -4321,12 +4321,12 @@ sub copyproject {
       writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
       addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
     }
-    if (-s "$projectsdir/$oprojid.pkg/$packid.rev") {
+    if ($cgi->{'makeolder'} || -s "$projectsdir/$oprojid.pkg/$packid.rev") {
       my $lastorev;
       if ($cgi->{'withhistory'}) {
-        # FIXME: races ahead
-        # history copying is a bit tricky, as it renumbers the revisions
-        my @allrevs = BSFileDB::fdb_getall("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
+	# FIXME: races ahead
+	# history copying is a bit tricky, as it renumbers the revisions
+	my @allrevs = BSFileDB::fdb_getall("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
 	if (-e "$projectsdir/$projid.pkg/$packid.rev") {
 	  my $lastrev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
 	  if ($lastrev && $lastrev->{'rev'}) {
@@ -4335,35 +4335,53 @@ sub copyproject {
 	    }
 	  }
 	}
-        # make trees available in new project
-        my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-        if ($BSConfig::nosharedtrees) {
-          my $treedir = "$treesdir/$projid/$packid";
+	# make trees available in new project
+	my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+	if ($BSConfig::nosharedtrees) {
+	  my $treedir = "$treesdir/$projid/$packid";
 	  for my $rev (@allrevs) {
 	    next if -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
-            my $files = lsrev({ %$rev, 'project' => $oprojid, 'package' => $packid });
+	    my $files = lsrev({ %$rev, 'project' => $oprojid, 'package' => $packid });
 	    copyfiles($projid, $packid, $oprojid, $packid, $files);
 	    addmeta($projid, $packid, $files);
 	  }
 	}
-        BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
+	BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
 	$lastorev = $allrevs[-1];
       } else {
 	$lastorev = BSFileDB::fdb_getlast("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
       }
-      next unless $lastorev && $lastorev->{'rev'};
+      if (!$lastorev || !$lastorev->{'rev'}) {
+	next unless $cgi->{'makeolder'};
+	# fake empty commit
+	$lastorev = { 'version' => 'unknown', 'rev' => 0, 'vrev' => 0, 'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' };
+      }
       # always do one new commit, we don't use addrev to have full control over vrev
       my $files = lsrev({ %$lastorev, 'project' => $oprojid, 'package' => $packid });
       copyfiles($projid, $packid, $oprojid, $packid, $files);
       addmeta($projid, $packid, $files);
-      $lastorev->{'user'} = $user;
-      $lastorev->{'comment'} = $comment;
-      $lastorev->{'requestid'} = $cgi->{'requestid'};
-      $lastorev->{'time'} = time();
-      $lastorev->{'vrev'} =~ s/(\d+)$/$1+1/e;
-      delete $lastorev->{'rev'};
-      $lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
-      updatelinkinfodb($projid, $packid, { %$lastorev, 'project' => $oprojid, 'package' => $packid }, $files);
+      my $newrev = { %$lastorev };
+      $newrev->{'user'} = $user;
+      $newrev->{'comment'} = $comment;
+      $newrev->{'requestid'} = $cgi->{'requestid'};
+      $newrev->{'time'} = time();
+      if ($cgi->{'makeolder'}) {
+	$newrev->{'vrev'} =~ s/(\d+)$/($1+1).".1"/e;
+      } else {
+	$newrev->{'vrev'} =~ s/(\d+)$/$1+1/e;
+      }
+      delete $newrev->{'rev'};
+      $newrev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $newrev);
+      updatelinkinfodb($projid, $packid, { %$newrev, 'project' => $oprojid, 'package' => $packid }, $files);
+      if ($cgi->{'makeolder'}) {
+	$lastorev->{'user'} = $user;
+	$lastorev->{'comment'} = $comment;
+	$lastorev->{'requestid'} = $cgi->{'requestid'};
+	$lastorev->{'time'} = time();
+	$lastorev->{'vrev'} =~ s/(\d+)$/$1+2/e;
+	delete $lastorev->{'rev'};
+	$lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
+      }
     }
     # XXX: does this make any sense?
     if ($cgi->{'withbinaries'}) {
@@ -6371,7 +6389,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
   '/source/$project deleted:bool?' => \&getpackagelist,
