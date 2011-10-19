@@ -4,11 +4,12 @@
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'jquery.autocomplete', 'jquery.tooltip' %>
 <% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.tablesorter', 'jquery.tooltip.min' %>
+<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.expander.min', 'jquery.tablesorter', 'jquery.tooltip.min' %>
 
 <% content_for :ready_function do %>
   $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
   $('#history_table').tablesorter({widgets: ['zebra'], sortList: [[0,0]], headers: {3: {sorter: false}}});
+  $('.expandable').expander({slicePoint: 80, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>
 
 <% if @superseded_by %>
@@ -107,7 +108,7 @@
           <td class="nowrap"><span class="hidden"><%= Time.parse(h[:when].to_s).to_i %></span><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
           <td><%= h[:name] %></td>
           <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => h[:who]}%></td>
-          <td><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
+          <td class="expandable"><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
         </tr>
       <% end %>
     </tbody>
@@ -211,7 +212,7 @@
               <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{revnum}, 'declined')") %>
             </td>
           <% else %>
-            <td><%= format_comment(comment) %></td>
+            <td class="expandable"><%= format_comment(comment) %></td>
           <% end %>
         </tr>
       <%end%>
