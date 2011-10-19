@@ -1,0 +1,23 @@
+#
+# openSUSE Build Service 2.1.13
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* api: updated default build target list
+
+Bugfixes:
+=========
+
+* webui: fixed quoating of URL parameter
+
