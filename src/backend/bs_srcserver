@@ -3329,6 +3329,12 @@ sub expandsearchpath {
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
+    } elsif ($remotemap) {
+      my $proj = readproj($t->{'project'}, 1);
+      if ((!$proj || $proj->{'remoteurl'}) && !$remotemap->{$t->{'project'}}) {
+        my $r = remoteprojid($t->{'project'});
+        $remotemap->{$t->{'project'}} = {%$r, 'proto' => 1} if $r;
+      }
     }
   }
   return @ret;
