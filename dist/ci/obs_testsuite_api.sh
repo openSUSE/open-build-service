@@ -17,7 +17,7 @@
 #
 # Source Code Management:
 #   Git:
-#     Repositories: git://gitorious.org/opensuse/build-service.git
+#     Repositories: git://github.com/openSUSE/open-build-service.git
 #     Branches to build: master
 #
 # Build Triggers:

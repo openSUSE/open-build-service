@@ -19,9 +19,9 @@ License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
-# git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
+# git clone git://github.com/openSUSE/open-build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
 Source:         obs-server-%version.tar.bz2
-# git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
+# git clone git://github.com/openSUSE/opensuse-themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
 Source1:        opensuse-themes-2.2.62.tar.bz2
 Autoreqprov:    on
 BuildRequires:  python-devel
