@@ -200,10 +200,18 @@ class SourceController < ApplicationController
       end
 
       if 'copy' == command
-        unless @http_user.can_create_project?(project_name) and pro.nil?
+        unless @http_user.can_create_project?(project_name)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
             :message => "no permission to execute command '#{command}'"
           return
+        end
+        if params.has_key?(:makeolder)
+          oproject = DbProject.get_by_name(params[:oproject])
+          unless @http_user.can_modify_project?(oproject)
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
+              :message => "no permission to execute command '#{command}', requires modification permission in oproject"
+            return
+          end
         end
         dispatch_command
         return
@@ -1498,7 +1506,7 @@ class SourceController < ApplicationController
     # copy entire project in the backend
     begin
       path = request.path
-      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory])
+      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
       pass_to_backend path
     rescue
       # we need to check results of backend in any case (also timeout error eg)

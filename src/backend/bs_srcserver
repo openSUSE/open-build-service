@@ -4380,7 +4380,7 @@ sub copyproject {
 	$lastorev->{'time'} = time();
 	$lastorev->{'vrev'} =~ s/(\d+)$/$1+2/e;
 	delete $lastorev->{'rev'};
-	$lastorev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $lastorev);
+	$lastorev = BSFileDB::fdb_add_i("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay, $lastorev);
       }
     }
     # XXX: does this make any sense?
