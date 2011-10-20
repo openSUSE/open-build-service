@@ -8,9 +8,15 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
 
-    # copy any entire project
+    # inject a job for copy any entire project ... gets not executed in test suite
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro"
     assert_response :success
+    assert_tag( :tag => "status", :attributes => { :code => "invoked"} )
+
+    # copy any entire project NOW
+    post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :nodelay => 1
+    assert_response :success
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     # try a split
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1
@@ -34,7 +40,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
 
     # make a full split as admin
     prepare_request_with_user "king", "sunflower"
-    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1
+    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :nodelay => 1
     assert_response :success
 
     # the origin must got increased by 2
@@ -58,7 +64,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     assert_response :success
 
     # test again with history copy
-    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :withhistory => 1
+    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :nodelay => 1, :withhistory => 1
     assert_response :success
 
     # the origin must got increased by another 2

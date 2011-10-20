@@ -1503,9 +1503,22 @@ class SourceController < ApplicationController
       p.store
     end
 
+    if params.has_key? :nodelay
+      do_project_copy(project_name, params)
+    else
+      # inject as job
+      require 'workers/copy_project_job.rb'
+
+      Delayed::Job.enqueue CopyProjectJob.new(project_name, params)
+
+      render_invoked
+    end
+  end
+
+  def do_project_copy( tproject, params )
     # copy entire project in the backend
     begin
-      path = request.path
+      path = "/source/#{URI.escape(tproject)}"
       path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
       pass_to_backend path
     rescue
@@ -1513,10 +1526,10 @@ class SourceController < ApplicationController
     end
 
     # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"
+    backend_pkgs = Collection.find :package, :match => "@project='#{tproject}'"
     backend_pkgs.each_package do |package|
       path = request.path + "/" + package.name + "/_meta"
-      Package.new(backend_get(path), :project => project_name).save
+      Package.new(backend_get(path), :project => tproject).save
     end
   end
 

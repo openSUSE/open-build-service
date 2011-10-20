@@ -645,6 +645,14 @@ class ApplicationController < ActionController::Base
     render :template => 'status', :status => 200, :layout => false
   end
 
+  def render_invoked(opt={})
+    @errorcode = "invoked"
+    @summary = "Job invoked"
+    @details = opt[:details] if opt[:details]
+    @data = opt[:data] if opt[:data]
+    render :template => 'status', :status => 200, :layout => false
+  end
+
   def backend
     @backend ||= ActiveXML::Config.transport_for :bsrequest
   end
