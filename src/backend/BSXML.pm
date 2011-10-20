@@ -1305,9 +1305,15 @@ our $sourcediff = [
 		'state',	# added, deleted, changed
 	      [ 'old' =>
 		    'name',
+		    'md5',
+		    'size',
+		    'mtime',
 	      ],
 	      [ 'new' =>
 		    'name',
+		    'md5',
+		    'size',
+		    'mtime',
 	      ],
 	      [ 'diff' =>
 		    'binary',
