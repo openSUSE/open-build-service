@@ -19,6 +19,8 @@
 #   Git:
 #     Repositories: git://github.com/openSUSE/open-build-service.git
 #     Branches to build: master
+#     Repository browser: githubweb
+#       URL: https://github.com/openSUSE/open-build-service
 #
 # Build Triggers:
 #   Poll SCM:
