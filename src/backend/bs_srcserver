@@ -3017,6 +3017,10 @@ sub undelete_rev {
   $nrev->{'version'} = $rev->{'version'} if $rev && defined $rev->{'version'};
   $nrev->{'vrev'} = $rev->{'vrev'} if $rev && defined $rev->{'vrev'};
   $nrev->{'rev'} = $rev->{'rev'} + 1;
+  if ($cgi->{'time'}) {
+    die("specified time is less than time in last commit\n") if $rev && $rev->{'time'} > $cgi->{'time'};
+    $nrev->{'time'} = $cgi->{'time'};
+  }
   push @rev, $nrev;
   BSFileDB::fdb_add_multiple($revfileto, $srcrevlay, @rev);
   return $nrev;
@@ -6422,7 +6426,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
-  'POST:/source/$project/$package cmd=undelete user:? comment:?' => \&undeletepackage,
+  'POST:/source/$project/$package cmd=undelete user:? comment:? time:num?' => \&undeletepackage,
   'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&triggerservicerun,
   'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
