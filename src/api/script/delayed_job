@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+require File.join(RAILS_ROOT, 'lib/workers/copy_project_job.rb')
 require File.join(RAILS_ROOT, 'lib/workers/status_monitor_job.rb')
 require 'delayed/command'
-require 'workers/status_monitor_job'
 Delayed::Command.new(ARGV).daemonize

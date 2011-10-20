@@ -3,7 +3,7 @@ class CopyProjectJob < Struct.new(:project, :params)
 
   def perform
     c = SourceController.new
-    c.copy_project(project, params)
+    c.do_project_copy(project, params)
   end
 
 end

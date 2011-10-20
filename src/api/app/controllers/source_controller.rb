@@ -1117,6 +1117,30 @@ class SourceController < ApplicationController
     render :text => prj.expand_flags.to_json, :content_type => 'text/json'
   end
 
+  # called either directly or from delayed job
+  def do_project_copy( tproject, params )
+    # copy entire project in the backend
+    begin
+      path = "/source/#{URI.escape(tproject)}"
+      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
+      Suse::Backend.post path, nil
+    rescue
+      # we need to check results of backend in any case (also timeout error eg)
+    end
+
+    # set user if nil, needed for delayed job in DbPackage model
+    if User.current == nil
+      User.current = User.find_by_login(params[:user])
+    end
+
+    # restore all package meta data objects in DB
+    backend_pkgs = Collection.find :package, :match => "@project='#{tproject}'"
+    backend_pkgs.each_package do |package|
+      path = "/source/#{URI.escape(tproject)}/#{package.name}/_meta"
+      Package.new(backend_get(path), :project => tproject).save
+    end
+  end
+
   private
 
   # POST /source?cmd=createmaintenanceincident
@@ -1505,31 +1529,12 @@ class SourceController < ApplicationController
 
     if params.has_key? :nodelay
       do_project_copy(project_name, params)
+      render_ok
     else
       # inject as job
       require 'workers/copy_project_job.rb'
-
       Delayed::Job.enqueue CopyProjectJob.new(project_name, params)
-
       render_invoked
-    end
-  end
-
-  def do_project_copy( tproject, params )
-    # copy entire project in the backend
-    begin
-      path = "/source/#{URI.escape(tproject)}"
-      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
-      pass_to_backend path
-    rescue
-      # we need to check results of backend in any case (also timeout error eg)
-    end
-
-    # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, :match => "@project='#{tproject}'"
-    backend_pkgs.each_package do |package|
-      path = request.path + "/" + package.name + "/_meta"
-      Package.new(backend_get(path), :project => tproject).save
     end
   end
 
