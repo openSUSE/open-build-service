@@ -34,7 +34,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
 
     # make a full split as admin
     prepare_request_with_user "king", "sunflower"
-    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :withhistory => 1
+    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1
     assert_response :success
 
     # the origin must got increased by 2
@@ -52,6 +52,34 @@ class ReleaseManagementTests < ActionController::IntegrationTest
       files = ActiveXML::XMLNode.new(@response.body)
       assert_equal "#{vrevs[k].to_i+1}.1", files.vrev 
     end
+
+    #cleanup
+    delete "/source/TEST:BaseDistro"
+    assert_response :success
+
+    # test again with history copy
+    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :withhistory => 1
+    assert_response :success
+
+    # the origin must got increased by another 2
+    vrevs.each_key do |k|
+      get "/source/BaseDistro/#{k}"
+      assert_response :success
+      files = ActiveXML::XMLNode.new(@response.body)
+      assert_equal "#{vrevs[k].to_i+4}", files.vrev 
+    end
+
+    # the copy must have a vrev by 3 higher and an extended .1
+    vrevs.each_key do |k|
+      get "/source/TEST:BaseDistro/#{k}"
+      assert_response :success
+      files = ActiveXML::XMLNode.new(@response.body)
+      assert_equal "#{vrevs[k].to_i+3}.1", files.vrev 
+    end
+
+    #cleanup
+    delete "/source/TEST:BaseDistro"
+    assert_response :success
   end
 
 end
