@@ -299,45 +299,49 @@
   <div>
     <% @diff_per_action.each do |index_and_type, diff| %>
       <% index, _ = index_and_type.split('_', 2) %>
-      <table class="diff_action_display" id="diff_action_<%= index_and_type %>" <%= 'class="hidden"' if index != '0' %>>
-        <tbody>
-          <% diff[:filenames].each do |filename| %>
-            <% file_element = diff[:files][filename] %>
-            <% file_id = valid_xml_id(filename) %>
-            <% file_diff_text = file_element.diff.text.to_s %>
-            <% is_expanded = filename.ends_with?('.spec') || filename.ends_with?('.changes') %>
-            <tr>
-              <td>
-                <% if file_diff_text.length > 0 %>
-                  <%= link_to_function('[-]', :onclick => "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
-                  <%= link_to_function('[+]', :onclick => "collapse_expand('#{file_id}')", :id => "expand_#{file_id}") %>
-                  <% javascript_tag do %>
-                    <% if is_expanded %>
-                      $('#expand_<%= file_id %>').hide();
-                    <% else %>
-                      $('#collapse_<%= file_id %>').hide();
+      <% if diff[:filenames].length > 0 %>
+        <table class="diff_action_display" id="diff_action_<%= index_and_type %>" <%= 'class="hidden"' if index != '0' %>>
+          <tbody>
+            <% diff[:filenames].each do |filename| %>
+              <% file_element = diff[:files][filename] %>
+              <% file_id = valid_xml_id(filename) %>
+              <% file_diff_text = file_element.diff.text.to_s %>
+              <% is_expanded = filename.ends_with?('.spec') || filename.ends_with?('.changes') %>
+              <tr>
+                <td>
+                  <% if file_diff_text.length > 0 %>
+                    <%= link_to_function('[-]', :onclick => "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
+                    <%= link_to_function('[+]', :onclick => "collapse_expand('#{file_id}')", :id => "expand_#{file_id}") %>
+                    <% javascript_tag do %>
+                      <% if is_expanded %>
+                        $('#expand_<%= file_id %>').hide();
+                      <% else %>
+                        $('#collapse_<%= file_id %>').hide();
+                      <% end %>
                     <% end %>
                   <% end %>
-                <% end %>
-              </td>
-              <td><%= file_element.value('state').capitalize %></td>
-              <td><%= link_to(filename, :controller => 'package', :action => 'view_file', :project => diff[:action].source.project, :package => diff[:action].source.package, :file => filename, :rev => diff[:action].source.rev) %></td>
-            </tr>
-            <% if file_diff_text.length > 0 %>
-              <% if is_expanded %>
-                <tr id="diff_view_<%= file_id %>">
-              <% else %>
-                <tr id="diff_view_<%= file_id %>" class="hidden">
-              <% end %>
-                <td colspan="3">
-                  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => file_diff_text, :type => 'diff'} %>
                 </td>
+                <td><%= file_element.value('state').capitalize %></td>
+                <td><%= link_to(filename, :controller => 'package', :action => 'view_file', :project => diff[:action].source.project, :package => diff[:action].source.package, :file => filename, :rev => diff[:action].source.rev) %></td>
               </tr>
+              <% if file_diff_text.length > 0 %>
+                <% if is_expanded %>
+                  <tr id="diff_view_<%= file_id %>">
+                <% else %>
+                  <tr id="diff_view_<%= file_id %>" class="hidden">
+                <% end %>
+                  <td colspan="3">
+                    <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => file_diff_text, :type => 'diff'} %>
+                  </td>
+                </tr>
+              <% end %>
             <% end %>
-          <% end %>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+        <p><%= link_to('Back to top', '#') %></p>
+      <% else %>
+        <p>No source changes!</p>
+      <% end %>
     <% end %>
   </div>
-  <p><%= link_to('Back to top', '#') %></p>
 <% end %>
