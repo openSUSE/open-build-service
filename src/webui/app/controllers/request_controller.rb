@@ -112,7 +112,11 @@ class RequestController < ApplicationController
           files_hash = {}
 
           action_element.each('sourcediff/files/file') do |file_element|
-            filename = file_element.new.name.to_s
+            if file_element.new
+              filename = file_element.new.name.to_s
+            elsif file_element.old # in case of deleted files
+              filename = file_element.old.name.to_s
+            end
             if filename.ends_with?('.spec')
               spec_file_keys << filename
             elsif filename.ends_with?('.changes')
