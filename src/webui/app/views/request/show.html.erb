@@ -299,7 +299,7 @@
   <div>
     <% @diff_per_action.each do |index_and_type, diff| %>
       <% index, _ = index_and_type.split('_', 2) %>
-      <% if diff[:filenames].length > 0 %>
+      <% if diff[:filenames] && diff[:filenames].length > 0 %>
         <table class="diff_action_display" id="diff_action_<%= index_and_type %>" <%= 'class="hidden"' if index != '0' %>>
           <tbody>
             <% diff[:filenames].each do |filename| %>
