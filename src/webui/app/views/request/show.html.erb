@@ -273,12 +273,12 @@
   <% end %>
 <% end %>
 
-<% if @diff_per_action_hash and not @diff_per_action_hash.empty? %>
-  <h3>Diff View</h3>
-  <% if @diff_per_action_hash.keys.length != 1 %>
+<% if @diff_per_action and not @diff_per_action.empty? %>
+  <h3>Diff</h3>
+  <% if @diff_per_action.keys.length != 1 %>
     <p>
-      <%= label_tag(:diff_action, 'Display file differences for action ') %>
-      <%= select_tag(:diff_action, options_for_select(@diff_per_action_hash.keys)) %>:
+      <%= label_tag(:diff_action, 'Display diff for request action ') %>
+      <%= select_tag(:diff_action, options_for_select(@diff_per_action.keys)) %>:
     </p>
     <% javascript_tag do %>
       $('#diff_action').change(function () {
@@ -289,18 +289,42 @@
       });
     <% end %>
   <% end %>
-
-  <% @diff_per_action_hash.each do |action_index_and_type, file_diff_hash| %>
-    <% action_index, action_type = action_index_and_type.split('_', 2) %>
-    <div class="diff_action_display" id="diff_action_<%= action_index_and_type %>" <%= 'class="hidden"' if action_index != '0' %>>
-      <% file_diff_hash.each do |filename, diff| %>
-        <p><b>File <%= filename %>:</b></p>
-        <% if filename.ends_with?('.spec') or filename.ends_with?('.changes') or diff.count("\n") <= 1 %>
-          <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff'} %>
-        <% else %>
-          <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => diff, :type => 'diff', :collapse => true} %>
-        <% end %>
-      <% end %>
-    </div>
-  <% end %>
+  <div>
+    <% @diff_per_action.each do |index_and_type, diff| %>
+      <% index, _ = index_and_type.split('_', 2) %>
+      <table class="diff_action_display" id="diff_action_<%= index_and_type %>" <%= 'class="hidden"' if index != '0' %>>
+        <tbody>
+          <% diff[:filenames].each do |filename| %>
+            <% file_element = diff[:files][filename] %>
+            <% file_diff_text = file_element.diff.text.to_s %>
+            <% is_expanded = filename.ends_with?('.spec') || filename.ends_with?('.changes') %>
+            <tr>
+              <td>
+                <% if file_diff_text.length > 0 %>
+                  <% if is_expanded %>
+                    [-]
+                  <% else %>
+                    [+]
+                  <% end %>
+                <% end %>
+              </td>
+              <td><%= file_element.value('state').capitalize %></td>
+              <td><%= link_to(filename, :controller => 'package', :action => 'view_file', :project => diff[:action].source.project, :package => diff[:action].source.package, :file => filename, :rev => diff[:action].source.rev) %></td>
+            </tr>
+            <% if file_diff_text.length > 0 %>
+              <% if is_expanded %>
+              <tr>
+              <% else %>
+              <tr class="hidden">
+              <% end %>
+                <td colspan="3">
+                  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => file_diff_text, :type => 'diff'} %>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
 <% end %>

@@ -101,18 +101,36 @@ class RequestController < ApplicationController
 
     # get the entire diff from the api
     begin
-      @diff_per_action_hash = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
+      @diff_per_action = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
         result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
-        diff_per_action_hash = {}
+        diff_per_action = {}
         # Parse each action and get the it's diff (per file)
         result.each_with_index('/request/action') do |action_element, index|
-          file_diff_hash = {}
-          action_element.each('diff/file') do |file_element|
-            file_diff_hash[file_element.value('name')] = Base64.decode64(file_element.text)
+          # Sort files into categories by their ending and add all of them to a hash. We
+          # will later use the sorted and concatenated categories as key index into the per action file hash.
+          changes_file_keys, spec_file_keys, other_file_keys = [], [], []
+          files_hash = {}
+
+          action_element.each('sourcediff/files/file') do |file_element|
+            filename = file_element.new.name.to_s
+            if filename.ends_with?('.spec')
+              spec_file_keys << filename
+            elsif filename.ends_with?('.changes')
+              changes_file_keys << filename
+            else
+              other_file_keys << filename
+            end
+            files_hash[filename] = file_element
           end
-          diff_per_action_hash["#{index}_#{action_element.value('type')}"] = file_diff_hash
+          #TODO: Generate list of issues (bugs) over all changes files
+          # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
+          diff_per_action["#{index}_#{action_element.value('type')}"] =  {
+            :action => action_element,
+            :filenames => changes_file_keys.sort + spec_file_keys.sort + other_file_keys.sort,
+            :files =>  files_hash
+          }
         end
-        diff_per_action_hash
+        diff_per_action
       end
     rescue ActiveXML::Transport::Error => e
       project, code = ActiveXML::Transport.extract_error_message(e)
