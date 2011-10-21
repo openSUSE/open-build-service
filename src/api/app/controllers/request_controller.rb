@@ -638,9 +638,11 @@ class RequestController < ApplicationController
     req = BsRequest.new(data)
 
     diff_text = ""
+    action_counter = 0
 
     req.each_action do |action|
       action_diff = ''
+      action_counter += 1
       if ['submit', 'maintenance_release'].include?(action.value('type')) and action.target.project and action.target.package
         target_project = action.target.project
         target_package = action.target.package
@@ -679,7 +681,7 @@ class RequestController < ApplicationController
             tprj = DbProject.get_by_name( target_project )
           end
 
-          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?cmd=diff&expand=1"
+          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?cmd=diff&expand=1&filelimit=0"
           if tpkg
             path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
             path += "&rev=#{action.source.rev}" if action.source.value('rev')
@@ -691,7 +693,7 @@ class RequestController < ApplicationController
         end
 
         if path
-          path += '&unified=1' if params[:view] == 'xml' # Request unified diff in full XML view
+          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
           begin
             action_diff += Suse::Backend.post(path, nil).body
           rescue ActiveXML::Transport::Error => e
@@ -700,20 +702,8 @@ class RequestController < ApplicationController
         end
       end
       if params[:view] == 'xml'
-        diff_element = action.add_element('diff')
-        diff_element.set_attribute('encoding', 'base64')
-
-        # Try to split unified diff from backend by file and to create a suiteble XML representation
-        splitted = action_diff.split(/^Index: (.*)\n[=]*\n/)
-        splitted.shift # First element is an empty string
-        if splitted.length.even?
-          splitted.each_slice(2) do |file, diff|
-            file_element = diff_element.add_element('file')
-            file_element.set_attribute('name', file)
-            file_element.text = Base64.encode64(diff)
-          end
-        end
-        diff_text += action.dump_xml() + "\n"
+        # Inject backend-provided XML diff into action XML:
+        diff_text += action.dump_xml()[0..-10] + action_diff + "</action>\n"
       else
         diff_text += action_diff
       end
@@ -721,7 +711,7 @@ class RequestController < ApplicationController
 
     if params[:view] == 'xml'
       # Wrap diff text into <request> tag as it may contain multiple <action> tags
-      diff_text = "<request id=\"#{req.value('id')}\">\n  #{diff_text}</request>"
+      diff_text = "<request id=\"#{req.value('id')}\" actions=\"#{action_counter}\">\n  #{diff_text}</request>"
       send_data(diff_text, :type => "text/xml")
     else
       send_data(diff_text, :type => "text/plain")
