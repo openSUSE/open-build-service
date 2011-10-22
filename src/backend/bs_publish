@@ -424,8 +424,13 @@ sub createrepo_hdlist2 {
   print "    running hdlist2\n";
 
   # create generic rpm-md meta data
-  if (qsystem('genhdlist2', $extrep)) {
-    print("    genhdlist2 failed: $?\n");
+  for my $arch (ls($extrep)) {
+    next if $arch =~ /^\./;
+    my $r = "$extrep/$arch";
+    next unless -d $r;
+    if (qsystem('genhdlist2', $r)) {
+      print("    genhdlist2 failed: $?\n");
+    }
   }
 
   # signing is done only via rpm packages to my information
@@ -434,7 +439,12 @@ sub createrepo_hdlist2 {
 sub deleterepo_hdlist2 {
   my ($extrep, $projid) = @_;
 
-  qsystem('rm', '-rf', "$extrep/media_info") if -d "$extrep/media_info";
+  for my $arch (ls($extrep)) {
+    next if $arch =~ /^\./;
+    my $r = "$extrep/$arch";
+    next unless -d $r;
+    qsystem('rm', '-rf', "$r/media_info") if -d "$r/media_info";
+  }
 }
 
 sub createrepo_susetags {
