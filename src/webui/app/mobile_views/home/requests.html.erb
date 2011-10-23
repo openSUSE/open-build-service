@@ -53,6 +53,7 @@
   // initial render after page load
 $(document).ready(function(){
     render_list("date");
+    $('#request_list').listview('refresh');
   $("input[type='radio']").bind("change", function(){
     var selection=$(this).val();
     //alert("Criterion changed. Selected: "+selection);
@@ -84,6 +85,6 @@ $(document).ready(function(){
   <p><em>No open requests.</em></p>
 <% else %>
 
-  <ul id="request_list" data-role="listview" data-inset="true" data-theme="a" data-filter="true">
+  <ul id="request_list" data-role="listview" data-inset="true" data-theme="a" <%= "data-filter='true'" if @requests.size > 5 %>>
   </ul>
 <% end %>

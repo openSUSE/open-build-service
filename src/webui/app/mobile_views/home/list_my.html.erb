@@ -1,5 +1,5 @@
 
-<ul data-role="listview" data-theme="a">
+<ul data-role="listview" data-theme="a" data-filter="true">
   <% unless @user.watched_projects.empty? %>
     <li data-role="list-divider" data-theme="a">Watched projects</li>
     <% @user.watched_projects.slice(0..99).each do |project| %>
@@ -20,8 +20,7 @@
     <li data-role="list-divider">Involved Packages</li>
     <% @ipackages.each do |prj, packs| -%>
       <% packs.slice(0..99).each do |pkg| -%>
-        <li><%= link_to elide(pkg, 60), :controller => :package, :action => :show, :project => prj, :package => pkg %>
-          (<%= elide(prj, 60) %>)</li>
+        <li><%= link_to "#{elide(pkg, 60)} (#{elide(prj, 60)})", :controller => :package, :action => :show, :project => prj, :package => pkg %> </li>
       <% end -%>
       <%= raw "<li>... (only showing the first 50 of #{prj})</li>" if packs.size > 100 %>
     <% end -%>
