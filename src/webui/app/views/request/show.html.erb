@@ -322,7 +322,10 @@
                   <% end %>
                 </td>
                 <td><%= file_element.value('state').capitalize %></td>
-                <td><%= link_to_unless(is_binary(filename), filename, :controller => 'package', :action => 'view_file', :project => diff[:action].source.project, :package => diff[:action].source.package, :file => filename, :rev => diff[:action].source.rev) %></td>
+                <td>
+                  <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
+                  <%= link_to_unless(is_binary(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => diff[:action].source.project, :package => diff[:action].source.package, :file => filename, :rev => diff[:action].source.rev) %>
+                </td>
               </tr>
               <% if file_diff_text.length > 0 %>
                 <% if is_expanded %>
