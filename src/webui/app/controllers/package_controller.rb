@@ -296,7 +296,7 @@ class PackageController < ApplicationController
       @oproject = params[:oproject]
     end
     @rdiff = ''
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&unified=100"
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&unified=1"
     path += "&linkrev=#{CGI.escape(params[:linkrev])}" if params[:linkrev]
     path += "&rev=#{CGI.escape(@rev)}" if @rev
     path += "&oproject=#{CGI.escape(@oproject)}" if @oproject
