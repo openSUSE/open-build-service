@@ -130,6 +130,7 @@ class RequestController < ApplicationController
           end
 
           # Grep for bugs mentioned in changes and spec files
+          # TODO: Get summary from upstream issue tracker to display, needs API support...
           bugs_mentioned = {}
           (changes_file_keys + spec_file_keys).each do |file|
             contents = files_hash[file]
@@ -142,7 +143,6 @@ class RequestController < ApplicationController
             end
           end
 
-          #TODO: Generate list of issues (bugs) over all changes files
           # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
           diff_per_action["#{index}_#{action_element.value('type')}"] =  {
             :action => action_element,
