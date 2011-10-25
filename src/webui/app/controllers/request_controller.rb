@@ -128,12 +128,27 @@ class RequestController < ApplicationController
             end
             files_hash[filename] = file_element
           end
+
+          # Grep for bugs mentioned in changes and spec files
+          bugs_mentioned = {}
+          (changes_file_keys + spec_file_keys).each do |file|
+            contents = files_hash[file]
+            if contents
+              IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
+                contents.text.scan(/#{acronym}\#\d+/).each do |matched_bug|
+                  bugs_mentioned[matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
+                end
+              end
+            end
+          end
+
           #TODO: Generate list of issues (bugs) over all changes files
           # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
           diff_per_action["#{index}_#{action_element.value('type')}"] =  {
             :action => action_element,
             :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-            :files =>  files_hash
+            :files =>  files_hash,
+            :bugs => bugs_mentioned
           }
         end
         diff_per_action
