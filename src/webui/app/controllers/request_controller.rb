@@ -108,7 +108,7 @@ class RequestController < ApplicationController
         result.each_with_index('/request/action') do |action_element, index|
           # Sort files into categories by their ending and add all of them to a hash. We
           # will later use the sorted and concatenated categories as key index into the per action file hash.
-          changes_file_keys, spec_file_keys, other_file_keys = [], [], []
+          changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
           files_hash = {}
 
           action_element.each('sourcediff/files/file') do |file_element|
@@ -121,6 +121,8 @@ class RequestController < ApplicationController
               spec_file_keys << filename
             elsif filename.ends_with?('.changes')
               changes_file_keys << filename
+            elsif filename.match(/.*.(patch|diff|dif)/)
+              patch_file_keys << filename
             else
               other_file_keys << filename
             end
@@ -130,7 +132,7 @@ class RequestController < ApplicationController
           # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
           diff_per_action["#{index}_#{action_element.value('type')}"] =  {
             :action => action_element,
-            :filenames => changes_file_keys.sort + spec_file_keys.sort + other_file_keys.sort,
+            :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
             :files =>  files_hash
           }
         end
