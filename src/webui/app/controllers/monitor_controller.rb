@@ -36,7 +36,8 @@ class MonitorController < ApplicationController
         workers[hostname]['_arch'] = barch
         workers[hostname][subid] = id
       end
-      @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] }
+      @workers_sorted = {}
+      @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] } if workers
       @available_arch_list = @available_architectures.each.map{|arch| arch.name}
     end
   end
