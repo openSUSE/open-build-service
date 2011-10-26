@@ -1,11 +1,11 @@
 <div id="__watchlist">
-  <% if @user and @user.watched_projects and @user.watched_projects.empty? %>
+  <% if @user and @user.watchlist %>
     <table style="width: 46%" id="watched_projects-table" class="grid" title="Watched Projects">
       <tr>
         <th>Project</th>
         <th style="width: 1%">Actions</th>
       </tr>
-      <% @user.watched_projects.each do |project| %>
+      <% @user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|%>
         <tr>
           <td><%= link_to elide(project, 60), :action => :show, :project => project, :controller => :project %></td>
           <td>
