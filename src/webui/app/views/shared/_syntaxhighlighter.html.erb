@@ -1,12 +1,15 @@
 <% collapse ||= false %>
+<% no_js_and_css ||= false %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'shCore', 'shThemeSuse' %>
-<% end %>
-<%= javascript_include_tag 'syntax/shCore', 'syntax/shBrush' + type.capitalize %>
+<% unless no_js_and_css %>
+  <% content_for :content_for_head do %>
+    <%= stylesheet_link_tag 'shCore', 'shThemeSuse' %>
+  <% end %>
+  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrush' + type.capitalize %>
 
-<% content_for :ready_function do %>
-  SyntaxHighlighter.all();
+  <% content_for :ready_function do %>
+    SyntaxHighlighter.all();
+  <% end %>
 <% end %>
 
 <pre class="brush: <%= type %> collapse: <%= collapse %> toolbar: false"><%= force_utf8_and_transform_nonprintables(code) %></pre>
