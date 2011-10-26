@@ -136,8 +136,12 @@ class RequestController < ApplicationController
             contents = files_hash[file]
             if contents
               IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
-                contents.text.scan(/#{acronym}\#\d+/).each do |matched_bug|
-                  bugs_mentioned[matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
+                contents.text.each_line do |line|
+                  if line.match(/^[+-].*/) # Only incorporate bugs in added / removed lines
+                    line.scan(/#{acronym}\#\d+/).each do |matched_bug|
+                      bugs_mentioned[matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
+                    end
+                  end
                 end
               end
             end
