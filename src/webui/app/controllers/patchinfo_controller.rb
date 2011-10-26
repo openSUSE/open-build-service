@@ -61,6 +61,7 @@ class PatchinfoController < ApplicationController
       description = params[:description]
       relogin = params[:relogin]
       reboot = params[:reboot]
+      zypp_restart_needed = params[:zypp_restart_needed]
       name=""
       if params[:name]
         name=params[:name] if params[:name]
@@ -85,6 +86,7 @@ class PatchinfoController < ApplicationController
         @description = params[:description]
         @relogin = params[:relogin]
         @reboot = params[:reboot]
+	@zypp_restart_needed = params[:zypp_restart_needed]
         flash[:error] = "Patchinfo '#{pkg_name}' already exists in project '#{@project}'"
         render :controller => :patchinfo, :action => 'new_patchinfo', :project => @project
         return
@@ -115,6 +117,7 @@ class PatchinfoController < ApplicationController
         node.description description
         node.reboot_needed reboot
         node.relogin_needed relogin
+	node.zypp_restart_needed zypp_restart_needed
       end
       begin
         frontend.put_file( xml, :project => @project,
@@ -124,7 +127,8 @@ class PatchinfoController < ApplicationController
           :binarylist => [:binarylist],
           :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
-          :relogin => [:relogin], :reboot => [:reboot])
+          :relogin => [:relogin], :reboot => [:reboot],
+	  :zypp_restart_needed => [:zypp_restart_needed])
         flash[:note] = "Successfully saved #{pkg_name}"
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
@@ -153,6 +157,7 @@ class PatchinfoController < ApplicationController
       @description = params[:description]
       @relogin = params[:relogin]
       @reboot = params[:reboot]
+      @zypp_restart_needed = params[:zypp_restart_needed]
       render :controller => :patchinfo, :action => "new_patchinfo", :project => @project
     end
   end
@@ -174,6 +179,12 @@ class PatchinfoController < ApplicationController
       @reboot ="yes"
     elsif @reboot == false
       @reboot = "no"
+    end
+    if @zypp_restart_needed == true
+      @zypp_restart_needed = "yes"
+    end
+    if @zypp_restart_needed == false
+      @zypp_restart_needed = "no"
     end
   end
 
@@ -245,6 +256,17 @@ class PatchinfoController < ApplicationController
     else
       @reboot = false
     end
+    if @file.has_element?("zypp_restart_needed")
+      @zypp_restart_needed = @file.zypp_restart_needed.to_s
+      if @zypp_restart_needed == ""
+        @zypp_restart_needed = false
+      elsif @zypp_restart_needed == "true"
+        @zypp_restart_needed = true
+      end
+      else
+        @zypp_restart_needed = false
+      end
+
   end
 
   def save
@@ -284,6 +306,7 @@ class PatchinfoController < ApplicationController
       binaries = params[:binaries]
       relogin = params[:relogin]
       reboot = params[:reboot]
+      zypp_restart_needed = params[:zypp_restart_needed]
       buglist = params[:bug]
       if params[:category] != "security"
         cvelist = ""
@@ -296,6 +319,7 @@ class PatchinfoController < ApplicationController
       @patchinfo.set_buglist(buglist)
       @patchinfo.set_relogin(relogin.to_s)
       @patchinfo.set_reboot(reboot.to_s)
+      @patchinfo.set_zypp_restart_needed(zypp_restart_needed.to_s)
       @patchinfo = @patchinfo.dump_xml
       @patchinfo.gsub!( /\r\n/, "\n" )
       begin
@@ -306,7 +330,8 @@ class PatchinfoController < ApplicationController
           :binarylist => [:binarylist],
           :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
-          :relogin => [:relogin], :reboot => [:reboot])
+          :relogin => [:relogin], :reboot => [:reboot],
+          :zypp_restart_needed => [:zypp_restart_needed])
         flash[:note] = "Successfully edited #{@package}"
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
@@ -324,6 +349,7 @@ class PatchinfoController < ApplicationController
       @description = params[:description]
       @relogin = params[:relogin]
       @reboot = params[:reboot]
+      @zypp_restart_needed = params[:zypp_restart_needed]
       render :action => "edit_patchinfo", :project => @project, :package => @package
     end
   end
