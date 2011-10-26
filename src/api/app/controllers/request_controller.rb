@@ -654,8 +654,7 @@ class RequestController < ApplicationController
         path = nil
         if action.has_element? :acceptinfo
           # OBS 2.1 adds acceptinfo on request accept
-          path = "/source/%s/%s?cmd=diff" %
-               [CGI.escape(target_project), CGI.escape(target_package)]
+          path = "/source/%s/%s?cmd=diff" % [CGI.escape(target_project), CGI.escape(target_package)]
           if action.acceptinfo.value("xsrcmd5")
             path += "&rev=" + action.acceptinfo.value("xsrcmd5")
           else
@@ -693,6 +692,19 @@ class RequestController < ApplicationController
         end
 
         if path
+          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
+          begin
+            action_diff += Suse::Backend.post(path, nil).body
+          rescue ActiveXML::Transport::Error => e
+            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+          end
+        end
+      elsif ['maintenance_incident'].include?(action.value('type')) and action.target.project
+        DbProject.get_by_name(action.source.project).db_packages.each do |source_package|
+          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(source_package)}?cmd=diff&expand=1&filelimit=0"
+          # No target means diffing all source package changes (rev 0 - rev latest)
+          spkg_rev = Directory.find(:project => action.source.project, :package => source_package).rev
+          path += "&orev=0&rev=#{spkg_rev}"
           path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
           begin
             action_diff += Suse::Backend.post(path, nil).body
