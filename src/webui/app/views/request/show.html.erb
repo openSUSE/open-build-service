@@ -289,79 +289,12 @@
       });
     <% end %>
   <% end %>
-  <% content_for :head_javascript do %>
-    function collapse_expand(file_id) {
-      $('#collapse_' + file_id).toggle();
-      $('#expand_' + file_id).toggle();
-      $('#diff_view_' + file_id).toggle();
-    }
-  <% end %>
   <div>
     <% @diff_per_action.each do |index_and_type, diff| %>
       <% index, _ = index_and_type.split('_', 2) %>
-      <% if diff[:bugs] && diff[:bugs].length > 0 %>
-        <%# TODO: Anything but nice, move to 'box' when request view is restructured: %>
-        <div style="float:right;">
-          <h3>Issues mentioned</h3>
-          <ul>
-            <% diff[:bugs].each do |bug, url| %>
-              <li><%= link_to(bug, url, :class => 'issue_tracker_link') %></li>
-            <% end %>
-          </ul>
-        </div>
-        <%# Stupid XHTML-1.0 strict doesn't like 'target', but all browsers do. Thus, sneak around validation to %>
-        <%# allow opening a new window upon click: %>
-        <% javascript_tag do %>
-          $('a.issue_tracker_link').attr('target', '_blank')
-        <% end %>
-      <% end %>
-      <% if diff[:filenames] && diff[:filenames].length > 0 %>
-        <table class="diff_action_display" id="diff_action_<%= index_and_type %>" <%= 'class="hidden"' if index != '0' %>>
-          <tbody>
-            <% diff[:filenames].each do |filename| %>
-              <% file_element = diff[:files][filename] %>
-              <% file_id = valid_xml_id(filename) %>
-              <% file_diff_text = file_element.diff.text.to_s %>
-              <% is_expanded = filename.ends_with?('.spec') || filename.ends_with?('.changes') %>
-              <tr>
-                <td>
-                  <% if file_diff_text.length > 0 %>
-                    <%= link_to_function('[-]', :onclick => "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
-                    <%= link_to_function('[+]', :onclick => "collapse_expand('#{file_id}')", :id => "expand_#{file_id}") %>
-                    <% javascript_tag do %>
-                      <% if is_expanded %>
-                        $('#expand_<%= file_id %>').hide();
-                      <% else %>
-                        $('#collapse_<%= file_id %>').hide();
-                      <% end %>
-                    <% end %>
-                  <% end %>
-                </td>
-                <td><%= file_element.value('state').capitalize %></td>
-                <td>
-                  <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
-                  <%= link_to_unless(is_binary(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => diff[:action].source.project, :package => diff[:action].source.package, :file => filename, :rev => diff[:action].source.rev) %>
-                </td>
-              </tr>
-              <% if file_diff_text.length > 0 %>
-                <% if is_expanded %>
-                  <tr id="diff_view_<%= file_id %>">
-                <% else %>
-                  <tr id="diff_view_<%= file_id %>" class="hidden">
-                <% end %>
-                <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
-                  <td colspan="2">
-                    <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => file_diff_text, :type => 'diff'} %>
-                  </td>
-                </tr>
-              <% end %>
-            <% end %>
-          </tbody>
-        </table>
-        <p><%= link_to('Back to top', '#') %></p>
-      <% else %>
-        <p>No source changes!</p>
-      <% end %>
+      <% table_class = "diff_action_display" %>
+      <% table_class += " hidden" if index != '0' %>
+      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :bugs => diff[:bugs], :source => {:project => diff[:action].source.project, :package => diff[:action].source.package, :rev => diff[:action].source.rev}, :table_id => "diff_action_#{index}", :table_class => table_class}) %>
     <% end %>
   </div>
 <% end %>
