@@ -391,11 +391,11 @@ class MaintenanceTests < ActionController::IntegrationTest
        jobid = io.readlines.first.chomp
     end
     f = File.open("#{maintJob}:status", 'w')
-    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
+    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>x86_64</hostarch> </jobstatus>" )
     f.close
     # for x86_64
     system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*x86_64.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=x86_64&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
-    system("echo \"1acf9baa96c2cee07035b2b156020d9b  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
+    system("echo \"46d4408d324ac84a93aef39181b6a60c  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
     # run scheduler again to collect result
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
        # just for waiting until scheduler finishes
@@ -413,7 +413,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     f.close
     # for i586
     system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
-    system("echo \"1acf9baa96c2cee07035b2b156020d9b  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
+    system("echo \"46d4408d324ac84a93aef39181b6a60c  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
     # run scheduler again to collect result
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
        # just for waiting until scheduler finishes
@@ -626,7 +626,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # as admin
     prepare_request_with_user "king", "sunflower"
-    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1&nodelay=1"
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
     assert_response :success
