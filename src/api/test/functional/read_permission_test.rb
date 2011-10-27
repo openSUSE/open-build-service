@@ -883,7 +883,7 @@ end
         '<package project="home:tom" name="ProtectedPackage"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
     assert_response :success
     
-    post "/source/CopyOfProject?cmd=copy&oproject=home:tom"
+    post "/source/CopyOfProject?cmd=copy&oproject=home:tom&nodelay=1"
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success

@@ -575,7 +575,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # as admin
     prepare_request_with_user "king", "sunflower"
-    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&nodelay=1"
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
     assert_response :success
