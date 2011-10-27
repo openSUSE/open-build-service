@@ -497,6 +497,31 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_create_invalid_release_request
+    prepare_request_with_user "tom", "thunder"
+    # branch a package with simple branch command (not mbranch)
+    post "/source/BaseDistro/pack1", :cmd => :branch
+    assert_response :success
+    # check source link
+    get "/source/home:tom:branches:BaseDistro:Update/pack1/_link"
+    assert_response :success
+
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:branches:BaseDistro:Update" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
+
+    # cleanup
+    prepare_request_with_user "tom", "thunder"
+    delete "/source/home:tom:branches:BaseDistro:Update"
+    assert_response :success
+  end
+
   def test_try_to_release_without_permissions_binary_permissions
     prepare_request_with_user "tom", "thunder"
     # create project

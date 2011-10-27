@@ -477,6 +477,18 @@ class RequestController < ApplicationController
           end
         end
 
+        if action.value("type") == "maintenance_release"
+          # get sure that the releasetarget definition exists or we release without binaries
+          prj = DbProject.get_by_name(action.source.project)
+          prj.repositories.each do |repo|
+            unless repo.release_targets.count > 0
+              render_error :status => 404, :errorcode => "repository_without_releasetarget",
+                :message => "Release target definition is missing in #{prj.name} / #{repo.name}"
+              return
+            end
+          end
+        end
+
         # source update checks
 #FIXME2.3: support this also for maintenance requests
         if action.value("type") == "submit"
