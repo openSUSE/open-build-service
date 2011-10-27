@@ -25,24 +25,23 @@ module PackageHelper
   def human_readable_fsize( bytes )
     number_to_human_size bytes
   end
-  
+
   def guess_code_class( filename )
-    case filename
-      when "_link" then return "xml"
-      when "_patchinfo" then return "xml"
-      when "_service" then return "xml"
-    end
-    case Pathname.new(filename).extname.downcase
-      when ".changes" then return "changes"
-      when ".diff" then return "diff"
+    return "xml" if ["_link", "_patchinfo", "_service"].include?(filename)
+    return "bash" if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
+    return "python" if filename.match(/^.*rpmlintrc$/)
+    ext = Pathname.new(filename).extname.downcase
+    case ext
       when ".group" then return "xml"
       when ".kiwi" then return "xml"
       when ".patch" then return "diff"
       when ".product" then return "xml"
       when ".rb" then return "ruby"
       when ".spec" then return "spec"
+      when ".tex" then return "latex"
+      when ".js" then return "javascript"
     end
-    return "spec"
+    return ext[1..-1]
   end
 
   include ProjectHelper

@@ -41,7 +41,7 @@
       <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
       <% unless @spider_bot -%>
         <%= tab 'Attributes', :controller => :project, :action => :attributes %>
-        <%= tab "Raw Config", :controller => :project, :action => :meta %>
+        <%= tab "Meta", :controller => :project, :action => :meta %>
         <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
       <% end -%>
     </ul>

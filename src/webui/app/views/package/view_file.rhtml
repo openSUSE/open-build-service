@@ -1,4 +1,4 @@
-<% @pagetitle = "View File #{@filename} of Package #{@package}"
+<% @pagetitle = "File #{@filename} of Package #{@package}"
    package_bread_crumb(link_to('Files', :action => :files, :project => @project, :package => @package, :rev => @srcmd5), h(@filename))
 -%>
 
@@ -13,4 +13,8 @@
   </p>
 <% end %>
 
-<%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @file, :type => guess_code_class(@filename)} %>
+<%# TODO: Integrate direct edit!!!" %>
+<%# TODO: rename view to simply 'file', drop edit view %>
+<div style="margin-left: 15px; margin-right: 15px;">
+  <%= render :partial => "shared/editor", :locals => {:text => @file, :mode => guess_code_class(@filename)} %>
+</div>

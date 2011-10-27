@@ -1,0 +1,42 @@
+<% save ||= false %>
+<% read_only ||= false %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'cm2/codemirror', 'cm2/codemirror-ui', 'cm2/theme/default' %>
+<% end %>
+<%= javascript_include_tag 'cm2/codemirror-compressed', 'cm2/codemirror-ui' %>
+
+<% uid = rand().to_s()[2..-1] # unique id to allow including multiple editors %>
+<textarea id="editor_<%= uid %>" name="editor_<%= uid %>" style="display: none;" rows="0" cols="0"><%= force_utf8_and_transform_nonprintables(text) %></textarea>
+<% javascript_tag do %>
+  var codeMirrorOptions = {
+    mode: '<%= mode %>',
+    lineNumbers: true,
+  }
+  <% if read_only %>
+    codeMirrorOptions['readOnly'] = true;
+    var editor = CodeMirror.fromTextArea(document.getElementById('editor_<%= uid %>'), codeMirrorOptions);
+  <% else %>
+    var editor = null;
+    var uiOptions = {
+      imagePath: '/themes/bento/images/icons',
+      searchMode: 'inline',
+      buttons: ['save', 'undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
+      saveCallback: function() {
+        $.ajax({
+          url: '<%= url_for(save[:url]) %>',
+          data: {
+            <% save[:data].each do |param, value| %>
+              <% if value.to_s == '@@@' %>
+                <%= param %>: editor.mirror.getValue(),
+              <% else %>
+                <%= param %>: '<%= value %>',
+              <% end %>
+            <% end %>
+          }
+        })
+      },
+    };
+    var editor = new CodeMirrorUI(document.getElementById('editor_<%= uid %>'), uiOptions, codeMirrorOptions);
+  <% end %>
+<% end %>

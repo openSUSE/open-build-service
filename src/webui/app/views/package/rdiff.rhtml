@@ -22,7 +22,7 @@
     </p>
   <% end %>
 
-  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @rdiff, :type => 'diff'} %>
+  <%= render :partial => "shared/editor", :locals => {:text => @rdiff, :mode => 'diff'} %>
 
   <% if @lastreq %>
     <h3>The last request (<%= @lastreq.value(:id) %>) was declined <%= "%s by %s:" % [fuzzy_time_string(@lastreq.state.when), @lastreq.state.who ] %></h3>

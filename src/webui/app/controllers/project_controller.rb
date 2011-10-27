@@ -19,10 +19,8 @@ class ProjectController < ApplicationController
   before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :add_group, :remove_target,
-    :show, :monitor, :edit_prjconf, :requests,
-    :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta]
-  before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf]
-  before_filter :require_meta, :only => [:edit_meta, :meta]
+    :show, :monitor, :requests,
+    :packages, :users, :subprojects, :repositories, :attributes, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
@@ -982,35 +980,13 @@ class ProjectController < ApplicationController
     end
   end
 
-  def edit_meta
-  end
-
   def meta
-  end
-
-  def prjconf
-  end
-
-  def edit_prjconf
-  end
-
-  def change_flag
-    if request.post? and params[:cmd] and params[:flag]
-      frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
+    begin
+      @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Project _meta not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
     end
-    Project.free_cache( :name => params[:project], :view => :flagdetails )
-    if request.xhr?
-      @project = find_cached(Project, :name => params[:project], :view => :flagdetails )
-      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
-    else
-      redirect_to :action => :repositories, :project => @project
-    end
-  end
-
-  def save_prjconf
-    frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
-    flash[:note] = "Project Config successfully saved"
-    redirect_to :action => :prjconf, :project => params[:project]
   end
 
   def save_meta
@@ -1026,6 +1002,34 @@ class ProjectController < ApplicationController
     flash[:note] = "Config successfully saved"
     Project.free_cache params[:project]
     redirect_to :action => :meta, :project => params[:project] and return
+  end
+
+  def prjconf
+    begin
+      @config = frontend.get_source(:project => params[:project], :filename => '_config')
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Project _config not found: #{params[:project]}"
+      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
+    end
+  end
+
+  def save_prjconf
+    frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
+    flash[:note] = "Project Config successfully saved"
+    redirect_to :action => :prjconf, :project => params[:project]
+  end
+
+  def change_flag
+    if request.post? and params[:cmd] and params[:flag]
+      frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
+    end
+    Project.free_cache( :name => params[:project], :view => :flagdetails )
+    if request.xhr?
+      @project = find_cached(Project, :name => params[:project], :view => :flagdetails )
+      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
+    else
+      redirect_to :action => :repositories, :project => @project
+    end
   end
 
   def clear_failed_comment
@@ -1380,22 +1384,7 @@ class ProjectController < ApplicationController
     #TODO: Prepare incident-related data
   end
 
-  def require_prjconf
-    begin
-      @config = frontend.get_source(:project => params[:project], :filename => '_config')
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Project _config not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
-    end
-  end
-
   def require_meta
-    begin
-      @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Project _meta not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
-    end
   end
 
   def require_maintenance_incident_lists

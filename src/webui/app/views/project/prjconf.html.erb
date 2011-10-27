@@ -1,27 +1,14 @@
-<% @pagetitle = "Project Configuration of %s" % @project 
-   @metarobots = 'noindex'
-   project_bread_crumb 'Project Configuration'
--%>
+<% @pagetitle = "Project Configuration of #{@project}" %>
+<% @metarobots = 'noindex' %>
+<% project_bread_crumb 'Project Configuration' %>
 
 <%= render :partial => "tabs" %>
 
 <h3><%= @pagetitle %></h3>
-
-<% if @config.blank? %>
-  <p>This project does not have a custom
-    <% if @project.can_edit?(session[:login]) %>
-      <%= link_to 'project configuration', :action => :edit_prjconf, :project => @project %>.
-    <% else %>
-      project configuration.
-    <% end %>
-  </p>
-<% else %>
+<div style="margin-left: 15px; margin-right: 15px;">
   <% if @project.can_edit?(session[:login]) %>
-    <p>
-      <%= link_to(image_tag('icons/package_edit.png', :title => 'Edit project configuration' ), :action => :edit_prjconf, :project => @project) %>
-      <%= link_to('Edit project configuration', :action => :edit_prjconf, :project => @project) %>
-    </p>
+    <%= render :partial => "shared/editor", :locals => {:text => @config, :mode => 'prjconf', :save => {:url => {:controller => 'project', :action => 'save_prjconf'}, :data => {:project => @project, :config => '@@@'}}} %>
+  <% else %>
+    <%= render :partial => "shared/editor", :locals => {:text => @config, :mode => 'prjconf', :read_only => true} %>
   <% end %>
-
-  <%= render :partial => "shared/syntaxhighlighter", :locals => {:code => @config, :type => 'prjconf'} %>
-<% end %>
+</div>

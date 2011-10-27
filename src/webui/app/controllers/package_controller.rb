@@ -11,7 +11,6 @@ class PackageController < ApplicationController
   # make sure it's after the require_, it requires both
   before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
   before_filter :require_login, :only => [:branch]
-  before_filter :require_meta, :only => [:edit_meta, :meta ]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
@@ -1066,11 +1065,13 @@ class PackageController < ApplicationController
     render :partial => "set_url_form"
   end
 
-  def edit_meta
-    render :template => "package/edit_meta"
-  end
-
   def meta
+    begin
+      @meta = frontend.get_source(:project => params[:project], :package => params[:package], :filename => '_meta')
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Package _meta not found: #{params[:project]}/#{params[:package]}"
+      redirect_to :controller => "project", :action => "show", :project => params[:project], :nextstatus => 404
+    end
   end
 
   def save_meta
@@ -1170,15 +1171,6 @@ class PackageController < ApplicationController
       logger.error "Package #{@project}/#{params[:package]} not found"
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
-    end
-  end
-
-  def require_meta
-    begin
-      @meta = frontend.get_source(:project => params[:project], :package => params[:package], :filename => '_meta')
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Package _meta not found: #{params[:project]}/#{params[:package]}"
-      redirect_to :controller => "project", :action => "show", :project => params[:project], :nextstatus => 404
     end
   end
 
