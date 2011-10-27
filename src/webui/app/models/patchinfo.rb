@@ -72,16 +72,10 @@ class Patchinfo < ActiveXML::Base
     reboot_needed.text = reboot
   end
 
-  def set_relogin(relogin)
-    self.delete_element('relogin_needed')
-    relog = self.add_element('relogin_needed')
-    relog.text = relogin
-  end
- 
-  def set_reboot(reboot)
-    self.delete_element('reboot_needed')
-    reboot_needed = self.add_element('reboot_needed')
-    reboot_needed.text = reboot
+  def set_zypp_restart_needed(zypp_restart_needed)
+    self.delete_element('zypp_restart_needed')
+    zypp_restart_needed = self.add_element('zypp_restart_needed')
+    zypp_restart_needed.text = zypp_restart_needed
   end
  
   def set_binaries(binaries, name)
