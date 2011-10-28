@@ -481,10 +481,22 @@ class RequestController < ApplicationController
           # get sure that the releasetarget definition exists or we release without binaries
           prj = DbProject.get_by_name(action.source.project)
           prj.repositories.each do |repo|
-            unless repo.release_targets.count > 0
+            unless repo.release_targets.size > 0
               render_error :status => 404, :errorcode => "repository_without_releasetarget",
                 :message => "Release target definition is missing in #{prj.name} / #{repo.name}"
               return
+            end
+            unless repo.architectures.size > 0
+              render_error :status => 404, :errorcode => "repository_without_architecture",
+                :message => "Repository has no architecture #{prj.name} / #{repo.name}"
+              return
+            end
+            repo.release_targets.each do |rt|
+              unless repo.architectures.first == rt.target_repository.architectures.first
+                render_error :status => 404, :errorcode => "architecture_order_missmatch",
+                  :message => "Repository and releasetarget have not the same architecture on first position: #{prj.name} / #{repo.name}"
+                return
+              end
             end
           end
         end

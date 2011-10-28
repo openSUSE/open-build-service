@@ -507,14 +507,43 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
-    post "/request?cmd=create", '<request>
-                                   <action type="maintenance_release">
-                                     <source project="home:tom:branches:BaseDistro:Update" />
-                                   </action>
-                                   <state name="new" />
-                                 </request>'
+    rq = '<request>
+           <action type="maintenance_release">
+             <source project="home:tom:branches:BaseDistro:Update" />
+           </action>
+           <state name="new" />
+         </request>'
+    post "/request?cmd=create", rq
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
+
+    # add a release target
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:tom:branches:BaseDistro:Update/_meta"
+    assert_response :success
+    pi = REXML::Document.new( @response.body )
+    pi.elements['//repository'].add_element 'releasetarget'
+    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro')
+    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistro_repo')
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
+    assert_response :success
+
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request?cmd=create", rq
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "repository_without_architecture" }
+
+    # add a wrong architecture
+    prepare_request_with_user "tom", "thunder"
+    pi.elements['//repository'].add_element 'arch'
+    pi.elements['//arch'].text = "ppc"
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
+    assert_response :success
+
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request?cmd=create", rq
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "architecture_order_missmatch" }
 
     # cleanup
     prepare_request_with_user "tom", "thunder"
