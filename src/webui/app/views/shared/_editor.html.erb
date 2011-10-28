@@ -2,13 +2,16 @@
 <% height ||= '600px' %>
 <% save ||= false %>
 <% read_only ||= false %>
+<% no_border ||= false %>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'cm2/codemirror', 'cm2/codemirror-ui', 'cm2/theme/default' %>
   <style type="text/css">
-    .CodeMirror {
-      border-width: 0 0 0 0
-    }
+    <% if no_border %>
+      .CodeMirror {
+        border-width: 0 0 0 0
+      }
+    <% end %>
     .CodeMirror-scroll {
       height: <%= height %>;
       <% if height == 'auto' %>
