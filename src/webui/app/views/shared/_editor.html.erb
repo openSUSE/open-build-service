@@ -39,21 +39,25 @@
     var uiOptions = {
       imagePath: '/themes/bento/images/icons',
       searchMode: 'inline',
-      buttons: ['save', 'undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
-      saveCallback: function() {
-        $.ajax({
-          url: '<%= url_for(save[:url]) %>',
-          data: {
-            <% save[:data].each do |param, value| %>
-              <% if value.to_s == '@@@' %>
-                <%= param %>: editor.mirror.getValue(),
-              <% else %>
-                <%= param %>: '<%= value %>',
+      <% if save %>
+        buttons: ['save', 'undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
+        saveCallback: function() {
+          $.ajax({
+            url: '<%= url_for(save[:url]) %>',
+            data: {
+              <% save[:data].each do |param, value| %>
+                <% if value.to_s == '@@@' %>
+                  <%= param %>: editor.mirror.getValue(),
+                <% else %>
+                  <%= param %>: '<%= value %>',
+                <% end %>
               <% end %>
-            <% end %>
-          }
-        })
-      },
+            }
+          })
+        },
+      <% else %>
+        buttons: ['undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
+      <% end %>
     };
     var editor = new CodeMirrorUI(document.getElementById('editor_<%= uid %>'), uiOptions, codeMirrorOptions);
   <% end %>
