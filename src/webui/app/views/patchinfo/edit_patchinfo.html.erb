@@ -160,6 +160,13 @@
         <td>Set when a relog for the patch is needed.</td>
       </tr>
       <tr>
+        <th>Zypper restart needed?</th>
+	<td>
+          <%= check_box_tag("zypp_restart_needed", true, @zypp_restart_needed)%>
+	</td>
+	<td>Set when restart of the package-manager is needed.</td>
+      </tr>
+      <tr>
         <th>Reboot needed?</th>
         <td>
           <%= check_box_tag("reboot", true, @reboot) %>
