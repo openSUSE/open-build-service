@@ -556,7 +556,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # create project
     put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> 
                                          <repository name='dummy'>
-                                           <releasetarget project='BaseDistro:Update' repository='BaseDistroUpdateProject_repo' trigger='maintenance' />
+                                           <releasetarget project='BaseDistro' repository='BaseDistro_repo' trigger='maintenance' />
+                                           <arch>i586</arch>
                                           </repository>
                                         </project>"
     assert_response :success
