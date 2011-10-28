@@ -9,6 +9,6 @@
   <% if @project.can_edit?(session[:login]) %>
     <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :save => {:url => {:controller => 'project', :action => 'save_meta'}, :data => {:project => @project, :meta => '@@@'}}} %>
   <% else %>
-    <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :read_only => true} %>
+    <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml'} %>
   <% end %>
 </div>
