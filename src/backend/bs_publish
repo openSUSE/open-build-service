@@ -379,6 +379,9 @@ sub createrepo_rpmmd {
       qsystem('repoview', '-f', "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
     }
   }
+  if ($BSConfig::createrepo_rpmmd_hook) {
+    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options);
+  }
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
