@@ -752,7 +752,32 @@ sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $path) = @_;
   my @s = stat($path);
   die("404 $path: $!\n") unless @s;
-  my $res = Build::query($path, 'evra' => 1, 'description' => 1);
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1) || {};
+  if (!%$res && $path =~ /\/updateinfo\.xml$/) {
+    my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
+    if ($updateinfos && @{$updateinfos->{'update'} || []} == 1) {
+      my $updateinfo = $updateinfos->{'update'}->[0];
+      $res->{'name'} = $updateinfo->{'id'};
+      $res->{'version'} = $updateinfo->{'version'};
+      $res->{'summary'} = $updateinfo->{'title'};
+      $res->{'description'} = $updateinfo->{'description'};
+      my $collection = ($updateinfo->{'pkglist'} || {})->{'collection'} || [];
+      if (@$collection) {
+        # only look at first collection
+        for my $package (@{$collection->[0]->{'package'} || []}) {
+          my $nevr = $package->{'name'};
+          $nevr .= ".$package->{'arch'}" if $package->{'arch'};
+          if ($package->{'version'}) {
+            $nevr .= " = ";
+            $nevr .= "$package->{'epoch'}:" if $package->{'epoch'};
+            $nevr .= "$package->{'version'}" if $package->{'version'};
+            $nevr .= "-$package->{'release'}" if defined $package->{'release'};
+	  }
+          push @{$res->{'provides'}}, $nevr;
+        }
+      }
+    }
+  }
   delete $res->{'source'};
   delete $res->{'hdrmd5'};
   $res->{'mtime'} = $s[9];
