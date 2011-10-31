@@ -402,7 +402,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 404
 
 if $ENABLE_BROKEN_TEST
-   #FIXME2.2 there is no code in this test creating request from HiddenProject
+   #FIXME there is no code in this test creating request from HiddenProject
     # collection of user involved requests
     get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
@@ -425,7 +425,7 @@ end
     assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
 
 if $ENABLE_BROKEN_TEST
-#FIXME2.2: Either we need to fix complete request controller including search not to show requests with 
+#FIXME:    Either we need to fix complete request controller including search not to show requests with 
 #          references or we need to document that requests can tell the existens of projects and packages
 # this is working for involved search now, but not for other requests like add_role with a target.
     # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable

@@ -571,7 +571,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # Admin can bypass api
     prepare_request_with_user "king", "sunflower"
     get "/source/home:tom:temp/ProtectedPackage"
-    assert_response 403 # FIXME2.2: this is inconsistend, why is the bachend saying a 403 here ?
+    assert_response 403
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response :success
     get "/source/home:tom:temp/ProtectedPackage/non_existing_file"
@@ -679,7 +679,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
      '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
     assert_response :success
-    # FIXME2.2: add test for source rpm access
 
     # try to link to an access protected hidden project from access hidden project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
@@ -774,17 +773,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
   end
 
   def test_project_paths_to_download_protected_projects
-    # try to access it with a user not permitted
-    prepare_request_with_user "tom", "thunder"
-
-    # check if unsufficiently permitted users tries to access protected projects
-if $ENABLE_BROKEN_TEST
-#FIXME2.2: TBD, the backend is handling this
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject1"),
-        '<project name="home:tom:ProtectedProject1"> <title/> <description/>  <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
-    assert_response 403
-end
-
+    # NOTE: we documented that binarydownload can be workarounded, it is NO security feature, just convenience.
     # try to access it with a user permitted for binarydownload
     prepare_request_with_user "binary_homer", "homer"
 
@@ -795,21 +784,12 @@ end
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject1"),
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
-    #STDERR.puts(@response.body)
     assert_response 200
 
     # check if sufficiently protected projects can access protected projects
     put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject2"),
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
     assert_response 200
-
-if $ENABLE_BROKEN_TEST
-#FIXME2.2: TBD, the backend is handling this
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject2"),
-        '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
-    #STDERR.puts(@response.body)
-    assert_response 403
-end
   end
 
   def test_project_paths_to_access_protected_projects

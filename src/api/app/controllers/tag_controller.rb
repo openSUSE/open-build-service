@@ -44,7 +44,6 @@ class TagController < ApplicationController
       @taggings = Tagging.find(:all,
                                :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",@user.id])
       @packages_tags = {}
-# FIXME2.2: this is not filtering hidden projects
       @taggings.each do |tagging|
         package = DbPackage.find(tagging.taggable_id)
         tag = Tag.find(tagging.tag_id)

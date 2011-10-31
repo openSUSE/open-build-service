@@ -37,7 +37,9 @@ To be considered regarding read access checks
 * "access" flag is hiding and protecting entire project. This includes binaries
   and sources. It can only be used at project creation time and can just be
   globally enabled (aka make it public again) afterwards.
-   This flag can only be used on projects.
+  This flag can only be used on projects.
+  NOTE: there is no support in request system to hide projects which should not
+        be visible. Don't create requests if you don't want to expose them.
 
 * "sourceaccess" flag is hiding the sources to non maintainers, this includes also debug packages
   in case the distribution is supporting this correctly.

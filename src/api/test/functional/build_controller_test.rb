@@ -167,14 +167,20 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source", :content => "TestPack"
     assert_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg", :content => "TestPack"
 
+    get "/build/HiddenProject/nada/i586/_builddepinfo"
+    assert_response 404
+    assert_tag( :tag => "status", :attributes => { :code => "unknown_project" } ) 
+
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build/HiddenProject/nada/i586/_builddepinfo"
+    assert_response :success
+
     # the webui is calling this with invalid package name to get the cycles only
     get "/build/home:Iggy/10.2/i586/_builddepinfo?package=-"
     assert_response :success
     assert_no_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source"
     assert_no_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg"
   end
-
-  # FIXME2.2: test buildinfo for hidden packages, too.
 
   def test_package_index
     get "/build/home:Iggy/10.2/i586/TestPack"
@@ -187,7 +193,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack"
     assert_response :success
@@ -203,21 +208,30 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/unknown_package/, @response.body)
   end
 
-  #FIXME2.2: add test case for buildlog of source access protected content (needs to be 403)
+  def test_read_sourceaccess_protected_logfile
+    prepare_request_valid_user
+    get "/build/SourceprotectedProject/repo/i586/pack/_log"
+    assert_response 403
+    assert_tag( :tag => "status", :attributes => { :code => "source_access_no_permission" } ) 
+    # retry with maintainer
+    prepare_request_with_user "sourceaccess_homer", "homer"
+    get "/build/SourceprotectedProject/repo/i586/pack/_log"
+    assert_response :success
+  end
 
   def test_read_access_hidden_logfile
+    prepare_request_valid_user
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response :success
-    prepare_request_valid_user
   end
 
   def test_read_access_binarydownload_logfile
+    prepare_request_valid_user
     # Download is not protecting binaries for real, but it disallows download via api
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
     assert_response 403
@@ -227,7 +241,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "binary_homer", "homer"
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
     assert_response :success
-    prepare_request_valid_user
   end
 
   def test_result

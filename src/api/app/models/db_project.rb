@@ -130,7 +130,7 @@ class DbProject < ActiveRecord::Base
             # if user is in group -> return true
             ret = ret + 1 if us.is_in_group?(grouprel.bs_group_id)
             # LDAP
-# FIXME2.2: please do not do special things here for ldap. please cover this in a generic group modell.
+# FIXME: please do not do special things here for ldap. please cover this in a generic group modell.
             if defined?( LDAP_MODE ) && LDAP_MODE == :on
               if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
                 if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
