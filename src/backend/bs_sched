@@ -3555,8 +3555,9 @@ sub rebuildpatchinfo {
   $update->{'id'} = $patchinfo->{'incident'} || $patchinfo->{'name'};
   $update->{'title'} = $patchinfo->{'summary'};
   $update->{'description'} = $patchinfo->{'description'};
-  # XXX
+  # FIXME: do not guess the release element!
   $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;
+  $update->{'release'} =~ s/_standard$//;
   $update->{'release'} =~ s/[_:]+/ /g;
   $update->{'issued'} = { 'date' => $now };
   my @references;
