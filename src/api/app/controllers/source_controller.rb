@@ -83,7 +83,7 @@ class SourceController < ApplicationController
     #---------------------
     if request.get?
       if params.has_key? :deleted
-        # FIXME2.2: this would grants access to hidden projects
+        validate_visibility_of_deleted_project(project_name)
         pass_to_backend
       else
         if DbProject.is_remote_project? project_name
@@ -2208,6 +2208,26 @@ class SourceController < ApplicationController
     raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless r
     dpkg = Package.new(r.body)
     raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless dpkg
-    raise DbPackage::ReadSourceAccessError, "#{project}/#{name}" if dpkg.disabled_for? 'sourceaccess'
+    raise DbPackage::ReadSourceAccessError, "#{project}/#{name}" if dpkg.disabled_for? 'sourceaccess' and not @http_user.is_admin?
   end
+
+  def validate_visibility_of_deleted_project(project)
+    begin
+      r = Suse::Backend.get("/source/#{CGI.escape(project)}/_project/_history?deleted=1&meta=1")
+    rescue
+      raise DbProject::UnknownObjectError, "#{project}"
+    end
+
+    data = ActiveXML::XMLNode.new(r.body.to_s)
+    lastrev = nil
+    data.each_revision {|rev| lastrev = rev}
+    raise DbProject::UnknownObjectError, "#{project}" unless lastrev
+
+    metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"
+    r = Suse::Backend.get(metapath)
+    dprj = Project.new(r.body)
+    #FIXME: actually a per user checking would be more accurate here
+    raise DbProject::UnknownObjectError, "#{project}" if dprj.nil? or (dprj.disabled_for? 'access' and not @http_user.is_admin?)
+  end
+
 end

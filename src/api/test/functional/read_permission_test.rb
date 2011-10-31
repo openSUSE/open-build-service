@@ -646,7 +646,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
   end
 
   def test_project_links_to_read_access_protected_projects
-    # Create public project with protected package
+    # Create public project with sourceaccess protected package
     prepare_request_with_user "tom", "thunder"
 
     # try to link to an access protected hidden project from sourceaccess project
@@ -718,6 +718,15 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/home:adrian:ProtectedProject4"
     assert_response :success
+
+    # validate handling of deleted project
+    get "/source/home:adrian:ProtectedProject4"
+    assert_response 404
+    get "/source/home:adrian:ProtectedProject4?deleted=1"
+    assert_response :success
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:adrian:ProtectedProject4?deleted=1"
+    assert_response 404
   end
 
   def test_compare_error_messages

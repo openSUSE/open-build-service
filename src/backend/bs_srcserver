@@ -2863,19 +2863,19 @@ sub undeleteproject {
 
 sub getpackagelist {
   my ($cgi, $projid, $repoid, $arch) = @_;
-  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
-  if ($proj->{'remoteurl'}) {
-    my @args;
-    push @args, "deleted" if $cgi->{'deleted'};
-    return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args), $BSXML::dir;
-  }
   my @packages;
-  if (!$cgi->{'deleted'}) {
-    @packages = findpackages($projid, $proj);
-  } else {
+  if ($cgi->{'deleted'}) {
     @packages = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
     @packages = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packages;
     @packages = sort @packages;
+  } else {
+    my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+    if ($proj->{'remoteurl'}) {
+      my @args;
+      push @args, "deleted" if $cgi->{'deleted'};
+      return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args), $BSXML::dir;
+    }
+    @packages = findpackages($projid, $proj);
   }
   my @plist = map {{'name' => $_}} @packages;
   return ({'entry' => \@plist}, $BSXML::dir);
@@ -2883,8 +2883,9 @@ sub getpackagelist {
 
 sub getpackage {
   my ($cgi, $projid, $packid) = @_;
-  my $proj = checkprojrepoarch($projid, undef, undef, 1);
-  if ($proj->{'remoteurl'}) {
+  my $proj;
+  $proj = checkprojrepoarch($projid, undef, undef, 1) unless $cgi->{'deleted'};
+  if ($proj && $proj->{'remoteurl'}) {
     my @args;
     push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
     my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
@@ -6436,7 +6437,7 @@ my $dispatches = [
   '/source/$project/$package view=info rev? linkrev? parse:bool? repository? arch?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/$package/_meta rev?' => \&getpackage,
+  '/source/$project/$package/_meta rev? deleted:bool?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
   '/source/$project/$package/$filename rev? expand:bool? meta:bool?' => \&getfile,
