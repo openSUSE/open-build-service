@@ -1669,10 +1669,7 @@ end
     assert_response :success
     assert_tag :tag => "revisionlist", :children => { :count => 1 }
 
-    delete "/source/home:fred/DELETE"
-    assert_response :success
-
-# FIXME2.3: this support needs a rethink in backend
+# FIXME: this is not yet supported in backend
 if $ENABLE_BROKEN_TEST
     # copy with history
     post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack", :withhistory => "1"
@@ -1680,11 +1677,11 @@ if $ENABLE_BROKEN_TEST
     get "/source/home:fred/DELETE/_history"
     assert_response :success
     assert_tag :tag => "revisionlist", :children => { :count => revision }
+end
 
     # cleanup
     delete "/source/home:fred/DELETE"
     assert_response :success
-end
     delete "/source/home:Iggy/TestPack/filename"
     assert_response :success
   end
