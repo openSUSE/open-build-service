@@ -215,6 +215,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" />
+                                     <options>
+                                       <sourceupdate>cleanup</sourceupdate>
+                                     </options>
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -223,6 +226,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
+
+    # store data for later checks
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    oprojectmeta = ActiveXML::XMLNode.new(@response.body)
+    assert_response :success
 
     # accept request
     prepare_request_with_user "maintenance_coord", "power"
@@ -235,10 +243,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     maintenanceProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
     assert_not_equal maintenanceProject, "My:Maintenance"
 
+    #validate cleanup
+    get "/source/home:tom:branches:OBS_Maintained:pack2"
+    assert_response 404
+
     # validate created project
-    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
-    oprojectmeta = ActiveXML::XMLNode.new(@response.body)
-    assert_response :success
     get "/source/#{maintenanceProject}/_meta"
     assert_response :success
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )

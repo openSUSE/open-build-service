@@ -113,7 +113,6 @@ class RequestController < ApplicationController
         end
 
         if roles.count == 0 or roles.include? "reviewer"
-          # FIXME2.3: do we really want to support to search for all reviews indepdend of the state ?
           review_states.each do |r|
             # requests where the user is reviewer or own requests that are in review by someone else
             inner_or << "review[@by_user='#{user.login}' and @state='#{r}']"
@@ -502,13 +501,12 @@ class RequestController < ApplicationController
         end
 
         # source update checks
-#FIXME2.3: support this also for maintenance requests
-        if action.value("type") == "submit"
-          sourceupdate = nil
-          if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
-             sourceupdate = action.options.sourceupdate.text
-          end
-          # cleanup implicit home branches, should be done in client with 2.0
+        sourceupdate = nil
+        if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
+           sourceupdate = action.options.sourceupdate.text
+        end
+        if ['submit', 'maintenance_incident'].include?(action.value("type"))
+          # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
           if not sourceupdate and action.has_element?(:target) and action.target.has_attribute?(:project)
              if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
                if not action.has_element? 'options'
@@ -519,11 +517,11 @@ class RequestController < ApplicationController
                e.text = sourceupdate
              end
           end
-          # allow cleanup only, if no devel package reference
-          if sourceupdate == 'cleanup'
-            if spkg 
-              spkg.can_be_deleted?
-            end
+        end
+        # allow cleanup only, if no devel package reference
+        if sourceupdate == 'cleanup'
+          if spkg 
+            spkg.can_be_deleted?
           end
         end
 
@@ -1125,6 +1123,12 @@ class RequestController < ApplicationController
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
+      # general source update options exists ?
+      sourceupdate = nil
+      if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
+        sourceupdate = action.options.sourceupdate.text
+      end
+
       if action.value("type") == "set_bugowner"
           object = DbProject.find_by_name(action.target.project)
           bugowner = Role.get_by_title("bugowner")
@@ -1167,10 +1171,6 @@ class RequestController < ApplicationController
             return
           end
       elsif action.value("type") == "submit"
-          sourceupdate = nil
-          if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
-            sourceupdate = action.options.sourceupdate.text
-          end
           src = action.source
           cp_params = {
             :cmd => "copy",
@@ -1230,6 +1230,7 @@ class RequestController < ApplicationController
 
           # cleanup source project
           if relinkSource and not sourceupdate == "noupdate"
+            sourceupdate = nil
             # source package got used as devel package, link it to the target
             # re-create it via branch , but keep current content...
             h = {}
@@ -1243,27 +1244,8 @@ class RequestController < ApplicationController
             cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
             cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
             Suse::Backend.post cp_path, nil
-          elsif sourceupdate == "cleanup"
-            # cleanup source project
-            source_project = DbProject.find_by_name(action.source.project)
-            source_package = source_project.db_packages.find_by_name(action.source.package)
-            delete_path = nil
-            if source_project.db_packages.count == 1
-              # remove source project, if this is the only package and not the user's home project
-              if source_project.name != "home:" + user.login
-                source_project.destroy
-                delete_path = "/source/#{action.source.project}"
-              end
-            else
-              # just remove package
-              source_package.destroy
-              delete_path = "/source/#{action.source.project}/#{action.source.package}"
-            end
-            if delete_path
-              delete_path << build_query_from_hash(cp_params, [:user, :comment, :requestid])
-              Suse::Backend.delete delete_path
-            end
           end
+
       elsif action.value("type") == "delete"
           if action.target.has_attribute? :package
             package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
@@ -1277,23 +1259,47 @@ class RequestController < ApplicationController
           h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
           delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
           Suse::Backend.delete delete_path
-      elsif action.value("type") == "maintenance_incident"
 
+      elsif action.value("type") == "maintenance_incident"
         # create incident project
         source_project = DbProject.get_by_name(action.source.project)
         target_project = DbProject.get_by_name(action.target.project)
         incident = create_new_maintenance_incident(target_project, source_project, req )
 
         # update request with real target project
-        # FIXME2.3: Discuss this, changing the target on state change is not nice, but avoids an extra element/attribute
         action.target.set_attribute("project", incident.db_project.name)
         req.save
 
       elsif action.value("type") == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
-
-#FIXME2.3: support limiters to specified repositories
+#FIXME2.5: support limiters to specified repositories
         release_package(pkg, action.target.project, action.target.package, action.source.rev, nil, nil, acceptTimeStamp, req)
+      end
+
+      # general source cleanup, used in submit and maintenance_incident actions
+      if sourceupdate == "cleanup"
+        # cleanup source project
+        source_project = DbProject.find_by_name(action.source.project)
+        delete_path = nil
+        if source_project.db_packages.count == 1 or not action.source.has_attribute?(:package)
+          # remove source project, if this is the only package and not the user's home project
+          if source_project.name != "home:" + user.login
+            source_project.destroy
+            delete_path = "/source/#{action.source.project}"
+          end
+        else
+          # just remove one package
+          source_package = source_project.db_packages.find_by_name(action.source.package)
+          source_package.destroy
+          delete_path = "/source/#{action.source.project}/#{action.source.package}"
+        end
+        del_params = {
+          :user => @http_user.login,
+          :requestid => params[:id],
+          :comment => params[:comment]
+        }
+        delete_path << build_query_from_hash(del_params, [:user, :comment, :requestid])
+        Suse::Backend.delete delete_path
       end
 
       if action.target.has_attribute? :package and action.target.package == "_product"
