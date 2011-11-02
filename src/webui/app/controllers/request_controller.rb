@@ -164,6 +164,11 @@ class RequestController < ApplicationController
     end
   end
 
+  def sourcediff
+    render :text => 'no ajax', :status => 400 and return unless request.xhr?
+    render :partial => "shared/editor", :locals => {:text => params[:text], :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true}
+  end
+
   def changerequest
     @req = find_cached(BsRequest, params[:id] ) if params[:id]
     unless @req

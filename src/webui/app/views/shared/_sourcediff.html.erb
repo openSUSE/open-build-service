@@ -1,8 +1,27 @@
 <% content_for :head_javascript do %>
   function collapse_expand(file_id) {
-    $('#collapse_' + file_id).toggle();
-    $('#expand_' + file_id).toggle();
-    $('#diff_view_' + file_id).toggle();
+    if ($('#diff_view_' + file_id + '_placeholder').length == 1) {
+      $.ajax({
+        url: '<%= url_for(:controller => 'request', :action => 'sourcediff') %>',
+        data: { text: $('#diff_view_' + file_id + '_placeholder').html() },
+        success: function (data) {
+          $('#diff_view_' + file_id).show();
+          $('#diff_view_' + file_id + '_placeholder').html(data);
+          $('#diff_view_' + file_id + '_placeholder').attr('id', '');
+          $('#collapse_' + file_id).show();
+          $('#expand_' + file_id).hide();
+        },
+        error: function (data) {
+          $('#diff_view_' + file_id).hide();
+          $('#collapse_' + file_id).hide();
+          $('#expand_' + file_id).show();
+        },
+      });
+    } else {
+      $('#diff_view_' + file_id).toggle();
+      $('#collapse_' + file_id).toggle();
+      $('#expand_' + file_id).toggle();
+    }
   }
 <% end %>
 
@@ -56,14 +75,17 @@
         <% if file_diff_text.length > 0 %>
           <% if is_expanded %>
             <tr id="diff_view_<%= file_id %>">
+              <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
+              <td colspan="2">
+                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true} %>
+              </td>
+            </tr>
           <% else %>
             <tr id="diff_view_<%= file_id %>" class="hidden">
+              <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
+              <td colspan="2" id="diff_view_<%= file_id %>_placeholder"><%= file_diff_text %></td>
+            </tr>
           <% end %>
-          <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
-            <td colspan="2">
-              <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true} %>
-            </td>
-          </tr>
         <% end %>
       <% end %>
     </tbody>
