@@ -61,7 +61,6 @@
           <% end %>
           <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
             <td colspan="2">
-              <%# TODO: Fix editor size adjustment %>
               <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true} %>
             </td>
           </tr>
