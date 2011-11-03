@@ -237,3 +237,11 @@ function resizeMonitorBoxes()
     });
   
 }
+
+$(document).ajaxSend(function(event, request, settings) {
+  if (typeof(CSRF_PROTECT_AUTH_TOKEN) == "undefined") return;
+  // settings.data is a serialized string like "foo=bar&baz=boink" (or null)
+  settings.data = settings.data || "";
+  settings.data += (settings.data ? "&" : "") + "authenticity_token=" + encodeURIComponent(CSRF_PROTECT_AUTH_TOKEN);
+});
+

@@ -451,7 +451,7 @@ function setup_buildresult_tooltip(element_id, url) {
             return "<div id='" + element_id + "_tooltip' style='width: 500px;'>loading buildresult...</div>";
         }
     });
-    $('#' + element_id ).mouseover(function() {
+    $('#' + element_id).mouseover(function() {
         if ($('#' + element_id + '_tooltip').html() == 'loading buildresult...') {
             $('#' + element_id + '_tooltip').load(url);
         }
@@ -628,3 +628,11 @@ function resizeMonitorBoxes()
     });
   
 }
+
+$(document).ajaxSend(function(event, request, settings) {
+  if (typeof(CSRF_PROTECT_AUTH_TOKEN) == "undefined") return;
+  // settings.data is a serialized string like "foo=bar&baz=boink" (or null)
+  settings.data = settings.data || "";
+  settings.data += (settings.data ? "&" : "") + "authenticity_token=" + encodeURIComponent(CSRF_PROTECT_AUTH_TOKEN);
+});
+
