@@ -65,7 +65,9 @@ span.CodeMirror-selected {
 
 /* BEGIN: CodeMirror-UI */
 .codemirror-ui-button-frame {
-  border:1px solid #ccc;
+  border-top:1px solid #ccc;
+  border-left:1px solid #ccc;
+  border-right:1px solid #ccc;
   background:#eee;
   position:relative;
 }
@@ -145,7 +147,6 @@ iframe {
 }
 .CodeMirror {
   border:1px solid #ccc;
-  border-top:0px;
   background:white;
 }
 /*
