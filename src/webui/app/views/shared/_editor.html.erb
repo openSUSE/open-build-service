@@ -44,6 +44,9 @@
         saveCallback: function() {
           $.ajax({
             url: '<%= url_for(save[:url]) %>',
+            <% if save[:method] %>
+              type: '<%= save[:method] %>',
+            <% end %>
             data: {
               <% save[:data].each do |param, value| %>
                 <% if value.to_s == '@@@' %>
