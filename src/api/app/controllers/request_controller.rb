@@ -291,10 +291,39 @@ class RequestController < ApplicationController
           newPackages = Array.new
           newTargets = Array.new
           packages.each do |pkg|
-            # find target via linkinfo or submit to all
-            data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
-            e = data.elements["directory/linkinfo"]
-            unless e and DbPackage.exists_by_project_and_name( e.attributes["project"], e.attributes["package"], follow_project_links=true, allow_remote_packages=true)
+            # find target via linkinfo or submit to all.
+            # FIXME: this is currently handling local project links for packages with multiple spec files. 
+            #        This can be removed when we handle this as shadow packages in the backend.
+            tprj = pkg.db_project.name
+            tpkg = pkg.name
+            rev=nil
+            if action.source.has_attribute? 'rev'
+              rev = action.source.rev.text
+            end
+            while tprj == pkg.db_project.name
+              data = REXML::Document.new( backend_get("/source/#{CGI.escape(tprj)}/#{CGI.escape(tpkg)}") )
+              e = data.elements["directory/linkinfo"]
+              if e
+                tprj = e.attributes["project"]
+                tpkg = e.attributes["package"]
+                if action.value("type") == "maintenance_release" and not rev
+                  # maintenance_release needs the binaries, so we always use the current source
+                  if e.attributes["xsrcmd5"]
+                    rev=e.attributes["xsrcmd5"]
+                  elsif e.attributes["srcmd5"]
+                    rev=e.attributes["srcmd5"]
+                  else
+                    render_error :status => 400, :errorcode => 'broken_source',
+                      :message => "Current sources are broken"
+                    return
+                  end
+                end
+              else
+                tprj = tpkg = nil
+              end
+            end
+            # Will this be a new package ?
+            unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=true)
               if action.value("type") == "maintenance_release"
                 newPackages << pkg.name
                 next
@@ -304,33 +333,21 @@ class RequestController < ApplicationController
                 return
               end
             end
-            newTargets << e.attributes["project"]
-            newAction = action.clone
+            newTargets << tprj
+            newAction = ActiveXML::XMLNode.new(action.dump_xml)
             newAction.add_element 'target' unless newAction.has_element? 'target'
             newAction.source.set_attribute("package", pkg.name)
-            newAction.target.set_attribute("project", e.attributes["project"])
-            newAction.target.set_attribute("package", e.attributes["package"] + incident_suffix)
-            if action.value("type") == "maintenance_release" and not newAction.source.has_attribute? 'rev'
-              # maintenance_release needs the binaries, so we always use the current source
-              rev=nil
-              if e.attributes["xsrcmd5"]
-                rev=e.attributes["xsrcmd5"]
-              elsif e.attributes["srcmd5"]
-                rev=e.attributes["srcmd5"]
-              else
-                render_error :status => 400, :errorcode => 'broken_source',
-                  :message => "Current sources are broken"
-                return
-              end
-              newAction.source.set_attribute("rev", rev)
-            end
+            newAction.target.set_attribute("project", tprj )
+            newAction.target.set_attribute("package", tpkg + incident_suffix)
+            newAction.source.set_attribute("rev", rev) if rev
             req.add_node newAction.dump_xml
           end
 
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
+          newTargets.uniq!
           newPackages.each do |pkg|
             newTargets.each do |p|
-              newAction = action.clone
+              newAction = ActiveXML::XMLNode.new(action.dump_xml)
               newAction.add_element 'target' unless newAction.has_element? 'target'
               newAction.source.set_attribute("package", pkg)
               newAction.target.set_attribute("project", p)

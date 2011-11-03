@@ -110,7 +110,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal ret.package.each.count, 3
    
     # do the real mbranch for default maintained packages
-    ActionController::IntegrationTest::reset_auth 
     prepare_request_with_user "tom", "thunder"
     post "/source", :cmd => "branch", :package => "pack2", :noaccess => 1
     assert_response :success
@@ -226,6 +225,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
+
+    # validate that request is diffable (not broken)
+#FIXME2.3: maintenance team requires this support
+#    post "/request/#{id}?cmd=diff", nil
+#    assert_response :success
 
     # store data for later checks
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
@@ -448,6 +452,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
+    assert_no_tag( :tag => "target", :attributes => { :project => maintenanceProject } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
@@ -455,6 +460,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
+
+    # validate that request is diffable (not broken)
+    post "/request/#{reqid}?cmd=diff", nil
+    assert_response :success
 
     # source packages got locked
     [ "pack2.BaseDistro2", "pack2.BaseDistro3", "patchinfo" ].each do |pack|
