@@ -781,12 +781,11 @@ class PackageController < ApplicationController
 
   def view_file
     @filename = params[:file] || ''
-    @expand = params[:expand]
     @srcmd5 = params[:srcmd5]
     @addeditlink = false
     if @package.can_edit?( session[:login] )
       begin
-        files = @package.files(@srcmd5, @expand)
+        files = @package.files(@srcmd5, params[:expand])
       rescue ActiveXML::Transport::Error => e
         files = []
       end
@@ -801,50 +800,39 @@ class PackageController < ApplicationController
       @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @srcmd5)
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
-      redirect_to :action => :files, :package => @package, :project => @project
-      return
+      redirect_to :action => :files, :package => @package, :project => @project and return
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
-      redirect_back_or_to :action => :files, :project => @project, :package => @package
-      return
+      redirect_back_or_to :action => :files, :project => @project, :package => @package and return
     end
     if @spider_bot
-      render :template => "package/simple_file_view"
-      return
+      render :template => "package/simple_file_view" and return
     end
   end
 
   def save_modified_file
-    project = params[:project]
-    package = params[:package]
+    required_parameters :project, :package, :filename, :file
     if request.method != :post
       flash[:warn] = "Saving file failed because this was no POST request. " +
         "This probably happened because you were logged out in between. Please try again."
-      redirect_to :action => :show, :project => project, :package => package and return
+      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
-    required_parameters :project, :package, :filename, :file
+    project = params[:project]
+    package = params[:package]
     filename = params[:filename]
     file = params[:file]
     comment = params[:comment]
     file.gsub!( /\r\n/, "\n" )
     begin
-      frontend.put_file( file, :project => project, :package => package,
-        :filename => filename, :comment => comment )
+      frontend.put_file(file, :project => project, :package => package, :filename => filename, :comment => comment)
       flash[:note] = "Successfully saved file #{filename}"
       Directory.free_cache( :project => project, :package => package )
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      # if code == "validation_failed"
-      flash[:error] = message
-      params[:file] = filename
-      params[:content] = file
-      params[:comment] = comment
-      edit_file # :package => package, :project => project, :file => filename, :content => file, :comment => comment
-      return
+      flash[:error], _, _ = ActiveXML::Transport.extract_error_message e
     end
-    redirect_to :action => :files, :package => package, :project => project
+    redirect_to :action => 'view_file', :package => package, :project => project, :filename => filename
   end
 
   def rawlog
