@@ -178,7 +178,7 @@ iframe {
 .cm-s-default span.cm-variable-3 {color: #0a5;}
 .cm-s-default span.cm-property {color: black;}
 .cm-s-default span.cm-operator {color: black;}
-.cm-s-default span.cm-comment {color: #a50;}
+.cm-s-default span.cm-comment {color: gray;}
 .cm-s-default span.cm-string {color: #a11;}
 .cm-s-default span.cm-string-2 {color: #f50;}
 .cm-s-default span.cm-meta {color: #555;}
@@ -196,3 +196,12 @@ iframe {
 .cm-s-default span.cm-minus {color: red;}
 .cm-s-default span.cm-plus {color: green;}
 /* END: Diff mode */
+
+
+/* BEGIN: Spec mode */
+.cm-s-default span.cm-preamble {color: #b26818; font-weight: bold;}
+.cm-s-default span.cm-macro {color: #b218b2;}
+.cm-s-default span.cm-section {color: green; font-weight: bold;}
+.cm-s-default span.cm-script {color: red;}
+.cm-s-default span.cm-issue {color: yellow;}
+/* END: Spec mode */
