@@ -7,8 +7,8 @@
 <h3><%= @pagetitle %></h3>
 <div style="margin-left: 15px; margin-right: 15px;">
   <% if @project.can_edit?(session[:login]) %>
-    <%= render :partial => "shared/editor", :locals => {:text => @config, :mode => 'prjconf', :save => {:url => {:controller => 'project', :action => 'save_prjconf'}, :data => {:project => @project, :config => '@@@'}}} %>
+    <%= render :partial => "shared/editor", :locals => {:text => @config, :mode => 'spec', :save => {:url => {:controller => 'project', :action => 'save_prjconf'}, :data => {:project => @project, :config => '@@@'}}} %>
   <% else %>
-    <%= render :partial => "shared/editor", :locals => {:text => @config, :mode => 'prjconf', :read_only => true} %>
+    <%= render :partial => "shared/editor", :locals => {:text => @config, :mode => 'spec', :read_only => true} %>
   <% end %>
 </div>
