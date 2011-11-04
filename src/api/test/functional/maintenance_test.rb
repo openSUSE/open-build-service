@@ -227,9 +227,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     id = node.value(:id)
 
     # validate that request is diffable (not broken)
-#FIXME2.3: maintenance team requires this support
-#    post "/request/#{id}?cmd=diff", nil
-#    assert_response :success
+    post "/request/#{id}?cmd=diff", nil
+    assert_response :success
 
     # store data for later checks
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"

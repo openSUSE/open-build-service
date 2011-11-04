@@ -682,73 +682,76 @@ class RequestController < ApplicationController
     req.each_action do |action|
       action_diff = ''
       action_counter += 1
-      if ['submit', 'maintenance_release'].include?(action.value('type')) and action.target.project and action.target.package
-        target_project = action.target.project
-        target_package = action.target.package
-
-        # Cut off '.$FOO' from package name ($FOO is the release target) when it's a maintenance release.
-        # Ruby has no 'rsplit' method, needs elitist hack:
-        target_package = target_package.split(/\.([^.]*)$/)[0] if action.value('type') == 'maintenance_release'
-
-        path = nil
-        if action.has_element? :acceptinfo
-          # OBS 2.1 adds acceptinfo on request accept
-          path = "/source/%s/%s?cmd=diff" % [CGI.escape(target_project), CGI.escape(target_package)]
-          if action.acceptinfo.value("xsrcmd5")
-            path += "&rev=" + action.acceptinfo.value("xsrcmd5")
-          else
-            path += "&rev=" + action.acceptinfo.value("srcmd5")
-          end
-          if action.acceptinfo.value("oxsrcmd5")
-            path += "&orev=" + action.acceptinfo.value("oxsrcmd5")
-          elsif action.acceptinfo.value("osrcmd5")
-            path += "&orev=" + action.acceptinfo.value("osrcmd5")
-          else
-            # md5sum of empty package
-            path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
-          end
+      if ['submit', 'maintenance_release', 'maintenance_incident'].include?(action.value('type'))
+        spkgs = []
+        if action.source.has_attribute? :package
+          spkgs << DbPackage.get_by_project_and_name( action.source.project, action.source.package )
         else
-          # for requests not yet accepted or accepted with OBS 2.0 and before
-          spkg = DbPackage.get_by_project_and_name( action.source.project, action.source.package )
-          tpkg = linked_tpkg = nil
-          if DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = false )
-            tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
-          elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = true )
-            tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
-          else
-            tprj = DbProject.get_by_name( target_project )
-          end
-
-          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?cmd=diff&expand=1&filelimit=0"
-          if tpkg
-            path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
-            path += "&rev=#{action.source.rev}" if action.source.value('rev')
-          else
-            # No target means diffing all source package changes (rev 0 - rev latest)
-            spkg_rev = Directory.find(:project => action.source.project, :package => action.source.package).rev
-            path += "&orev=0&rev=#{spkg_rev}"
-          end
+          spkgs = DbProject.get_by_name( action.source.project ).db_packages
         end
 
-        if path
-          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
-          begin
-            action_diff += Suse::Backend.post(path, nil).body
-          rescue ActiveXML::Transport::Error => e
-            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+        spkgs.each do |spkg|
+          target_project = target_package = nil
+          if action.has_element? :target
+            target_project = action.target.project
+            target_package = action.target.package if action.target.has_attribute? :package
           end
-        end
-      elsif ['maintenance_incident'].include?(action.value('type')) and action.target.project
-        DbProject.get_by_name(action.source.project).db_packages.each do |source_package|
-          path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(source_package)}?cmd=diff&expand=1&filelimit=0"
-          # No target means diffing all source package changes (rev 0 - rev latest)
-          spkg_rev = Directory.find(:project => action.source.project, :package => source_package).rev
-          path += "&orev=0&rev=#{spkg_rev}"
-          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
-          begin
-            action_diff += Suse::Backend.post(path, nil).body
-          rescue ActiveXML::Transport::Error => e
-            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+
+          if target_package.nil?
+            data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}") )
+            e = data.elements["directory/linkinfo"]
+            if e
+              target_project = e.attributes["project"]
+              target_package = e.attributes["package"]
+            end
+          end
+
+          path = nil
+          if action.has_element? :acceptinfo
+            # OBS 2.1 adds acceptinfo on request accept
+            path = "/source/%s/%s?cmd=diff" % [CGI.escape(target_project), CGI.escape(target_package)]
+            if action.acceptinfo.value("xsrcmd5")
+              path += "&rev=" + action.acceptinfo.value("xsrcmd5")
+            else
+              path += "&rev=" + action.acceptinfo.value("srcmd5")
+            end
+            if action.acceptinfo.value("oxsrcmd5")
+              path += "&orev=" + action.acceptinfo.value("oxsrcmd5")
+            elsif action.acceptinfo.value("osrcmd5")
+              path += "&orev=" + action.acceptinfo.value("osrcmd5")
+            else
+              # md5sum of empty package
+              path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
+            end
+          else
+            # for requests not yet accepted or accepted with OBS 2.0 and before
+            tpkg = linked_tpkg = nil
+            if DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = false )
+              tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
+            elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = true )
+              tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
+            else
+              tprj = DbProject.get_by_name( target_project )
+            end
+
+            path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&expand=1&filelimit=0"
+            if tpkg
+              path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
+              path += "&rev=#{action.source.rev}" if action.source.value('rev')
+            else
+              # No target means diffing all source package changes (rev 0 - rev latest)
+              spkg_rev = Directory.find(:project => action.source.project, :package => spkg.name).rev
+              path += "&orev=0&rev=#{spkg_rev}"
+            end
+          end
+
+          if path
+            path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
+            begin
+              action_diff += Suse::Backend.post(path, nil).body
+            rescue ActiveXML::Transport::Error => e
+              render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+            end
           end
         end
       end
