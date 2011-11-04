@@ -36,7 +36,7 @@ use strict;
 our $useragent = 'BSRPC 0.9.1';
 
 my %hostlookupcache;
-my %cookiestore;	# our session store to keep iChain fast
+my %cookiestore;        # our session store to keep iChain fast
 my $tossl;
 
 my $noproxy;
@@ -62,19 +62,19 @@ sub createuri {
   my ($param, @args) = @_;
   my $uri = $param->{'uri'};
   if (!$param->{'verbatim_uri'} && $uri =~ /^(https?:\/\/[^\/]*\/)(.*)$/s) {
-    $uri = $1; 
+    $uri = $1;
     $uri .= BSRPC::urlencode($2);
   }
   if (@args) {
     for (@args) {
       $_ = urlencode($_);
-      s/%3D/=/;	# convert first now escaped '=' back
-    }   
+      s/%3D/=/; # convert first now escaped '=' back
+    }
     if ($uri =~ /\?/) {
-      $uri .= '&'.join('&', @args); 
+      $uri .= '&'.join('&', @args);
     } else {
-      $uri .= '?'.join('&', @args); 
-    }   
+      $uri .= '?'.join('&', @args);
+    }
   }
   return $uri;
 }
@@ -200,8 +200,8 @@ sub rpc {
     $chunked = 1 if $param->{'chunked'};
     if (!defined($data) && $param->{'request'} && $param->{'request'} eq 'POST' && @args && grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
       for (@args) {
-	$_ = urlencode($_);
-        s/%3D/=/;	# convert now escaped = back
+        $_ = urlencode($_);
+        s/%3D/=/;       # convert now escaped = back
       }
       $data = join('&', @args);
       @args = ();
@@ -232,7 +232,7 @@ sub rpc {
       BSHTTP::swrite(\*S, $proxytunnel);
       my $ans = '';
       do {
-	die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
+        die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
       } while ($ans !~ /\n\r?\n/s);
       die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
       my $status = $1;
@@ -250,15 +250,15 @@ sub rpc {
       $param->{'sender'}->($param, \*S, $req);
     } else {
       while(1) {
-	BSHTTP::swrite(\*S, $req);
-	last unless ref $data;
-	$req = &$data($param, \*S);
-	if (!defined($req) || !length($req)) {
-	  $req = $data = '';
-	  $req = "0\r\n\r\n" if $chunked;
-	  next;
-	}
-	$req = sprintf("%X\r\n", length($req)).$req."\r\n" if $chunked;
+        BSHTTP::swrite(\*S, $req);
+        last unless ref $data;
+        $req = &$data($param, \*S);
+        if (!defined($req) || !length($req)) {
+          $req = $data = '';
+          $req = "0\r\n\r\n" if $chunked;
+          next;
+        }
+        $req = sprintf("%X\r\n", length($req)).$req."\r\n" if $chunked;
       }
     }
     if ($param->{'async'}) {
