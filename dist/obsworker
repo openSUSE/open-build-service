@@ -43,6 +43,7 @@ fi
 if [ -z "$OBS_LOG_DIR" ]; then
     OBS_LOG_DIR="/var/log/obs"
 fi
+echo "using log dir $OBS_LOG_DIR"
 if [ -z "$OBS_REPO_SERVERS" ]; then
     OBS_REPO_SERVERS="localhost:5252"
 fi
@@ -69,6 +70,7 @@ obsrundir="$OBS_RUN_DIR"
 workerdir="$obsrundir"/worker
 workerbootdir="$workerdir"/boot
 screenrc="$workerdir"/boot/screenrc
+logdir="$OBS_LOG_DIR"
 OBS_WORKER_OPT=""
 
 if [ -n "$OBS_CACHE_SIZE" -a -n "$OBS_CACHE_DIR" ]; then
@@ -129,6 +131,8 @@ case "$1" in
         mkdir -p "$workerbootdir"
 #        echo "zombie on"       > $screenrc
         echo "caption always" >> $screenrc
+        mkdir -p "$logdir"
+        echo "logfile $logdir/worker_%n.log" >> $screenrc
 
         if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
             NUM="$OBS_WORKER_INSTANCES"
@@ -207,7 +211,7 @@ case "$1" in
 	    mkdir -p $workerdir/$I
         done
         pushd "$workerbootdir" > /dev/null
-        screen -m -d -c $screenrc
+        screen -m -d -c $screenrc -L
         popd > /dev/null
     ;;
     stop)
