@@ -108,7 +108,7 @@ class PackageController < ApplicationController
 
   def users
     @users = [@project.users, @package.users].flatten.uniq
-    @groups = @project.groups
+    @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
   end
 

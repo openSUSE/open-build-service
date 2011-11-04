@@ -133,7 +133,10 @@
             <% @roles.each do |role| %>
               <td>
                 <% if defined? @package %>
-                  <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role) || @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
+                  <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
+                  <% if @project.group_has_role?(group, role) %>
+                    <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                  <% end %>
                 <% else %>
                   <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
                 <% end %>

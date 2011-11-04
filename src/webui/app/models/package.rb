@@ -177,7 +177,7 @@ class Package < ActiveXML::Base
     groups = []
     each_group do |g|
       if not role or (role and g.role == role)
-        groups << g.groupd
+        groups << g.groupid
       end
     end
     return groups.sort.uniq
