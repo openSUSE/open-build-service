@@ -60,6 +60,9 @@ span.CodeMirror-selected {
 }
 .CodeMirror-matchingbracket {color: #0f0 !important;}
 .CodeMirror-nonmatchingbracket {color: #f22 !important;}
+.CodeMirror-lines .activeline {
+  background: #f0fcff !important;
+}
 /* END: CodeMirror */
 
 

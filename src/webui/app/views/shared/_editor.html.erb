@@ -30,12 +30,16 @@
   var codeMirrorOptions = {
     mode: '<%= mode %>',
     lineNumbers: true,
+    onCursorActivity: function(editor) {
+      editor.setLineClass(editor.hlLine, null);
+      editor.hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
+    },
   }
   <% if read_only %>
     codeMirrorOptions['readOnly'] = true;
     var editor = CodeMirror.fromTextArea(document.getElementById('editor_<%= uid %>'), codeMirrorOptions);
   <% else %>
-    var editor = null;
+    var editors = new Array();
     var uiOptions = {
       imagePath: '/themes/bento/images/icons',
       searchMode: 'inline',
@@ -50,18 +54,19 @@
             data: {
               <% save[:data].each do |param, value| %>
                 <% if value.to_s == '@@@' %>
-                  <%= param %>: editor.mirror.getValue(),
+                  <%= param %>: editors['<%= uid %>'].mirror.getValue(),
                 <% else %>
                   <%= param %>: '<%= value %>',
                 <% end %>
               <% end %>
-            }
+            },
           })
         },
       <% else %>
         buttons: ['undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
       <% end %>
     };
-    var editor = new CodeMirrorUI(document.getElementById('editor_<%= uid %>'), uiOptions, codeMirrorOptions);
+    editors['<%= uid %>'] = new CodeMirrorUI(document.getElementById('editor_<%= uid %>'), uiOptions, codeMirrorOptions);
+    editors['<%= uid %>'].mirror.hlLine = editors['<%= uid %>'].mirror.setLineClass(0, 'activeline');
   <% end %>
 <% end %>
