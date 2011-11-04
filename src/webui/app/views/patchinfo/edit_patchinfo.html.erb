@@ -38,14 +38,16 @@
         <th>Bugzilla: </th>
         <td>
 
-          <div id="buglist">
+        <div id="buglist">
+          <%if @buglist%>
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
               <div id="bug_<%= bug %>">
                 <%= hidden_field_tag "bug[]", bug, :id => "bugvalue_#{bug}" %><%= bug.to_s %>
                 <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>
               </div>
             <%end%>
-          </div>
+          <%end%>
+        </div>
         </td>
         <td>List of bugs which the Patch fixes</td>
       </tr>
@@ -119,11 +121,13 @@
         <th>CVE</th>
         <td>
           <div id="cvelist">
-            <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
-              <div id="cve_<%= cve %>">
-                <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
-                <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>
-              </div>
+            <%if @cvelist%>
+              <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
+                <div id="cve_<%= cve %>">
+                  <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
+                  <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>
+                </div>
+              <%end%>
             <%end%>
           </div>
         </td>
