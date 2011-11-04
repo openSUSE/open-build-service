@@ -9,8 +9,8 @@ module MaintenanceHelper
       tprj = DbProject.new :name => mi.project_name
       if baseProject
         # copy as much as possible from base project
-        tprj.title = baseProject.title.dup
-        tprj.description = baseProject.description.dup
+        tprj.title = baseProject.title.dup if baseProject.title
+        tprj.description = baseProject.description.dup if baseProject.description
         tprj.save
         baseProject.flags.each do |f|
           tprj.flags.create(:status => f.status, :flag => f.flag)
