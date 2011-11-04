@@ -567,12 +567,7 @@ class PackageController < ApplicationController
   end
 
   def save_file
-    if request.method != :post
-      flash[:warn] = "File upload failed because this was no POST request. " +
-        "This probably happened because you were logged out in between. Please try again."
-      redirect_to :action => :files, :project => @project, :package => @package and return
-    end
-
+    valid_http_methods :post
     file = params[:file]
     file_url = params[:file_url]
     filename = params[:filename]
@@ -676,15 +671,8 @@ class PackageController < ApplicationController
   end
 
   def remove_file
-    if request.method != :post
-      flash[:warn] = "File removal failed because this was no POST request. " +
-        "This probably happened because you were logged out in between. Please try again."
-      redirect_to :action => :files, :project => @project, :package => @package and return
-    end
-    if not params[:filename]
-      flash[:note] = "Removing file aborted: no filename given."
-      redirect_to :action => :files, :project => @project, :package => @package
-    end
+    valid_http_methods :post
+    required_parameters :filename
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
     escaped_filename = URI.escape filename, "+"
@@ -811,22 +799,15 @@ class PackageController < ApplicationController
   end
 
   def save_modified_file
+    valid_http_methods :post
     required_parameters :project, :package, :filename, :file
-    if request.method != :post
-      flash[:warn] = "Saving file failed because this was no POST request. " +
-        "This probably happened because you were logged out in between. Please try again."
-      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
-    end
     project = params[:project]
     package = params[:package]
     filename = params[:filename]
-    file = params[:file]
-    comment = params[:comment]
     file.gsub!( /\r\n/, "\n" )
     begin
-      frontend.put_file(file, :project => project, :package => package, :filename => filename, :comment => comment)
-      flash[:note] = "Successfully saved file #{filename}"
-      Directory.free_cache( :project => project, :package => package )
+      frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
+      Directory.free_cache(:project => project, :package => package)
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
     rescue ActiveXML::Transport::Error => e
@@ -1063,6 +1044,7 @@ class PackageController < ApplicationController
   end
 
   def save_meta
+    valid_http_methods :post
     begin
       frontend.put_file(params[:meta], :project => @project, :package => @package, :filename => '_meta')
     rescue ActiveXML::Transport::Error => e

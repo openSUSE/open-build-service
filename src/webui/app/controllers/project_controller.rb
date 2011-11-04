@@ -990,6 +990,7 @@ class ProjectController < ApplicationController
   end
 
   def save_meta
+    valid_http_methods :post
     begin
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
@@ -1014,6 +1015,7 @@ class ProjectController < ApplicationController
   end
 
   def save_prjconf
+    valid_http_methods :post
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
     flash[:note] = "Project Config successfully saved"
     redirect_to :action => :prjconf, :project => params[:project]
