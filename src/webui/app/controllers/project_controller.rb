@@ -718,6 +718,7 @@ class ProjectController < ApplicationController
   end
 
   def save_person
+    valid_http_methods :post
     user = find_cached(Person, params[:userid])
     # FIXME/PITA: For invalid input, the lovely API person controller does a 'LIKE' SQL search to still return data.
     # This leads to a valid Person model instance with no 'login' set. Instead, it contains a list of _all_ users.
@@ -736,6 +737,7 @@ class ProjectController < ApplicationController
   end
 
   def save_group
+    valid_http_methods :post
     #FIXME: API Group controller routes don't support this currently.
     #group = find_cached(Group, params[:groupid])
     group = Group.list(params[:groupid])
@@ -755,6 +757,7 @@ class ProjectController < ApplicationController
   end
 
   def remove_person
+    valid_http_methods :post
     if params[:userid].blank?
       flash[:note] = "User removal aborted, no user id given!"
       redirect_to :action => :show, :project => params[:project] and return
@@ -769,6 +772,7 @@ class ProjectController < ApplicationController
   end
 
   def remove_group
+    valid_http_methods :post
     if params[:groupid].blank?
       flash[:note] = "Group removal aborted, no group id given!"
       redirect_to :action => :show, :project => params[:project] and return

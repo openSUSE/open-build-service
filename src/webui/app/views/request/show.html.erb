@@ -119,17 +119,20 @@
   <% content_for :head_javascript do %>
     function modifyReview(id, new_state) {
       var comment = $('#review_comment_' + id).attr('value');
-      var path = "/request/modify_review/<%= @id %>?new_state=" + encodeURIComponent(new_state) + "&comment=" + encodeURIComponent(comment);
+      var data = {new_state: new_state, comment: comment};
       if ($('#review_type_' + id).text() == "package") {
         project_and_package = $('#review_name_' + id).text().split(' / ');
-        path += "&project=" + encodeURIComponent(project_and_package[0].trim());
-        path += "&package=" + encodeURIComponent(project_and_package[1].trim());
+        data['project'] = project_and_package[0].trim();
+        data['package'] = project_and_package[1].trim();
       } else if ($('#review_type_' + id).text() == "user") {
-        path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id + '_raw').text());
+        data[$('#review_type_' + id).text()] = $('#review_name_' + id + '_raw').text();
       } else {
-        path += "&" + $('#review_type_' + id).text() + "=" + encodeURIComponent($('#review_name_' + id).text());
+        data[$('#review_type_' + id).text()] = $('#review_name_' + id).text();
       }
-      $.ajax({url: path,
+      $.ajax({
+        url: '<%= url_for(:controller => 'request', :action => 'modify_review', :id => @id) %>',
+        type: 'POST',
+        data: data,
         success: function(data) {
           $('#review_table td#review_state_' + id).text(data);
           $('#review_table td#review_buttons_' + id).remove();

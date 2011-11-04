@@ -11,17 +11,19 @@
       type = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
       role = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
 
+      data = {project: '<%= @project %>', package: '<%= @package %>', role: role};
+      data[type + 'id'] = str;
       if (type == 'user') {
         if ($(this).attr('checked')) {
-          url = '<%= url_for(:action => "save_person", :project => @project, :package => @package) %>';
+          url = '<%= url_for(:action => "save_person") %>';
         } else {
-          url = '<%= url_for(:action => "remove_person", :project => @project, :package => @package) %>';
+          url = '<%= url_for(:action => "remove_person") %>';
         }
       } else if (type == 'group') {
         if ($(this).attr('checked')) {
-          url = '<%= url_for(:action => "save_group", :project => @project, :package => @package) %>';
+          url = '<%= url_for(:action => "save_group") %>';
         } else {
-          url = '<%= url_for(:action => "remove_group", :project => @project, :package => @package) %>';
+          url = '<%= url_for(:action => "remove_group") %>';
         }
       }
 
@@ -29,9 +31,10 @@
       $('#' + type + '_table input').animate({opacity: 0.2}, 500);
       $('#' + type + '_table input').disable();
 
-      url += ';' + type + 'id=' + str + ';role=' + role;
       $.ajax({
         url: url,
+        type: 'POST',
+        data: data,
         complete: function() {
           $('#' + type + '_spinner').hide();
           $('#' + type + '_table input').animate({opacity: 1}, 200);

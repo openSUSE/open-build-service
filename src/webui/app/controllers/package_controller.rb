@@ -700,6 +700,7 @@ class PackageController < ApplicationController
   end
 
   def save_person
+    valid_http_methods :post
     if not valid_role_name? params[:userid]
       flash[:error] = "Invalid username: #{params[:userid]}"
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
@@ -721,6 +722,7 @@ class PackageController < ApplicationController
   end
 
   def save_group
+    valid_http_methods :post
     #FIXME: API Group controller routes don't support this currently.
     #group = find_cached(Group, params[:groupid])
     group = Group.list(params[:groupid])
@@ -751,6 +753,7 @@ class PackageController < ApplicationController
   end
 
   def remove_group
+    valid_http_methods :post
     if params[:groupid].blank?
       flash[:note] = "Group removal aborted, no group id given!"
       redirect_to :action => :show, :project => params[:project] and return

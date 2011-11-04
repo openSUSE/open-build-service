@@ -27,6 +27,7 @@ class RequestController < ApplicationController
   end
 
   def modify_review
+    valid_http_methods :post
     begin
       BsRequest.modifyReview(params[:id], params[:new_state], params)
       render :text => params[:new_state]
