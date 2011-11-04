@@ -73,6 +73,11 @@ our @reposervers = ("http://$hostname:5252");
 # proxy support:
 #our $proxy = "http(s)://<user:pass>\@<host>:<port>";
 
+# Curl-like interpretation for noproxy, i.e. each name in $noproxy is either
+# a domain containing the hostname or the hostname itself.
+# Example: host.com matches host.com, www.host.com etc but not www.myhost.com
+#our $noproxy = "localhost, 127.0.0.1";
+
 # Package defaults
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
