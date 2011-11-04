@@ -30,6 +30,7 @@
   var codeMirrorOptions = {
     mode: '<%= mode %>',
     lineNumbers: true,
+    matchBrackets: true,
     onCursorActivity: function(editor) {
       editor.setLineClass(editor.hlLine, null);
       editor.hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
