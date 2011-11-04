@@ -298,7 +298,7 @@ class RequestController < ApplicationController
             tpkg = pkg.name
             rev=nil
             if action.source.has_attribute? 'rev'
-              rev = action.source.rev.text
+              rev = action.source.rev.to_s
             end
             while tprj == pkg.db_project.name
               data = REXML::Document.new( backend_get("/source/#{CGI.escape(tprj)}/#{CGI.escape(tpkg)}") )
