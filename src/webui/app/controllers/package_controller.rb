@@ -327,29 +327,9 @@ class PackageController < ApplicationController
       end
     end
 
-    result = ActiveXML::Base.new(rdiff)
-    # Sort files into categories by their ending and add all of them to a hash. We
-    # will later use the sorted and concatenated categories as key index into the per action file hash.
-    changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-    @files = {}
-    result.each('files/file') do |file_element|
-      if file_element.new
-        filename = file_element.new.name.to_s
-      elsif file_element.old # in case of deleted files
-        filename = file_element.old.name.to_s
-      end
-      if filename.ends_with?('.spec')
-        spec_file_keys << filename
-      elsif filename.ends_with?('.changes')
-        changes_file_keys << filename
-      elsif filename.match(/.*.(patch|diff|dif)/)
-        patch_file_keys << filename
-      else
-        other_file_keys << filename
-      end
-      @files[filename] = file_element
-    end
-    @filenames = changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort;
+    filenames_and_bugs = sorted_filenames_and_bugs_from_sourcediff(ActiveXML::Base.new(rdiff))
+    @files = filenames_and_bugs[:files]
+    @filenames = filenames_and_bugs[:filenames]
   end
 
   def wizard_new

@@ -107,54 +107,10 @@ class RequestController < ApplicationController
         diff_per_action = {}
         # Parse each action and get the it's diff (per file)
         result.each_with_index('/request/action') do |action_element, index|
-          # Sort files into categories by their ending and add all of them to a hash. We
-          # will later use the sorted and concatenated categories as key index into the per action file hash.
-          changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-          files_hash = {}
-
-          action_element.each('sourcediff/files/file') do |file_element|
-            if file_element.new
-              filename = file_element.new.name.to_s
-            elsif file_element.old # in case of deleted files
-              filename = file_element.old.name.to_s
-            end
-            if filename.ends_with?('.spec')
-              spec_file_keys << filename
-            elsif filename.ends_with?('.changes')
-              changes_file_keys << filename
-            elsif filename.match(/.*.(patch|diff|dif)/)
-              patch_file_keys << filename
-            else
-              other_file_keys << filename
-            end
-            files_hash[filename] = file_element
-          end
-
-          # Grep for bugs mentioned in changes and spec files
-          # TODO: Get summary from upstream issue tracker to display, needs API support...
-          bugs_mentioned = {}
-          (changes_file_keys + spec_file_keys).each do |file|
-            contents = files_hash[file]
-            if contents
-              IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
-                contents.text.each_line do |line|
-                  if line.match(/^[+-].*/) # Only incorporate bugs in added / removed lines
-                    line.scan(/#{acronym}\#\d+/).each do |matched_bug|
-                      bugs_mentioned[matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
-                    end
-                  end
-                end
-              end
-            end
-          end
-
+          filenames_and_bugs = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff)
+          filenames_and_bugs[:action] = action_element;
           # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
-          diff_per_action["#{index}_#{action_element.value('type')}"] =  {
-            :action => action_element,
-            :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-            :files =>  files_hash,
-            :bugs => bugs_mentioned
-          }
+          diff_per_action["#{index}_#{action_element.value('type')}"] = filenames_and_bugs
         end
         diff_per_action
       end
