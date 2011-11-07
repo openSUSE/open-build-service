@@ -29,6 +29,7 @@
 <% table_id ||= nil %>
 <% bugs ||= nil %>
 
+<div>
 <% if bugs && bugs.length > 0 %>
   <%# TODO: Anything but nice, move to 'box' when request view is restructured: %>
   <div style="float:right;">
@@ -95,3 +96,4 @@
 <% else %>
   <p>No source changes!</p>
 <% end %>
+</div>
