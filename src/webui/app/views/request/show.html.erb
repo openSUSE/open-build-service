@@ -297,7 +297,12 @@
       <% index, _ = index_and_type.split('_', 2) %>
       <% table_class = "diff_action_display" %>
       <% table_class += " hidden" if index != '0' %>
-      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :bugs => diff[:bugs], :source => {:project => diff[:action].source.project, :package => diff[:action].source.package, :rev => diff[:action].source.rev}, :table_id => "diff_action_#{index}", :table_class => table_class}) %>
+      <% if diff[:action].source %>
+        <% project, package, rev = diff[:action].source.project, diff[:action].source.package, diff[:action].source.rev %>
+      <% elsif diff[:action].target # delete requests %>
+        <% project, package, rev = diff[:action].target.project, diff[:action].target.package, diff[:action].target.rev %>
+      <% end %>
+      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :bugs => diff[:bugs], :source => {:project => project, :package => package, :rev => rev}, :table_id => "diff_action_#{index}", :table_class => table_class}) %>
     <% end %>
   </div>
 <% end %>
