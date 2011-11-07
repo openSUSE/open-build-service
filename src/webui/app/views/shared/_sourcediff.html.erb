@@ -70,8 +70,11 @@
           </td>
           <td><%= file_element.value('state').capitalize %></td>
           <td>
+            <%# NOTE: Currently rather crude hack, deleted files aren't available in current source revision, thus use previous: %>
+            <% rev = source[:rev] %>
+            <% rev = (rev.to_i - 1).to_s if file_element.state == 'deleted' %>
             <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
-            <%= link_to_unless(is_binary(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => source[:rev]) %>
+            <%= link_to_unless(is_binary(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => rev) %>
           </td>
         </tr>
         <% if file_diff_text.length > 0 %>
