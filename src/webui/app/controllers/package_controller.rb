@@ -774,6 +774,10 @@ class PackageController < ApplicationController
 
   def view_file
     @filename = params[:file] || ''
+    if Package.is_binary_file?(@filename) # We don't want to display binary files
+      flash[:error] = "Unable to display binary file #{@filename}"
+      redirect_back_or_to :action => :files, :project => @project, :package => @package and return
+    end
     @rev = params[:rev]
     @addeditlink = false
     if @package.can_edit?( session[:login] )
