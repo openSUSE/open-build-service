@@ -74,7 +74,7 @@
             <% rev = source[:rev] %>
             <% rev = (rev.to_i - 1).to_s if file_element.state == 'deleted' %>
             <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
-            <%= link_to_unless(is_binary(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => rev) %>
+            <%= link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => rev) %>
           </td>
         </tr>
         <% if file_diff_text.length > 0 %>

@@ -424,14 +424,6 @@ module ApplicationHelper
     end
   end
 
-  def is_binary(filename)
-    binary_extensions = %w{.bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip .ttf .0 .otf .ccf}
-    binary_extensions.each do |ext|
-      return true if filename.downcase.ends_with?(ext)
-    end
-    return false
-  end
-
   def sorted_filenames_and_bugs_from_sourcediff(xml_element)
     # Sort files into categories by their ending and add all of them to a hash. We
     # will later use the sorted and concatenated categories as key index into the per action file hash.

@@ -305,7 +305,7 @@ class Package < ActiveXML::Base
     @serviceinfo = dir.serviceinfo if dir.has_element? 'serviceinfo'
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
-      file[:viewable] = !is_binary(file[:name]) || file[:size].to_i < 2**20  # max. 1 MB
+      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
       file[:srcmd5] = dir.srcmd5
       files << file
@@ -328,6 +328,14 @@ class Package < ActiveXML::Base
     else
       return false
     end
+  end
+
+  def self.is_binary_file?(filename)
+    binary_extensions = %w{.bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip .ttf .0 .otf .ccf}
+    binary_extensions.each do |ext|
+      return true if filename.downcase.ends_with?(ext)
+    end
+    return false
   end
 
 end
