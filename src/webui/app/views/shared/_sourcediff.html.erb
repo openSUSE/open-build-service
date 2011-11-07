@@ -53,7 +53,7 @@
         <% file_element = files[filename] %>
         <% file_id = valid_xml_id(filename) %>
         <% file_diff_text = file_element.diff.text.to_s %>
-        <% is_expanded = filename.ends_with?('.spec') || filename.ends_with?('.changes') %>
+        <% is_expanded = !filename.include?('/') && (filename.ends_with?('.spec') || filename.ends_with?('.changes')) %>
         <tr>
           <td>
             <% if file_diff_text.length > 0 %>
