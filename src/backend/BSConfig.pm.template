@@ -71,6 +71,11 @@ our @reposervers = ("http://$hostname:5252");
 # proxy support:
 #our $proxy = "http(s)://<user:pass>\@<host>:<port>";
 
+# Curl-like interpretation for noproxy, i.e. each name in $noproxy is either
+# a domain containing the hostname or the hostname itself.
+# Example: host.com matches host.com, www.host.com etc but not www.myhost.com
+#our $noproxy = "localhost, 127.0.0.1";
+
 # Package defaults
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
@@ -127,7 +132,7 @@ our $relsync_pool = {
 # building critical packages fast.
 #our $powerhosts  = ["build20"];
 
-# List of power packages that can be built on power hosts 
+# List of power packages that can be built on power hosts
 #our $powerpkgs = [ "glibc", "qt" ]
 
 #No extra stage server sync
@@ -141,7 +146,7 @@ our $relsync_pool = {
 #our $sign = '/usr/bin/sign';
 #Extend sign call with project name as argument "--project $NAME"
 #our $sign_project = 1;
-#Global sign key 
+#Global sign key
 #our $keyfile = '/srv/obs/openSUSE-Build-Service.asc';
 #Create a key by default for new projects, if top level have not one
 #our $forceprojectkeys = 1;
@@ -153,7 +158,7 @@ our $relsync_pool = {
 #
 # run a script to check if the worker is good enough for the job
 #our workerhostcheck = 'my_check_script';
-# 
+#
 # Allow to build as root, exceptions per package
 # the keys are actually anchored regexes
 # our $norootexceptions = { "my_project/my_package" => 1, "openSUSE:Factory.*/installation-images" => 1 };
