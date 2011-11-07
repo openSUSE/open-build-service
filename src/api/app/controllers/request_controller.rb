@@ -682,6 +682,7 @@ class RequestController < ApplicationController
     req.each_action do |action|
       action_diff = ''
       action_counter += 1
+      path = nil
       if ['submit', 'maintenance_release', 'maintenance_incident'].include?(action.value('type'))
         spkgs = []
         if action.source.has_attribute? :package
@@ -706,7 +707,6 @@ class RequestController < ApplicationController
             end
           end
 
-          path = nil
           if action.has_element? :acceptinfo
             # OBS 2.1 adds acceptinfo on request accept
             path = "/source/%s/%s?cmd=diff" % [CGI.escape(target_project), CGI.escape(target_package)]
