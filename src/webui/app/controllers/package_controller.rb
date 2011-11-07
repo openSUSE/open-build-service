@@ -175,7 +175,11 @@ class PackageController < ApplicationController
   end
 
   def submit_request_dialog
-    @revision = Package.current_rev(@project, @package)
+    if params[:revision]
+      @revision = params[:revision]
+    else
+      @revision = Package.current_rev(@project, @package)
+    end
   end
   def submit_request
     if params[:targetproject].nil? or params[:targetproject].empty?
