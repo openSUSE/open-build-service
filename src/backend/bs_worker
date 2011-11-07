@@ -1438,7 +1438,8 @@ sub dobuild {
 
   if ($vm_tmpfs_mode) {
     my @targs;
-    push @targs, "mount", "-t", "tmpfs", "none", $buildroot;
+    # Note that the xen/kvm vmdisk_rootsize is in MB
+    push @targs, "mount", "-t", "tmpfs", "-osize=${vmdisk_rootsize}M", "none", $buildroot;
     qsystem(@targs) && die("mount tmpfs failed: $!\n");
   }
 
