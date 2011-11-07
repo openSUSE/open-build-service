@@ -809,7 +809,7 @@ class PackageController < ApplicationController
     project = params[:project]
     package = params[:package]
     filename = params[:filename]
-    file.gsub!( /\r\n/, "\n" )
+    params[:file].gsub!( /\r\n/, "\n" )
     begin
       frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
       Directory.free_cache(:project => project, :package => package)
