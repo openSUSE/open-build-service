@@ -286,8 +286,8 @@
     <% javascript_tag do %>
       $('#diff_action').change(function () {
         $('#diff_action option:selected').each(function() {
-          $('diff_action_display').hide();
-          $('#diff_action_" + $(this).attr('value')).show();
+          $('.diff_action_display').addClass("hidden");
+          $('#diff_action_' + $('#diff_action option:selected').attr('value')).removeClass("hidden");
         });
       });
     <% end %>
@@ -295,14 +295,14 @@
   <div>
     <% @diff_per_action.each do |index_and_type, diff| %>
       <% index, _ = index_and_type.split('_', 2) %>
-      <% table_class = "diff_action_display" %>
-      <% table_class += " hidden" if index != '0' %>
+      <% css_class = "diff_action_display" %>
+      <% css_class += " hidden" if index != '0' %>
       <% if diff[:action].source %>
         <% project, package, rev = diff[:action].source.project, diff[:action].source.package, diff[:action].source.rev %>
       <% elsif diff[:action].target # delete requests %>
         <% project, package, rev = diff[:action].target.project, diff[:action].target.package, diff[:action].target.rev %>
       <% end %>
-      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :bugs => diff[:bugs], :source => {:project => project, :package => package, :rev => rev}, :table_id => "diff_action_#{index}", :table_class => table_class}) %>
+      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :bugs => diff[:bugs], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{index_and_type}", :css_class => css_class}) %>
     <% end %>
   </div>
 <% end %>

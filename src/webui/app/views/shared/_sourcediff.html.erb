@@ -25,11 +25,11 @@
   }
 <% end %>
 
-<% table_class ||= nil %>
-<% table_id ||= nil %>
+<% css_class ||= nil %>
+<% css_id ||= nil %>
 <% bugs ||= nil %>
 
-<div>
+<div <%= "class=\"#{css_class}\"".html_safe if css_class %> <%= "id=\"#{css_id}\"".html_safe if css_id %> >
 <% if bugs && bugs.length > 0 %>
   <%# TODO: Anything but nice, move to 'box' when request view is restructured: %>
   <div style="float:right;">
@@ -47,7 +47,7 @@
   <% end %>
 <% end %>
 <% if filenames && filenames.length > 0 %>
-  <table <%= "class=\"#{table_class}\"".html_safe if table_class %> <%= "id=\"#{table_id}\"".html_safe if table_id %> >
+  <table>
     <tbody>
       <% filenames.each_with_index do |filename, index| %>
         <% file_element = files[filename] %>
