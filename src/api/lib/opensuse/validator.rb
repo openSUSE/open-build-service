@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'stringio'
 
 # This module encapsulates XML schema validation for individual controller actions.
 # It allows to verify incoming and outgoing XML data and to set different schemas based
@@ -53,7 +54,14 @@ module ActionController
         opt[:method] = request.method.to_s
         opt[:type] = "response"
         logger.debug "Validate XML response: #{response}"
-        Suse::Validator.validate(opt, response.body.to_s)
+        if response.body.respond_to? :call
+          sio = StringIO.new()
+          response.body.call(nil, sio) # send_file can return a block that takes |response, output|
+          str = sio.string
+        else
+          str = response.body.to_s
+        end
+        Suse::Validator.validate(opt, str)
       end
     end
 
