@@ -23,9 +23,9 @@
   <% end %>
   <%= link_to(image_tag('icons/brick.png'), { :controller => :package, :action => :rdiff,
     :package => @package, :project => @project,
-    :commit => commit[:revision], :linkrev => 'base'}, :style => "margin-left: 2em") %>
+    :rev => commit[:revision], :linkrev => 'base'}, :style => "margin-left: 2em") %>
   <%= link_to('Show diff', :controller => :package, :action => :rdiff,
-    :package => @package, :project => @project, :commit => commit[:revision], :linkrev => 'base') %>
+    :package => @package, :project => @project, :rev => commit[:revision], :linkrev => 'base') %>
 <% else %>
   <i>Revision <%=rev.to_s%> not found</i>
 <% end %>

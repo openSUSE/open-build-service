@@ -1,48 +1,36 @@
-<% @pagetitle = "Changes of Commit #{params[:commit]}"
-   package_bread_crumb("Changes")
--%>
+<% @pagetitle = "Changes" %>
+<% package_bread_crumb("Changes") %>
 
 <%= render :partial => "tabs" %>
 
-<% if params[:commit] %>
-  <h3><%= h @pagetitle %></h3>
+<% if @oproject and @opackage %>
+  <h3>Difference Between Revision <%= @rev %> and <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %></h3>
 <% else %>
-<!-- this is causing a test suite failure when pointing to remote projects.
-  <h2>Diff between <%= link_to(h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %> and <%=h @project.name + "/" + @package.name %></h2>
--->
+  <h3>Changes of Revision <%= @rev %></h3>
 <% end %>
 
-<% if @rdiff.empty? %>
-  <p><i>No difference</i></p>
-<% else %>
-  <% if @addeditlink %>
-    <p>
-      <% link_to(image_tag("icon/package_edit.png", :title => "Edit diff"), :action => :edit_file, :project => @project, :package => @package, :file => @filename) %>
-      <% link_to("Edit diff", :action => :edit_file, :project => @project, :package => @package, :file => @filename) %>
-    </p>
+<% if @last_req %>
+<p>The previous request <%= @last_req %> was declined <%= "%s by %s:" % [fuzzy_time_string(@last_req.state.when), @last_req.state.who ] %>: <%= @last_req.state.comment %></p>
+<% end %>
+
+<% if session[:login] %>
+  <% if @oproject and @opackage %>
+    <% msg = "Submit to #{h(@oproject.to_s + '/' + @opackage.to_s)}" %>
+    <% target_project, target_package = @oproject, @opackage %>
+  <% elsif @rev != @last_rev %>
+    <% msg = "Revert #{h(@project.to_s + '/' + @package.to_s)} to revision #{@rev}" %>
+    <% target_project, target_package = @project, nil %>
+  <% else %>
+    <% msg = nil %>
   <% end %>
-
-  <%= render :partial => "shared/editor", :locals => {:text => @rdiff, :mode => 'diff'} %>
-
-  <% if @lastreq %>
-    <h3>The last request (<%= @lastreq.value(:id) %>) was declined <%= "%s by %s:" % [fuzzy_time_string(@lastreq.state.when), @lastreq.state.who ] %></h3>
-    <p><%= @lastreq.state.comment %></p>
-  <% end %>
-
-  <% if session[:login] %>
-    <h3>Actions</h3>
-    <% if params[:commit] %>
-      <% msg = "Revert #{h(@project.to_s + ' / ' + @package.to_s)} to this revision" %>
-      <% target_project, target_package = @project, nil %>
-    <% else %>
-      <% msg = "Submit these changes to #{h(@oproject.to_s + ' / ' + @opackage.to_s)}" %>
-      <% target_project, target_package = @oproject, @opackage %>
-    <% end %>
+  <% if msg %>
     <p>
-      <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
-        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
-      <%= link_to_remote(msg,
-        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
+    <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
+      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
+    <%= link_to_remote(msg,
+      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
     </p>
   <% end %>
 <% end %>
+
+<%= render(:partial => 'shared/sourcediff', :locals => {:filenames => @filenames, :files => @files, :source => {:project => @project, :package => @package, :rev => @rev}}) %>

@@ -290,46 +290,66 @@ class PackageController < ApplicationController
 
   def rdiff
     required_parameters :project, :package
-    if params[:commit]
-      @rev = params[:commit]
-    else
-      @rev = Package.current_rev(@project, @package.name)
-      required_parameters :opackage, :oproject
-      @opackage = params[:opackage]
-      @oproject = params[:oproject]
+    @last_rev = Package.current_rev(@project, @package.name)
+    if params[:oproject] and params[:opackage]
+      @oproject, @opackage = params[:oproject], params[:opackage]
+      @last_req = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage, :sourceproject => params[:project], :sourcepackage => params[:package])
+      if @last_req and @last_req.state.name != "declined"
+        @last_req = nil # ignore all !declined
+      end
     end
-    @rdiff = ''
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&unified=1"
+    if params[:rev]
+      @rev = params[:rev]
+    else
+      @rev = @last_rev
+    end
+
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&view=xml"
     path += "&linkrev=#{CGI.escape(params[:linkrev])}" if params[:linkrev]
     path += "&rev=#{CGI.escape(@rev)}" if @rev
     path += "&oproject=#{CGI.escape(@oproject)}" if @oproject
     path += "&opackage=#{CGI.escape(@opackage)}" if @opackage
-    path += "&orev=#{CGI.escape(@orev)}" if @orev
+    path += "&orev=#{CGI.escape(params[:orev])}" if params[:orev]
     begin
-      @rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
+      rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
     rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash.now[:error] = message
+      flash.now[:error], _, _ = ActiveXML::Transport.extract_error_message(e)
       return
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash.now[:warn] = message
+      flash.now[:warn], _, _ = ActiveXML::Transport.extract_error_message(e)
       begin
-        @rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
+        rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
       rescue ActiveXML::Transport::Error => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
         flash.now[:warn] = nil
         flash.now[:error] = "Error getting diff: " + message
         return
       end
     end
-    if not params[:commit]
-      @lastreq = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage,
-        :sourceproject => params[:project], :sourcepackage => params[:package])
-      if @lastreq and @lastreq.state.name != "declined"
-        @lastreq = nil # ignore all !declined
+
+    result = ActiveXML::Base.new(rdiff)
+    # Sort files into categories by their ending and add all of them to a hash. We
+    # will later use the sorted and concatenated categories as key index into the per action file hash.
+    changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
+    @files = {}
+    result.each('files/file') do |file_element|
+      if file_element.new
+        filename = file_element.new.name.to_s
+      elsif file_element.old # in case of deleted files
+        filename = file_element.old.name.to_s
       end
+      if filename.ends_with?('.spec')
+        spec_file_keys << filename
+      elsif filename.ends_with?('.changes')
+        changes_file_keys << filename
+      elsif filename.match(/.*.(patch|diff|dif)/)
+        patch_file_keys << filename
+      else
+        other_file_keys << filename
+      end
+      @files[filename] = file_element
     end
+    @filenames = changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort;
   end
 
   def wizard_new
@@ -773,11 +793,11 @@ class PackageController < ApplicationController
 
   def view_file
     @filename = params[:file] || ''
-    @srcmd5 = params[:srcmd5]
+    @rev = params[:rev]
     @addeditlink = false
     if @package.can_edit?( session[:login] )
       begin
-        files = @package.files(@srcmd5, params[:expand])
+        files = @package.files(@rev, params[:expand])
       rescue ActiveXML::Transport::Error => e
         files = []
       end
@@ -789,7 +809,7 @@ class PackageController < ApplicationController
       end
     end
     begin
-      @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @srcmd5)
+      @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @rev)
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :files, :package => @package, :project => @project and return
