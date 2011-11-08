@@ -121,7 +121,7 @@ class RequestController < ApplicationController
       end
     rescue ActiveXML::Transport::Error => e
       project, code = ActiveXML::Transport.extract_error_message(e)
-      flash[:error] = "Unable to fetch diff for #{project}: #{code}"
+      #flash[:error] = "Unable to fetch diff for #{project}: #{code}"
     end
   end
 

@@ -44,7 +44,7 @@
                   <%= src_pack %>
                 <% end %>
               <% else %>
-                <%= link_to(elide(ae.source.project, 64), :controller => :project, :action => :show, :project => ae.source.project) %>
+                <%= link_to_if(Project.exists?(ae.source.project), elide(ae.source.project, 64), :controller => :project, :action => :show, :project => ae.source.project) %>
               <% end %>
             <% end %>
           </td>
