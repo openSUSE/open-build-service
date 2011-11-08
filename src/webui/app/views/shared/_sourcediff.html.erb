@@ -3,7 +3,8 @@
     if ($('#diff_view_' + file_id + '_placeholder').length == 1) {
       $.ajax({
         url: '<%= url_for(:controller => 'request', :action => 'sourcediff') %>',
-        data: { text: $('#diff_view_' + file_id + '_placeholder').html() },
+        type: 'POST',
+        data: { text: $('#diff_view_' + file_id + '_placeholder').text() },
         success: function (data) {
           $('#diff_view_' + file_id).show();
           $('#diff_view_' + file_id + '_placeholder').html(data);
