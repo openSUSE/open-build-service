@@ -174,7 +174,6 @@ class ProjectStatusHelper
         md5
       end
       mypackages[key].changesmd5 = cmd5 if len(cmd5)
-      end
     end if data
   end
 
