@@ -31,9 +31,8 @@ module ActionController
       #   end
       # end
       def validate_action( opt )
-        controller = self.name.match(/^(.*?)Controller/)[1].downcase
         opt.each do |action, action_opt|
-          Suse::Validator.add_schema_mapping(controller, action, action_opt)
+          Suse::Validator.add_schema_mapping(self.controller_path, action, action_opt)
         end
       end
     end
@@ -43,6 +42,7 @@ module ActionController
       opt = params()
       opt[:method] = request.method.to_s
       opt[:type] = "request"
+      logger.debug "Validate XML request: #{request}"
       Suse::Validator.validate(opt, request.raw_post.to_s)
     end
 
@@ -51,7 +51,8 @@ module ActionController
       opt = params()
       opt[:method] = request.method.to_s
       opt[:type] = "response"
-      if response.status.to_s == "200"
+      logger.debug "Validate XML response: #{response}"
+      if response.status.to_s == "200 OK"
         Suse::Validator.validate(opt, response.body.to_s)
       end
     end
@@ -127,26 +128,23 @@ module Suse
 
         schema_base_filename = schema_location + "/" + schema_file
         schema = nil
-        s = Benchmark.realtime do
         if File.exists? schema_base_filename + ".rng"
           schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + ".rng"))
         elsif File.exists? schema_base_filename + ".xsd"
           schema = Nokogiri::XML::Schema(File.open(schema_base_filename + ".xsd"))
         else
-          logger.debug "no schema found, skipping validation"
+          logger.debug "no schema found, skipping validation for #{opt}"
           return true
-        end
         end
 
         if content.nil?
           raise "illegal option; need content for #{schema_base_filename}"
         end
         if content.empty?
-          logger.debug "no content, skipping validation"
+          logger.debug "no content, skipping validation for #{opt}"
           raise ValidationError, "Document is empty, not allowed for #{schema_base_filename}"
         end
 
-        v = Benchmark.realtime do
         begin
           doc = Nokogiri::XML(content, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
           schema.validate(doc).each do |error|
@@ -157,8 +155,6 @@ module Suse
         rescue Nokogiri::XML::SyntaxError => error
           raise ValidationError, "#{opt[:type]} validation error: #{error}"
         end
-        end
-        logger.debug "Validatated #{schema_file} schema:#{s} validate:#{v}"
         return true
       end
     end
