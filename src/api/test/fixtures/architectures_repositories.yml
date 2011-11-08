@@ -82,3 +82,7 @@ architectures_repositories_021:
   position: "1"
   architecture_id: "2"
   repository_id: "144"
+architectures_repositories_022: 
+  position: "0"
+  architecture_id: "1"
+  repository_id: "95"

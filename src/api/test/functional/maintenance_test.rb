@@ -531,10 +531,26 @@ class MaintenanceTests < ActionController::IntegrationTest
            <state name="new" />
          </request>'
     post "/request?cmd=create", rq
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "missing_patchinfo" }
+
+    # add required informations about the update
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&force=1&new_format=1"
+    assert_response :success
+
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request?cmd=create", rq
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "build_not_finished" }
+
+    # ignore build state
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request?cmd=create&ignore_build_state=1", rq
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
 
-    # add a release target
+    # add a release target and remove architecture
     prepare_request_with_user "tom", "thunder"
     get "/source/home:tom:branches:BaseDistro:Update/_meta"
     assert_response :success
@@ -542,11 +558,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.elements['//repository'].add_element 'releasetarget'
     pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro')
     pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistro_repo')
+    pi.elements['//repository'].delete_element 'arch'
     put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
-    post "/request?cmd=create", rq
+    post "/request?cmd=create&ignore_build_state=1", rq
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "repository_without_architecture" }
 
@@ -558,7 +575,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
-    post "/request?cmd=create", rq
+    post "/request?cmd=create&ignore_build_state=1", rq
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "architecture_order_missmatch" }
 

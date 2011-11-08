@@ -288,6 +288,7 @@ class RequestController < ApplicationController
             incident_suffix = "." + action.source.project.gsub(/.*:/, "")
           end
 
+          found_patchinfo = nil
           newPackages = Array.new
           newTargets = Array.new
           packages.each do |pkg|
@@ -300,8 +301,9 @@ class RequestController < ApplicationController
             if action.source.has_attribute? 'rev'
               rev = action.source.rev.to_s
             end
+            data = nil
             while tprj == pkg.db_project.name
-              data = REXML::Document.new( backend_get("/source/#{CGI.escape(tprj)}/#{CGI.escape(tpkg)}") )
+              data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(tpkg)}") )
               e = data.elements["directory/linkinfo"]
               if e
                 tprj = e.attributes["project"]
@@ -320,6 +322,27 @@ class RequestController < ApplicationController
                 end
               else
                 tprj = tpkg = nil
+              end
+            end
+            # do not allow release requests without binaries
+            if action.value("type") == "maintenance_release" and data and params["ignore_build_state"].nil?
+              entries = data.get_elements("directory/entry")
+              entries.each do |entry|
+                next unless entry.attributes["name"] == "_patchinfo"
+                # check for build state and binaries
+                pkg.db_project.repositories.each do |repo|
+                  if repo and repo.architectures.first
+                    binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
+                    l = binaries.get_elements("binarylist/binary")
+                    if l and l.count > 0
+                      found_patchinfo = 1
+                    else
+                      render_error :status => 404, :errorcode => 'build_not_finished',
+                        :message => "patchinfo is not yet build for repository '#{repo.name}'"
+                      return
+                    end
+                  end
+                end
               end
             end
             # Will this be a new package ?
@@ -341,6 +364,11 @@ class RequestController < ApplicationController
             newAction.target.set_attribute("package", tpkg + incident_suffix)
             newAction.source.set_attribute("rev", rev) if rev
             req.add_node newAction.dump_xml
+          end
+          if action.value("type") == "maintenance_release" and found_patchinfo.nil? and params["ignore_build_state"].nil?
+            render_error :status => 400, :errorcode => 'missing_patchinfo',
+              :message => "maintenance release request without patchinfo would release no binaries"
+            return
           end
 
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
