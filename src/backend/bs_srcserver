@@ -6379,6 +6379,24 @@ sub getpackagesourceinfo {
 
 ####################################################################
 
+sub putissuetrackers {
+  my ($cgi) = @_;
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
+  die("upload failed\n") unless $uploaded;
+  my $trackers = readxml("$uploaddir/$$", $BSXML::issue_trackers);
+  unlink("$uploaddir/$$");
+  writexml("$BSConfig::bsdir/.issuetrackers.xml", "$BSConfig::bsdir/.issuetrackers.xml", $trackers, $BSXML::issue_trackers);
+  return $BSStdServer::return_ok;
+}
+
+sub getissuetrackers {
+  my $trackers = readxml("$BSConfig::bsdir/.issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
+  return ($trackers, $BSXML::issue_trackers);
+}
+
+####################################################################
+
 sub hello {
   my ($cgi) = @_;
   return "<hello name=\"Source Repository Ajax Server\" repoid=\"$repoid\" />\n" if $BSStdServer::isajax;
@@ -6482,6 +6500,10 @@ my $dispatches = [
   # service interface, just for listing for now
   '/service' => \&listservices,
 #  '/service/$service' => \&service,
+
+  # issue trackers
+  'PUT:/issue_trackers' => \&putissuetrackers,
+  '/issue_trackers' => \&getissuetrackers,
 
   # build calls for binary files
   '/build' => \&getprojectlist,
