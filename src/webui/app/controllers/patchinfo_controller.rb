@@ -16,10 +16,6 @@ class PatchinfoController < ApplicationController
     
     valid_params = true
     flash[:error] = nil
-    if binaries_selected? params[:binaries]
-      valid_params = false
-      flash[:error] = "|| No binaries selected"
-    end
     if !valid_bugzilla_number? params[:bug]
       valid_params = false
       flash[:error] = "#{flash[:error]}" + "|| Invalid bugzilla number: '#{params[:bugid]}'"
@@ -30,7 +26,7 @@ class PatchinfoController < ApplicationController
     end
     if !valid_description? params[:description]
       valid_params = false
-      flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 100 signs and longer than summary)"
+      flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 50 signs and longer than summary)"
     end
     if params[:category] == "security"
       if params[:cve] != nil
@@ -43,7 +39,11 @@ class PatchinfoController < ApplicationController
 
     if valid_params == true
       filename = "_patchinfo"
-      name = params[:name]
+      if params[:name]
+        name = params[:name]
+      else
+        name = "Update"
+      end
       packager = @project.person.userid
       if params[:cve] != nil
         cvelist = params[:cve]
@@ -100,8 +100,10 @@ class PatchinfoController < ApplicationController
 
       node = Builder::XmlMarkup.new(:indent=>2)
       xml = node.patchinfo(:name => name) do |n|
-        binaries.each do |binary|
-          node.binary(binary)
+        if binaries
+          binaries.each do |binary|
+            node.binary(binary)
+          end
         end
         node.packager    packager
         buglist.each do |bug|
@@ -115,9 +117,15 @@ class PatchinfoController < ApplicationController
         end
         node.summary     summary
         node.description description
-        node.reboot_needed reboot
-        node.relogin_needed relogin
-	node.zypp_restart_needed zypp_restart_needed
+        if reboot
+          node.reboot_needed
+        end
+        if relogin
+          node.relogin_needed
+        end
+        if zypp_restart_needed
+          node.zypp_restart_needed
+        end
       end
       begin
         frontend.put_file( xml, :project => @project,
@@ -190,8 +198,10 @@ class PatchinfoController < ApplicationController
 
   def read_patchinfo
     @binaries = Array.new
-    @file.each_binary do |binaries|
-      @binaries << binaries.text
+    if @file.has_element?("binary")
+      @file.each_binary do |binaries|
+        @binaries << binaries.text
+      end
     end
     @binary = []
     @packager = @file.packager.to_s
@@ -237,36 +247,20 @@ class PatchinfoController < ApplicationController
     @summary = @file.summary.to_s         if @file.has_element? 'summary'
     @description = @file.description.to_s if @file.has_element? 'description'
     if @file.has_element?("relogin_needed")
-      @relogin = @file.relogin_needed.to_s
-      if @relogin == ""
-        @relogin = false
-      elsif @relogin == "true"
-        @relogin = true
-      end
+      @relogin = true
     else
       @relogin = false
     end
     if @file.has_element?("reboot_needed")
-      @reboot = @file.reboot_needed.to_s
-      if @reboot == ""
-        @reboot = false
-      elsif @reboot == "true"
-        @reboot = true
-      end
+      @reboot = true
     else
       @reboot = false
     end
     if @file.has_element?("zypp_restart_needed")
-      @zypp_restart_needed = @file.zypp_restart_needed.to_s
-      if @zypp_restart_needed == ""
-        @zypp_restart_needed = false
-      elsif @zypp_restart_needed == "true"
-        @zypp_restart_needed = true
-      end
-      else
-        @zypp_restart_needed = false
-      end
-
+      @zypp_restart_needed = true
+    else
+      @zypp_restart_needed = false
+    end
   end
 
   def save
@@ -279,6 +273,7 @@ class PatchinfoController < ApplicationController
     end
     required_parameters :project, :package
     file = @file.data
+    flash[:error] = nil
     if !valid_bugzilla_number? params[:bug]
       valid_params = false
       flash[:error] = "|| Invalid bugzilla number: '#{params[:bugid]}'"
@@ -289,7 +284,7 @@ class PatchinfoController < ApplicationController
     end
     if !valid_description? params[:description]
       valid_params = false
-      flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 100 signs and longer than summary)"
+      flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 50 signs and longer than summary)"
     end
     if params[:category] == "security"
       if params[:cve] != nil
@@ -312,7 +307,9 @@ class PatchinfoController < ApplicationController
         cvelist = ""
       end
       @patchinfo.set_cve(cvelist)
-      @patchinfo.set_binaries(binaries, name)
+      if binaries
+        @patchinfo.set_binaries(binaries, name)
+      end
       @patchinfo.category.text = params[:category]
       @patchinfo.summary.text = params[:summary]
       @patchinfo.description.text = params[:description]
@@ -370,10 +367,6 @@ class PatchinfoController < ApplicationController
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end
 
-  def binaries_selected? name
-    name.nil?
-  end
-
   def valid_bugzilla_number? name
     name != nil and name.each do |bug|
       bug =~ /^\d{6,8}$/
@@ -392,7 +385,7 @@ class PatchinfoController < ApplicationController
 
   def valid_description? name
     name != nil and
-      name.length > params[:summary].length and name =~ /^.{100,}$/m
+      name.length > params[:summary].length and name =~ /^.{50,}$/m
   end
 
 

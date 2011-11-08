@@ -61,40 +61,55 @@ class Patchinfo < ActiveXML::Base
   end
 
   def set_relogin(relogin)
-    self.delete_element('relogin_needed')
-    relog = self.add_element('relogin_needed')
-    relog.text = relogin
+    if relogin == "true"
+      if self.has_element('relogin_needed')
+        self.delete_element('relogin_needed')
+      end
+      relog = self.add_element('relogin_needed')
+    end
+    if relogin == "" && self.has_element?('relogin_needed')
+      self.delete_element('relogin_needed')
+    end
   end
 
   def set_reboot(reboot)
-    self.delete_element('reboot_needed')
-    reboot_needed = self.add_element('reboot_needed')
-    reboot_needed.text = reboot
+    if reboot == "true"
+      if self.has_element('reboot_needed')
+        self.delete_element('reboot_needed')
+      end
+      reboot_needed = self.add_element('reboot_needed')
+    end
+    if reboot == "" && self.has_element?('reboot_needed')
+      self.delete_element('reboot_needed')
+    end
   end
 
   def set_zypp_restart_needed(zypp_restart_needed)
-    self.delete_element('zypp_restart_needed')
-    zypp_restart_needed = self.add_element('zypp_restart_needed')
-    zypp_restart_needed.text = zypp_restart_needed
+    if zypp_restart_needed == "true"
+      if self.has_element('zypp_restart_needed')
+        self.delete_element('zypp_restart_needed')
+      end
+      zypp_restart_needed = self.add_element('zypp_restart_needed')
+    end
+    if zypp_restart_needed == "" && self.has_element?('zypp_restart_needed')
+      self.delete_element('zypp_restart_needed')
+    end
   end
  
   def set_binaries(binaries, name)
-    if self.each_binary == nil
-      self.add_element('binaries')
-    end
-    self.each_binary do |b|
-      # delete all binaries which already set
-      self.delete_element(b)
-    end
+    if binaries
+      if self.each_binary == nil
+        self.add_element('binaries')
+      end
+      self.each_binary do |b|
+        # delete all binaries which already set
+        self.delete_element(b)
+      end
     
-    for x in binaries do
-      binary = self.add_element('binary')
-      binary.text = x
+      for x in binaries do
+        binary = self.add_element('binary')
+        binary.text = x
+      end
     end
-
   end
-
-
-
 end
-
