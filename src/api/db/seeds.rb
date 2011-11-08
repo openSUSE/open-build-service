@@ -116,6 +116,7 @@ Configuration.find_or_create_by_title_and_description(:title => "Open Build Serv
 EOT
 )
 
+#FIXME2.4: this is not in sync with backend support, needs discussion before defining a standard, maybe also together with changes support
 puts "Seeding issue trackers with their acronyms..."
 it = IssueTracker.find_or_create_by_name('Boost Trac', :url => 'https://svn.boost.org/trac/boost/', :show_url => 'https://svn.boost.org/trac/boost/ticket/@@@')
 it.acronyms.find_or_create_by_name('boost')
