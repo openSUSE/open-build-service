@@ -165,7 +165,7 @@ class ProjectStatusHelper
       cmd5 = Rails.cache.fetch("changes-%s" % p.value('srcmd5')) do
         directory = Directory.find(:project => proj, :package => packname, :expand => 1)
         changesfile="%s.changes" % packname
-        md5 = ''
+        md5 = nil
         directory.each_entry do |e|
           if e.value(:name) == changesfile
             md5 = e.value(:md5)
@@ -173,7 +173,7 @@ class ProjectStatusHelper
         end
         md5
       end
-      mypackages[key].changesmd5 = cmd5 if len(cmd5)
+      mypackages[key].changesmd5 = cmd5 if cmd5
     end if data
   end
 
