@@ -42,6 +42,7 @@
 <div class="grid_5 omega">
   <%= render :partial => 'contact' %>
   <%= render :partial => 'latest_updates' if (@latest_updates and @anonymous_forbidden.nil?) %>
+  <%= render :partial => 'countdown' %>
   <%= render :partial => 'sponsors' %>
   <%= render :partial => 'feeds' %>
 </div>
