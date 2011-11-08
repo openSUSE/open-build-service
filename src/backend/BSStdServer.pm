@@ -74,7 +74,8 @@ sub authenticate {
     $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});
   }
   return () if grep {$auths{$_}} split(',', $auth);
-  die("500 access denied\n");
+  warn("500 access denied for $peer by \$ipaccess rules in BSConfig\n");
+  die("500 access denied by \$ipaccess rules\n");
 }
 
 sub dispatch {
