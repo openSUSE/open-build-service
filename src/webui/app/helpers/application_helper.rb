@@ -424,7 +424,7 @@ module ApplicationHelper
     end
   end
 
-  def sorted_filenames_and_bugs_from_sourcediff(xml_element)
+  def sorted_filenames_and_bugs_from_sourcediff(xml_element, parse_bugs = true)
     # Sort files into categories by their ending and add all of them to a hash. We
     # will later use the sorted and concatenated categories as key index into the per action file hash.
     changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
@@ -447,28 +447,29 @@ module ApplicationHelper
       end
       files_hash[filename] = file_element
     end
+    ret = {:filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
+           :files => files_hash}
 
-    # Grep for bugs mentioned in changes and spec files
-    # TODO: Get summary from upstream issue tracker to display, needs API support...
-    bugs_mentioned = {}
-    (changes_file_keys + spec_file_keys).each do |file|
-      contents = files_hash[file]
-      if contents
-        IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
-          contents.text.each_line do |line|
-            if line.match(/^[+-].*/) # Only incorporate bugs in added / removed lines
-              line.scan(/#{acronym}\#\d+/).each do |matched_bug|
-                bugs_mentioned[matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
+    if parse_bugs
+      # Grep for bugs mentioned in changes and spec files
+      # TODO: Get summary from upstream issue tracker to display, needs API support...
+      ret[:bugs] = {}
+      (changes_file_keys + spec_file_keys).each do |file|
+        contents = files_hash[file]
+        if contents
+          IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
+            contents.text.each_line do |line|
+              if line.match(/^[+-].*/) # Only incorporate bugs in added / removed lines
+                line.scan(/#{acronym}\#\d+/).each do |matched_bug|
+                  ret[:bugs][matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
+                end
               end
             end
           end
         end
       end
     end
-
-    return {:filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-            :files =>  files_hash,
-            :bugs => bugs_mentioned}
+    return ret
   end
 
 end

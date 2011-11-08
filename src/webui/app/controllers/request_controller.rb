@@ -107,10 +107,15 @@ class RequestController < ApplicationController
         diff_per_action = {}
         # Parse each action and get the it's diff (per file)
         result.each_with_index('/request/action') do |action_element, index|
-          filenames_and_bugs = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff)
-          filenames_and_bugs[:action] = action_element;
+          if action_element.value('type') == 'delete'
+            # Don't show bugs for delete requests, would be to many in the diff and doesn't make sense:
+            parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff, parse_bugs = false)
+          else
+            parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff)
+          end
+          parsed_sourcediff[:action] = action_element;
           # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
-          diff_per_action["#{index}_#{action_element.value('type')}"] = filenames_and_bugs
+          diff_per_action["#{index}_#{action_element.value('type')}"] = parsed_sourcediff
         end
         diff_per_action
       end
