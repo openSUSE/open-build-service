@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issue-tracker>
+  <name>openSUSE Features</name>
+  <show-url>https://features.opensuse.org/@@@</show-url>
+  <url>https://features.opensuse.org/</url>
+  <acronyms>
+    <acronym>
+      <name>Fate</name>
+    </acronym>
+  </acronyms>
+</issue-tracker>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="issue-tracker-element"/>
+  </start>
+
+  <define ns="" name="issue-tracker-element">
+    <element name="issue-tracker">
+      <interleave>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="url">
+          <text/>
+        </element>
+        <element name="show-url">
+          <text/>
+        </element>
+        <ref name="acronyms-element"/>
+      </interleave>
+    </element>
+  </define>
+
+  <define ns="" name="acronyms-element">
+    <element name="acronyms">
+      <oneOrMore>
+        <ref name="acronym-element"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="acronym-element">
+    <element name="acronym">
+      <element name="name">
+        <text/>
+      </element>
+    </element>
+  </define>
+</grammar>
+
+

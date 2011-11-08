@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issue-trackers>
+  <issue-tracker>
+    <name>Novell Bugzilla</name>
+    <show-url>https://bugzilla.novell.com/show_bug.cgi?id=@@issue@@</show-url>
+    <url>http://bugzilla.novell.com</url>
+    <acronyms>
+      <acronym>
+        <name>bnc</name>
+      </acronym>
+      <acronym>
+        <name>Mono</name>
+      </acronym>
+      <acronym>
+        <name>Ximian</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Boost Trac</name>
+    <show-url>https://svn.boost.org/trac/boost/ticket/@@@</show-url>
+    <url>https://svn.boost.org/trac/boost/</url>
+    <acronyms>
+      <acronym>
+        <name>boost</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Clutter Project Bugzilla</name>
+    <show-url>http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@</show-url>
+    <url>http://bugzilla.clutter-project.org/</url>
+    <acronyms>
+      <acronym>
+        <name>bco</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>CPAN Bugs</name>
+    <show-url>http://rt.cpan.org/Public/Bug/Display.html?id=@@@</show-url>
+    <url>https://rt.cpan.org/</url>
+    <acronyms>
+      <acronym>
+        <name>RT</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Debian Bugzilla</name>
+    <show-url>http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@</show-url>
+    <url>http://bugs.debian.org/</url>
+    <acronyms>
+      <acronym>
+        <name>deb</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Freedesktop.org Bugzilla</name>
+    <show-url>https://bugs.freedesktop.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugs.freedesktop.org/</url>
+    <acronyms>
+      <acronym>
+        <name>fdo</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>GCC Bugzilla</name>
+    <show-url>http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@</show-url>
+    <url>http://gcc.gnu.org/bugzilla/</url>
+    <acronyms>
+      <acronym>
+        <name>GCC</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Gnome Bugzilla</name>
+    <show-url>https://bugzilla.gnome.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.gnome.org/</url>
+    <acronyms>
+      <acronym>
+        <name>bgo</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Icculus.org Bugzilla</name>
+    <show-url>https://bugzilla.icculus.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.icculus.org/</url>
+    <acronyms>
+      <acronym>
+        <name>bio</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Kernel.org Bugzilla</name>
+    <show-url>https://bugzilla.kernel.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.kernel.org/</url>
+    <acronyms>
+      <acronym>
+        <name>bko</name>
+      </acronym>
+      <acronym>
+        <name>K</name>
+      </acronym>
+      <acronym>
+        <name>Kernel</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>KDE Bugzilla</name>
+    <show-url>https://bugs.kde.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugs.kde.org/</url>
+    <acronyms>
+      <acronym>
+        <name>kde</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Launchpad,net Bugzilla</name>
+    <show-url>https://bugs.launchpad.net/bugs/@@@</show-url>
+    <url>https://bugs.launchpad.net/bugs/</url>
+    <acronyms>
+      <acronym>
+        <name>blp</name>
+      </acronym>
+      <acronym>
+        <name>lp</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Meego Bugs</name>
+    <show-url>https://bugs.meego.com/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugs.meego.com/</url>
+    <acronyms>
+      <acronym>
+        <name>Meego</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Mozilla Bugzilla</name>
+    <show-url>https://bugzilla.mozilla.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.mozilla.org/</url>
+    <acronyms>
+      <acronym>
+        <name>bmo</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>OpenLDAP Issue Tracker</name>
+    <show-url>http://www.openldap.org/its/index.cgi/Contrib?id=@@@</show-url>
+    <url>http://www.openldap.org/its/</url>
+    <acronyms>
+      <acronym>
+        <name>ITS</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>OpenOffice.org Bugzilla</name>
+    <show-url>http://openoffice.org/bugzilla/show_bug.cgi?id=@@@</show-url>
+    <url>http://openoffice.org/bugzilla/</url>
+    <acronyms>
+      <acronym>
+        <name>i</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>openSUSE Features</name>
+    <show-url>https://features.opensuse.org/@@@</show-url>
+    <url>https://features.opensuse.org/</url>
+    <acronyms>
+      <acronym>
+        <name>Fate</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>RedHat Bugzilla</name>
+    <show-url>https://bugzilla.redhat.com/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.redhat.com/</url>
+    <acronyms>
+      <acronym>
+        <name>rh</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Samba Bugzilla</name>
+    <show-url>https://bugzilla.samba.org/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.samba.org/</url>
+    <acronyms>
+      <acronym>
+        <name>bso</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>SourceForge.net Tracker</name>
+    <show-url>http://sf.net/support/tracker.php?aid=@@@</show-url>
+    <url>http://sf.net/support/</url>
+    <acronyms>
+      <acronym>
+        <name>sf</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Xamarin Bugzilla </name>
+    <show-url>http://bugzilla.xamarin.com/show_bug.cgi?id=@@@</show-url>
+    <url>http://bugzilla.xamarin.com/index.cgi</url>
+    <acronyms>
+      <acronym>
+        <name>Xamarin</name>
+      </acronym>
+    </acronyms>
+  </issue-tracker>
+</issue-trackers>
