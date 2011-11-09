@@ -99,6 +99,15 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-5.0-16.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
+ <distribution vendor="Fedora" version="16" id="fedora-15">
+  <name>Fedora 16</name>
+  <project>openSUSE.org:Fedora:16</project>
+  <reponame>Fedora_16</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
+  <link>http://fedoraproject.org/</link>
+ </distribution>
  <distribution vendor="Fedora" version="15" id="fedora-15">
   <name>Fedora 15</name>
   <project>openSUSE.org:Fedora:15</project>
@@ -106,15 +115,6 @@
   <repository>standard</repository>
   <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
-  <link>http://fedoraproject.org/</link>
- </distribution>
- <distribution vendor="Fedora" version="14" id="fedora-14">
-  <name>Fedora 14</name>
-  <project>openSUSE.org:Fedora:14</project>
-  <reponame>Fedora_14</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-14-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-14-16.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
  <distribution vendor="ScientificLinux" version="ScientificLinux-6" id="ScientificLinux-RHEL-6">
