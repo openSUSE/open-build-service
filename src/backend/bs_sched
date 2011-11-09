@@ -1390,7 +1390,7 @@ sub compile_exportfilter {
 #
 
 sub update_dst_full {
-  my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath) = @_;
+  my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
@@ -1492,7 +1492,15 @@ sub update_dst_full {
   my $filter;
   # argh, this slows us down a bit
   my $bconf;
-  $bconf = getconfig($myarch, $prpsearchpath) if $prpsearchpath;
+  if ($fullcache) {
+    sync_fullcache($fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
+    $fullcache->{'prp'} = $prp;
+  }
+  if ($prpsearchpath) {
+    $bconf = $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
+    $bconf ||= getconfig($myarch, $prpsearchpath);
+    $fullcache->{'config'} = $bconf if $fullcache;
+  }
   $filter = $bconf->{'exportfilter'} if $bconf;
   undef $filter if $filter && !%$filter;
   $filter ||= $default_exportfilters{$myarch};
@@ -1579,11 +1587,18 @@ sub update_dst_full {
     return;
   }
 
-  my $pool = BSSolv::pool->new();
+  my $pool;
   my $satrepo;
-  eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
   my %old;
-  %old = $satrepo->getpathid() if $satrepo;
+  if ($fullcache && $fullcache->{'old'}) {
+    $pool = $fullcache->{'pool'};
+    $satrepo = $fullcache->{'satrepo'};
+    %old = %{$fullcache->{'old'}};
+  } else {
+    $pool = BSSolv::pool->new();
+    eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
+    %old = $satrepo->getpathid() if $satrepo;
+  }
 
   # move em over into :full
   mkdir_p("$gdst/:full") if @movetofull && ! -d "$gdst/:full";
@@ -1651,6 +1666,38 @@ sub update_dst_full {
   }
   
   mkdir_p($gdst) unless -d $gdst;
+  if ($fullcache) {
+    # delayed writing of the solv file, just update the fullcache
+    $fullcache->{'prp'} = $prp;
+    $fullcache->{'pool'} = $pool;
+    $fullcache->{'satrepo'} = $satrepo if $satrepo;
+    $fullcache->{'old'} = \%old;
+  } else {
+    if ($satrepo) {
+      $satrepo->updatefrombins("$gdst/:full", %old);
+    } else {
+      $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
+    }
+    $satrepo->tofile("$gdst/:full.solv.new");
+    rename("$gdst/:full.solv.new", "$gdst/:full.solv") || die("rename $gdst/:full.solv.new $gdst/:full.solv: $!\n");
+  }
+  delete $repodatas{$prp}->{'solv'};
+}
+
+sub sync_fullcache {
+  my ($fullcache) = @_;
+
+  return unless $fullcache;
+  if (!$fullcache->{'old'}) {
+    %$fullcache = ();
+    return;
+  }
+  my $prp = $fullcache->{'prp'};
+  my $gdst = "$reporoot/$prp/$myarch";
+  mkdir_p($gdst) unless -d $gdst;
+  my $pool = $fullcache->{'pool'};
+  my $satrepo = $fullcache->{'satrepo'};
+  my %old = %{$fullcache->{'old'}};
   if ($satrepo) {
     $satrepo->updatefrombins("$gdst/:full", %old);
   } else {
@@ -1659,6 +1706,7 @@ sub update_dst_full {
   $satrepo->tofile("$gdst/:full.solv.new");
   rename("$gdst/:full.solv.new", "$gdst/:full.solv") || die("rename $gdst/:full.solv.new $gdst/:full.solv: $!\n");
   delete $repodatas{$prp}->{'solv'};
+  %$fullcache = ();
 }
 
 sub addjobhist {
@@ -2331,10 +2379,10 @@ sub addrepo_remote {
 #        $js        - job status information (BSXML::jobstatus)
 #        $changed   - reference to changed hash, mark prp if
 #                     we changed the repository
-#        $pdata     - package data
+#        $fullcache - store data for delayed writing of :full.solv
 #
 sub jobfinished {
-  my ($job, $js, $changed) = @_;
+  my ($job, $js, $changed, $fullcache) = @_;
 
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -2354,6 +2402,9 @@ sub jobfinished {
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
+
+  sync_fullcache($fullcache) if $fullcache && $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;	# hey!
+  
   my $now = time(); # ensure that we use the same time in all logs
   if ($info->{'arch'} ne $myarch) {
     print "  - $job has bad arch\n";
@@ -2483,7 +2534,7 @@ sub jobfinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -4025,6 +4076,119 @@ sub updaterelsyncmax {
   return $changed;
 }
 
+
+sub setupremotewatcher {
+  my ($remoteurl, $watchremote, $start) = @_;
+  if ($start) {
+    print "setting up watcher for $remoteurl, start=$start\n";
+  } else {
+    print "setting up watcher for $remoteurl\n";
+  }
+  # collaps filter list, watch complete project if more than 3 packages are watched
+  my @filter;
+  my %filterpackage;
+  for (sort keys %$watchremote) {
+    if (substr($_, 0, 8) eq 'package/') {
+      my @s = split('/', $_);
+      if (!defined($s[2])) {
+	unshift @{$filterpackage{$s[1]}}, undef;
+      } else {
+	push @{$filterpackage{$s[1]}}, $_;
+      }
+    } else {
+      push @filter, $_;
+    }
+  }
+  for (sort keys %filterpackage) {
+    if (!defined($filterpackage{$_}->[0]) || @{$filterpackage{$_}} > 3) {
+      push @filter, "package/$_";
+    } else {
+      push @filter, @{$filterpackage{$_}};
+    }
+  }
+  my $param = {
+    'uri' => "$remoteurl/lastevents",
+    'async' => 1,
+    'request' => 'POST',
+    'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
+    'proxy' => $proxy,
+  };
+  my @args;
+  push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;
+  push @args, map {"filter=$_"} @filter;
+  push @args, "start=$start" if $start;
+  my $ret;
+  eval {
+    $ret = BSRPC::rpc($param, $BSXML::events, @args);
+  };
+  if ($@) {
+    warn($@);
+    print "retrying in 60 seconds\n";
+    $ret = {'retry' => time() + 60};
+  }
+  $ret->{'remoteurl'} = $remoteurl;
+  return $ret;
+}
+
+sub getremoteevents {
+  my ($watcher, $watchremote, $starthash) = @_;
+
+  my $remoteurl = $watcher->{'remoteurl'};
+  my $start = $starthash->{$remoteurl};
+  print "response from watcher for $remoteurl\n";
+  my $ret;
+  eval {
+    $ret = BSRPC::rpc($watcher);
+  };
+  if ($@) {
+    warn $@;
+    close($watcher->{'socket'}) if defined $watcher->{'socket'};
+    delete $watcher->{'socket'};
+    $watcher->{'retry'} = time() + 60;
+    print "retrying in 60 seconds\n";
+    return ();
+  }
+  my @remoteevents;
+  if ($ret->{'sync'} && $ret->{'sync'} eq 'lost') {
+    # ok to lose sync on call with no start (actually not, FIXME)
+    if ($start) {
+      print "lost sync with server, was at $start\n";
+      print "next: $ret->{'next'}\n" if $ret->{'next'};
+      # synthesize all events we watch
+      for my $watch (sort keys %$watchremote) {
+	my $projid = $watchremote->{$watch};
+	next unless defined $projid;
+	my @s = split('/', $watch);
+	if ($s[0] eq 'project') {
+	  push @remoteevents, {'type' => 'project', 'project' => $projid};
+	} elsif ($s[0] eq 'package') {
+	  push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
+	} elsif ($s[0] eq 'repository') {
+	  push @remoteevents, {'type' => 'repository', 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
+	}
+      }
+    }
+  }
+  for my $ev (@{$ret->{'event'} || []}) {
+    next unless $ev->{'project'};
+    my $watch;
+    if ($ev->{'type'} eq 'project') {
+      $watch = "project/$ev->{'project'}";
+    } elsif ($ev->{'type'} eq 'package') {
+      $watch = "package/$ev->{'project'}/$ev->{'package'}";
+    } elsif ($ev->{'type'} eq 'repository') {
+      $watch = "repository/$ev->{'project'}/$ev->{'repository'}/$myarch";
+    } else {
+      next;
+    }
+    my $projid = $watchremote->{$watch};
+    next unless defined $projid;
+    push @remoteevents, {%$ev, 'project' => $projid};
+  }
+  $starthash->{$remoteurl} = $ret->{'next'} if $ret->{'next'};
+  return @remoteevents;
+}
+
 ##########################################################################
 ##########################################################################
 ##
@@ -4219,77 +4383,23 @@ while(1) {
     next;
   }
 
+  # delete no longer needed or outdated remotewatchers
   for my $remoteurl (sort keys %remotewatchers) {
     my $watcher = $remotewatchers{$remoteurl};
-    if (!$watchremote{$remoteurl}) {
-      close $watcher->{'socket'};
-      delete $remotewatchers{$remoteurl};
-      next;
-    }
-    my $watchlist = join("\0", sort keys %{$watchremote{$remoteurl}});
-    if ($watchlist ne $watcher->{'watchlist'}) {
-      close $watcher->{'socket'};
+    if (!$watchremote{$remoteurl} || join("\0", sort keys %{$watchremote{$remoteurl}}) ne $watcher->{'watchlist'}) {
+      close $watcher->{'socket'} if defined $watcher->{'socket'};
       delete $remotewatchers{$remoteurl};
       next;
     }
   }
 
+  # create watchers
   for my $remoteurl (sort keys %watchremote) {
-    if ($remotewatchers{$remoteurl}) {
-      next;
+    if (!$remotewatchers{$remoteurl}) {
+      my $watcher = setupremotewatcher($remoteurl, $watchremote{$remoteurl}, $watchremote_start{$remoteurl});
+      $watcher->{'watchlist'} = join("\0", sort keys %{$watchremote{$remoteurl}});
+      $remotewatchers{$remoteurl} = $watcher;
     }
-    if ($watchremote_start{$remoteurl}) {
-      print "setting up watcher for $remoteurl, start=$watchremote_start{$remoteurl}\n";
-    } else {
-      print "setting up watcher for $remoteurl\n";
-    }
-    my $watchlist = join("\0", sort keys %{$watchremote{$remoteurl}});
-    # collaps filter list, watch complete project if more than 3 packages are watched
-    my @filter;
-    my %filterpackage;
-    for (sort keys %{$watchremote{$remoteurl}}) {
-      if (substr($_, 0, 8) eq 'package/') {
-        my @s = split('/', $_);
-	if (!defined($s[2])) {
-	  unshift @{$filterpackage{$s[1]}}, undef;
-	} else {
-	  push @{$filterpackage{$s[1]}}, $_;
-	}
-      } else {
-	push @filter, $_;
-      }
-    }
-    for (sort keys %filterpackage) {
-      if (!defined($filterpackage{$_}->[0]) || @{$filterpackage{$_}} > 3) {
-	push @filter, "package/$_";
-      } else {
-	push @filter, @{$filterpackage{$_}};
-      }
-    }
-    my $param = {
-      'uri' => "$remoteurl/lastevents",
-      'async' => 1,
-      'request' => 'POST',
-      'timeout' => 900, # 15 minutes timeout
-      'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
-      'proxy' => $proxy,
-    };
-    my @args;
-    push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;
-    push @args, map {"filter=$_"} @filter;
-    push @args, "start=$watchremote_start{$remoteurl}" if $watchremote_start{$remoteurl};
-    my $ret;
-    eval {
-      $ret = BSRPC::rpc($param, $BSXML::events, @args);
-    };
-    if ($@) {
-      warn($@);
-      print "retrying in 60 seconds\n";
-      $ret = {'retry' => time() + 60};
-    }
-    $ret->{'watchlist'} = $watchlist;
-    $ret->{'remoteurl'} = $remoteurl;
-    $remotewatchers{$remoteurl} = $ret;
   }
 
   my $dummy;
@@ -4315,63 +4425,14 @@ while(1) {
     $gotevent = 1 if @readok;
     for my $watcher (@readok) {
       my $remoteurl = $watcher->{'remoteurl'};
-      next if $remoteurl eq 'ping';
+      next if $watcher->{'remoteurl'} eq 'ping';
       if ($watcher->{'retry'}) {
         print "retrying watcher for $remoteurl\n";
 	delete $remotewatchers{$remoteurl};
 	next;
       }
-      print "response from watcher for $remoteurl\n";
-      my $ret;
-      eval {
-        $ret = BSRPC::rpc($watcher);
-      };
-      if ($@) {
-        warn $@;
-        close($watcher->{'socket'}) if $watcher->{'socket'};
-	delete $watcher->{'socket'};
-        $watcher->{'retry'} = time() + 60;
-	print "retrying in 60 seconds\n";
-	next;
-      }
-      if ($ret->{'sync'} && $ret->{'sync'} eq 'lost') {
-        # ok to lose sync on call with no start (actually not, FIXME)
-        if ($watchremote_start{$remoteurl}) {
-	  print "lost sync with server, was at $watchremote_start{$remoteurl}\n";
-	  print "next: $ret->{'next'}\n" if $ret->{'next'};
-	  # synthesize all events we watch
-	  for my $watch (sort keys %{$watchremote{$remoteurl} || {}}) {
-	    my $projid = $watchremote{$remoteurl}->{$watch};
-	    next unless defined $projid;
-	    my @s = split('/', $watch);
-	    if ($s[0] eq 'project') {
-	      push @remoteevents, {'type' => 'project', 'project' => $projid};
-	    } elsif ($s[0] eq 'package') {
-	      push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
-	    } elsif ($s[0] eq 'repository') {
-	      push @remoteevents, {'type' => 'repository', 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
-	    }
-	  }
-	}
-      }
-      for my $ev (@{$ret->{'event'} || []}) {
-	next unless $ev->{'project'};
-	my $watch;
-	if ($ev->{'type'} eq 'project') {
-	  $watch = "project/$ev->{'project'}";
-	} elsif ($ev->{'type'} eq 'package') {
-	  $watch = "package/$ev->{'project'}/$ev->{'package'}";
-	} elsif ($ev->{'type'} eq 'repository') {
-	  $watch = "repository/$ev->{'project'}/$ev->{'repository'}/$myarch";
-	} else {
-	  next;
-	}
-	my $projid = $watchremote{$remoteurl}->{$watch};
-	next unless defined $projid;
-	push @remoteevents, {%$ev, 'project' => $projid};
-      }
-      $watchremote_start{$remoteurl} = $ret->{'next'} if $ret->{'next'};
-      delete $remotewatchers{$remoteurl};
+      push @remoteevents, getremoteevents($watcher, $watchremote{$remoteurl}, \%watchremote_start);
+      delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};
     }
   } else {
     fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
@@ -4408,6 +4469,7 @@ while(1) {
     }
     $slept += time() - $sleepstart;
   }
+
   if ($gotevent) {
     die if $testprojid;
     $gotevent = 0;
@@ -4416,37 +4478,43 @@ while(1) {
     1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
     fcntl(PING,F_SETFL,0);
 
-    # check for events
-    my @events = ls($myeventdir);
-    @events = grep {!/^\./} @events;
-    @events = sort @events;
+    my @events = @remoteevents;
+    # check eventdir for new events
+    for my $evfilename (sort(ls($myeventdir))) {
+      next if $evfilename =~ /^\./;
+      my $ev;
+      if ($evfilename =~ /^finished:(.*)/) {
+        $ev = {'type' => 'built', 'job' => $1};
+      } else {
+        $ev = readxml("$myeventdir/$evfilename", $BSXML::event, 1);
+        if (!$ev) {
+	  print "$evfilename: bad xml\n";
+	  unlink("$myeventdir/$evfilename");
+	  next;
+        }
+      }
+      $ev->{'evfilename'} = $evfilename;
+      push @events, $ev;
+    }
 
     my %fetchprojpacks;
     my %fetchprojpacks_nodelay;
     my %deepcheck;
-    my @lateevents;
 
-    while (@events || @remoteevents || @lateevents) {
-      my $ev;
-      if (@events) {
-        my $event = shift @events;
-        print "event $event \n".@events." left)\n";
-        if ($event =~ /^finished:(.*)/) {
-	  $ev = {'type' => 'built', 'job' => $1};
-        } else {
-	  $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
-        }
-	$ev->{'evfilename'} = "$myeventdir/$event";
-	if ($ev->{'type'} eq 'uploadbuild') {
-	  push @lateevents, $ev;
-	  next;
-	}
-      } elsif (@remoteevents) {
-        $ev = shift @remoteevents;
-      } elsif (@lateevents) {
-        $ev = shift @lateevents;
-      }
-      next unless $ev;
+    if (@events > 1) {
+      # sort events a bit, exit events go first ;-)
+      # uploadbuild events must go last
+      my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1);
+      @events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) || 
+		      $a->{'type'} cmp $b->{'type'} ||
+		      ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
+		      ($a->{'job'} || '') cmp ($b->{'job'} || '')
+                     } @events;
+    }
+
+    my $fullcache;
+    while (@events) {
+      my $ev = shift @events;
       $ev->{'type'} ||= 'unknown';
 
       if ($ev->{'type'} eq 'uploadbuild' && $ev->{'job'}) {
@@ -4469,8 +4537,13 @@ while(1) {
 	}
       }
 
-      unlink($ev->{'evfilename'}) if $ev->{'evfilename'};
+      unlink("$myeventdir/$ev->{'evfilename'}") if $ev->{'evfilename'};
       delete $ev->{'evfilename'};
+
+      if ($ev->{'type'} ne 'built' && $fullcache) {
+	sync_fullcache($fullcache);
+	undef $fullcache;
+      }
 
       if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import' || $ev->{'type'} eq 'uploadbuild') {
 	my $job = $ev->{'job'};
@@ -4487,7 +4560,8 @@ while(1) {
 	  next;
 	}
         if ($ev->{'type'} eq 'built') {
-	  jobfinished($job, $js, \%changed_med);
+	  $fullcache = {} if !$fullcache && $events[0] && $events[0]->{'type'} eq 'built';
+	  jobfinished($job, $js, \%changed_med, $fullcache);
         } elsif ($ev->{'type'} eq 'uploadbuild') {
 	  uploadbuildevent($job, $js, \%changed_med);
 	} else {
@@ -4713,6 +4787,7 @@ while(1) {
 
       print "unknown event type: $ev->{'type'}\n";
     }
+    sync_fullcache($fullcache) if $fullcache && $fullcache->{'prp'};
 
     if (%fetchprojpacks) {
       for my $projid (sort keys %fetchprojpacks) {
@@ -4869,6 +4944,7 @@ while(1) {
     BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
   }
   %changed_dirty = ();
+
   my @ltim = localtime(time);
   my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
 
