@@ -40,6 +40,9 @@
                 <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
                 <% if Package.exists?(ae.source.project, ae.source.package) %>
                   <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                  <% if ae.source.has_attribute?(:rev) && ae.source.rev != Package.current_rev(ae.source.project, ae.source.package) %>
+                  <%= link_to("(r#{ae.source.rev})", :controller => :package, :action => :files, :project => ae.source.project, :package => ae.source.package, :rev => ae.source.rev) %>
+                  <% end %>
                 <% else %>
                   <%= src_pack %>
                 <% end %>
