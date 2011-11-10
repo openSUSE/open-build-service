@@ -1060,7 +1060,6 @@ class PackageController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       @meta = params[:meta]
-      edit_meta
       return
     end
     
