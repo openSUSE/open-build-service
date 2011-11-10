@@ -5,8 +5,8 @@ class IssueTrackersController < ApplicationController
   validate_action :index => {:method => :get, :response => :issue_trackers}
   validate_action :show => {:method => :get, :response => :issue_tracker}
   validate_action :create => {:method => :post, :request => :issue_tracker, :response => :issue_tracker}
-  validate_action :update => {:method => :put, :request => :issue_tracker}
-  validate_action :destroy => {:method => :delete, :request => :issue_tracker}
+  validate_action :update => {:method => :put, :request => :issue_tracker, :response => :status}
+  validate_action :destroy => {:method => :delete, :response => :status}
 
   $render_params = { :include => { :acronyms => { :except => [:id, :issue_tracker_id] }}, :except => :id, :skip_types => true }
 
