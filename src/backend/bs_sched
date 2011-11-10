@@ -3536,6 +3536,7 @@ sub rebuildpatchinfo {
   my $bininfo = '';
   my $updateinfodata;
   my %updateinfodata_tocopy;
+  my %binaryfilter = map {$_ => 1} @{$patchinfo->{'binary'} || []};
   
   if (-s "$reporoot/$prp/$myarch/$packid/.updateinfodata") {
     $updateinfodata = BSUtil::retrieve("$reporoot/$prp/$myarch/$packid/.updateinfodata");
@@ -3573,7 +3574,6 @@ sub rebuildpatchinfo {
         my $error = "link $from/$bin $jobdatadir/$bin: $!\n";
         return ('broken', $error);
       }
-      $donebins{$bin} = $tocopy;
       my $d;
       eval {
         $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
@@ -3582,6 +3582,11 @@ sub rebuildpatchinfo {
       if (@$ || !$d) {
         return ('broken', "$bin: bad rpm");
       }
+      if (%binaryfilter && !$binaryfilter{$d->{'name'}}) {
+        unlink("$jobdatadir/$bin");
+        next;
+      }
+      $donebins{$bin} = $tocopy;
       $bininfo .= "$d->{'hdrmd5'}  $bin\n";
       my $upd = {
 	'name' => $d->{'name'},
