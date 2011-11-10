@@ -3542,6 +3542,10 @@ sub rebuildpatchinfo {
     $updateinfodata = BSUtil::retrieve("$reporoot/$prp/$myarch/$packid/.updateinfodata");
     %updateinfodata_tocopy = map {$_ => 1} @{$updateinfodata->{'packages'} || []};
   }
+
+  # mark incomplete patchinfos as broken
+  return ('broken', "patchinfo lacks category") unless $patchinfo->{'category'};
+
   for my $tocopy (@tocopy) {
     my ($arch, $apackid) = split('/', $tocopy, 2);
     my @bins;
@@ -3606,9 +3610,9 @@ sub rebuildpatchinfo {
   my $update = {};
   $update->{'status'} = 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
-  $update->{'type'} = $patchinfo->{'category'} || 'bugfix';
   $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
   $update->{'id'} = $patchinfo->{'incident'} || $patchinfo->{'name'};
+  $update->{'type'} = $patchinfo->{'category'};
   $update->{'title'} = $patchinfo->{'summary'};
   $update->{'description'} = $patchinfo->{'description'};
   # FIXME: do not guess the release element!
