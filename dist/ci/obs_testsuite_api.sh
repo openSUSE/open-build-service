@@ -89,6 +89,10 @@ mkdir coverage
 echo "Invoke rake"
 rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
 
+echo "Output test.log"
+cat src/api/log/test.log
+echo
+
 echo "Remove unneded files to save disc space"
 rm -rf src/api/log/* \
        src/api/tmp/*
