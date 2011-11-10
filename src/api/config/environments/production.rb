@@ -64,6 +64,16 @@ LDAP_SEARCH_AUTH=""
 #
 # Also note that openLDAP must be configured to use the memberOf overlay
 
+# By default any LDAP user can be used to authenticate to the OBS
+# In some deployments this may be too broad and certain criteria should
+# be met; eg OBS database user table
+# This checks the existence of user in OBS database first before query LDAP.
+# If the user doesn't exist in OBS database,
+# it simply skipped LDAP query.
+# If the user exists in OBS database,
+# it continues to query LDAP and checks for LDAP username/password.
+#LDAP_OBSDB_FILTER = :on
+
 # How to verify:
 #   :ldap = attempt to bind to ldap as user using supplied credentials
 #   :local = compare the credentials supplied with those in 
