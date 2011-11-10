@@ -26,10 +26,8 @@ class ApplicationController < ActionController::Base
 
   helper RbacHelper
 
-  before_filter :validate_xml_request, :add_api_version
-  if defined?( RESPONSE_SCHEMA_VALIDATION ) && RESPONSE_SCHEMA_VALIDATION == true
-    after_filter :validate_xml_response
-  end
+
+  before_filter :validate_xml, :add_api_version
 
   if Rails.env.test?
     before_filter :start_test_backend
@@ -69,6 +67,13 @@ class ApplicationController < ActionController::Base
   hide_action :start_test_backend
 
   protected
+  def validate_xml
+    validate_xml_request
+    if defined?( RESPONSE_SCHEMA_VALIDATION ) && RESPONSE_SCHEMA_VALIDATION == true && ['*/*', 'xml'].include?(request.format)
+      validate_xml_response
+    end
+  end
+
   def set_current_user
     User.current = nil
     User.currentID = nil
