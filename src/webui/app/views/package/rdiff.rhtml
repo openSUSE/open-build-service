@@ -13,7 +13,7 @@
 <p>The previous request <%= @last_req %> was declined <%= "%s by %s:" % [fuzzy_time_string(@last_req.state.when), @last_req.state.who ] %> <%= @last_req.state.comment %></p>
 <% end %>
 
-<% if session[:login] %>
+<% if session[:login] && @filenames && !@filenames.empty? %>
   <% if @oproject and @opackage %>
     <% msg = "Submit to #{h(@oproject.to_s + '/' + @opackage.to_s)}" %>
     <% target_project, target_package = @oproject, @opackage %>
