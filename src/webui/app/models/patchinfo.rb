@@ -85,14 +85,14 @@ class Patchinfo < ActiveXML::Base
   end
 
   def set_zypp_restart_needed(zypp_restart_needed)
+    if zypp_restart_needed == "" && self.has_element?('zypp_restart_needed')
+      self.delete_element('zypp_restart_needed')
+    end
     if zypp_restart_needed == "true"
-      if self.has_element('zypp_restart_needed')
+      if self.has_element?('zypp_restart_needed')
         self.delete_element('zypp_restart_needed')
       end
       zypp_restart_needed = self.add_element('zypp_restart_needed')
-    end
-    if zypp_restart_needed == "" && self.has_element?('zypp_restart_needed')
-      self.delete_element('zypp_restart_needed')
     end
   end
  
