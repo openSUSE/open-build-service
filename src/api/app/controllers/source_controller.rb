@@ -1035,6 +1035,8 @@ class SourceController < ApplicationController
          validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
       elsif params[:file] == "_service"
          validator = Suse::Validator.validate( "service", request.raw_post.to_s)
+      elsif params[:file] == "_patchinfo"
+         validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
       end
 
       if params[:file] == "_link"
@@ -1541,30 +1543,24 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
     project_name = params[:project]
-    new_format = params[:new_format]
+    # a new_format argument may be given but we don't support the old (and experimental marked) format
+    # anymore
 
     pro = DbProject.find_by_name project_name
 
     name=nil
     maintenanceID=nil
-    pkg_name = "_patchinfo:"
-    pkg_name = "patchinfo" if new_format
-    if new_format
-      if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
-        # this is a maintenance project, the sub project name is the maintenance ID
-        maintenanceID = pro.name.gsub(/.*:/, '')
-      end
-    elsif params[:name]
-      name=params[:name]
-      pkg_name = "_patchinfo:" + name
-    else
-      name=DbProject.find_by_name( params[:project] ).db_packages[0].name
-      name.gsub!(/\..*/, '')
-      pkg_name = "_patchinfo:" + name
+    pkg_name = "patchinfo"
+
+    if params[:name]
+      pkg_name = params[:name]
+    end
+
+    if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
+      # this is a maintenance project, the sub project name is the maintenance ID
+      maintenanceID = pro.name.gsub(/.*:/, '')
     end
     patchinfo_path = "#{request.path}/#{pkg_name}"
-
-    # FIXME: check for still building packages
 
     # create patchinfo package
     if not DbPackage.exists_by_project_and_name( params[:project], pkg_name )
@@ -1577,27 +1573,12 @@ class SourceController < ApplicationController
       # shall we do a force check here ?
     end
 
-    # request binaries in project from backend
-    binaries = Array.new
-    unless new_format
-      binaries = list_all_binaries_in_path("/build/#{params[:project]}")
-
-      if binaries.length < 1 and not params[:force]
-        render_error :status => 400, :errorcode => "no_matched_binaries",
-          :message => "No binary packages were found in project repositories"
-        return
-      end
-    end
-
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
     attrs = { }
     attrs[:incident] = maintenanceID if maintenanceID 
     attrs[:name] = name if name 
     xml = node.patchinfo(attrs) do |n|
-      binaries.each do |binary|
-        node.binary(binary)
-      end
       node.packager    @http_user.login
       node.bugzilla    ""
       node.category    ""

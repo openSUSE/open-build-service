@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="patchinfo-element"/>
+  </start>
+
+  <define ns="" name="patchinfo-element">
+    <element name="patchinfo">
+      <interleave>
+        <attribute name="incident">
+          <data type="string"/>
+        </attribute>
+        <optional>
+          <attribute name="name">
+            <data type="string"/>
+          </attribute>
+          <attribute name="version">
+            <data type="string"/>
+          </attribute>
+        </optional>
+
+        <zeroOrMore>
+          <element name="package">
+            <text/>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <element name="binary">
+            <text/>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="bugzilla-element"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="cve-element"/>
+        </zeroOrMore>
+
+        <element name="category"> 
+          <ref name="patchinfo-categories" />
+        </element>
+        <element name="rating"> 
+          <ref name="patchinfo-ratings" />
+        </element>
+        <element name="summary"> 
+          <text/>
+        </element>
+        <element name="description"> 
+          <text/>
+        </element>
+        <element name="packager"> 
+          <text/>
+        </element>
+
+        <optional>
+          <element name="reboot_needed"> 
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="relogin_needed"> 
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="zypp_restart_needed"> 
+            <empty/>
+          </element>
+        </optional>
+
+      </interleave>
+    </element>
+  </define>
+
+  <define ns="" name="bugzilla-element">
+    <element name="bugzilla">
+      <optional>
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+
+  <define ns="" name="cve-element">
+    <element name="CVE">
+      <text/>
+    </element>
+  </define>
+
+  <define ns="" name="patchinfo-ratings">
+    <choice>
+      <value>low</value>
+      <value>moderate</value>
+      <value>important</value>
+      <value>critical</value>
+    </choice>
+  </define>
+
+  <define ns="" name="patchinfo-categories">
+    <choice>
+      <value>security</value>
+      <value>recommended</value>
+      <value>optional</value>
+      <value>feature</value>
+    </choice>
+  </define>
+
+</grammar>
