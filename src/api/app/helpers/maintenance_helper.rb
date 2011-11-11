@@ -100,7 +100,7 @@ module MaintenanceHelper
     if mi
       id_template = nil
       if a = mi.maintenance_db_project.find_attribute("OBS", "MaintenanceIdTemplate")
-         id_template = a.values[0]
+         id_template = a.values[0].value
       end
       updateinfoId = mi.getUpdateinfoId( id_template )
     end

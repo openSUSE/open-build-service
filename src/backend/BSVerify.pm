@@ -83,10 +83,10 @@ sub verify_patchinfo_complete {
   # This verifies all necessary content to create a patchinfo repo
   my $p = $_[0];
   verify_patchinfo( $p );
-  die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
-  for my $id (@{$p->{'bugzilla'}}){
-    die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]+$/;
-  }
+#  die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
+#  for my $id (@{$p->{'bugzilla'}}){
+#    die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]+$/;
+#  }
   die("No summary defined in _patchinfo") unless $p->{'summary'};
   die("No description defined in _patchinfo") unless $p->{'description'};
   my %allowed_categories = map {$_ => 1} qw{security normal optional feature};

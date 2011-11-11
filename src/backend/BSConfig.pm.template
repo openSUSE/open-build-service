@@ -35,8 +35,10 @@ our $ipaccess = {
 # defined list of supported bugzilla servers:
 our $bugreportid_url = {
    '*' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",       # default is SUSE/Novell/Attachmate bugzilla
+   'bnc' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",
    'suse' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",
    'novell' => "https://bugzilla.novell.com/show_bug.cgi?id=%ID%",
+   'CVE' => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=%ID%",
    'kde' => "http://bugs.kde.org/show_bug.cgi?id=%ID%",
    'gnome' => "https://bugzilla.gnome.org//show_bug.cgi?id=%ID%",
    'mozilla' => "https://bugzilla.mozilla.org//show_bug.cgi?id=%ID%",

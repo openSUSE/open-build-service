@@ -10,13 +10,12 @@
   <define ns="" name="patchinfo-element">
     <element name="patchinfo">
       <interleave>
-        <attribute name="incident">
-          <data type="string"/>
-        </attribute>
         <optional>
-          <attribute name="name">
+          <attribute name="incident">
             <data type="string"/>
           </attribute>
+        </optional>
+        <optional>
           <attribute name="version">
             <data type="string"/>
           </attribute>
@@ -33,10 +32,7 @@
           </element>
         </zeroOrMore>
         <zeroOrMore>
-          <ref name="bugzilla-element"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="cve-element"/>
+          <ref name="issue-element"/>
         </zeroOrMore>
 
         <element name="category"> 
@@ -75,14 +71,17 @@
     </element>
   </define>
 
-  <define ns="" name="bugzilla-element">
-    <element name="bugzilla">
+  <define ns="" name="issue-element">
+    <element name="issue">
+      <attribute name="tracker">
+        <data type="string"/>
+      </attribute>
+      <attribute name="id">
+        <data type="string"/>
+      </attribute>
       <optional>
-        <attribute name="name">
-          <data type="string"/>
-        </attribute>
+        <text/>
       </optional>
-      <text/>
     </element>
   </define>
 

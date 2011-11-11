@@ -228,17 +228,16 @@ our $aggregatelist = [
 # now:    sec-123 - 1 -1
 our $patchinfo = [
     'patchinfo' => 
-            'incident',	# id
-            'name',     # optional
+            'incident', # optional, gets replaced on with updateinfoid on release
             'version',	# optional, defaults to 1
             [],
 	  [ 'package' ],# optional
 	  [ 'binary' ],	# optional
-         [[ 'bugzilla' =>
-		'name',
+         [[ 'issue' =>
+		'tracker',
+		'id',
 		'_content',
 	 ]],
-          [ 'CVE' ],
             'category',
             'rating',
             'summary',
