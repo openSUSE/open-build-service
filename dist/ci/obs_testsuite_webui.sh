@@ -74,11 +74,16 @@ mkdir coverage
 
 echo "Invoke rake"
 rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
+cd ../..
 
 echo "Contents of src/api/log/test.log:"
 cat src/api/log/test.log
 echo
 
-echo "Remove unneded files to save disc space"
-rm -rf src/api/log/* \
-       src/api/tmp/*
+echo "Contents of src/webui/log/test.log:"
+cat src/webui/log/test.log
+echo
+
+echo "Remove log/tmp files to save disc space"
+rm -rf src/api/{log,tmp}/* \
+       src/webui/{log,tmp}/*
