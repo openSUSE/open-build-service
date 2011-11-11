@@ -113,7 +113,7 @@
       <tr>
         <th>Category: </th>
         <td>
-          <%= select_tag "category", options_for_select(["","normal", "security", "optional", "feature"], @category)%>
+          <%= select_tag "category", options_for_select(["","recommended", "security", "optional", "feature"], @category)%>
         </td>
         <td>Choose the category of your patch</td>
       </tr>
@@ -157,25 +157,25 @@
         <td>Enter a full description what your patch fixes</td>
       </tr>
       <tr>
-        <th>Relogin needed?</th>
+        <th>Relogin suggested?</th>
         <td>
           <%= check_box_tag("relogin", true, @relogin) %>
         </td>
-        <td>Set when a relog for the patch is needed.</td>
+        <td>Set if a relog for the update is suggested.</td>
       </tr>
       <tr>
-        <th>Zypper restart needed?</th>
+        <th>Package-manager restart suggested?</th>
 	<td>
           <%= check_box_tag("zypp_restart_needed", true, @zypp_restart_needed)%>
 	</td>
-	<td>Set when restart of the package-manager is needed.</td>
+	<td>Set if a restart of the package-manager is suggested.</td>
       </tr>
       <tr>
-        <th>Reboot needed?</th>
+        <th>Reboot suggested?</th>
         <td>
           <%= check_box_tag("reboot", true, @reboot) %>
         </td>
-        <td>Set when a reboot for the patch is needed.</td>
+        <td>Set if a reboot for the update is suggested.</td>
       </tr>
       <tr><td></td><td></td><td align="right">
           <%= submit_tag "Save Patchinfo" %>
