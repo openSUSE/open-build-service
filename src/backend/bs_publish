@@ -339,7 +339,7 @@ sub createrepo_rpmmd {
   if ($deltainfos && %$deltainfos && ($options{'deltainfo'} || $options{'prestodelta'})) {
     print "    adding deltainfo.xml to repodata\n" if $options{'deltainfo'};
     print "    adding prestodelta.xml to repodata\n" if $options{'prestodelta'};
-    # thinks are a bit complex, as we have to merge the deltas, and we also have to add the checksum
+    # things are a bit complex, as we have to merge the deltas, and we also have to add the checksum
     my %mergeddeltas;
     for my $d (values(%$deltainfos)) {
       addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], @legacyargs ? 'sha' : 'sha256');
@@ -422,8 +422,6 @@ sub createrepo_hdlist2 {
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $repotag = "obsrepository://$obsname/$projid/$repoid";
-  my $prp_ext = "$projid/$repoid";
-  $prp_ext =~ s/:/:\//g;
   print "    running hdlist2\n";
 
   # create generic rpm-md meta data
@@ -794,6 +792,11 @@ sub deleterepo {
     rmdir("$reporoot/$prp");
     return;
   }
+  # get old repoinfo
+  my $repoinfo = {};
+  if (-s "$reporoot/$prp/:repoinfo") {
+    $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+  }
   # delete all binaries
   my @db_deleted;
   for my $arch (ls($extrep)) {
@@ -815,6 +818,8 @@ sub deleterepo {
   # update published database
   my $binarydb = db_open('binary');
   updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], []) if $binarydb;
+  my $repoinfodb = db_open('repoinfo');
+  db_store($repoinfodb, $prp, undef) if $repoinfodb;
 
   if ($BSConfig::markfileorigins) {
     for my $f (sort @db_deleted) {
@@ -849,10 +854,13 @@ sub deleterepo {
     qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
   }
   rmdir("$extrepodir/$projid_ext");
+
+  # also delete split debug repo
+  deleterepo($projid, "$repoid$repoinfo->{'splitdebug'}") if $repoinfo->{'splitdebug'};
 }
 
 sub publish {
-  my ($projid, $repoid) = @_;
+  my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
 
   print localtime(time)." publishing $prp\n";
@@ -882,6 +890,15 @@ sub publish {
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   $config = Build::read_config('noarch', [ split("\n", $config) ]);
   $config->{'repotype'} = [ 'rpm-md' ] unless @{$config->{'repotype'} || []};
+  my %repotype;
+  for (@{$config->{'repotype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $repotype{$1} = [ split(':', $2) ];
+    } else {
+      $repotype{$_} = [];
+    }
+  }
+  $dbgsplit ||= '' if $repotype{'splitdebug'} && $repotype{'splitdebug'}->[0];
 
   # get us the lock
   local *F;
@@ -900,6 +917,8 @@ sub publish {
     $extrep = $BSConfig::publishredirect->{$prp};
     $prp_ext = undef;
   }
+  $extrep .= $dbgsplit if $dbgsplit;
+  $prp_ext .= $dbgsplit if $prp_ext && $dbgsplit;
   
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
@@ -1033,6 +1052,24 @@ sub publish {
     }
   }
 
+  # do debug filtering if requested
+  if (defined($dbgsplit)) {
+    if ($dbgsplit) {
+      @updateinfos = ();
+      for my $p (keys %bins) {
+        next if $p =~ /-debug(?:info|source)-.*rpm$/;
+        delete $bins{$p};
+        delete $deltainfos{$p};
+      }
+    } else {
+      for my $p (keys %bins) {
+        next unless $p =~ /-debug(?:info|source)-.*rpm$/;
+        delete $bins{$p};
+        delete $deltainfos{$p};
+      }
+    }
+  }
+
   # now update external repository
   my $changed = 0;
 
@@ -1163,7 +1200,13 @@ sub publish {
   if (($repoinfo->{'state'} || '') ne $state) {
     $changed = 1;
   }
-  if (!$changed) {
+
+  if (($repoinfo->{'splitdebug'} || '') ne (($repotype{'splitdebug'} || [])->[0] || '')) {
+    deleterepo($projid, "$repoid$repoinfo->{'splitdebug'}") if $repoinfo->{'splitdebug'};
+    $changed = 1;
+  }
+
+  if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
     return;
   }
@@ -1212,14 +1255,27 @@ sub publish {
     'state' => $state,
   };
   $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
-  my $repoinfodb = db_open('repoinfo');
-  if ($state ne '') {
-    Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
-    db_store($repoinfodb, $prp, $repoinfo) if $repoinfodb;
-  } else {
-    unlink("$reporoot/$prp/:repoinfo");
-    db_store($repoinfodb, $prp, undef) if $repoinfodb;
+  $repoinfo->{'splitdebug'} = $repotype{'splitdebug'}->[0] if defined $dbgsplit;
+
+  # store repoinfo on disk
+  if (!$dbgsplit) {
+    if ($state ne '') {
+      Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
+    } else {
+      unlink("$reporoot/$prp/:repoinfo");
+    }
   }
+
+  # do debug filtering if requested
+  if (defined($dbgsplit)) {
+    for (keys %$binaryorigins) {
+      delete $binaryorigins->{$_} unless $bins{$_};
+    }
+  }
+
+  # store repoinfo in published database
+  my $repoinfodb = db_open('repoinfo');
+  db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, $state ne '' ? $repoinfo : undef) if $repoinfodb;
 
   # put in published database
   my $binarydb = db_open('binary');
@@ -1259,14 +1315,6 @@ sub publish {
   }
 
   # create repositories and patterns
-  my %repotype;
-  for (@{$config->{'repotype'} || []}) {
-    if (/^(.*?):(.*)$/) {
-      $repotype{$1} = [ split(':', $2) ];
-    } else {
-      $repotype{$_} = [];
-    }
-  }
   my %patterntype;
   for (@{$config->{'patterntype'} || []}) {
     if (/^(.*?):(.*)$/) {
@@ -1294,42 +1342,45 @@ sub publish {
     goto publishprog_done;
   }
 
+  my $xrepoid = $repoid;
+  $xrepoid .= $dbgsplit if $dbgsplit;
+
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos);
+    createrepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos);
   } else {
-    deleterepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
   if ($repotype{'suse'}) {
-    createrepo_susetags($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    createrepo_susetags($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   } else {
-    deleterepo_susetags($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_susetags($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
   # Mandriva format:
   if ($repotype{'hdlist2'}) {
-    createrepo_hdlist2($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    createrepo_hdlist2($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   } else {
-    deleterepo_hdlist2($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_hdlist2($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
   if ($repotype{'debian'}) {
-    createrepo_debian($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    createrepo_debian($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   } else {
-    deleterepo_debian($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_debian($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
 
   if ($patterntype{'ymp'}) {
-    createpatterns_ymp($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns);
+    createpatterns_ymp($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $patterns);
   } else {
-    deletepatterns_ymp($extrep, $projid, $repoid, $signargs, $pubkey);
+    deletepatterns_ymp($extrep, $projid, $xrepoid, $signargs, $pubkey);
   }
   if ($patterntype{'rpm-md'}) {
-    createpatterns_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns);
+    createpatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $patterns);
   } else {
-    deletepatterns_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey);
+    deletepatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey);
   }
   if ($patterntype{'comps'}) {
-    createpatterns_comps($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns);
+    createpatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $patterns);
   } else {
-    deletepatterns_comps($extrep, $projid, $repoid, $signargs, $pubkey);
+    deletepatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey);
   }
 
 
@@ -1375,6 +1426,10 @@ publishprog_done:
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
+  }
+
+  if ($repotype{'splitdebug'} && $repotype{'splitdebug'}->[0] && !$dbgsplit) {
+    publish($projid, $repoid, $repotype{'splitdebug'}->[0]);
   }
 }
 
