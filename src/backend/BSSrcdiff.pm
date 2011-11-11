@@ -651,6 +651,13 @@ sub datadiff {
     } elsif ($old->{$of} ne $new->{$f}) {
       if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz)$/) {
 	my @r = tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
+        if (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
+	  # tardiff was too big
+	  my @os = stat("$pnew/$old->{$of}-$of");
+          my @s = stat("$pnew/$new->{$f}-$f");
+          push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+          @r = ();
+        }
 	for my $r (@r) {
 	  my $n = delete($r->{'name'});
 	  my $state = delete($r->{'state'}) || 'changed';
