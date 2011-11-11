@@ -48,11 +48,11 @@ module ActionController
 
     # This method should be called in the ApplicationController of your Rails app.
     def validate_xml_response
-      opt = params()
-      opt[:method] = request.method.to_s
-      opt[:type] = "response"
-      logger.debug "Validate XML response: #{response}"
-      if response.status.to_s == "200 OK"
+      if ['*/*', 'xml'].include?(request.format) && response.status.to_s == "200 OK"
+        opt = params()
+        opt[:method] = request.method.to_s
+        opt[:type] = "response"
+        logger.debug "Validate XML response: #{response}"
         Suse::Validator.validate(opt, response.body.to_s)
       end
     end
