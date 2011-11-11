@@ -349,6 +349,11 @@ class RequestController < ApplicationController
             unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=true)
               if action.value("type") == "maintenance_release"
                 newPackages << pkg.name
+                pkg.db_project.repositories.each do |repo|
+                  repo.release_targets.each do |rt|
+                    newTargets << rt.target_repository.db_project.name
+                  end
+                end
                 next
               else
                 render_error :status => 400, :errorcode => 'unknown_target_package',
