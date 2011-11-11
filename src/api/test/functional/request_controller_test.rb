@@ -1205,7 +1205,7 @@ end
 
     # accept the request
     prepare_request_with_user "king", "sunflower"
-    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
@@ -1222,7 +1222,7 @@ end
 
     # accept the other request, what will fail
     prepare_request_with_user "king", "sunflower"
-    post "/request/#{id2}?cmd=changestate&newstate=accepted"
+    post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response 400
     assert_tag( :tag => "status", :attributes => { :code => 'not_existing_target' } )
 

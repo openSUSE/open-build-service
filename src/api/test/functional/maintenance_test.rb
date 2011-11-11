@@ -457,6 +457,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
+    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
@@ -472,8 +473,12 @@ class MaintenanceTests < ActionController::IntegrationTest
       assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
     end
 
-    # release packages
+    # approve review
     prepare_request_with_user "king", "sunflower"
+    post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
+    assert_response :success
+
+    # release packages
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response :success
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|

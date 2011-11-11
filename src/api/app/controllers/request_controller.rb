@@ -600,7 +600,13 @@ class RequestController < ApplicationController
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.find_by_name action.target.project
         if action.target.has_attribute? 'package'
-          tpkg = tprj.db_packages.find_by_name action.target.package
+          if action.value("type") == "maintenance_release"
+            # use orignal/stripped name and also GA projects for maintenance packages
+            tpkg = tprj.find_package action.target.package.gsub(/\..*/, '')
+          else
+            # just the direct affected target
+            tpkg = tprj.db_packages.find_by_name action.target.package
+          end
         else
           if action.has_element? 'source' and action.source.has_attribute? 'package'
             tpkg = tprj.db_packages.find_by_name action.source.package
