@@ -1394,12 +1394,18 @@ class ProjectController < ApplicationController
     @closed_maintenance_incident_list = []
     return if @spider_bot
     Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
-      has_releasetarget = false
+      has_releasetarget, has_trigger_maintenance = false, false
       project.each_repository do |repo|
-        has_releasetarget = true if repo.has_element?('releasetarget')
+        if repo.has_element?('releasetarget')
+          has_releasetarget = true
+          has_trigger_maintenance = repo.releasetarget.has_attribute?('trigger') && repo.releasetarget.trigger == 'maintenance'
+        end
       end
       if has_releasetarget
-        @open_maintenance_incident_list << project
+        if has_trigger_maintenance
+          @open_maintenance_incident_list << project
+        end
+        #NOTE: This implies incidents with release target but not 'trigger="maintenance"' are in limbo right now...
       else
         @closed_maintenance_incident_list << project
       end
