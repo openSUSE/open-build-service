@@ -3611,7 +3611,7 @@ sub rebuildpatchinfo {
   $update->{'status'} = 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
   $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
-  $update->{'id'} = $patchinfo->{'incident'} || $patchinfo->{'name'};
+  $update->{'id'} = $patchinfo->{'incident'} || '0';
   $update->{'type'} = $patchinfo->{'category'};
   $update->{'title'} = $patchinfo->{'summary'};
   $update->{'description'} = $patchinfo->{'description'};
@@ -3622,21 +3622,17 @@ sub rebuildpatchinfo {
   $update->{'issued'} = { 'date' => $now };
   my @references;
   if (defined($BSConfig::bugreportid_url)) {
-    for my $b (@{$patchinfo->{'bugzilla'} || []}) {
+    for my $b (@{$patchinfo->{'issue'} || []}) {
       my $url = undef;
-      if (defined($b->{'name'})) {
-        $url = $BSConfig::bugreportid_url->{$b->{'name'}} if $BSConfig::bugreportid_url->{$b->{'name'}};
-      } else {
-        $url = $BSConfig::bugreportid_url->{'*'} if $BSConfig::bugreportid_url->{'*'};
-      }
-      if ($url && $b->{'_content'}) {
-        $url =~ s/%ID%/$b->{'_content'}/g;
-        push @references, {'href' => $url, 'id' => $b->{'_content'}, 'title' => "bug number $b->{'_content'}", 'type' => 'bugzilla'};
+      $url = $BSConfig::bugreportid_url->{$b->{'tracker'}} if $BSConfig::bugreportid_url->{$b->{'tracker'}};
+      if ($url && $b->{'id'}) {
+        $url =~ s/%ID%/$b->{'id'}/g;
+        #FIXME2.3: temporary hack until sync with issue_tracker is done
+        my $t = 'bugzilla';
+        $t = 'cve' if $b->{'tracker'} eq 'CVE';
+        push @references, {'href' => $url, 'id' => $b->{'id'}, 'title' => $b->{'_content'}, 'type' => $t};
       }
     }
-  }
-  for my $b (@{$patchinfo->{'CVE'} || []}) {
-    push @references, {'href' => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=$b", 'id' => $b, 'title' => $b, 'type' => 'cve'};
   }
   $update->{'references'} = { 'reference' => \@references };
   # XXX: set name and short

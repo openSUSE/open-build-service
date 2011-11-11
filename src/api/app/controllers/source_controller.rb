@@ -1577,10 +1577,8 @@ class SourceController < ApplicationController
     node = Builder::XmlMarkup.new(:indent=>2)
     attrs = { }
     attrs[:incident] = maintenanceID if maintenanceID 
-    attrs[:name] = name if name 
     xml = node.patchinfo(attrs) do |n|
       node.packager    @http_user.login
-      node.bugzilla    ""
       node.category    ""
       node.rating      ""
       node.summary     ""

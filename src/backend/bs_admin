@@ -668,26 +668,24 @@ while (@ARGV) {
     my $pooldirecotory = shift @ARGV;
     my $updateinfo = readxml($uf, $BSXML::updateinfoitem);
     my $patchinfo= {};
-    $patchinfo->{'name'} = $updateinfo->{'id'};
+    $patchinfo->{'incident'} = $updateinfo->{'id'};
     $patchinfo->{'summary'} = $updateinfo->{'title'};
     $patchinfo->{'description'} = $updateinfo->{'description'};
     $patchinfo->{'version'} = $updateinfo->{'version'};
     $patchinfo->{'category'} = $updateinfo->{'type'};
     $patchinfo->{'packager'} = $updateinfo->{'from'};
-    $patchinfo->{'bugzilla'} = [];
-    $patchinfo->{'CVE'} = [];
+    $patchinfo->{'issue'} = [];
     for my $ref (@{$updateinfo->{'references'}->{'reference'} || []}) {
       if ($ref->{'type'} eq 'bugzilla') {
-        my $b = { '_content' => $ref->{'id'} };
-        push @{$patchinfo->{'bugzilla'}}, $b;
+        my $b = { 'id' => $ref->{'id'}, 'tracker' => 'bnc' };
       } elsif ($ref->{'type'} eq 'cve') {
-        push @{$patchinfo->{'CVE'}}, $ref->{'id'};
+        my $b = { 'id' => $ref->{'id'}, 'tracker' => 'CVE' };
       } else {
        die("Unhadled type $ref->{'type'}");
       };
+      push @{$patchinfo->{'issue'}}, $b;
     };
-    delete $patchinfo->{'CVE'} unless @{$patchinfo->{'CVE'}} > 0;
-    delete $patchinfo->{'bugzilla'} unless @{$patchinfo->{'bugzilla'}} > 0;
+    delete $patchinfo->{'issue'} unless @{$patchinfo->{'issue'}} > 0;
     my $id = "$patchinfo->{'name'}-$patchinfo->{'version'}";
     mkdir($id);
     writexml("._patchinfo", "$id/_patchinfo", $patchinfo, $BSXML::patchinfo);

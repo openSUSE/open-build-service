@@ -47,6 +47,13 @@ attrib_types_62:
   id: "62"
   type: 
   description: 
+attrib_types_63: 
+  attrib_namespace_id: "9"
+  name: MaintenanceIdTemplate
+  value_count: "1"
+  id: "63"
+  type: 
+  description: 
 attrib_types_64: 
   attrib_namespace_id: "9"
   name: RejectRequests

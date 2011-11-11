@@ -319,6 +319,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
     assert_response :success
 
+    post "/source/My:Maintenance/_attribute", "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%Y-%C</value></attribute></attributes>"
+    assert_response :success
+
     # setup a maintained distro
     post "/source/BaseDistro2/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
@@ -367,11 +370,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add required informations about the update
     pi = REXML::Document.new( @response.body )
     pi.elements["//category"].text = "security"
-    pi.elements['/patchinfo'].add_element 'bugzilla'
-    pi.elements['/patchinfo'].add_element 'CVE'
-    pi.elements["//bugzilla"].text = "1042"
+    pi.elements['/patchinfo'].add_element 'issue'
+    pi.elements["//issue"].text = "Fix wrong set ,"
+    pi.elements['//issue'].add_attribute REXML::Attribute.new('tracker', 'bnc')
+    pi.elements['//issue'].add_attribute REXML::Attribute.new('id', '1042')
     pi.elements["//rating"].text = "low"
-    pi.elements["//CVE"].text = "0815"
+    issue2 = pi.elements['/patchinfo'].add_element 'issue'
+    issue2.add_attribute REXML::Attribute.new('tracker', 'CVE')
+    issue2.add_attribute REXML::Attribute.new('id', '0815')
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_meta"
@@ -508,7 +514,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid 
-    assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "2011-1"
+    assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "My-#{Time.now.utc.year.to_s}-1"
 
     # search will find this incident not anymore
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'

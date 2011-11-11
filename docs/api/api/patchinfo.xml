@@ -1,12 +1,13 @@
-<patchinfo incident="1" name="obs" version="0815">
+<patchinfo version="2">
   <package>build</package>
   <package>obs-server</package>
   <binary>obs-api</binary>
   <binary>build-initvm</binary>
-  <bugzilla>123456</bugzilla>
-  <bugzilla name="obs.org">123456</bugzilla>
-  <CVE>CVE-2011-3872</CVE>
-  <CVE>CVE-2011-3848</CVE>
+
+  <issue tracker="bnc" id="123456"/>
+  <issue tracker="bnc" id="123456">Add syntax check</issue>
+  <issue tracker="CVE" id="CVE-2011-1234">Fixes remote root hole</issue>
+
   <category>security</category>
   <rating>low</rating>
   <summary>obs-api security update</summary>

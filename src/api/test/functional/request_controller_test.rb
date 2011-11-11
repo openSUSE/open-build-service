@@ -539,6 +539,8 @@ end
     assert_match(/Go Away/, @response.body)
     assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
 
+#FIXME: test with request without target
+
     # remove project attribute lock
     delete "/source/home:Iggy/_attribute/OBS:RejectRequests"
     assert_response :success
