@@ -472,12 +472,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request/#{reqid}?cmd=diff", nil
     assert_response :success
 
-    # source packages got locked
-    [ "pack2.BaseDistro2", "pack2.BaseDistro3", "patchinfo" ].each do |pack|
-      get "/source/#{maintenanceProject}/#{pack}/_meta"
-      assert_response :success
-      assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
-    end
+    # source project got locked?
+    get "/source/#{maintenanceProject}/_meta"
+    assert_response :success
+    assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
 
     # approve review
     prepare_request_with_user "king", "sunflower"
@@ -521,7 +519,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
 
-    #cleanup
+    # disable lock and cleanup 
+    delete "/source/#{maintenanceProject}"
+    assert_response 403
+    put "/source/#{maintenanceProject}/_meta", "<project name='#{maintenanceProject}'><title/> <description/> <lock><disable/></lock> </project>" 
+    assert_response :success
     delete "/source/#{maintenanceProject}"
     assert_response :success
   end
@@ -628,7 +630,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "release_target_no_permission" }
 
-    # cleanup 
+    # disable lock and cleanup 
+    put "/source/home:tom:test/_meta", "<project name='home:tom:test'><title/> <description/> <lock><disable/></lock> </project>" 
+    assert_response :success
     delete "/source/home:tom:test"
     assert_response :success
   end
@@ -659,7 +663,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
 
-    # cleanup 
+    # disable lock and cleanup 
+    put "/source/home:tom:test/_meta", "<project name='home:tom:test'><title/> <description/> <lock><disable/></lock> </project>" 
+    assert_response :success
     delete "/source/home:tom:test"
     assert_response :success
   end
