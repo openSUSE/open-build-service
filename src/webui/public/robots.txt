@@ -6,6 +6,7 @@ Disallow: /project/monitor
 Disallow: /project/buildresult
 Disallow: /package/reload_buildstatus
 Disallow: /project/buildstatus
+Disallow: /project/status
 Disallow: /stage
 
 # unfortunately the sitemap needs to be full URL,
