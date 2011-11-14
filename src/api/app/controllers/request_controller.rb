@@ -271,6 +271,8 @@ class RequestController < ApplicationController
       return
     end
 
+    per_package_locking = nil
+
     # expand release and submit request targets if not specified
     req.each_action do |action|
       if [ "submit", "maintenance_release" ].include?(action.value("type"))
@@ -278,6 +280,7 @@ class RequestController < ApplicationController
           packages = Array.new
           if action.source.has_attribute? 'package'
             packages << DbPackage.get_by_project_and_name( action.source.project, action.source.package )
+            per_package_locking = 1
           else
             prj = DbProject.get_by_name action.source.project
             packages = prj.db_packages
@@ -632,9 +635,17 @@ class RequestController < ApplicationController
               :message => "Creating a release request action requires maintainership in source package"
             return
           end
-          unless spkg.enabled_for?('lock', nil, nil)
-            spkg.flags.create(:status => "enable", :flag => "lock")
-            spkg.store
+          object = nil
+          if per_package_locking
+            object = spkg
+          else
+            object = spkg.db_project
+          end
+          unless object.enabled_for?('lock', nil, nil)
+            f = object.flags.find_by_flag_and_status("lock", "disable")
+            f.delete if f # remove possible existing disable lock flag
+            object.flags.create(:status => "enable", :flag => "lock")
+            object.store
           end
         else
           # Creating requests from packages where no maintainer right exists will enforce a maintainer review
