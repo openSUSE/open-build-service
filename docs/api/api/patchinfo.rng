@@ -85,12 +85,6 @@
     </element>
   </define>
 
-  <define ns="" name="cve-element">
-    <element name="CVE">
-      <text/>
-    </element>
-  </define>
-
   <define ns="" name="patchinfo-ratings">
     <choice>
       <value>low</value>
