@@ -163,7 +163,12 @@ class ProjectStatusHelper
         break
       end
       cmd5 = Rails.cache.fetch("changes-%s" % p.value('srcmd5')) do
-        directory = Directory.find(:project => proj, :package => packname, :expand => 1)
+        begin
+          directory = Directory.find(:project => proj, :package => packname, :expand => 1)
+        rescue
+          # source may not be expandable
+          return nil
+        end
         changesfile="%s.changes" % packname
         md5 = nil
         directory.each_entry do |e|
