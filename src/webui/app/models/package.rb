@@ -338,5 +338,26 @@ class Package < ActiveXML::Base
     return false
   end
 
+  def self.attributes(project_name, package_name)
+    path = "/source/#{project_name}/#{package_name}/_attribute/"
+    res = ActiveXML::Config::transport_for(:package).direct_http(URI("#{path}"))
+    return Collection.new(res)
+  end
+
+  def attributes
+    return Package.attributes(self.project, self.name)
+  end
+
+  def self.has_attribute?(project_name, package_name, attribute_namespace, attribute_name)
+    self.attributes(project_name, package_name).each do |attr|
+      return true if attr.namespace == attribute_namespace && attr.name == attribute_name
+    end
+    return false
+  end
+
+  def has_attribute?(attribute_namespace, attribute_name)
+    return Package.has_attribute?(self.project, self.name, attribute_namespace, attribute_name)
+  end
+
 end
 

@@ -384,4 +384,25 @@ class Project < ActiveXML::Base
     return Project.maintenance_project(self.name)
   end
 
+  def self.attributes(project_name)
+    path = "/source/#{project_name}/_attribute/"
+    res = ActiveXML::Config::transport_for(:project).direct_http(URI("#{path}"))
+    return Collection.new(res)
+  end
+
+  def attributes
+    return Project.attributes(self.name)
+  end
+
+  def self.has_attribute?(project_name, attribute_namespace, attribute_name)
+    self.attributes(project_name).each do |attr|
+      return true if attr.namespace == attribute_namespace && attr.name == attribute_name
+    end
+    return false
+  end
+
+  def has_attribute?(attribute_namespace, attribute_name)
+    return Project.has_attribute?(self.name, attribute_namespace, attribute_name)
+  end
+
 end
