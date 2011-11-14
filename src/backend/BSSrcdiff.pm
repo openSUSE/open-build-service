@@ -682,7 +682,7 @@ sub datadiff {
 	delete $r->{'state'};
 	push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
       }
-    } else {
+    } elsif ($f ne $of) {
       my @os = stat("$pnew/$old->{$of}-$of");
       my @s = stat("$pnew/$new->{$f}-$f");
       push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
