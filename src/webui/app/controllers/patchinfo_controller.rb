@@ -5,7 +5,7 @@ class PatchinfoController < ApplicationController
   helper :package
 
   def new_patchinfo
-    @packager = @project.person.userid
+    @packager = ''
     @buglist = Array.new
     @cvelist = Array.new
     @binaries = Array.new
@@ -44,7 +44,7 @@ class PatchinfoController < ApplicationController
       else
         name = "Update"
       end
-      packager = @project.person.userid
+      packager = params[:packager]
       if params[:cve] != nil
         cvelist = params[:cve]
       else
@@ -69,7 +69,7 @@ class PatchinfoController < ApplicationController
       pkg_name = "patchinfo"
       if Package.exists? @project, pkg_name
         @name = params[:name]
-        @packager = @project.person.userid
+        @packager = packager
         if params[:cve] != nil
           @cvelist = params[:cve]
         else
