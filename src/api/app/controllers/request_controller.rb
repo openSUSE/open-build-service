@@ -529,6 +529,13 @@ class RequestController < ApplicationController
             end
             action.target.set_attribute("project", prj.name)
           end
+          # validate project type
+          prj = DbProject.get_by_name(action.target.project)
+          unless prj.project_type == "maintenance"
+            render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
+              :message => "incident projects shall only create below maintenance projects"
+            return
+          end
         end
 
         if action.value("type") == "maintenance_release"
