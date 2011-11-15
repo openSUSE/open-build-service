@@ -17,5 +17,4 @@ CodeMirror.defineMode("changes", function(config, modeConfig) {
   };
 });
 
-CodeMirror.defineMIME("text/x-changes", "changes");
-
+CodeMirror.defineMIME("text/x-rpm-changes", "changes");
