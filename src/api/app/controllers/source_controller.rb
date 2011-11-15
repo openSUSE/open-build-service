@@ -1167,6 +1167,14 @@ class SourceController < ApplicationController
         :message => "no permission to modify project '#{prj.name}'"
       return
     end
+    
+    # check for correct project kind
+    unless prj and prj.project_type == "maintenance"
+      render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
+        :message => "incident projects shall only create below maintenance projects"
+      return
+    end
+
     # create incident project
     incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
     render_ok :data => {:targetproject => incident.db_project.name}
@@ -1462,6 +1470,13 @@ class SourceController < ApplicationController
     unless @http_user.can_modify_project?(prj)
       render_error :status => 403, :errorcode => "modify_project_no_permission",
         :message => "no permission to modify project '#{prj.name}'"
+      return
+    end
+
+    # check for correct project kind
+    unless prj and prj.project_type == "maintenance"
+      render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
+        :message => "incident projects shall only create below maintenance projects"
       return
     end
 

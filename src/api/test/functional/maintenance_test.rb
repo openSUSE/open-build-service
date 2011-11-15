@@ -281,6 +281,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "adrian", "so_alone"
     post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
     assert_response 403
+    post "/source/home:adrian", :cmd => "createmaintenanceincident"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "incident_has_no_maintenance_project" }
 
     prepare_request_with_user "maintenance_coord", "power"
     # create a public maintenance incident
@@ -518,6 +521,20 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2_linked.0"
     assert_response :success
+  end
+
+  def test_create_invalid_incident_request
+    prepare_request_with_user "tom", "thunder"
+    # without specifing target, the default target must get found via attribute
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom" />
+                                     <target project="home:tom" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "incident_has_no_maintenance_project" }
   end
 
   def test_create_invalid_release_request
