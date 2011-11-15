@@ -507,20 +507,17 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     # check for changed updateinfoid 
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "My-#{Time.now.utc.year.to_s}-1"
+    # check :full tree
+    get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
+    assert_response :success
+    assert_tag :parent => { :tag => "binarylist" },  :tag => 'binary', :attributes => { :filename => "package.rpm" } 
 
     # search will find this incident not anymore
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
     assert_no_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
 
-    # disable lock and cleanup 
-    delete "/source/#{maintenanceProject}"
-    assert_response 403
-    put "/source/#{maintenanceProject}/_meta", "<project name='#{maintenanceProject}'><title/> <description/> <lock><disable/></lock> </project>" 
-    assert_response :success
-    delete "/source/#{maintenanceProject}"
-    assert_response :success
-
+    # revoke a release update
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
     assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2_linked"
@@ -528,6 +525,18 @@ class MaintenanceTests < ActionController::IntegrationTest
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2.0"
     assert_response :success
     delete "/source/BaseDistro2:LinkedUpdateProject/pack2_linked.0"
+    assert_response :success
+    run_scheduler( "i586" )
+    get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
+    assert_response :success
+    assert_no_tag :parent => { :tag => "binarylist" },  :tag => 'binary'
+
+    # disable lock and cleanup 
+    delete "/source/#{maintenanceProject}"
+    assert_response 403
+    put "/source/#{maintenanceProject}/_meta", "<project name='#{maintenanceProject}'><title/> <description/> <lock><disable/></lock> </project>" 
+    assert_response :success
+    delete "/source/#{maintenanceProject}"
     assert_response :success
   end
 
