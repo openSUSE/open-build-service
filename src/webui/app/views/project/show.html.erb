@@ -45,6 +45,17 @@
               <%= link_to "build error#{@nr_of_problem_packages == 1 ? '' : 's'}", :action => 'monitor', :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
             </li>
           <% end %>
+          <% if @has_patchinfo %>
+            <li>
+              <%= image_tag 'icons/accept.png' %>
+              <%= link_to('Patchinfo present', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
+            </li>
+          <% elsif @is_incident_project %>
+            <li>
+              <%= image_tag 'icons/exclamation.png' %>
+              <%= link_to_if(@project.can_edit?(session[:login]), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
+            </li>
+          <% end %>
         <% end %>
 
         <%= render :partial => 'shared/open_requests' %>
@@ -57,7 +68,7 @@
         <% end %>
         <% if @linking_projects.size > 0 %>
           <li>
-            <%= image_tag 'icons/information.png' %> 
+            <%= image_tag 'icons/information.png' %>
             <%= @linking_projects.size %> <%= link_to_remote("linking project#{@linking_projects.size == 1 ? '' : 's'}", :url => {:action => 'linking_projects', :project => @project }) %>
           </li>
         <% end %>
