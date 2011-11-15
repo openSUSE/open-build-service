@@ -674,19 +674,21 @@ while (@ARGV) {
     $patchinfo->{'version'} = $updateinfo->{'version'};
     $patchinfo->{'category'} = $updateinfo->{'type'};
     $patchinfo->{'packager'} = $updateinfo->{'from'};
+    $patchinfo->{'rating'} = 'low';
     $patchinfo->{'issue'} = [];
     for my $ref (@{$updateinfo->{'references'}->{'reference'} || []}) {
+      my $b;
       if ($ref->{'type'} eq 'bugzilla') {
-        my $b = { 'id' => $ref->{'id'}, 'tracker' => 'bnc' };
+        $b = { 'id' => $ref->{'id'}, 'tracker' => 'bnc' };
       } elsif ($ref->{'type'} eq 'cve') {
-        my $b = { 'id' => $ref->{'id'}, 'tracker' => 'CVE' };
+        $b = { 'id' => $ref->{'id'}, 'tracker' => 'CVE' };
       } else {
        die("Unhadled type $ref->{'type'}");
       };
       push @{$patchinfo->{'issue'}}, $b;
     };
     delete $patchinfo->{'issue'} unless @{$patchinfo->{'issue'}} > 0;
-    my $id = "$patchinfo->{'name'}-$patchinfo->{'version'}";
+    my $id = "$patchinfo->{'incident'}-$patchinfo->{'version'}";
     mkdir($id);
     writexml("._patchinfo", "$id/_patchinfo", $patchinfo, $BSXML::patchinfo);
 
