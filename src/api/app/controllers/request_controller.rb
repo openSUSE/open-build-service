@@ -342,7 +342,7 @@ class RequestController < ApplicationController
                     if l and l.count > 0
                       found_patchinfo = 1
                     else
-                      render_error :status => 404, :errorcode => 'build_not_finished',
+                      render_error :status => 400, :errorcode => 'build_not_finished',
                         :message => "patchinfo is not yet build for repository '#{repo.name}'"
                       return
                     end
@@ -543,22 +543,33 @@ class RequestController < ApplicationController
           prj = DbProject.get_by_name(action.source.project)
           prj.repositories.each do |repo|
             unless repo.release_targets.size > 0
-              render_error :status => 404, :errorcode => "repository_without_releasetarget",
+              render_error :status => 400, :errorcode => "repository_without_releasetarget",
                 :message => "Release target definition is missing in #{prj.name} / #{repo.name}"
               return
             end
             unless repo.architectures.size > 0
-              render_error :status => 404, :errorcode => "repository_without_architecture",
+              render_error :status => 400, :errorcode => "repository_without_architecture",
                 :message => "Repository has no architecture #{prj.name} / #{repo.name}"
               return
             end
             repo.release_targets.each do |rt|
               unless repo.architectures.first == rt.target_repository.architectures.first
-                render_error :status => 404, :errorcode => "architecture_order_missmatch",
+                render_error :status => 400, :errorcode => "architecture_order_missmatch",
                   :message => "Repository and releasetarget have not the same architecture on first position: #{prj.name} / #{repo.name}"
                 return
               end
             end
+          end
+          # check for open release requests with same target, the binaries can't get merged automatically
+          # either exact target package match or with same prefix (when using the incident extension)
+          tpkgprefix=action.target.package.gsub(/\..*/, '')
+          predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{action.target.project}' and (action/target/@package='#{action.target.package}' or starts-with(action/target/@package,'#{tpkgprefix}.'))"
+          collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
+          rqs = collection.scan(/request id\="(\d+)"/).flatten
+          if rqs.size > 0
+             render_error :status => 400, :errorcode => "open_release_requests",
+               :message => "The following open requests have the same target #{action.target.project} / #{tpkgprefix}: " + rqs.join(', ')
+             return
           end
         end
 

@@ -572,13 +572,13 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create", rq
-    assert_response 404
+    assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "build_not_finished" }
 
     # ignore build state
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create&ignore_build_state=1", rq
-    assert_response 404
+    assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
 
     # add a release target and remove architecture
@@ -595,7 +595,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create&ignore_build_state=1", rq
-    assert_response 404
+    assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "repository_without_architecture" }
 
     # add a wrong architecture
@@ -607,7 +607,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create&ignore_build_state=1", rq
-    assert_response 404
+    assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "architecture_order_missmatch" }
 
     # cleanup
@@ -646,6 +646,17 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "release_target_no_permission" }
+
+    # create another request with same target must be blocked
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:test" package="pack" />
+                                     <target project="home:tom:test" package="pack" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "open_release_requests" }
 
     # disable lock and cleanup 
     put "/source/home:tom:test/_meta", "<project name='home:tom:test'><title/> <description/> <lock><disable/></lock> </project>" 
