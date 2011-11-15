@@ -30,14 +30,17 @@ module PackageHelper
     return "xml" if ["_link", "_patchinfo", "_service"].include?(filename)
     return "bash" if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
     return "python" if filename.match(/^.*rpmlintrc$/)
+    return "makefile" if filename == "debian.rules"
+    return "spec" if filename.match(/^macros\.\w+/)
     ext = Pathname.new(filename).extname.downcase
     case ext
       when ".group" then return "xml"
       when ".kiwi" then return "xml"
-      when ".patch" then return "diff"
+      when ".patch", ".dif" then return "diff"
+      when ".pl", ".pm" then return "perl"
       when ".product" then return "xml"
+      when ".py" then return "python"
       when ".rb" then return "ruby"
-      when ".spec" then return "spec"
       when ".tex" then return "latex"
       when ".js" then return "javascript"
     end
