@@ -1404,10 +1404,9 @@ class ProjectController < ApplicationController
       if has_releasetarget
         if has_trigger_maintenance
           @open_maintenance_incident_list << project
+        else
+          @closed_maintenance_incident_list << project
         end
-        #NOTE: This implies incidents with release target but not 'trigger="maintenance"' are in limbo right now...
-      else
-        @closed_maintenance_incident_list << project
       end
     end
   end
