@@ -124,13 +124,13 @@
             <%if @cvelist%>
               <% @cvelist.reject{|cve| cve.blank? }.each do |cve| %>
                 <div id="cve_<%= cve %>">
-                  <%= hidden_field_tag "cve[]", cve %><%= cve.to_s %>
+			<%= hidden_field_tag "cve[]", cve, :id => "cvevalue_#{cve}" %><%= cve.to_s %>
                   <%=  link_to image_tag('icons/bug_delete.png', :alt => "Remove CVE", :title => "Remove CVE"), '#', :onclick => "$('#cve_#{cve}').remove(); return false;" %>
                 </div>
               <%end%>
             <%end%>
           </div>
-        </td>
+    </td>
       </tr>
       <tr id="CVEID">
         <th/>
@@ -140,7 +140,14 @@
             single or a comma-separated list e.g.: <br/>
             "cve-2010-1234, cve-2010-4321"</td>
      </tr>
-      <tr>
+     <tr>
+       <th>Rating: </th>
+         <td>
+           <%= select_tag "rating", options_for_select(["low","moderate", "important", "critical"], @rating)%>
+         </td>
+         <td>Select the rating for this update.</td>
+       </tr>
+       <tr>
         <th>Summary: </th>
         <td>
           <%=  text_area_tag 'summary', @summary, :rows => 5, :cols => 30 %>

@@ -39,12 +39,7 @@ class PatchinfoController < ApplicationController
 
     if valid_params == true
       filename = "_patchinfo"
-      if params[:name]
-        name = params[:name]
-      else
-        name = "Update"
-      end
-      packager = params[:packager]
+      packager = @project.person.userid
       if params[:cve] != nil
         cvelist = params[:cve]
       else
@@ -57,19 +52,15 @@ class PatchinfoController < ApplicationController
         buglist = Array.new
       end
       category = params[:category]
+      rating = params[:rating]
       summary = params[:summary]
       description = params[:description]
       relogin = params[:relogin]
       reboot = params[:reboot]
       zypp_restart_needed = params[:zypp_restart_needed]
-      name=""
-      if params[:name]
-        name=params[:name] if params[:name]
-      end
       pkg_name = "patchinfo"
       if Package.exists? @project, pkg_name
-        @name = params[:name]
-        @packager = packager
+        @packager = @project.person.userid
         if params[:cve] != nil
           @cvelist = params[:cve]
         else
@@ -82,6 +73,7 @@ class PatchinfoController < ApplicationController
           @buglist = Array.new
         end
         @category = params[:category]
+	@rating = params[:rating]
         @summary = params[:summary]
         @description = params[:description]
         @relogin = params[:relogin]
@@ -94,12 +86,9 @@ class PatchinfoController < ApplicationController
       pkg = Package.new(:name => pkg_name, :project => @project,
         :title => "Patchinfo", :description => "Collected packages for update")
       pkg.save
-      if name==""
-        name=pkg_name
-      end
 
       node = Builder::XmlMarkup.new(:indent=>2)
-      xml = node.patchinfo(:name => name) do |n|
+      xml = node.patchinfo do |n|
         if binaries
           binaries.each do |binary|
             node.binary(binary)
@@ -107,12 +96,13 @@ class PatchinfoController < ApplicationController
         end
         node.packager    packager
         buglist.each do |bug|
-          node.bugzilla(bug)
+          node.issue(:tracker=>"bnc", :id=>bug)
         end
         node.category    category
+	node.rating      rating
         if category == "security"
           cvelist.each do |cve|
-            node.CVE(cve)
+            node.issue(:tracker=>"CVE", :id=>cve)
           end
         end
         node.summary     summary
@@ -130,13 +120,13 @@ class PatchinfoController < ApplicationController
       begin
         frontend.put_file( xml, :project => @project,
           :package => pkg, :filename => filename,
-          :category => [:category], :bug => [:bug],
-          :cve => [:cve],
+          :category => [:category], :rating => [:rating],
+          :bug => [:bug], :cve => [:cve],
           :binarylist => [:binarylist],
           :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
           :relogin => [:relogin], :reboot => [:reboot],
-	  :zypp_restart_needed => [:zypp_restart_needed])
+          :zypp_restart_needed => [:zypp_restart_needed])
         flash[:note] = "Successfully saved #{pkg_name}"
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
@@ -146,7 +136,6 @@ class PatchinfoController < ApplicationController
     end
     
     if valid_params == false
-      @name = params[:name]
       @packager = @project.person.userid
       if params[:cve] != nil
         @cvelist = params[:cve]
@@ -161,6 +150,7 @@ class PatchinfoController < ApplicationController
         @buglist = Array.new
       end
       @category = params[:category]
+      @rating = params[:rating]
       @summary = params[:summary]
       @description = params[:description]
       @relogin = params[:relogin]
@@ -206,9 +196,15 @@ class PatchinfoController < ApplicationController
     @binary = []
     @packager = @file.packager.to_s
     @bugzilla = []
-    @file.each_bugzilla do |bugzilla|
-      @bugzilla << bugzilla.text
-    end if @file
+    @cves = []
+    @cvelist = []
+    @file.each_issue do |issue|
+      if issue.tracker == "bnc"
+        @bugzilla << issue.value(:id)
+      elsif issue.tracker == "CVE"
+        @cves << issue.value(:id)
+      end
+    end      
     if @buglist == nil
       @buglist = @bugzilla
     end  
@@ -221,29 +217,22 @@ class PatchinfoController < ApplicationController
       @buglist = params[:bug]
     end
     @category = @file.category.to_s
-    @cves = []
-    @cvelist = []
-    if @category == "security"
-      if @file.has_element?("CVE")
-        @file.each_CVE do |cve|
-          @cves << cve.text
-        end if @file
-        if @cvelist.empty?
-          @cvelist = @cves
-        end
-        if params[:cve] == nil
-          params[:cve] = Array.new
-          params[:cve] << params[:cveid]
-        end
-        if params[:cveid] != nil
-          params[:cve] << params[:cveid]
-          @cvelist = params[:cve]
-        end
-      end
+    @rating = @file.rating.to_s if @file.rating
+    if @cvelist.blank?
+      @cvelist = @cves
+    end
+    if params[:cve] == nil
+      params[:cve] = Array.new
+      params[:cve] << params[:cveid]
+    end
+    if params[:cveid] != nil
+      params[:cve] << params[:cveid]
+      @cvelist = params[:cve]
     end
 
     @description = @summary = @category = nil
     @category = @file.category.to_s       if @file.has_element? 'category'
+    @rating = @file.rating.to_s           if @file.has_element? 'rating'
     @summary = @file.summary.to_s         if @file.has_element? 'summary'
     @description = @file.description.to_s if @file.has_element? 'description'
     if @file.has_element?("relogin_needed")
@@ -303,17 +292,26 @@ class PatchinfoController < ApplicationController
       reboot = params[:reboot]
       zypp_restart_needed = params[:zypp_restart_needed]
       buglist = params[:bug]
+      rating = params[:rating]
       if params[:category] != "security"
         cvelist = ""
       end
-      @patchinfo.set_cve(cvelist)
       if binaries
         @patchinfo.set_binaries(binaries, name)
       end
       @patchinfo.category.text = params[:category]
+      if @patchinfo.rating
+        @patchinfo.rating.text = rating
+      else
+        @patchinfo.set_rating(rating.to_s)
+      end
       @patchinfo.summary.text = params[:summary]
       @patchinfo.description.text = params[:description]
-      @patchinfo.set_buglist(buglist)
+      @patchinfo.remove_issues
+      @patchinfo.set_issue("bnc",buglist)
+      if !cvelist.blank?
+        @patchinfo.set_issue("CVE", cvelist)
+      end
       @patchinfo.set_relogin(relogin.to_s)
       @patchinfo.set_reboot(reboot.to_s)
       @patchinfo.set_zypp_restart_needed(zypp_restart_needed.to_s)
@@ -322,8 +320,8 @@ class PatchinfoController < ApplicationController
       begin
         frontend.put_file( @patchinfo, :project => @project,
           :package => @package,:filename => filename,
-          :category => [:category], :bug => [:bug],
-          :cve => [:cve],
+          :category => [:category], :rating => [:rating],
+          :bug => [:bug], :cve => [:cve],
           :binarylist => [:binarylist],
           :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
@@ -333,6 +331,7 @@ class PatchinfoController < ApplicationController
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
       end
+      Patchinfo.free_cache(:project=> @project, :package => @package)
       opt = {:controller => "patchinfo", :action => "show", :project => @project.name, :package => @package }
       redirect_to opt
     end
@@ -342,6 +341,7 @@ class PatchinfoController < ApplicationController
       @binaries = params[:binaries]
       @buglist = params[:bug]
       @category = params[:category]
+      @rating = params[:rating]
       @summary = params[:summary]
       @description = params[:description]
       @relogin = params[:relogin]
