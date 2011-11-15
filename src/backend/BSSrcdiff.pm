@@ -667,10 +667,10 @@ sub datadiff {
 	for my $r (@r) {
 	  my $n = delete($r->{'name'});
 	  my $state = delete($r->{'state'}) || 'changed';
-	  $r->{'old'} ||= $r->{'new'};
-	  $r->{'new'} ||= $r->{'old'};
 	  $r->{'old'}->{'name'} = "$of/$r->{'old'}->{'name'}" if $r->{'old'};
 	  $r->{'new'}->{'name'} = "$f/$r->{'new'}->{'name'}" if $r->{'new'};
+	  $r->{'old'} ||= $r->{'new'};
+	  $r->{'new'} ||= $r->{'old'};
 	  push @changed, {'state' => $state, 'diff' => $r, 'old' => $r->{'old'}, 'new' => $r->{'new'}};
 	  delete $r->{'old'};
 	  delete $r->{'new'};
