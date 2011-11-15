@@ -133,6 +133,7 @@ module MaintenanceHelper
               :oproject => sourcePackage.db_project.name,
               :opackage => sourcePackage.name,
               :orepository => sourceRepo.name,
+              :user => @http_user.login,
             }
             cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
             cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{CGI.escape(releasetarget.target_repository.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
@@ -159,7 +160,13 @@ module MaintenanceHelper
         targetProject.db_packages << new
         new.store
       end
-      Suse::Backend.put "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link", "<link package='#{CGI.escape(targetPackageName)}' />"
+      cp_params = {
+        :user => @http_user.login,
+      }
+      cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
+      cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link"
+      cp_path << build_query_from_hash(cp_params, [:user, :comment])
+      Suse::Backend.put cp_path, "<link package='#{CGI.escape(targetPackageName)}' />"
     end
 
   end
