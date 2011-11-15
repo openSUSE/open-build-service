@@ -172,6 +172,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => "ServicePack", :package => "kdelibs" }
 
+    # do some file changes
+    put "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack/new_file", "new_content_0815"
+    assert_response :success
+    put "/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro/new_file", "new_content_2137"
+    assert_response :success
+
     # validate created project meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
@@ -227,8 +233,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     id = node.value(:id)
 
     # validate that request is diffable (not broken)
-    post "/request/#{id}?cmd=diff", nil
+    post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
+    assert_match /new_content_2137/, @response.body # check if our changes are part of the diff
+    assert_match /new_content_0815/, @response.body
 
     # store data for later checks
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"

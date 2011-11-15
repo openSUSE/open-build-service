@@ -803,6 +803,14 @@ class RequestController < ApplicationController
               path += "&orev=0&rev=#{spkg_rev}"
             end
           end
+          # run diff
+          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
+          begin
+            action_diff += Suse::Backend.post(path, nil).body
+          rescue ActiveXML::Transport::Error => e
+            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+          end
+          path = "" # reset
         end
       elsif action.value('type') == 'delete'
         if action.target.has_attribute? :package
@@ -812,7 +820,7 @@ class RequestController < ApplicationController
           #FIXME: Delete requests for whole projects needs project diff supporte in the backend (and api).
         end
       end
-      if path
+      unless path == ""
         path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
         begin
           action_diff += Suse::Backend.post(path, nil).body
