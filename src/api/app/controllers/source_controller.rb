@@ -1548,7 +1548,6 @@ class SourceController < ApplicationController
 
     pro = DbProject.find_by_name project_name
 
-    name=nil
     maintenanceID=nil
     pkg_name = "patchinfo"
 

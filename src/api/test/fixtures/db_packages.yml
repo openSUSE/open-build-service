@@ -111,14 +111,14 @@ db_packages_10099:
   develpackage_id: 
   develproject_id: 
 db_packages_10100: 
-  name: pack2.linked
+  name: pack2_linked
   created_at: 2007-05-16 14:19:18
   activity_index: "10"
   title: For maintenance tests
   updated_at: 2007-05-16 14:19:18
   bcntsynctag: 
   url: ""
-  db_project_id: "2047"
+  db_project_id: "2045"
   id: "10100"
   update_counter: "1"
   description: ""
