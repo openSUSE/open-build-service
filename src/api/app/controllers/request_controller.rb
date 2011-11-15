@@ -299,18 +299,18 @@ class RequestController < ApplicationController
             # FIXME: this is currently handling local project links for packages with multiple spec files. 
             #        This can be removed when we handle this as shadow packages in the backend.
             tprj = pkg.db_project.name
-            tpkg = pkg.name
+            tpkg = ltpkg = pkg.name
             rev=nil
             if action.source.has_attribute? 'rev'
               rev = action.source.rev.to_s
             end
             data = nil
             while tprj == pkg.db_project.name
-              data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(tpkg)}") )
+              data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
               e = data.elements["directory/linkinfo"]
               if e
                 tprj = e.attributes["project"]
-                tpkg = e.attributes["package"]
+                ltpkg = e.attributes["package"]
                 if action.value("type") == "maintenance_release" and not rev
                   # maintenance_release needs the binaries, so we always use the current source
                   if e.attributes["xsrcmd5"]
@@ -324,9 +324,11 @@ class RequestController < ApplicationController
                   end
                 end
               else
-                tprj = tpkg = nil
+                tprj = nil
               end
             end
+            tpkg = tpkg.gsub(/\..*/, '') # strip distro specific extension
+
             # do not allow release requests without binaries
             if action.value("type") == "maintenance_release" and data and params["ignore_build_state"].nil?
               entries = data.get_elements("directory/entry")
@@ -349,7 +351,7 @@ class RequestController < ApplicationController
               end
             end
             # Will this be a new package ?
-            unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=true)
+            unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=false)
               if action.value("type") == "maintenance_release"
                 newPackages << pkg.name
                 pkg.db_project.repositories.each do |repo|

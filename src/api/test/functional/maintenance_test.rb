@@ -144,10 +144,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
-    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.linked.BaseDistro3/_link"
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2_linked.BaseDistro2/_link"
     assert_response :success
-    assert_no_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" } # original wrong entry from source
-    assert_tag :tag => "link", :attributes => { :package => "pack2.BaseDistro3" }
+    assert_no_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
+    assert_tag :tag => "link", :attributes => { :package => "pack2.BaseDistro2" }
 
     # test branching another package set into same project
     post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
@@ -308,6 +308,28 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
   end
 
+  def inject_build_job( project, package, repo, arch )
+    job=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+    jobfile=job.readlines.first.chomp
+    jobid=""
+    IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
+       jobid = io.readlines.first.chomp
+    end
+    f = File.open("#{jobfile}:status", 'w')
+    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>" )
+    f.close
+    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+    system("echo \"46d4408d324ac84a93aef39181b6a60c  #{package}\" > #{jobfile}:dir/meta")
+  end
+
+  def run_scheduler( arch )
+    perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
+    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
+       # just for waiting until scheduler finishes
+       io.each {|line| line.strip.chomp unless line.blank? }
+    end
+  end
+
   def test_create_maintenance_project_and_release_packages
     prepare_request_with_user "maintenance_coord", "power"
 
@@ -389,55 +411,17 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
 
     ### the backend is now building the packages, injecting results
-    perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
     # run scheduler once to create job file. x86_64 scheduler gets no work
-    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
-       # just for waiting until scheduler finishes
-       io.each {|line| line.strip.chomp unless line.blank? }
-    end
-    # run scheduler once to create job file
-    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
-       # just for waiting until scheduler finishes
-       io.each {|line| line.strip.chomp unless line.blank? }
-    end
-
-    #### upload build result as a worker would do
-    # find out about the triggered build job and write back dispatching data
-    findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/x86_64/ -name #{maintenanceProject}::BaseDistro2_BaseDistro2LinkedUpdateProject_repo::pack2.BaseDistro2-*")
-    maintJob=findMaintJob.readlines.first.chomp
-    jobid=""
-    IO.popen("md5sum #{maintJob}|cut -d' ' -f 1") do |io|
-       jobid = io.readlines.first.chomp
-    end
-    f = File.open("#{maintJob}:status", 'w')
-    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>x86_64</hostarch> </jobstatus>" )
-    f.close
-    # for x86_64
-    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*x86_64.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=x86_64&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
-    system("echo \"46d4408d324ac84a93aef39181b6a60c  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
-    # run scheduler again to collect result
-    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
-       # just for waiting until scheduler finishes
-       io.each {|line| line.strip.chomp unless line.blank? }
-    end
-    # find out about the triggered build job and write back dispatching data
-    findMaintJob=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/i586/ -name #{maintenanceProject}::BaseDistro2_BaseDistro2LinkedUpdateProject_repo::pack2.BaseDistro2-*")
-    maintJob=findMaintJob.readlines.first.chomp
-    jobid=""
-    IO.popen("md5sum #{maintJob}|cut -d' ' -f 1") do |io|
-       jobid = io.readlines.first.chomp
-    end
-    f = File.open("#{maintJob}:status", 'w')
-    f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
-    f.close
-    # for i586
-    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{maintJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
-    system("echo \"46d4408d324ac84a93aef39181b6a60c  pack2.BaseDistro2\" > #{maintJob}:dir/meta")
-    # run scheduler again to collect result
-    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
-       # just for waiting until scheduler finishes
-       io.each {|line| line.strip.chomp unless line.blank? }
-    end
+    run_scheduler("x86_64")
+    run_scheduler("i586")
+    # upload build result as a worker would do
+    inject_build_job( maintenanceProject, "pack2.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
+    inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
+    inject_build_job( maintenanceProject, "pack2.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "i586" )
+    inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "i586" )
+    # collect the job results
+    run_scheduler( "x86_64" )
+    run_scheduler( "i586" )
 
     # check updateinfo
     get "/build/#{maintenanceProject}/BaseDistro2_BaseDistro2LinkedUpdateProject_repo/i586/patchinfo/updateinfo.xml"
@@ -456,12 +440,14 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2" } ) # BaseDistro2 has an update project, nothing should go to GA project
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
     assert_no_tag( :tag => "target", :attributes => { :project => maintenanceProject } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2_linked." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
     assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
     node = ActiveXML::XMLNode.new(@response.body)
@@ -485,10 +471,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # release packages
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response :success
-    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
-       # just for waiting until scheduler finishes
-       io.each {|line| line.strip.chomp unless line.blank? }
-    end
+    run_scheduler( "i586" )
 
     # validate result
     get "/source/BaseDistro2:LinkedUpdateProject/pack2/_link"
@@ -525,6 +508,15 @@ class MaintenanceTests < ActionController::IntegrationTest
     put "/source/#{maintenanceProject}/_meta", "<project name='#{maintenanceProject}'><title/> <description/> <lock><disable/></lock> </project>" 
     assert_response :success
     delete "/source/#{maintenanceProject}"
+    assert_response :success
+
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    assert_response :success
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2_linked"
+    assert_response :success
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2.0"
+    assert_response :success
+    delete "/source/BaseDistro2:LinkedUpdateProject/pack2_linked.0"
     assert_response :success
   end
 
