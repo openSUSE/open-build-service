@@ -17,29 +17,20 @@
         <td></td>
       </tr>
       <tr>
-        <th>Name: </th>
-        <td>
-          <%= text_field_tag('name', @name)%>
-        </td>
-        <td>
-          Enter a name for this patchinfo
-        </td>
+        <th>Binaries: </th>
+        <% if !@binarylist.empty? %>
+          <td>
+            <% options = Array.new
+            @binarylist.each {|d| options << "#{d.to_s}"}
+            opt = {:options => options}%>
+            <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5 %>
+          </td>
+          <td>Please select the binaries (ctrl+left) which your patch includes</td>
+        <% else %>
+          <td><strong>No binaries available!</strong></td>
+          <td></td>
+        <% end %>
       </tr>
-        <tr>
-          <th>Binaries: </th>
-          <% if !@binarylist.empty? %>
-            <td>
-              <% options = Array.new
-              @binarylist.each {|d| options << "#{d.to_s}"}
-              opt = {:options => options}%>
-              <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5 %>
-            </td>
-            <td>Please select the binaries (ctrl+left) which your patch includes</td>
-          <% else %>
-            <td><strong>No binaries available!</strong></td>
-            <td></td>
-          <% end %>
-        </tr>
       <tr>
         <th>Bugzilla: </th>
         <td>
@@ -143,6 +134,13 @@
             single or a comma-separated list e.g.: <br/>
             "cve-2010-1234, cve-2010-4321"</td>
      </tr>
+     <tr>
+       <th>Rating: </th>
+       <td>
+         <%= select_tag "rating", options_for_select(["low","moderate", "important", "critical"], @rating)%>
+       </td>
+       <td>Select the rating for this update.</td>
+      </tr>
       <tr>
         <th>Summary: </th>
         <td>

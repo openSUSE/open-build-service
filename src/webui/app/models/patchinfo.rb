@@ -22,35 +22,15 @@ class Patchinfo < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
-  def set_cve(cvelist)
-    if self.each_CVE == nil
-      self.add_element('CVE')
-    end
-    cvelist.each do |cve|
-      self.each_CVE do |f|
-        self.delete_element(f)
-      end
-    end
-    for x in cvelist do
-      cve = self.add_element('CVE')
-      cve.text = x
+  def remove_issues
+    self.each_issue do |f|
+      self.delete_element(f)
     end
   end
 
-  def set_buglist(buglist)
-    if self.each_bugzilla == nil
-      self.add_element('bugzilla')
-    end
-    buglist.each do |bug|
-      self.each_bugzilla do |f|
-        # delete all bugs
-        self.delete_element(f)
-      end
-    end
-
-    for x in buglist do
-      bug = self.add_element('bugzilla')
-      bug.text = x
+  def set_issue(tracker,ids)
+    ids.each do |num|
+      self.add_element("issue", {"tracker"=>tracker, "id"=>num})
     end
   end
 
@@ -58,6 +38,11 @@ class Patchinfo < ActiveXML::Base
     self.delete_element('packager')
     cve_new = self.add_element('packager')
     cve_new.text = packager
+  end
+
+  def set_rating(rating)
+    new_rating = self.add_element('rating')
+    new_rating.text = rating
   end
 
   def set_relogin(relogin)
@@ -74,10 +59,9 @@ class Patchinfo < ActiveXML::Base
 
   def set_reboot(reboot)
     if reboot == "true"
-      if self.has_element('reboot_needed')
-        self.delete_element('reboot_needed')
+      if !self.has_element('reboot_needed')
+        reboot_needed = self.add_element('reboot_needed')
       end
-      reboot_needed = self.add_element('reboot_needed')
     end
     if reboot == "" && self.has_element?('reboot_needed')
       self.delete_element('reboot_needed')
@@ -89,10 +73,9 @@ class Patchinfo < ActiveXML::Base
       self.delete_element('zypp_restart_needed')
     end
     if zypp_restart_needed == "true"
-      if self.has_element?('zypp_restart_needed')
-        self.delete_element('zypp_restart_needed')
+      if !self.has_element?('zypp_restart_needed')
+        zypp_restart_needed = self.add_element('zypp_restart_needed')
       end
-      zypp_restart_needed = self.add_element('zypp_restart_needed')
     end
   end
  
