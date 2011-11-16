@@ -7,34 +7,26 @@ class IssueTracker < ActiveXML::Base
 
   class << self
     def make_stub(opt)
-      acronyms = ''
-      if opts[:acronyms]
-        opts[:acronyms].each do |acronym|
-          acronyms += "<acronym><name>#{acronym}</name></acronym>"
-        end
-        acronyms = "<acronyms>#{acronyms}</acronyms>"
-      end
-
       reply = <<-EOF
         <issue-tracker>
           <name>#{opt[:name]}</name>
+          <description>#{opt[:description]}</description>
+          <kind>#{opŧ[:kind]}</kind>
+          <regex>#{opt[:regex]}</regex>
           <url>#{opt[:url]}</url>
           <show-url>#{opt[:show_url]}</show-url>
-          #{acronyms}
         </issue-tracker>
       EOF
       return reply
     end
 
-    def acronyms_with_urls_hash
-      return Rails.cache.fetch('issue_trackers_all_acronyms', :expires_in => 5.minutes) do
-        acronyms_with_urls_hash = {}
-        find_cached(:all).each do |tracker| # Iterate over all issue trackers
-          tracker.acronyms.each do |acronym| # Iterate over all acronyms for that specific issue tracker
-            acronyms_with_urls_hash[acronym.value('name')] = { :show_url => tracker.find_first('show-url').to_s }
-          end
+    def regex_show_url_hash
+      return Rails.cache.fetch('issue_trackers_all_regex', :expires_in => 5.minutes) do
+        regex_hash = {}
+        find_cached(:all).each do |it| # Iterate over all issue trackers
+          regex_hash[it.value('regex')] = it.value('show-url')
         end
-        acronyms_with_urls_hash
+        regex_hash
       end
     end
   end

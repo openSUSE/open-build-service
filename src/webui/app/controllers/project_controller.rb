@@ -1398,9 +1398,6 @@ class ProjectController < ApplicationController
     #TODO: Prepare incident-related data
   end
 
-  def require_meta
-  end
-
   def require_maintenance_incident_lists
     @open_maintenance_incident_list = []
     @closed_maintenance_incident_list = []

@@ -457,11 +457,11 @@ module ApplicationHelper
       (changes_file_keys + spec_file_keys).each do |file|
         contents = files_hash[file]
         if contents
-          IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
+          IssueTracker.regex_show_url_hash.each do |regexp, show_url|
             contents.text.each_line do |line|
               if line.match(/^[+-].*/) # Only incorporate bugs in added / removed lines
-                line.scan(/#{acronym}\#\d+/).each do |matched_bug|
-                  ret[:bugs][matched_bug] = urls[:show_url].gsub('@@@', matched_bug.split('#')[1])
+                line.scan(Regexp.new(regexp)).each do |matched_bug|
+                  ret[:bugs][matched_bug] = show_url.gsub('@@@', matched_bug)
                 end
               end
             end
