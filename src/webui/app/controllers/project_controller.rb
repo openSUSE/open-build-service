@@ -248,7 +248,7 @@ class ProjectController < ApplicationController
           @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
         end
       end
-    end
+    end if @packages
 
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end

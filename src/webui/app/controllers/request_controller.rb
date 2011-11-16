@@ -37,6 +37,10 @@ class RequestController < ApplicationController
   end
 
   def show
+    if @spider_bot
+      render :template => "shared/noindex" 
+      return
+    end
     begin
       @req = find_cached(BsRequest, params[:id]) if params[:id]
     rescue ActiveXML::Transport::Error => e
