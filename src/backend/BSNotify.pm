@@ -116,12 +116,13 @@ sub requestParams( $$ )
         $action{'person'} = $a->{'person'}->{'name'};
         $action{'role'} = $a->{'person'}->{'role'};
       }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
+        # FIXME3 this parameter is duplicating infos
         $action{'deleteproject'}  = $a->{'target'}->{'project'};
         $action{'deletepackage'}  = $a->{'target'}->{'package'};
         $action{'sourceproject'}  = undef;
         $action{'sourcepackage'}  = undef;
-        $action{'targetproject'}  = undef;
-        $action{'targetpackage'}  = undef;
+        $action{'targetproject'}  = $a->{'target'}->{'project'};
+        $action{'targetpackage'}  = $a->{'target'}->{'package'};
         $action{'sourcerevision'} = undef;
         $action{'person'} = undef;
         $action{'role'} = undef;
@@ -165,12 +166,13 @@ sub requestParams( $$ )
         $reqinfo{'person'} = $a->{'person'}->{'name'};
         $reqinfo{'role'} = $a->{'person'}->{'role'};
       }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
+        # FIXME3 this parameter is duplicating infos
         $reqinfo{'deleteproject'}  = $a->{'target'}->{'project'};
         $reqinfo{'deletepackage'}  = $a->{'target'}->{'package'};
         $reqinfo{'sourceproject'}  = undef;
         $reqinfo{'sourcepackage'}  = undef;
-        $reqinfo{'targetproject'}  = undef;
-        $reqinfo{'targetpackage'}  = undef;
+        $reqinfo{'targetproject'}  = $a->{'target'}->{'project'};
+        $reqinfo{'targetpackage'}  = $a->{'target'}->{'package'};
         $reqinfo{'sourcerevision'} = undef;
         $reqinfo{'person'} = undef;
         $reqinfo{'role'} = undef;
