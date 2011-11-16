@@ -119,8 +119,6 @@ class PublicController < ApplicationController
   def lastevents
     valid_http_methods :get, :post   # OBS 2.3 switched to POST
     
-    #FIXME2.2: discuss what to do with the events regarding hidden projects, must be solved in backend IMHO
-
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
