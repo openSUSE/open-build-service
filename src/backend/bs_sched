@@ -846,10 +846,13 @@ sub makedeltas {
       for my $aprp (@aprp) {
 	# look in the *published* repos. this does not work for
 	# projects that have publishing disabled, like "openSUSE:*"
-	my $aextrep = $aprp;
-	$aextrep =~ s/:/:\//g;
-	$aextrep = "$extrepodir/$aextrep";
+	# as a workaround, we also look at $bsdir/deltarepo/$aprp
 	if (!$oldbins{"$aprp/$binarch"}) {
+	  my $aextrep = $aprp;
+	  $aextrep =~ s/:/:\//g;
+	  $aextrep = "$extrepodir/$aextrep";
+	  $aextrep = "$bsdir/deltarepo/$aprp" if ! -d $aextrep && -d "$bsdir/deltarepo/$aprp";
+	  $oldbins{$aprp} = $aextrep;
 	  $oldbins{"$aprp/$binarch"} = {};
 	  for my $obin (sort(ls("$aextrep/$binarch"))) {
 	    next unless $obin =~ /^(.+)-[^-]+-[^-]+\.(?:[a-zA-Z][^\/\.\-]*)\.rpm$/;
@@ -865,6 +868,7 @@ sub makedeltas {
 	# make this configurable
 	@cand = splice(@cand, 0, 1);
 	for my $obin (@cand) {
+	  my $aextrep = $oldbins{$aprp};
 	  my @s = stat("$aextrep/$binarch/$obin");
 	  next unless @s;
 	  my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$aprp/$obin/$s[9]/$s[7]/$s[1]");
