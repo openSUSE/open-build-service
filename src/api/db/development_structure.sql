@@ -161,8 +161,8 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
-  `type_id` int(11) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
@@ -279,18 +279,14 @@ CREATE TABLE `incident_counter` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `issue_tracker_acronyms` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `issue_tracker_id` int(11) DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `kind` enum('bugzilla','cve','fate','trac','launchpad','sourceforge') DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `url` varchar(255) NOT NULL,
   `show_url` varchar(255) DEFAULT NULL,
+  `regex` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -766,6 +762,8 @@ INSERT INTO schema_migrations (version) VALUES ('20110725105426');
 INSERT INTO schema_migrations (version) VALUES ('20110728072502');
 
 INSERT INTO schema_migrations (version) VALUES ('20111005000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20111116100002');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

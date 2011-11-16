@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issue-tracker>
-  <name>openSUSE Features</name>
-  <show-url>https://features.opensuse.org/@@@</show-url>
-  <url>https://features.opensuse.org/</url>
-  <acronyms>
-    <acronym>
-      <name>Fate</name>
-    </acronym>
-  </acronyms>
+  <description>Novell Bugzilla</description>
+  <kind>bugzilla</kind>
+  <name>bnc</name>
+  <regex>bnc#\d+</regex>
+  <show-url>https://bugzilla.novell.com/show_bug.cgi?id=@@@</show-url>
+  <url>https://bugzilla.novell.com/</url>
 </issue-tracker>

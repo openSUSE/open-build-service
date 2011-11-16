@@ -64,6 +64,48 @@ DELETE /architecture/<name>
 
 XmlResult: status
 
+== Issue Trackers
+
+Host: api.opensuse.org
+
+GET /issue_trackers
+
+  Get the list of available issue trackers
+
+XmlResult: issue_trackers
+
+<name>: Issue tracker name
+
+GET /issue_trackers/<name>
+
+  Read issue tracker data.
+
+XmlResult: issue_tracker
+
+PUT /issue_tracker/<name>
+
+  Update issue tracker data.
+
+XmlResult: status
+
+POST /issue_tracker/<name>
+
+  Create new issue tracker.
+
+XmlResult: issue_tracker
+
+DELETE /issue_tracker/<name>
+
+  Delete issue tracker.
+
+XmlResult: status
+
+GET /issue_trackers/show_url_for
+
+Parameters:
+  issue: attribute used for issue search (example: 'bnc#123456')
+
+
 
 == Distribution List
 

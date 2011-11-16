@@ -1,7 +1,5 @@
 class IssueTracker < ActiveRecord::Base
-  has_many :acronyms, :class_name => 'IssueTrackerAcronym', :dependent => :destroy
-
-  validates_associated :acronyms # Validate also associated models
-  validates_presence_of :name, :url
-  validates_uniqueness_of :name
+  validates_presence_of :name, :regex, :url
+  validates_uniqueness_of :name, :regex
+  validates_inclusion_of :kind, :in => ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 end

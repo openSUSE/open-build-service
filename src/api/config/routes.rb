@@ -93,7 +93,10 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /architecture
   map.resources :architectures, :only => [:index, :show, :update] # create,delete currently disabled
-  map.resources :issue_trackers, :only => [:index, :show, :create, :update, :destroy]
+
+  ### /issue_trackers
+  map.connect 'issue_trackers/show_url_for', :controller => 'issue_trackers', :action => 'show_url_for'
+  map.resources :issue_trackers
 
   ### /tag
 

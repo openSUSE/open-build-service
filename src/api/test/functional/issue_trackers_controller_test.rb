@@ -12,12 +12,12 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     # Create a new issue tracker
     issue_tracker_xml = <<-EOF
     <issue-tracker>
-      <name>Test</name>
+      <name>test</name>
+      <description>My test issue tracker</description>
+      <regex>test#\d+test</regex>
+      <kind>bugzilla</kind>
       <url>http://example.com</url>
       <show-url>http://example.com/@@@</show-url>
-      <acronyms>
-        <acronym><name>test</name></acronym>
-      </acronyms>
     </issue-tracker>
     EOF
     prepare_request_with_user "king", "sunflower"
@@ -33,13 +33,12 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     # Update that issue tracker
     issue_tracker_xml = <<-EOF
     <issue-tracker>
-      <name>Test</name>
-      <url>http://example.com</url>
-      <show-url>http://example.com/bug/@@@</show-url>
-      <acronyms>
-        <acronym><name>t</name></acronym>
-        <acronym><name>test</name></acronym>
-      </acronyms>
+      <name>test</name>
+      <description>My even better test issue tracker</description>
+      <regex>test#\d+</regex>
+      <kind>bugzilla</kind>
+      <url>http://test.com</url>
+      <show-url>http://test.com/@@@</show-url>
     </issue-tracker>
     EOF
     prepare_request_with_user "king", "sunflower"
@@ -47,7 +46,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
 
     # Delete that issue tracker again
     prepare_request_with_user "king", "sunflower"
-    delete '/issue_trackers/t'
+    delete '/issue_trackers/test'
     assert_response :success
   end
 end

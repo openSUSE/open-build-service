@@ -1,228 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issue-trackers>
   <issue-tracker>
-    <name>Novell Bugzilla</name>
-    <show-url>https://bugzilla.novell.com/show_bug.cgi?id=@@issue@@</show-url>
-    <url>http://bugzilla.novell.com</url>
-    <acronyms>
-      <acronym>
-        <name>bnc</name>
-      </acronym>
-      <acronym>
-        <name>Mono</name>
-      </acronym>
-      <acronym>
-        <name>Ximian</name>
-      </acronym>
-    </acronyms>
-  </issue-tracker>
-  <issue-tracker>
-    <name>Boost Trac</name>
+    <description>Boost Trac</description>
+    <kind>trac</kind>
+    <name>boost</name>
+    <regex>boost#\d+</regex>
     <show-url>https://svn.boost.org/trac/boost/ticket/@@@</show-url>
     <url>https://svn.boost.org/trac/boost/</url>
-    <acronyms>
-      <acronym>
-        <name>boost</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Clutter Project Bugzilla</name>
+    <description>Clutter Project Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bco</name>
+    <regex>bco#\d+</regex>
     <show-url>http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@</show-url>
     <url>http://bugzilla.clutter-project.org/</url>
-    <acronyms>
-      <acronym>
-        <name>bco</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>CPAN Bugs</name>
+    <description>CPAN Bugs</description>
+    <kind></kind>
+    <name>RT</name>
+    <regex>RT#\d+</regex>
     <show-url>http://rt.cpan.org/Public/Bug/Display.html?id=@@@</show-url>
     <url>https://rt.cpan.org/</url>
-    <acronyms>
-      <acronym>
-        <name>RT</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Debian Bugzilla</name>
+    <description>CVE Numbers</description>
+    <kind>cve</kind>
+    <name>cve</name>
+    <regex>CVE-\d{4,4}-\d{4,4}</regex>
+    <show-url>http://www.cvedetails.com/cve/@@@</show-url>
+    <url>http://www.cvedetails.com/</url>
+  </issue-tracker>
+  <issue-tracker>
+    <description>Debian Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>deb</name>
+    <regex>deb#\d+</regex>
     <show-url>http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@</show-url>
     <url>http://bugs.debian.org/</url>
-    <acronyms>
-      <acronym>
-        <name>deb</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Freedesktop.org Bugzilla</name>
+    <description>Freedesktop.org Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>fdo</name>
+    <regex>fdo#\d+</regex>
     <show-url>https://bugs.freedesktop.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugs.freedesktop.org/</url>
-    <acronyms>
-      <acronym>
-        <name>fdo</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>GCC Bugzilla</name>
+    <description>GCC Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>GCC</name>
+    <regex>GCC#\d+</regex>
     <show-url>http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@</show-url>
     <url>http://gcc.gnu.org/bugzilla/</url>
-    <acronyms>
-      <acronym>
-        <name>GCC</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Gnome Bugzilla</name>
+    <description>Gnome Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bgo</name>
+    <regex>bgo#\d+</regex>
     <show-url>https://bugzilla.gnome.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugzilla.gnome.org/</url>
-    <acronyms>
-      <acronym>
-        <name>bgo</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Icculus.org Bugzilla</name>
+    <description>Icculus.org Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bio</name>
+    <regex>bio#\d+</regex>
     <show-url>https://bugzilla.icculus.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugzilla.icculus.org/</url>
-    <acronyms>
-      <acronym>
-        <name>bio</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Kernel.org Bugzilla</name>
+    <description>Kernel.org Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bko</name>
+    <regex>(Kernel|K|bko)#\d+</regex>
     <show-url>https://bugzilla.kernel.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugzilla.kernel.org/</url>
-    <acronyms>
-      <acronym>
-        <name>bko</name>
-      </acronym>
-      <acronym>
-        <name>K</name>
-      </acronym>
-      <acronym>
-        <name>Kernel</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>KDE Bugzilla</name>
+    <description>KDE Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>kde</name>
+    <regex>kde#\d+</regex>
     <show-url>https://bugs.kde.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugs.kde.org/</url>
-    <acronyms>
-      <acronym>
-        <name>kde</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Launchpad,net Bugzilla</name>
+    <description>Launchpad.net Bugtracker</description>
+    <kind>launchpad</kind>
+    <name>lp</name>
+    <regex>b?lp#\d+</regex>
     <show-url>https://bugs.launchpad.net/bugs/@@@</show-url>
     <url>https://bugs.launchpad.net/bugs/</url>
-    <acronyms>
-      <acronym>
-        <name>blp</name>
-      </acronym>
-      <acronym>
-        <name>lp</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Meego Bugs</name>
+    <description>Meego Bugs</description>
+    <kind>bugzilla</kind>
+    <name>Meego</name>
+    <regex>Meego#\d+</regex>
     <show-url>https://bugs.meego.com/show_bug.cgi?id=@@@</show-url>
     <url>https://bugs.meego.com/</url>
-    <acronyms>
-      <acronym>
-        <name>Meego</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Mozilla Bugzilla</name>
+    <description>Mozilla Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bmo</name>
+    <regex>bmo#\d+</regex>
     <show-url>https://bugzilla.mozilla.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugzilla.mozilla.org/</url>
-    <acronyms>
-      <acronym>
-        <name>bmo</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>OpenLDAP Issue Tracker</name>
+    <description>Novell Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bnc</name>
+    <regex>bnc#\d+</regex>
+    <show-url>https://bugzilla.novell.com/show_bug.cgi?id=@@@</show-url>
+    <url>https://bugzilla.novell.com/</url>
+  </issue-tracker>
+  <issue-tracker>
+    <description>OpenLDAP Issue Tracker</description>
+    <kind></kind>
+    <name>ITS</name>
+    <regex>ITS#\d+</regex>
     <show-url>http://www.openldap.org/its/index.cgi/Contrib?id=@@@</show-url>
     <url>http://www.openldap.org/its/</url>
-    <acronyms>
-      <acronym>
-        <name>ITS</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>OpenOffice.org Bugzilla</name>
+    <description>OpenOffice.org Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>i</name>
+    <regex>i#\d+</regex>
     <show-url>http://openoffice.org/bugzilla/show_bug.cgi?id=@@@</show-url>
     <url>http://openoffice.org/bugzilla/</url>
-    <acronyms>
-      <acronym>
-        <name>i</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>openSUSE Features</name>
+    <description>openSUSE Feature Database</description>
+    <kind>fate</kind>
+    <name>fate</name>
+    <regex>[Ff]ate#\d+</regex>
     <show-url>https://features.opensuse.org/@@@</show-url>
     <url>https://features.opensuse.org/</url>
-    <acronyms>
-      <acronym>
-        <name>Fate</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>RedHat Bugzilla</name>
+    <description>RedHat Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>rh</name>
+    <regex>rh#\d+</regex>
     <show-url>https://bugzilla.redhat.com/show_bug.cgi?id=@@@</show-url>
     <url>https://bugzilla.redhat.com/</url>
-    <acronyms>
-      <acronym>
-        <name>rh</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Samba Bugzilla</name>
+    <description>Samba Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>bso</name>
+    <regex>bso#\d+</regex>
     <show-url>https://bugzilla.samba.org/show_bug.cgi?id=@@@</show-url>
     <url>https://bugzilla.samba.org/</url>
-    <acronyms>
-      <acronym>
-        <name>bso</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>SourceForge.net Tracker</name>
+    <description>SourceForge.net Tracker</description>
+    <kind>sourceforge</kind>
+    <name>sf</name>
+    <regex>sf#\d+</regex>
     <show-url>http://sf.net/support/tracker.php?aid=@@@</show-url>
     <url>http://sf.net/support/</url>
-    <acronyms>
-      <acronym>
-        <name>sf</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
   <issue-tracker>
-    <name>Xamarin Bugzilla </name>
+    <description>Xamarin Bugzilla</description>
+    <kind>bugzilla</kind>
+    <name>Xamarin</name>
+    <regex>Xamarin#\d+</regex>
     <show-url>http://bugzilla.xamarin.com/show_bug.cgi?id=@@@</show-url>
     <url>http://bugzilla.xamarin.com/index.cgi</url>
-    <acronyms>
-      <acronym>
-        <name>Xamarin</name>
-      </acronym>
-    </acronyms>
   </issue-tracker>
 </issue-trackers>

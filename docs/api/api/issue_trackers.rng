@@ -21,30 +21,23 @@
         <element name="name">
           <text/>
         </element>
+        <element name="kind">
+          <text/>
+        </element>
+        <element name="description">
+          <text/>
+        </element>
         <element name="url">
           <text/>
         </element>
         <element name="show-url">
           <text/>
         </element>
-        <ref name="acronyms-element"/>
+        <element name="regex">
+          <text/>
+        </element>
       </interleave>
     </element>
   </define>
 
-  <define ns="" name="acronyms-element">
-    <element name="acronyms">
-      <oneOrMore>
-        <ref name="acronym-element"/>
-      </oneOrMore>
-    </element>
-  </define>
-
-  <define ns="" name="acronym-element">
-    <element name="acronym">
-      <element name="name">
-        <text/>
-      </element>
-    </element>
-  </define>
 </grammar>
