@@ -104,29 +104,31 @@ class RequestController < ApplicationController
       @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg)
     end
 
-    # get the entire diff from the api
-    begin
-      @diff_per_action = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
-        result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
-        diff_per_action = {}
-        # Parse each action and get the it's diff (per file)
-        result.each_with_index('/request/action') do |action_element, index|
-          parsed_sourcediff = {}
-          if action_element.value('type') == 'delete'
-            # Don't show bugs for delete requests, would be to many in the diff and doesn't make sense:
-            parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff, parse_bugs = false)
-          elsif ['submit', 'maintenance_release', 'maintenance_incident'].include?(action_element.value('type'))
-            parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff)
+    if not @spider_bot
+      # get the entire diff from the api
+      begin
+        @diff_per_action = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
+          result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
+          diff_per_action = {}
+          # Parse each action and get the it's diff (per file)
+          result.each_with_index('/request/action') do |action_element, index|
+            parsed_sourcediff = {}
+            if action_element.value('type') == 'delete'
+              # Don't show bugs for delete requests, would be to many in the diff and doesn't make sense:
+              parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff, parse_bugs = false)
+            elsif ['submit', 'maintenance_release', 'maintenance_incident'].include?(action_element.value('type'))
+              parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff)
+            end
+            parsed_sourcediff[:action] = action_element;
+            # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
+            diff_per_action["#{index}_#{action_element.value('type')}"] = parsed_sourcediff
           end
-          parsed_sourcediff[:action] = action_element;
-          # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
-          diff_per_action["#{index}_#{action_element.value('type')}"] = parsed_sourcediff
+          diff_per_action
         end
-        diff_per_action
+      rescue ActiveXML::Transport::Error => e
+        project, code = ActiveXML::Transport.extract_error_message(e)
+        #flash[:error] = "Unable to fetch diff for #{project}: #{code}"
       end
-    rescue ActiveXML::Transport::Error => e
-      project, code = ActiveXML::Transport.extract_error_message(e)
-      #flash[:error] = "Unable to fetch diff for #{project}: #{code}"
     end
   end
 
