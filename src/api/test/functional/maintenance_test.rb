@@ -282,12 +282,19 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_create_maintenance_incident
+    prepare_request_with_user "king", "sunflower"
+    put "/source/Temp:Maintenance/_meta", '<project name="Temp:Maintenance" kind="maintenance"> 
+                                             <title/> <description/>
+                                             <person userid="maintenance_coord" role="maintainer"/>
+                                           </project>'
+    assert_response :success
+
     ActionController::IntegrationTest::reset_auth 
-    post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
+    post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response 401
 
     prepare_request_with_user "adrian", "so_alone"
-    post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
+    post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response 403
     post "/source/home:adrian", :cmd => "createmaintenanceincident"
     assert_response 400
@@ -295,28 +302,41 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     prepare_request_with_user "maintenance_coord", "power"
     # create a public maintenance incident
-    post "/source/My:Maintenance", :cmd => "createmaintenanceincident"
+    post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     maintenanceProject=data.elements["/status/data"].text
-    incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
+    incidentID=maintenanceProject.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{maintenanceProject}/_meta"
+    assert_tag( :tag => "project", :attributes => { :kind => "maintenance_incident" } )
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
 
     # create a maintenance incident under embargo
-    post "/source/My:Maintenance?cmd=createmaintenanceincident&noaccess=1", nil
+    post "/source/Temp:Maintenance?cmd=createmaintenanceincident&noaccess=1", nil
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
-    maintenanceProject=data.elements["/status/data"].text
-    incidentID=maintenanceProject.gsub( /^My:Maintenance:/, "" )
-    get "/source/#{maintenanceProject}/_meta"
+    maintenanceProject2=data.elements["/status/data"].text
+    incidentID2=maintenanceProject2.gsub( /^Temp:Maintenance:/, "" )
+    get "/source/#{maintenanceProject2}/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
+
+    # cleanup
+    delete "/source/Temp:Maintenance"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "delete_error" }
+    assert_match /This maintenance project has incident projects/, @response.body
+    delete "/source/#{maintenanceProject}"
+    assert_response :success
+    delete "/source/#{maintenanceProject2}"
+    assert_response :success
+    delete "/source/Temp:Maintenance"
+    assert_response :success
   end
 
   def inject_build_job( project, package, repo, arch )

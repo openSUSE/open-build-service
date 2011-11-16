@@ -31,6 +31,9 @@ class DbProject < ActiveRecord::Base
 
   has_one :db_project_type
 
+  # optional
+  has_one :maintenance_incident, :dependent => :destroy
+
   # self-reference between devel projects and maintenance projects
   has_many :maintained_projects, :class_name => "DbProject", :foreign_key => "maintenance_project_id"
   belongs_to :maintenance_project, :class_name => "DbProject"
@@ -346,6 +349,13 @@ class DbProject < ActiveRecord::Base
       end
       unless msg == ""
         raise DeleteError.new "packages in this project are used by following packages as devel package: #{msg}"
+      end
+    end
+
+    # do not allow to remove maintenance master projects if there are incident projects
+    if self.project_type == "maintenance"
+      if MaintenanceIncident.find_by_maintenance_db_project_id self.id
+        raise DeleteError.new "This maintenance project has incident projects and can not deleted therefore."
       end
     end
 
