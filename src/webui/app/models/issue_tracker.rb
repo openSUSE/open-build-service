@@ -11,7 +11,7 @@ class IssueTracker < ActiveXML::Base
         <issue-tracker>
           <name>#{opt[:name]}</name>
           <description>#{opt[:description]}</description>
-          <kind>#{opŧ[:kind]}</kind>
+          <kind>#{opt[:kind]}</kind>
           <regex>#{opt[:regex]}</regex>
           <url>#{opt[:url]}</url>
           <show-url>#{opt[:show_url]}</show-url>
