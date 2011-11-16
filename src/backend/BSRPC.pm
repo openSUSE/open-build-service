@@ -86,10 +86,8 @@ sub useproxy {
   $noproxy =~ s/^\s+//;
   $noproxy =~ s/\s+$//;
   # noproxy is a list separated by commas and optional whitespace
-  for (split(/\s*,\s*/, "$noproxy")) {
-    if ("$host" =~ m/(^|\.)$_$/) {
-      return 0;
-    }
+  for (split(/\s*,\s*/, $noproxy)) {
+    return 0 if $host =~ m/(^|\.)$_$/;
   }
   return 1;
 }
@@ -106,13 +104,11 @@ sub createreq {
   die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
   my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
   my $hostport = $port ? "$host$port" : $host;
-  if ($proxy && useproxy($host, $noproxy)) {
+  undef $proxy if $proxy && defined($noproxy) && !useproxy($host, $noproxy);
+  if ($proxy) {
     die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
     ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
     $path = $uri unless $uri =~ /^https:/;
-  }
-  else {
-    $proxy="";
   }
   $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
   unshift @xhdrs, "Connection: close";
