@@ -2006,9 +2006,9 @@ class SourceController < ApplicationController
               trepo.path_elements << PathElement.new(:link => repo, :position => 1)
             end
           end
-          # take over flags, but explicit disable publishing by default and enable building.
+          # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
           prj.flags.each do |f|
-            tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == "publish" or f.flag == "build"
+            tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless [ "build", "publish", "lock" ].include?(f.flag)
           end
         else
           # FIXME: support this also for remote projects

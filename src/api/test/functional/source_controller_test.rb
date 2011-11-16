@@ -543,6 +543,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     put "/source/home:Iggy/TestLinkPack/_link", ""
     assert_response 403
 
+    # check branching from a locked project
+    post "/source/home:Iggy/TestLinkPack", :cmd => "branch"
+    assert_response :success
+    get "/source/home:Iggy:branches:home:Iggy/_meta"
+    assert_response :success
+    assert_no_tag :tag => 'lock'
+
     # make project read-writable again
     doc.elements["/project/lock"].delete_element "enable"
     doc.elements["/project/lock"].add_element "disable"
@@ -551,6 +558,8 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # cleanup works now again
     delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+    delete "/source/home:Iggy:branches:home:Iggy"
     assert_response :success
   end
   
