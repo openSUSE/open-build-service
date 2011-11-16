@@ -647,7 +647,15 @@ class MaintenanceTests < ActionController::IntegrationTest
 
   def test_try_to_release_without_permissions_binary_permissions
     prepare_request_with_user "tom", "thunder"
-    # create project
+    # create project without trigger
+    put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> 
+                                         <repository name='dummy'>
+                                           <releasetarget project='BaseDistro' repository='BaseDistro_repo' />
+                                           <arch>i586</arch>
+                                          </repository>
+                                        </project>"
+    assert_response :success
+    # add trigger
     put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> 
                                          <repository name='dummy'>
                                            <releasetarget project='BaseDistro' repository='BaseDistro_repo' trigger='maintenance' />
@@ -655,6 +663,10 @@ class MaintenanceTests < ActionController::IntegrationTest
                                           </repository>
                                         </project>"
     assert_response :success
+    get "/source/home:tom:test/_meta"
+    assert_response :success
+    assert_tag(:tag => "releasetarget", :attributes => { :trigger => "maintenance" })
+    # create package
     put "/source/home:tom:test/pack/_meta", "<package name='pack'> <title/> <description/> </package>"
     assert_response :success
 
