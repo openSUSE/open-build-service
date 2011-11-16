@@ -1169,15 +1169,17 @@ class DbProject < ActiveRecord::Base
       flag_default = FlagHelper.default_for(flag_name)
       archs = Array.new
       flagret = Array.new
-      repos.each do |repo|
-        flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
-        repo.architectures.each do |arch|
-          flagret << flag_status(flag_default, repo.name, arch.name, flaglist, pkg_flags)
-          archs << arch.name
+      unless [ 'lock', 'access', 'sourceaccess' ].include?(flag_name)
+        repos.each do |repo|
+          flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
+          repo.architectures.each do |arch|
+            flagret << flag_status(flag_default, repo.name, arch.name, flaglist, pkg_flags)
+            archs << arch.name
+          end
         end
-      end
-      archs.uniq.each do |arch|
-        flagret << flag_status(flag_default, nil, arch, flaglist, pkg_flags)
+        archs.uniq.each do |arch|
+          flagret << flag_status(flag_default, nil, arch, flaglist, pkg_flags)
+        end
       end
       flagret << flag_status(flag_default, nil, nil, flaglist, pkg_flags)
       ret[flag_name] = flagret

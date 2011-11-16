@@ -785,7 +785,7 @@ class DbPackage < ActiveRecord::Base
       end
 
       if view == 'flagdetails'
-        flags_to_xml(builder, expand_flags)
+        flags_to_xml(builder, expand_flags, 1)
       else
         FlagHelper.flag_types.each do |flag_name|
           flaglist = type_flags(flag_name)
