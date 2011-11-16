@@ -6156,8 +6156,26 @@ sub worker_lastevents {
   return ($ret, $BSXML::events);
 }
 
+#
+# add an event to the "lastevents" queue used in the build service
+# interconnect implementation
+#
 sub addevent {
   my ($ev) = @_;
+
+  # check the "access" flag. if the project has access turned
+  # off, do not add it to lastevents.
+  # XXX: maybe better to add a "noaccess" marker to the event
+  # and filter in the request
+  if (defined($ev->{'project'})) {
+    my $access = 1;
+    my $proj = readproj($ev->{'project'}, 1);
+    if ($proj && $proj->{'access'}) {
+      $access = BSUtil::enabled('', $proj->{'access'}, $access, '');
+    }
+    # XXX: may also check packages in the future
+    return unless $access;
+  }
   $ev->{'time'} = time();
   mkdir_p($eventdir);
   my $size = 65536;	#keep at least 64k of data
