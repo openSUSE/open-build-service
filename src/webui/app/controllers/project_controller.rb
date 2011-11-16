@@ -242,10 +242,12 @@ class ProjectController < ApplicationController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    @packages.each do |pkg_element|
-      if pkg_element.name == 'patchinfo'
-        Package.find_cached(pkg_element.name, :project => @project).files.each do |pkg_file|
-          @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
+    if @packages
+      @packages.each do |pkg_element|
+        if pkg_element.name == 'patchinfo'
+          Package.find_cached(pkg_element.name, :project => @project).files.each do |pkg_file|
+            @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
+          end
         end
       end
     end if @packages
