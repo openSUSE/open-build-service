@@ -1,6 +1,16 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-one:
-  name: Novell Bugzilla
+novell_bugzilla:
+  regex: "bnc#\d+"
+  kind: bugzilla
+  name: bnc
   url: http://bugzilla.novell.com
-  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@issue@@
+  id: "980190962"
+  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
+  description: Novell Bugzilla
+
+cve_numbers:
+  regex: "CVE-\d{4,4}-\d{4,4}"
+  kind: cve
+  name: cve
+  url: http://www.cvedetails.com
+  show_url: http://www.cvedetails.com/cve/@@@
+  description: CVE numbers
