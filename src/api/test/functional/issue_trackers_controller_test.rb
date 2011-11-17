@@ -69,6 +69,6 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
 EOF
     get '/issue_trackers/issues_in', :text => text
     assert_response :success
-    assert_equal '["bnc#724480","CVE-2011-3148","CVE-2011-3149","bnc#631802","CVE-2010-3316","bnc#448314"]', @response.body
+    assert_equal '["bnc#724480","CVE-2011-3148","CVE-2011-3149","CVE-2010-3316","bnc#448314","bnc#631802"]', @response.body
   end
 end

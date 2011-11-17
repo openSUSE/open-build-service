@@ -134,12 +134,18 @@ class IssueTrackersController < ApplicationController
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
     end
     ret = {} # Abuse Hash as mathematical set
-    params[:text].each_line do |line|
-      IssueTracker.regexen.each do |regex|
-        line.scan(regex).each do |match|
-          ret[match] = nil
+    IssueTracker.regexen.each do |regex|
+      # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
+      # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
+      # this it hand...
+      text = params[:text]
+      begin
+        match = regex.match(text)
+        if match
+          ret[match[0]] = nil
+          text = text[match.end(0)+1..-1]
         end
-      end
+      end while match
     end
     render :json => ret.keys
   end
