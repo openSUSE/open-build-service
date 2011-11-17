@@ -570,6 +570,10 @@ while (1) {
 	  my $idlehost = (split(':', $idle, 2))[1];
 	  push @idle, $idle if grep {$idlehost =~ /^$_/} @$BSConfig::powerhosts;
 	}
+        if (@idle == 0) {
+          print "Job can not be assigned due to lack of powerhosts: $job\n";
+          next;
+        }
       }
       my $tries = 0;
       my $haveassigned;
