@@ -235,8 +235,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate that request is diffable (not broken)
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
-    assert_match /new_content_2137/, @response.body # check if our changes are part of the diff
-    assert_match /new_content_0815/, @response.body
+    assert_match(/new_content_2137/, @response.body) # check if our changes are part of the diff
+    assert_match(/new_content_0815/, @response.body)
 
     # store data for later checks
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
@@ -330,7 +330,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     delete "/source/Temp:Maintenance"
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "delete_error" }
-    assert_match /This maintenance project has incident projects/, @response.body
+    assert_match(/This maintenance project has incident projects/, @response.body)
     delete "/source/#{maintenanceProject}"
     assert_response :success
     delete "/source/#{maintenanceProject2}"
