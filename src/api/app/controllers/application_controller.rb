@@ -175,7 +175,7 @@ class ApplicationController < ActionController::Base
 
       if authorization and authorization[0] == "Basic"
         # logger.debug( "AUTH2: #{authorization}" )
-        login, passwd = Base64.decode64(authorization[1]).split(':')[0..1]
+        login, passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
