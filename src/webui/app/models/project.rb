@@ -17,33 +17,29 @@ class Project < ActiveXML::Base
     handles_xml_element 'repository'
 
     def archs
-      @archs ||= each_arch.map { |a| a.to_s }
+      @archs ||= each_arch.map {|a| a.to_s}
       return @archs
     end
 
-    def add_arch (arch)
+    def archs=(new_archs)
+      new_archs.map! {|a| a.to_s}
+      archs.reject {|a| new_archs.include?(a)}.each {|arch| remove_arch(arch)}
+      new_archs.reject {|a| archs.include?(a)}.each {|arch| add_arch(arch)}
+    end
+
+    def add_arch(arch)
       return nil if archs.include? arch
       @archs.push arch
       e = add_element('arch')
       e.text = arch
     end
 
-    def remove_arch (arch)
+    def remove_arch(arch)
       return nil unless archs.include? arch
       each_arch do |a|
-        delete_element a if a.text == arch
+        delete_element(a) if a.text == arch
       end
       @archs.delete arch
-    end
-
-    def set_archs (new_archs)
-      new_archs.map!{ |a| a.to_s }
-      archs.reject{ |a| new_archs.include? a }.each{ |arch| remove_arch arch }
-      new_archs.reject{ |a| archs.include? a }.each{ |arch| add_arch arch }
-    end
-
-    def archs= (new_archs)
-      set_archs new_archs
     end
 
     def paths
@@ -88,7 +84,6 @@ class Project < ActiveXML::Base
         end
       end
     end
-
   end
 
   #check if named project exists
