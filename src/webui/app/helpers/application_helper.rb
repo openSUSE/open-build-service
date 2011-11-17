@@ -457,14 +457,8 @@ module ApplicationHelper
       (changes_file_keys + spec_file_keys).each do |file|
         contents = files_hash[file]
         if contents
-          IssueTracker.regex_show_url_hash.each do |regexp, show_url|
-            contents.text.each_line do |line|
-              if line.match(/^[+-].*/) # Only incorporate bugs in added / removed lines
-                line.scan(Regexp.new(regexp)).each do |matched_bug|
-                  ret[:bugs][matched_bug] = show_url.gsub('@@@', matched_bug)
-                end
-              end
-            end
+          IssueTracker.issues_in(contents.text).each do |issue|
+            ret[:bugs][issue] = IssueTracker.show_url_for(issue)
           end
         end
       end
