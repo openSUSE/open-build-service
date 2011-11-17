@@ -290,8 +290,8 @@
   <div>
     <% @diff_per_action.each do |index_and_type, diff| %>
       <%# Depending on the request type, the project, package (and rev) for displaying file links is different ;-) %>
-      <% case diff[:action].value('type') %>
-        <% when 'maintenance_incident'%>
+      <% case diff[:action].value('type')
+           when 'maintenance_incident'%>
           <% project, package, rev = diff[:action].source.project, "patchinfo", diff[:action].source.rev %>
         <% when 'delete' %>
           <% project, package, rev = diff[:action].target.project, diff[:action].target.package, diff[:action].target.rev %>
