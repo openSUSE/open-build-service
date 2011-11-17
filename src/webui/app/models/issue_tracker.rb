@@ -24,7 +24,7 @@ class IssueTracker < ActiveXML::Base
       return Rails.cache.fetch('issue_trackers_all_regex', :expires_in => 5.minutes) do
         regex_hash = {}
         find_cached(:all).each do |it| # Iterate over all issue trackers
-          regex_hash[it.value('regex')] = it.value('show-url')
+          regex_hash[it.value('regex')] = it.value('show-url') if it.value('regex')
         end
         regex_hash
       end
