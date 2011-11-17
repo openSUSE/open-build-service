@@ -120,11 +120,9 @@ class IssueTrackersController < ApplicationController
     unless params[:issue]
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide an issue parameter" and return
     end
-    show_url = nil
-    #TODO: Provide some caching
-    IssueTracker.all().each do |it|
-      if Regexp.new(it.regex).match(params[:issue])
-        render :text => it.show_url.gsub('@@@', params[:issue]) and return
+    IssueTracker.all.each do |it|
+      if it.matches?(params[:issue])
+        render :text => it.show_url_for(params[:issue]) and return
       end
     end
     head 404
@@ -135,11 +133,9 @@ class IssueTrackersController < ApplicationController
     unless params[:text]
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
     end
-    # TODO: The next line is perfectly cacheable, only needs invalidation upon DELETE, POST, PUT:
-    regexen = IssueTracker.all.map {|it| Regexp.new(it.regex)}
     ret = {} # Abuse Hash as mathematical set
     params[:text].each_line do |line|
-      regexen.each do |regex|
+      IssueTracker.regexen.each do |regex|
         line.scan(regex).each do |match|
           ret[match] = nil
         end
