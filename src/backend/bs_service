@@ -203,8 +203,15 @@ sub run_source_update {
   BSUtil::cleandir("$myworkdir/.old");
   rmdir("$myworkdir/.old");
 
-  # return modified sources
+  # get all generate files
   my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service[_:]/} ls(".");
+
+  # check for non files (symlinks or directories)
+  for my $file (@send) {
+    die("Service result contains a not readable file\n") unless -f $file->{'filename'};
+  }
+
+  # send everything back for real
   BSServer::reply_cpio(\@send);
   
   # clean up
