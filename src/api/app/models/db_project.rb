@@ -1282,4 +1282,36 @@ class DbProject < ActiveRecord::Base
     return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
   end
 
+  # list only the repositories that have a target project in the build path
+  # the function uses the backend for informations (TODO)
+  def repositories_linking_project(tproj, backend)
+    tocheck_repos = Array.new
+
+    targets = bsrequest_repos_map(tproj.name, backend)
+    sources = bsrequest_repos_map(self.name, backend)
+    sources.each do |key, value|
+      if targets.has_key?(key)
+        tocheck_repos << sources[key]
+      end
+    end
+
+    tocheck_repos.flatten!
+    tocheck_repos.uniq
+  end
+
+  def bsrequest_repos_map(project, backend)
+    ret = Hash.new
+    uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
+    xml = ActiveXML::Base.new( backend.direct_http( uri ) )
+    xml.project.each_repository do |repo|
+      repo.each_path do |path|
+        ret[path.project.to_s] ||= Array.new
+        ret[path.project.to_s] << repo
+      end
+    end
+
+    return ret
+  end
+  private :bsrequest_repos_map
+    
 end

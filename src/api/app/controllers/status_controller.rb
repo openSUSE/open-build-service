@@ -1,4 +1,4 @@
-require 'project_status_helper'
+require 'status_helper'
 
 class StatusController < ApplicationController
   
@@ -113,7 +113,7 @@ class StatusController < ApplicationController
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.history do
       StatusHelper.resample(values, samples).each do |time,val|
-	builder.value( :time => time,
+        builder.value( :time => time,
 		      :value => val ) # for debug, :timestring => Time.at(time)  )
       end
     end
@@ -155,16 +155,16 @@ class StatusController < ApplicationController
     workers = Hash.new
     %w{building idle}.each do |state|
       data.root.each_element(state) do |e|
-	id=e.attributes['workerid']
-	if workers.has_key? id
-	  logger.debug 'building+idle worker'
-	  next
-	end
-	workers[id] = 1
-	key = state + '_' + e.attributes['hostarch']
-	allworkers["building_#{e.attributes['hostarch']}"] ||= 0
-	allworkers["idle_#{e.attributes['hostarch']}"] ||= 0
-	allworkers[key] = allworkers[key] + 1
+        id=e.attributes['workerid']
+        if workers.has_key? id
+          logger.debug 'building+idle worker'
+          next
+        end
+        workers[id] = 1
+        key = state + '_' + e.attributes['hostarch']
+        allworkers["building_#{e.attributes['hostarch']}"] ||= 0
+        allworkers["idle_#{e.attributes['hostarch']}"] ||= 0
+        allworkers[key] = allworkers[key] + 1
       end
     end
     
@@ -182,29 +182,14 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
-     dbproj = DbProject.get_by_name(params[:id])
-     key='project_status_xml_%s' % dbproj.name
-     xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
-       @packages = dbproj.complex_status(backend)
-       render_to_string 
-     end
-     render :text => xml
-  end
-
-  def bsrequest_repos_map(project)
-    ret = Hash.new
-    uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
-    xml = ActiveXML::Base.new( backend.direct_http( uri ) )
-    xml.project.each_repository do |repo|
-      repo.each_path do |path|
-        ret[path.project.to_s] ||= Array.new
-        ret[path.project.to_s] << repo
-      end
+    dbproj = DbProject.get_by_name(params[:id])
+    key='project_status_xml_%s' % dbproj.name
+    xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
+      @packages = dbproj.complex_status(backend)
+      render_to_string
     end
-
-    return ret
+    render :text => xml
   end
-  private :bsrequest_repos_map
 
   def bsrequest_repo_list(project, repo, arch)
     ret = Hash.new
@@ -236,7 +221,7 @@ class StatusController < ApplicationController
 
     fileinfo.each_requires_ext do |r|
       unless r.has_element? :providedby
-	ret << "#{file}:#{r.dep}"
+        ret << "#{file}:#{r.dep}"
       end
     end
     return ret
@@ -258,28 +243,16 @@ class StatusController < ApplicationController
     rescue DbProject::UnknownObjectError => e
       render :text => "<status id='#{params[:id]}' code='error'>Can't find project #{e.message}k</status>\n" and return
     end
-
-    tocheck_repos = Array.new
-
-    targets = bsrequest_repos_map(tproj.name)
-    sources = bsrequest_repos_map(sproj.name)
-    sources.each do |key, value|
-      if targets.has_key?(key)
-        tocheck_repos << sources[key]
-      end
-    end
-
-    tocheck_repos.flatten!
-    tocheck_repos.uniq!
-
+    
+    tocheck_repos = sproj.repositories_linking_project(tproj, backend)
     if tocheck_repos.empty?
       render :text => "<status id='#{params[:id]}' code='warning'>No repositories build against target</status>\n"
       return
     end
     begin
       dir = Directory.find(:project => req.action.source.project,
-			   :package => req.action.source.package,
-			   :expand => 1, :rev => req.action.source.value('rev'))
+        :package => req.action.source.package,
+        :expand => 1, :rev => req.action.source.value('rev'))
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}</status>\n"
@@ -289,8 +262,8 @@ class StatusController < ApplicationController
     # check current srcmd5
     begin
       cdir = Directory.find(:project => req.action.source.project,
-                           :package => req.action.source.package,
-                           :expand => 1)
+        :package => req.action.source.package,
+        :expand => 1)
       csrcmd5 = cdir.value('srcmd5')
     rescue ActiveXML::Transport::Error => e
       csrcmd5 = nil
@@ -309,67 +282,67 @@ class StatusController < ApplicationController
       trepo = []
       archs = []
       srep.each_path do |p|
-	if p.project != sproj.name
-	  r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
+        if p.project != sproj.name
+          r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
           if r.db_project = tproj
             r.architectures.each {|a| archs << a.name }
           end
           trepo << [p.project, p.value(:repository)]
-	end
+        end
       end
       archs.uniq!
       if trepo.empty?
-	render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
+        render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
       end
       logger.debug "trepo #{trepo.inspect}"
       archs.each do |arch|
         everbuilt = 0
         eversucceeded = 0
-	buildcode=nil
-	hist = Jobhistory.find(:project => sproj.name, 
-			       :repository => srep.name, 
-			       :package => req.action.source.package,
-			       :arch => arch.to_s, :limit => 20 )
-	next unless hist
-	hist.each_jobhist do |jh|
-	  next if jh.srcmd5 != srcmd5
-	  everbuilt = 1
-	  if jh.code == 'succeeded' || jh.code == 'unchanged'
-	    buildcode='succeeded'
-	    eversucceeded = 1
-	    break
-	  end
-	end
-        logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
-	missingdeps=[]
-	if eversucceeded == 1
-	  uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
-          begin
-	     buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
-          rescue ActiveXML::Transport::Error => e
-             # if there is an error, we ignore
-             message, code, api_exception = ActiveXML::Transport.extract_error_message e
-             render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{message}</status>\n"
-             return
+        buildcode=nil
+        hist = Jobhistory.find(:project => sproj.name,
+          :repository => srep.name,
+          :package => req.action.source.package,
+          :arch => arch.to_s, :limit => 20 )
+        next unless hist
+        hist.each_jobhist do |jh|
+          next if jh.srcmd5 != srcmd5
+          everbuilt = 1
+          if jh.code == 'succeeded' || jh.code == 'unchanged'
+            buildcode='succeeded'
+            eversucceeded = 1
+            break
           end
-	  packages = Hash.new
-	  trepo.each do |p, r|
+        end
+        logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
+        missingdeps=[]
+        if eversucceeded == 1
+          uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
+          begin
+            buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+          rescue ActiveXML::Transport::Error => e
+            # if there is an error, we ignore
+            message, code, api_exception = ActiveXML::Transport.extract_error_message e
+            render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{message}</status>\n"
+            return
+          end
+          packages = Hash.new
+          trepo.each do |p, r|
             begin
-	      packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
+              packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
             rescue ActiveXML::Transport::Error => e
               message, code, api_exception = ActiveXML::Transport.extract_error_message e
               render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{message}</status>\n"
               return
             end
-	  end
+          end
 
-	  buildinfo.each_bdep do |b|
-	    unless b.value(:preinstall)
-	      unless packages.has_key? b.value(:name)
-		missingdeps << b.name
-	      end
-	    end
-	  end
+          buildinfo.each_bdep do |b|
+            unless b.value(:preinstall)
+              unless packages.has_key? b.value(:name)
+                missingdeps << b.name
+              end
+            end
+          end
           
           uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}")
           binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
@@ -380,37 +353,37 @@ class StatusController < ApplicationController
               render :text => "<status id='#{params[:id]}' code='error'>Does not match re: #{f.value(:filename)}</status>\n"
               next
             end
-	    filename_file = m[1]
-	    filename_version = m[2]
-	    filename_release = m[3]
-	    filename_arch = m[4]
+            filename_file = m[1]
+            filename_version = m[2]
+            filename_release = m[3]
+            filename_arch = m[4]
             # work around as long as we build ia64 baselibs (soon to be gone)
             next if filename_arch == "ia64"
             md = nil
             begin
-               md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
+              md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
             rescue ActiveXML::Transport::NotFoundError
-               if filename_arch != arch
-                  filename_arch = arch.to_s
-                  retry
-               end
-	    rescue NotInRepo => e
-	      render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
-	      return
+              if filename_arch != arch
+                filename_arch = arch.to_s
+                retry
+              end
+            rescue NotInRepo => e
+              render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
+              return
             end
             if md && md.size > 0
               missingdeps << md
             end
           end
-	end
-	# if the package does not appear in build history, check flags
-	if everbuilt == 0
-	  spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
+        end
+        # if the package does not appear in build history, check flags
+        if everbuilt == 0
+          spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
           buildflag=spkg.find_flag_state("build", srep.name, arch.to_s)
           logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
-	  if buildflag == 'disable'
-	    buildcode='disabled'
-	  end
+          if buildflag == 'disable'
+            buildcode='disabled'
+          end
         end
 
         if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
@@ -424,7 +397,7 @@ class StatusController < ApplicationController
             resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
             currentcode = nil
             resultlist.each_result do |r|
-               r.each_status { |s| currentcode = s.value(:code) }
+              r.each_status { |s| currentcode = s.value(:code) }
             end
           rescue ActiveXML::Transport::Error
             currentcode = nil
@@ -447,9 +420,9 @@ class StatusController < ApplicationController
             end
           end
         end
-	outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
-	outputxml << " missing='#{missingdeps.join(',')}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
-	outputxml << "/>\n"
+        outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
+        outputxml << " missing='#{missingdeps.join(',')}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
+        outputxml << "/>\n"
       end
       outputxml << " </repository>\n"
     end
