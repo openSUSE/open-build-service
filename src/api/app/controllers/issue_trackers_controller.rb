@@ -137,15 +137,15 @@ class IssueTrackersController < ApplicationController
     end
     # TODO: The next line is perfectly cacheable, only needs invalidation upon DELETE, POST, PUT:
     regexen = IssueTracker.all.map {|it| Regexp.new(it.regex)}
-    ret = []
+    ret = {} # Abuse Hash as mathematical set
     params[:text].each_line do |line|
       regexen.each do |regex|
         line.scan(regex).each do |match|
-          ret << match
+          ret[match] = nil
         end
       end
     end
-    render :json => ret
+    render :json => ret.keys
   end
 
 end
