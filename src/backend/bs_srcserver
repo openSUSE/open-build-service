@@ -282,7 +282,7 @@ sub runservice {
     BSUtil::touch($lockfile);
   }
 
-  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort(keys %$files);
+  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} grep {$_ ne '/SERVICE'} sort(keys %$files);
   push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)} if $projectservices;
 
   # run the source update in own process (do not wait for it)
@@ -327,14 +327,22 @@ sub runservice {
       delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
     }
     # add new service files
-    for my $pfile (ls($odir)) {
-      unless ($pfile =~ /^_service[_:]/) {
-	unlink($lockfile);
-	die("ERROR: bs_service returned a non-_service file\n");
+    eval {
+      for my $pfile (ls($odir)) {
+        if ($pfile eq '.errors') {
+          my $e = readstr("$odir/.errors");
+          $e ||= 'empty .errors file';
+          die($e);
+        }
+	unless ($pfile =~ /^_service[_:]/) {
+	  unlink($lockfile);
+	  die("service returned a non-_service file: $pfile\n");
+	}
+	BSVerify::verify_filename($pfile);
+	$files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
       }
-      BSVerify::verify_filename($pfile);
-      $files->{$pfile} = addfile($projid, $packid, "$odir/$pfile", $pfile);
-    }
+    };
+    $error = $@ if $@;
   } else {
     $error ||= 'error';
     $error = "service daemon error: $error";
