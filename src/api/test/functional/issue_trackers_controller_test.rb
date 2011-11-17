@@ -49,4 +49,26 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     delete '/issue_trackers/test'
     assert_response :success
   end
+
+
+  def test_get_issues_in_text
+    text = <<EOF
+@@ -1,4 +1,12 @@
+ -------------------------------------------------------------------
++Fri Nov  4 08:33:52 UTC 2011 - lijewski.stefan@gmail.com
++
++- fix possible overflow and DOS in pam_env (bnc#724480)
++  CVE-2011-3148, CVE-2011-3149
++- fix pam_xauth not checking return value of setuid (bnc#631802)
++  CVE-2010-3316
++
+  +-------------------------------------------------------------------
+   Thu Nov 27 15:56:51 CET 2008 - mc@suse.de
+ 
+ - enhance the man page for limits.conf (bnc#448314)")
+EOF
+    get '/issue_trackers/issues_in', :text => text
+    assert_response :success
+    assert_equal '["bnc#724480","CVE-2011-3148","CVE-2011-3149","bnc#631802","CVE-2010-3316","bnc#448314"]', @response.body
+  end
 end

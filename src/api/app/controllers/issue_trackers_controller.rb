@@ -130,4 +130,22 @@ class IssueTrackersController < ApplicationController
     head 404
   end
 
+  # GET /issue_trackers/issues_in?text=...
+  def issues_in
+    unless params[:text]
+      render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
+    end
+    # TODO: The next line is perfectly cacheable, only needs invalidation upon DELETE, POST, PUT:
+    regexen = IssueTracker.all.map {|it| Regexp.new(it.regex)}
+    ret = []
+    params[:text].each_line do |line|
+      regexen.each do |regex|
+        line.scan(regex).each do |match|
+          ret << match
+        end
+      end
+    end
+    render :json => ret
+  end
+
 end

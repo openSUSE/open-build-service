@@ -96,6 +96,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /issue_trackers
   map.connect 'issue_trackers/show_url_for', :controller => 'issue_trackers', :action => 'show_url_for'
+  map.connect 'issue_trackers/issues_in', :controller => 'issue_trackers', :action => 'issues_in'
   map.resources :issue_trackers
 
   ### /tag
