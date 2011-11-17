@@ -126,7 +126,8 @@ DOWNLOAD_URL='http://localhost:82/'
 #  hermesconf.dbname = 'hermes'
 #end
 
-RESPONSE_SCHEMA_VALIDATION = true
+# disabled on production for performance reasons
+# RESPONSE_SCHEMA_VALIDATION = true
 
 #require 'memory_debugger'
 # dumps the objects after every request
