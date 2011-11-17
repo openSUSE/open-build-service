@@ -41,16 +41,22 @@ class Project < ActiveXML::Base
       archs.reject{ |a| new_archs.include? a }.each{ |arch| remove_arch arch }
       new_archs.reject{ |a| archs.include? a }.each{ |arch| add_arch arch }
     end
+
     def archs= (new_archs)
       set_archs new_archs
     end
 
     def paths
-      @paths ||= each_path.map { |p| p.project + '/' + p.repository }
+      @paths ||= each_path.map {|p| p.project + '/' + p.repository}
       return @paths
     end
 
-    def add_path (path)
+    def paths=(new_paths)
+      paths.clone.each {|path| remove_path(path)}
+      new_paths.each {|path| add_path(path)}
+    end
+
+    def add_path(path)
       return nil if paths.include? path
       project, repository = path.split("/")
       @paths.push path
@@ -59,42 +65,28 @@ class Project < ActiveXML::Base
       e.set_attribute('project', project)
     end
 
-    def remove_path (path)
+    def remove_path(path)
       return nil unless paths.include? path
       project, repository = path.split("/")
       delete_element "//path[@project='#{project.to_xs}' and @repository='#{repository.to_xs}']"
       @paths.delete path
     end
 
-    def set_paths (new_paths)
-      paths.clone.each{ |path| remove_path path }
-      new_paths.each{ |path| add_path path }
-    end
-    
-    def paths= (new_paths)
-      set_paths new_paths
-    end
-
     # directions are :up and :down
-    def move_path (path, direction=:up)
+    def move_path(path, direction=:up)
       return nil unless (path and not paths.empty?)
       new_paths = paths.clone
       for i in 0..new_paths.length
         if new_paths[i] == path           # found the path to move?
           if direction == :up and i != 0  # move up and is not the first?
-            tmp = new_paths[i - 1]
-            new_paths[i - 1] = new_paths[i]
-            new_paths[i] = tmp
-            break
+            new_paths[i - 1], new_paths[i] = new_paths[i], new_paths[i - 1]
+            paths=(new_paths) and break
           elsif direction == :down and i != new_paths.length - 1
-            tmp = new_paths[i + 1]
-            new_paths[i + 1] = new_paths[i]
-            new_paths[i] = tmp
-            break
+            new_paths[i + 1], new_paths[i] = new_paths[i], new_paths[i + 1]
+            paths=(new_paths) and break
           end
         end
       end
-      set_paths new_paths
     end
 
   end
