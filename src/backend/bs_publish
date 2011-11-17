@@ -805,6 +805,7 @@ sub deleterepo {
     my $r = "$extrep/$arch";
     next unless -d $r;
     for my $bin (ls($r)) {
+      next if $bin eq 'media_info';
       my $p = "$arch/$bin";
       print "      - $p\n";
       unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
