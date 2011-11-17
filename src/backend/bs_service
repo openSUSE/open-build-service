@@ -208,7 +208,7 @@ sub run_source_update {
 
   # check for non files (symlinks or directories)
   for my $file (@send) {
-    die("Service result contains a not readable file\n") unless -f $file->{'filename'};
+    die("Service result contains unreadable file '$file->{'filename'}'\n") unless -f $file->{'filename'};
   }
 
   # send everything back for real
