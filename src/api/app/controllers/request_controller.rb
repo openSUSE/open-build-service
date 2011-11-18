@@ -868,6 +868,8 @@ class RequestController < ApplicationController
         end
       end
       if params[:view] == 'xml'
+        # Inject issues found in the action's diff
+        action_diff += IssueTracker.issues_in(action_diff).to_xml(:skip_instruct => true)
         # Inject backend-provided XML diff into action XML:
         diff_text += action.dump_xml()[0..-10] + action_diff + "</action>\n"
       else
