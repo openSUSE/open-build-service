@@ -340,17 +340,21 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def inject_build_job( project, package, repo, arch )
+
+
     job=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
     jobfile=job.readlines.first.chomp
     jobid=""
     IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
        jobid = io.readlines.first.chomp
     end
+    data = REXML::Document.new(File.new(jobfile))
+    verifymd5 = data.elements["/buildinfo/verifymd5"].text
     f = File.open("#{jobfile}:status", 'w')
     f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>" )
     f.close
     system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
-    system("echo \"46d4408d324ac84a93aef39181b6a60c  #{package}\" > #{jobfile}:dir/meta")
+    system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
   end
 
   def run_scheduler( arch )
@@ -402,10 +406,27 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/"+maintenanceProject+"/pack2.BaseDistro2/_link"
     assert_response :success
     assert_tag( :tag => "link", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :package => "pack2" } )
+    get "/source/"+maintenanceProject
+    assert_response :success
+    assert_tag( :tag => "directory", :attributes => { :count => "3" } )
+    assert_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro2" } )
+    assert_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2" } )
+    assert_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro3" } )
     get "/source/"+maintenanceProject+"/_meta"
     assert_response :success
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
     assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
+    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :trigger => "maintenance" } )
+    # validate pakcage meta
+    get "/source/"+maintenanceProject+"/pack2.BaseDistro2/_meta"
+    assert_response :success
+    assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo"} )
+    get "/source/"+maintenanceProject+"/pack2_linked.BaseDistro2/_meta"
+    assert_response :success
+    assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo"} )
+    get "/source/"+maintenanceProject+"/pack2.BaseDistro3/_meta"
+    assert_response :success
+    assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro3_BaseDistro3_repo"} )
 
     # search will find this new and not yet processed incident now.
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
@@ -436,11 +457,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{maintenanceProject}/patchinfo/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
 
-    # disable the packages we do not like to test here
-#FIXME: the flag handling is currently broken
-    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?cmd=remove_flag&flag=build&repository='BaseDistro2_BaseDistro2LinkedUpdateProject_repo'"
-    assert_response :success
-
     ### the backend is now building the packages, injecting results
     # run scheduler once to create job file. x86_64 scheduler gets no work
     run_scheduler("x86_64")
@@ -450,6 +466,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
     inject_build_job( maintenanceProject, "pack2.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "i586" )
     inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2", "BaseDistro2_BaseDistro2LinkedUpdateProject_repo", "i586" )
+    inject_build_job( maintenanceProject, "pack2.BaseDistro3", "BaseDistro3_BaseDistro3_repo", "i586" )
     # collect the job results
     run_scheduler( "x86_64" )
     run_scheduler( "i586" )
@@ -583,13 +600,44 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:BaseDistro:Update/pack1/_link"
     assert_response :success
 
+    # Run without server side expansion
     prepare_request_with_user "maintenance_coord", "power"
+    rq = '<request>
+           <action type="maintenance_release">
+             <source project="home:tom:branches:BaseDistro:Update" package="pack1" />
+             <target project="BaseDistro:Update" package="pack1" />
+           </action>
+           <state name="new" />
+         </request>'
+    post "/request?cmd=create", rq
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
+
+
+    # try with server side request expansion
     rq = '<request>
            <action type="maintenance_release">
              <source project="home:tom:branches:BaseDistro:Update" />
            </action>
            <state name="new" />
          </request>'
+    post "/request?cmd=create", rq
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "wrong_linked_package_source" }
+
+    # add a release target
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:tom:branches:BaseDistro:Update/_meta"
+    assert_response :success
+    pi = REXML::Document.new( @response.body )
+    pi.elements['//repository'].add_element 'releasetarget'
+    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro:Update')
+    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo')
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
+    assert_response :success
+
+    # retry
+    prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create", rq
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "missing_patchinfo" }
@@ -604,20 +652,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "build_not_finished" }
 
-    # ignore build state
-    prepare_request_with_user "maintenance_coord", "power"
-    post "/request?cmd=create&ignore_build_state=1", rq
-    assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
-
-    # add a release target and remove architecture
+    # remove architecture
     prepare_request_with_user "tom", "thunder"
-    get "/source/home:tom:branches:BaseDistro:Update/_meta"
-    assert_response :success
-    pi = REXML::Document.new( @response.body )
-    pi.elements['//repository'].add_element 'releasetarget'
-    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro')
-    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistro_repo')
     pi.elements['//repository'].delete_element 'arch'
     put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
     assert_response :success

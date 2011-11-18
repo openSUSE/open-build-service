@@ -180,7 +180,7 @@ Suse::Backend.put( '/source/BaseDistro2:LinkedUpdateProject/_meta', DbProject.fi
 Suse::Backend.put( '/source/BaseDistro3/_meta', DbProject.find_by_name('BaseDistro3').to_axml)
 Suse::Backend.put( '/source/BaseDistro3/_config', "Type: spec" )
 Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', DbPackage.find_by_id('10094').to_axml)
-Suse::Backend.put( '/source/BaseDistro3/pack2/myfile', "DummyContent of BaseDistro3/pack2")
+Suse::Backend.put( '/source/BaseDistro3/pack2/package.spec',File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put( '/source/Devel:BaseDistro:Update/_meta', DbProject.find_by_name('Devel:BaseDistro:Update').to_axml)
 Suse::Backend.put( '/source/BaseDistro:Update/_meta', DbProject.find_by_name('BaseDistro:Update').to_axml)
 Suse::Backend.put( '/source/BaseDistro:Update/pack2/_meta', DbPackage.find_by_id(10098).to_axml)

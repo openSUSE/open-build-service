@@ -127,8 +127,8 @@ repositories_92:
   rebuild: 
   remote_project_name: 
 repositories_93: 
-  name: repo
-  db_project_id: "3001"
+  name: BaseDistro3_repo
+  db_project_id: "2047"
   linkedbuild: 
   id: "93"
   block: 
@@ -147,6 +147,14 @@ repositories_95:
   db_project_id: "2043"
   linkedbuild: 
   id: "95"
+  block: 
+  rebuild: 
+  remote_project_name: 
+repositories_96: 
+  name: repo
+  db_project_id: "3001"
+  linkedbuild: 
+  id: "96"
   block: 
   rebuild: 
   remote_project_name: 

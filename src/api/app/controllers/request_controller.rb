@@ -366,6 +366,23 @@ class RequestController < ApplicationController
                 return
               end
             end
+            # is this package source going to a project which is specified as release target ?
+            if action.value("type") == "maintenance_release"
+              found = nil
+              pkg.db_project.repositories.each do |repo|
+                repo.release_targets.each do |rt|
+                  if rt.target_repository.db_project.name == tprj
+                     found = 1
+                  end
+                end
+              end
+              unless found
+                render_error :status => 400, :errorcode => 'wrong_linked_package_source',
+                  :message => "According to the source link of package #{pkg.db_project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
+                return
+              end
+            end
+
             newTargets << tprj
             newAction = ActiveXML::XMLNode.new(action.dump_xml)
             newAction.add_element 'target' unless newAction.has_element? 'target'
