@@ -137,7 +137,7 @@ class IssueTrackersController < ApplicationController
     IssueTracker.regexen.each do |regex|
       # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
       # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
-      # this it hand...
+      # it by hand...
       text = params[:text]
       begin
         match = regex.match(text)

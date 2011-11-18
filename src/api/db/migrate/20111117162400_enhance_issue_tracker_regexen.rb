@@ -6,7 +6,7 @@ class EnhanceIssueTrackerRegexen < ActiveRecord::Migration
     # For CVEs, the whole number can be send upstream (e.g 'CVE-2011-1234').
 
     # This is easily fixed by only returning the number part in a RegEx capture group instead of
-    # the whole match. This implies that a regexp should include at most one capture group
+    # the whole match. The API always takes the last capture group (for cases like /(Kernel|K|bko)#(\d+)/).
 
     trackers_regexen = {
       :boost => 'boost#(\d+)',
