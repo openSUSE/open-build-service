@@ -95,9 +95,10 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :architectures, :only => [:index, :show, :update] # create,delete currently disabled
 
   ### /issue_trackers
-  map.connect 'issue_trackers/show_url_for', :controller => 'issue_trackers', :action => 'show_url_for'
   map.connect 'issue_trackers/issues_in', :controller => 'issue_trackers', :action => 'issues_in'
-  map.resources :issue_trackers
+  map.resources :issue_trackers do |issue_trackers|
+    issue_trackers.resources :issues, :only => [:show] # Nested route
+  end
 
   ### /tag
 

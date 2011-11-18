@@ -53,7 +53,7 @@ class IssueTrackersController < ApplicationController
                                            :show_url => xml.xpath('show-url[1]/text()').to_s)
     end
 
-  respond_to do |format|
+    respond_to do |format|
       if @issue_tracker
         format.xml  { render :xml => @issue_tracker.to_xml($render_params), :status => :created, :location => @issue_tracker }
         format.json { render :json => @issue_tracker.to_json($render_params), :status => :created, :location => @issue_tracker }
@@ -114,40 +114,17 @@ class IssueTrackersController < ApplicationController
     end
   end
 
-  # GET /issue_trackers/show_url_for?issue=bnc%231234
-  # GET /issue_trackers/show_url_for?issue=CVS-2011-1234
-  def show_url_for
-    unless params[:issue]
-      render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide an issue parameter" and return
-    end
-    IssueTracker.all.each do |it|
-      if it.matches?(params[:issue])
-        render :text => it.show_url_for(params[:issue]) and return
-      end
-    end
-    head 404
-  end
-
   # GET /issue_trackers/issues_in?text=...
+  # GET /issue_trackers/issues_in?issue=bnc%231234
+  # GET /issue_trackers/issues_in?issue=CVS-2011-1234
   def issues_in
     unless params[:text]
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
     end
-    ret = {} # Abuse Hash as mathematical set
-    IssueTracker.regexen.each do |regex|
-      # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
-      # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
-      # it by hand...
-      text = params[:text]
-      begin
-        match = regex.match(text)
-        if match
-          ret[match[0]] = nil
-          text = text[match.end(0)+1..-1]
-        end
-      end while match
+    respond_to do |format|
+      format.xml  { render :xml => IssueTracker.issues_in(params[:text]).to_xml }
+      format.json { render :json => IssueTracker.issues_in(params[:text]).to_json }
     end
-    render :json => ret.keys
   end
 
 end
