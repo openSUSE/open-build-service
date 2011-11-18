@@ -420,5 +420,10 @@ class PatchinfoController < ApplicationController
     opt = {:project => @project.name, :package => @package}
     opt.store(:patchinfo, @patchinfo.to_s)
     @patchinfo = Patchinfo.find(opt)
+
+    unless @file
+        flash[:error] = "Patchinfo not found: #{params[:project]}"
+        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+    end
   end
 end
