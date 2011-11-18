@@ -1302,13 +1302,17 @@ class DbProject < ActiveRecord::Base
   def bsrequest_repos_map(project, backend)
     ret = Hash.new
     uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
-    xml = ActiveXML::Base.new( backend.direct_http( uri ) )
+    begin
+      xml = ActiveXML::Base.new( backend.direct_http( uri ) )
+    rescue ActiveXML::Transport::Error
+      return ret
+    end
     xml.project.each_repository do |repo|
       repo.each_path do |path|
         ret[path.project.to_s] ||= Array.new
         ret[path.project.to_s] << repo
       end
-    end
+    end if xml.project
 
     return ret
   end
