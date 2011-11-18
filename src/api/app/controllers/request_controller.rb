@@ -560,10 +560,21 @@ class RequestController < ApplicationController
               end
             end
           end
+
           # check for open release requests with same target, the binaries can't get merged automatically
           # either exact target package match or with same prefix (when using the incident extension)
-          tpkgprefix=action.target.package.gsub(/\..*/, '')
-          predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{action.target.project}' and (action/target/@package='#{action.target.package}' or starts-with(action/target/@package,'#{tpkgprefix}.'))"
+
+          # patchinfos don't get a link, all others should not conflict with any other
+          answer = Suse::Backend.get "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
+          xml = REXML::Document.new(answer.body.to_s)
+          if xml.elements["/directory/entry/@name='_patchinfo'"]
+            predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{action.target.project}' and action/target/@package='#{action.target.package}'"
+          else
+            tpkgprefix = action.target.package.gsub(/\..*/, '')
+            predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{action.target.project}' and (action/target/@package='#{action.target.package}' or starts-with(action/target/@package,'#{tpkgprefix}.'))"
+          end
+
+          # run search
           collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
           rqs = collection.scan(/request id\="(\d+)"/).flatten
           if rqs.size > 0
