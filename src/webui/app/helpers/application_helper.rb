@@ -458,7 +458,7 @@ module ApplicationHelper
         contents = files_hash[file]
         if contents
           IssueTracker.issues_in(contents.text).each do |issue|
-            ret[:bugs][issue] = IssueTracker.show_url_for(issue)
+            ret[:bugs][issue['long_name']] = issue['show_url']
           end
         end
       end
