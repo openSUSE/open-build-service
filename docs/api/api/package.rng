@@ -37,8 +37,10 @@
   <define name="package-element">
     <element>
       <name ns="">package</name>
-      <attribute name="name"/>
 
+      <optional>
+        <attribute name="name"/>
+      </optional>
       <optional>
         <attribute name="project"/>
       </optional>

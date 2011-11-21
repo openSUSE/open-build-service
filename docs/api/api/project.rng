@@ -60,7 +60,9 @@
     <element>
       <name ns="">project</name>
 
-      <attribute name="name" />
+      <optional>
+        <attribute name="name" />
+      </optional>
       <optional>
         <attribute name="kind">
           <choice>
