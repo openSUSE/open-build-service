@@ -116,7 +116,7 @@ class IssueTrackersController < ApplicationController
 
   # GET /issue_trackers/issues_in?text=...
   # GET /issue_trackers/issues_in?text=bnc%231234
-  # GET /issue_trackers/issues_in?text=CVS-2011-1234
+  # GET /issue_trackers/issues_in?text=CVE-2011-1234
   def issues_in
     unless params[:text]
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
