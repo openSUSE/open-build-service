@@ -108,14 +108,39 @@ class RequestController < ApplicationController
           diff_per_action = {}
           # Parse each action and get the it's diff (per file)
           result.each_with_index('/request/action') do |action_element, index|
-            parsed_sourcediff = {}
-            if action_element.value('type') == 'delete'
-              # Don't show bugs for delete requests, would be to many in the diff and doesn't make sense:
-              parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff, parse_bugs = false)
-            elsif ['submit', 'maintenance_release', 'maintenance_incident'].include?(action_element.value('type'))
-              parsed_sourcediff = sorted_filenames_and_bugs_from_sourcediff(action_element.sourcediff)
+            # Sort files into categories by their ending and add all of them to a hash. We
+            # will later use the sorted and concatenated categories as key index into the per action file hash.
+            changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
+            files_hash = {}
+
+            action_element.sourcediff.files.each do |file_element|
+              if file_element.new
+                filename = file_element.new.name.to_s
+              elsif file_element.old # in case of deleted files
+                filename = file_element.old.name.to_s
+              end
+              if filename.ends_with?('.spec')
+                spec_file_keys << filename
+              elsif filename.ends_with?('.changes')
+                changes_file_keys << filename
+              elsif filename.match(/.*.(patch|diff|dif)/)
+                patch_file_keys << filename
+              else
+                other_file_keys << filename
+              end
+              files_hash[filename] = file_element
             end
-            parsed_sourcediff[:action] = action_element;
+            parsed_sourcediff = {
+              :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
+              :files => files_hash,
+              :action => action_element
+            }
+            if ['submit', 'maintenance_release', 'maintenance_incident'].include?(action_element.value('type'))
+              parsed_sourcediff[:issues] = {}
+              action_element.issues.each do |issue|
+                parsed_sourcediff[:issues][issue.value('long-name')] = issue.value('show-url')
+              end
+            end
             # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
             diff_per_action["#{index}_#{action_element.value('type')}"] = parsed_sourcediff
           end

@@ -28,15 +28,15 @@
 
 <% css_class ||= nil %>
 <% css_id ||= nil %>
-<% bugs ||= nil %>
+<% issues ||= nil %>
 
 <div <%= "class=\"#{css_class}\"".html_safe if css_class %> <%= "id=\"#{css_id}\"".html_safe if css_id %> >
-<% if bugs && bugs.length > 0 %>
+<% if issues && issues.length > 0 %>
   <%# TODO: Anything but nice, move to 'box' when request view is restructured: %>
   <div style="float:right;">
     <h3>Issues mentioned</h3>
     <ul>
-      <% bugs.each do |bug, url| %>
+      <% issues.each do |bug, url| %>
         <li><%= link_to(bug, url, :class => 'issue_tracker_link') %></li>
       <% end %>
     </ul>

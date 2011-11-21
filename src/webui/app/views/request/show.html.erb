@@ -298,7 +298,7 @@
         <% when 'submit', 'maintenance_release' %>
           <% project, package, rev = diff[:action].source.project, diff[:action].source.package, diff[:action].source.rev %>
       <% end %>
-      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :bugs => diff[:bugs], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{index_and_type}", :css_class => "diff_action_display"}) %>
+      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :issues => diff[:issues], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{index_and_type}", :css_class => "diff_action_display"}) %>
     <% end %>
   </div>
   <% if @diff_per_action.keys.length != 1 %>
