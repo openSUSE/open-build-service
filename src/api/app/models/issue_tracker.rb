@@ -6,7 +6,7 @@ class IssueTracker < ActiveRecord::Base
   validates_inclusion_of :kind, :in => ['', 'other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 
   def self.issues_in(text)
-    ret = {}
+    ret = []
     IssueTracker.all.each do |it|
       # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
       # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
@@ -15,7 +15,7 @@ class IssueTracker < ActiveRecord::Base
       begin
         match = it.matches?(my_text)
         if match
-          ret[match[0]] = it.issue(match[-1])
+          ret << it.issue(match[-1], match[0])
           my_text = my_text[match.end(0)+1..-1]
         end
       end while match
@@ -34,14 +34,8 @@ class IssueTracker < ActiveRecord::Base
     return nil
   end
 
-  # Fake an 'Issue' model
-  def issue(issue)
-    return {
-      :issue => issue,
-      :issue_tracker => name,
-      :description => 'TODO',
-      :show_url => show_url_for(issue),
-    }
+  def issue(issue, long_name = nil)
+    return Issue.new(:name => issue, :long_name => long_name, :issue_tracker => self.name, :description => 'TODO', :show_url => show_url_for(issue))
   end
 
   def details(issue)
