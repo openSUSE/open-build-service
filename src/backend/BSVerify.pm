@@ -33,7 +33,7 @@ sub verify_projid {
 
 sub verify_projkind {
   my $projkind = $_[0];
-  die("projkind '$projkind' is illegal\n") if $projkind ne 'standard' && $projkind ne 'maintenance' && $projkind ne 'maintenance_incident'
+  die("projkind '$projkind' is illegal\n") if $projkind ne 'standard' && $projkind ne 'maintenance' && $projkind ne 'maintenance_incident' && $projkind ne 'maintenance_release'
 }
 
 sub verify_packid {

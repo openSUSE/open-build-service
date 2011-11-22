@@ -7,3 +7,6 @@ db_project_types_2:
 db_project_types_3: 
   name: maintenance_incident
   id: "3"
+db_project_types_4: 
+  name: maintenance_release
+  id: "4"

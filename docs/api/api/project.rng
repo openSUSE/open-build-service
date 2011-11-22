@@ -69,6 +69,7 @@
             <value>standard</value>
             <value>maintenance</value>
             <value>maintenance_incident</value>
+            <value>maintenance_release</value>
           </choice>
         </attribute>
       </optional>
