@@ -146,7 +146,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2_linked.BaseDistro2/_link"
     assert_response :success
-    assert_no_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
+    assert_no_tag :tag => "link", :attributes => { :project => "BaseDistro2" }
     assert_tag :tag => "link", :attributes => { :package => "pack2.BaseDistro2" }
 
     # test branching another package set into same project
@@ -164,16 +164,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2", :noaccess => 1
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "create_project_no_permission" }
+
+#FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
+    put "/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY", "CONTENT"
+    assert_response :success
+
     post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
-    get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack"
+    get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/_link"
     assert_response :success
-    get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack/_link"
-    assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "ServicePack", :package => "kdelibs" }
+    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "kdelibs" }
 
     # do some file changes
-    put "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.ServicePack/new_file", "new_content_0815"
+    put "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file", "new_content_0815"
     assert_response :success
     put "/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro/new_file", "new_content_2137"
     assert_response :success
@@ -402,6 +405,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => maintenanceProject
     assert_response :success
+
     # correct branched ?
     get "/source/"+maintenanceProject+"/pack2.BaseDistro2/_link"
     assert_response :success
@@ -598,6 +602,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     # check source link
     get "/source/home:tom:branches:BaseDistro:Update/pack1/_link"
+    assert_response :success
+    # remove release target
+    get "/source/home:tom:branches:BaseDistro:Update/_meta"
+    assert_response :success
+    pi = REXML::Document.new( @response.body )
+    pi.elements['//repository'].delete_element 'releasetarget'
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
     assert_response :success
 
     # Run without server side expansion
