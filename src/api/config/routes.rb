@@ -96,7 +96,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /issue_trackers
   map.connect 'issue_trackers/issues_in', :controller => 'issue_trackers', :action => 'issues_in'
-  map.resources :issue_trackers do |issue_trackers|
+  map.resources :issue_trackers, :only => [:index, :show, :create, :update, :destroy] do |issue_trackers|
     issue_trackers.resources :issues, :only => [:show] # Nested route
   end
 
@@ -259,7 +259,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /request
   
-  map.resources :request
+  map.resources :request, :only => [:index, :show, :update]
   
   map.connect 'request/:id', :controller => 'request',
     :action => 'command'
