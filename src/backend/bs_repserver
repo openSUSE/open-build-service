@@ -598,10 +598,30 @@ sub getbinarylist {
     exit(0);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+  if (!@bins && $cgi->{'localdep'}){
+    my $prj = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_meta", $BSXML::proj);
+    if ($prj->{'mountproject'} && $cgi->{'allowremote'} && $view eq 'cpio') {
+      my @args;
+      push @args, "view=$view";
+      push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
+      BSHandoff::handoff("$rundir/bs_srcserver.ajax", "/build/$projid/$repoid/$arch/$packid", undef, @args);
+      return undef;
+    }
+    for my $repo (@{$prj->{"repository"}}) {
+      if ($repo->{"name"} eq $repoid && $repo->{"linkedbuild"} eq "localdep") {
+        my $linked_prj = $prj->{"link"}->[0]->{"project"};
+        if ($linked_prj ne $cgi->{'prevlink'} && $linked_prj eq $repo->{"path"}->[0]->{"project"}){
+          $cgi->{'prevlink'} = $projid;
+          getbinarylist($cgi, $linked_prj, $repo->{"path"}->[0]->{"repository"}, $arch, $packid);
+          return undef;
+        }
+      }
+    }
+  }
+  @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   if ($view eq 'cpio') {
     my @files;
-    my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       my $fd = gensym;
@@ -612,8 +632,6 @@ sub getbinarylist {
     return undef;
   }
   if ($view eq 'binaryversions') {
-    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @res;
     # should use bininfo instead, but we need the leadsigmd5
     for my $bin (sort @bins) {
@@ -631,8 +649,6 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
-  @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
@@ -2915,7 +2931,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? localdep:bool? prevlink:? allowremote:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
