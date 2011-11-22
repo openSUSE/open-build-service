@@ -259,7 +259,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /request
   
-  map.resources :request, :only => [:index, :show, :update]
+  map.resources :request, :only => [:index, :show, :update, :create]
   
   map.connect 'request/:id', :controller => 'request',
     :action => 'command'
