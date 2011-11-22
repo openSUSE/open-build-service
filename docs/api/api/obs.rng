@@ -66,8 +66,9 @@
   <define ns="" name="service-modes">
     <choice>
                                    <!-- DEFAULT: the attribute is not used, service running on server and locally on build time -->
-      <value>trylocal</value>      <!-- try on local clients, but run also on server side -->
+      <value>trylocal</value>      <!-- try on local clients and merge result, but run also on server side -->
       <value>localonly</value>     <!-- never run on server side, but on the clients (not enforced) -->
+      <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
       <value>disabled</value>      <!-- never run, except user explicit starts it locally -->
     </choice>
   </define>
