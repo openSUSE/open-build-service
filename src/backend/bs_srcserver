@@ -5749,7 +5749,7 @@ sub postrequest {
       $matching = 0 if defined($r->{'by_group'}) && $r->{'by_group'} ne ($cgi->{'by_group'}||'');
       $matching = 0 if defined($r->{'by_project'}) && $r->{'by_project'} ne ($cgi->{'by_project'}||'');
       $matching = 0 if defined($r->{'by_package'}) && $r->{'by_package'} ne ($cgi->{'by_package'}||'');
-      if ($matching) {
+      if ($matching && $r->{'state'} eq 'new') {
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
