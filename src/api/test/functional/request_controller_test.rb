@@ -318,6 +318,62 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
   end
 
+  def test_create_request_and_multiple_reviews
+    ActionController::IntegrationTest::reset_auth
+    req = load_backend_file('request/works')
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/works')
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+
+    # add reviewer
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    # accept review
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review1"
+    assert_response :success
+
+    # add reviewer
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=addreview&by_user=tom"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+
+    # accept review
+    prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review2"
+    assert_response :success
+
+    # check review comments are the same
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
+    assert_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'review2' )
+
+    # reopen a review
+    prepare_request_with_user "tom", "thunder"
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=reopen2", nil
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_tag( :parent => {:tag => "review", :attributes => { :state => "accepted", :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
+    assert_tag( :parent => {:tag => "review", :attributes => { :state => "new", :by_user => "tom" }}, :tag => "comment", :content => 'reopen2' )
+  end
+
   def test_change_review_state_after_leaving_review_phase
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
