@@ -166,7 +166,7 @@ module MaintenanceHelper
       cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
       cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link"
       cp_path << build_query_from_hash(cp_params, [:user, :comment])
-      Suse::Backend.put cp_path, "<link package='#{CGI.escape(targetPackageName)}' />"
+      Suse::Backend.put cp_path, "<link package='#{CGI.escape(targetPackageName)}' cicount='copy' />\n"
     end
 
   end
