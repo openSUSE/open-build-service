@@ -194,6 +194,17 @@ sub filediff {
     }
   }
   close(D);
+  if ($havediff && !$binary && length($d) >= 1024) {
+    # the diff binary detection is a bit "lacking". Do some extra heuristics
+    # by counting 26 chars common in binaries
+    my $bcnt = $d =~ tr/\000-\007\016-\037/\000-\007\016-\037/;
+    if ($bcnt * 40 > length($d)) {
+      $d = '';
+      $havediff = 0;
+      $binary = 1;
+      $lcnt = $opts{'linestart'} || 0;
+    }
+  }
   if ($d eq '' && !$havediff && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
     $havediff = 1;
     if (defined($f1) && ref($f1)) {
