@@ -3,6 +3,7 @@
   Elements:
   
   name
+  arch
   summary
     short summary
   description
@@ -48,44 +49,64 @@
     </element>
   </define>
   <define name="pattern">
-    <element name="name">
-      <text/>
-    </element>
-    <oneOrMore>
-      <element name="summary">
-        <ref name="localized-string"/>
-      </element>
-    </oneOrMore>
-    <oneOrMore>
-      <element name="description">
-        <ref name="localized-string"/>
-      </element>
-    </oneOrMore>
-    <optional>
-      <element name="default">
-        <empty/>
-      </element>
-    </optional>
-    <optional>
-      <element name="uservisible">
-        <empty/>
-      </element>
-    </optional>
-    <oneOrMore>
-      <element name="category">
-        <ref name="localized-string"/>
-      </element>
-    </oneOrMore>
-    <optional>
-      <element name="icon">
+    <interleave>
+      <element name="name">
         <text/>
       </element>
-    </optional>
-    <optional>
-      <element name="script">
-        <text/>
-      </element>
-    </optional>
-    <ref name="dependencies"/>
+      <optional>
+        <element name="arch">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="version">
+          <attribute name="epoch">
+            <text/>
+          </attribute>
+          <attribute name="ver">
+            <text/>
+          </attribute>
+          <attribute name="rel">
+            <text/>
+          </attribute>
+        </element>
+      </optional>
+      <oneOrMore>
+        <element name="summary">
+          <ref name="localized-string"/>
+        </element>
+      </oneOrMore>
+      <oneOrMore>
+        <element name="description">
+          <ref name="localized-string"/>
+        </element>
+      </oneOrMore>
+      <optional>
+        <element name="default">
+          <empty/>
+        </element>
+      </optional>
+      <optional>
+        <element name="uservisible">
+          <empty/>
+        </element>
+      </optional>
+      <oneOrMore>
+        <element name="category">
+          <ref name="localized-string"/>
+        </element>
+      </oneOrMore>
+      <optional>
+        <element name="icon">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="script">
+          <text/>
+        </element>
+      </optional>
+      <ref name="dependencies"/>
+    </interleave>
   </define>
 </grammar>
