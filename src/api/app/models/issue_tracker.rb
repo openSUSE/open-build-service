@@ -25,6 +25,11 @@ class IssueTracker < ActiveRecord::Base
     return ret
   end
 
+  def self.write_to_backend()
+    path = "/issue_trackers"
+    Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
+  end
+
   # Checks if the given issue belongs to this issue tracker
   def matches?(issue)
     return Regexp.new(regex).match(issue)
@@ -78,11 +83,6 @@ class IssueTracker < ActiveRecord::Base
       end
     end
     return {}
-  end
-
-  def store()
-    path = "/issue_trackers"
-    Suse::Backend.put_source( path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS) )
   end
 
 end
