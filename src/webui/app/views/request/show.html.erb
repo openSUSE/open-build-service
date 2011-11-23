@@ -279,29 +279,40 @@
   <% end %>
 <% end %>
 
-<% if @diff_per_action and not @diff_per_action.empty? %>
-  <h3>Diff</h3>
-  <% if @diff_per_action.keys.length != 1 %>
+<% if @actiondiffs and not @actiondiffs.empty? %>
+  <% if @actiondiffs.length != 1 %>
+    <h3>Diffs</h3>
     <p>
       <%= label_tag(:diff_action, 'Display diff for request action ') %>
-      <%= select_tag(:diff_action, options_for_select(@diff_per_action.keys)) %>:
+      <%= select_tag(:diff_action, options_for_select(@actiondiffs.keys)) %>:
     </p>
+  <% else %>
+    <h3>Diff</h3>
   <% end %>
   <div>
-    <% @diff_per_action.each do |index_and_type, diff| %>
-      <%# Depending on the request type, the project, package (and rev) for displaying file links is different ;-) %>
-      <% case diff[:action].value('type')
-           when 'maintenance_incident'%>
-          <% project, package, rev = diff[:action].source.project, "patchinfo", diff[:action].source.rev %>
-        <% when 'delete' %>
-          <% project, package, rev = diff[:action].target.project, diff[:action].target.package, diff[:action].target.rev %>
-        <% when 'submit', 'maintenance_release' %>
-          <% project, package, rev = diff[:action].source.project, diff[:action].source.package, diff[:action].source.rev %>
+    <% @actiondiffs.each_with_index do |actiondiff, action_index| %>
+      <% actiondiff[:sourcediffs].each_with_index do |sourcediff, sourcediff_index| %>
+
+        <%# Depending on the request type, the project, package (and rev) for displaying file links is different ;-) %>
+        <% if actiondiff[:type] == 'delete' %>
+          <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
+        <% else %>
+          <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
+        <% end %>
+
+        <% if actiondiff[:sourcediffs].length != 1 %>
+          <h4>
+            <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
+            <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
+          </h4>
+        <% end %>
+
+        <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :issues => sourcediff[:issues], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{actiondiff[:type]}_#{sourcediff_index}", :css_class => "diff_action_display"}) %>
       <% end %>
-      <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => diff[:filenames], :files => diff[:files], :issues => diff[:issues], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{index_and_type}", :css_class => "diff_action_display"}) %>
     <% end %>
+    <p><%= link_to('Back to top', '#') %></p>
   </div>
-  <% if @diff_per_action.keys.length != 1 %>
+  <% if @actiondiffs.length != 1 %>
     <% javascript_tag do %>
       function display_selected_action() {
         $('#diff_action option:selected').each(function() {

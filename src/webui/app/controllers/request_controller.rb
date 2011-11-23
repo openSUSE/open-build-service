@@ -103,24 +103,24 @@ class RequestController < ApplicationController
     if not @spider_bot
       # get the entire diff from the api
       begin
-        @diff_per_action = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
+        @actiondiffs = Rails.cache.fetch("request_#{@id}_diff", :expires_in => 7.days) do
           result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
-          diff_per_action = {}
+          actiondiffs = []
           # Parse each action and get the it's diff (per file)
-          result.each_with_index('/request/action') do |action_element, index|
-            # Sort files into categories by their ending and add all of them to a hash. We
-            # will later use the sorted and concatenated categories as key index into the per action file hash.
-            changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-            files_hash = {}
+          result.each('action') do |action|
+            sourcediffs = []
+            # Parse earch sourcediff in that action:
+            action.each('sourcediff') do |sourcediff|
+              # Sort files into categories by their ending and add all of them to a hash. We
+              # will later use the sorted and concatenated categories as key index into the per action file hash.
+              changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
+              files_hash = {}
 
-            # The api may send several sourcediffs for maintenance incidents, construct a shared file list for now
-            # NOTE: This may break when both sourcediffs contain the same filename(s), let's pretend this won't happen ;-)
-            action_element.each('sourcediff') do |sourcediff|
-              sourcediff.files.each do |file_element|
-                if file_element.new
-                  filename = file_element.new.name.to_s
-                elsif file_element.old # in case of deleted files
-                  filename = file_element.old.name.to_s
+              sourcediff.files.each do |file|
+                if file.new
+                  filename = file.new.name.to_s
+                elsif file.old # in case of deleted files
+                  filename = file.old.name.to_s
                 end
                 if filename.ends_with?('.spec')
                   spec_file_keys << filename
@@ -131,25 +131,28 @@ class RequestController < ApplicationController
                 else
                   other_file_keys << filename
                 end
-                files_hash[filename] = file_element
+                files_hash[filename] = file
               end
+
+              parsed_sourcediff = {
+                :old => sourcediff.old,
+                :new => sourcediff.new,
+                :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
+                :files => files_hash,
+              }
+              if ['submit', 'maintenance_release', 'maintenance_incident'].include?(action.value('type')) and action.has_element?(:issues)
+                parsed_sourcediff[:issues] = {}
+                action.issues.each do |issue|
+                  parsed_sourcediff[:issues][issue.value('long-name')] = issue.value('show-url')
+                end
+              end
+
+              sourcediffs << parsed_sourcediff
             end
 
-            parsed_sourcediff = {
-              :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-              :files => files_hash,
-              :action => action_element
-            }
-            if ['submit', 'maintenance_release', 'maintenance_incident'].include?(action_element.value('type')) and action_element.has_element?(:issues)
-              parsed_sourcediff[:issues] = {}
-              action_element.issues.each do |issue|
-                parsed_sourcediff[:issues][issue.value('long-name')] = issue.value('show-url')
-              end
-            end
-            # Use a more complex key for actions to be able to distinguish them (like 0_submit and 1_submit):
-            diff_per_action["#{index}_#{action_element.value('type')}"] = parsed_sourcediff
+            actiondiffs << {:type => action.value('type'), :sourcediffs => sourcediffs}
           end
-          diff_per_action
+          actiondiffs
         end
       rescue ActiveXML::Transport::Error => e
         project, code = ActiveXML::Transport.extract_error_message(e)
