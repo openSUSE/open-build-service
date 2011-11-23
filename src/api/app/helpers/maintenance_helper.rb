@@ -145,6 +145,7 @@ module MaintenanceHelper
         if releasetarget.trigger == "maintenance"
           releasetarget.trigger = "manual"
           releasetarget.save!
+          sourceRepo.db_project.store
         end
       end
     end
