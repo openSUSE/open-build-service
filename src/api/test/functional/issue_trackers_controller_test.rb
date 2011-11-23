@@ -113,8 +113,8 @@ EOF
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
-    assert_tag :tag => "name", :content => "bnc#12345"
-    assert_tag :tag => "name", :content => "bnc#666"
+    assert_tag :tag => "long-name", :content => "bnc#12345"
+    assert_tag :tag => "long-name", :content => "bnc#666"
 
     get '/issue_trackers/issues_in', :text => text, :diff_mode => true
     assert_response :success
@@ -124,7 +124,7 @@ EOF
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
-    assert_tag :tag => "name", :content => "bnc#12345"
-    assert_no_tag :tag => "name", :content => "bnc#666"
+    assert_tag :tag => "long-name", :content => "bnc#12345"
+    assert_no_tag :tag => "long-name", :content => "bnc#666"
   end
 end
