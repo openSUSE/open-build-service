@@ -161,8 +161,8 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
-  `maintenance_project_id` int(11) DEFAULT NULL,
   `type_id` int(11) DEFAULT NULL,
+  `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
@@ -766,6 +766,10 @@ INSERT INTO schema_migrations (version) VALUES ('20111005000000');
 INSERT INTO schema_migrations (version) VALUES ('20111116100002');
 
 INSERT INTO schema_migrations (version) VALUES ('20111117162400');
+
+INSERT INTO schema_migrations (version) VALUES ('20111122000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20111123000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

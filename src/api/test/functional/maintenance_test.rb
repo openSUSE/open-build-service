@@ -454,7 +454,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.elements['//issue'].add_attribute REXML::Attribute.new('id', '1042')
     pi.elements["//rating"].text = "low"
     issue2 = pi.elements['/patchinfo'].add_element 'issue'
-    issue2.add_attribute REXML::Attribute.new('tracker', 'CVE')
+    issue2.add_attribute REXML::Attribute.new('tracker', 'cve')
     issue2.add_attribute REXML::Attribute.new('id', '0815')
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success

@@ -11,6 +11,6 @@ cve_numbers:
   regex: "CVE-\d{4,4}-\d{4,4}"
   kind: cve
   name: cve
-  url: http://www.cvedetails.com
-  show_url: http://www.cvedetails.com/cve/@@@
+  url: http://cve.mitre.org
+  show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@
   description: CVE numbers

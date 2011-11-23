@@ -3624,17 +3624,26 @@ sub rebuildpatchinfo {
   $update->{'release'} =~ s/_standard$//;
   $update->{'release'} =~ s/[_:]+/ /g;
   $update->{'issued'} = { 'date' => $now };
+
+  # fetch defined issue trackers from src server. FIXME: cache this
   my @references;
-  if (defined($BSConfig::bugreportid_url)) {
+  my $issue_trackers;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/issue_trackers",
+    'timeout' => 30,
+    'proxy' => $proxy,
+  };
+  eval {
+    $issue_trackers = BSRPC::rpc($param, $BSXML::issue_trackers);
+  };
+  warn($@) if $@;
+  if ($issue_trackers) {
     for my $b (@{$patchinfo->{'issue'} || []}) {
-      my $url = undef;
-      $url = $BSConfig::bugreportid_url->{$b->{'tracker'}} if $BSConfig::bugreportid_url->{$b->{'tracker'}};
-      if ($url && $b->{'id'}) {
-        $url =~ s/%ID%/$b->{'id'}/g;
-        #FIXME2.3: temporary hack until sync with issue_tracker is done
-        my $t = 'bugzilla';
-        $t = 'cve' if $b->{'tracker'} eq 'CVE';
-        push @references, {'href' => $url, 'id' => $b->{'id'}, 'title' => $b->{'_content'}, 'type' => $t};
+      my $it = (grep {$_->{'name'} eq $b->{'tracker'}} @{$issue_trackers->{'issue-tracker'} || []})[0];
+      if ($it && $b->{'id'}) {
+        my $url = $it->{'show-url'};
+        $url =~ s/@@@/$b->{'id'}/g;
+        push @references, {'href' => $url, 'id' => $b->{'id'}, 'title' => $b->{'_content'}, 'type' => $it->{'kind'}};
       }
     }
   }
