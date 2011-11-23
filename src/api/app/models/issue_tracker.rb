@@ -9,19 +9,38 @@ class IssueTracker < ActiveRecord::Base
 
   def self.issues_in(text, diff_mode = false)
     ret = []
+    if diff_mode
+      old_issues, new_issues = [], []
+    end
     IssueTracker.all.each do |it|
       # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
       # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
       # it by hand...
       text.lines.each do |line|
-        next if diff_mode && !line.starts_with?('+')
+        substr = line
         begin
-          match = it.matches?(line)
+          match = it.matches?(substr)
           if match
-            ret << it.issue(match[-1], match[0])
-            line = line[match.end(0)+1..-1]
+            issue = it.issue(match[-1], match[0])
+            if diff_mode
+              old_issues << issue if line.starts_with?('-')
+              new_issues << issue if line.starts_with?('+')
+            else
+              ret << issue
+            end
+            substr = substr[match.end(0)+1..-1]
           end
         end while match
+      end
+    end
+    if diff_mode
+      old_issue_names, new_issue_names = old_issues.map{|i| i.long_name}, new_issues.map{|i| i.long_name}
+
+      old_issues.each do |old_issue|
+        ret << old_issue if not new_issue_names.include?(old_issue.long_name)
+      end
+      new_issues.each do |new_issue|
+        ret << new_issue if not old_issue_names.include?(new_issue.long_name)
       end
     end
     return ret

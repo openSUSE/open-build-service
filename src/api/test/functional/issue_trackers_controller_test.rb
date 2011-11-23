@@ -91,11 +91,13 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
 +  CVE-2011-3148, CVE-2011-3149
 +- fix pam_xauth not checking return value of setuid (bnc#631802)
 +  CVE-2010-3316
++  blabla bnc#666
 +
   +-------------------------------------------------------------------
    Thu Nov 27 15:56:51 CET 2008 - mc@suse.de
  
  - enhance the man page for limits.conf (bnc#448314)")
+-  bnc#12345, bnc#666
 EOF
     get '/issue_trackers/issues_in', :text => text
     assert_response 401
@@ -111,6 +113,8 @@ EOF
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
+    assert_tag :tag => "name", :content => "bnc#12345"
+    assert_tag :tag => "name", :content => "bnc#666"
 
     get '/issue_trackers/issues_in', :text => text, :diff_mode => true
     assert_response :success
@@ -120,5 +124,7 @@ EOF
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
+    assert_tag :tag => "name", :content => "bnc#12345"
+    assert_no_tag :tag => "name", :content => "bnc#666"
   end
 end
