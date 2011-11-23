@@ -7,20 +7,22 @@ class IssueTracker < ActiveRecord::Base
 
   DEFAULT_RENDER_PARAMS = {:except => :id, :skip_types => true }
 
-  def self.issues_in(text)
+  def self.issues_in(text, diff_mode = false)
     ret = []
     IssueTracker.all.each do |it|
       # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
       # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
       # it by hand...
-      my_text = text
-      begin
-        match = it.matches?(my_text)
-        if match
-          ret << it.issue(match[-1], match[0])
-          my_text = my_text[match.end(0)+1..-1]
-        end
-      end while match
+      text.lines.each do |line|
+        next if diff_mode && !line.starts_with?('+')
+        begin
+          match = it.matches?(line)
+          if match
+            ret << it.issue(match[-1], match[0])
+            line = line[match.end(0)+1..-1]
+          end
+        end while match
+      end
     end
     return ret
   end

@@ -102,8 +102,16 @@ EOF
     prepare_request_with_user "adrian", "so_alone"
     get '/issue_trackers/issues_in', :text => text
     assert_response :success
-# FIXME2.3: shouldn't we show just the new ones ?
-#    assert_no_tag :tag => "name", :content => "bnc#448314"
+    assert_tag :tag => "name", :content => "bnc#448314"
+    assert_tag :tag => "name", :content => "bnc#631802"
+    assert_tag :tag => "name", :content => "bnc#724480"
+    assert_tag :tag => "name", :content => "CVE-2011-3148"
+    assert_tag :tag => "name", :content => "CVE-2011-3149"
+    assert_tag :tag => "name", :content => "CVE-2010-3316"
+
+    get '/issue_trackers/issues_in', :text => text, :diff_mode => true
+    assert_response :success
+    assert_no_tag :tag => "name", :content => "bnc#448314"
     assert_tag :tag => "name", :content => "bnc#631802"
     assert_tag :tag => "name", :content => "bnc#724480"
     assert_tag :tag => "name", :content => "CVE-2011-3148"
