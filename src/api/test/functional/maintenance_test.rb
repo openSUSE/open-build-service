@@ -421,7 +421,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
     assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
     assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :trigger => "maintenance" } )
-    # validate pakcage meta
+    # validate package meta
     get "/source/"+maintenanceProject+"/pack2.BaseDistro2/_meta"
     assert_response :success
     assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2_BaseDistro2LinkedUpdateProject_repo"} )
@@ -432,13 +432,20 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro3_BaseDistro3_repo"} )
 
+    # create some changes, including issue_tracker references
+    put "/source/"+maintenanceProject+"/pack2.BaseDistro2/dummy_file", "DUMMY bnc#1042 CVE-2009-0815"
+    assert_response :success
+    post "/source/"+maintenanceProject+"/pack2.BaseDistro2?unified=1&cmd=diff&filelimit=0&expand=1"
+    assert_response :success
+    assert_match /DUMMY bnc#1042 CVE-2009-0815/, @response.body
+
     # search will find this new and not yet processed incident now.
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
     assert_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
 
     # Create patchinfo informations
-    post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1&new_format=1"
+    post "/source/#{maintenanceProject}?cmd=createpatchinfo&force=1"
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
     assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => maintenanceProject )
@@ -448,14 +455,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add required informations about the update
     pi = REXML::Document.new( @response.body )
     pi.elements["//category"].text = "security"
-    pi.elements['/patchinfo'].add_element 'issue'
-    pi.elements["//issue"].text = "Fix wrong set ,"
-    pi.elements['//issue'].add_attribute REXML::Attribute.new('tracker', 'bnc')
-    pi.elements['//issue'].add_attribute REXML::Attribute.new('id', '1042')
     pi.elements["//rating"].text = "low"
-    issue2 = pi.elements['/patchinfo'].add_element 'issue'
-    issue2.add_attribute REXML::Attribute.new('tracker', 'cve')
-    issue2.add_attribute REXML::Attribute.new('id', '0815')
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_meta"
@@ -480,7 +480,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
     assert_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=1042", :id => "1042",  :type => "bugzilla" } 
-    assert_tag :tag => "reference", :attributes => { :href => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=0815", :id => "0815",  :type => "cve" } 
+    assert_tag :tag => "reference", :attributes => { :href => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815", :id => "CVE-2009-0815",  :type => "cve" } 
     assert_no_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=" } 
     assert_no_tag :tag => "reference", :attributes => { :id => "" }
 
@@ -552,6 +552,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/build/BaseDistro2:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
     assert_response :success
     assert_tag :parent => { :tag => "binarylist" },  :tag => 'binary', :attributes => { :filename => "package.rpm" } 
+
+    # no maintenance trigger exists anymore
+    get "/source/#{maintenanceProject}/_meta"
+    assert_response :success
+    assert_no_tag :tag => 'releasetarget', :attributes => { :trigger => "maintenance" } 
 
     # search will find this incident not anymore
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'

@@ -1,5 +1,5 @@
 novell_bugzilla:
-  regex: "bnc#\d+"
+  regex: "bnc#(\d+)"
   kind: bugzilla
   name: bnc
   url: http://bugzilla.novell.com

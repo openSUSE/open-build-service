@@ -102,18 +102,21 @@ EOF
     prepare_request_with_user "adrian", "so_alone"
     get '/issue_trackers/issues_in', :text => text
     assert_response :success
-    assert_tag :tag => "name", :content => "bnc#448314"
-    assert_tag :tag => "name", :content => "bnc#631802"
-    assert_tag :tag => "name", :content => "bnc#724480"
+    assert_tag :tag => "issue-tracker", :content => "bnc"
+    assert_tag :tag => "issue-tracker", :content => "cve"
+    assert_tag :tag => "long-name", :content => "bnc#724480"
+    assert_tag :tag => "name", :content => "448314"
+    assert_tag :tag => "name", :content => "631802"
+    assert_tag :tag => "name", :content => "724480"
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
 
     get '/issue_trackers/issues_in', :text => text, :diff_mode => true
     assert_response :success
-    assert_no_tag :tag => "name", :content => "bnc#448314"
-    assert_tag :tag => "name", :content => "bnc#631802"
-    assert_tag :tag => "name", :content => "bnc#724480"
+    assert_no_tag :tag => "name", :content => "448314"
+    assert_tag :tag => "name", :content => "631802"
+    assert_tag :tag => "name", :content => "724480"
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
