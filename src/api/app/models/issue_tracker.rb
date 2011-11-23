@@ -5,6 +5,8 @@ class IssueTracker < ActiveRecord::Base
   validates_uniqueness_of :name, :regex
   validates_inclusion_of :kind, :in => ['', 'other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 
+  DEFAULT_RENDER_PARAMS = {:except => :id, :skip_types => true }
+
   def self.issues_in(text)
     ret = []
     IssueTracker.all.each do |it|
@@ -77,4 +79,10 @@ class IssueTracker < ActiveRecord::Base
     end
     return {}
   end
+
+  def store()
+    path = "/issue_trackers"
+    Suse::Backend.put_source( path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS) )
+  end
+
 end

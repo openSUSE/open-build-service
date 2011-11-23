@@ -7,7 +7,7 @@ class IssueTrackersController < ApplicationController
   validate_action :create => {:method => :post, :request => :issue_tracker, :response => :issue_tracker}
   validate_action :update => {:method => :put, :request => :issue_tracker}
 
-  $render_params = { :except => :id, :skip_types => true }
+  $render_params = IssueTracker::DEFAULT_RENDER_PARAMS
 
   # GET /issue_trackers
   # GET /issue_trackers.json
@@ -55,6 +55,7 @@ class IssueTrackersController < ApplicationController
 
     respond_to do |format|
       if @issue_tracker
+        @issue_tracker.store
         format.xml  { render :xml => @issue_tracker.to_xml($render_params), :status => :created, :location => @issue_tracker }
         format.json { render :json => @issue_tracker.to_json($render_params), :status => :created, :location => @issue_tracker }
       else
@@ -89,6 +90,7 @@ class IssueTrackersController < ApplicationController
         ret = @issue_tracker.update_attributes(attribs)
       end
       if ret
+        @issue_tracker.store
         format.xml  { head :ok }
         format.json { head :ok }
       else
@@ -107,6 +109,7 @@ class IssueTrackersController < ApplicationController
       render_error :status => 404, :errorcode => "not_found", :message => "Unable to find issue tracker '#{params[:id]}'" and return
     end
     @issue_tracker.destroy
+    @issue_tracker.store
 
     respond_to do |format|
       format.xml  { head :ok }

@@ -1327,15 +1327,13 @@ our $sourcediff = [
 our $issue_trackers = [
     'issue-trackers' =>
      [[ 'issue-tracker' =>
-	    'name',
 	    [],
+	    'name',
+	    'description',
+	    'kind',
+	    'regex',
 	    'show-url',
 	    'url',
-	  [ 'acronyms', =>
-	     [[ 'acronym' =>
-		    'name'
-             ]],
-	  ],
      ]],
 ];
 
