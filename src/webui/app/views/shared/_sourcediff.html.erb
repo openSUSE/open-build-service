@@ -52,7 +52,7 @@
     <tbody>
       <% filenames.each_with_index do |filename, index| %>
         <% file_element = files[filename] %>
-        <% file_id = valid_xml_id(filename) + css_id %>
+        <% file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}" %>
         <% file_diff_text = file_element.value(:diff) || '' %>
         <% is_expanded = !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes')) %>
         <tr>
