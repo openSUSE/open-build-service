@@ -327,10 +327,9 @@ class PackageController < ApplicationController
       end
     end
 
-    filenames_and_bugs = sorted_filenames_and_bugs_from_sourcediff(ActiveXML::Base.new(rdiff))
-    @files = filenames_and_bugs[:files]
-    @filenames = filenames_and_bugs[:filenames]
-    @bugs = filenames_and_bugs[:bugs] if @oproject and @opackage
+    filenames = sorted_filenames_from_sourcediff(ActiveXML::Base.new(rdiff))
+    @files = filenames[:files]
+    @filenames = filenames[:filenames]
   end
 
   def wizard_new
