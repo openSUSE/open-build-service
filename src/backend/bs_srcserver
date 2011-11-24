@@ -720,6 +720,26 @@ sub getrev {
 	}
       }
     }
+    if (defined($rev) && $rev eq '0') {
+      # getrev by rev 0. we allow access to missing packages if the project exists
+      if (-e "$projectsdir/$projid.xml") {
+	return {'project' => $projid, 'package' => $packid, 'rev' => 0, 'srcmd5' => 'empty'};
+      }
+    } elsif (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
+      # getrev by srcmd5. we allow access to packages that were deleted.
+      my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+      if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$rev-MD5SUMS") {
+	$treedir = "$srcrep/$packid";
+      }
+      if (-e "$treedir/$rev-MD5SUMS") {
+        # tree exists. make sure we knew the project/package at one time in the past
+        if (-e "$projectsdir/$projid.pkg/$packid.mrev.del" ||
+            -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev" ||
+            -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev.del") {
+          return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
+        }
+      }
+    }
     return remote_getrev($projid, $packid, $rev, $linked, $missingok);
   }
   undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
