@@ -132,6 +132,12 @@ class ApplicationController < ActionController::Base
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
         unless @http_user
+          if CONFIG['new_user_registration'] == "deny"
+            logger.debug( "No user found in database, creation disabled" )
+            render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
+            @http_user=nil
+            return false
+          end
           state = User.states['confirmed']
           state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
           # Generate and store a fake pw in the OBS DB that no-one knows
@@ -218,7 +224,7 @@ class ApplicationController < ActionController::Base
           logger.debug( "Using LDAP to find #{login}" )
           ldap_info = User.find_with_ldap( login, passwd )
         rescue LoadError
-          logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+          logger.warn "LDAP_MODE selected but 'ruby-ldap' module not installed."
           ldap_info = nil # now fall through as if we'd not found a user
         rescue Exception
           logger.debug "#{login} not found in LDAP."
@@ -235,6 +241,12 @@ class ApplicationController < ActionController::Base
               @http_user.save
             end
           else
+            if CONFIG['new_user_registration'] == "deny"
+              logger.debug( "No user found in database, creation disabled" )
+              render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
+              @http_user=nil
+              return false
+            end
             logger.debug( "No user found in database, creating" )
             logger.debug( "Email: #{ldap_info[0]}" )
             logger.debug( "Name : #{ldap_info[1]}" )
@@ -260,6 +272,7 @@ class ApplicationController < ActionController::Base
             end
             newuser.realname = ldap_info[1]
             newuser.state = User.states['confirmed']
+            newuser.state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
             newuser.adminnote = "User created via LDAP"
             user_role = Role.find_by_title("User")
             newuser.roles << user_role
