@@ -81,7 +81,7 @@ class DbPackage < ActiveRecord::Base
           options[:joins] += " LEFT JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
           options[:joins] += " LEFT JOIN users u ON ur.bs_user_id = u.id"
 
-          cond = "((f.flag = 'access' AND u.login = '#{User.current.login}') OR ISNULL(f.flag))"
+          cond = "((f.flag = 'access' AND u.login = '#{User.current ? User.current.login : "_nobody_"}') OR ISNULL(f.flag))"
           if options[:conditions].nil?
             options[:conditions] = cond
           else
@@ -609,7 +609,7 @@ class DbPackage < ActiveRecord::Base
 
     #--- write through to backend ---#
     if write_through?
-      path = "/source/#{self.db_project.name}/#{self.name}/_meta?user=#{URI.escape(User.current.login)}"
+      path = "/source/#{self.db_project.name}/#{self.name}/_meta?user=#{URI.escape(User.current ? User.current.login : "_nobody_")}"
       Suse::Backend.put_source( path, to_axml )
     end
   end
