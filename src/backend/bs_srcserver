@@ -5743,14 +5743,22 @@ sub postrequest {
     my $go_new_state = 'review';
     $go_new_state = $cgi->{'newstate'} if $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
     my $found = 0;
-    my $index = 1;
-    for my $r (@{$req->{'review'} || []}) {
+    my %rkeyseen;
+    for my $r (reverse @{$req->{'review'} || []}) {
       my $matching = 1;
       $matching = 0 if defined($r->{'by_user'}) && $r->{'by_user'} ne ($cgi->{'by_user'}||'');
       $matching = 0 if defined($r->{'by_group'}) && $r->{'by_group'} ne ($cgi->{'by_group'}||'');
       $matching = 0 if defined($r->{'by_project'}) && $r->{'by_project'} ne ($cgi->{'by_project'}||'');
       $matching = 0 if defined($r->{'by_package'}) && $r->{'by_package'} ne ($cgi->{'by_package'}||'');
-      if ($matching && ($r->{'state'} eq 'new' || ($cgi->{'newstate'} eq 'new' && $index eq scalar @{$req->{'review'}}))) {
+      my $rkey = '';
+      $rkey .= "::by_user:$r->{'by_user'}" if defined($r->{'by_user'});
+      $rkey .= "::by_group:$r->{'by_group'}" if defined($r->{'by_group'});
+      $rkey .= "::by_project:$r->{'by_project'}" if defined($r->{'by_project'});
+      $rkey .= "::by_package:$r->{'by_package'}" if defined($r->{'by_package'});
+      #                # This is needed for MeeGo BOSS, which adds multiple reviews by same user for each step
+      #                # FIXME3.0: think about review ordering and make reviews addressable
+      if ($matching && !($rkeyseen{$rkey} && $r->{'state'} eq 'accepted')) {
+        $rkeyseen{$rkey} = 1;
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
@@ -5763,7 +5771,6 @@ sub postrequest {
         # review got declined or superseded or reopened.
         $go_new_state = '' if $r->{'state'} eq 'new' and $go_new_state ne 'declined' and $go_new_state ne 'superseded';
       }
-      $index++;
     }
     die("review item not found.\n") if $found == 0;
     if ($go_new_state or $cgi->{'newstate'} eq 'superseded'){

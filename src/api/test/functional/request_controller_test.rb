@@ -318,6 +318,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
   end
 
+  # MeeGo BOSS: is using multiple reviews by same user for each step
   def test_create_request_and_multiple_reviews
     ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
