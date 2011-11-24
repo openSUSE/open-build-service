@@ -883,6 +883,12 @@ our $pattern = [
 	'xmlns:rpm',  # obsolete, moved to patterns
 	[],
 	'name',
+    'arch',
+     [[ 'version' =>
+        'epoch',
+        'ver',
+        'rel',
+     ]],
      [[ 'summary' =>
 	    'lang',
 	    '_content',
