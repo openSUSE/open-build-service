@@ -1509,8 +1509,8 @@ class SourceController < ApplicationController
         link = backend_get "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link"
         ret = ActiveXML::XMLNode.new(link)
         ret.delete_attribute('project')
-        ret.set_attribute('package', ret.package + "." + p[:target_package].gsub(/.*\./,'')) if extend_names
-        Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+        ret.set_attribute('package', ret.package + "." + p[:target_package].gsub(/^[^\.]*\./,'')) if extend_names
+        answer = Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
       else
         rev = ""
         rev = "&orev=#{p[:rev]}" if p[:rev] and not p[:rev].empty?

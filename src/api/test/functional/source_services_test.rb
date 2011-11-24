@@ -37,18 +37,18 @@ class SourceServicesTest < ActionController::IntegrationTest
   def test_combine_project_service_list
     prepare_request_with_user "king", "sunflower"
 
-    put "/source/BaseDistro2/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
+    put "/source/BaseDistro2.0/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
-    put "/source/BaseDistro2:LinkedUpdateProject/_project/_service", '<services> <service name="download_files" /> </services>'
+    put "/source/BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_files" /> </services>'
     assert_response :success
 
     prepare_request_with_user "tom", "thunder"
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "branch"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
-    put "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/_project/_service", '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
+    put "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
     assert_response :success
 
-    post "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject/pack2", :cmd => "getprojectservices"
+    post "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "getprojectservices"
     assert_response :success
     assert_tag( :tag => "service", :attributes => { :name => "download_files" } )
     assert_tag( :parent => { :tag => "service", :attributes => { :name => "download_url" } }, :tag => "param", :attributes => { :name => "host"}, :content => "blahfasel" )
@@ -56,11 +56,11 @@ class SourceServicesTest < ActionController::IntegrationTest
 
     # cleanup
     prepare_request_with_user "king", "sunflower"
-    delete "/source/home:tom:branches:BaseDistro2:LinkedUpdateProject"
+    delete "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
-    delete "/source/BaseDistro2/_project/_service"
+    delete "/source/BaseDistro2.0/_project/_service"
     assert_response :success
-    delete "/source/BaseDistro2:LinkedUpdateProject/_project/_service"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/_project/_service"
     assert_response :success
   end
 
@@ -127,11 +127,11 @@ class SourceServicesTest < ActionController::IntegrationTest
 
     # failure check
     prepare_request_with_user "king", "sunflower"
-    get "/source/BaseDistro2/pack2"
+    get "/source/BaseDistro2.0/pack2"
     assert_response :success
-    get "/source/BaseDistro2/pack2/_service"
+    get "/source/BaseDistro2.0/pack2/_service"
     assert_response 404
-    post "/source/BaseDistro2/pack2?cmd=runservice"
+    post "/source/BaseDistro2.0/pack2?cmd=runservice"
     assert_response 404
   end
 

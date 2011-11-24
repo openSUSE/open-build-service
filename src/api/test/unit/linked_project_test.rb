@@ -8,7 +8,7 @@ class LinkedProjectTest < ActiveSupport::TestCase
     assert_equal false, prj.valid?
     prj.db_project = DbProject.find_by_name("home:Iggy")
     assert_equal false, prj.valid?
-    prj.linked_db_project = DbProject.find_by_name("BaseDistro2")
+    prj.linked_db_project = DbProject.find_by_name("BaseDistro2.0")
     assert_equal true, prj.valid?
     assert_equal true, prj.save
     prj2 = prj.clone

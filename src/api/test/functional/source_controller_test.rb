@@ -1577,63 +1577,63 @@ end
     # first go with a read-only user
     prepare_request_with_user "tom", "thunder"
     # pack2 exists only via linked project
-    get "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
-    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
     # test not permitted commands
-    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "rebuild"
+    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "rebuild"
     assert_response 403
-    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "wipe"
+    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "wipe"
     assert_response 403
-    assert_match(/permission to execute command on project BaseDistro2:LinkedUpdateProject/, @response.body)
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
+    assert_match(/permission to execute command on project BaseDistro2.0:LinkedUpdateProject/, @response.body)
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "commit"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "commit"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linktobranch"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "linktobranch"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
     # test permitted commands
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
     assert_response :success
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "branch"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
 # FIXME: construct a linked package object to test this
-#    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "linkdiff"
+#    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "linkdiff"
 #    assert_response :success
 
     # read-write user, binary operations must be allowed
     prepare_request_with_user "king", "sunflower"
     # obsolete with OBS 3.0, rebuild only via /build/
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "rebuild"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "rebuild"
     assert_response :success
-    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "rebuild", :package => "pack2"
+    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "rebuild", :package => "pack2"
     assert_response :success
-    post "/build/BaseDistro2:LinkedUpdateProject", :cmd => "wipe"
+    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "wipe"
     assert_response :success
 
     # create package and remove it again
-    get "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
-    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response 404
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
     assert_response :success
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "undelete"
     assert_response 404
     assert_match(/package_exists/, @response.body)
-    delete "/source/BaseDistro2:LinkedUpdateProject/pack2"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
-    post "/source/BaseDistro2:LinkedUpdateProject/pack2", :cmd => "undelete"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "undelete"
     assert_response :success
   end
 
@@ -1818,9 +1818,9 @@ end
     prepare_request_with_user "tom", "thunder"
 
     # list all linking projects
-    post "/source/BaseDistro2", :cmd => "showlinked"
+    post "/source/BaseDistro2.0", :cmd => "showlinked"
     assert_response :success
-    assert_tag( :tag => "project", :attributes => { :name => "BaseDistro2:LinkedUpdateProject"}, :content => nil )
+    assert_tag( :tag => "project", :attributes => { :name => "BaseDistro2.0:LinkedUpdateProject"}, :content => nil )
 
     # list all linking packages with a local link
     post "/source/BaseDistro/pack2", :cmd => "showlinked"
@@ -1878,12 +1878,12 @@ end
     assert_response :success
 
     # working link to package via project link
-    put url, '<link project="BaseDistro2:LinkedUpdateProject" package="pack2" />'
+    put url, '<link project="BaseDistro2.0:LinkedUpdateProject" package="pack2" />'
     assert_response :success
     # working link to remote package
     put url, '<link project="RemoteInstance:BaseDistro" package="pack1" />'
     assert_response :success
-    put url, '<link project="RemoteInstance:BaseDistro2:LinkedUpdateProject" package="pack2" />'
+    put url, '<link project="RemoteInstance:BaseDistro2.0:LinkedUpdateProject" package="pack2" />'
     assert_response :success
     # working link to remote project link
     put url, '<link project="UseRemoteInstance" package="pack1" />'

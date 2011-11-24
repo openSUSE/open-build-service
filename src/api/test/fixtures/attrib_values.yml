@@ -6,5 +6,5 @@ attrib_values_1:
 attrib_values_2: 
   position: "0"
   id: "2"
-  value: BaseDistro2:LinkedUpdateProject
+  value: BaseDistro2.0:LinkedUpdateProject
   attrib_id: "103"
