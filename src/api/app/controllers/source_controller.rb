@@ -1310,7 +1310,7 @@ class SourceController < ApplicationController
     # lookup update project, devel project or local linked packages.
     # Just requests should be nearly the same
     unless params[:request]
-      @packages.each do |p|
+      @packages.clone.each do |p|
         prj = nil
         pkg = p[:package]
         next unless pkg.class == DbPackage # only for local packages
