@@ -284,7 +284,13 @@
     <h3>Diffs</h3>
     <p>
       <%= label_tag(:diff_action, 'Display diff for request action ') %>
-      <%= select_tag(:diff_action, options_for_select(@actiondiffs.keys)) %>:
+      <% select_options = [] %>
+      <% @actiondiffs.each_with_index do |actiondiff, action_index| %>
+        <% actiondiff[:sourcediffs].each_with_index do |_, sourcediff_index| %>
+          <% select_options << "#{action_index}_#{actiondiff[:type]}_#{sourcediff_index}" %>
+        <% end %>
+      <% end %>
+      <%= select_tag(:diff_action, options_for_select(select_options)) %>:
     </p>
   <% else %>
     <h3>Diff</h3>
