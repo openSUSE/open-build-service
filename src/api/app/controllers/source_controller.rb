@@ -1214,6 +1214,7 @@ class SourceController < ApplicationController
       render_error :status => 400, :errorcode => "invalid_project_name",
         :message => "invalid project name '#{target_project}'"
     end
+    add_repositories = params[:add_repositories]
     # use update project ?
     aname = params[:update_project_attribute]
     update_project_at = aname.split(/:/)
@@ -1262,6 +1263,7 @@ class SourceController < ApplicationController
     else
       extend_names = true
       copy_from_devel = true
+      add_repositories = true # osc mbranch shall create repos by default
       # find packages via attributes
       at = AttribType.find_by_name(params[:attribute])
       unless at
@@ -1411,6 +1413,7 @@ class SourceController < ApplicationController
         title = "Branch project based on request #{params[:request]}"
         description = "This project was created as a clone of request #{params[:request]}"
       end
+      add_repositories = true # new projects shall get repositories
       DbProject.transaction do
         tprj = DbProject.new :name => target_project, :title => title, :description => description
         tprj.add_user @http_user, "maintainer"
@@ -1473,32 +1476,34 @@ class SourceController < ApplicationController
       end
 
       # create repositories, if missing
-      if p[:target_project].class == DbProject
-        p[:target_project].repositories.each do |repo|
-          repoName = repo.name
-          repoName = prj.name.gsub(':', '_')+"_"+repo.name if extend_names
-          unless tprj.repositories.find_by_name(repoName)
-            trepo = tprj.repositories.create :name => repoName
-            trepo.architectures = repo.architectures
-            trepo.path_elements.create(:link => repo, :position => 1)
-            trigger = "manual"
-            trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
-            trepo.release_targets.create(:target_repository => repo, :trigger => trigger) if p[:target_project].project_type == "maintenance_release"
+      if add_repositories
+        if p[:target_project].class == DbProject
+          p[:target_project].repositories.each do |repo|
+            repoName = repo.name
+            repoName = prj.name.gsub(':', '_')+"_"+repo.name if extend_names
+            unless tprj.repositories.find_by_name(repoName)
+              trepo = tprj.repositories.create :name => repoName
+              trepo.architectures = repo.architectures
+              trepo.path_elements.create(:link => repo, :position => 1)
+              trigger = "manual"
+              trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
+              trepo.release_targets.create(:target_repository => repo, :trigger => trigger) if p[:target_project].project_type == "maintenance_release"
+            end
+            if extend_names
+              tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
+              tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
+            end
           end
-          if extend_names
-            tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
-            tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
+          unless extend_names
+            # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
+            p[:target_project].flags.each do |f|
+              tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless [ "build", "publish", "lock" ].include?(f.flag)
+            end
+            tprj.flags.create(:status => "disable", :flag => 'publish')
           end
+        else
+          # FIXME for remote project instances
         end
-        unless extend_names
-          # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
-          p[:target_project].flags.each do |f|
-            tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless [ "build", "publish", "lock" ].include?(f.flag)
-          end
-          tprj.flags.create(:status => "disable", :flag => 'publish')
-        end
-      else
-        # FIXME for remote project instances
       end
       tpkg.store
 
