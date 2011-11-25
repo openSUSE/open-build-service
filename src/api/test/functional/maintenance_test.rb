@@ -419,6 +419,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
     assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
     assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :trigger => "maintenance" } )
+    # correct vrev ?
+    get "/source/"+maintenanceProject+"/pack2.BaseDistro2.0?expand=1"
+    assert_response :success
+    assert_tag( :tag => "directory", :attributes => { :vrev => "2.7" } )
     # validate package meta
     get "/source/"+maintenanceProject+"/pack2.BaseDistro2.0/_meta"
     assert_response :success
@@ -527,6 +531,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2?expand=1"
+    assert_response :success
+    assert_tag( :tag => "directory", :attributes => { :vrev => "2.8" } )
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}"
+    assert_response :success
+    assert_tag( :tag => "directory", :attributes => { :vrev => "2.8" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_link"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo"

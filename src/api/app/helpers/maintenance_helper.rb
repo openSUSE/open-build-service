@@ -115,11 +115,12 @@ module MaintenanceHelper
       :opackage => sourcePackage.name,
       :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
       :expand => "1",
+      :withvrev => "1",
     }
     cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
-    cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand])
+    cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev])
     Suse::Backend.post cp_path, nil
 
     # copy binaries

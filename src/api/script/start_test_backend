@@ -185,6 +185,7 @@ Suse::Backend.put( '/source/BaseDistro/pack3/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro2.0/_meta', DbProject.find_by_name('BaseDistro2.0').to_axml)
 Suse::Backend.put( '/source/BaseDistro2.0/_config', "Type: spec" )
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/_meta', DbPackage.find_by_id(10099).to_axml)
+Suse::Backend.post( '/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0', '<directory/>') # set vrev like it get created with makeolder=1
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/myfile', "DummyContent of BaseDistro2.0/pack2")
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/package.spec',File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put( '/source/BaseDistro2.0/pack2_linked/_meta', DbPackage.find_by_id('10100').to_axml)
