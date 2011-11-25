@@ -8,6 +8,7 @@ Disallow: /package/reload_buildstatus
 Disallow: /project/buildstatus
 Disallow: /project/status
 Disallow: /stage
+Disallow: /project/rebuild_time
 
 # unfortunately the sitemap needs to be full URL,
 # so it needs to be adopted for other anonymous
