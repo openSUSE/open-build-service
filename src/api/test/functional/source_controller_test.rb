@@ -1792,7 +1792,7 @@ end
     assert_response 400 # illegal content
     put "/source/home:Iggy/_pattern/filename?rev=repository", load_backend_file("pattern/digiKam.xml")
     assert_response :success
-    post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="d23e402af68579c3b30ff00f8c8424e0" /> </directory> '
+    post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="c5fadc30cd4c7d45bd3ce053b2751ec2" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/_pattern/filename"
     assert_response :success
