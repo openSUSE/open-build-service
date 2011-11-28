@@ -1494,7 +1494,7 @@ class SourceController < ApplicationController
               trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
               trepo.release_targets.create(:target_repository => repo, :trigger => trigger) if p[:target_project].project_type == "maintenance_release"
             end
-            if extend_names
+            if tprj.flags.find_by_flag_and_status( 'build', 'disable' )
               tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
               tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
             end
