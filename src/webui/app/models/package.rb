@@ -120,18 +120,21 @@ class Package < ActiveXML::Base
     opt[:project] = self.project
     opt[:package] = self.name
     opt[:cmd] = "showlinked"
-    fc = FrontendCompat.new
-    answer = fc.do_post nil, opt
-
-    doc = ActiveXML::Base.new(answer)
     result = []
-    doc.each("/collection/package") do |e|
-      hash = {}
-      hash[:project] = e.value("project")
-      hash[:package] = e.value("name")
-      result.push( hash )
-    end
+    begin
+      fc = FrontendCompat.new
+      answer = fc.do_post nil, opt
 
+      doc = ActiveXML::Base.new(answer)
+      doc.each("/collection/package") do |e|
+        hash = {}
+        hash[:project] = e.value("project")
+        hash[:package] = e.value("name")
+        result.push( hash )
+      end
+    rescue ActiveXML::Transport::NotFoundError
+      # No answer is ok, it only means no linking projects...
+    end
     return result
   end
 

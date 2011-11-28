@@ -248,11 +248,15 @@ class Project < ActiveXML::Base
   end
     
   def linking_projects
-    fc = FrontendCompat.new
-    answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
-    doc = ActiveXML::Base.new(answer)
     result = []
-    doc.each('/collection/project') {|e| result << e.value('name')}
+    begin
+      fc = FrontendCompat.new
+      answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
+      doc = ActiveXML::Base.new(answer)
+      doc.each('/collection/project') {|e| result << e.value('name')}
+    rescue ActiveXML::Transport::NotFoundError
+      # No answer is ok, it only means no linking projects...
+    end
     return result
   end
 
