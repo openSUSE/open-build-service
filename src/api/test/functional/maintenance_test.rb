@@ -269,6 +269,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_nil node.repository.element_name
     # repository definition must be the same, except for the maintenance trigger
     node.each_repository do |r|
+      assert_not_nil r.releasetarget
       assert_equal r.releasetarget.value("trigger"), "maintenance"
       r.releasetarget.delete_attribute("trigger")
     end

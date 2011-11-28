@@ -1310,7 +1310,7 @@ class SourceController < ApplicationController
     # lookup update project, devel project or local linked packages.
     # Just requests should be nearly the same
     unless params[:request]
-      @packages.clone.each do |p|
+      @packages.each do |p|
         prj = nil
         pkg = p[:package]
         next unless pkg.class == DbPackage # only for local packages
@@ -1353,13 +1353,6 @@ class SourceController < ApplicationController
           logger.debug "devel project is #{prj.name} #{pkg.name}"
         end
 
-        # add packages which link them in the same project to support build of source with multiple build descriptions
-        pkg.find_project_local_linking_packages.each do |llp|
-          target_package = llp.name
-          target_package += "." + llp.db_project.name if extend_names
-          @packages.push({ :target_project => llp.db_project, :package => llp, :target_package => target_package, :local_link => 1 })
-        end
-
         # replace new found package
         p[:package] = pkg
         p[:target_project] = prj if prj
@@ -1385,6 +1378,16 @@ class SourceController < ApplicationController
               :message => "no srcmd5 revision found"
             return
           end
+        end
+      end
+
+      # add packages which link them in the same project to support build of source with multiple build descriptions
+      @packages.each do |p|
+        next unless pkg.class == DbPackage # only for local packages
+        p[:package].find_project_local_linking_packages.each do |llp|
+          target_package = llp.name
+          target_package += "." + llp.db_project.name if extend_names
+          @packages.push({ :target_project => p[:target_project], :package => llp, :target_package => target_package, :local_link => 1 })
         end
       end
     end
