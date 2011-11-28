@@ -31,8 +31,23 @@ use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 use Encode;
 use Storable ();
+use IO::Handle;
 
 use strict;
+
+our $fdatasync_before_rename;
+
+sub do_fdatasync {
+  my ($fd) = @_;
+  if (!defined(&File::Sync::fdatasync_fd)) {
+    eval {
+      require File::Sync;
+    };
+    warn($@) if $@;
+    *File::Sync::fdatasync_fd = sub {} unless defined &File::Sync::fdatasync_fd;
+  }
+  File::Sync::fdatasync_fd($fd);
+}
 
 sub writexml {
   my ($fn, $fnf, $dd, $dtd) = @_;
@@ -40,6 +55,7 @@ sub writexml {
   local *F;
   open(F, '>', $fn) || die("$fn: $!\n");
   (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
+  do_fdatasync(fileno(F)) if defined($fnf) && $fdatasync_before_rename;
   close(F) || die("$fn close: $!\n");
   return unless defined $fnf;
   $! = 0;
@@ -53,6 +69,7 @@ sub writestr {
   if (length($d)) {
     (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
   }
+  do_fdatasync(fileno(F)) if defined($fnf) && $fdatasync_before_rename;
   close(F) || die("$fn close: $!\n");
   return unless defined $fnf;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
@@ -483,8 +500,19 @@ sub enabled {
 
 sub store {
   my ($fn, $fnf, $dd) = @_;
-  if (!Storable::nstore($dd, $fn)) {
-    die("nstore $fn: $!\n");
+  if ($fdatasync_before_rename && defined($fnf)) {
+    local *F;
+    open(F, '>', $fn) || die("$fn: $!\n");
+    if (!Storable::nstore_fd($dd, \*F)) {
+      die("nstore_fd $fn: $!\n");
+    }
+    (\*F)->flush();
+    do_fdatasync(fileno(F));
+    close(F) || die("$fn close: $!\n");
+  } else {
+    if (!Storable::nstore($dd, $fn)) {
+      die("nstore $fn: $!\n");
+    }
   }
   return unless defined $fnf;
   $! = 0;
