@@ -1,6 +1,6 @@
 <% incidents.each do |incident| %>
   <% project, patchinfo = incident[:project], incident[:patchinfo] %>
-  <tr>
+  <tr id="incident_<%= project.name %>">
     <td><%= link_to(short_incident_name(@project, project), :action => 'show', :project => project.name) %></td>
     <td><%= project.title %></td>
     <% if patchinfo %>
@@ -11,6 +11,16 @@
       <td colspan="2" style="color: red;">Missing patchinfo!</td>
       <td><%= link_to('Create', :controller => 'patchinfo', :action => 'new_patchinfo', :project => project.name, :package => 'patchinfo') %></td>
     <% end %>
+    <td>
+      <% packages = Package.find_cached(:all, :project => incident[:project], :expires_in => 30.seconds) %>
+      <% if packages && packages.count > "1" %>
+        <% it = image_tag('icons/accept.png', :alt => "Has #{packages.count} packages", :title => "Has #{packages.count} packages") %>
+      <% else %>
+        <% it = image_tag('icons/exclamation.png', :alt => 'Has no packages', :title => 'Has no packages') %>
+      <% end %>
+      <%= link_to(it, :action => 'packages', :project => project.name) %>
+      <%# link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => "incident_#{project.name}_results"), :controller => :package, :action => :show, :project => project) %>
+    </td>
   </tr>
   <% if patchinfo %>
     <!--<tr> <td colspan="3"><%= patchinfo.description %></td> </tr>-->
