@@ -1,0 +1,18 @@
+<% incidents.each do |incident| %>
+  <% project, patchinfo = incident[:project], incident[:patchinfo] %>
+  <tr>
+    <td><%= link_to(short_incident_name(@project, project), :action => 'show', :project => project.name) %></td>
+    <td><%= project.title %></td>
+    <% if patchinfo %>
+      <td><%= patchinfo.category %> </td>
+      <td><%= raw colored_rating(patchinfo.rating) %></td>
+      <td><%= link_to('View', :controller => 'patchinfo', :action => 'show', :project => project.name, :package => 'patchinfo', :file => '_patchinfo') %></td>
+    <% else %>
+      <td colspan="2" style="color: red;">Missing patchinfo!</td>
+      <td><%= link_to('Create', :controller => 'patchinfo', :action => 'new_patchinfo', :project => project.name, :package => 'patchinfo') %></td>
+    <% end %>
+  </tr>
+  <% if patchinfo %>
+    <!--<tr> <td colspan="3"><%= patchinfo.description %></td> </tr>-->
+  <% end %>
+<% end %>

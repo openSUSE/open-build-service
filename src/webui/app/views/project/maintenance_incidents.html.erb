@@ -1,26 +1,50 @@
-<% @pagetitle = "Running maintenance Incidents for #{@project}" %>
-<% project_bread_crumb 'Maintainance Incidents' %>
+<% @pagetitle = "Maintenance Incidents" %>
+<% project_bread_crumb @pagetitle %>
 
 <%= render :partial => 'tabs' %>
 
 <h3><%= @pagetitle %></h3>
 
-<%= link_to("Show past incidents", :action => :closed_maintenance_incidents, :project => @project) %>
+<%= javascript_include_tag 'jquery.tablesorter' %>
 
-<div class="grid_8 alpha">
-  <% if @open_maintenance_incident_list.length == 0 %>
-    <p><%= image_tag 'icons/accept.png' %> 0 open incidents</p>
-  <% else %>
-    <ul>
-      <% @open_maintenance_incident_list.each do |incident| %>
-        <li>
-           <%= link_to("#{incident.name}", :action => :show, :project => incident.name) %>
-           <% if not incident.title.to_s.empty? %>
-             : <%= incident.title %>
-           <% end %>
-        </li>
-      <% end %>
-    </ul>
+<p>
+  Display
+  <%= select_tag("incident_type_select", options_for_select(['all', 'open', 'closed'], 'open')) %>
+  maintenance incidents:
+  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
+</p>
+
+<% if @maintenance_incidents.blank? %>
+  <p>No incidents.</p>
+<% else %>
+  <table cellspacing="1" id="incident_table" class="tablesorter" style="width: 95%">
+    <thead>
+      <tr>
+        <th style="width: 1%">Incident</th>
+        <th style="width: 40%">Summary</th>
+        <th style="width: 1%">Category</th>
+        <th style="width: 1%">Rating</th>
+        <th style="width: 1%">Patchinfo</th>
+      </tr>
+    </thead>
+    <tbody id="all_incidents" class="incident_list">
+      <%= render :partial => 'maintenance_incidents', :locals => {:incidents => @maintenance_incidents} %>
+    </tbody>
+    <tbody id="open_incidents" class="incident_list">
+      <%= render :partial => 'maintenance_incidents', :locals => {:incidents => @open_maintenance_incidents} %>
+    </tbody>
+    <tbody id="closed_incidents" class="incident_list">
+      <%= render :partial => 'maintenance_incidents', :locals => {:incidents => @closed_maintenance_incidents} %>
+    </tbody>
+  </table>
+  <% javascript_tag do %>
+    $('#incident_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {5: {sorter: false}} });
+
+    function updateIncidentDisplay() {
+      $('.incident_list').hide();
+      $('#' + $('#incident_type_select option:selected').attr('value') + '_incidents').show();
+    }
+    $('#incident_type_select').change(updateIncidentDisplay);
+    updateIncidentDisplay();
   <% end %>
-</div>
-
+<% end %>

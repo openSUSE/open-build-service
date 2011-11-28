@@ -24,7 +24,7 @@ class ProjectController < ApplicationController
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
-  before_filter :require_maintenance_incident_lists, :only => [:show, :maintenance_incidents, :closed_maintenance_incidents]
+  before_filter :require_maintenance_incident_lists, :only => [:show, :maintenance_incidents]
   prepend_before_filter :lockout_spiders, :only => [:requests]
 
   def index
@@ -1336,6 +1336,7 @@ class ProjectController < ApplicationController
   end
 
   def maintenance_incidents
+    #TODO: This method won't scale long!
   end
 
   def closed_maintenance_incidents
@@ -1399,8 +1400,7 @@ class ProjectController < ApplicationController
   end
 
   def require_maintenance_incident_lists
-    @open_maintenance_incident_list = []
-    @closed_maintenance_incident_list = []
+    @maintenance_incidents, @open_maintenance_incidents, @closed_maintenance_incidents = [], [], []
     return if @spider_bot
     Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
       has_releasetarget, has_trigger_maintenance = false, false
@@ -1410,13 +1410,20 @@ class ProjectController < ApplicationController
           has_trigger_maintenance = repo.releasetarget.has_attribute?('trigger') && repo.releasetarget.trigger == 'maintenance'
         end
       end
+      begin
+        #TODO: We may want to have a PatchInfo model (with API support):
+        patchinfo = ActiveXML::Base.new(frontend.get_source(:project => project, :package => 'patchinfo', :filename => '_patchinfo'))
+      rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
+        patchinfo = nil
+      end
       if has_releasetarget
         if has_trigger_maintenance
-          @open_maintenance_incident_list << project
+          @open_maintenance_incidents << {:project => project, :patchinfo => patchinfo}
         else
-          @closed_maintenance_incident_list << project
+          @closed_maintenance_incidents << {:project => project, :patchinfo => patchinfo}
         end
       end
+      @maintenance_incidents << {:project => project, :patchinfo => patchinfo}
     end
   end
 

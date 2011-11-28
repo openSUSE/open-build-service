@@ -72,4 +72,27 @@ module ProjectHelper
      btime, etime = @timings[package]
      link_to( h(package), :controller => :package, :action => :show, :project => @project, :package => package) + " " + format_seconds(btime)
   end
+
+  def short_incident_name(maintenance_project, incident)
+    re = Regexp.new("#{@project.name}\:(.*)")
+    match = incident.name.match(re)
+    return match[1] if match.length > 1
+    return match[0]
+  end
+
+  def patchinfo_from_incident(incident)
+    return frontend.get_source(:project => incident, :package => 'patchinfo', :filename => '_patchinfo')
+  end
+
+  def colored_rating(rating)
+    color = ""
+    case rating.to_s
+      when "low" then color = "green"
+      when "moderate" then color = "olive"
+      when "important" then color = "red"
+      when "critical" then color = "maroon"
+    end
+    return "<span style=\"color: #{color};\">#{rating}</span>"
+  end
+
 end
