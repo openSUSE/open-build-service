@@ -320,6 +320,9 @@ class AttributeControllerTest < ActionController::IntegrationTest
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "missing_attribute" }
+    delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS_Maintained"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_attribute" }
 
     # delete
     ActionController::IntegrationTest::reset_auth

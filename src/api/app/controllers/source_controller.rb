@@ -466,7 +466,9 @@ class SourceController < ApplicationController
       aname = params[:attribute]
       name_parts = aname.split(/:/)
       if name_parts.length != 2
-        raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+        render_error :status => 400, :errorcode => "invalid_attribute",
+          :message => "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+        return
       end
       # existing ?
       at = AttribType.find_by_name(params[:attribute])
