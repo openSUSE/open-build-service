@@ -177,14 +177,14 @@ sub getrev {
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
   if (!defined($rev)) {
     $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
-    $rev = {'srcmd5' => 'empty'} unless $rev;
+    $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
     $rev = {'srcmd5' => $rev, 'rev' => $rev};
   } elsif ($rev eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
   } elsif ($rev eq 'repository') {
-    $rev = {'srcmd5' => 'empty', 'rev' => 'repository'}
+    $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e', 'rev' => 'repository'}
   } else {
     $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
   }
@@ -200,7 +200,7 @@ sub lsrep {
     open(F, '<', "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
   } elsif ($srcmd5 eq 'pattern') {
     open(F, '<', "$projectsdir/$projid.pkg/pattern-MD5SUMS") || return {};
-  } elsif ($srcmd5 eq 'empty') {
+  } elsif ($srcmd5 eq 'empty' || $srcmd5 eq 'd41d8cd98f00b204e9800998ecf8427e') {
     return {};
   } else {
     die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;

@@ -723,7 +723,7 @@ sub getrev {
     if (defined($rev) && $rev eq '0') {
       # getrev by rev 0. we allow access to missing packages if the project exists
       if (-e "$projectsdir/$projid.xml") {
-	return {'project' => $projid, 'package' => $packid, 'rev' => 0, 'srcmd5' => 'empty'};
+	return {'project' => $projid, 'package' => $packid, 'rev' => 0, 'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'};
       }
     } elsif (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
       # getrev by srcmd5. we allow access to packages that were deleted.
@@ -749,7 +749,7 @@ sub getrev {
     if (!$rev && -d "$projectsdir/$projid.pkg/$packid.git") {
       return getrev_git($projid, $packid);
     }
-    $rev = {'srcmd5' => 'empty'} unless $rev;
+    $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev" || -e "$projectsdir/$projid.pkg/$packid.mrev";
     $rev = {'srcmd5' => $rev, 'rev' => $rev};
@@ -758,10 +758,10 @@ sub getrev {
   } elsif ($rev eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
   } elsif ($rev eq 'repository') {
-    $rev = {'srcmd5' => 'empty', 'rev' => 'repository'}
+    $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e', 'rev' => 'repository'}
   } else {
     if ($rev eq '0') {
-      $rev = {'srcmd5' => 'empty'};
+      $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'};
     } else {
       $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
       die("no such revision\n") unless defined $rev;
@@ -913,7 +913,7 @@ sub addrev {
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
-    return {'project' => $projid, 'package' => $packid, 'rev' => 'repository', 'srcmd5' => 'empty'};
+    return {'project' => $projid, 'package' => $packid, 'rev' => 'repository', 'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'};
   } elsif (defined($target)) {
     # internal version only upload.
     my $srcmd5 = addmeta($projid, $packid, $files);
@@ -3240,7 +3240,7 @@ sub remote_getrev {
   my $proj = remoteprojid($projid);
   if (!$proj) {
     return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
-    return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok;
+    return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'} if $missingok;
     die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
     die("404 project '$projid' does not exist\n");
   }
@@ -3264,7 +3264,7 @@ sub remote_getrev {
       $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proxy}, $BSXML::dir, @args);
     };
     if ($@) {
-      return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok && $@ =~ /^404[^\d]/;
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'} if $missingok && $@ =~ /^404[^\d]/;
       die($@);
     }
   }
@@ -3741,7 +3741,7 @@ sub getfile {
   die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = repstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
-  if (!$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty') {
+  if (!$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne 'd41d8cd98f00b204e9800998ecf8427e') {
     # hack: we identify remote source downloads by looking at the user agent
     my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
     if ($useragent =~ /BSRPC/) {
