@@ -464,6 +464,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{maintenanceProject}/patchinfo/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
 
+    # add another issue and update patchinfo
+    put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0/dummy_file", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
+    assert_response :success
+    post "/source/#{maintenanceProject}/patchinfo?cmd=updatepatchinfo"
+    assert_response :success
+
     ### the backend is now building the packages, injecting results
     # run scheduler once to create job file. x86_64 scheduler gets no work
     run_scheduler("x86_64")
@@ -483,6 +489,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
     assert_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=1042", :id => "1042",  :type => "bugzilla" } 
+    assert_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=4201", :id => "4201",  :type => "bugzilla" } 
     assert_tag :tag => "reference", :attributes => { :href => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815", :id => "CVE-2009-0815",  :type => "cve" } 
     assert_no_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=" } 
     assert_no_tag :tag => "reference", :attributes => { :id => "" }
@@ -534,10 +541,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2?expand=1"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :vrev => "2.8" } )
+    assert_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :vrev => "2.8" } )
+    assert_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_link"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo"
