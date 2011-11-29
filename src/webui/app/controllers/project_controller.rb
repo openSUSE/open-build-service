@@ -1421,7 +1421,7 @@ class ProjectController < ApplicationController
       end
       begin
         #TODO: We may want to have a PatchInfo model (with API support):
-        patchinfo = ActiveXML::Base.new(frontend.get_source(:project => project, :package => 'patchinfo', :filename => '_patchinfo'))
+        patchinfo = ActiveXML::Base.new(frontend.get_source(:project => project.value(:name), :package => 'patchinfo', :filename => '_patchinfo'))
       rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
         patchinfo = nil
       end
