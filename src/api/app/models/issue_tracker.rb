@@ -43,7 +43,7 @@ class IssueTracker < ActiveRecord::Base
         ret << new_issue if not old_issue_names.include?(new_issue.long_name)
       end
     end
-    return ret
+    return ret.sort {|a, b| a.long_name <=> b.long_name}
   end
 
   def self.write_to_backend()
