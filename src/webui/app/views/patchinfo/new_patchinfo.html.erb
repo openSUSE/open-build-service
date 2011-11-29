@@ -76,20 +76,11 @@
 
             $(document).ready(function(){
 
-            var selected_start = $("#category option:selected");
-            if(selected_start.val() != "security"){
-            $("#CVE").hide();
-            $("#CVEID").hide();
-            }
-            else
-            {    $("#CVE").show();
-                 $("#CVEID").show();
-            }
-
             $("#category").change(onSelectChange);
 
             });
-            function onSelectChange(){
+	    function onSelectChange(){
+	    var project = $("#project").val();
             var selected = $("#category option:selected");
             if(selected.val() != "security"){
             $("#CVEID").hide();
@@ -185,7 +176,5 @@
       </td></tr>
     </table>
     <%= hidden_field_tag("project", @project.name)%>
-    <%= observe_field( :category, :frequency => 0.5, :on => :selected,
-      :update => :cve )%>
   </div>
 <% end %>
