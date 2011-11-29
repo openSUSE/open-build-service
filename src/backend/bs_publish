@@ -49,6 +49,8 @@ use strict;
 
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
+$BSUtil::fdatasync_before_rename = 1 unless $BSConfig::disable_data_sync;
+
 my $reporoot = "$BSConfig::bsdir/build";
 my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";

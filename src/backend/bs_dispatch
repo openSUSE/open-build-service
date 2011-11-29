@@ -61,6 +61,8 @@ if ($BSConfig::powerpkgs) {
   }
 }
 
+$BSUtil::fdatasync_before_rename = 1 unless $BSConfig::disable_data_sync;
+
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
