@@ -194,7 +194,5 @@
     </table>
     <%= hidden_field_tag("project", @project.name)%>
     <%= hidden_field_tag("package", @package)%>
-    <%= observe_field( :category, :frequency => 0.5, :on => :selected,
-      :update => :cve )%>
   </div>
 <% end %>
