@@ -1425,7 +1425,8 @@ class ProjectController < ApplicationController
       rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
         patchinfo = nil
       end
-      @maintenance_incidents << {:project => project, :patchinfo => patchinfo, :state => state}
+      packages = find_cached(Package, :all, :project => project, :expires_in => 30.seconds)
+      @maintenance_incidents << {:project => project, :patchinfo => patchinfo, :state => state, :packages => packages}
     end
   end
 

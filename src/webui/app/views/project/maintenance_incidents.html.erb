@@ -30,7 +30,7 @@
     </thead>
     <tbody>
       <% @maintenance_incidents.each do |incident| %>
-        <% project, patchinfo = incident[:project], incident[:patchinfo] %>
+        <% project, patchinfo, packages = incident[:project], incident[:patchinfo], incident[:packages] %>
         <tr class="incident <%= incident[:state] %>_incident">
           <td><%= link_to(short_incident_name(@project, project), :action => 'show', :project => project.name) %></td>
           <td><%= project.title %></td>
@@ -44,7 +44,6 @@
             <td><%= link_to(image_tag('icons/exclamation.png', :alt => 'Create patchinfo', :title => 'Create patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => project.name, :package => 'patchinfo') %></td>
           <% end %>
           <td>
-            <% packages = Package.find_cached(:all, :project => incident[:project], :expires_in => 30.seconds) %>
             <% if packages && packages.count > "1" %>
               <%= link_to(image_tag('icons/accept.png', :alt => "Has #{packages.count} packages", :title => "Has #{packages.count} packages"), :action => 'packages', :project => project.name) %>
             <% else %>
