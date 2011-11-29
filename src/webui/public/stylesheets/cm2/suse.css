@@ -37,6 +37,10 @@
   padding: 0; margin: 0;
   white-space: pre;
   word-wrap: normal;
+  /* We inherit 'overflow: auto;' from the Bento CSS theme. Both v8 and webkit engines thus
+   * render garbage scrollbars. Setting to hidden is ok here, the '.CodeMirror pre' elements
+   * aren't supposed to be scrollable... */
+  overflow: hidden;
 }
 .CodeMirror textarea {
   font-family: inherit !important;
