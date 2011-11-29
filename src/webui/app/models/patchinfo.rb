@@ -36,8 +36,8 @@ class Patchinfo < ActiveXML::Base
 
   def set_packager(packager)
     self.delete_element('packager')
-    cve_new = self.add_element('packager')
-    cve_new.text = packager
+    packager_new = self.add_element('packager')
+    packager_new.text = packager
   end
 
   def set_rating(rating)
