@@ -624,6 +624,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     assert_equal( olddoc.to_s, REXML::Document.new(( @response.body )).to_s)    
+
+    # try to trick api via non matching xml attributes
+    doc.root.attributes["project"] = "kde4"
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
+    assert_response 400
+    assert_tag ( :tag => "status", :attributes => { :code => "project_name_mismatch"} )
+    doc.root.attributes["project"] = nil
+    doc.root.attributes["name"] = "none"
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
+    assert_response 400
+    assert_tag ( :tag => "status", :attributes => { :code => "package_name_mismatch"} )
   end
 
   def test_put_package_meta_to_hidden_pkg_invalid_permissions
@@ -644,7 +655,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     if !( response2 && tag2 )
       #dummy write to check blocking
-      put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
+      put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package><title></title><description></description></package>"
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)

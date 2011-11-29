@@ -913,7 +913,13 @@ class SourceController < ApplicationController
 
       pkg_xml = Package.new( request.raw_post, :project => project_name, :name => package_name )
 
-      if( pkg_xml.name != package_name )
+      if (pkg_xml.project and pkg_xml.project != project_name)
+        render_error :status => 400, :errorcode => 'project_name_mismatch',
+          :message => "project name in xml data does not match resource path component"
+        return
+      end
+
+      if (pkg_xml.name and pkg_xml.name != package_name)
         render_error :status => 400, :errorcode => 'package_name_mismatch',
           :message => "package name in xml data does not match resource path component"
         return
