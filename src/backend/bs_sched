@@ -214,6 +214,22 @@ sub findbins_dir {
   return $repobins;
 }
 
+sub writesolv {
+  my ($fn, $fnf, $repo) = @_;
+  if (defined($fnf) && $BSUtil::fdatasync_before_rename) {
+    local *F;
+    open(F, '>', $fn) || die("$fn: $!\n");
+    $repo->tofile_fd(fileno(F));
+    BSUtil::do_fdatasync(fileno(F));
+    close(F) || die("$fn close: $!\n");
+  } else {
+    $repo->tofile($fn);
+  }
+  return unless defined $fnf;
+  $! = 0;
+  rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
+}
+
 my $projpacks;		# global project/package data
 
 #  'lastscan'   last time we scanned
@@ -320,8 +336,7 @@ sub addrepo_scan {
     $dirty = 1;
   }
   if ($dirty && $cache && !$repodatas{$prp}->{'dontwrite'}) {
-    $cache->tofile("$dir.solv.new");
-    rename("$dir.solv.new", "$dir.solv") || die("rename $dir.solv.new $dir.solv: $!\n");
+    writesolv("$dir.solv.new", "$dir.solv", $cache);
   }
   $repodatas{$prp}->{'lastscan'} = time();
   return $cache;
@@ -1684,8 +1699,7 @@ sub update_dst_full {
     } else {
       $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
     }
-    $satrepo->tofile("$gdst/:full.solv.new");
-    rename("$gdst/:full.solv.new", "$gdst/:full.solv") || die("rename $gdst/:full.solv.new $gdst/:full.solv: $!\n");
+    writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
   }
   delete $repodatas{$prp}->{'solv'};
 }
@@ -1709,8 +1723,7 @@ sub sync_fullcache {
   } else {
     $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
   }
-  $satrepo->tofile("$gdst/:full.solv.new");
-  rename("$gdst/:full.solv.new", "$gdst/:full.solv") || die("rename $gdst/:full.solv.new $gdst/:full.solv: $!\n");
+  writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
   delete $repodatas{$prp}->{'solv'};
   %$fullcache = ();
 }
