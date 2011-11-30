@@ -1,6 +1,5 @@
 <% @pagetitle = "Create Patchinfo" %>
 <% project_bread_crumb 'Create Patchinfo' -%>
-
 <%= render :partial => "project/tabs" %>
 
 <% form_tag :controller => :patchinfo, :action => "save_new" do %>
@@ -46,9 +45,6 @@
         </td>
         <td>List of bugs which the Patch fixes</td>
       </tr>
-<!--
-              $("#buglist").append("<div id='bug_" + bugid + "'><input type='hidden' name='bug[]' value='" + bugid + "'/>" + bugid + " " + "<a onclick='$(\"#bug_" + bugid + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
--->
       <tr>
         <th></th>
         <td>
@@ -74,20 +70,11 @@
 
             $(document).ready(function(){
 
-            var selected_start = $("#category option:selected");
-            if(selected_start.val() != "security"){
-            $("#CVE").hide();
-            $("#CVEID").hide();
-            }
-            else
-            {    $("#CVE").show();
-                 $("#CVEID").show();
-            }
-
             $("#category").change(onSelectChange);
 
             });
-            function onSelectChange(){
+	    function onSelectChange(){
+	    var project = $("#project").val();
             var selected = $("#category option:selected");
             if(selected.val() != "security"){
             $("#CVEID").hide();
@@ -113,7 +100,7 @@
         </td>
         <td>Choose the category of your patch</td>
       </tr>
-      <tr id="CVE">
+      <tr id="CVE" style="display:none;">
         <th>CVE</th>
         <td>
           <div id="cvelist">
@@ -126,7 +113,7 @@
           </div>
         </td>
       </tr>
-      <tr id="CVEID">
+      <tr id="CVEID" style="display: none;">
         <th/>
         <td><%= text_field_tag 'cveid', @cveid %>
             <%= link_to image_tag('icons/bug_add.png', :alt => "Add CVE", :title => "Add CVE"), '#', :onclick => 'append_cve($("#cveid").val()); return false;' %></td>
@@ -183,7 +170,5 @@
       </td></tr>
     </table>
     <%= hidden_field_tag("project", @project.name)%>
-    <%= observe_field( :category, :frequency => 0.5, :on => :selected,
-      :update => :cve )%>
   </div>
 <% end %>

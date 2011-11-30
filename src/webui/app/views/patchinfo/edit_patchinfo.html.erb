@@ -19,20 +19,24 @@
       <tr>
         <th>Packager: </th>
         <td>
-          <%=@packager%>
-          <%= hidden_field_tag "packager", @packager %>
+	<%= text_field_tag('packager', @packager)%>
         </td>
         <td></td>
       </tr>
       <tr>
-        <th>Binaries: </th>
+      <th>Binaries: </th>
+      <% if !@binarylist.empty? %>
         <td>
           <% options = Array.new
           @binarylist.each {|d| options << "#{d.to_s}"}
           opt = {:options => options}%>
           <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5%>
         </td>
-        <td>Please select the binaries (ctrl+left) which your patch includes</td>
+	<td>Please select the binaries (ctrl+left) which your patch includes</td>
+        <% else %>
+          <td><strong>No binaries available!</strong></td>
+            <td></td>
+        <% end %>
       </tr>
       <tr>
         <th>Bugzilla: </th>
@@ -190,7 +194,5 @@
     </table>
     <%= hidden_field_tag("project", @project.name)%>
     <%= hidden_field_tag("package", @package)%>
-    <%= observe_field( :category, :frequency => 0.5, :on => :selected,
-      :update => :cve )%>
   </div>
 <% end %>

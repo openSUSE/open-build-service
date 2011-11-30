@@ -5,7 +5,7 @@ class PatchinfoController < ApplicationController
   helper :package
 
   def new_patchinfo
-    @packager = ''
+    @packager = @user.login
     @buglist = Array.new
     @cvelist = Array.new
     @binaries = Array.new
@@ -39,7 +39,7 @@ class PatchinfoController < ApplicationController
 
     if valid_params == true
       filename = "_patchinfo"
-      packager = @project.person.userid
+      packager = params[:packager] 
       if params[:cve] != nil
         cvelist = params[:cve]
       else
@@ -60,7 +60,7 @@ class PatchinfoController < ApplicationController
       zypp_restart_needed = params[:zypp_restart_needed]
       pkg_name = "patchinfo"
       if Package.exists? @project, pkg_name
-        @packager = @project.person.userid
+        @packager = params[:packager]
         if params[:cve] != nil
           @cvelist = params[:cve]
         else
@@ -86,7 +86,6 @@ class PatchinfoController < ApplicationController
       pkg = Package.new(:name => pkg_name, :project => @project,
         :title => "Patchinfo", :description => "Collected packages for update")
       pkg.save
-
       node = Builder::XmlMarkup.new(:indent=>2)
       xml = node.patchinfo do |n|
         if binaries
@@ -120,10 +119,9 @@ class PatchinfoController < ApplicationController
       begin
         frontend.put_file( xml, :project => @project,
           :package => pkg, :filename => filename,
-          :category => [:category], :rating => [:rating],
-          :bug => [:bug], :cve => [:cve],
-          :binarylist => [:binarylist],
-          :binaries => [:binaries],
+          :packager => [:packager], :category => [:category], 
+          :rating => [:rating], :bug => [:bug], :cve => [:cve],
+          :binarylist => [:binarylist], :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
           :relogin => [:relogin], :reboot => [:reboot],
           :zypp_restart_needed => [:zypp_restart_needed])
@@ -131,12 +129,13 @@ class PatchinfoController < ApplicationController
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
       end
+      Patchinfo.free_cache(:project=> @project, :package => @package)
       redirect_to :controller => "patchinfo", :action => "show",
         :project => @project.name, :package => pkg_name
     end
     
     if valid_params == false
-      @packager = @project.person.userid
+      @packager = params[:packager]
       if params[:cve] != nil
         @cvelist = params[:cve]
       else
@@ -166,6 +165,7 @@ class PatchinfoController < ApplicationController
 
   def show
     read_patchinfo
+    debugger
     @description.gsub!("\r\n", "<br/>")
     @summary.gsub!("\r\n", "<br/>")
     if @relogin == true
@@ -286,6 +286,7 @@ class PatchinfoController < ApplicationController
 
     if valid_params == true
       name = "binary"
+      packager = params[:packager]
       cvelist = params[:cve]
       binaries = params[:binaries]
       relogin = params[:relogin]
@@ -296,6 +297,7 @@ class PatchinfoController < ApplicationController
       if params[:category] != "security"
         cvelist = ""
       end
+      @patchinfo.set_packager(packager)
       if binaries
         @patchinfo.set_binaries(binaries, name)
       end
@@ -323,7 +325,7 @@ class PatchinfoController < ApplicationController
           :category => [:category], :rating => [:rating],
           :bug => [:bug], :cve => [:cve],
           :binarylist => [:binarylist],
-          :binaries => [:binaries],
+          :binaries => [:binaries], :packager => [:packager],
           :summary => [:summary], :description => [:description],
           :relogin => [:relogin], :reboot => [:reboot],
           :zypp_restart_needed => [:zypp_restart_needed])
@@ -336,7 +338,7 @@ class PatchinfoController < ApplicationController
       redirect_to opt
     end
     if valid_params == false
-      @packager = @file.packager.to_s
+      @packager = params[:packager]
       @cvelist = params[:cve]
       @binaries = params[:binaries]
       @buglist = params[:bug]
