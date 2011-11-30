@@ -722,12 +722,7 @@ sub getrev {
 	}
       }
     }
-    if (defined($rev) && $rev eq '0') {
-      # getrev by rev 0. we allow access to missing packages if the project exists
-      if (-e "$projectsdir/$projid.xml") {
-	return {'project' => $projid, 'package' => $packid, 'rev' => 0, 'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'};
-      }
-    } elsif (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
+    if (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
       # getrev by srcmd5. we allow access to packages that were deleted.
       my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
       if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$rev-MD5SUMS") {
