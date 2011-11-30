@@ -165,7 +165,6 @@ class PatchinfoController < ApplicationController
 
   def show
     read_patchinfo
-    debugger
     @description.gsub!("\r\n", "<br/>")
     @summary.gsub!("\r\n", "<br/>")
     if @relogin == true
