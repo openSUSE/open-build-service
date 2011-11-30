@@ -408,7 +408,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 		  Id xid = str2id(pool, pool_tmpjoin(pool, id2str(pool, whon), ":", id2str(pool, pn)), 0);
 		  if (xid && MAPTST(&xp->preferpos, xid))
 		    {
-		      queue_push2(&posfoundq, pn, p);
+		      queue_push2(&posfoundq, xid, p);
 		      qq.elements[j++] = p;
 		      continue;
 		    }
@@ -1606,6 +1606,31 @@ tofile(BSSolv::repo repo, char *filename)
 	    repo_write(repo, fp, myrepowritefilter, 0, 0);
 	    if (fclose(fp))
 	      croak("fclose: %s\n",  Strerror(errno));
+	}
+
+void
+tofile_fd(BSSolv::repo repo, int fd)
+    CODE:
+	{
+	    FILE *fp;
+	    int fd2;
+	    fd2 = dup(fd);
+	    if (fd2 == -1)
+	      croak("dup: %s\n", Strerror(errno));
+	    fp = fdopen(fd2, "w");
+	    if (fp == 0)
+	      {
+		int e = errno;
+		close(fd2);
+		croak("fdopen: %s\n", Strerror(e));
+	      }
+	    repo_write(repo, fp, myrepowritefilter, 0, 0);
+	    if (fclose(fp))
+	      {
+		int e = errno;
+		close(fd2);
+		croak("fclose: %s\n",  Strerror(e));
+	      }
 	}
 
 SV *
