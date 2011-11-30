@@ -1305,6 +1305,12 @@ sub handlelinks {
     return '_link is bad' unless $l;
     eval {
       BSVerify::verify_link($l);
+      die("illegal cicount\n") unless $cicount eq 'copy' || $cicount eq 'add' || $cicount eq 'local';
+      if (!exists($l->{'package'}) && exists($l->{'project'}) && $l->{'project'} ne $linkinfo[-1]->{'project'}) {
+        # be extra careful if the package attribute doesn't exist, but the
+        # link points to some other project
+        checksourceaccess($l->{'project'}, $linkinfo[-1]->{'package'});
+      }
     };
     if ($@) {
       my $err = $@;
