@@ -5,7 +5,7 @@ class PatchinfoController < ApplicationController
   helper :package
 
   def new_patchinfo
-    @packager = @project.person.userid if @project.person.userid
+    @packager = @user.login
     @buglist = Array.new
     @cvelist = Array.new
     @binaries = Array.new
@@ -165,6 +165,7 @@ class PatchinfoController < ApplicationController
 
   def show
     read_patchinfo
+    debugger
     @description.gsub!("\r\n", "<br/>")
     @summary.gsub!("\r\n", "<br/>")
     if @relogin == true
