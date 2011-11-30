@@ -59,7 +59,8 @@
           <% content_for :head_javascript do %>
             function append_bug(bugid) {
               var bugs = new Array();
-              bugs = bugid.split(", ");
+              bugid = bugid.replace(/, /g, ',');
+              bugs = bugid.split(",");
               for(var i = 0; i < bugs.length; i++) {
                 $("#buglist").append("<div id='bug_" + bugs[i] + "'><input type='hidden' name='bug[]' value='" + bugs[i] + "'/>" + bugs[i] + " " + "<a onclick='$(\"#bug_" + bugs[i] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
               }
@@ -68,7 +69,8 @@
 
             function append_cve(cveid) {
               var cves = new Array();
-              cves = cveid.split(", ");
+              cveid = bugid.replace(/, /g, ','); 
+              cves = cveid.split(",");
               for(var i = 0; i < cves.length; i++) {
                 $("#cvelist").append("<div id='cve_" + cves[i] + "'><input type='hidden' name='cve[]' value='" + cves[i] + "'/>" + cves[i] + " " + "<a onclick='$(\"#cve_" + cves[i] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + "</div>");
               }
