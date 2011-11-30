@@ -1717,15 +1717,19 @@ class SourceController < ApplicationController
     end
 
     # create patchinfo package
-    if not DbPackage.exists_by_project_and_name( params[:project], pkg_name )
+    if DbPackage.exists_by_project_and_name( params[:project], pkg_name )
+      unless params[:force]
+        render_error :status => 400, :errorcode => "patchinfo_file_exists",
+          :message => "The patchinfo file exists already. Either use force=1 or updatepatchinfo."
+        return
+      end
+      pkg = DbPackage.get_by_project_and_name params[:project], pkg_name
+    else
       prj = DbProject.find_by_name( params[:project] )
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
       pkg.add_flag("build", "enable", nil, nil)
       pkg.store
-    else
-      # shall we do a force check here ?
-      pkg = DbProject.get_by_project_and_name params[:project], pkg_name
     end
 
     # create patchinfo XML file
