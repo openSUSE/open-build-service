@@ -73,7 +73,7 @@
 
             function append_cve(cveid) {
               var cves = new Array();
-              cveid = bugid.replace(/, /g, ','); 
+              cveid = cveid.replace(/, /g, ','); 
               cves = cveid.split(",");
               for(var i = 0; i < cves.length; i++) {
                 $("#cvelist").append("<div id='cve_" + cves[i] + "'><input type='hidden' name='cve[]' value='" + cves[i] + "'/>" + cves[i] + " " + "<a onclick='$(\"#cve_" + cves[i] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + "</div>");
