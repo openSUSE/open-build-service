@@ -165,9 +165,8 @@ class PatchinfoController < ApplicationController
 
   def show
     read_patchinfo
-    debugger
-    @description.gsub!("\r\n", "<br/>")
-    @summary.gsub!("\r\n", "<br/>")
+    @description = @description.gsub(/\n/, "<br/>").html_safe
+    @summary = @summary.gsub(/\n/, "<br/>").html_safe
     if @relogin == true
       @relogin = "yes"
     elsif @relogin == false
@@ -233,8 +232,9 @@ class PatchinfoController < ApplicationController
     @description = @summary = @category = nil
     @category = @file.category.to_s       if @file.has_element? 'category'
     @rating = @file.rating.to_s           if @file.has_element? 'rating'
-    @summary = @file.summary.to_s         if @file.has_element? 'summary'
-    @description = @file.description.to_s if @file.has_element? 'description'
+    @summary = @file.summary.text if @file.has_element? 'summary'
+    
+    @description = @file.description.text if @file.has_element? 'description'
     if @file.has_element?("relogin_needed")
       @relogin = true
     else
@@ -297,35 +297,42 @@ class PatchinfoController < ApplicationController
       if params[:category] != "security"
         cvelist = ""
       end
-      @patchinfo.set_packager(packager)
-      if binaries
-        @patchinfo.set_binaries(binaries, name)
+      node = Builder::XmlMarkup.new(:indent=>2)
+      xml = node.patchinfo do |n|
+        if binaries
+          binaries.each do |binary|
+            node.binary(binary)
+          end
+        end
+        node.packager    packager
+        buglist.each do |bug|
+          node.issue(:tracker=>"bnc", :id=>bug)
+        end
+        node.category    params[:category]
+        node.rating      rating
+        if params[:category] == "security"
+          cvelist.each do |cve|
+            node.issue(:tracker=>"CVE", :id=>cve)
+          end
+        end
+        node.summary     params[:summary]
+        node.description params[:description]
+        if reboot
+          node.reboot_needed
+        end
+        if relogin
+          node.relogin_needed
+        end
+        if zypp_restart_needed
+          node.zypp_restart_needed
+        end
       end
-      @patchinfo.category.text = params[:category]
-      if @patchinfo.rating
-        @patchinfo.rating.text = rating
-      else
-        @patchinfo.set_rating(rating.to_s)
-      end
-      @patchinfo.summary.text = params[:summary]
-      @patchinfo.description.text = params[:description]
-      @patchinfo.remove_issues
-      @patchinfo.set_issue("bnc",buglist)
-      if !cvelist.blank?
-        @patchinfo.set_issue("CVE", cvelist)
-      end
-      @patchinfo.set_relogin(relogin.to_s)
-      @patchinfo.set_reboot(reboot.to_s)
-      @patchinfo.set_zypp_restart_needed(zypp_restart_needed.to_s)
-      @patchinfo = @patchinfo.dump_xml
-      @patchinfo.gsub!( /\r\n/, "\n" )
       begin
-        frontend.put_file( @patchinfo, :project => @project,
-          :package => @package,:filename => filename,
-          :category => [:category], :rating => [:rating],
-          :bug => [:bug], :cve => [:cve],
-          :binarylist => [:binarylist],
-          :binaries => [:binaries], :packager => [:packager],
+        frontend.put_file( xml, :project => @project,
+          :package => @package, :filename => filename,
+          :packager => [:packager], :category => [:category],
+          :rating => [:rating], :bug => [:bug], :cve => [:cve],
+          :binarylist => [:binarylist], :binaries => [:binaries],
           :summary => [:summary], :description => [:description],
           :relogin => [:relogin], :reboot => [:reboot],
           :zypp_restart_needed => [:zypp_restart_needed])
@@ -334,8 +341,8 @@ class PatchinfoController < ApplicationController
         flash[:error] = "Timeout when saving file. Please try again."
       end
       Patchinfo.free_cache(:project=> @project, :package => @package)
-      opt = {:controller => "patchinfo", :action => "show", :project => @project.name, :package => @package }
-      redirect_to opt
+      redirect_to :controller => "patchinfo", :action => "show",
+        :project => @project.name, :package => @package
     end
     if valid_params == false
       @packager = params[:packager]
