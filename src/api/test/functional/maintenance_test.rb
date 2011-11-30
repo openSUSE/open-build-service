@@ -676,7 +676,12 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # add required informations about the update
     prepare_request_with_user "tom", "thunder"
-    post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&force=1&new_format=1"
+    post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo"
+    assert_response :success
+    post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "patchinfo_file_exists" }
+    post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&force=1"
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
