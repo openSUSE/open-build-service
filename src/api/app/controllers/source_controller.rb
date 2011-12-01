@@ -1235,6 +1235,7 @@ class SourceController < ApplicationController
     noaccess = true if params[:noaccess]
     # extend repo and package names ?
     extend_names = false
+    extend_names = true if params[:extend_package_names]
     # copy from devel package instead branching ?
     copy_from_devel = false
 
@@ -1262,6 +1263,7 @@ class SourceController < ApplicationController
       pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
       tpkg_name = params[:target_package]
       tpkg_name = params[:package] unless tpkg_name
+      tpkg_name += ".#{params[:project]}" if extend_names
       if pkg
         # local package
         @packages.push({ :target_project => pkg.db_project, :package => pkg, :rev => params[:rev], :target_package => tpkg_name })
@@ -1429,7 +1431,7 @@ class SourceController < ApplicationController
       DbProject.transaction do
         tprj = DbProject.new :name => target_project, :title => title, :description => description
         tprj.add_user @http_user, "maintainer"
-        tprj.flags.create( :flag => 'build', :status => "disable" )
+        tprj.flags.create( :flag => 'build', :status => "disable" ) if extend_names
         tprj.flags.create( :flag => 'access', :status => "disable" ) if noaccess
         tprj.store
       end
@@ -1501,10 +1503,10 @@ class SourceController < ApplicationController
               trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
               trepo.release_targets.create(:target_repository => repo, :trigger => trigger) if p[:target_project].project_type == "maintenance_release"
             end
-            if tprj.flags.find_by_flag_and_status( 'build', 'disable' )
-              tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
-              tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
-            end
+            # enable package builds if project default is disabled
+            tpkg.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName ) if tprj.flags.find_by_flag_and_status( 'build', 'disable' )
+            # take over debuginfo config from origin project
+            tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
           end
           unless extend_names
             # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
@@ -1525,8 +1527,11 @@ class SourceController < ApplicationController
         # and fix the link
         link = backend_get "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link"
         ret = ActiveXML::XMLNode.new(link)
-        ret.delete_attribute('project')
-        ret.set_attribute('package', ret.package + "." + p[:target_package].gsub(/^[^\.]*\./,'')) if extend_names
+        ret.delete_attribute('project') # its a local link, project name not needed
+        linked_package = ret.package
+        linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
+        linked_package += "." + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
+        ret.set_attribute('package', linked_package)
         answer = Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
       else
         rev = ""
