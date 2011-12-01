@@ -1,0 +1,24 @@
+#
+# openSUSE Build Service 2.1.15
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* Do not allow source links to packages with "sourceaccess" disabled, if _link
+  xml has no target package attribute. (bnc#734003, CVE-2011-4181)
+
