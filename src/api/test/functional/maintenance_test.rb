@@ -819,6 +819,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
     assert_response :success
+    get "/source/home:tom:CopyOfBaseDistro/_meta"
+    assert_response :success
+    assert_no_tag :tag => "path"
     delete "/source/home:tom:CopyOfBaseDistro"
     assert_response :success
 
@@ -863,12 +866,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_copy_project_for_release_with_history_and_binaries
+  def test_copy_project_with_history_and_binaries
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1"
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
-    prepare_request_with_user "tom", "thunder"
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withbinaries=1"
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
@@ -909,6 +911,79 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal version, copyversion
     assert_not_equal time, copytime
     assert_equal copyhistory.each_revision.last.user.text, "king"
+
+    # compare binaries
+    get "/build/BaseDistro/BaseDistro_repo/i586/pack2"
+    assert_response :success
+    assert_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
+
+    delete "/source/CopyOfBaseDistro"
+    assert_response :success
+  end
+
+  def test_copy_project_for_release_with_history_and_binaries
+    # this is changing also the source project
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1"
+    assert_response 403
+    assert_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_match /requires modification permission in oproject/, @response.body
+
+    # store revisions before copy
+    get "/source/BaseDistro/pack2/_history"
+    assert_response :success
+    originhistory = ActiveXML::XMLNode.new(@response.body)
+    originsrcmd5 = originhistory.each_revision.last.srcmd5.text
+    originversion = originhistory.each_revision.last.version.text
+    origintime = originhistory.each_revision.last.time.text
+    originvrev = originhistory.each_revision.last.vrev
+    assert_not_nil originsrcmd5
+
+    # as admin
+    prepare_request_with_user "king", "sunflower"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1&makeolder=1&nodelay=1"
+    assert_response :success
+    get "/source/CopyOfBaseDistro/_meta"
+    assert_response :success
+    get "/source/BaseDistro"
+    assert_response :success
+    opackages = ActiveXML::XMLNode.new(@response.body)
+    get "/source/CopyOfBaseDistro"
+    assert_response :success
+    packages = ActiveXML::XMLNode.new(@response.body)
+    assert_equal opackages.to_s, packages.to_s
+
+    # compare revisions of source project
+    get "/source/BaseDistro/pack2/_history"
+    assert_response :success
+    history = ActiveXML::XMLNode.new(@response.body)
+    srcmd5 = history.each_revision.last.srcmd5.text
+    version = history.each_revision.last.version.text
+    time = history.each_revision.last.time.text
+    rev = history.each_revision.last.rev
+    vrev = history.each_revision.last.vrev
+    assert_not_nil srcmd5
+    assert_equal originsrcmd5, srcmd5
+    assert_equal originvrev.to_i + 2, vrev.to_i  # vrev jumps two numbers
+    assert_equal version, originversion
+    assert_not_equal time, origintime
+    assert_equal "king", history.each_revision.last.user.text
+
+    # compare revisions of destination project
+    get "/source/CopyOfBaseDistro/pack2/_history"
+    assert_response :success
+    copyhistory = ActiveXML::XMLNode.new(@response.body)
+    copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
+    copyversion = copyhistory.each_revision.last.version.text
+    copytime = copyhistory.each_revision.last.time.text
+    copyrev = copyhistory.each_revision.last.rev
+    copyvrev = copyhistory.each_revision.last.vrev
+    assert_equal originsrcmd5, copysrcmd5
+    expectedvrev="#{(originvrev.to_i+1).to_s}.1" # the copy gets incremented by one, but also extended to avoid that it can become
+    assert_equal expectedvrev, copyvrev    # newer than the origin project at any time later.
+    assert_equal originversion, copyversion
+    assert_not_equal origintime, copytime
+    assert_equal "king", copyhistory.each_revision.last.user.text
 
     # compare binaries
     get "/build/BaseDistro/BaseDistro_repo/i586/pack2"
