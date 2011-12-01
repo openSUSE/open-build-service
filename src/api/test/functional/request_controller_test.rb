@@ -1185,10 +1185,14 @@ end
   end
 
   def test_branch_and_submit_request_to_linked_project_and_delete_it_again
-    prepare_request_with_user "tom", "thunder"
+    # create ower playground
+    prepare_request_with_user "king", "sunflower"
+    put "/source/DummY/_meta", "<project name='DummY'><title/><description/><link project='BaseDistro2.0'/></project>"
+    assert_response :success
 
-    # branch a package which does not exist in update project, but update project is linked
-    post "/source/BaseDistro2.0/pack2", :cmd => :branch
+    # branch a package which does not exist in project, but project is linked
+    prepare_request_with_user "tom", "thunder"
+    post "/source/DummY/pack2", :cmd => :branch
     assert_response :success
     # check source link
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
@@ -1201,6 +1205,7 @@ end
     req = "<request>
             <action type='submit'>
               <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='1' />
+              <target project='DummY' package='pack2' />
               <options>
                 <sourceupdate>cleanup</sourceupdate>
                 <updatelink>true</updatelink>
@@ -1225,20 +1230,20 @@ end
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
 
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_history"
+    get "/source/DummY/pack2/_history"
     assert_response :success
     assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "SUBMIT" )
     assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
 
     # pack2 got created
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_link"
+    get "/source/DummY/pack2/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0', :package => "pack2" } )
+    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => "pack2" } )
 
     # create delete request two times
     req = "<request>
             <action type='delete'>
-              <target project='BaseDistro2.0:LinkedUpdateProject' package='pack2'/>
+              <target project='DummY' package='pack2'/>
             </action>
             <description>DELETE REQUEST</description>
             <state who='king' name='new'/>
@@ -1271,10 +1276,10 @@ end
     assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
 
     # validate result
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_meta"
+    get "/source/DummY/pack2/_meta"
     assert_response :success
     assert_tag( :tag => "package", :attributes => { :project => "BaseDistro2.0", :name => "pack2" } )
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_history?deleted=1"
+    get "/source/DummY/pack2/_history?deleted=1"
     assert_response :success
     assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "DELETE REQUEST" )
     assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
@@ -1303,6 +1308,10 @@ end
     get "/request/#{id3}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
+ 
+    #cleanup
+    delete "/source/DummY"
+    assert_response :success
   end
 
   # test permissions on read protected objects
