@@ -907,21 +907,26 @@ class MaintenanceTests < ActionController::IntegrationTest
     copyrev = copyhistory.each_revision.last.rev
     copyvrev = copyhistory.each_revision.last.vrev
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev.to_i, copyvrev.to_i - 1  #the copy gets always an additional commit
+    assert_equal vrev.to_i + 1, copyvrev.to_i  #the copy gets always a higher vrev
     assert_equal version, copyversion
     assert_not_equal time, copytime
     assert_equal copyhistory.each_revision.last.user.text, "king"
 
     # compare binaries
+    run_scheduler("i586")
     get "/build/BaseDistro/BaseDistro_repo/i586/pack2"
     assert_response :success
     assert_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
+    orig = @response.body
+    get "/build/CopyOfBaseDistro/BaseDistro_repo/i586/pack2"
+    assert_response :success
+    assert_equal orig, @response.body
 
     delete "/source/CopyOfBaseDistro"
     assert_response :success
   end
 
-  def test_copy_project_for_release_with_history_and_binaries
+  def test_copy_project_for_release_with_history
     # this is changing also the source project
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1"
@@ -941,7 +946,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # as admin
     prepare_request_with_user "king", "sunflower"
-    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1&makeolder=1&nodelay=1"
+    post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&makeolder=1&nodelay=1"
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
     assert_response :success
@@ -985,11 +990,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_equal origintime, copytime
     assert_equal "king", copyhistory.each_revision.last.user.text
 
-    # compare binaries
-    get "/build/BaseDistro/BaseDistro_repo/i586/pack2"
-    assert_response :success
-    assert_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
-
+    #cleanup
     delete "/source/CopyOfBaseDistro"
     assert_response :success
   end
