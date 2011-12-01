@@ -191,7 +191,7 @@ class SourceController < ApplicationController
       # command: undelete
       if 'undelete' == command
         unless @http_user.can_create_project?(project_name) and pro.nil?
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{command}'"
           return
         end
@@ -201,14 +201,14 @@ class SourceController < ApplicationController
 
       if 'copy' == command
         unless @http_user.can_create_project?(project_name)
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{command}'"
           return
         end
         if params.has_key?(:makeolder)
           oproject = DbProject.get_by_name(params[:oproject])
           unless @http_user.can_modify_project?(oproject)
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission1",
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
               :message => "no permission to execute command '#{command}', requires modification permission in oproject"
             return
           end
@@ -1672,15 +1672,17 @@ class SourceController < ApplicationController
       oprj = DbProject.get_by_name( oproject )
       p = DbProject.new :name => project_name, :title => oprj.title, :description => oprj.description
       p.add_user @http_user, "maintainer"
-      p.flags.create( :status => "disable", :flag => 'build')
-      p.flags.create( :status => "disable", :flag => 'publish')
       oprj.flags.each do |f|
-        p.flags.create(:status => f.status, :flag => f.flag) if f.flag == "access" or f.flag == "sourceaccess"
+        p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
       end
       oprj.repositories.each do |repo|
         r = p.repositories.create :name => repo.name
         r.architectures = repo.architectures
-        r.path_elements << PathElement.new(:link => repo, :position => 1)
+        position = 0
+        repo.path_elements.each do |pe|
+          position += 1
+          r.path_elements << PathElement.new(:link => pe.link, :position => position)
+        end
       end
       p.store
     end

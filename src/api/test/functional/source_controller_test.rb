@@ -629,12 +629,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     doc.root.attributes["project"] = "kde4"
     put url_for(:controller => :source, :action => :package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
     assert_response 400
-    assert_tag ( :tag => "status", :attributes => { :code => "project_name_mismatch"} )
+    assert_tag( :tag => "status", :attributes => { :code => "project_name_mismatch"} )
     doc.root.attributes["project"] = nil
     doc.root.attributes["name"] = "none"
     put url_for(:controller => :source, :action => :package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
     assert_response 400
-    assert_tag ( :tag => "status", :attributes => { :code => "package_name_mismatch"} )
+    assert_tag( :tag => "status", :attributes => { :code => "package_name_mismatch"} )
   end
 
   def test_put_package_meta_to_hidden_pkg_invalid_permissions
@@ -1704,6 +1704,28 @@ end
     assert_response :success
     delete "/source/home:Iggy/TestPack/filename"
     assert_response :success
+  end
+
+  def test_copy_project
+    # NOTE: copy tests for release projects are part of maintenance tests
+    prepare_request_with_user "fred", "geröllheimer"
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    assert_tag :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" }
+    orig = @response.body
+    post "/source/home:fred:COPY", :cmd => :copy, :oproject => "home:Iggy"
+    assert_response :success
+    get "/source/home:fred:COPY/_meta"
+    assert_response :success
+    assert_no_tag :tag => "person", :attributes => { :userid => "Iggy" }
+    assert_tag :tag => "person", :attributes => { :userid => "fred", :role => "maintainer" }
+    copy = @response.body
+    # almost everything must be identical
+    orig = orig.gsub(/project name=.*/, 'project') # make project name identical
+    copy = copy.gsub(/project name=.*/, 'project')
+    orig = orig.gsub(/.*<person.*\n/, '') # remove all person lines, they have to differ
+    copy = copy.gsub(/.*<person.*\n/, '')
+    assert_equal copy, orig
   end
 
   def test_source_commits
