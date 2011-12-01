@@ -513,6 +513,8 @@ Parameters:
   target_project: target project name, optional
   target_package: target package name, optional
   noaccess: the new created project will be read protected, bool, optional
+  add_repositories: bool, optional, adds repositories base on source project (default for new projects)
+  extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
 
 XmlResult: status
 
