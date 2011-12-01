@@ -258,21 +258,20 @@ class StatusController < ApplicationController
       render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}</status>\n"
       return
     end
+    unless dir
+      render :text => '<status code="error">Source package does not exist</status>\n' and return
+    end
+    srcmd5 = dir.value('srcmd5')
 
     # check current srcmd5
     begin
       cdir = Directory.find(:project => req.action.source.project,
         :package => req.action.source.package,
         :expand => 1)
-      csrcmd5 = cdir.value('srcmd5')
+      csrcmd5 = cdir.value('srcmd5') if cdir
     rescue ActiveXML::Transport::Error => e
       csrcmd5 = nil
     end
-
-    unless dir
-      render :text => '<status code="error">Source package does not exist</status>\n' and return
-    end
-    srcmd5 = dir.value('srcmd5')
 
     outputxml = "<status id='#{params[:id]}'>\n"
     
@@ -291,7 +290,7 @@ class StatusController < ApplicationController
         end
       end
       archs.uniq!
-      if trepo.empty?
+      unless trepo and not trepo.nil?
         render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
       end
       logger.debug "trepo #{trepo.inspect}"
