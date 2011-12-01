@@ -645,7 +645,13 @@ sub addfile {
   if (! -e "$srcrep/$packid/$md5-$filename") {
     if (!rename($tmpfile, "$srcrep/$packid/$md5-$filename")) {
       mkdir_p("$srcrep/$packid");
-      rename($tmpfile, "$srcrep/$packid/$md5-$filename") || die("rename $tmpfile $srcrep/$packid/$md5-$filename: $!\n");
+      if (!rename($tmpfile, "$srcrep/$packid/$md5-$filename")) {
+        my $err = $!;
+        if (! -e "$srcrep/$packid/$md5-$filename") {
+          $! = $err;
+          die("rename $tmpfile $srcrep/$packid/$md5-$filename: $!\n");
+        }
+      }
     }
   } else {
     unlink($tmpfile);
@@ -2068,7 +2074,7 @@ sub readpack {
   return $pack;
 }
 
-# collect all globale source services via all package and project links
+# collect all global source services via all package and project links
 sub getprojectservices {
   my ($cgi, $projid, $packid, $projectloop) = @_;
   my $services = {};
