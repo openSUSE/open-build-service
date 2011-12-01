@@ -602,6 +602,21 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_create_invalid_submit_request
+    prepare_request_with_user "tom", "thunder"
+    # without specifing target, the default target must get found via attribute
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro2.0" package="pack2" />
+                                     <target project="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    assert_match /is a maintenance release project/, @response.body
+  end
+
   def test_create_invalid_incident_request
     prepare_request_with_user "tom", "thunder"
     # without specifing target, the default target must get found via attribute
