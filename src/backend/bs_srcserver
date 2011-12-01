@@ -4367,6 +4367,8 @@ sub copyproject {
       mkdir_p($uploaddir);
       writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
       addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+      # need to do this now because the binary copy will fail otherwise
+      notify_repservers('package', $projid, $packid) if $cgi->{'withbinaries'};
     }
     if ($cgi->{'makeolder'} || -s "$projectsdir/$oprojid.pkg/$packid.rev") {
       my $lastorev;
