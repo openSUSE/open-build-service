@@ -111,18 +111,8 @@ class RequestController < ApplicationController
             sourcediffs = []
             # Parse earch sourcediff in that action:
             action.each('sourcediff') do |sourcediff|
-              parsed_sourcediff = sorted_filenames_from_sourcediff(sourcediff)
-
-              if ['submit', 'maintenance_release', 'maintenance_incident'].include?(action.value('type')) and action.has_element?(:issues)
-                parsed_sourcediff[:issues] = {}
-                action.issues.each do |issue|
-                  parsed_sourcediff[:issues][issue.value('long-name')] = issue.value('show-url')
-                end
-              end
-
-              sourcediffs << parsed_sourcediff
+              sourcediffs << sorted_filenames_from_sourcediff(sourcediff)
             end
-
             actiondiffs << {:type => action.value('type'), :sourcediffs => sourcediffs}
           end
           actiondiffs

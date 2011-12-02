@@ -428,7 +428,7 @@ module ApplicationHelper
     # Sort files into categories by their ending and add all of them to a hash. We
     # will later use the sorted and concatenated categories as key index into the per action file hash.
     changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-    files_hash = {}
+    files_hash, issues_hash = {}, {}
 
     sourcediff.files.each do |file|
       if file.new
@@ -448,11 +448,18 @@ module ApplicationHelper
       files_hash[filename] = file
     end
 
+    if sourcediff.has_element?(:issues)
+      sourcediff.issues.each do |issue|
+        issues_hash[issue.value('long-name')] = issue.value('show-url')
+      end
+    end
+
     parsed_sourcediff = {
       :old => sourcediff.old,
       :new => sourcediff.new,
       :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
       :files => files_hash,
+      :issues => issues_hash
     }
     return parsed_sourcediff
   end
