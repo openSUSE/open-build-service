@@ -355,7 +355,7 @@ class DbProject < ActiveRecord::Base
     # do not allow to remove maintenance master projects if there are incident projects
     if self.project_type == "maintenance"
       if MaintenanceIncident.find_by_maintenance_db_project_id self.id
-        raise DeleteError.new "This maintenance project has incident projects and can not deleted therefore."
+        raise DeleteError.new "This maintenance project has incident projects and can therefore not be deleted."
       end
     end
 
