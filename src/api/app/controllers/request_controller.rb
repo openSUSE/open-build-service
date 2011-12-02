@@ -837,7 +837,7 @@ class RequestController < ApplicationController
               tprj = DbProject.get_by_name( target_project )
             end
 
-            path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&expand=1&filelimit=0"
+            path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&expand=1&filelimit=10000"
             if tpkg
               path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
               path += "&rev=#{action.source.rev}" if action.source.value('rev')
@@ -850,10 +850,23 @@ class RequestController < ApplicationController
           # run diff
           path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
           begin
-            action_diff += Suse::Backend.post(path, nil).body
+            result = Suse::Backend.post(path, nil).body
           rescue ActiveXML::Transport::Error => e
             render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
           end
+          if params[:view] == 'xml'
+              # Search all '*.changes' files in the current sourcediff (i.e. result)
+              changes = ""
+              ActiveXML::Base.new(result).files.each do |file|
+                if file.new && file.new.name.ends_with?('.changes')# || file.old && file.old.ends_with?('.changes')
+                  changes += file.text
+                end
+              end
+              # Inject issues into backend sourcediff XML. Each sourcediff may have it's own set of issues...
+              issues = IssueTracker.issues_in(changes, true).to_xml(:skip_instruct => true, :skip_types => true)
+              result = result[0..-15] + issues + "</sourcediff>\n"
+          end
+          action_diff += result
           path = nil # reset
         end
       elsif action.value('type') == 'delete'
@@ -863,8 +876,6 @@ class RequestController < ApplicationController
         else
           #FIXME: Delete requests for whole projects needs project diff supporte in the backend (and api).
         end
-      end
-      if path
         path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
         begin
           action_diff += Suse::Backend.post(path, nil).body
@@ -873,8 +884,6 @@ class RequestController < ApplicationController
         end
       end
       if params[:view] == 'xml'
-        # Inject issues found in the action's diff
-        action_diff += IssueTracker.issues_in(action_diff, true).to_xml(:skip_instruct => true, :skip_types => true)
         # Inject backend-provided XML diff into action XML:
         diff_text += action.dump_xml()[0..-10] + action_diff + "</action>\n"
       else
