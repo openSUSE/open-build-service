@@ -4446,6 +4446,7 @@ sub copyproject {
 	  push @args, "oproject=$oprojid";
 	  push @args, "opackage=$packid"; # same package name
 	  push @args, "orepository=$repo->{'name'}"; # same repo name
+	  push @args, 'resign=1' if $cgi->{'resign'};
 	  my $param = {
 	    'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
 	    'request' => 'POST',
@@ -5029,6 +5030,7 @@ sub copybuild {
   push @args, "opackage=$opackid";
   push @args, "orepository=$orepoid";
   push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
+  push @args, 'resign=1' if $cgi->{'resign'};
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
@@ -6488,7 +6490,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
   '/source/$project deleted:bool?' => \&getpackagelist,
@@ -6589,7 +6591,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,

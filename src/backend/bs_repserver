@@ -1380,12 +1380,13 @@ sub copybuild {
     'code' => 'finished',
   };
   mkdir_p("$jobsdir/$arch") unless -d "$jobsdir/$arch";
-  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
     die("job lock failed\n");
   }
   my $dir = "$jobsdir/$arch/$job:dir";
   my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
+  my $needsign;
   for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
     if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
       my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
@@ -1394,6 +1395,7 @@ sub copybuild {
       }
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
+      $needsign = 1 if /\.(?:d?rpm|sha256|iso)$/;
       link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
     }
   }
@@ -1403,11 +1405,18 @@ sub copybuild {
     'package' => $packid,
     'arch' => $arch,
     'job' => $job,
+    'file' => '_aggregate',	# HACK: makes signer remove old signatures
   };
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
-  dirty($projid, $repoid, $arch);
+  if ($BSConfig::sign && $cgi->{'resign'} && $needsign) {
+    $jobstatus->{'code'} = 'signing';
+    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+    $arch = 'signer';
+  }
+  close F;
+  dirty($projid, $repoid, $arch) if $arch ne 'signer';
   mkdir_p("$eventdir/$arch");
-  my $ev = {'type' => 'uploadbuild', 'job' => $job};
+  my $ev = {'type' => 'uploadbuild', 'arch' => $arch, 'job' => $job};
   writexml("$eventdir/$arch/.copybuild:$job$$", "$eventdir/$arch/copybuild:$job", $ev, $BSXML::event);
   ping($arch);
   return $BSStdServer::return_ok;
@@ -1421,7 +1430,7 @@ sub uploadbuild {
     'code' => 'finished',
   };
   mkdir_p("$jobsdir/$arch") unless -d "$jobsdir/$arch";
-  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
     die("job lock failed\n");
   }
   my $dir = "$jobsdir/$arch/$job:dir";
@@ -2843,7 +2852,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,

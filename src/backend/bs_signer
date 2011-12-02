@@ -351,8 +351,8 @@ sub signevent {
     rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
     return;
   } elsif ($res) {
-    my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
-    writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+    my $name = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};
+    writexml("$eventdir/$arch/.${name}:$job$$", "$eventdir/$arch/${name}:$job", $ev, $BSXML::event);
     ping($arch);
   }
   unlink("$myeventdir/${event}::inprogress");
@@ -404,7 +404,7 @@ while (1) {
       unlink("$myeventdir/$event");
       next;
     }
-    if ($ev->{'type'} ne 'built') {
+    if ($ev->{'type'} ne 'built' && $ev->{'type'} ne 'uploadbuild') {
       print "unknown event type: $ev->{'type'}\n";
       unlink("$myeventdir/$event");
       next;
