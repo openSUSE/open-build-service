@@ -12,11 +12,11 @@ class IssueTracker < ActiveRecord::Base
     if diff_mode
       old_issues, new_issues = [], []
     end
-    IssueTracker.all.each do |it|
-      # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
-      # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
-      # it by hand...
-      text.lines.each do |line|
+    # Ruby's string#scan method unfortunately doesn't return the whole match if a RegExp contains groups.
+    # RegExp#match does that but it doesn't advance the string if called consecutively. Thus we have to do
+    # it by hand...
+    text.lines.each do |line|
+      IssueTracker.all.each do |it|
         substr = line
         begin
           match = it.matches?(substr)
