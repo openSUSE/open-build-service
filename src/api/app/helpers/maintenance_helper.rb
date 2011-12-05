@@ -135,10 +135,11 @@ module MaintenanceHelper
               :opackage => sourcePackage.name,
               :orepository => sourceRepo.name,
               :user => @http_user.login,
+              :resign => "1",
             }
             cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
             cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{CGI.escape(releasetarget.target_repository.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
-            cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid])
+            cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign])
             Suse::Backend.post cp_path, nil
           end
         end
