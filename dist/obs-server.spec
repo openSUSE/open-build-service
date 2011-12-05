@@ -11,7 +11,7 @@
 
 
 Name:           obs-server
-Summary:        The openSUSE Build Service -- Server Component
+Summary:        The Open Build Service -- Server Component
 
 Version:        2.2.64
 Release:        0

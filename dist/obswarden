@@ -17,7 +17,7 @@
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Description:       openSUSE build service warden, monitors the workers
+# Description:       open build service warden, monitors the workers
 ### END INIT INFO
 
 . /etc/rc.status

@@ -1,7 +1,7 @@
 #! /bin/sh
 # Copyright (c) 2007, Novell Inc.
 #
-# Author: adrian@suse.de
+# Author: Adrian Schroeter <adrian@suse.de>
 #         Martin Mohring <martin.mohring@5etech.eu>
 #         Susanne Oberhauser  <froh@novell.com>
 #
@@ -17,7 +17,7 @@
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Description:       openSUSE build service publisher
+# Description:       open build service repository publisher
 ### END INIT INFO
 
 . /etc/rc.status

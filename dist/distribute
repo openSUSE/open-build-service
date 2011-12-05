@@ -7,7 +7,7 @@
 
 usage="${0} [--help]
 
-Prepare and update an openSUSE build server package to the current
+Prepare and update an open build server package to the current
 repository code level.
 
 \$PWD is a directory with all files that need to go to the package.
