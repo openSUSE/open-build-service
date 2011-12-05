@@ -1303,6 +1303,7 @@ sub handlelinks {
   while ($files->{'_link'}) {
     my $l = repreadxml($lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
     return '_link is bad' unless $l;
+    my $cicount = $l->{'cicount'} || 'add';
     eval {
       BSVerify::verify_link($l);
       die("illegal cicount\n") unless $cicount eq 'copy' || $cicount eq 'add' || $cicount eq 'local';
@@ -1345,7 +1346,6 @@ sub handlelinks {
       $files = lsrev($lrev);
     };
     return 'linked package is not in repository' unless $files;
-    my $cicount = $l->{'cicount'} || 'add';
     if ($cicount eq 'copy') {
       $rev->{'vrev'} -= $vrev unless $vrevdone;
     } elsif ($cicount eq 'local') {
