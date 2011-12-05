@@ -1747,7 +1747,7 @@ class SourceController < ApplicationController
       node.packager    @http_user.login
       node.category    ""
       node.rating      ""
-      node.summary     ""
+      node.summary     params[:comment]
       node.description ""
     end
     data = ActiveXML::Base.new(node.target!)
