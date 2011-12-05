@@ -317,6 +317,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
+    assert_tag( :attributes => {:role => "bugowner", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
 
     # create a maintenance incident under embargo
     post "/source/Temp:Maintenance?cmd=createmaintenanceincident&noaccess=1", nil

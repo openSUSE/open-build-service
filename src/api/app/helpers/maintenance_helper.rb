@@ -32,6 +32,7 @@ module MaintenanceHelper
       end
       if noaccess
         tprj.flags.create( :flag => 'access', :status => "disable" )
+        tprj.flags.create( :flag => 'publish', :status => "disable" )
       end
       # take over roles from maintenance project
       maintenanceProject.project_user_role_relationships.each do |r| 
@@ -48,6 +49,12 @@ module MaintenanceHelper
               :db_project => tprj
             )
       end
+      # set default bugowner if missing
+      bugowner = Role.get_by_title("bugowner")
+      unless tprj.project_user_role_relationships.find :first, :conditions => ["role_id = ?", bugowner], :include => :role
+        tprj.add_user( @http_user, bugowner )
+      end
+      # and write it
       tprj.set_project_type "maintenance_incident"
       tprj.store
       mi.db_project_id = tprj.id
