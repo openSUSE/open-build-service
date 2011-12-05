@@ -758,19 +758,6 @@ class PackageController < ApplicationController
     redirect_to :action => :users, :project => @project, :package => @package
   end
 
-  def edit_file
-    @project = params[:project]
-    @package = params[:package]
-    @filename = params[:file]
-    @comment = params[:comment]
-    @expand = params[:expand]
-    @srcmd5 = params[:srcmd5]
-    @file = params[:content] || frontend.get_source( :project => @project,
-      :package => @package, :filename => @filename, :rev => @srcmd5, :expand => @expand )
-    # render explicitly as in error case this is called
-    render :template => 'package/edit_file'
-  end
-
   def view_file
     @filename = params[:file] || ''
     if Package.is_binary_file?(@filename) # We don't want to display binary files
