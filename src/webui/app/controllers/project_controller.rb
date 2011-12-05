@@ -209,7 +209,7 @@ class ProjectController < ApplicationController
       begin
         req = BsRequest.new(:project => params[:project], :type => "maintenance_release", :description => params[:description])
         req.save(:create => true)
-        flash[:success] = "Created maintenance release request"
+        flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value("id"))}'>#{req.value("id")}</a>"
       rescue ActiveXML::Transport::NotFoundError => e
         message, _, _ = ActiveXML::Transport.extract_error_message(e)
         flash[:error] = message
