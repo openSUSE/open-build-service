@@ -270,8 +270,6 @@ case "$1" in
 
 		# Only used if there is a local BSConfig
 		if [ -e /usr/lib/obs/server/BSConfig.pm ]; then
-# We try out more entropy generators atm, so lets always enable signing for now
-#                if [ -e /dev/hw_random -o -e /dev/hwrng ]; then
 			# create default gpg key if not existing
 			if [ ! -e /obs/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
 				echo -n Generating OBS default GPG key ....
@@ -310,11 +308,13 @@ EOF
 				sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 				sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 			fi
-#		fi
 			if [ ! -e /obs/obs-default-gpg.asc ] ; then
 			    sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			    sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			fi
+
+                        # Force mysql to update database. FIXME: only on version update
+                        touch /obs/MySQL/.run-mysql_upgrade
 		fi
 
 		echo "Looking for OBS Worker Cache LVM Volume"
