@@ -1756,7 +1756,6 @@ class SourceController < ApplicationController
     patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
     backend_put( patchinfo_path, xml.dump_xml )
-
     render_ok :data => {:targetproject => pro.name, :targetpackage => pkg_name}
   end
 
@@ -1773,13 +1772,12 @@ class SourceController < ApplicationController
     p={ :user => @http_user.login, :comment => "updated via updatepatchinfo call" }
     patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
-    backend_put( patchinfo_path, xml.dump_xml )
+    answer = backend_put( patchinfo_path, xml.dump_xml )
 
     render_ok
   end
 
   def update_patchinfo(patchinfo, pkg)
-
     # collect bugnumbers from diff
     issues = Array.new()
     pkg.db_project.db_packages.each do |p|
@@ -1796,6 +1794,7 @@ class SourceController < ApplicationController
       e = patchinfo.add_element "issue"
       e.set_attribute "tracker", i[:issue_tracker]
       e.set_attribute "id"     , i[:name]
+      patchinfo.category.text = "security" if i[:issue_tracker] == "cve"
     end
 
     return patchinfo

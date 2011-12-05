@@ -487,7 +487,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
     # add required informations about the update
     pi = REXML::Document.new( @response.body )
-    pi.elements["//category"].text = "security"
+    pi.elements["//summary"].text = "if you are bored"
+    pi.elements["//description"].text = "if you are bored and really want fixes"
     pi.elements["//rating"].text = "low"
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
@@ -499,6 +500,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/#{maintenanceProject}/patchinfo?cmd=updatepatchinfo"
     assert_response :success
+    get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
+    assert_response :success
+    assert_tag( :tag => "category", :content => "security" ) # changed due to CVE
+    assert_tag( :tag => "issue", :attributes => {:id => "4201",  :tracker => "bnc"} )
 
     ### the backend is now building the packages, injecting results
     # run scheduler once to create job file. x86_64 scheduler gets no work
