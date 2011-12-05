@@ -966,6 +966,8 @@ sub getbinaries_kiwiproduct {
   my @kdeps;
   my %prpaps;
   my %linkit;
+  my %prpapackages;
+  my %packagebinaryversionlist;
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
     if (!defined($dep->{'package'})) {
       push @kdeps, $dep->{'name'};
@@ -973,7 +975,10 @@ sub getbinaries_kiwiproduct {
     }
     my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
     next if $repoarch eq 'src';
-    $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
+    if (!$prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"}) {
+      push @{$prpapackages{"$dep->{'project'}/$dep->{'repository'}/$repoarch"}}, $dep->{'package'};
+      $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
+    }
     $linkit{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}/$dep->{'name'}"} = 1 unless $dep->{'noinstall'};
   }
 
@@ -1026,14 +1031,33 @@ sub getbinaries_kiwiproduct {
     } else {
       my $bvl;
       if ($cachedir) {
-        eval {
-          $bvl = BSRPC::rpc({
-	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
-	    'timeout' => $gettimeout,
-          }, $BSXML::binaryversionlist, 'view=binaryversions');
-        };
-        undef $bvl if $@;
-	warn($@) if $@;
+	if ($server eq $buildinfo->{'reposerver'}) {
+	  my $pbvl = $packagebinaryversionlist{"$projid/$repoid/$arch"};
+	  if (!$pbvl) {
+	    eval {
+	      $pbvl = BSRPC::rpc({
+		'uri' => '$server/getpackagebinaryversionlist',
+		'timeout' => $gettimeout,
+	      }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
+	    };
+	    undef $pbvl if $@;
+	    warn($@) if $@;
+	    $pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} } if $pbvl;
+	    $pbvl ||= {};
+	    $packagebinaryversionlist{"$projid/$repoid/$arch"} = $pbvl;
+	  }
+          $bvl = $pbvl->{$packid};
+	}
+	if (!defined($bvl)) {
+	  eval {
+	    $bvl = BSRPC::rpc({
+	      'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	      'timeout' => $gettimeout,
+	    }, $BSXML::binaryversionlist, 'view=binaryversions');
+	  };
+	  undef $bvl if $@;
+	  warn($@) if $@;
+	}
       }
       my @good;
       my @bad;

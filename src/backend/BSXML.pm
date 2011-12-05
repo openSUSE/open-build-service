@@ -604,14 +604,29 @@ our $buildhist = [
 
 our $binaryversionlist = [
     'binaryversionlist' =>
-      [[ 'binary' =>
+     [[ 'binary' =>
 	    'name',
 	    'sizek',
 	    'error',
 	    'hdrmd5',
 	    'metamd5',
 	    'leadsigmd5',
-      ]],
+     ]],
+];
+
+our $packagebinaryversionlist = [
+    'packagebinaryversionlist' =>
+     [[ 'binaryversionlist' =>
+            'package',
+         [[ 'binary' =>
+		'name',
+		'sizek',
+		'error',
+		'hdrmd5',
+		'metamd5',
+		'leadsigmd5',
+	 ]],
+     ]],
 ];
 
 our $worker = [
