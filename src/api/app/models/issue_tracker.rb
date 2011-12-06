@@ -1,4 +1,5 @@
 require 'xmlrpc/client'
+require 'opensuse/backend'
 
 class IssueTracker < ActiveRecord::Base
   validates_presence_of :name, :regex, :url

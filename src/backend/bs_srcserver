@@ -6458,12 +6458,12 @@ sub putissuetrackers {
   die("upload failed\n") unless $uploaded;
   my $trackers = readxml("$uploaddir/$$", $BSXML::issue_trackers);
   unlink("$uploaddir/$$");
-  writexml("$BSConfig::bsdir/.issuetrackers.xml", "$BSConfig::bsdir/.issuetrackers.xml", $trackers, $BSXML::issue_trackers);
+  writexml("$BSConfig::bsdir/.issuetrackers.xml", "$BSConfig::bsdir/issuetrackers.xml", $trackers, $BSXML::issue_trackers);
   return $BSStdServer::return_ok;
 }
 
 sub getissuetrackers {
-  my $trackers = readxml("$BSConfig::bsdir/.issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
+  my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
   return ($trackers, $BSXML::issue_trackers);
 }
 
