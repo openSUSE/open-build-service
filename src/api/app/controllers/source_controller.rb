@@ -1397,7 +1397,7 @@ class SourceController < ApplicationController
         next unless pkg.class == DbPackage # only for local packages
         p[:package].find_project_local_linking_packages.each do |llp|
           target_package = llp.name
-          target_package += "." + llp.db_project.name if extend_names
+          target_package += "." + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
           @packages.push({ :target_project => p[:target_project], :package => llp, :target_package => target_package, :local_link => 1 })
         end
       end
@@ -1530,7 +1530,7 @@ class SourceController < ApplicationController
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = ret.package
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
-        linked_package += "." + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
+        linked_package += "." + tpkg.name.gsub(/^[^\.]*\./,'') if extend_names
         ret.set_attribute('package', linked_package)
         answer = Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
       else

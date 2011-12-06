@@ -371,19 +371,19 @@ class MaintenanceTests < ActionController::IntegrationTest
   def test_manual_branch_with_extend_names
     # submit packages via mbranch
     prepare_request_with_user "tom", "thunder"
-    post "/source/BaseDistro2.0/pack2", :cmd => "branch", :target_package => "DUMMY.package", :extend_package_names => "1"
+    post "/source/BaseDistro2.0/pack2", :cmd => "branch", :target_package => "DUMMY_package", :extend_package_names => "1"
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "sourceproject" }, :content => "BaseDistro2.0:LinkedUpdateProject" )
     assert_tag( :tag => "data", :attributes => { :name => "sourcepackage" }, :content => "pack2" )
     assert_tag( :tag => "data", :attributes => { :name => "targetproject" }, :content => "home:tom:branches:BaseDistro2.0:LinkedUpdateProject" )
-    assert_tag( :tag => "data", :attributes => { :name => "targetpackage" }, :content => "DUMMY.package.BaseDistro2.0" )
+    assert_tag( :tag => "data", :attributes => { :name => "targetpackage" }, :content => "DUMMY_package.BaseDistro2.0" )
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
-    assert_tag( :tag => "entry", :attributes => { :name => "DUMMY.package.BaseDistro2.0" })
+    assert_tag( :tag => "entry", :attributes => { :name => "DUMMY_package.BaseDistro2.0" })
     assert_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0" })
 
     # check link of branched package
-    get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/DUMMY.package.BaseDistro2.0/_link"
+    get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/DUMMY_package.BaseDistro2.0/_link"
     assert_response :success
     assert_tag( :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" })
 
@@ -391,7 +391,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2_linked.BaseDistro2.0/_link"
     assert_response :success
     assert_tag( :tag => "link", :attributes => { :project => nil })
-    assert_tag( :tag => "link", :attributes => { :package => "DUMMY.package.BaseDistro2.0" })
+    assert_tag( :tag => "link", :attributes => { :package => "DUMMY_package.BaseDistro2.0" })
 
     #cleanup
     delete "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
