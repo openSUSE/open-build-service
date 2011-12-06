@@ -1053,7 +1053,16 @@ class SourceController < ApplicationController
         if data
           tproject_name = data.value("project") || project_name
           tpackage_name = data.value("package") || package_name
-          tpkg = DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
+          if data.has_attribute? 'missingok'
+            DbProject.get_by_name(tproject_name) # permission check
+            if DbPackage.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links=true, allow_remote_packages=true)
+              render_error :status => 400, :errorcode => 'not_missing',
+                :message => "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
+              return
+            end
+          else
+            tpkg = DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
+          end
         end
       end
 

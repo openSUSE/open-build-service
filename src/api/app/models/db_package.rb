@@ -177,8 +177,11 @@ class DbPackage < ActiveRecord::Base
     def exists_by_project_and_name( project, package, follow_project_links=true, allow_remote_packages=false )
       if DbProject.is_remote_project?( project )
         if allow_remote_packages
-          answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
-          return true if answer
+          begin
+            answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
+            return true if answer
+          rescue Suse::Backend::HTTPError
+          end
         end
         return false
       end
@@ -191,8 +194,11 @@ class DbPackage < ActiveRecord::Base
       if pkg.nil?
         # local project, but package may be in a linked remote one
         if allow_remote_packages
-          answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
-          return true if answer
+          begin
+            answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
+            return true if answer
+          rescue Suse::Backend::HTTPError
+          end
         end
         return false
       end

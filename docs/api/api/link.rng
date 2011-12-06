@@ -74,6 +74,13 @@
         <attribute name="package"/>
       </optional>
       <optional>
+        <attribute name="missingok">
+          <choice>
+            <value>true</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="rev"/>
       </optional>
       <optional>

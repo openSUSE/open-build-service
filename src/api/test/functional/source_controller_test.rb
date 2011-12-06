@@ -1902,6 +1902,13 @@ end
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
+    # not existing link target, but ignore it
+    put url, '<link project="kde4" package="notexiting" missingok="true" />'
+    assert_response :success
+    put url, '<link project="BaseDistro" package="pack1" missingok="true" />'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "not_missing" }
+
     # working local link
     put url, '<link project="BaseDistro" package="pack1" />'
     assert_response :success
