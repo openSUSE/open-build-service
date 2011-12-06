@@ -3868,6 +3868,10 @@ sub sourcediff {
   $cacheid .= "/view:$cgi->{'view'}" if $view && $view ne 'unified';
   $cacheid .= "/fmax:$fmax" if defined $fmax;
   $cacheid .= "/tmax:$tmax" if defined $tmax;
+  if ($cgi->{'withissues'}) {
+    my @s = stat("$BSConfig::bsdir/issuetrackers.xml");
+    $cacheid .= "/withissues:$s[9]/$s[7]/$s[1]" if @s;
+  }
   if ($cgi->{'file'}) {
     my %file = map {$_ => 1} @{$cgi->{'file'}};
     $cacheid .= "/file:$_" for sort keys %file;
@@ -3882,6 +3886,7 @@ sub sourcediff {
   my $xmlret;
   if ($view eq 'xml') {
     $xmlret = {};
+    $xmlret->{'key'} = $cacheid;
     $rev->{'rev'} ||= 0;
     $rev->{'srcmd5'} = $emptysrcmd5 if $rev->{'srcmd5'} eq 'empty';
     $orev->{'rev'} ||= 0;
@@ -3907,6 +3912,11 @@ sub sourcediff {
   if ($view eq 'xml') {
     my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax);
     $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, %opts) };
+    if ($cgi->{'withissues'}) {
+      my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
+      $trackers = $trackers->{'issue-tracker'} || [];
+      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $trackers, %opts) };
+    }
     BSUtil::data2utf8xml($xmlret);
     $d = XMLout($BSXML::sourcediff, $xmlret);
   } else {
@@ -4570,7 +4580,7 @@ sub sourcecopy {
   my $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
   delete $cgi->{'vrev'};
 
-  if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
+  if ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
     my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$autosimplifylink->{'patches'}->{''} || []};
     if ($isbranch) {
       # update base rev so that there are no changes
@@ -4617,11 +4627,9 @@ sub sourcecopy {
           # simplify link
 	  my $latestlinkinfo = {};
           my $latestfiles = lsrev($latestorev, $latestlinkinfo);
-          my $nl = {};
-          $nl->{'project'} = $autosimplifylink->{'project'} if $autosimplifylink->{'project'};
-          $nl->{'package'} = $autosimplifylink->{'package'} if $autosimplifylink->{'package'};
-          $nl->{'cicount'} = $autosimplifylink->{'cicount'} if $autosimplifylink->{'cicount'};
-          $nl->{'missingok'} = $autosimplifylink->{'missingok'} if $autosimplifylink->{'missingok'};
+          my $nl = { %$autosimplifylink };
+          delete $nl->{'patches'};
+          delete $nl->{'baserev'};
 	  mkdir_p($uploaddir);
           writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
           my $ofiles = {};
@@ -6533,9 +6541,9 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:?' => \&sourcediff,
-  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:?' => \&linkdiff,
-  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:?' => \&servicediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool?' => \&sourcecopy,

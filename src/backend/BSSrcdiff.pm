@@ -27,6 +27,8 @@ use Fcntl;
 
 use strict;
 
+use BSUtil;
+
 
 #
 # fmax: maximum number of lines in a diff
@@ -461,7 +463,7 @@ sub findsim {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
     next unless defined $fc;
-    my @s = grep {$fc{$_} eq $fc && $ft{$_} eq $ft} sort keys %s;
+    my @s = grep {defined($fc{$_}) && $fc{$_} eq $fc && $ft{$_} eq $ft} sort keys %s;
     if (@s) {
       $sim{$f} = $s[0];
       delete $s{$s[0]};
@@ -473,7 +475,7 @@ sub findsim {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
     next unless defined $fc;
-    my @s = grep {$ft{$_} eq $ft} sort keys %s;
+    my @s = grep {defined($ft{$_}) && $ft{$_} eq $ft} sort keys %s;
     my $fq = "\Q$fc\E";
     $fq =~ s/\\\././g;
     $fq =~ s/[0-9.]+/.*/g;
@@ -649,7 +651,6 @@ sub datadiff {
   }
 
   my %done;
-  my @ret;
   for my $f (sort(keys %$new)) {
     my $of = $f;
     $of = $sim->{$f} if defined $sim->{$f};
@@ -704,6 +705,92 @@ sub datadiff {
     my $r = filediff("$pold/$old->{$of}-$of", undef, %opts);
     delete $r->{'state'};
     push @added, {'state' => 'deleted', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}};
+  }
+  return [ @changed, @added, @deleted ];
+}
+
+sub issues {
+  my ($entry, $trackers, $ret) = @_;
+  for my $tracker (@$trackers) {
+    my @issues = $entry =~ /$tracker->{'regex'}/g;
+    pop @issues if @issues & 1;	# hmm
+    my %issues = @issues;
+    for (keys %issues) {
+      $ret->{$_} = {
+	'name' => $issues{$_},
+	'long-name' => $_,
+        'issue-tracker' => $tracker,
+      };
+    }
+  }
+}
+
+sub issuediff {
+  my ($pold, $old, $orev, $pnew, $new, $rev, $trackers, %opts) = @_;
+
+  return [] unless @{$trackers || []};
+
+  $trackers = [ @$trackers ];
+  for (@$trackers) {
+    $_ = { %$_ };
+    $_->{'regex'} = "($_->{'regex'})" unless /\(/;
+    $_->{'regex'} = "($_->{'regex'})";
+    eval {
+      $_->{'regex'} = qr/$_->{'regex'}/;
+    };
+    if ($@) {
+      warn($@);
+      $_->{'regex'} = qr/___this_reGExp_does_NOT_match___/;
+    }
+  }
+
+  my %oldchanges;
+  my %newchanges;
+  for my $f (grep {/\.changes$/} sort(keys %$old)) {
+    for (split(/------------------------------------------+/, readstr("$pold/$old->{$f}-$f"))) {
+      $oldchanges{Digest::MD5::md5_hex($_)} = $_;
+    }
+  }
+  for my $f (grep {/\.changes$/} sort(keys %$new)) {
+    for (split(/------------------------------------------+/, readstr("$pnew/$new->{$f}-$f"))) {
+      $newchanges{Digest::MD5::md5_hex($_)} = $_;
+    }
+  }
+  my %oldissues;
+  my %newissues;
+  for my $c (keys %oldchanges) {
+    next if exists $newchanges{$c};
+    issues($oldchanges{$c}, $trackers, \%oldissues);
+  }
+  for my $c (keys %newchanges) {
+    next if exists $oldchanges{$c};
+    issues($newchanges{$c}, $trackers, \%newissues);
+  }
+  my @added;
+  my @changed;
+  my @deleted;
+  for (sort keys %newissues) {
+    if (exists $oldissues{$_}) {
+      $newissues{$_}->{'state'} = 'changed';
+      delete $oldissues{$_};
+      push @changed, $newissues{$_};
+    } else {
+      $newissues{$_}->{'state'} = 'added';
+      push @added, $newissues{$_};
+    }
+  }
+  for (sort keys %oldissues) {
+    $oldissues{$_}->{'state'} = 'deleted';
+    push @deleted , $oldissues{$_};
+  }
+  for my $issue (@changed, @added, @deleted) {
+    my $tracker = $issue->{'issue-tracker'};
+    my $url = $tracker->{'show-url'};
+    if ($url) {
+      $url =~ s/\@\@\@/$issue->{'name'}/g;
+      $issue->{'show-url'} = $url;
+    }
+    $issue->{'issue-tracker'} = $tracker->{'name'};
   }
   return [ @changed, @added, @deleted ];
 }

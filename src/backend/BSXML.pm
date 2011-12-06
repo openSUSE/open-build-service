@@ -1310,6 +1310,7 @@ our $prestodelta = [
 
 our $sourcediff = [
     'sourcediff' =>
+	'key',
       [ 'old' =>
 	    'project',
 	    'package',
@@ -1344,6 +1345,15 @@ our $sourcediff = [
 		    '_content',
               ],
          ]],
+      ],
+      [ 'issues' =>
+	 [[ 'issue' =>
+		'state',
+		'issue-tracker',
+		'name',
+		'long-name',
+		'show-url',
+	 ]]
       ],
 ];
 
