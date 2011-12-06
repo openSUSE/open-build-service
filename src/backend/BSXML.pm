@@ -286,6 +286,7 @@ our $linkinfo = [
 	'rev',
 	'srcmd5',
 	'baserev',
+	'missingok',
 	# expanded / unexpanded srcmd5
 	'xsrcmd5',
 	'lsrcmd5',
@@ -629,6 +630,7 @@ our $link = [
 	'rev',
 	'cicount',
 	'baserev',
+	'missingok',
       [ 'patches' =>
 	  [ $linkpatch ],
       ],
