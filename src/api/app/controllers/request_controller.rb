@@ -801,7 +801,9 @@ class RequestController < ApplicationController
             target_package = action.target.package if action.target.has_attribute? :package
           end
 
-          if target_package.nil?
+          # the target is by default the _link target
+          # maintenance_release creates new packages instance, but are changing the source only according to the link
+          if target_package.nil? or action.value('type') == "maintenance_release"
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}") )
             e = data.elements["directory/linkinfo"]
             if e
