@@ -1,11 +1,6 @@
 <% elide_len ||= 40 %>
 <% request_table_id ||= 'request_table' %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.tooltip' %>
-<% end %>
-<%= javascript_include_tag 'jquery.tablesorter', 'jquery.tooltip.min' %>
-
 <% if requests.blank? %>
   <p>No requests.</p>
 <% else %>
