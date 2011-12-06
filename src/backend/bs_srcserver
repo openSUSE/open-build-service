@@ -1633,7 +1633,11 @@ sub handlelinks {
     # record link target for projpack
     push @{$li->{'linked'}}, {'project' => $projid, 'package' => $packid} if $li && $li->{'linked'}; 
     eval {
-      $lrev = getrev($projid, $packid, $l->{'rev'}, $li ? $li->{'linked'} : undef);
+      if ($l->{'missingok'}) {
+        # be careful with 'missingok' pointing to protected packages
+        checksourceaccess($projid, $packid);
+      }
+      $lrev = getrev($projid, $packid, $l->{'rev'}, $li ? $li->{'linked'} : undef, $l->{'missingok'} ? 1 : 0);
     };
     if ($@) {
       my $error = $@;
@@ -4063,6 +4067,13 @@ sub keeplink {
     $ltgtsrcmd5 = $ltgtrev->{'srcmd5'};
   }
 
+  if ($l->{'missingok'} && $ltgtfiles->{'srcmd5'} ne 'd41d8cd98f00b204e9800998ecf8427e') {
+    # delete missingok flag as it's no longer needed
+    eval {
+      checksourceaccess($ltgtprojid, $ltgtpackid);
+      delete $l->{'missingok'};
+    };
+  }
   # easy for branches: just copy file list and update baserev
   if ($isbranch) {
     my $nfiles = { %$files };
@@ -4577,6 +4588,14 @@ sub sourcecopy {
 	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
 	      $latestl->{'baserev'} = $newbase;
 	      $latestl->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
+	      if ($latestl->{'missingok'} &&
+		(defined($latestl->{'project'}) ? $latestl->{'project'} : $oprojid) eq $projid &&
+		(defined($latestl->{'package'}) ? $latestl->{'package'} : $opackid) eq $packid) {
+		eval {
+	          checksourceaccess($projid, $packid);
+		  delete $latestl->{'missingok'};
+		};
+	      }
 	      mkdir_p($uploaddir);
 	      writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
               $latestfiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
@@ -4598,6 +4617,7 @@ sub sourcecopy {
           $nl->{'project'} = $autosimplifylink->{'project'} if $autosimplifylink->{'project'};
           $nl->{'package'} = $autosimplifylink->{'package'} if $autosimplifylink->{'package'};
           $nl->{'cicount'} = $autosimplifylink->{'cicount'} if $autosimplifylink->{'cicount'};
+          $nl->{'missingok'} = $autosimplifylink->{'missingok'} if $autosimplifylink->{'missingok'};
 	  mkdir_p($uploaddir);
           writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
           my $ofiles = {};

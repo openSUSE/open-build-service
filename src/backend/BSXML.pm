@@ -693,6 +693,7 @@ our $link = [
 	'rev',
 	'cicount',
 	'baserev',
+	'missingok',
       [ 'patches' =>
 	  [ $linkpatch ],
       ],

@@ -251,6 +251,9 @@ sub verify_link {
       die("unknown cicount '$l->{'cicount'}'\n");
     }
   }
+  if (exists $l->{'missingok'}) {
+    die("missingok in link must be '1' or 'true'\n") unless $l->{'missingok'} && ($l->{'missingok'} eq '1' || $l->{'missingok'} eq 'true');
+  }
   return unless $l->{'patches'} && $l->{'patches'}->{''};
   for my $p (@{$l->{'patches'}->{''}}) {
     die("more than one type in patch\n") unless keys(%$p) == 1;
