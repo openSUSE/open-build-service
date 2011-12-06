@@ -40,6 +40,50 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 401
   end
 
+  def test_submit_request_of_new_package
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch
+    assert_response 404
+    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :missingok => "true"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => 'not_missing' } )
+    post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch, :missingok => "true"
+    assert_response :success
+    get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
+    assert_response :success
+    assert_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => 'NEW_PACKAGE' } )
+    put "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file", "my content"
+    assert_response :success
+
+    # submit request
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy:branches:home:Iggy" package="NEW_PACKAGE"/>
+                                   </action>
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value('id')
+    # accept
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    # package got created
+    get "/source/home:Iggy/NEW_PACKAGE/new_file"
+    assert_response :success
+
+    # missingok disapeared
+    get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
+    assert_response :success
+    assert_no_tag(:tag => "link", :attributes => { :missingok => 'true' })
+
+    # cleanup
+    delete "/source/home:Iggy:branches:home:Iggy"
+    assert_response :success
+  end
+
   def test_submit_request_with_broken_source
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE", :cmd => :branch

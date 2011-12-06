@@ -282,7 +282,9 @@ class SourceController < ApplicationController
     # Check for existens/access of origin package when specified
     spkg = nil
     sprj = DbProject.get_by_name origin_project_name                                  if origin_project_name
-    spkg = DbPackage.get_by_project_and_name origin_project_name, origin_package_name if origin_package_name and not [ '_project', '_pattern' ].include? origin_package_name
+    if origin_package_name and not [ '_project', '_pattern' ].include? origin_package_name and not (params[:missingok] and command == 'branch')
+      spkg = DbPackage.get_by_project_and_name origin_project_name, origin_package_name if origin_package_name and not [ '_project', '_pattern' ].include? origin_package_name
+    end
     if spkg
       # use real source in case we followed project link
       params[:oproject] = origin_project_name = spkg.db_project.name
@@ -1269,7 +1271,17 @@ class SourceController < ApplicationController
         @packages.push({ :target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
       end
     elsif params[:project] and params[:package]
-      pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
+      if params[:missingok]
+        prj = DbProject.get_by_name params[:project]
+        if DbPackage.exists_by_project_and_name(params[:project], params[:package], follow_project_links=true, allow_remote_packages=true)
+          render_error :status => 400, :errorcode => 'not_missing',
+            :message => "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists."
+          return
+        end
+        pkg = nil
+      else
+        pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
+      end
       tpkg_name = params[:target_package]
       tpkg_name = params[:package] unless tpkg_name
       tpkg_name += ".#{params[:project]}" if extend_names
@@ -1277,7 +1289,7 @@ class SourceController < ApplicationController
         # local package
         @packages.push({ :target_project => pkg.db_project, :package => pkg, :rev => params[:rev], :target_package => tpkg_name })
       else
-        # remote package
+        # remote or not existing package
         @packages.push({ :target_project => params[:project], :package => params[:package], :rev => params[:rev], :target_package => tpkg_name })
       end
     else
@@ -1543,18 +1555,24 @@ class SourceController < ApplicationController
         ret.set_attribute('package', linked_package)
         answer = Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
       else
-        rev = ""
-        rev = "&orev=#{p[:rev]}" if p[:rev] and not p[:rev].empty?
+        path = "/source/#{URI.escape(tpkg.db_project.name)}/#{URI.escape(tpkg.name)}"
+        myparam = { :cmd => "branch",
+                    :oproject => branch_target_project,
+                    :opackage => p[:package],
+                    :user => @http_user.login,
+                  }
+        myparam[:opackage] = p[:package].name if p[:package].class == DbPackage
+        myparam[:orev] = p[:rev] if p[:rev] and not p[:rev].empty?
+        myparam[:missingok] = "1" if params[:missingok]
+        path << build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
         # branch sources in backend
-        opackage_name = p[:package]
-        opackage_name = p[:package].name if p[:package].class == DbPackage
-        answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(opackage_name)}&user=#{CGI.escape(@http_user.login)}#{rev}", nil
+        answer = Suse::Backend.post path, nil
         if response
           # multiple package transfers, just tell the target project
           response = {:targetproject => tpkg.db_project.name}
         else
           # just a single package transfer, detailed answer
-          response = {:targetproject => tpkg.db_project.name, :targetpackage => tpkg.name, :sourceproject => branch_target_project, :sourcepackage => opackage_name}
+          response = {:targetproject => tpkg.db_project.name, :targetpackage => tpkg.name, :sourceproject => branch_target_project, :sourcepackage => myparam[:opackage]}
         end
 
         # fetch newer sources from devel package, if defined

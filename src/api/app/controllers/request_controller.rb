@@ -305,12 +305,14 @@ class RequestController < ApplicationController
               rev = action.source.rev.to_s
             end
             data = nil
+            missing_ok_link=false
             while tprj == pkg.db_project.name
               data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
               e = data.elements["directory/linkinfo"]
               if e
                 tprj = e.attributes["project"]
                 ltpkg = e.attributes["package"]
+                missing_ok_link=true if e.attributes["missingok"]
                 if action.value("type") == "maintenance_release" and not rev
                   # maintenance_release needs the binaries, so we always use the current source
                   if e.attributes["xsrcmd5"]
@@ -361,9 +363,11 @@ class RequestController < ApplicationController
                 end
                 next
               else
-                render_error :status => 400, :errorcode => 'unknown_target_package',
-                  :message => "target package does not exist"
-                return
+                unless missing_ok_link
+                  render_error :status => 400, :errorcode => 'unknown_target_package',
+                    :message => "target package does not exist"
+                  return
+                end
               end
             end
             # is this package source going to a project which is specified as release target ?
