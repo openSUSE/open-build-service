@@ -66,6 +66,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
+
     # accept
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
@@ -75,6 +76,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # missingok disapeared
+    post "/source/home:Iggy:branches:home:Iggy", :cmd => :undelete
+    assert_response :success
     get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
     assert_response :success
     assert_no_tag(:tag => "link", :attributes => { :missingok => 'true' })
