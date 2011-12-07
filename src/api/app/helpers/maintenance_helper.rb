@@ -123,6 +123,7 @@ module MaintenanceHelper
       :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
       :expand => "1",
       :withvrev => "1",
+      :noservice => "1",
     }
     cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
     cp_params[:requestid] = request.id if request
