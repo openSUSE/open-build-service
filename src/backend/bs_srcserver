@@ -269,6 +269,7 @@ sub runservice {
       delete $files->{'/SERVICE'};
       eval {
         $files = handlelinks({%$rev, 'linkrev' => 'base'}, $files);
+        die("bad link: $files\n") unless ref $files;
       };
       if ($@) {
         $files = $linkfiles;
@@ -2302,7 +2303,7 @@ sub getprojpack {
 	  my ($c1, $c2) = ($1, $2);
 	  $c1 = '' unless defined $c1;
 	  if ($c2 =~ /^(?:.*?\n)?\s*:macros\s*\n(.*)$/si) {
-	    $config = "$c1$c2";
+	    $config = "$c1$1";
 	  } else {
 	    $config = $c1;
 	    last;
