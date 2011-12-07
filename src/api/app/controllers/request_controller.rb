@@ -1335,7 +1335,7 @@ class RequestController < ApplicationController
             :requestid => params[:id],
             :comment => params[:comment]
           }
-          cp_params[:orev] = src.value(:rev)
+          cp_params[:orev] = src.value(:rev) if src.has_attribute? :rev
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
           unless action.has_element? 'options' and action.options.value(:updatelink) == "true"
             cp_params[:expand] = 1
