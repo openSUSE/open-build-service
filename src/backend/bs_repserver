@@ -1419,7 +1419,7 @@ sub copybuild {
       }
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
-      $needsign = 1 if /\.(?:d?rpm|sha256|iso)$/;
+      $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|iso)$/;
       link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
     }
   }
