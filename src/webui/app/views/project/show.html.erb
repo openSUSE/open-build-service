@@ -93,7 +93,7 @@
           <% if session[:login] %>
             <% if @project.can_edit?( session[:login] ) %>
               <% unless @project.is_remote? %>
-                <% if @is_incident_project and @nr_packages > 0 %>
+                <% if @is_incident_project and @nr_packages > 0 && @has_patchinfo %>
                   <li>
                     <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request to release'), :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
                     <%= link_to_remote('Request to release', :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
