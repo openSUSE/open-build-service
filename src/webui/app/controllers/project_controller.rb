@@ -1452,7 +1452,8 @@ class ProjectController < ApplicationController
     Rails.cache.delete(cachekey) if discard_cache?
     @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
        req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
-           + BsRequest.list({:states => 'new', :roles => "target", :project => pname})
+           + BsRequest.list({:states => 'new', :roles => "target", :project => pname}) \
+           + BsRequest.list({:states => 'new,review', :types => 'maintenance_incident', :project => pname, :roles => 'source'})
        if @is_maintenance_project
          req += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
        end
