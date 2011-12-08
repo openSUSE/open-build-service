@@ -431,8 +431,8 @@ class PatchinfoController < ApplicationController
     @patchinfo = Patchinfo.find(opt)
 
     unless @file
-        flash[:error] = "Patchinfo not found: #{params[:project]}"
-        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+      flash[:error] = "Patchinfo not found for #{params[:project]}"
+      redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
   end
 end
