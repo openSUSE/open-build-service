@@ -190,7 +190,7 @@ class ProjectController < ApplicationController
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        req = BsRequest.new(:project => params[:project], :type => "maintenance_release")
+        req = BsRequest.new(:project => params[:project], :type => "maintenance_release", :description => params[:description])
         req.save(:create => true)
         flash[:success] = "Created maintenance release request"
       rescue ActiveXML::Transport::NotFoundError => e
