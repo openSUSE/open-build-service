@@ -65,7 +65,7 @@ $sign = $BSConfig::sign if defined($BSConfig::sign);
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-$BSUtil::fdatasync_before_rename = 1 unless $BSConfig::disable_data_sync;
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync;
 
 my $reporoot = "$bsdir/build";
 my $jobsdir = "$bsdir/jobs";

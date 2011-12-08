@@ -37,8 +37,8 @@ use strict;
 
 our $fdatasync_before_rename;
 
-sub do_fdatasync {
-  my ($fd) = @_;
+sub set_fdatasync_before_rename {
+  $fdatasync_before_rename = 1;
   if (!defined(&File::Sync::fdatasync_fd)) {
     eval {
       require File::Sync;
@@ -46,6 +46,11 @@ sub do_fdatasync {
     warn($@) if $@;
     *File::Sync::fdatasync_fd = sub {} unless defined &File::Sync::fdatasync_fd;
   }
+}
+
+sub do_fdatasync {
+  my ($fd) = @_;
+  set_fdatasync_before_rename() unless defined &File::Sync::fdatasync_fd;
   File::Sync::fdatasync_fd($fd);
 }
 

@@ -50,7 +50,7 @@ use strict;
 undef $BSConfig::bsuser;	# need to stay root
 undef $BSConfig::bsgroup;
 
-$BSUtil::fdatasync_before_rename = 1 unless $BSConfig::disable_data_sync;
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync;
 
 my $tempdir = $BSConfig::servicetempdir || "/var/tmp";
 my $port = 5152;

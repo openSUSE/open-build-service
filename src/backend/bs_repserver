@@ -72,7 +72,7 @@ $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-$BSUtil::fdatasync_before_rename = 1 unless $BSConfig::disable_data_sync;
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync;
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 

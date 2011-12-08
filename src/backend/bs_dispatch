@@ -61,7 +61,7 @@ if ($BSConfig::powerpkgs) {
   }
 }
 
-$BSUtil::fdatasync_before_rename = 1 unless $BSConfig::disable_data_sync;
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
