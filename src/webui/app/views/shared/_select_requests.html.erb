@@ -14,6 +14,7 @@
         <%= "'user': '" + userid.to_s + "'," unless not defined?(userid)  %>
         <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
         <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
+        <%= "'subprojects': 'true'," if defined?(subprojects) && subprojects %>
       },
       success: function(data) {
         $('#request_display').html(data);

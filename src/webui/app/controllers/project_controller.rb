@@ -1445,11 +1445,7 @@ class ProjectController < ApplicationController
        req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
            + BsRequest.list({:states => 'new', :roles => "target", :project => pname})
        if @is_maintenance_project
-         pred = "((state/@name='new') and starts-with(action/source/@project='#{pname}:') and (action/@type='maintenance_release'))"
-         requests = Collection.find :what => :request, :predicate => pred
-         requests.each_request do |r|
-            req << r
-         end
+         req += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
        end
        req
      end
