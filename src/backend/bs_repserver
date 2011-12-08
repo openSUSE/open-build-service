@@ -1398,6 +1398,7 @@ sub copybuild {
   my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
   my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   return $BSStdServer::return_ok if $oprojid eq $projid && $orepoid eq $repoid && $opackid eq $packid;
+  return $BSStdServer::return_ok unless -d "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   my $job = "copy-".Digest::MD5::md5_hex("$$/$projid/$repoid/$arch/$packid".time());
   local *F;
   my $jobstatus = {
@@ -1432,6 +1433,7 @@ sub copybuild {
     'file' => '_aggregate',	# HACK: makes signer remove old signatures
   };
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+  my $ev = {'type' => 'uploadbuild', 'arch' => $arch, 'job' => $job};
   if ($BSConfig::sign && $cgi->{'resign'} && $needsign) {
     $jobstatus->{'code'} = 'signing';
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
@@ -1440,7 +1442,6 @@ sub copybuild {
   close F;
   dirty($projid, $repoid, $arch) if $arch ne 'signer';
   mkdir_p("$eventdir/$arch");
-  my $ev = {'type' => 'uploadbuild', 'arch' => $arch, 'job' => $job};
   writexml("$eventdir/$arch/.copybuild:$job$$", "$eventdir/$arch/copybuild:$job", $ev, $BSXML::event);
   ping($arch);
   return $BSStdServer::return_ok;
