@@ -12,8 +12,8 @@ class IssuesController < ApplicationController
     end
     #render :json => @issue_tracker.issue(params[:id])
     respond_to do |format|
-      format.xml  { render :xml => @issue_tracker.issue(params[:id]).to_xml }
-      format.json { render :json => @issue_tracker.issue(params[:id]).to_json }
+      format.xml  { render :xml => @issue_tracker.issue(Issue::DEFAULT_RENDER_PARAMS).to_xml }
+      format.json { render :json => @issue_tracker.issue(Issue::DEFAULT_RENDER_PARAMS).to_json }
     end
   end
 end

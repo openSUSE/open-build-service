@@ -1279,6 +1279,7 @@ class RequestController < ApplicationController
     # All commands are process by the backend. Just the request accept is controlled by the api.
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :by_project, :by_package, :superseded_by, :comment])
     unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
+      # switch state in backend
       pass_to_backend path
       return
     end

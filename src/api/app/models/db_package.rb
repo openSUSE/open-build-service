@@ -27,6 +27,9 @@ class DbPackage < ActiveRecord::Base
 
   has_many :attribs, :dependent => :destroy
 
+  has_many :db_package_kinds, :dependent => :destroy
+  has_many :db_package_issues, :dependent => :destroy
+
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
@@ -331,6 +334,62 @@ class DbPackage < ActiveRecord::Base
 
     return result
   end
+
+  def add_package_kind( kinds )
+    private_set_package_kind( kinds, nil, true )
+  end
+
+  def set_package_kind( kinds = nil )
+    private_set_package_kind( kinds )
+  end
+
+  def set_package_kind_from_commit( commit )
+    private_set_package_kind( nil, commit )
+  end
+
+  def private_set_package_kind( kinds=nil, directory=nil, _noreset=nil )
+    if kinds
+      # set to given value
+      DbPackage.transaction do
+        self.db_package_kinds.destroy_all unless _noreset
+        kinds.each do |k|
+          self.db_package_kinds.create :kind => k
+        end
+      end
+    else
+      # none given, detect by existing UNEXPANDED sources
+      DbPackage.transaction do
+        self.db_package_kinds.destroy_all unless _noreset
+        directory = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}").body unless directory
+        xml = REXML::Document.new(directory.to_s)
+        if xml.elements["/directory/entry/@name='_patchinfo'"]
+          self.db_package_kinds.create :kind => 'patchinfo'
+        end
+#        if xml.elements["/directory/entry/@name='_aggregate'"]
+#          self.db_package_kinds.create :type => 'aggregate'
+#        end
+        if xml.elements["/directory/entry/@name='_link'"]
+          self.db_package_kinds.create :kind => 'link'
+        end
+        # further types my be product, spec, dsc, kiwi in future
+      end
+    end
+
+    # update issue database based on file content
+    if self.db_package_kinds.find_by_kind 'patchinfo'
+      patchinfo = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}/_patchinfo")
+      DbProject.transaction do
+        self.db_package_issues.destroy_all
+        xml = REXML::Document.new(patchinfo.body.to_s)
+        xml.issue.each do |i|
+          tracker = IssueTracker.get_by_name i[:tracker]
+          issue = tracker.issue( :name => i[:id] )
+          self.db_package_issues.create( :issue => issue )
+        end
+      end
+    end
+  end
+  private :private_set_package_kind
 
   def resolve_devel_package
     pkg = self

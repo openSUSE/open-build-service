@@ -123,8 +123,8 @@ class IssueTrackersController < ApplicationController
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
     end
     respond_to do |format|
-      format.xml  { render :xml => IssueTracker.issues_in(params[:text], params[:diff_mode]).to_xml }
-      format.json { render :json => IssueTracker.issues_in(params[:text], params[:diff_mode]).to_json }
+      format.xml  { render :xml => IssueTracker.issues_in(params[:text], params[:diff_mode]).to_xml(Issue::DEFAULT_RENDER_PARAMS) }
+      format.json { render :json => IssueTracker.issues_in(params[:text], params[:diff_mode]).to_json(Issue::DEFAULT_RENDER_PARAMS) }
     end
   end
 

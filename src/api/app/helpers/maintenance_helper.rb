@@ -189,6 +189,5 @@ module MaintenanceHelper
       cp_path << build_query_from_hash(cp_params, [:user, :comment, :cmd, :noservice])
       answer = Suse::Backend.post cp_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     end
-
   end
 end

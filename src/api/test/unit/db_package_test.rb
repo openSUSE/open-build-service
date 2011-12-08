@@ -8,6 +8,16 @@ class DbPackageTest < ActiveSupport::TestCase
   end
   
     
+  def test_package_type_handling
+    @package.set_package_kind('aggregate')
+    @package.add_package_kind('link')
+    assert_equal 2, @package.db_package_kinds.count
+    @package.set_package_kind('link')
+    assert_equal 1, @package.db_package_kinds.count
+    assert_nil @package.db_package_kinds.find_by_kind('aggregate')
+    assert_not_nil @package.db_package_kinds.find_by_kind('link')
+  end
+
   def test_flags_to_axml
     #check precondition
     assert_equal 1, @package.type_flags('build').size

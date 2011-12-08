@@ -492,6 +492,8 @@ class ApplicationController < ActionController::Base
       render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
     when DbProject::DeleteError
       render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
+    when IssueTracker::UnknownObjectError
+      render_error :status => 400, :message => exception.message, :errorcode => "unknown_issue_tracker"
 
     # unknown objects and no read access permission are handled in the same way by default
     when DbProject::ReadAccessError, DbProject::UnknownObjectError

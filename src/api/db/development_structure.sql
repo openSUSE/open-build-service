@@ -121,6 +121,26 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `db_package_issues` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `db_package_id` int(11) NOT NULL,
+  `issue_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `db_package_id` (`db_package_id`),
+  KEY `issue_id` (`issue_id`),
+  CONSTRAINT `db_package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `db_package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `db_package_kinds` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `db_package_id` int(11) DEFAULT NULL,
+  `kind` enum('patchinfo','aggregate','link') NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `db_package_id` (`db_package_id`),
+  CONSTRAINT `db_package_kinds_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `db_packages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -288,6 +308,24 @@ CREATE TABLE `issue_trackers` (
   `show_url` varchar(255) DEFAULT NULL,
   `regex` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `issues` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `issue_tracker_id` int(11) NOT NULL,
+  `long_name` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `owner_id` int(11) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_issues_on_long_name` (`long_name`),
+  KEY `owner_id` (`owner_id`),
+  KEY `issue_tracker_id` (`issue_tracker_id`),
+  CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `linked_projects` (
@@ -772,6 +810,10 @@ INSERT INTO schema_migrations (version) VALUES ('20111122000000');
 INSERT INTO schema_migrations (version) VALUES ('20111123000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20111206000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20111206151500');
+
+INSERT INTO schema_migrations (version) VALUES ('20111207000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

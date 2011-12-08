@@ -1050,6 +1050,7 @@ class SourceController < ApplicationController
          validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
       end
 
+      # verify link
       if params[:file] == "_link"
         data = ActiveXML::Base.new(request.raw_post.to_s)
         if data
@@ -1064,6 +1065,31 @@ class SourceController < ApplicationController
             end
           else
             tpkg = DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
+          end
+          pack.set_package_kind('link') unless params[:rev] = 'repository'
+        end
+      end
+
+      # set patchinfo information in db
+      if params[:file] == "_patchinfo"
+        data = ActiveXML::Base.new(request.raw_post.to_s)
+        if data and data.packager
+          # bugzilla only knows email adresses, so we support automatic conversion
+          if data.packager.to_s.include? '@'
+            packager = User.find_by_login data.packager
+            #FIXME: update _patchinfo file
+          end
+          packager = User.get_by_login data.packager.to_s unless packager
+        end
+        unless params[:rev] = 'repository'
+          DbProject.transaction do
+            pack.set_package_kind('link')
+            pack.db_package_issues.destroy_all
+            data.issue.each do |i|
+              tracker = IssueTracker.get_by_name i[:tracker]
+              issue = tracker.issue( :name => i[:id] )
+              pack.db_package_issues.create( :issue => issue )
+            end
           end
         end
       end
@@ -1160,6 +1186,7 @@ class SourceController < ApplicationController
     backend_pkgs.each_package do |package|
       path = "/source/#{URI.escape(tproject)}/#{package.name}/_meta"
       Package.new(backend_get(path), :project => tproject).save
+#      tpkg.set_package_kind
     end
   end
 
@@ -1579,6 +1606,8 @@ class SourceController < ApplicationController
         if p[:copy_from_devel]
           answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
         end
+
+        tpkg.set_package_kind
       end
     end
 
@@ -1817,11 +1846,11 @@ class SourceController < ApplicationController
     end
 
     issues.each do |i|
-      next if patchinfo.has_element?("issue[(@id='#{i[:name]}' and @tracker='#{i[:issue_tracker]}')]")
+      next if patchinfo.has_element?("issue[(@id='#{i.name}' and @tracker='#{i.issue_tracker.name}')]")
       e = patchinfo.add_element "issue"
-      e.set_attribute "tracker", i[:issue_tracker]
-      e.set_attribute "id"     , i[:name]
-      patchinfo.category.text = "security" if i[:issue_tracker] == "cve"
+      e.set_attribute "tracker", i.issue_tracker.name
+      e.set_attribute "id"     , i.name
+      patchinfo.category.text = "security" if i.issue_tracker.kind == "cve"
     end
 
     return patchinfo
@@ -1968,10 +1997,13 @@ class SourceController < ApplicationController
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
-    pass_to_backend path
+    answer = pass_to_backend path
     
     pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
-    pack.update_timestamp if pack # in case of _project package
+    if pack # in case of _project package
+      pack.set_package_kind_from_commit(answer)
+      pack.update_timestamp
+    end
 
     if params[:package] == "_product"
       update_product_autopackages params[:project]
@@ -2030,6 +2062,8 @@ class SourceController < ApplicationController
     path = "/source/#{CGI.escape(tpkg.db_project.name)}/#{CGI.escape(tpkg.name)}"
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
     pass_to_backend path
+
+    tpkg.set_package_kind
   end
 
   # POST /source/<project>/<package>?cmd=runservice
@@ -2078,6 +2112,7 @@ class SourceController < ApplicationController
     end
     Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}", nil
 
+    pkg.set_package_kind
     render_ok
   end
 

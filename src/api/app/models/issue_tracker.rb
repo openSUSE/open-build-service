@@ -2,6 +2,10 @@ require 'xmlrpc/client'
 require 'opensuse/backend'
 
 class IssueTracker < ActiveRecord::Base
+  has_many :issues, :dependent => :destroy
+
+  class UnknownObjectError < Exception; end
+
   validates_presence_of :name, :regex, :url
   validates_uniqueness_of :name, :regex
   validates_inclusion_of :kind, :in => ['', 'other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
@@ -22,7 +26,7 @@ class IssueTracker < ActiveRecord::Base
         begin
           match = it.matches?(substr)
           if match
-            issue = it.issue(match[-1], match[0])
+            issue = Issue.find_or_create_by_name(match[-1], :issue_tracker => it, :long_name => match[0])
             if diff_mode
               old_issues << issue if line.starts_with?('-')
               new_issues << issue if line.starts_with?('+')
@@ -52,6 +56,12 @@ class IssueTracker < ActiveRecord::Base
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
   end
 
+  def self.get_by_name(name)
+    tracker = self.find_by_name(name)
+    raise UnknownObjectError unless tracker
+    return tracker
+  end
+
   # Checks if the given issue belongs to this issue tracker
   def matches?(issue)
     return Regexp.new(regex).match(issue)
@@ -64,7 +74,7 @@ class IssueTracker < ActiveRecord::Base
   end
 
   def issue(issue, long_name = nil)
-    return Issue.new(:name => issue, :long_name => long_name, :issue_tracker => self.name, :description => 'TODO', :show_url => show_url_for(issue))
+    return Issue.new(:name => issue, :long_name => long_name, :issue_tracker => self, :description => 'TODO')
   end
 
   def details(issue)

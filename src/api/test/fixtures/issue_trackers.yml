@@ -1,13 +1,14 @@
 novell_bugzilla:
+  id: 1
   regex: "bnc#(\d+)"
   kind: bugzilla
   name: bnc
   url: http://bugzilla.novell.com
-  id: "980190962"
   show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
   description: Novell Bugzilla
 
 cve_numbers:
+  id: 2
   regex: "CVE-\d{4,4}-\d{4,4}"
   kind: cve
   name: cve
