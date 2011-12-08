@@ -197,6 +197,10 @@ class ProjectController < ApplicationController
         message, _, _ = ActiveXML::Transport.extract_error_message(e)
         flash[:error] = message
         redirect_to(:action => 'show', :project => params[:project]) and return
+      rescue ActiveXML::Transport::Error => e
+        message, _, _ = ActiveXML::Transport.extract_error_message(e)
+        flash[:error] = message
+        redirect_back_or_to :action => 'show', :project => params[:project] and return
       end
     end
     redirect_to :action => 'show', :project => params[:project]
