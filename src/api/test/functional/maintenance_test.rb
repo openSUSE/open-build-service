@@ -552,6 +552,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
+    # find the request for the maintenance incident through it's parent (maintenance) project
+    get "/request?view=collection&types=maintenance_release&project=My:Maintenance&subprojects=true"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
+
     # validate that request is diffable (not broken)
     post "/request/#{reqid}?cmd=diff", nil
     assert_response :success

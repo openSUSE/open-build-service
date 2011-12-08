@@ -61,9 +61,23 @@ class RequestController < ApplicationController
 
       unless params[:project].blank?
         inner_or = []
+
         if params[:package].blank?
-          inner_or << "action/source/@project='#{params[:project]}'" if roles.count == 0 or roles.include? "source"
-          inner_or << "action/target/@project='#{params[:project]}'" if roles.count == 0 or roles.include? "target"
+          if roles.count == 0 or roles.include? "source"
+            if params[:subprojects].blank?
+              inner_or << "action/source/@project='#{params[:project]}'"
+            else
+              inner_or << "starts-with(action/source/@project='#{params[:project]}:')"
+            end
+          end
+          if roles.count == 0 or roles.include? "target"
+            if params[:subprojects].blank?
+              inner_or << "action/target/@project='#{params[:project]}'"
+            else
+              inner_or << "starts-with(action/target/@project='#{params[:project]}:')"
+            end
+          end
+
           if roles.count == 0 or roles.include? "reviewer"
             if states.count == 0 or states.include? "review"
               review_states.each do |r|
