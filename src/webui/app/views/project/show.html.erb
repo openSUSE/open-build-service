@@ -56,6 +56,12 @@
               <%= link_to_if(@project.can_edit?(session[:login]), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
             </li>
           <% end %>
+          <% if @nr_releasetargets > 0 %>
+            <li>
+              <%= image_tag 'icons/information.png' %>
+              <%= @nr_releasetargets %> <%= link_to "release target#{@nr_releasetargets == 1 ? '' : 's'}", :action => 'meta', :project => @project %>
+            </li>
+          <% end %>
         <% end %>
 
         <%= render :partial => 'shared/open_requests' %>

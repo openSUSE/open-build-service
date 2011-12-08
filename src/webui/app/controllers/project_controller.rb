@@ -256,6 +256,11 @@ class ProjectController < ApplicationController
       end
     end if @packages
 
+    @nr_releasetargets = 0
+    @project.each_repository do |repo|
+      @nr_releasetargets += 1 if repo.has_element?('releasetarget')
+    end
+
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
