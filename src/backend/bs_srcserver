@@ -726,6 +726,13 @@ sub getrev {
 	  my $files = lsrev($lrev);
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
 	  addmeta($projid, $packid, $files) if $BSConfig::nosharedtrees;
+	  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+	  my $ltreedir = $BSConfig::nosharedtrees ? "$treesdir/$lprojid/$packid" : "$treesdir/$packid";
+	  if (-e "$ltreedir/$lrev->{'srcmd5'}-MD5SUMS" && ! -e "$treedir/$lrev->{'srcmd5'}-MD5SUMS") {
+	    mkdir_p($ltreedir);
+	    my $meta = readstr("$ltreedir/$lrev->{'srcmd5'}-MD5SUMS");
+	    writestr("$uploaddir/$$", "$treedir/$lrev->{'srcmd5'}-MD5SUMS", $meta);
+	  }
 	  $lrev->{'originproject'} ||= $lprojid;
 	  $lrev->{'project'} = $projid;
 	  return $lrev;
