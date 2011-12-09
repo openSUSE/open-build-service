@@ -348,10 +348,7 @@ class StatusController < ApplicationController
           binaries.each_binary do |f|
             # match to the repository filename
             m = re_filename.match(f.value(:filename)) 
-            unless m
-              render :text => "<status id='#{params[:id]}' code='error'>Does not match re: #{f.value(:filename)}</status>\n"
-              next
-            end
+            next unless m
             filename_file = m[1]
             filename_version = m[2]
             filename_release = m[3]
