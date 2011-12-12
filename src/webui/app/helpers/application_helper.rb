@@ -387,15 +387,10 @@ module ApplicationHelper
   end
 
   def force_utf8_and_transform_nonprintables(text)
-    # Unknown input encoding, try really badass conversion
     begin
-      new_text = Iconv.iconv('US-ASCII//IGNORE//TRANSLIT', 'UTF-8', text)[0]
-    rescue Iconv::IllegalSequence # Be more badass'ed
-      begin
-        new_text = Iconv.iconv('UTF-8//IGNORE//TRANSLIT', 'UTF-8', text)[0]
-      rescue
-        new_text = 'You tried to display binary garbage, but got this beautiful message instead!'
-      end
+      new_text = Iconv.iconv('UTF-8//IGNORE//TRANSLIT', 'UTF-8', text)[0]
+    rescue
+      new_text = 'You tried to display binary garbage, but got this beautiful message instead!'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
     new_text.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
