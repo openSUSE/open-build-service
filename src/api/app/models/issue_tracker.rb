@@ -53,6 +53,7 @@ class IssueTracker < ActiveRecord::Base
 
   def self.write_to_backend()
     path = "/issue_trackers"
+    logger.debug "Write issue tracker information to backend..."
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
   end
 
