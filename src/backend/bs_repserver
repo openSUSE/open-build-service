@@ -1293,11 +1293,46 @@ sub putjob {
     die("time mismatch\n");
   }
 
-  # right job, fetch everything!
+  # now release lock and fetch everything
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  close F;
+
   my $dir = "$jobsdir/$arch/$job:dir";
-  mkdir_p($dir);
-  # uploaded is empty for local image building
-  my $uploaded = BSServer::read_cpio($dir);
+  my $tmpdir = "$jobsdir/$arch/.putjob.$$";
+  if (-e $tmpdir) {
+    BSUtil::cleandir($tmpdir);
+    rmdir($tmpdir);
+    unlink($tmpdir);
+    die("$tmpdir: can't remove\n") if -e $tmpdir;
+  }
+  mkdir_p($tmpdir);
+  my $uploaded = BSServer::read_cpio($tmpdir);
+
+  # now get the lock again
+  eval {
+    die("no such job\n") unless -e "$jobsdir/$arch/$job";
+    die("job is not building\n") unless -e "$jobsdir/$arch/$job:status";
+    $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+    die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
+    die("job is not in built state\n") if $jobstatus->{'code'} ne 'built';
+    if (!@$uploaded && -e $dir) {
+      # local image building hack
+      rmdir($tmpdir);
+    } else {
+      if (-e $dir) {
+        BSUtil::cleandir($dir);
+        rmdir($dir);
+      }
+      rename($tmpdir, $dir) || die("rename $tmpdir $dir: $!\n");
+    }
+  };
+  if ($@) {
+    my $err = $@;
+    BSUtil::cleandir($tmpdir);
+    rmdir($tmpdir);
+    die($err);
+  }
+
   $jobstatus->{'result'} = 'failed';
   # upload is empty for local image building
   if (!@$uploaded) {
