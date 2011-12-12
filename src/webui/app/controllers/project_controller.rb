@@ -183,6 +183,23 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => target_project and return
   end
 
+  def incident_request_dialog
+    #TODO: Currently no way to find out where to send until the project 'maintained' relationship
+    #      is really used. The API will find out magically here though.
+  end
+  def new_incident_request
+    begin
+      req = BsRequest.new(:project => params[:project], :type => "maintenance_incident", :description => params[:description])
+      req.save(:create => true)
+      flash[:success] = "Created maintenance release request"
+    rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+      message, _, _ = ActiveXML::Transport.extract_error_message(e)
+      flash[:error] = message
+      redirect_back_or_to :action => 'show', :project => params[:project] and return
+    end
+    redirect_to :action => 'show', :project => params[:project]
+  end
+
   def release_request_dialog
   end
   def new_release_request
