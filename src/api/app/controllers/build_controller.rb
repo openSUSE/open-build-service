@@ -1,7 +1,7 @@
 class BuildController < ApplicationController
 
   def index
-    valid_http_methods :get, :post, :put
+    valid_http_methods :get, :post
 
     prj = DbProject.find_by_name params[:project]
     pkg = prj.find_package(params[:package]) if prj and params[:package] 
@@ -19,7 +19,19 @@ class BuildController < ApplicationController
       return
     end
 
-    pass_to_backend 
+    if request.get?
+      pass_to_backend 
+      return
+    end
+
+    if @http_user.is_admin?
+      # check for a local package instance
+      DbPackage.get_by_project_and_name( params[:project], params[:package], follow_project_links=false )
+      pass_to_backend
+    else
+      render_error :status => 403, :errorcode => "execute_cmd_no_permission",
+        :message => "Upload of binaries is only permitted for administrators"
+    end
   end
 
   def project_index
@@ -142,19 +154,13 @@ class BuildController < ApplicationController
     pass_to_backend path
   end
 
-  # /build/:prj/:repo/:arch/:pkg
-  # GET on ?view=cpio and ?view=cache unauthenticated and streamed
-  def package_index
+  def builddepinfo
     valid_http_methods :get
-    required_parameters :project, :repository, :arch, :package
-    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+    required_parameters :project, :repository, :arch
 
-    # ACL(package_index): in case of access, project is really hidden, e.g. does not get listed, accessing says project is not existing
-    if not pkg.nil? and pkg.disabled_for?('access', params[:repository], params[:arch]) and not @http_user.can_access?(pkg)
-      render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
-      :status => 404, :errorcode => "unknown_package"
-      return
-    end
+    # just for permission checking
+    DbProject.get_by_name params[:project]
+
     pass_to_backend
   end
 
