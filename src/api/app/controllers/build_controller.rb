@@ -1,7 +1,7 @@
 class BuildController < ApplicationController
 
   def index
-    valid_http_methods :get, :post, :put
+    valid_http_methods :get, :post
 
     # for permission check
     if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
@@ -10,7 +10,19 @@ class BuildController < ApplicationController
       prj = DbProject.get_by_name params[:project]
     end
 
-    pass_to_backend 
+    if request.get?
+      pass_to_backend 
+      return
+    end
+
+    if @http_user.is_admin?
+      # check for a local package instance
+      DbPackage.get_by_project_and_name( params[:project], params[:package], follow_project_links=false )
+      pass_to_backend
+    else
+      render_error :status => 403, :errorcode => "execute_cmd_no_permission",
+        :message => "Upload of binaries is only permitted for administrators"
+    end
   end
 
   def project_index
@@ -124,21 +136,6 @@ class BuildController < ApplicationController
 
     # just for permission checking
     DbProject.get_by_name params[:project]
-
-    pass_to_backend
-  end
-
-  # /build/:prj/:repo/:arch/:pkg
-  def package_index
-    valid_http_methods :get
-    required_parameters :project, :repository, :arch, :package
-
-    # read access permission check
-    if params[:package] == "_repository"
-      prj = DbProject.get_by_name params[:project], use_source=false
-    else
-      pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
-    end
 
     pass_to_backend
   end

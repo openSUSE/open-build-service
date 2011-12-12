@@ -39,6 +39,32 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_upload_binaries
+    ActionController::IntegrationTest::reset_auth
+    post "/build/home:Iggy/10.2/i586/TestPack", nil
+    assert_response 401
+
+    prepare_request_with_user "adrian", "so_alone"
+    post "/build/home:Iggy/10.2/i586/TestPack", nil
+    assert_response 403
+
+    prepare_request_with_user "king", "sunflower"
+    post "/build/home:Iggy/10.2/i586/TestPack", nil
+    assert_response 400 # actually a success, it reached the backend
+    assert_tag :tag => "status", :attributes => { :code => "400", :origin => "backend" }
+
+    # check not supported methods
+    post "/build/home:Iggy/10.2/i586/_repository", nil
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    put "/build/home:Iggy/10.2/i586/TestPack", nil
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_http_method" }
+    delete "/build/home:Iggy/10.2/i586/TestPack"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_http_method" }
+  end
+
   def test_dispatchprios
     ActionController::IntegrationTest::reset_auth
     get "/build/_dispatchprios"
