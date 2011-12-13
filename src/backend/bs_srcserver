@@ -725,13 +725,20 @@ sub getrev {
 	  checksourceaccess($lprojid, $packid);
 	  my $files = lsrev($lrev);
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
-	  addmeta($projid, $packid, $files) if $BSConfig::nosharedtrees;
-	  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-	  my $ltreedir = $BSConfig::nosharedtrees ? "$treesdir/$lprojid/$packid" : "$treesdir/$packid";
-	  if (-e "$ltreedir/$lrev->{'srcmd5'}-MD5SUMS" && ! -e "$treedir/$lrev->{'srcmd5'}-MD5SUMS") {
-	    mkdir_p($ltreedir);
-	    my $meta = readstr("$ltreedir/$lrev->{'srcmd5'}-MD5SUMS");
-	    writestr("$uploaddir/$$", "$treedir/$lrev->{'srcmd5'}-MD5SUMS", $meta);
+	  my $srcmd5 = $lrev->{'srcmd5'};
+	  if ($BSConfig::nosharedtrees && $srcmd5 ne $emptysrcmd5) {
+	    # copy the tree
+	    my $treedir = "$treesdir/$projid/$packid";
+	    if (! -e "$treedir/$srcmd5-MD5SUMS") {
+	      my $ltreedir = "$treesdir/$lprojid/$packid";
+	      $ltreedir = "$srcrep/$packid" if $BSConfig::nosharedtrees == 2 && ! -e "$ltreedir/$srcmd5-MD5SUMS";
+	      if (-e "$ltreedir/$srcmd5-MD5SUMS") {
+		my $meta = readstr("$ltreedir/$srcmd5-MD5SUMS");
+		writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
+	      } else {
+		addmeta($projid, $packid, $files);	# last resort...
+	      }
+	    }
 	  }
 	  $lrev->{'originproject'} ||= $lprojid;
 	  $lrev->{'project'} = $projid;
@@ -745,7 +752,7 @@ sub getrev {
       if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$rev-MD5SUMS") {
 	$treedir = "$srcrep/$packid";
       }
-      if (-e "$treedir/$rev-MD5SUMS") {
+      if ($rev eq $emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
         # tree exists. make sure we knew the project/package at one time in the past
         if (-e "$projectsdir/$projid.pkg/$packid.mrev.del" ||
             -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev" ||
