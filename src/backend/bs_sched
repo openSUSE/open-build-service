@@ -3630,7 +3630,7 @@ sub rebuildpatchinfo {
   $update->{'status'} = 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
   $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
-  $update->{'id'} = $patchinfo->{'incident'} || '0';
+  $update->{'id'} = $patchinfo->{'incident'} || $projid;
   $update->{'type'} = $patchinfo->{'category'};
   $update->{'title'} = $patchinfo->{'summary'};
   $update->{'severity'} = $patchinfo->{'rating'} if defined $patchinfo->{'rating'};
