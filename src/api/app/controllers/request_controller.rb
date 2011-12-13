@@ -870,23 +870,10 @@ class RequestController < ApplicationController
           # run diff
           path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
           begin
-            result = Suse::Backend.post(path, nil).body
+            action_diff += Suse::Backend.post(path, nil).body
           rescue ActiveXML::Transport::Error => e
             render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
           end
-          if params[:view] == 'xml'
-              # Search all '*.changes' files in the current sourcediff (i.e. result)
-              changes = ""
-              ActiveXML::Base.new(result).files.each do |file|
-                if file.new && file.new.name.ends_with?('.changes')# || file.old && file.old.ends_with?('.changes')
-                  changes += file.text
-                end
-              end
-              # Inject issues into backend sourcediff XML. Each sourcediff may have it's own set of issues...
-              issues = IssueTracker.issues_in(changes, true).to_xml(:skip_instruct => true, :skip_types => true)
-              result = result[0..-15] + issues + "</sourcediff>\n"
-          end
-          action_diff += result
           path = nil # reset
         end
       elsif action.value('type') == 'delete'
