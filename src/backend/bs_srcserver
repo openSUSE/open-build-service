@@ -734,6 +734,7 @@ sub getrev {
 	      $ltreedir = "$srcrep/$packid" if $BSConfig::nosharedtrees == 2 && ! -e "$ltreedir/$srcmd5-MD5SUMS";
 	      if (-e "$ltreedir/$srcmd5-MD5SUMS") {
 		my $meta = readstr("$ltreedir/$srcmd5-MD5SUMS");
+	        mkdir_p($treedir);
 		writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
 	      } else {
 		addmeta($projid, $packid, $files);	# last resort...
