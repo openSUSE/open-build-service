@@ -1254,9 +1254,9 @@ sub putjob {
   local *F;
   die("no such job\n") unless -e "$jobsdir/$arch/$job";
   die("job is not building\n") unless -e "$jobsdir/$arch/$job:status";
-  my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
-  die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
-  die("job is not building\n") if $jobstatus->{'code'} ne 'building';
+  my $oldjobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  die("different jobid\n") if $oldjobstatus->{'jobid'} ne $jobid;
+  die("job is not building\n") if $oldjobstatus->{'code'} ne 'building';
 
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
@@ -1268,10 +1268,7 @@ sub putjob {
 
   my $now = time();
 
-  $jobstatus->{'code'} = 'built';
-  $jobstatus->{'endtime'} = $now;
-
-  my $idlename = "$jobstatus->{'hostarch'}:$jobstatus->{'workerid'}";
+  my $idlename = "$oldjobstatus->{'hostarch'}:$oldjobstatus->{'workerid'}";
   $idlename =~ s/\//_/g;
   print "oops, we are not building ($idlename)?\n" unless -e "$workersdir/building/$idlename";
   unlink("$workersdir/building/$idlename");
@@ -1294,7 +1291,6 @@ sub putjob {
   }
 
   # now release lock and fetch everything
-  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   close F;
 
   my $dir = "$jobsdir/$arch/$job:dir";
@@ -1309,12 +1305,14 @@ sub putjob {
   my $uploaded = BSServer::read_cpio($tmpdir);
 
   # now get the lock again
+  my $jobstatus;
   eval {
     die("no such job\n") unless -e "$jobsdir/$arch/$job";
     die("job is not building\n") unless -e "$jobsdir/$arch/$job:status";
     $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
     die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
-    die("job is not in built state\n") if $jobstatus->{'code'} ne 'built';
+    die("job is not building\n") if $jobstatus->{'code'} ne 'building';
+    die("job is building on a different host\n") if $jobstatus->{'workerid'} ne $oldjobstatus->{'workerid'} || $jobstatus->{'starttime'} ne $oldjobstatus->{'starttime'};
     if (!@$uploaded && -e $dir) {
       # local image building hack
       rmdir($tmpdir);
@@ -1332,7 +1330,8 @@ sub putjob {
     rmdir($tmpdir);
     die($err);
   }
-
+  $jobstatus->{'code'} = 'finished';
+  $jobstatus->{'endtime'} = $now;
   $jobstatus->{'result'} = 'failed';
   # upload is empty for local image building
   if (!@$uploaded) {
