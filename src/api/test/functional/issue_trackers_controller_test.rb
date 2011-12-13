@@ -17,6 +17,8 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
       <description>My test issue tracker</description>
       <regex>test#\d+test</regex>
       <kind>bugzilla</kind>
+      <user>obsbugbot</user>
+      <password>secret</password>
       <url>http://example.com</url>
       <show-url>http://example.com/@@@</show-url>
     </issue-tracker>
@@ -40,6 +42,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "kind", :content => "bugzilla"
     assert_tag :tag => "url", :content => "http://example.com"
     assert_tag :tag => "show-url", :content => "http://example.com/@@@"
+    assert_no_tag :tag => "password"
     get '/issue_trackers/test.json'
     assert_response :success
 
@@ -70,6 +73,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "kind", :content => "cve"
     assert_tag :tag => "url", :content => "http://test.com"
     assert_tag :tag => "show-url", :content => "http://test.com/@@@"
+    assert_no_tag :tag => "password"
 
     # Delete that issue tracker again
     prepare_request_with_user "adrian", "so_alone"
@@ -104,17 +108,18 @@ EOF
     prepare_request_with_user "adrian", "so_alone"
     get '/issue_trackers/issues_in', :text => text
     assert_response :success
-    assert_tag :tag => "issue-tracker", :content => "bnc"
-    assert_tag :tag => "issue-tracker", :content => "cve"
-    assert_tag :tag => "long-name", :content => "bnc#724480"
+    assert_tag :tag => "issue_tracker", :content => "bnc"
+    assert_tag :tag => "issue_tracker", :content => "cve"
+    assert_tag :tag => "long_name", :content => "bnc#724480"
     assert_tag :tag => "name", :content => "448314"
     assert_tag :tag => "name", :content => "631802"
     assert_tag :tag => "name", :content => "724480"
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
-    assert_tag :tag => "long-name", :content => "bnc#12345"
-    assert_tag :tag => "long-name", :content => "bnc#666"
+    assert_tag :tag => "long_name", :content => "bnc#12345"
+    assert_tag :tag => "long_name", :content => "bnc#666"
+    assert_no_tag :tag => "password"
 
     get '/issue_trackers/issues_in', :text => text, :diff_mode => true
     assert_response :success
@@ -124,7 +129,8 @@ EOF
     assert_tag :tag => "name", :content => "CVE-2011-3148"
     assert_tag :tag => "name", :content => "CVE-2011-3149"
     assert_tag :tag => "name", :content => "CVE-2010-3316"
-    assert_tag :tag => "long-name", :content => "bnc#12345"
-    assert_no_tag :tag => "long-name", :content => "bnc#666"
+    assert_tag :tag => "long_name", :content => "bnc#12345"
+    assert_no_tag :tag => "long_name", :content => "bnc#666"
+    assert_no_tag :tag => "password"
   end
 end

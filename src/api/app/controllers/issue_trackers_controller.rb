@@ -82,6 +82,8 @@ class IssueTrackersController < ApplicationController
         attribs[:name] = xml.xpath('name[1]/text()').to_s unless xml.xpath('name[1]/text()').empty?
         attribs[:kind] = xml.xpath('kind[1]/text()').to_s unless xml.xpath('kind[1]/text()').empty?
         attribs[:description] = xml.xpath('description[1]/text()').to_s unless xml.xpath('description[1]/text()').empty?
+        attribs[:user] = xml.xpath('user[1]/text()').to_s unless xml.xpath('user[1]/text()').empty?
+        attribs[:password] = xml.xpath('password[1]/text()').to_s unless xml.xpath('password[1]/text()').empty?
         attribs[:regex] = xml.xpath('regex[1]/text()').to_s unless xml.xpath('regex[1]/text()').empty?
         attribs[:url] = xml.xpath('url[1]/text()').to_s unless xml.xpath('url[1]/text()').empty?
         attribs[:show_url] = xml.xpath('show-url[1]/text()').to_s unless xml.xpath('show-url[1]/text()').empty?
@@ -122,10 +124,20 @@ class IssueTrackersController < ApplicationController
     unless params[:text]
       render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide a text parameter" and return
     end
-    respond_to do |format|
-      format.xml  { render :xml => IssueTracker.issues_in(params[:text], params[:diff_mode]).to_xml(Issue::DEFAULT_RENDER_PARAMS) }
-      format.json { render :json => IssueTracker.issues_in(params[:text], params[:diff_mode]).to_json(Issue::DEFAULT_RENDER_PARAMS) }
+    issues = IssueTracker.issues_in(params[:text], params[:diff_mode])
+
+    builder = Nokogiri::XML::Builder.new do |node|
+      node.issues({}) do |root|
+        issues.each do |i|
+          i.render_body(root)
+        end
+      end
     end
+
+    render :text => builder.to_xml, :content_type => 'text/xml'
+
+    builder.to_xml
+
   end
 
 end

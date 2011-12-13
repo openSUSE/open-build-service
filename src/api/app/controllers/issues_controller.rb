@@ -3,17 +3,8 @@ class IssuesController < ApplicationController
   before_filter :require_admin, :only => [:create, :update, :destroy]
 
   def show
-    @issue_tracker = IssueTracker.find_by_name(params[:issue_tracker_id])
-    unless @issue_tracker
-      render_error :status => 404, :errorcode => "not_found", :message => "Unable to find issue tracker '#{params[:issue_tracker]}'" and return
-    end
-    unless params[:id]
-      render_error :status => 400, :errorcode => "missing_parameter", :message => "Please provide an issue parameter" and return
-    end
-    #render :json => @issue_tracker.issue(params[:id])
-    respond_to do |format|
-      format.xml  { render :xml => @issue_tracker.issue(Issue::DEFAULT_RENDER_PARAMS).to_xml }
-      format.json { render :json => @issue_tracker.issue(Issue::DEFAULT_RENDER_PARAMS).to_json }
-    end
+    # NOTE: issue_tracker_id is here actually the name
+    issue = Issue.get_by_issue_tracker_and_name( params[:issue_tracker_id], params[:id] )
+    render :text => issue.render_axml, :content_type => 'text/xml'
   end
 end

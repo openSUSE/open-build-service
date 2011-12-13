@@ -14,6 +14,8 @@ class UserNotFoundError < Exception; end
 class GroupNotFoundError < Exception; end
 class RoleNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
+class IssueTrackerNotFoundError < Exception; end
+class IssueNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -530,6 +532,24 @@ class ApplicationController < ActionController::Base
           :message => "Tag not found"
       else
         render_error :status => 404, :errorcode => 'tag_not_found',
+          :message => exception.message
+      end
+    when IssueNotFoundError
+      logger.error "IssueTrackerNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'issue_not_found',
+          :message => "Issue not found"
+      else
+        render_error :status => 404, :errorcode => 'issue_not_found',
+          :message => exception.message
+      end
+    when IssueTrackerNotFoundError
+      logger.error "IssueTrackerNotFoundError: #{exception.message}"
+      if exception.message == ""
+        render_error :status => 404, :errorcode => 'issue_tracker_not_found',
+          :message => "Issue Tracker not found"
+      else
+        render_error :status => 404, :errorcode => 'issue_tracker_not_found',
           :message => exception.message
       end
     when UserNotFoundError

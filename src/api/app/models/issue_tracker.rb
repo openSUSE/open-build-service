@@ -10,7 +10,7 @@ class IssueTracker < ActiveRecord::Base
   validates_uniqueness_of :name, :regex
   validates_inclusion_of :kind, :in => ['', 'other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 
-  DEFAULT_RENDER_PARAMS = {:except => :id, :skip_types => true }
+  DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user], :skip_types => true }
 
   def self.issues_in(text, diff_mode = false)
     ret = []
@@ -78,21 +78,37 @@ class IssueTracker < ActiveRecord::Base
     return Issue.new(:name => issue, :long_name => long_name, :issue_tracker => self, :description => 'TODO')
   end
 
-  def details(issue)
-    #NOTE: Experimental code, subject to change, will have caching ;-)
+  def fetch_issues(issues=nil)
+    unless issues
+      # find all new issues for myself
+      issues = Issue.find :all, :conditions => ["ISNULL(state) and issue_tracker_id = BINARY ?", self.id]
+    end
+
+    return unless issues
+
     if kind == "bugzilla"
-      # Try with 'IssueTracker.find_by_name('bnc').details('470611')' on script/console
       begin
-        server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi")
-        result = server.proxy('Bug').get(:ids => [issue])
-        # TODO: The returned JSON data may be worth filtering
-        return result['bugs'][0] if result and result['bugs']
+        result = bugzilla_server.get(:ids => issues.map{ |x| x.id })
+        result["bugs"].each{ |r|
+          issue = nil
+          issues.each{ |i|
+            if i["id"] == r["bug_id"]
+              issue = i
+              break
+            end
+          }
+          if issue
+            issue.state = r["status"]
+            issue.owner_id = User.find_by_email = r["assigned_to"]
+            issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
+          end
+        }
       rescue XMLRPC::FaultException => e
         logger.error "Error: #{e.faultCode} #{e.faultString}"
       end
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
-      url = URI.parse("#{self.url}/#{match[-1]}?contenttype=text%2Fxml")
+      url = URI.parse("#{self.url}/#{self.name}?contenttype=text%2Fxml")
       begin # Need a loop to follow redirects...
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = (url.scheme == 'https')
@@ -114,8 +130,15 @@ class IssueTracker < ActiveRecord::Base
           #server = XMLRPC::Client.new2("#{self.url}/login/rpc")
         end
       end
+    elsif kind == "cve"
+      # FIXME: add support
     end
-    return {}
+  end
+
+  private
+  def bugzilla_server
+    server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi", user=self.user, password=self.password)
+    return server.proxy('Bug')
   end
 
 end

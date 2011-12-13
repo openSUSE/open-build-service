@@ -19,6 +19,16 @@
         <element name="description">
           <text/>
         </element>
+        <optional>
+          <element name="user">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="password">
+            <text/>
+          </element>
+        </optional>
         <element name="url">
           <text/>
         </element>

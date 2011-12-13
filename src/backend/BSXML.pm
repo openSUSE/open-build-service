@@ -1365,6 +1365,8 @@ our $issue_trackers = [
 	    'description',
 	    'kind',
 	    'regex',
+	    'user',
+#	    'password',    commented out on purpose, should not reach backend
 	    'show-url',
 	    'url',
      ]],

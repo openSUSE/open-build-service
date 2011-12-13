@@ -307,6 +307,8 @@ CREATE TABLE `issue_trackers` (
   `url` varchar(255) NOT NULL,
   `show_url` varchar(255) DEFAULT NULL,
   `regex` varchar(255) NOT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -814,6 +816,8 @@ INSERT INTO schema_migrations (version) VALUES ('20111206000000');
 INSERT INTO schema_migrations (version) VALUES ('20111206151500');
 
 INSERT INTO schema_migrations (version) VALUES ('20111207000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20111213000000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
