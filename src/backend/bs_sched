@@ -3633,6 +3633,7 @@ sub rebuildpatchinfo {
   $update->{'id'} = $patchinfo->{'incident'} || '0';
   $update->{'type'} = $patchinfo->{'category'};
   $update->{'title'} = $patchinfo->{'summary'};
+  $update->{'severity'} = $patchinfo->{'rating'} if defined $patchinfo->{'rating'};
   $update->{'description'} = $patchinfo->{'description'};
   # FIXME: do not guess the release element!
   $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;
