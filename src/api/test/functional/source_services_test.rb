@@ -109,6 +109,31 @@ class SourceServicesTest < ActionController::IntegrationTest
     get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
     assert_response :success
 
+    # submit to other package
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:tom" package="service"/>
+                                     <target project="home:tom" package="new_package"/>
+                                   </action>
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value('id')
+
+    # accept
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success 
+
+    # same result as in source package
+    get "/source/home:tom/new_package"
+    assert_response :success
+    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    get "/source/home:tom/new_package/_service:set_version:pack.spec?expand=1"
+    assert_response :success
+
+    # remove service
     put "/source/home:tom/service/_service", '<services/>' # empty list
     assert_response :success
     post "/source/home:tom/service?cmd=runservice"
@@ -122,6 +147,8 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response 404
 
     # cleanup
+    delete "/source/home:tom/new_package"
+    assert_response :success
     delete "/source/home:tom/service"
     assert_response :success
 
