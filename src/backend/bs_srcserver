@@ -64,7 +64,7 @@ $port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync;
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";

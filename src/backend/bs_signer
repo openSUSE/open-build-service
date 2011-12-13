@@ -262,7 +262,7 @@ sub signjob {
   my @signfiles = grep {/\.(?:d?rpm|sha256|iso)$/} @files;
   if (@signfiles) {
     my @signargs;
-    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--project', $projid if $BSConfig::sign_project || $BSConfig::sign_project;
     my $param = {
       'uri' => "$BSConfig::srcserver/getsignkey",
       'timeout' => 60,
