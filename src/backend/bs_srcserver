@@ -4549,7 +4549,7 @@ sub sourcecopy {
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
-  my $files = $cgi->{'noservice'} ? lsrev_service($orev) : lsrev($orev);
+  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev) : lsrev($orev);
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   my $autosimplifylink;
