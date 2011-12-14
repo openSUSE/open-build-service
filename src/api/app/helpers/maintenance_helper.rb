@@ -125,7 +125,7 @@ module MaintenanceHelper
       :withvrev => "1",
       :noservice => "1",
     }
-    cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
+    cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
@@ -174,11 +174,12 @@ module MaintenanceHelper
       cp_params = {
         :user => @http_user.login,
         :rev => 'repository',
-        :comment => "Released via maintenance_release request",
+        :comment => "Set link to #{targetPackageName} via maintenance_release request",
       }
-      cp_params[:comment] = "Release updateinfo #{updateinfoId}" if updateinfoId
+      cp_params[:comment] += ", for updateinfo ID #{updateinfoId}" if updateinfoId
+      cp_params[:requestid] = request.id if request
       cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link"
-      cp_path << build_query_from_hash(cp_params, [:user, :comment, :rev])
+      cp_path << build_query_from_hash(cp_params, [:user, :comment, :rev, :requestid])
       link = "<link package='#{CGI.escape(targetPackageName)}' cicount='copy' />\n"
       md5 = Digest::MD5.hexdigest(link)
       answer = Suse::Backend.put cp_path, link
