@@ -13,9 +13,9 @@
 <% end %>
 
 <% if @superseded_by %>
-  <h3 id="request_heading"><%= @pagetitle %> (<%= @req.state.name %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
+  <h3 id="request_heading"><%= @pagetitle %> (<%= @state %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
 <% else %>
-  <h3 id="request_heading"><%= @pagetitle %> (<%= @req.state.name %>)</h3>
+  <h3 id="request_heading"><%= @pagetitle %> (<%= @state %>)</h3>
 <% end %>
 
 <div>
@@ -118,7 +118,7 @@
   </table>
 </div>
 
-<% if @open_reviews > 0 and @req.state.name == 'review' %>
+<% if @open_reviews > 0 and @state == 'review' %>
   <% content_for :head_javascript do %>
     function modifyReview(id, new_state) {
       var comment = $('#review_comment_' + id).attr('value');
@@ -175,7 +175,7 @@
         <th style="width: 1%">Type</th>
         <th style="width: 8%">Reviewer</th>
         <th style="width: 89%">Reviewer Comment</th>
-        <% if @open_reviews > 0 and @req.state.name == "review" %>
+        <% if @open_reviews > 0 and @state == "review" %>
           <th id="review_action_heading" style="width: 1%">Actions</th>
         <% end %>
       </tr>
@@ -207,7 +207,7 @@
             <% end %>
           <% end %>
 
-          <% if @open_reviews > 0 and @req.state.name == "review" and r.state != "accepted" and
+          <% if @open_reviews > 0 and @state == "review" and r.state != "accepted" and
                 ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
                  (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
                  (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
@@ -231,7 +231,7 @@
 
 <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) %>
   <% if @is_maintainer || @is_author %>
-    <% if (@req.state.name == "review" || @req.state.name == "new") && !@diff_error %>
+    <% if (@state == "review" || @state == "new") %>
       <p>
         <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
         <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
@@ -240,12 +240,12 @@
     <% form_tag(:action => "changerequest") do %>
       <h3>Handle Request</h3>
       <p>
-        <% if @is_maintainer %>
+        <% if @actiondiffs && !@actiondiffs.empty? && @is_maintainer %>
           <% if @contains_submit_action and not @submitter_is_target_maintainer %>
             <%= check_box_tag(:add_submitter_as_maintainer) %> Add
             <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
           <% end %>
-          <% if !@diff_error and @req.action.value("type") == "submit" and @target_pkg %>
+          <% if @req.action.value("type") == "submit" and @target_pkg %>
             <% linkinfo = @target_pkg.linkinfo %>
             <% if linkinfo %>
               <%= check_box_tag('forward_link', "#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package
@@ -265,10 +265,12 @@
       <p>
         <%= hidden_field_tag("id", @id) %>
         <% if @is_maintainer %>
-          <% if @req.state.name.to_s == "review" %>
-            <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
-          <% else %>
-            <%= submit_tag "Accept request", :name => 'accepted' %>
+          <% if @actiondiffs && !@actiondiffs.empty? %>
+            <% if @state == "review" %>
+              <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
+            <% else %>
+              <%= submit_tag "Accept request", :name => 'accepted' %>
+            <% end %>
           <% end %>
           <%= submit_tag "Decline request", :name => 'declined' %>
         <% elsif @is_author %>

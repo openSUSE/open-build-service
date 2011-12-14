@@ -75,21 +75,29 @@ class RequestController < ApplicationController
   
     @is_maintainer = nil
     @contains_submit_action = false
+    contains_only_undiffable_actions, project_wide_delete_request = true, true
     @req.each_action do |action|
       if action.value("type") == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
         @contains_submit_action = true
       end
+      if ['submit', 'delete', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
+        contains_only_undiffable_actions = false
+      end
+
       @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
-      @target_pkg_name = action.target.value :package
-      @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project) if @target_pkg_name
+      target_pkg_name = action.target.value :package
+      if target_pkg_name
+        @target_pkg = find_cached(Package, target_pkg_name, :project => action.target.project)
+        project_wide_delete_request = false
+      end
       if @is_maintainer == nil or @is_maintainer == true
         @is_maintainer = @target_project && @target_project.can_edit?( session[:login] )
         if @target_pkg
           @is_maintainer = @is_maintainer || @target_pkg.can_edit?( session[:login] )
         else
-          @newpackage << { :project => action.target.project, :package => @target_pkg_name }
+          @newpackage << { :project => action.target.project, :package => target_pkg_name }
         end
       end
     end
@@ -100,7 +108,7 @@ class RequestController < ApplicationController
       @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg)
     end
 
-    if not @spider_bot
+    if !@spider_bot && !contains_only_undiffable_actions && !project_wide_delete_request
       # get the entire diff from the api
       begin
         @actiondiffs = Rails.cache.fetch("request_#{@id}_diff2", :expires_in => 7.days) do
@@ -118,8 +126,8 @@ class RequestController < ApplicationController
           actiondiffs
         end
       rescue ActiveXML::Transport::Error => e
-        project, code = ActiveXML::Transport.extract_error_message(e)
-        #flash[:error] = "Unable to fetch diff for #{project}: #{code}"
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        flash[:error] = "Unable to fetch diff: #{message}"
       end
     end
   end
