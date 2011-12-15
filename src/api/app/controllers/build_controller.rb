@@ -3,7 +3,7 @@ class BuildController < ApplicationController
   def index
     valid_http_methods :get, :post
 
-    # for permission check
+    # for read access and visibility permission check
     if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
       pkg = DbPackage.get_by_project_and_name( params[:project], params[:package], use_source=false )
     else

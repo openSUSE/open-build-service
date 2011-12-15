@@ -108,7 +108,7 @@ class RequestController < ApplicationController
         user = User.get_by_login(params[:user])
         # user's own submitted requests
         if roles.count == 0 or roles.include? "creator"
-          inner_or << "state/@who='#{user.login}'"
+          inner_or << "state/@who='#{user.login}' and not (history)"
           inner_or << "history[@who='#{user.login}' and position()=1]"
         end
 
