@@ -464,7 +464,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_group=test_group"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
+    assert_tag :tag => "status", :attributes => { :code => "review_change_state_no_permission" }
   end
 
   def test_search_and_involved_requests
@@ -1338,13 +1338,20 @@ end
     assert_tag( :tag => "status", :attributes => { :code => 'not_existing_target' } )
 
     # decline the request
-    prepare_request_with_user "king", "sunflower"
     post "/request/#{id2}?cmd=changestate&newstate=declined"
     assert_response :success
     get "/request/#{id2}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'declined' } )
-    # do not allow to do it again
+
+    # submitter is accepting the decline => revoke
+    post "/request/#{id2}?cmd=changestate&newstate=revoked"
+    assert_response :success
+    get "/request/#{id2}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
+
+    # try to decline it again
     post "/request/#{id2}?cmd=changestate&newstate=declined"
     assert_response 403
     assert_match( /set state to declined from a final state is not allowed./, @response.body )

@@ -955,9 +955,8 @@ class RequestController < ApplicationController
 
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    finalStates = [ "accepted", "declined", "superseded", "revoked" ]
-    if finalStates.include? req.state.name
-       if finalStates.include? params[:newstate]
+    if [ "accepted", "superseded", "revoked" ].include? req.state.name
+       if [ "accepted", "declined", "superseded", "revoked" ].include? params[:newstate]
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "set state to #{params[:newstate]} from a final state is not allowed."
           return
