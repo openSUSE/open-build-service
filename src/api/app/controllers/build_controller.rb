@@ -26,8 +26,13 @@ class BuildController < ApplicationController
 
     if @http_user.is_admin?
       # check for a local package instance
-      DbPackage.get_by_project_and_name( params[:project], params[:package], follow_project_links=false )
-      pass_to_backend
+      if prj.db_packages.find_by_name params[:package]
+        pass_to_backend
+      else
+        render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Not a local package"
+        return
+      end
     else
       render_error :status => 403, :errorcode => "execute_cmd_no_permission",
         :message => "Upload of binaries is only permitted for administrators"
