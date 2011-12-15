@@ -3844,7 +3844,7 @@ sub checkaggregate {
 	  }
 	} else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
-	  my @d = grep {/\.(?:rpm|deb)$/} ls($d);
+	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:rpm|deb)$/} ls($d);
 	  for my $b (sort @d) {
 	    my @s = stat("$d/$b");
 	    next unless @s;
@@ -3930,6 +3930,7 @@ sub rebuildaggregate {
         my @d;
 	my $cpio;
         my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
+        my $updateinfo;
         if ($remoteprojs{$aprojid}) {
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
@@ -3950,10 +3951,12 @@ sub rebuildaggregate {
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
+	    $updateinfo = "$jobdatadir/$bin->{'name'}" if $bin->{'name'} eq 'upload:updateinfo.xml';
 	    push @d, "$jobdatadir/$bin->{'name'}";
 	  }
         } else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
+	  $updateinfo = "$d/updateinfo.xml" if -f "$d/updateinfo.xml";
 	  @d = grep {/\.(?:rpm|deb)$/} ls($d);
           @d = map {"$d/$_"} sort(@d);
           $nosource = 1 if -e "$d/.nosourceaccess";
@@ -3974,6 +3977,9 @@ sub rebuildaggregate {
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
 	  $copysources = 1 unless $nosource;
+	}
+	if ($updateinfo && !($abinfilter && !$abinfilter->{'updateinfo.xml'})) {
+	  BSUtil::cp($updateinfo, "$jobdatadir/updateinfo.xml");
 	}
 	if ($copysources) {
 	  for my $abin (sort keys %$ajobrepo) {
