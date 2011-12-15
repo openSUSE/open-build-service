@@ -286,6 +286,7 @@
       <%= text_field_tag(:reason, '', :style => "width: 99%") %>
     </p>
     <p>
+      <%= hidden_field_tag("id", @id) %>
       <%= submit_tag "Revoke request", :name => 'revoked' %>
       <%= submit_tag "Reopen request", :name => 'new' %>
     </p>
