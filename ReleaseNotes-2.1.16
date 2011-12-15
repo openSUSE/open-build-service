@@ -23,4 +23,5 @@ Bugfixes:
 
 * CRITICAL SECURITY FIX: Binary upload of build results was allowed to
   everybody without permission check (bnc#736243, CVE-2011-4183).
+* fixed runtime error when checking sourceaccess of links (introduced in 2.1.15)
 

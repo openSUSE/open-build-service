@@ -366,6 +366,19 @@ sub getcommitinfo {
 }
 
 
+sub checksourceaccess {
+  my ($projid, $packid) = @_;
+
+  my $proj = readproj($projid, 1);
+  return unless $proj;
+  my $pack = readpack($projid, $packid, 1);
+  my $sourceaccess = 1;
+  $sourceaccess = BSUtil::enabled('', $proj->{'sourceaccess'}, $sourceaccess, '');
+  $sourceaccess = BSUtil::enabled('', $pack->{'sourceaccess'}, $sourceaccess, '') if $pack;
+  die("403 source access denied\n") unless $sourceaccess;
+  return 1;
+}
+
 ###########################################################################
 ###
 ###  low level source handling: tree and revision management
