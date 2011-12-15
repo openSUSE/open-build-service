@@ -1,0 +1,26 @@
+#
+# openSUSE Build Service 2.1.16
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* Support linking to remote OBS 2.3 package which links to not existing packages.
+* Support upload of build job results via the api for admin users.
+
+Changes:
+========
+
+* dropped openSUSE 11.3 from default target list
+* logrotate files are not installed with .logrotate suffix anymore
+
+Bugfixes:
+=========
+
+* CRITICAL SECURITY FIX: Binary upload of build results was allowed to
+  everybody without permission check (bnc#736243, CVE-2011-4183).
+
