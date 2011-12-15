@@ -983,8 +983,20 @@ end
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => "declined" } )
 
-    # and reopen it as a non-maintainer is not working
+    # find it as I am the creator
+    get "/request?view=collection&states=declined&roles=creator"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "request", :attributes => { :id => id } )
+
+    # find it as another user
     prepare_request_with_user "adrian", "so_alone"
+    get "/request?view=collection&user=Iggy&states=declined&roles=creator"
+    assert_response :success
+    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_tag( :tag => "request", :attributes => { :id => id } )
+
+    # and reopen it as a non-maintainer is not working
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response 403
 
