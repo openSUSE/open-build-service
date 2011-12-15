@@ -145,7 +145,7 @@ class RequestController < ApplicationController
     end
 
     changestate = nil
-    ['accepted', 'declined', 'revoked'].each do |s|
+    ['accepted', 'declined', 'revoked', 'new'].each do |s|
       if params.has_key? s
         changestate = s
         break

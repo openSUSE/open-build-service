@@ -100,7 +100,7 @@ class BsRequest < ActiveXML::Base
 
     def modify(id, changestate, opts)
       opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
-      if ["accepted", "declined", "revoked", "superseded"].include?(changestate)
+      if ["accepted", "declined", "revoked", "superseded", "new"].include?(changestate)
         transport ||= ActiveXML::Config::transport_for :bsrequest
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
         path += "&superseded_by=#{opts[:superseded_by]}" unless opts[:superseded_by].blank?

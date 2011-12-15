@@ -272,7 +272,11 @@
               <%= submit_tag "Accept request", :name => 'accepted' %>
             <% end %>
           <% end %>
-          <%= submit_tag "Decline request", :name => 'declined' %>
+          <% if @is_author %>
+            <%= submit_tag "Revoke request", :name => 'revoked' %>
+          <% else %>
+            <%= submit_tag "Decline request", :name => 'declined' %>
+          <% end %>
         <% elsif @is_author %>
           <%= submit_tag "Revoke request", :name => 'revoked' %>
         <% end %>
