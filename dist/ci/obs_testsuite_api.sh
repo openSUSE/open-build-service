@@ -80,7 +80,7 @@ export CI_REPORTS=results
 export RAILS_ENV=test
 
 echo "Initialize test database, run migrations, load seed data"
-rake db:drop db:create db:setup
+rake db:drop db:create db:setup db:migrate
 
 echo "Prepare for rcov"
 [ -d "coverage" ] && rm -rf coverage
