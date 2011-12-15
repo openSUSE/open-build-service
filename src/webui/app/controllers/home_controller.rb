@@ -11,7 +11,7 @@ class HomeController < ApplicationController
   def my_work
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
-    @open_reviews, @new_requests = @user.requests_that_need_work(:cache => false)
+    @declined_requests, @open_reviews, @new_requests = @user.requests_that_need_work(:cache => false)
   end
 
   def requests

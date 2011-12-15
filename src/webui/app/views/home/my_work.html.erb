@@ -13,6 +13,9 @@
   <%= link_to('You can also use your complete list of requests.', :action => 'requests', :user => user.to_s) %>
 </p>
 
+<h3>Declined Requests</h3>
+<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests }) %>
+
 <h3>Open Reviews</h3>
 <%= render(:partial => 'shared/requests', :locals => { :requests => @open_reviews }) %>
 
