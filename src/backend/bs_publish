@@ -810,7 +810,12 @@ sub deleterepo {
       next if $bin eq 'media_info';
       my $p = "$arch/$bin";
       print "      - $p\n";
-      unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+      if (-d "$r/$bin") {
+        BSUtil::cleandir("$r/$bin");
+        rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
+      } else {
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+      }
       push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
     }
   }
