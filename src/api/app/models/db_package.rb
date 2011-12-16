@@ -381,10 +381,12 @@ class DbPackage < ActiveRecord::Base
       DbProject.transaction do
         self.db_package_issues.destroy_all
         xml = REXML::Document.new(patchinfo.body.to_s)
-        xml.issue.each do |i|
-          tracker = IssueTracker.get_by_name i[:tracker]
-          issue = tracker.issue( :name => i[:id] )
-          self.db_package_issues.create( :issue => issue )
+        if xml.elements['issue']
+          xml.issue.each do |i|
+            tracker = IssueTracker.get_by_name i[:tracker]
+            issue = tracker.issue( :name => i[:id] )
+            self.db_package_issues.create( :issue => issue )
+          end
         end
       end
     end
