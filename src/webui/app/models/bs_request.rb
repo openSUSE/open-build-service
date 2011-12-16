@@ -161,9 +161,9 @@ class BsRequest < ActiveXML::Base
 
     def creator(req)
       if req.has_element?(:history)
-        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
         return req.history.who if req.history.class == ActiveXML::LibXMLNode
-        return req.history[0][:who]
+        return req.history.first[:who]
       else
         return req.state.who
       end
@@ -171,9 +171,9 @@ class BsRequest < ActiveXML::Base
 
     def created_at(req)
       if req.has_element?(:history)
-        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
         return req.history.when if req.history.class == ActiveXML::LibXMLNode
-        return req.history[0][:when]
+        return req.history.first[:when]
       else
         return req.state.when
       end
