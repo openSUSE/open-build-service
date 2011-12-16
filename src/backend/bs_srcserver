@@ -5952,7 +5952,7 @@ sub search_request {
   my ($cgi, $match) = @_;
   my $db = BSDB::opendb($reqindexdb, '');
   $db->{'noindex'} = {'id' => 1};
-  $db->{'allkeyspath'} = 'type';
+  $db->{'allkeyspath'} = 'action/type';
   $db->{'fetch'} = \&fetchreq;
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 0;
   my $rootnode = BSXPathKeys::node($db, '', $limit * 10);
