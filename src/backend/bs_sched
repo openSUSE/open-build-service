@@ -3659,7 +3659,9 @@ sub rebuildpatchinfo {
       if ($it && $b->{'id'}) {
         my $url = $it->{'show-url'};
         $url =~ s/@@@/$b->{'id'}/g;
-        push @references, {'href' => $url, 'id' => $b->{'id'}, 'title' => $b->{'_content'}, 'type' => $it->{'kind'}};
+        my $title = $b->{'_content'};
+        $title = $url unless defined($title) && $title ne '';
+        push @references, {'href' => $url, 'id' => $b->{'id'}, 'title' => $title, 'type' => $it->{'kind'}};
       }
     }
   }
