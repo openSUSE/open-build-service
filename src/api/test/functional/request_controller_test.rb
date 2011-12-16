@@ -245,7 +245,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_review_and_supersede
-    ActionController::IntegrationTest::reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"

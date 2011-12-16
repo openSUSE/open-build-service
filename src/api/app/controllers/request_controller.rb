@@ -1118,7 +1118,7 @@ class RequestController < ApplicationController
             end
           end
           # write access check in release targets
-          if [ "maintenance_release" ].include? action.value("type")
+          if [ "maintenance_release" ].include? action.value("type") and params[:cmd] == "changestate" and params[:newstate] == "accepted"
             source_project.repositories.each do |repo|
               repo.release_targets.each do |releasetarget|
                 unless @http_user.can_modify_project? releasetarget.target_repository.db_project
