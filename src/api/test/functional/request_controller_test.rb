@@ -733,7 +733,7 @@ end
     assert_response :success
   end
 
-  def test_revoke_when_packages_dont_exist
+  def test_auto_revoke_when_source_gets_removed
     prepare_request_with_user 'tom', 'thunder'
     post "/source/kde4/kdebase", :cmd => :branch
     assert_response :success
@@ -769,16 +769,15 @@ end
     delete "/source/home:tom:branches:home:tom:branches:kde4"
     assert_response :success
 
-    # test decline and revoke
-    post "/request/#{id1}?cmd=changestate&newstate=declined"
-    assert_response 403
-    post "/request/#{id2}?cmd=changestate&newstate=revoked"
-    assert_response 403
+    # request got automatically revoked
+    get "/request/#{id1}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
 
     # test decline and revoke
     prepare_request_with_user 'adrian', 'so_alone'
     post "/request/#{id1}?cmd=changestate&newstate=declined"
-    assert_response 403 # Request was already revoked because the source was deleted above
+    assert_response 403 # set back is not allowed
   end
 
   def test_revoke_and_decline_when_projects_are_not_existing_anymore
@@ -1300,6 +1299,7 @@ end
     assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => "pack2" } )
 
     # create delete request two times
+    prepare_request_with_user "tom", "thunder"
     req = "<request>
             <action type='delete'>
               <target project='DummY' package='pack2'/>
@@ -1357,13 +1357,15 @@ end
     assert_tag( :tag => "state", :attributes => { :name => 'declined' } )
 
     # submitter is accepting the decline => revoke
+    prepare_request_with_user "tom", "thunder"
     post "/request/#{id2}?cmd=changestate&newstate=revoked"
     assert_response :success
     get "/request/#{id2}"
     assert_response :success
     assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
 
-    # try to decline it again
+    # try to decline it again after revoke
+    prepare_request_with_user "king", "sunflower"
     post "/request/#{id2}?cmd=changestate&newstate=declined"
     assert_response 403
     assert_match( /set state to declined from a final state is not allowed./, @response.body )

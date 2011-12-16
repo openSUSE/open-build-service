@@ -1052,8 +1052,11 @@ class RequestController < ApplicationController
     elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true
-    elsif (req.state.name == "revoked" or req.state.name == "declined") and (params[:newstate] == "new" or params[:newstate] == "review") and req.creator == @http_user.login
-      # request creator can reopen a request which was declined or revoked
+    elsif req.state.name == "revoked" and ["new","review","superseded"].include?(params[:newstate]) and req.creator == @http_user.login
+      # request creator can reopen or supersede a request which was revoked
+      permission_granted = true
+    elsif req.state.name == "declined" and ["new","review","revoked","superseded"].include?(params[:newstate]) and req.creator == @http_user.login
+      # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
     elsif req.state.name == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == @http_user.login
       # people who declined a request shall also be able to reopen it
