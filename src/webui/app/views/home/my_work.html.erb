@@ -13,11 +13,15 @@
   <%= link_to('You can also use your complete list of requests.', :action => 'requests', :user => user.to_s) %>
 </p>
 
-<h3>Declined Requests</h3>
-<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests }) %>
-
-<h3>Open Reviews</h3>
+<% if @open_reviews.count > 0 %>
+<h3 title="Someone asks you to review a change.">Open Reviews</h3>
 <%= render(:partial => 'shared/requests', :locals => { :requests => @open_reviews }) %>
+<% end %>
 
-<h3>New Requests</h3>
+<h3 title="Someone requests to change something in your packages.">New Requests For You</h3>
 <%= render(:partial => 'shared/requests', :locals => { :requests => @new_requests, :request_table_id => 'new_requests_table' }) %>
+
+<% if @declined_requests.count > 0 %>
+<h3 title="Some other party has declined a request you created.">Your Declined Requests</h3>
+<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests }) %>
+<% end %>
