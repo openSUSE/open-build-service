@@ -192,6 +192,18 @@ sub boolop {
       @k = grep {$k{$_}} @k if $v1->{'keys'};
       #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       $negpol = 0;
+    } elsif ($op == \&BSXPath::boolop_not && $v1->{'keys'} && !exists($v1->{'value'})) {
+      for my $k (@{$v1->{'keys'}}) {
+	my $vv = $db->fetch($k);
+	next unless defined $vv;
+	my @p = selectpath($vv, $v1->{'path'});
+	if (!$negpol) {
+	  next unless !@p || grep {!$_} @p;
+	} else {
+	  next if !@p || grep {!$_} @p;
+	}
+	push @k, $k;
+      }
     } else {
       my @values = $db->values($v1->{'path'}, $v1->{'keys'});
       if ($v1->{'keys'} && @values > @{$v1->{'keys'}}) {

@@ -29,6 +29,9 @@ use strict;
 sub boolop_eq {
   return $_[0] eq $_[1];
 }
+sub boolop_not {
+  return !$_[0];
+}
 
 sub boolop {
   my ($cwd, $v1, $v2, $op, $negpol) = @_;
@@ -288,7 +291,7 @@ sub expr {
     if ($f eq 'not') {
       die("$f: one argument required\n") unless @args == 1;
       push @args, [ (1) x scalar(@$cwd) ];
-      $v = boolop($cwd, @args, sub {!$_[0]}, $negpol);
+      $v = boolop($cwd, @args, \&boolop_not, $negpol);
     } elsif ($f eq 'starts-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
