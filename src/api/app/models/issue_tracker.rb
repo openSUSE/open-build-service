@@ -75,7 +75,7 @@ class IssueTracker < ActiveRecord::Base
   end
 
   def issue(issue, long_name = nil)
-    return Issue.new(:name => issue, :long_name => long_name, :issue_tracker => self, :description => 'TODO')
+    return Issue.find_or_create_by_id(issue.id, :issue_tracker => self, :long_name => long_name)
   end
 
   def fetch_issues(issues=nil)

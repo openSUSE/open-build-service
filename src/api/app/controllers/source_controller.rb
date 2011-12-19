@@ -1082,15 +1082,7 @@ class SourceController < ApplicationController
           packager = User.get_by_login data.packager.to_s unless packager
         end
         unless params[:rev] = 'repository'
-          DbProject.transaction do
-            pack.set_package_kind('link')
-            pack.db_package_issues.destroy_all
-            data.issue.each do |i|
-              tracker = IssueTracker.get_by_name i[:tracker]
-              issue = tracker.issue( :name => i[:id] )
-              pack.db_package_issues.create( :issue => issue )
-            end
-          end
+          pack.set_package_kind('patchinfo')
         end
       end
 
