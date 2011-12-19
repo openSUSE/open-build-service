@@ -390,6 +390,57 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
   end
 
+  def test_reopen_a_review_declined_request
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/Apache/apache2", :cmd => :branch
+    assert_response :success
+
+    # do a commit
+    put "/source/home:Iggy:branches:Apache/apache2/file", "dummy"
+    assert_response :success
+
+    req = "<request>
+            <action type='submit'>
+              <source project='home:Iggy:branches:Apache' package='apache2' rev='1' />
+            </action>
+            <description/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+
+    # add reviewer
+    post "/request/#{id}?cmd=addreview&by_user=fred"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :by_user => "fred" } )
+
+    # reviewer declines
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/request/#{id}?cmd=changereviewstate&by_user=fred&newstate=declined"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "fred" } )
+
+    # reopen it again and validate that the request opene the review as well
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{id}?cmd=changestate&newstate=new&comment=But+I+want+it"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_tag( :tag => "review", :attributes => { :state => "new", :by_user => "fred" } )
+    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+
+    # cleanup
+    delete "/source/home:Iggy:branches:Apache"
+    assert_response :success
+  end
+
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
     prepare_request_with_user "Iggy", "asdfasdf"
