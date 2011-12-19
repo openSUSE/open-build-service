@@ -1270,7 +1270,7 @@ class DbProject < ActiveRecord::Base
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
-    predicate = "(state/@name='new' or state/@name='review') and (action/source/@project='#{self.name}' or action/target/@project='#{self.name}')"
+    predicate = "(state/@name='new' or state/@name='review' or state/@name='declined') and (action/source/@project='#{self.name}' or action/target/@project='#{self.name}')"
     collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
     return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
   end
