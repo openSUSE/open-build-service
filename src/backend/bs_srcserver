@@ -5881,6 +5881,19 @@ sub postrequest {
     $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
     $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
     $req->{'state'}->{'when'} = $mytime;
+
+    # check for not accepted reviews on re-open
+    if ($cgi->{'newstate'} eq 'new') {
+      for my $r (reverse @{$req->{'review'} || []}) {
+        if ($r->{'state'} ne 'accepted') {
+          $r->{'state'} = 'new';
+          $r->{'when'} = $mytime;
+          $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+          $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
+          $req->{'state'} = {'name' => 'review'};
+        }
+      }
+    }
   } else {
     die("unknown command '$cmd'\n");
   }
