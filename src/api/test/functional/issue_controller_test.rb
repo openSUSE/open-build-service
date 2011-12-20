@@ -13,7 +13,7 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'description', :content => "OBS is not bugfree!"
     assert_tag :parent => { :tag => 'owner' }, :tag => 'login', :content => "fred"
     assert_tag :parent => { :tag => 'owner' }, :tag => 'email', :content => "fred@feuerstein.de"
-    assert_tag :parent => { :tag => 'owner' }, :tag => 'real_name', :content => "Frederic Feuerstone"
+    assert_tag :parent => { :tag => 'owner' }, :tag => 'realname', :content => "Frederic Feuerstone"
     assert_no_tag :tag => 'password'
 
     # get new, incomplete issue .. don't crash ...

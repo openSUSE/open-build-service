@@ -42,7 +42,7 @@ class Issue < ActiveRecord::Base
         issue.owner do |owner|
           owner.login(self.owner.login)
           owner.email(self.owner.email)
-          owner.real_name(self.owner.realname)
+          owner.realname(self.owner.realname)
         end
       end
     end

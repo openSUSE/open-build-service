@@ -39,9 +39,9 @@
 
         <optional>
           <element name="owner">
-            <element name="fred"> <text/> </element>
+            <element name="login"> <text/> </element>
             <element name="email"> <text/> </element>
-            <element name="real_name"> <text/> </element>
+            <element name="realname"> <text/> </element>
             <empty/>
           </element>
         </optional>
