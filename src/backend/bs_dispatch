@@ -573,7 +573,7 @@ while (1) {
 	  push @idle, $idle if grep {$idlehost =~ /^$_/} @$BSConfig::powerhosts;
 	}
         if (@idle == 0) {
-          print "Job can not be assigned due to lack of powerhosts: $job\n";
+          print "Job can not be assigned on $arch due to lack of powerhosts: $job\n";
           next;
         }
       }
