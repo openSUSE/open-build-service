@@ -316,7 +316,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def find_linking_packages(project_local=nil)
-    path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(self.name)}\"+and+@linkinfo/project=\"#{CGI.escape(self.db_project.name)}\""
+    path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(self.name)}\"+and+linkinfo/@project=\"#{CGI.escape(self.db_project.name)}\""
     path += "+and+@project=\"#{CGI.escape(self.db_project.name)}\"" if project_local
     path += ")"
     answer = Suse::Backend.post path, nil
