@@ -5883,7 +5883,7 @@ sub postrequest {
     $req->{'state'}->{'when'} = $mytime;
 
     # check for not accepted reviews on re-open
-    if ($cgi->{'newstate'} eq 'new') {
+    if ($cgi->{'newstate'} eq 'new' || $cgi->{'newstate'} eq 'review') {
       for my $r (reverse @{$req->{'review'} || []}) {
         if ($r->{'state'} ne 'accepted') {
           $r->{'state'} = 'new';
