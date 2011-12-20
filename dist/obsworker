@@ -20,8 +20,11 @@
 
 . /etc/rc.status
 
-. /etc/sysconfig/obs-worker
 . /etc/sysconfig/proxy
+. /etc/sysconfig/obs-server
+if test -e /etc/sysconfig/obs-worker; then
+. /etc/sysconfig/obs-worker
+fi
 
 # Determine the base and follow a runlevel link name.
 base=${0##*/}

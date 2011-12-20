@@ -22,11 +22,7 @@
 . /etc/rc.status
 
 # package or appliance defaults
-if [ -e /etc/sysconfig/obs-server ]; then
-  source /etc/sysconfig/obs-server
-else
-  source /etc/sysconfig/obs-worker
-fi
+source /etc/sysconfig/obs-server
 
 # instance defaults
 if [ -e /etc/buildhost.config ]; then
