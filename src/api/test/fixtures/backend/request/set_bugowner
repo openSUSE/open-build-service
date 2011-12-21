@@ -4,6 +4,6 @@
     <person name='Iggy' />
   </action>
   <description/>
-  <state name='new'/>
+  <state name='new' who='Iggy' when='2011-12-02T17:20:42'/>
   </request>
 
