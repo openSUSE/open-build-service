@@ -5742,13 +5742,13 @@ sub createrequest {
   $req->{'state'}->{'name'} = 'new';
   $req->{'state'}->{'name'} = 'review' if defined($req->{'review'});
 
-  BSVerify::verify_request($req);
   die("request must not contain an id\n") if $req->{'id'};
   die("request must not contain a history\n") if $req->{'history'};
   die("request must not be created by anonymous\n") unless defined $cgi->{'user'};
   $req->{'state'}->{'who'} = $cgi->{'user'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
+  BSVerify::verify_request($req);
   $req->{'id'} = nextreqid();
   writereq(undef, $req);
 
@@ -5890,7 +5890,7 @@ sub postrequest {
           $r->{'when'} = $mytime;
           $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
           $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
-          $req->{'state'} = {'name' => 'review'};
+          $req->{'state'}->{'name'} = 'review';
         }
       }
     }

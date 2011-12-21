@@ -298,6 +298,8 @@ sub verify_request {
   verify_num($req->{'id'}) if exists $req->{'id'};
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
+  die("request must contain a state who\n") unless $req->{'state'}->{'who'};
+  die("request must contain a state when\n") unless $req->{'state'}->{'when'};
   die("request contains unknown state '$req->{'state'}->{'name'}'\n") unless $req_states{$req->{'state'}->{'name'}};
   verify_num($req->{'state'}->{'superseded_by'}) if exists $req->{'state'}->{'superseded_by'};
 
@@ -314,6 +316,11 @@ sub verify_request {
   }
   die("request must contain an action\n") unless $actions && @$actions;
   my %pkgchange;
+  for my $h (@{$req->{'history'} ||[]}) {
+    die("history element has no 'who' attribute\n") unless $h->{'who'};
+    die("history element has no 'when' attribute\n") unless $h->{'when'};
+    die("history element has no 'name' attribute\n") unless $h->{'name'};
+  }
   for my $r (@$actions) {
     die("request action has no type\n") unless $r->{'type'};
     if ($r->{'type'} eq 'delete') {
