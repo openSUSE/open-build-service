@@ -1036,7 +1036,7 @@ sub getbinaries_kiwiproduct {
 	  if (!$pbvl) {
 	    eval {
 	      $pbvl = BSRPC::rpc({
-		'uri' => '$server/getpackagebinaryversionlist',
+		'uri' => "$server/getpackagebinaryversionlist",
 		'timeout' => $gettimeout,
 	      }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
 	    };
