@@ -4549,7 +4549,7 @@ sub sourcecopy {
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
-  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev) : lsrev($orev);
+  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service({ %$orev }) : lsrev($orev);
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   my $autosimplifylink;
@@ -4567,7 +4567,7 @@ sub sourcecopy {
         # copy destination is target of link
 	# we're integrating this link
         $lrev = getrev($lprojid, $lpackid, $lrev);
-	my $lfiles = lsrev($lrev);
+	my $lfiles = $cgi->{'noservice'} && !$cgi->{'expand'} ? lsrev_service({ %$lrev }) : lsrev($lrev);
 	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
 	  # link to a link, join
 	  $files = integratelink($lfiles, $lprojid, $lpackid, $lrev, $files, $oprojid, $opackid, $ol, $orev);
