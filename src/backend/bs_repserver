@@ -600,7 +600,7 @@ sub getbinarylist {
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
   if ($view eq 'cpio') {
     my @files;
-    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
