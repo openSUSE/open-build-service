@@ -63,6 +63,7 @@ use BSProductXML;
 use BSDB;
 use BSDBIndex;
 use BSSolv;
+use BSVerify;
 
 sub usage {
    my $basedir = "$BSConfig::bsdir";
@@ -389,7 +390,9 @@ if (-d "$requestsroot" && $check_request) {
     if (-f "$requestsroot/$req") {
       eval {
 	my $request = readxml("$requestsroot/$req",$BSXML::request,0);
-      } || warn ("WARNING: $requestsroot/$req broken requests entry $@ (might as well be encoding issue)");
+        BSVerify::verify_request($request);
+      };
+      warn ("WARNING: $requestsroot/$req broken requests entry $@ (might as well be encoding issue)") if $@;
     } else {
       warn ("ERROR: $requestsroot/$req strange directory entry");
     }
