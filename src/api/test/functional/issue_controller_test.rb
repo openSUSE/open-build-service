@@ -30,7 +30,7 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_response 401
     get "/search/package_id", :match => 'patchinfo/issue/@issue_tracker="bnc"'
     assert_response 401
-    get "/search/package_id", :match => '[patchinfo/issue/@name="123456" and patchinfo/issue/@issue_tracker="bnc"]'
+    get "/search/package_id", :match => 'patchinfo/issue/[@name="123456" and @issue_tracker="bnc"]'
     assert_response 401
     get "/search/package_id", :match => 'patchinfo/issue/owner/@login="fred"'
     assert_response 401
@@ -42,9 +42,8 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # search via bug issue id
-    # FIXME: This would be more elegant but is currently not supported by our api xpath parser
-    #get "/search/package_id", :match => 'patchinfo/issue/[@name="123456" and @issue_tracker="bnc"]'
-    get "/search/package_id", :match => '[patchinfo/issue/@name="123456" and patchinfo/issue/@issue_tracker="bnc"]'
+    # FIXME2.3: @issue_name should be named correct, but current XPATH parse can handle that
+    get "/search/package_id", :match => 'patchinfo/issue/[@issue_name="123456" and @issue_tracker="bnc"]'
     assert_response :success
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
