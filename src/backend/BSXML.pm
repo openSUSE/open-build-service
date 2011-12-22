@@ -1288,6 +1288,7 @@ our $deltapackage = [
 	    'oldepoch',
 	    'oldversion',
 	    'oldrelease',
+	    [],
 	    'filename',
 	    'sequence',
 	    'size',
