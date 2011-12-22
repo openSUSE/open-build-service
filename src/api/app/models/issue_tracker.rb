@@ -81,7 +81,7 @@ class IssueTracker < ActiveRecord::Base
   def fetch_issues(issues=nil)
     unless issues
       # find all new issues for myself
-      issues = Issue.find :all, :conditions => ["ISNULL(state) and issue_tracker_id = BINARY ?", self.id]
+      issues = Issue.find :all, :conditions => ["(ISNULL(state) or ISNULL(owner_id)) and issue_tracker_id = BINARY ?", self.id]
     end
 
     return unless issues
@@ -103,7 +103,8 @@ class IssueTracker < ActiveRecord::Base
             }
             if issue
               issue.state = r["status"]
-              issue.owner_id = User.find_by_email r["assigned_to"].to_s
+              u = User.find_by_email(r["assigned_to"].to_s)
+              issue.owner_id = u.id if u
               issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
               issue.save
             end
