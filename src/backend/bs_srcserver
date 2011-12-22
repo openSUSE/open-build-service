@@ -5700,6 +5700,7 @@ sub createrequest {
   my $reqxml = BSServer::read_data(1000000);
   my $cmd = $cgi->{'cmd'};
   die("unknown command '$cmd'\n") unless $cmd eq 'create';
+  die("request must not be created by anonymous\n") unless defined $cgi->{'user'};
   my $req = XMLin($BSXML::request, $reqxml);
 
   if ($req->{'type'}) {
@@ -5744,7 +5745,6 @@ sub createrequest {
 
   die("request must not contain an id\n") if $req->{'id'};
   die("request must not contain a history\n") if $req->{'history'};
-  die("request must not be created by anonymous\n") unless defined $cgi->{'user'};
   $req->{'state'}->{'who'} = $cgi->{'user'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
@@ -5796,6 +5796,7 @@ sub postrequest {
   my $cmd = $cgi->{'cmd'};
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
   die("404 no such request '$id'\n") unless $oreq;
+  die("no user defined\n") unless $cgi->{'user'};
   my $req = Storable::dclone($oreq);	# deep clone
   die unless $req->{'id'} eq $id;
   my $oldstate = $req->{'state'};
@@ -5805,7 +5806,7 @@ sub postrequest {
     die("request review is not specified via by_user, by_group or by_project\n") if !$cgi->{'by_user'} && !$cgi->{'by_group'} && !$cgi->{'by_project'};
     push @{$req->{'history'}}, $oldstate;
     $req->{'state'} = {'name' => 'review'};
-    $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+    $req->{'state'}->{'who'} = $cgi->{'user'};
     $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
     my @lt = localtime(time());
     $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
@@ -5872,7 +5873,7 @@ sub postrequest {
       } else { # either no open reviews anymore or going back to review
          $req->{'state'} = {'name' => $go_new_state} if $go_new_state;
       }
-      $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+      $req->{'state'}->{'who'} = $cgi->{'user'};
       $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
       $req->{'state'}->{'comment'} = "All reviewers accepted request" if $go_new_state eq "accepted";
       $req->{'state'}->{'when'} = $mytime;
@@ -5882,7 +5883,7 @@ sub postrequest {
     die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
     push @{$req->{'history'}}, $oldstate;
     $req->{'state'} = {'name' => $cgi->{'newstate'}};
-    $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+    $req->{'state'}->{'who'} = $cgi->{'user'};
     $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
     $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
     $req->{'state'}->{'when'} = $mytime;
@@ -5893,7 +5894,7 @@ sub postrequest {
         if ($r->{'state'} ne 'accepted') {
           $r->{'state'} = 'new';
           $r->{'when'} = $mytime;
-          $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+          $r->{'who'} = $cgi->{'user'};
           $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
           $req->{'state'}->{'name'} = 'review';
         }
