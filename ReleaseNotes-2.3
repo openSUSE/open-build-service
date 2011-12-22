@@ -113,6 +113,11 @@ Changes:
     This is possible now, but the source package maintainer will get asked for review the request.
   - the route /group/$GROUP is showing correct xml description and no directory anymore
 
+* declined request state is considered as still open
+  - request creators are supposed to re-act when their request got declined. They can revoke, re-open
+    or re-submit new sources.
+  - declined requests are shown in the webui "My Work" page and in "osc my rq"
+
 * new source service handling
   - Source services do not generate an extra commit for the result. Instead they work like
     source links, this means the generated files become visible with expand=1 parameter.
@@ -136,13 +141,16 @@ The following calls have been marked as deprecated, they will get removed in OBS
 * api
   - /person/$LOGIN/group   ->  use /group?login=$LOGIN   instead
 
+* cross compile: copying installed qemu binaries into the worker is still supported but
+                 deprecated. It is suggested to install qemu instead.
+
 Requirements:
 =============
 
 * The OBS server should not run on a system with less than 2GB memory. 
   4GB is recommended, esp. when the same system is also building packages.
 
-* Use osc 0.132 or later to get access to the new features.
+* Use osc 0.133 or later to get access to the new features.
 
-* Usage of Ruby on Rails version 2.3.11 is recommended.
+* Usage of Ruby on Rails version 2.3.14 is recommended.
 
