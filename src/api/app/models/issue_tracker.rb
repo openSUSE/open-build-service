@@ -87,24 +87,32 @@ class IssueTracker < ActiveRecord::Base
     return unless issues
 
     if kind == "bugzilla"
-      begin
-        result = bugzilla_server.get(:ids => issues.map{ |x| x.id })
-        result["bugs"].each{ |r|
-          issue = nil
-          issues.each{ |i|
-            if i["id"] == r["bug_id"]
-              issue = i
-              break
+      # the performent way, but bugzilla errors out when one of them is missing/not readable
+      # result = bugzilla_server.get(:ids => issues.map{ |x| x.name.to_s })
+      # So creating more load here for bugzilla
+      issues.each do |i|
+        begin
+          result = bugzilla_server.get(:ids => [i.name.to_s])
+          result["bugs"].each{ |r|
+            issue = nil
+            issues.each{ |ui|
+              if ui["name"].to_s == r["id"].to_s
+                issue = ui
+                break
+              end
+            }
+            if issue
+              issue.state = r["status"]
+              issue.owner_id = User.find_by_email r["assigned_to"].to_s
+              issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
+              issue.save
             end
           }
-          if issue
-            issue.state = r["status"]
-            issue.owner_id = User.find_by_email = r["assigned_to"]
-            issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
-          end
-        }
-      rescue XMLRPC::FaultException => e
-        logger.error "Error: #{e.faultCode} #{e.faultString}"
+        rescue RuntimeError => e
+          logger.error "Unable to fetch issue #{i.name}: #{e.inspect}"
+        rescue XMLRPC::FaultException => e
+          logger.error "Error: #{e.faultCode} #{e.faultString}"
+        end
       end
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
