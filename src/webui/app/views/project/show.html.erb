@@ -118,12 +118,12 @@
                     <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
                     <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
                   </li>
-                <% end %>
-                <% if @nr_releasetargets > 0 %>
-                  <li>
-                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request maint. update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
-                    <%= link_to_remote('Request maint. update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
-                  </li>
+                  <% if @nr_releasetargets > 0 %>
+                    <li>
+                      <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request maint. update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                      <%= link_to_remote('Request maint. update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                    </li>
+                  <% end %>
                 <% end %>
               <% end %>
               <li>
