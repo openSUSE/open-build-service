@@ -45,6 +45,10 @@ class User < ActiveRecord::Base
       raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
       return u
     end
+
+    def find_by_email(email)
+      return find :first, :conditions => ["email = BINARY ?", email]
+    end
   end
 
   def encrypt_password
