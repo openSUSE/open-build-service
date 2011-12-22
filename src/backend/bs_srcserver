@@ -5845,13 +5845,18 @@ sub postrequest {
       #                # FIXME3.0: think about review ordering and make reviews addressable
       if ($matching && !($rkeyseen{$rkey} && $r->{'state'} eq 'accepted')) {
         $rkeyseen{$rkey} = 1;
-        $r->{'state'} = $cgi->{'newstate'};
-        $r->{'when'} = $mytime;
-        $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
-        $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
         $found = 1;
-        $go_new_state = 'new' if $go_new_state eq "review" && $r->{'state'} eq 'accepted';
-        $go_new_state = $r->{'state'} if $go_new_state eq "review" and $r->{'state'} ne 'new'; # take decline
+        $r->{'when'} = $mytime;
+        $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
+        if ($r->{'state'} ne $cgi->{'newstate'} || $r->{'who'} ne $cgi->{'user'}){
+          $r->{'state'} = $cgi->{'newstate'};
+          $r->{'who'} = $cgi->{'user'};
+          $go_new_state = 'new' if $go_new_state eq "review" && $r->{'state'} eq 'accepted';
+          $go_new_state = $r->{'state'} if $go_new_state eq "review" and $r->{'state'} ne 'new'; # take decline
+        } else {
+          # no new history entry
+          $go_new_state = '';
+        }
       } else {
         # don't touch the request state if a review is still open, except the
         # review got declined or superseded or reopened.
