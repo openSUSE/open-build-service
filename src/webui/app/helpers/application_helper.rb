@@ -114,7 +114,7 @@ module ApplicationHelper
   def gravatar_image(email, size=20)
     hash = Digest::MD5.hexdigest(email.downcase)
     return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=#{size}&d=" + image_url('local/default_face.png'), 
-      :alt => "Gravatar for #{email}", :width => size, :height => size
+      :width => size, :height => size
   end
 
   def fuzzy_time_string(time)
