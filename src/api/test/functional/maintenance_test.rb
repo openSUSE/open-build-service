@@ -155,6 +155,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack1.BaseDistro"
     assert_response :success
 
+    # add a new package with defined link target
+    post "/source/BaseDistro:Update/packN", :cmd => "branch", :target_project => "home:tom:branches:OBS_Maintained:pack2", :missingok => 1, :extend_package_names => 1
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/packN.BaseDistro_Update"
+    assert_response :success
+
     # test branching another package set into same project from same project
     post "/source", :cmd => "branch", :package => "pack3", :target_project => "home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
@@ -173,7 +179,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "kdelibs" }
+    assert_tag :tag => "link", :attributes => { :project => "ServicePack", :package => "kdelibs" }
 
     # do some file changes
     put "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file", "new_content_0815"
@@ -278,7 +284,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/#{maintenanceProject}"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :count => "8" } )
+    assert_tag( :tag => "directory", :attributes => { :count => "9" } )
 
     get "/source/#{maintenanceProject}/pack2.BaseDistro2.0/_meta"
     assert_response :success
@@ -473,6 +479,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_match /DUMMY bnc#1042 CVE-2009-0815/, @response.body
 
+    # add a new package with defined link target
+    post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => maintenanceProject, :missingok => 1, :extend_package_names => 1
+    assert_response :success
+    put "/source/#{maintenanceProject}/packNew.BaseDistro2.0/packageNew.spec", File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/packageNew.spec").read()
+    assert_response :success
+
     # search will find this new and not yet processed incident now.
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
@@ -510,15 +522,44 @@ class MaintenanceTests < ActionController::IntegrationTest
     # run scheduler once to create job file. x86_64 scheduler gets no work
     run_scheduler("x86_64")
     run_scheduler("i586")
+    # check build state
+    get "/build/#{maintenanceProject}/_result"
+    assert_response :success
+    # BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"building"} },
+               :tag => "status", :attributes => { :package=>"pack2.BaseDistro2.0", :code=>"scheduled" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586"} },
+               :tag => "status", :attributes => { :package=>"pack2.BaseDistro3", :code=>"disabled" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586"} },
+               :tag => "status", :attributes => { :package=>"pack2_linked.BaseDistro2.0", :code=>"scheduled" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586"} },
+               :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0", :code=>"scheduled" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586"} },
+               :tag => "status", :attributes => { :package=>"patchinfo", :code=>"blocked" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"x86_64", :state=>"building"} },
+               :tag => "status", :attributes => { :package=>"patchinfo", :code=>"excluded" }
+    # BaseDistro3_BaseDistro3_repo
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3_BaseDistro3_repo", :arch=>"i586", :state=>"building"} },
+               :tag => "status", :attributes => { :package=>"pack2.BaseDistro2.0", :code=>"disabled" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3_BaseDistro3_repo", :arch=>"i586"} },
+               :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0", :code=>"disabled" }
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3_BaseDistro3_repo", :arch=>"i586"} },
+               :tag => "status", :attributes => { :package=>"pack2.BaseDistro3", :code=>"scheduled" }
     # upload build result as a worker would do
     inject_build_job( maintenanceProject, "pack2.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
-    inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
     inject_build_job( maintenanceProject, "pack2.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "i586" )
+    inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
     inject_build_job( maintenanceProject, "pack2_linked.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "i586" )
+    inject_build_job( maintenanceProject, "packNew.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "x86_64" )
+    inject_build_job( maintenanceProject, "packNew.BaseDistro2.0", "BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", "i586" )
     inject_build_job( maintenanceProject, "pack2.BaseDistro3", "BaseDistro3_BaseDistro3_repo", "i586" )
     # collect the job results
     run_scheduler( "x86_64" )
     run_scheduler( "i586" )
+    get "/build/#{maintenanceProject}/_result"
+    assert_response :success
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"publishing"} },
+               :tag => "status", :attributes => { :package=>"patchinfo", :code=>"succeeded" }
 
     # check updateinfo
     get "/build/#{maintenanceProject}/BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo/i586/patchinfo/updateinfo.xml"
@@ -934,6 +975,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # as admin
     prepare_request_with_user "king", "sunflower"
+    sleep 1 # to ensure that the timestamp becomes newer
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1&nodelay=1"
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
@@ -966,7 +1008,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i + 1, copyvrev.to_i  #the copy gets always a higher vrev
     assert_equal version, copyversion
-    assert_not_equal time, copytime
+    assert_not_equal time, copytime # the timestamp got not copied
     assert_equal copyhistory.each_revision.last.user.text, "king"
 
     # compare binaries

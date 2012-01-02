@@ -238,6 +238,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:REQUEST_#{id}/TestPack.home_Iggy"
     assert_response :success
+    get "/source/home:tom:branches:REQUEST_#{id}/TestPack.home_Iggy/_link"
+    assert_response :success
+    assert_tag( :tag => "link", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
     get "/source/home:tom:branches:REQUEST_#{id}/_attribute/OBS:RequestCloned"
     assert_response :success
     assert_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "RequestCloned" }, 
