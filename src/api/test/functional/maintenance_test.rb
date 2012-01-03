@@ -511,6 +511,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.elements["//summary"].text = "if you are bored"
     pi.elements["//description"].text = "if you are bored and really want fixes"
     pi.elements["//rating"].text = "low"
+    pi.root.add_element "issue", { "id" => "0815", "tracker" => "bnc" }
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_meta"

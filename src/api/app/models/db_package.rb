@@ -383,7 +383,7 @@ class DbPackage < ActiveRecord::Base
         xml = REXML::Document.new(patchinfo.body.to_s)
         xml.root.elements.each('issue') { |i|
           tracker = IssueTracker.get_by_name i.attributes['tracker']
-          issue = tracker.issue( :name => i.attributes['id'] )
+          issue = tracker.issue( i.attributes['id'] )
           self.db_package_issues.create( :issue => issue )
         }
       end
