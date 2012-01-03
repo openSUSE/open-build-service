@@ -1,10 +1,8 @@
-
 class FetchIssues
 
   def perform
-    c = IssueTrackerController.new
+    c = IssueTracker.new
     c.fetch_issues()
   end
 
 end
-
