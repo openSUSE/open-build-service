@@ -2,7 +2,23 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class IssueControllerTest < ActionController::IntegrationTest
   def test_get_issues
-    # get full issue
+    ActionController::IntegrationTest::reset_auth
+    # bugs are public atm. Secret stuff should not get imported.
+    get '/issue_trackers'
+    assert_response :success
+    get '/issue_trackers/bnc'
+    assert_response :success
+    get '/issue_trackers/bnc/issues/123456'
+    assert_response :success
+
+    # as user
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get '/issue_trackers'
+    assert_response :success
+    get '/issue_trackers/bnc'
+    assert_response :success
+#    get '/issue_trackers/bnc/issues'
+#    assert_response :success
     get '/issue_trackers/bnc/issues/123456'
     assert_response :success
     assert_tag :tag => 'name', :content => "123456"

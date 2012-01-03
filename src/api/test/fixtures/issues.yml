@@ -1,0 +1,14 @@
+complete:
+  id: 1
+  issue_tracker_id: 1
+  name: "123456"
+  owner_id: 1
+  description: "OBS is not bugfree!"
+  long_name: "bnc#123456"
+  state: "RESOLVED"
+
+new:
+  id: 2
+  issue_tracker_id: 1
+  name: "1234"
+
