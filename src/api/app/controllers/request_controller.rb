@@ -324,8 +324,8 @@ class RequestController < ApplicationController
               data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
               e = data.elements["directory/linkinfo"]
               if e
-                tprj = e.attributes["project"]
                 ltpkg = e.attributes["package"]
+                tprj = e.attributes["project"]
                 missing_ok_link=true if e.attributes["missingok"]
                 if action.value("type") == "maintenance_release" and not rev
                   # maintenance_release needs the binaries, so we always use the current source
@@ -367,17 +367,17 @@ class RequestController < ApplicationController
               end
             end
             # Will this be a new package ?
-            unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=false)
-              if action.value("type") == "maintenance_release"
-                newPackages << pkg.name
-                pkg.db_project.repositories.each do |repo|
-                  repo.release_targets.each do |rt|
-                    newTargets << rt.target_repository.db_project.name
+            unless missing_ok_link
+              unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=false)
+                if action.value("type") == "maintenance_release"
+                  newPackages << pkg.name
+                  pkg.db_project.repositories.each do |repo|
+                    repo.release_targets.each do |rt|
+                      newTargets << rt.target_repository.db_project.name
+                    end
                   end
-                end
-                next
-              else
-                unless missing_ok_link
+                  next
+                else
                   render_error :status => 400, :errorcode => 'unknown_target_package',
                     :message => "target package does not exist"
                   return
