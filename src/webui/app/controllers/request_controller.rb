@@ -112,7 +112,7 @@ class RequestController < ApplicationController
       # get the entire diff from the api
       begin
         @actiondiffs = Rails.cache.fetch("request_#{@id}_diff2", :expires_in => 7.days) do
-          result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml"), :method => "POST", :data => ""))
+          result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
           actiondiffs = []
           # Parse each action and get the it's diff (per file)
           result.each('action') do |action|
