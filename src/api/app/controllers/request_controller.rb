@@ -869,6 +869,7 @@ class RequestController < ApplicationController
           end
           # run diff
           path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
+          path += '&withissues=1' if params[:withissues] == '1' || params[:withissues] == 'true' # Include issues
           begin
             action_diff += Suse::Backend.post(path, nil).body
           rescue ActiveXML::Transport::Error => e
