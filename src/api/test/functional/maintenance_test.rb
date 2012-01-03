@@ -366,6 +366,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
   end
 
+  def wait_for_publisher
+    events = nil
+    #     first time             3 => ".", ".." and ".ping"
+    while events.class != Dir or events.count > 3
+      events = Dir.open("#{RAILS_ROOT}/tmp/backend_data/events/publish")
+    end
+  end
+
   def run_scheduler( arch )
     perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
@@ -556,9 +564,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     # collect the job results
     run_scheduler( "x86_64" )
     run_scheduler( "i586" )
+    wait_for_publisher()
     get "/build/#{maintenanceProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"publishing"} },
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"published"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"succeeded" }
 
     # check updateinfo
