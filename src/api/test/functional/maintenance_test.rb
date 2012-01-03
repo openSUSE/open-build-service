@@ -594,6 +594,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_tag( :tag => "target", :attributes => { :project => maintenanceProject } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2_linked." + incidentID } )
+    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "packNew." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
     assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
@@ -671,19 +672,53 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => maintenanceProject } 
 
+    # check released data
+    wait_for_publisher()
+    get "/build/BaseDistro2.0:LinkedUpdateProject/_result"
+    assert_response :success
+    assert_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"published"}
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
+    assert_response :success
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm"
+    assert_response :success
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm"
+    assert_response :success
+    node=nil
+    IO.popen("gunzip -cd #{RAILS_ROOT}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
+       node = REXML::Document.new( io.read )
+    end
+    assert_equal "My-2012-1", node.elements["/updates/update/id"].first.to_s
+
     # revoke a release update
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked"
     assert_response :success
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/packNew"
+    assert_response :success
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/packNew.0"
+    assert_response :success
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2.0"
     assert_response :success
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked.0"
+    assert_response :success
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.0"
     assert_response :success
     run_scheduler( "i586" )
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
     assert_response :success
     assert_no_tag :parent => { :tag => "binarylist" },  :tag => 'binary'
+    # publish repo got cleaned
+    wait_for_publisher()
+    get "/build/BaseDistro2.0:LinkedUpdateProject/_result"
+    assert_response :success
+    assert_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"published"}
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
+    assert_response :success
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm"
+    assert_response 400
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm"
+    assert_response 400
 
     # disable lock and cleanup 
     delete "/source/#{maintenanceProject}"

@@ -15,6 +15,8 @@ class RequestControllerTest < ActionController::IntegrationTest
       Suse::Backend.delete "/request/#{p.value(:name)}"
       assert_response :success
     end
+    get "/source/home:Iggy/_meta"
+print @response.body
   end
 
   def test_set_and_get_1
