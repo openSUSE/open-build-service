@@ -23,5 +23,5 @@
 
 <% if @declined_requests.count > 0 %>
 <h3 title="Some other party has declined a request you created.">Your Declined Requests</h3>
-<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests }) %>
+<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'deleted_requests_table' }) %>
 <% end %>
