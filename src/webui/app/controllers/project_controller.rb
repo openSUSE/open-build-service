@@ -1369,9 +1369,6 @@ class ProjectController < ApplicationController
     #TODO: This method won't scale long!
   end
 
-  def closed_maintenance_incidents
-  end
-
   private
 
   def get_important_projects
