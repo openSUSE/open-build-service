@@ -883,6 +883,7 @@ class RequestController < ApplicationController
           path += "?cmd=diff&expand=1&filelimit=0&rev=0"
         else
           #FIXME: Delete requests for whole projects needs project diff supporte in the backend (and api).
+          render_error :status => 501, :errorcode => 'project_diff_failure', :message => "Project diff isn't implemented yet" and return
         end
         path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
         begin
