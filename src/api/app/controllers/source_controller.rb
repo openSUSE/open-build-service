@@ -1569,10 +1569,14 @@ class SourceController < ApplicationController
         unless extend_names
           # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
           p[:link_target_project].flags.each do |f|
-            tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless [ "build", "publish", "lock" ].include?(f.flag)
+            unless [ "build", "publish", "lock" ].include?(f.flag)
+              unless tprj.flags.find_by_flag_and_status( f.flag, f.status, f.repo, f.architecture )
+                tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+              end
+            end
           end
           if add_repositories
-            tprj.flags.create(:status => "disable", :flag => 'publish')
+            tprj.flags.create(:status => "disable", :flag => 'publish') unless tprj.flags.find_by_flag_and_status( 'publish', 'disable' )
           end
         end
       else
