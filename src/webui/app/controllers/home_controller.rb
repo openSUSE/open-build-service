@@ -12,6 +12,7 @@ class HomeController < ApplicationController
     user = find_cached(Person, params['user'] ) if params['user']
     @user = user if user
     @declined_requests, @open_reviews, @new_requests = @user.requests_that_need_work(:cache => false)
+    @open_patchinfos = @user.running_patchinfos(:cache => false)
   end
 
   def requests

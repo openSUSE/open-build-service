@@ -138,6 +138,14 @@ class Person < ActiveXML::Base
     end
   end
 
+  def running_patchinfos(opts = {})
+    cachekey = "#{login}_patchinfos_that_need_work"
+    Rails.cache.delete cachekey unless opts[:cache]
+    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      Collection.find_cached(:id, :what => 'package', :predicate => "patchinfo/issue/owner/@login='#{login}'")
+    end
+  end
+
   # Returns a tuple (i.e., array) of open requests and open reviews.
   def requests_that_need_work(opts = {})
     opts = {:cache => true}.merge opts
