@@ -54,5 +54,9 @@ module PackageHelper
     project_bread_crumb( *args )
   end
 
+  def nbsp(text)
+    return text.gsub(' ', "&nbsp;")
+  end
+
 end
 
