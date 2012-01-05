@@ -1305,6 +1305,7 @@ end
     prepare_request_with_user "tom", "thunder"
     post "/source/DummY/pack2", :cmd => :branch
     assert_response :success
+
     # check source link
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success

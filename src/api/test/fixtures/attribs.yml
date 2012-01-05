@@ -4,13 +4,13 @@ attribs_101:
   binary: 
   db_project_id: 
   id: "101"
-attribs_102: 
+attribs_UpdateProject_for_BaseDistro: 
   db_package_id: 
   attrib_type_id: "57"
   binary: 
   db_project_id: "2042"
   id: "102"
-attribs_103: 
+attribs_UpdateProject_for_BaseDistro2_0: 
   db_package_id: 
   attrib_type_id: "57"
   binary: 

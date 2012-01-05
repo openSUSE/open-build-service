@@ -1338,23 +1338,26 @@ class SourceController < ApplicationController
       end
       if params[:value]
         DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |pkg|
+          logger.info "Found package instance #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} with value #{params[:value]}"
           @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
         DbPackage.find_by_attribute_type( at, params[:package] ).each do |pkg|
+          logger.info "Found package instance #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}"
           @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
         end
         # Find all indirect instance via project links, a new package will get created on submit accept
         if params[:package]
           projects = DbProject.find_by_attribute_type( at )
           projects.each do |prj|
-            unless @packages.map {|p| p[:link_target_project] }.include? prj # avoid double instance from direct found packages
-              prj.linkedprojects.each do |lprj|
+            prj.linkedprojects.each do |lprj|
+              unless @packages.map {|p| p[:link_target_project] }.include? prj # avoid double instances
                 if lprj.linked_db_project
                   if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                    @packages.push({ :base_project => prj,:link_target_project => prj, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+                    logger.info "Found package instance via project link in #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}, linking project is #{prj.name}"
+                    @packages.push({ :base_project => prj, :link_target_project => prj, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
                   else
                     # FIXME: add support for branching from remote projects
                   end
@@ -1372,11 +1375,21 @@ class SourceController < ApplicationController
       return
     end
 
+    #logger.debug "XXXXXXX BEFORE"
+    #@packages.each do |p|
+    #  logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
+    #end
+
     # lookup update project, devel project or local linked packages.
     # Just requests should be nearly the same
     unless params[:request]
       @packages.each do |p|
         next unless p[:link_target_project].class == DbProject # only for local source projects
+        if p[:package].class == DbPackage
+          logger.debug "Check DbPackage #{p[:package].db_project.name}/#{p[:package].name}"
+        else
+          logger.debug "Check package string #{p[:package]}"
+        end
         pkg = p[:package]
         prj = p[:link_target_project]
         if pkg.class == DbPackage
@@ -1392,7 +1405,7 @@ class SourceController < ApplicationController
             # We have a package in the update project already, take that
             p[:package] = pa
             p[:link_target_project] = pa.db_project
-            logger.debug "branch call found package in update project #{prj.name}"
+            logger.info "branch call found package in update project #{pa.db_project.name}"
           else
             update_prj = DbProject.find_by_name( a.values[0].value )
             if update_prj
@@ -1403,25 +1416,38 @@ class SourceController < ApplicationController
                 if update_prj.develproject and up = update_prj.develproject.find_package(pkg.name)
                   # nevertheless, check if update project has a devel project which contains an instance
                   p[:package] = up
-                  p[:link_target_project] = up.db_project
+                  p[:link_target_project] = up.db_project unless copy_from_devel
+                  logger.info "link target will create package in update project #{up.db_project.name} for #{prj.name}"
                 else
                   p[:package] = pkg
+                  logger.info "link target will use old update in update project #{pkg.db_project.name} for #{prj.name}"
                 end
               end
-              logger.debug "link target will point to update project #{prj.name}"
             end
           end
+          # Reset target package name
+          # not yet existing target package
+          p[:target_package] = p[:package]
+          # existing target
+          p[:target_package] = "#{p[:package].name}" if p[:package].class == DbPackage
+          # user specified target name
+          p[:target_package] = params[:target_package] if params[:target_package]
+          # extend parameter given
+          p[:target_package] += ".#{p[:link_target_project].name}" if extend_names
         end
    
         # validate and resolve devel package or devel project definitions
+        unless params[:ignoredevel]
         if copy_from_devel
           p[:copy_from_devel] = p[:package].resolve_devel_package
-        elsif not params[:ignoredevel] and p[:package].class == DbPackage and ( p[:package].develproject or p[:package].develpackage or p[:package].db_project.develproject )
+          logger.info "sources will get copied from devel project #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
+        elsif p[:package].class == DbPackage and ( p[:package].develproject or p[:package].develpackage or p[:package].db_project.develproject )
           p[:package] = p[:package].resolve_devel_package
           p[:link_target_project] = p[:package].db_project
           p[:target_package] = p[:package].name
           p[:target_package] += ".#{p[:link_target_project].name}" if extend_names
-          logger.debug "devel project is #{p[:link_target_project].name} #{p[:package].name}"
+          logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
+        end
         end
 
         # set default based on first found package location
@@ -1454,10 +1480,16 @@ class SourceController < ApplicationController
         p[:package].find_project_local_linking_packages.each do |llp|
           target_package = llp.name
           target_package += "." + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
+          logger.info "found local linked package in project #{p[:package].db_project.name}, adding it as well #{llp.name}"
           @packages.push({ :base_project => p[:base_project], :link_target_project => p[:link_target_project], :package => llp, :target_package => target_package, :local_link => 1 })
         end
       end
     end
+
+    #logger.debug "XXXXXXX AFTER"
+    #@packages.each do |p|
+    #  logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
+    #end
 
     #create branch project
     unless target_project
