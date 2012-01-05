@@ -1616,7 +1616,13 @@ class SourceController < ApplicationController
       if p[:link_target_project].class == DbProject
         p[:link_target_project].repositories.each do |repo|
           repoName = repo.name
-          repoName = p[:base_project].name.gsub(':', '_')+"_"+repo.name if extend_names
+          if extend_names
+            repoName = p[:link_target_project].name.gsub(':', '_')
+            if p[:link_target_project].repositories.count > 1
+              # keep short names if project has just one repo
+              repoName += "_"+repo.name
+            end
+          end
           if add_repositories
             unless tprj.repositories.find_by_name(repoName)
               trepo = tprj.repositories.create :name => repoName
