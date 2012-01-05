@@ -1423,6 +1423,12 @@ class SourceController < ApplicationController
                   p[:package] = pkg
                   logger.info "link target will use old update in update project #{pkg.db_project.name} for #{prj.name}"
                 end
+              else
+                # The defined update project can't reach the package instance at all.
+                # So we need to create a new package and copy sources
+                params[:missingok] = 1 # implicit missingok or better report an error ?
+                p[:copy_from_devel] = p[:package] if p[:package].class == DbPackage
+                p[:package] = pkg_name
               end
             end
           end
@@ -1438,17 +1444,17 @@ class SourceController < ApplicationController
         end
    
         # validate and resolve devel package or devel project definitions
-        unless params[:ignoredevel]
-        if copy_from_devel
-          p[:copy_from_devel] = p[:package].resolve_devel_package
-          logger.info "sources will get copied from devel project #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
-        elsif p[:package].class == DbPackage and ( p[:package].develproject or p[:package].develpackage or p[:package].db_project.develproject )
-          p[:package] = p[:package].resolve_devel_package
-          p[:link_target_project] = p[:package].db_project
-          p[:target_package] = p[:package].name
-          p[:target_package] += ".#{p[:link_target_project].name}" if extend_names
-          logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
-        end
+        unless params[:ignoredevel] or p[:copy_from_devel]
+          if copy_from_devel
+            p[:copy_from_devel] = p[:package].resolve_devel_package
+            logger.info "sources will get copied from devel project #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
+          elsif p[:package].class == DbPackage and ( p[:package].develproject or p[:package].develpackage or p[:package].db_project.develproject )
+            p[:package] = p[:package].resolve_devel_package
+            p[:link_target_project] = p[:package].db_project
+            p[:target_package] = p[:package].name
+            p[:target_package] += ".#{p[:link_target_project].name}" if extend_names
+            logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
+          end
         end
 
         # set default based on first found package location
