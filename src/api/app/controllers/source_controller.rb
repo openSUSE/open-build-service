@@ -250,10 +250,11 @@ class SourceController < ApplicationController
                     'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
                     'getprojectservices']
     # list of commands which are allowed even when the project has the package only via a project link
-    read_commands = ['diff', 'linkdiff', 'showlinked', 'getprojectservices']
-    source_untouched_commands = ['diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
+    read_commands = ['branch', 'diff', 'linkdiff', 'showlinked', 'getprojectservices']
+    source_untouched_commands = ['branch', 'diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
     # list of cammands which create the target package
-    package_creating_commands = [ 'branch', 'copy', 'undelete' ]
+    package_creating_commands = ['branch', 'copy', 'undelete']
+
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -310,28 +311,31 @@ class SourceController < ApplicationController
         end
       end
     elsif request.post? and package_creating_commands.include?(command)  # branch/copy
-      # we require a target, but are we allowed to modify the existing target ?
-      if DbProject.exists_by_name(target_project_name) and DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
-        tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
-        unless @http_user.can_modify_package?(tpkg)
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to execute command '#{command}' for package #{tpkg.name} in project #{tpkg.db_project.name}"
-          return
-        end
-      else
-        # branch command may find out target project itself later and checks permission
-        exists = DbProject.exists_by_name(target_project_name)
-        if command == 'branch' and not exists and target_project_name and not @http_user.can_create_project?(target_project_name)
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to create project #{target_project_name}"
-          return
-        end
-        if exists 
-          tprj = DbProject.get_by_name(target_project_name)
-          unless @http_user.can_create_package_in?(tprj)
+      # The branch command may be used just for simulation
+      unless params[:dryrun]
+        # we require a target, but are we allowed to modify the existing target ?
+        if DbProject.exists_by_name(target_project_name) and DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
+          tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
+          unless @http_user.can_modify_package?(tpkg)
             render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to create package in project #{target_project_name}"
+              :message => "no permission to execute command '#{command}' for package #{tpkg.name} in project #{tpkg.db_project.name}"
             return
+          end
+        else
+          # branch command may find out target project itself later and checks permission
+          exists = DbProject.exists_by_name(target_project_name)
+          if command == 'branch' and not exists and target_project_name and not @http_user.can_create_project?(target_project_name)
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+              :message => "no permission to create project #{target_project_name}"
+            return
+          end
+          if exists 
+            tprj = DbProject.get_by_name(target_project_name)
+            unless @http_user.can_create_package_in?(tprj)
+              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+                :message => "no permission to create package in project #{target_project_name}"
+              return
+            end
           end
         end
       end
@@ -1488,10 +1492,37 @@ class SourceController < ApplicationController
     #  logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
     #end
 
-    #create branch project
     unless target_project
       target_project = "home:#{@http_user.login}:branches:#{params[:project]}"
     end
+
+    #
+    # Data collection complete at this stage
+    #
+
+    # Just report the result in dryrun, but not action
+    if params[:dryrun]
+      # dry run, just report the result, but no effect
+      @packages.sort! { |x,y| x[:target_package] <=> y[:target_package] }
+      builder = Builder::XmlMarkup.new( :indent => 2 )
+      xml = builder.collection() do
+        @packages.each do |p|
+          if p[:package].class == DbPackage
+            builder.package(:project => p[:link_target_project].name, :package => p[:package].name) do
+              builder.target(:project => target_project, :package => p[:target_package])
+            end
+          else
+            builder.package(:project => p[:link_target_project], :package => p[:package]) do 
+              builder.target(:project => target_project, :package => p[:target_package])
+            end
+          end
+        end
+      end
+      render :text => xml, :content_type => "text/xml"
+      return
+    end
+
+    #create branch project
     if DbProject.exists_by_name target_project
       if noaccess
         render_error :status => 403, :errorcode => "create_project_no_permission",

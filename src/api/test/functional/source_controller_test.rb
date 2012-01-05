@@ -2068,6 +2068,10 @@ end
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1" 
     assert_response 403
     assert_match(/no permission to/, @response.body)
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :dryrun => "1" 
+    assert_response :success
+    assert_tag :tag => 'package', :attributes => {:package => 'TestPack', :project => 'home:Iggy'},
+                                  :child => { :tag => 'target', :attributes => {:package => 'TestPack', :project => 'home:coolo:test'} }
  
     prepare_request_with_user "tom", "thunder"
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
