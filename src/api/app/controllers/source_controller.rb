@@ -1348,21 +1348,18 @@ class SourceController < ApplicationController
           logger.info "Found package instance #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}"
           @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
         end
-        # Find all indirect instance via project links, a new package will get created on submit accept
+        # Find all indirect instance via project links
         if params[:package]
-          projects = DbProject.find_by_attribute_type( at )
-          projects.each do |prj|
-            prj.linkedprojects.each do |lprj|
-              unless @packages.map {|p| p[:link_target_project] }.include? prj # avoid double instances
-                if lprj.linked_db_project
-                  if pkg = lprj.linked_db_project.db_packages.find_by_name( params[:package] )
-                    logger.info "Found package instance via project link in #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}, linking project is #{prj.name}"
-                    @packages.push({ :base_project => prj, :link_target_project => prj, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
-                  else
-                    # FIXME: add support for branching from remote projects
-                  end
-                end
-              end
+          packages = []
+          DbProject.find_by_attribute_type( at ).each do |prj|
+            # FIXME: this will not find packages on linked remote projects
+            pkgs = prj.find_package( params[:package] )
+            packages << pkgs if pkgs
+          end
+          packages.each do |pkg|
+            unless @packages.map {|p| p[:package] }.include? pkg # avoid double instances
+              logger.info "Found package instance via project link in #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}"
+              @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
             end
           end
         end

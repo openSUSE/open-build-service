@@ -178,7 +178,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "ServicePack", :package => "kdelibs" }
+    # Indirect packages need to link and build in update project of former ServicePack, because current ServicePack
+    # may introduce more incompatibilities due to changed packages used for building
+    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "kdelibs" }
 
     # do some file changes
     put "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file", "new_content_0815"
