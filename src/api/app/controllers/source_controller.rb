@@ -1828,7 +1828,7 @@ class SourceController < ApplicationController
     if DbPackage.exists_by_project_and_name( params[:project], pkg_name )
       unless params[:force]
         render_error :status => 400, :errorcode => "patchinfo_file_exists",
-          :message => "The patchinfo file exists already. Either use force=1 or updatepatchinfo."
+          :message => "createpatchinfo command: the patchinfo file exists already. Either use force=1 to re-create it or updatepatchinfo for updating."
         return
       end
       pkg = DbPackage.get_by_project_and_name params[:project], pkg_name
