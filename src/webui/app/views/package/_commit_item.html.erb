@@ -25,7 +25,7 @@
     :package => @package, :project => @project,
     :rev => commit[:revision], :linkrev => 'base'}, :style => "margin-left: 2em") %>
   <%= link_to('Show diff', :controller => :package, :action => :rdiff,
-    :package => @package, :project => @project, :rev => commit[:revision], :linkrev => 'base') %>
+    :package => @package, :project => @project, :rev => commit[:revision], :linkrev => 'base') unless commit[:revision] == 1 %>
 <% else %>
   <i>Revision <%=rev.to_s%> not found</i>
 <% end %>
