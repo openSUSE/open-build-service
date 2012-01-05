@@ -525,6 +525,7 @@ sub readrequest {
     $path = $1;
     $query_string = $2;
   }
+  $path =~ tr/+/ /; # actually, '+' instead of %20 isn't specified for URI paths, but Ruby's CGI.escape does so and we use it ;-)
   $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;	# unescape path
   die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
   my $res = {};
