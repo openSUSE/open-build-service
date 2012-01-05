@@ -1889,8 +1889,8 @@ class SourceController < ApplicationController
     attrs[:incident] = maintenanceID if maintenanceID 
     xml = node.patchinfo(attrs) do |n|
       node.packager    @http_user.login
-      node.category    ""
-      node.rating      ""
+      node.category    "recommended"
+      node.rating      "low"
       node.summary     params[:comment]
       node.description ""
     end
