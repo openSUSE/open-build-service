@@ -49,7 +49,7 @@ class FrontendCompat
     path = "#{@url_prefix}/source"
     path += "/#{esc opt[:project]}" if opt[:project]
     path += "/#{esc opt[:package]}" if opt[:project] && opt[:package]
-    path += "/#{esc opt[:filename]}" if opt[:filename]
+    path += "/#{URI.escape(opt[:filename])}" if opt[:filename]
     path += "?"
     path += "rev=#{esc opt[:rev]}" if opt[:rev]
     logger.debug "--> get_source path: #{path}"
@@ -61,7 +61,7 @@ class FrontendCompat
     path = "#{@url_prefix}/source"
     path += "/#{esc opt[:project]}" if opt[:project]
     path += "/#{esc opt[:package]}" if opt[:project] && opt[:package]
-    path += "/#{esc opt[:filename]}" if opt[:filename]
+    path += "/#{URI.escape(opt[:filename])}" if opt[:filename]
     path += "?comment=#{esc opt[:comment]}" unless opt[:comment].blank?
     transport.direct_http URI("#{path}"),
       :method => "PUT", :data => data, :timeout => 500
@@ -71,7 +71,7 @@ class FrontendCompat
     path = "#{@url_prefix}/source"
     path += "/#{esc opt[:project]}" if opt[:project]
     path += "/#{esc opt[:package]}" if opt[:project] && opt[:package]
-    path += "/#{esc opt[:filename]}" if opt[:filename]
+    path += "/#{URI.escape(opt[:filename])}" if opt[:filename]
     path += "?"
     path += "cmd=#{esc opt[:cmd]}" unless opt[:cmd].blank?
     path += "&comment=#{esc opt[:comment]}" unless opt[:comment].blank?
@@ -87,7 +87,7 @@ class FrontendCompat
 
   def delete_file( opt={} )
     logger.debug "starting to delete file, opt: #{opt.inspect}"
-    transport.direct_http URI("#{@url_prefix}/source/#{esc opt[:project]}/#{esc opt[:package]}/#{esc opt[:filename]}"),
+    transport.direct_http URI("#{@url_prefix}/source/#{esc opt[:project]}/#{esc opt[:package]}/#{URI.escape(opt[:filename])}"),
       :method => "DELETE", :timeout => 500
   end
 
