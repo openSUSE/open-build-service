@@ -1228,8 +1228,14 @@ class SourceController < ApplicationController
         oprj.flags.each do |f|
           @project.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
         end
+
+        oprj.linkedprojects.each do |l|
+          @project.linkedprojects.create( :linked_remote_project_name => l.linked_remote_project_name , :position => l.position ) if l.linked_remote_project_name
+          @project.linkedprojects.create( :linked_db_project => l.linked_db_project.name , :position => l.position ) if l.linked_db_project
+        end
+
         oprj.repositories.each do |repo|
-          r = @project.repositories.create :name => repo.name
+          r = @project.repositories.create :name => repo.name, :linkedbuild => repo.linkedbuild
           repo.repository_architectures.each do |ra|
             r.repository_architectures.create! :architecture => ra.architecture, :position => ra.position
           end

@@ -1916,6 +1916,8 @@ sub copybuild {
   my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
   my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  my $norebuild = defined($cgi->{'norebuild'}) && $cgi->{'norebuild'};
+
   return $BSStdServer::return_ok if $oprojid eq $projid && $orepoid eq $repoid && $opackid eq $packid;
   return $BSStdServer::return_ok unless -d "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   my $job = "copy-".Digest::MD5::md5_hex("$$/$projid/$repoid/$arch/$packid".time());
@@ -1943,6 +1945,39 @@ sub copybuild {
       link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
     }
   }
+  
+  if ($norebuild) {
+    use File::Copy;
+    #original dir to copy from
+    my $orig_dir = "$reporoot/$oprojid/$orepoid/$arch";
+
+    #destination dir to copy to
+    my $dest_dir = "$reporoot/$projid/$repoid/$arch";
+
+    #create destination subdirs
+    mkdir_p("$dest_dir/:meta");
+    mkdir_p("$dest_dir/$packid");
+    mkdir_p("$dest_dir/:logfiles.fail");
+    mkdir_p("$dest_dir/:logfiles.success");
+
+    #copy files from orig to dest
+    copy("$orig_dir/$opackid/reason", "$dest_dir/$packid/reason") || die("error copying reason\n");
+    copy("$orig_dir/$opackid/logfile", "$dest_dir/$packid/logfile") || die("error copying logfile\n");
+    copy("$orig_dir/$opackid/history", "$dest_dir/$packid/history") || die("error copying history\n");
+    copy("$orig_dir/$opackid/status", "$dest_dir/$packid/status") || die("error copying status\n");
+    copy("$orig_dir/:meta/$opackid", "$dest_dir/:meta/$packid") || die("error copying :meta\n");
+    copy("$orig_dir/:jobhistory", "$dest_dir/:jobhistory") || die("error copying :jobhistory\n");
+    copy($_, "$dest_dir/") foreach(glob("$orig_dir/:relsync*"));
+    copy($_, "$dest_dir/:logfiles.fail/") foreach(glob("$orig_dir/:logfiles.fail/*"));
+    copy($_, "$dest_dir/:logfiles.success/") foreach(glob("$orig_dir/:logfiles.success/*"));
+
+    warn("doing $projid, $repoid, $arch, $packid,");
+    mkdir_p("$eventdir/$arch");
+    my $evname = "package::${projid}::${packid}::${repoid}";
+    my $checkev = {'type' => 'package', 'project' => $projid, 'package' => $packid, 'repository' => $repoid};
+    writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $checkev, $BSXML::event);
+  }
+
   my $info = {
     'project' => $projid,
     'repository' => $repoid,
@@ -3860,7 +3895,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? norebuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,

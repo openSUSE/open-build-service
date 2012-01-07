@@ -5409,25 +5409,27 @@ sub copyproject {
   }
 
   # use {} as we do not want to copy project linked packages
-  my @pkgs = findpackages($oprojid, {});
+  my @pkgs = findpackages($oprojid);
   delete $cgi->{'servicemark'};		# just in case...
   for my $packid (@pkgs) {
     if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
       # new package, create. hopefully the API can deal with this
-      my $opack = readpack($oprojid, $packid);
-      my $pack = {
-	'project' => $projid,
-	'name' => $packid,
-      };
-      # everything except person, group, devel and lock
-      for (keys %$opack) {
-        next if $_ eq 'project' || $_ eq 'name';
-        next if $_ eq 'person' || $_ eq 'group' || $_ eq 'devel' || $_ eq 'lock';
-        $pack->{$_} = $opack->{$_} if defined $opack->{$_};
+      my $opack = readpack($oprojid, $packid, "1");
+      if ($opack) {
+        my $pack = {
+          'project' => $projid,
+          'name' => $packid,
+        };
+        # everything except person, group, devel and lock
+        for (keys %$opack) {
+          next if $_ eq 'project' || $_ eq 'name';
+          next if $_ eq 'person' || $_ eq 'group' || $_ eq 'devel' || $_ eq 'lock';
+          $pack->{$_} = $opack->{$_} if defined $opack->{$_};
+        }
+        mkdir_p($uploaddir);
+        writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
+        addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
       }
-      mkdir_p($uploaddir);
-      writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
-      addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
       # need to do this now because the binary copy will fail otherwise
       notify_repservers('package', $projid, $packid) if $cgi->{'withbinaries'};
     }
@@ -5529,6 +5531,7 @@ sub copyproject {
 	  push @args, "opackage=$packid"; # same package name
 	  push @args, "orepository=$repo->{'name'}"; # same repo name
 	  push @args, 'resign=1' if $cgi->{'resign'};
+	  push @args, 'norebuild=1';
 	  my $param = {
 	    'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
 	    'request' => 'POST',
