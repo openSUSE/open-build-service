@@ -194,6 +194,9 @@ If you change the hostnames/ips of the api, you need to adjust
 
   /srv/www/obs/webui/config/options.yml
 
+You should set "exception_recipients" to a valid mail address which
+should receive notification mail if the WebUI hits any program exception.
+
 It is recommended to enable 
 
   use_xforward:true
@@ -208,6 +211,9 @@ If you change the hostnames/ips of the api, you need to adjust
 "source_server_url" accordingly in
 
   /srv/www/obs/api/config/options.yml
+
+You should set "exception_recipients" to a valid mail address which
+should receive notification mail if the API hits any program exception.
 
 It is recommended to enable 
 
