@@ -104,11 +104,13 @@ if [ -n "$OBS_VM_TYPE" -a "$OBS_VM_TYPE" != "auto" ] ; then
     fi
 elif [ -e /dev/kvm ] ; then
     vmopt=--kvm
+    OBS_VM_TYPE="kvm"
 elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
     vmopt=--xen
+    OBS_VM_TYPE="xen"
 fi
 
-if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
+if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
     # we start up in VM mode, check for the worker disk options
     if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" -a -n "$OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE" ]; then
         VMDISK_ROOT_FILESIZE="--vmdisk-rootsize ${OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE}"
