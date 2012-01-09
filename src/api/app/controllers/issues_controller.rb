@@ -4,7 +4,7 @@ class IssuesController < ApplicationController
 
   def show
     # NOTE: issue_tracker_id is here actually the name
-    issue = Issue.get_by_issue_tracker_and_name( params[:issue_tracker_id], params[:id] )
+    issue = Issue.get_by_name_and_tracker( params[:id], params[:issue_tracker_id] )
     render :text => issue.render_axml, :content_type => 'text/xml'
   end
 end

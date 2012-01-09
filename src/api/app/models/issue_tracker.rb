@@ -74,8 +74,8 @@ class IssueTracker < ActiveRecord::Base
     return nil
   end
 
-  def issue(issue_id, long_name = nil)
-    return Issue.find_or_create_by_id(issue_id, :issue_tracker => self, :long_name => long_name)
+  def issue(issue_id)
+    return Issue.find_by_name_and_tracker(issue_id, self.name)
   end
 
   def fetch_issues(issues=nil)

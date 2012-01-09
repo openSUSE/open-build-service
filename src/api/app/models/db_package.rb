@@ -382,8 +382,7 @@ class DbPackage < ActiveRecord::Base
         self.db_package_issues.destroy_all
         xml = REXML::Document.new(patchinfo.body.to_s)
         xml.root.elements.each('issue') { |i|
-          tracker = IssueTracker.get_by_name i.attributes['tracker']
-          issue = tracker.issue( i.attributes['id'] )
+          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
           self.db_package_issues.create( :issue => issue )
         }
       end

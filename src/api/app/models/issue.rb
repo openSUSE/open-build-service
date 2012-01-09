@@ -3,13 +3,27 @@ class Issue < ActiveRecord::Base
   has_one :owner, :class_name => "User", :foreign_key => 'id'
   belongs_to :issue_tracker
 
-  def self.get_by_issue_tracker_and_name( issue_tracker_name, name, force_update=nil )
+  def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
     raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
 
     issue = Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
     raise IssueNotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
     
+    issue.fetch_updates if force_update
+
+    return issue
+  end
+
+  def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
+    issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
+    raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
+
+    issue = Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
+    return issue if issue
+
+    issue = Issue.create( :name => name, :issue_tracker => issue_tracker )
+
     issue.fetch_updates if force_update
 
     return issue
