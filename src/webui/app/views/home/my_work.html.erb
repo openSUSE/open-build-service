@@ -9,12 +9,13 @@
 <h3><%= @pagetitle %></h3>
 
 <p>
-  This page summarizes all tasks where an action is requested from you.
+  This page summarizes all tasks where an action is requested from user <%= user.to_s%>.
   <%= link_to('You can also use your complete list of requests.', :action => 'requests', :user => user.to_s) %>
 </p>
 
 <!-- patchinfos which are still running -->
-<% if @open_patchinfos.count %>
+
+<% if @open_patchinfos.each_package.count > 0 %>
   <h3 title="Maintenance updates where you are assigned as bugowner">Running Maintenance Updates</h3>
   <table style="width: 92%" id='open_patchinfos-table' class='grid' title="Running Maintenance Updates">
     <tr>
@@ -22,15 +23,13 @@
       <th>Package</th>
       <th style="width: 1%">Actions</th>
     </tr>
-    <% @open_patchinfos.each do |prj, packs| -%>
-      <% packs.each do |pkg| -%>
+    <% @open_patchinfos.each_package do |pi| -%>
         <tr>
-          <% shortened_prj, shortened_pkg = elide_two(prj, pkg, 60) %>
-          <td><%= link_to shortened_prj, :controller => :project, :action => :show, :project => prj %></td>
-          <td><%= link_to shortened_pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
-          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
+          <% shortened_prj, shortened_pkg = elide_two(pi.value(:project), pi.value(:name), 60) %>
+          <td><%= link_to shortened_prj, :controller => :project, :action => :show, :project => pi.value(:project) %></td>
+          <td><%= link_to shortened_pkg, :controller => :package, :action => :show, :project => pi.value(:project), :package => pi.value(:name) %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => pi.value(:project), :pkgname => pi.value(:name), :controller => :project  %></td>
         </tr>
-      <% end -%>
     <% end -%>
   </table>
 <% end -%>
