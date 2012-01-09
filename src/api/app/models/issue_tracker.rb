@@ -104,6 +104,7 @@ class IssueTracker < ActiveRecord::Base
             if issue
               issue.state = r["status"]
               u = User.find_by_email(r["assigned_to"].to_s)
+              logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
               issue.owner_id = u.id if u
               issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
               issue.save

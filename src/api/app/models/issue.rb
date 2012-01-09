@@ -52,11 +52,13 @@ class Issue < ActiveRecord::Base
       issue.state(self.state)             if self.state
       issue.description(self.description) if self.description
 
-      if self.owner
+      if self.owner_id
+        # self.owner must not by used, since it is reserved by rails
+        o = User.find_by_id self.owner_id
         issue.owner do |owner|
-          owner.login(self.owner.login)
-          owner.email(self.owner.email)
-          owner.realname(self.owner.realname)
+          owner.login(o.login)
+          owner.email(o.email)
+          owner.realname(o.realname)
         end
       end
     end
@@ -68,6 +70,5 @@ class Issue < ActiveRecord::Base
     end
     builder.to_xml
   end
-
 
 end
