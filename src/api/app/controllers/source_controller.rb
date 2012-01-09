@@ -1859,6 +1859,12 @@ class SourceController < ApplicationController
       pkg_name = params[:name]
     end
 
+    unless valid_package_name? pkg_name
+      render_error :status => 400, :errorcode => "invalid_package_name",
+        :message => "invalid package name '#{pkg_name}'"
+      return
+    end
+
     # create patchinfo package
     pkg = nil
     if DbPackage.exists_by_project_and_name( params[:project], pkg_name )
@@ -2302,7 +2308,7 @@ class SourceController < ApplicationController
     return true if name == "_product"
     return true if name =~ /^_product:\w[-_+\w\.:]*$/
     return true if name =~ /^_patchinfo:\w[-_+\w\.:]*$/ # obsolete, just for backward compatibility
-    name =~ /^\w[-_+\w\.:]*$/
+    name =~ /^\w[-_+\w\.]*$/
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm

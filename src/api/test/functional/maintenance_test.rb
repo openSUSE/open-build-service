@@ -731,6 +731,18 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_create_invalid_patchinfo
+    prepare_request_with_user "tom", "thunder"
+    # collons in patchinfo names are not allowed but common mistake
+    post "https://api.opensuse.org/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
+
+    post "https://api.opensuse.org/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
+  end
+
   def test_create_invalid_submit_request
     prepare_request_with_user "tom", "thunder"
     # without specifing target, the default target must get found via attribute
