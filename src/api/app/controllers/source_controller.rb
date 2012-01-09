@@ -1853,21 +1853,14 @@ class SourceController < ApplicationController
     # a new_format argument may be given but we don't support the old (and experimental marked) format
     # anymore
 
-    pro = DbProject.find_by_name project_name
-
-    maintenanceID=nil
     pkg_name = "patchinfo"
 
     if params[:name]
       pkg_name = params[:name]
     end
 
-    if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pro.id] )
-      # this is a maintenance incident project, the sub project name is the maintenance ID
-      maintenanceID = pro.name.gsub(/.*:/, '')
-    end
-
     # create patchinfo package
+    pkg = nil
     if DbPackage.exists_by_project_and_name( params[:project], pkg_name )
       unless params[:force]
         render_error :status => 400, :errorcode => "patchinfo_file_exists",
@@ -1876,7 +1869,7 @@ class SourceController < ApplicationController
       end
       pkg = DbPackage.get_by_project_and_name params[:project], pkg_name
     else
-      prj = DbProject.find_by_name( params[:project] )
+      prj = DbProject.get_by_name( params[:project] )
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
       pkg.add_flag("build", "enable", nil, nil)
@@ -1886,7 +1879,10 @@ class SourceController < ApplicationController
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
     attrs = { }
-    attrs[:incident] = maintenanceID if maintenanceID 
+    if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pkg.db_project.id] )
+      # this is a maintenance incident project, the sub project name is the maintenance ID
+      attrs[:incident] = pkg.db_project.name.gsub(/.*:/, '')
+    end
     xml = node.patchinfo(attrs) do |n|
       node.packager    @http_user.login
       node.category    "recommended"
@@ -1900,7 +1896,7 @@ class SourceController < ApplicationController
     patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
     backend_put( patchinfo_path, xml.dump_xml )
-    render_ok :data => {:targetproject => pro.name, :targetpackage => pkg_name}
+    render_ok :data => {:targetproject => pkg.db_project.name, :targetpackage => pkg_name}
   end
 
   # POST /source/<project>/<package>?cmd=updatepatchinfo
