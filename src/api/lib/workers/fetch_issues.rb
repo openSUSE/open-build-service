@@ -1,8 +1,9 @@
 class FetchIssues
 
   def perform
-    c = IssueTracker.new
-    c.fetch_issues()
+    IssueTracker.find(:all).each do |t|
+      t.fetch_issues()
+    end
   end
 
 end
