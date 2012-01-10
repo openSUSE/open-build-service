@@ -37,10 +37,10 @@
             <% end %>
 
             <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results" %>
-            <%# link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => project) %>
-            <!-- <% javascript_tag do %>
+            <%= link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+            <% javascript_tag do %>
               setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
-            <% end %> -->
+            <% end %>
           </td>
         </tr>
       <% end %>
