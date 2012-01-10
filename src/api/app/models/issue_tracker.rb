@@ -78,40 +78,55 @@ class IssueTracker < ActiveRecord::Base
     return Issue.find_by_name_and_tracker(issue_id, self.name)
   end
 
+  def update_issues()
+    oldest_time = Issue.find( :first, :order => :updated_at).updated_at
+    result = bugzilla_server.search(:last_change_time => oldest_time)
+
+    return private_fetch_issues(ids)
+  end
+
   def fetch_issues(issues=nil)
     unless issues
       # find all new issues for myself
       issues = Issue.find :all, :conditions => ["(ISNULL(state) or ISNULL(owner_id)) and issue_tracker_id = BINARY ?", self.id]
     end
 
-    return unless issues
+    ids = issues.map{ |x| x.name.to_s }
+
+    return private_fetch_issues(ids)
+  end
+
+  private
+  def private_fetch_issues(ids=nil)
+    # before asking remote to ensure that it is older then on remote, assuming ntp works ...
+    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
+    # guarantee a complete search)
+    update_time_stamp = Time.at(Time.now.to_f - 5)
 
     if kind == "bugzilla"
-      # the performent way, but bugzilla errors out when one of them is missing/not readable
-      # result = bugzilla_server.get(:ids => issues.map{ |x| x.name.to_s })
+      # the efficient way, but bugzilla just errors out usually with it:
+      # result = bugzilla_server.get(:ids => ids }, :permissive => true)
       # So creating more load here for bugzilla
-      issues.each do |i|
+      ids.each do |i|
+        # do not ask for missing entries
+        next unless Issue.find_by_name_and_tracker i.to_s, self.name
+
         begin
-          result = bugzilla_server.get(:ids => [i.name.to_s])
+          result = bugzilla_server.get(:ids => [i])
           result["bugs"].each{ |r|
-            issue = nil
-            issues.each{ |ui|
-              if ui["name"].to_s == r["id"].to_s
-                issue = ui
-                break
-              end
-            }
+            issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
             if issue
               issue.state = Issue.bugzilla_state(r["status"])
               u = User.find_by_email(r["assigned_to"].to_s)
               logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
               issue.owner_id = u.id if u
+              issue.updated_at = update_time_stamp
               issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
               issue.save
             end
           }
         rescue RuntimeError => e
-          logger.error "Unable to fetch issue #{i.name}: #{e.inspect}"
+          logger.error "Unable to fetch issue #{e.inspect}"
         rescue XMLRPC::FaultException => e
           logger.error "Error: #{e.faultCode} #{e.faultString}"
         end
@@ -145,7 +160,6 @@ class IssueTracker < ActiveRecord::Base
     end
   end
 
-  private
   def bugzilla_server
     server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi", user=self.user, password=self.password)
     return server.proxy('Bug')

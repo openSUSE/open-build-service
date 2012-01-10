@@ -16,15 +16,21 @@ class Issue < ActiveRecord::Base
   end
 
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
+    return self.find_by_name_and_tracker( name, issue_tracker_name, force_update=force_update, create_missing=true )
+  end
+
+  def self.find_by_name_and_tracker( name, issue_tracker_name, force_update=nil, create_missing=nil )
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
     raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
 
+    # find existing
     issue = Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
-    return issue if issue
 
-    issue = Issue.create( :name => name, :issue_tracker => issue_tracker )
+    # create missing
+    issue = Issue.create( :name => name, :issue_tracker => issue_tracker ) if issue.nil? and create_missing
 
-    issue.fetch_updates if force_update
+    # force update
+    issue.fetch_updates if force_update and not issue.nil?
 
     return issue
   end
