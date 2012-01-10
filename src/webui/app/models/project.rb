@@ -398,4 +398,36 @@ class Project < ActiveXML::Base
     return Project.has_attribute?(self.name, attribute_namespace, attribute_name)
   end
 
+  # Returns maintenance incidents by type for current project (if any)
+  def maintenance_incidents(type = 'open')
+    predicate = "starts-with(@name,'#{self.name}:') and @kind='maintenance_incident'"
+    case type
+      when 'open' then predicate += " and repository/releasetarget/@trigger='maintenance'"
+      when 'closed' then predicate += " and not(repository/releasetarget/@trigger='maintenance')"
+    end
+    return Collection.find(:what => 'project', :predicate => predicate).each
+  end
+
+  def patchinfo
+    cachekey = "maintenance_incident_patchinfo_#{self.name}"
+    return Rails.cache.fetch(cachekey, :expires_in => 5.minutes) do
+      #TODO: We may want to have a PatchInfo model (with API support):
+      begin
+        frontend = FrontendCompat.new
+        ActiveXML::Base.new(frontend.get_source(:project => self.name, :package => 'patchinfo', :filename => '_patchinfo'))
+      rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
+        nil
+      end
+    end
+  end
+
+  def packages
+    pkgs = Package.find_cached(:project => self.name)
+    if pkgs
+      return pkgs.each
+    else
+      return []
+    end
+  end
+
 end
