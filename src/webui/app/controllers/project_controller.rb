@@ -24,7 +24,6 @@ class ProjectController < ApplicationController
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
-  before_filter :require_maintenance_incidents, :only => [:show, :maintenance_incidents]
   prepend_before_filter :lockout_spiders, :only => [:requests]
 
   def index
@@ -274,6 +273,7 @@ class ProjectController < ApplicationController
     end if @packages
 
     @nr_releasetargets = 0
+    @open_maintenance_incidents = @project.maintenance_incidents('open')
     @project.each_repository do |repo|
       @nr_releasetargets += 1 if repo.has_element?('releasetarget')
     end
@@ -1366,7 +1366,15 @@ class ProjectController < ApplicationController
   end
 
   def maintenance_incidents
-    #TODO: This method won't scale long!
+    @incidents = @project.maintenance_incidents(params[:type] || 'open')
+  end
+
+  def list_incidents
+    if @spider_bot || !request.xhr?
+      render :text => 'no ajax', :status => 400 and return
+    end
+    incidents = @project.maintenance_incidents(params[:type] || 'open')
+    render :partial => 'shared/incidents', :locals => { :incidents => incidents }
   end
 
   private
@@ -1424,37 +1432,6 @@ class ProjectController < ApplicationController
     @is_incident_project = false
     @is_incident_project = true if @project.project_type and @project.project_type == "maintenance_incident"
     #TODO: Prepare incident-related data
-  end
-
-  def require_maintenance_incidents
-    @maintenance_incidents, @open_maintenance_incidents = [], 0
-    return if @spider_bot
-    Collection.find(:what => "project", :predicate => "starts-with(@name,'#{params[:project]}:') and @kind='maintenance_incident'").each do |project|
-      has_releasetarget, has_trigger_maintenance = false, false
-      project.each_repository do |repo|
-        if repo.has_element?('releasetarget')
-          has_releasetarget = true
-          has_trigger_maintenance = repo.releasetarget.has_attribute?('trigger') && repo.releasetarget.trigger == 'maintenance'
-        end
-      end
-      state = ""
-      if has_releasetarget
-        if has_trigger_maintenance
-          @open_maintenance_incidents += 1
-          state = "open"
-        else
-          state = "closed"
-        end
-      end
-      begin
-        #TODO: We may want to have a PatchInfo model (with API support):
-        patchinfo = ActiveXML::Base.new(frontend.get_source(:project => project.value(:name), :package => 'patchinfo', :filename => '_patchinfo'))
-      rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
-        patchinfo = nil
-      end
-      packages = find_cached(Package, :all, :project => project.value(:name), :expires_in => 30.seconds)
-      @maintenance_incidents << {:project => project, :patchinfo => patchinfo, :state => state, :packages => packages}
-    end
   end
 
   def load_requests

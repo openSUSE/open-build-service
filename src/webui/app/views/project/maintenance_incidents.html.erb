@@ -7,72 +7,36 @@
 
 <%= javascript_include_tag 'jquery.tablesorter' %>
 
+<% content_for :head_javascript do %>
+  function updateIncidentDisplay() {
+    $('#spinner').show();
+    $.ajax({
+      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
+      data: {
+        'type': $('#incident_type_select')[0].value,
+      },
+      success: function(data) {
+        $('#incident_display').html(data);
+          /*if (data.indexOf('No incidents') == -1) {
+            incident_count = $('#incident_table tbody').children().length;
+            $('#incident_count').html('(' + incident_count.toString() + ')');
+          } else {
+            $('#incident_count').html('');
+          }*/
+        $('#spinner').hide();
+      }
+    });
+  }
+<% end %>
+<% content_for :ready_function do %>
+  <%= "updateIncidentDisplay();" unless defined?(@incidents) %>
+<% end %>
+
 <p>
-  Display
-  <%= select_tag("incident_type_select", options_for_select(['all', 'open', 'closed'], 'open')) %>
-  maintenance incidents:
-  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
+  Display <%= select_tag("incident_type_select", options_for_select(['open', 'closed'], 'open'), :onchange => "updateIncidentDisplay();") %>
+  maintenance incidents: <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>
 
-<% if @maintenance_incidents.blank? %>
-  <p>No incidents.</p>
-<% else %>
-  <table cellspacing="1" id="incident_table" class="tablesorter" style="width: 95%">
-    <thead>
-      <tr>
-        <th style="width: 1%">Incident</th>
-        <th style="width: 40%">Summary</th>
-        <th style="width: 1%">Category</th>
-        <th style="width: 1%">Rating</th>
-        <th style="width: 1%">Patchinfo</th>
-        <th style="width: 1%">Packages</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @maintenance_incidents.each do |incident| %>
-        <% project, patchinfo, packages = incident[:project], incident[:patchinfo], incident[:packages] %>
-        <tr class="incident <%= incident[:state] %>_incident">
-          <td><%= link_to(short_incident_name(@project, project), :action => 'show', :project => project.name) %></td>
-          <td><%= project.title %></td>
-          <% if patchinfo %>
-            <td><%= patchinfo.category %> </td>
-            <td><%= raw colored_rating(patchinfo.rating) %></td>
-            <td><%= link_to(image_tag('icons/accept.png', :alt => 'View patchinfo', :title => 'View patchinfo'), :controller => 'patchinfo', :action => 'show', :project => project.name, :package => 'patchinfo', :file => '_patchinfo') %></td>
-          <% else %>
-            <td>-</td>
-            <td>-</td>
-            <td><%= link_to(image_tag('icons/exclamation.png', :alt => 'Create patchinfo', :title => 'Create patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => project.name, :package => 'patchinfo') %></td>
-          <% end %>
-          <td>
-            <% if packages && packages.count > "1" %>
-              <%= link_to(image_tag('icons/accept.png', :alt => "Has #{packages.count} packages", :title => "Has #{packages.count} packages"), :action => 'packages', :project => project.name) %>
-            <% else %>
-              <%= link_to(image_tag('icons/exclamation.png', :alt => 'Has no packages', :title => 'Has no packages'), :action => 'show', :project => project.name) %>
-            <% end %>
-
-            <% buildresult_css_id = "incident_#{valid_xml_id(project.name)}_results" %>
-            <%# link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => project) %>
-            <!-- <% javascript_tag do %>
-              setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => project %>');
-            <% end %> -->
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <% javascript_tag do %>
-    $('#incident_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {5: {sorter: false}} });
-
-    function updateIncidentDisplay() {
-      incident_state = $('#incident_type_select option:selected').attr('value');
-      if (incident_state == "all") {
-        $('.incident').show();
-      } else {
-        $('.incident').hide();
-        $('.' + incident_state + '_incident').show();
-      }
-    }
-    $('#incident_type_select').change(updateIncidentDisplay);
-    updateIncidentDisplay();
-  <% end %>
-<% end %>
+<div id="incident_display">
+  <%= render(:partial => 'shared/incidents', :locals => { :incidents => @incidents }) unless not defined?(@incidents) %>
+</div>

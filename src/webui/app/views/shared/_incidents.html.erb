@@ -1,0 +1,49 @@
+<% incident_table_id ||= 'incident_table' %>
+
+<% if incidents.blank? %>
+  <p>No incidents.</p>
+<% else %>
+  <table cellspacing="1" id="<%= incident_table_id %>" class="tablesorter" style="width: 95%">
+    <thead>
+      <tr>
+        <th style="width: 1%">Incident</th>
+        <th style="width: 40%">Summary</th>
+        <th style="width: 1%">Category</th>
+        <th style="width: 1%">Rating</th>
+        <th style="width: 1%">Patchinfo</th>
+        <th style="width: 1%">Packages</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% incidents.each do |incident| %>
+        <% patchinfo, packages = incident.patchinfo(), incident.packages() %>
+        <tr>
+          <td><%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %></td>
+          <td><%= incident.value('title') %></td>
+          <% if patchinfo %>
+            <td><%= patchinfo.category %> </td>
+            <td><%= raw colored_rating(patchinfo.rating) %></td>
+            <td><%= link_to(image_tag('icons/accept.png', :alt => 'View patchinfo', :title => 'View patchinfo'), :controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo') %></td>
+          <% else %>
+            <td>-</td>
+            <td>-</td>
+            <td><%= link_to(image_tag('icons/exclamation.png', :alt => 'Create patchinfo', :title => 'Create patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %></td>
+          <% end %>
+          <td>
+            <% if packages.length > 1 %>
+              <%= link_to(image_tag('icons/accept.png', :alt => "Has #{packages.length} packages", :title => "Has #{packages.count} packages"), :action => 'packages', :project => incident.value('name')) %>
+            <% else %>
+              <%= link_to(image_tag('icons/exclamation.png', :alt => 'Has no packages', :title => 'Has no packages'), :action => 'show', :project => incident.value('name')) %>
+            <% end %>
+
+            <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results" %>
+            <%# link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => project) %>
+            <!-- <% javascript_tag do %>
+              setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
+            <% end %> -->
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
