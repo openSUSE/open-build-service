@@ -27,6 +27,15 @@ class XpathEngine
         '@issue_tracker' => {:cpart => 'issue_trackers.name', :joins =>
           ['LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
           ]},
+        '@state' => {:cpart => 'issues.state', :joins => 
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
+        'owner/@login' => {:cpart => 'users.login', :joins => 
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id',
+           'LEFT JOIN users ON users.id = issues.owner_id']},
         'title' => {:cpart => 'db_packages.title'},
         'description' => {:cpart => 'db_packages.description'},
         'devel/@project' => {:cpart => 'projs.name', :joins => 
@@ -35,6 +44,10 @@ class XpathEngine
         'devel/@package' => {:cpart => 'develpackage.name', :joins => 
           ['LEFT JOIN db_packages develpackage ON develpackage.id = db_packages.develpackage_id']},
         'patchinfo/issue/@longname' => {:cpart => 'issues.long_name', :joins => 
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
+        'patchinfo/issue/@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
            'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},

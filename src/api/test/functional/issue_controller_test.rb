@@ -50,10 +50,22 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_response 401
     get "/search/package_id", :match => 'patchinfo/issue/owner/@login="fred"'
     assert_response 401
+    get "/search/package_id", :match => 'patchinfo/issue/@state="RESOLVED"'
+    assert_response 401
 
     # search via bug owner
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package_id", :match => 'patchinfo/issue/owner/@login="fred"'
+    assert_response :success
+    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+
+    # search for specific issue state, issue is in RESOLVED state actually
+    get "/search/package_id", :match => 'patchinfo/issue/@state="NEW"'
+    assert_response :success
+    assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+
+    # running patchinfo search as done by webui
+    get "/search/package_id", :match => 'patchinfo/issue/[@state="RESOLVED" and owner/@login="fred"]'
     assert_response :success
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
