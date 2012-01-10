@@ -1308,8 +1308,8 @@ class SourceController < ApplicationController
       end
     elsif params[:project] and params[:package]
       pkg = nil
+      prj = DbProject.get_by_name params[:project]
       if params[:missingok]
-        prj = DbProject.get_by_name params[:project]
         if DbPackage.exists_by_project_and_name(params[:project], params[:package], follow_project_links=true, allow_remote_packages=true)
           render_error :status => 400, :errorcode => 'not_missing',
             :message => "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists."
@@ -1317,7 +1317,7 @@ class SourceController < ApplicationController
         end
       else
         pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
-        prj = pkg.db_project if pkg
+        prj = pkg.db_project if pkg and not prj.find_attribute("OBS", "BranchTarget")
       end
       tpkg_name = params[:target_package]
       tpkg_name = params[:package] unless tpkg_name
