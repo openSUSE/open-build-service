@@ -319,9 +319,9 @@ CREATE TABLE `issues` (
   `long_name` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `owner_id` int(11) DEFAULT NULL,
-  `state` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `state` enum('OPEN','CLOSED','UNKNOWN') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_issues_on_long_name` (`long_name`),
   KEY `owner_id` (`owner_id`),
@@ -820,6 +820,8 @@ INSERT INTO schema_migrations (version) VALUES ('20111207000000');
 INSERT INTO schema_migrations (version) VALUES ('20111213000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20111215094300');
+
+INSERT INTO schema_migrations (version) VALUES ('20120110094300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

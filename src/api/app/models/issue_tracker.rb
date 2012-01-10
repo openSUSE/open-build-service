@@ -102,7 +102,7 @@ class IssueTracker < ActiveRecord::Base
               end
             }
             if issue
-              issue.state = r["status"]
+              issue.state = Issue.bugzilla_state(r["status"])
               u = User.find_by_email(r["assigned_to"].to_s)
               logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
               issue.owner_id = u.id if u

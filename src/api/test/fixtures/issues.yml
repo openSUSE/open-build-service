@@ -5,7 +5,7 @@ complete:
   owner_id: 1
   description: "OBS is not bugfree!"
   long_name: "bnc#123456"
-  state: "RESOLVED"
+  state: "CLOSED"
 
 new:
   id: 2

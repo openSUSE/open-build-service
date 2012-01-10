@@ -25,7 +25,7 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'issue_tracker', :content => "bnc"
     assert_tag :tag => 'long_name', :content => "bnc#123456"
     assert_tag :tag => 'url', :content => "https://bugzilla.novell.com/show_bug.cgi?id=123456"
-    assert_tag :tag => 'state', :content => "RESOLVED"
+    assert_tag :tag => 'state', :content => "CLOSED"
     assert_tag :tag => 'description', :content => "OBS is not bugfree!"
     assert_tag :parent => { :tag => 'owner' }, :tag => 'login', :content => "fred"
     assert_tag :parent => { :tag => 'owner' }, :tag => 'email', :content => "fred@feuerstein.de"
@@ -60,12 +60,12 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # search for specific issue state, issue is in RESOLVED state actually
-    get "/search/package_id", :match => 'patchinfo/issue/@state="NEW"'
+    get "/search/package_id", :match => 'patchinfo/issue/@state="OPEN"'
     assert_response :success
     assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # running patchinfo search as done by webui
-    get "/search/package_id", :match => 'patchinfo/issue/[@state="RESOLVED" and owner/@login="fred"]'
+    get "/search/package_id", :match => 'patchinfo/issue/[@state="CLOSED" and owner/@login="fred"]'
     assert_response :success
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 

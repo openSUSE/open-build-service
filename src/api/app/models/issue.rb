@@ -29,6 +29,20 @@ class Issue < ActiveRecord::Base
     return issue
   end
 
+  def self.states
+    {
+        'OPEN' => 1,
+        'CLOSED' => 2,
+        'UNKNOWN' => 3,
+    }
+  end
+
+  def self.bugzilla_state( string )
+    return self.states['OPEN'] if [ 'NEW', 'NEEDINFO', 'REOPENED', 'ASSIGNED' ].include? string
+    return self.states['CLOSED'] if [ 'RESOLVED', 'CLOSED' ].include? string
+    return self.states['UNKNOWN']
+  end
+
   def after_create
     # inject update job after issue got created
     require 'workers/fetch_issues.rb'
