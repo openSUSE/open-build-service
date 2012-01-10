@@ -17,12 +17,12 @@
       },
       success: function(data) {
         $('#incident_display').html(data);
-          /*if (data.indexOf('No incidents') == -1) {
+          if (data.indexOf('No incidents') == -1) {
             incident_count = $('#incident_table tbody').children().length;
             $('#incident_count').html('(' + incident_count.toString() + ')');
           } else {
             $('#incident_count').html('');
-          }*/
+          }
         $('#spinner').hide();
       }
     });
@@ -34,7 +34,9 @@
 
 <p>
   Display <%= select_tag("incident_type_select", options_for_select(['open', 'closed'], 'open'), :onchange => "updateIncidentDisplay();") %>
-  maintenance incidents: <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
+  maintenance incidents
+  <span id="incident_count"><%= "(" + @incidents.length.to_s + ")" unless not defined?(@incidents) or @incidents.blank? %></span>:
+  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>
 
 <div id="incident_display">
