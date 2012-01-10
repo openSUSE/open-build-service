@@ -3629,6 +3629,12 @@ sub rebuildpatchinfo {
   my $update = {};
   $update->{'status'} = 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
+  # quick hack, to be replaced with something sane
+  if ($BSConfig::updateinfo_fromoverwrite) {
+    for (sort keys %$BSConfig::updateinfo_fromoverwrite) {
+      $update->{'from'} = $BSConfig::updateinfo_fromoverwrite->{$_} if $projid =~ /$_/;
+    }
+  }
   $update->{'version'} = $patchinfo->{'version'} || '1';	# bodhi inserts its own version...
   $update->{'id'} = $patchinfo->{'incident'} || $projid;
   $update->{'type'} = $patchinfo->{'category'};
