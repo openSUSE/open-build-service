@@ -1,162 +1,33 @@
 class PatchinfoController < ApplicationController
   include ApplicationHelper
   before_filter :require_all
-  before_filter :require_exists, :except => [:save_new, :new_patchinfo]
+  before_filter :require_exists, :except => [:new_patchinfo]
   helper :package
 
   def new_patchinfo
-    @packager = @user.login
-    @buglist = Array.new
-    @cvelist = Array.new
-    @binaries = Array.new
+    unless find_cached(Package, "patchinfo", :project => @project )
+      begin
+        path = "/source/#{CGI.escape(params[:project])}?cmd=createpatchinfo"
+        result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST" ))
+      rescue ActiveXML::Transport::Error => e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        flash[:error] = message
+        redirect_to :controller => "project", :action => 'packages'
+      end
+    end
+    @package = find_cached(Package, "patchinfo", :project => @project )
+    @file = find_cached(Patchinfo, :project => @project, :package => @package )
+    unless @file
+      flash[:error] = "Patchinfo not found for #{params[:project]}"
+      redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
+    end
+
+    read_patchinfo 
   end
 
-  def save_new
-    valid_http_methods(:post)
-    
-    valid_params = true
-    flash[:error] = nil
-    if !valid_bugzilla_number? params[:bug]
-      valid_params = false
-      flash[:error] = "#{flash[:error]}" + "|| Invalid bugzilla number: '#{params[:bugid]}'"
-    end
-    if !valid_summary? params[:summary]
-      valid_params = false
-      flash[:error] = "#{flash[:error]}" + " || Summary is too short (should have more than 10 signs)"
-    end
-    if !valid_description? params[:description]
-      valid_params = false
-      flash[:error] = "#{flash[:error]}" + " || Description is too short (should have more than 50 signs and longer than summary)"
-    end
-    if params[:category] == "security"
-      if params[:cve] != nil
-        if !valid_cve_number? params[:cve]
-          valid_params = false
-          flash[:error] = "#{flash[:error]}" + " || CVE-Number has the wrong format. Expected \"cve-year-number\""
-        end
-      end
-    end
-
-    if valid_params == true
-      filename = "_patchinfo"
-      packager = params[:packager] 
-      if params[:cve] != nil
-        cvelist = params[:cve]
-      else
-        cvelist = Array.new
-      end
-      binaries = params[:binaries]
-      if params[:bug] != nil
-        buglist = params[:bug]
-      else
-        buglist = Array.new
-      end
-      category = params[:category]
-      rating = params[:rating]
-      summary = params[:summary]
-      description = params[:description]
-      relogin = params[:relogin]
-      reboot = params[:reboot]
-      zypp_restart_needed = params[:zypp_restart_needed]
-      pkg_name = "patchinfo"
-      if Package.exists? @project, pkg_name
-        @packager = params[:packager]
-        if params[:cve] != nil
-          @cvelist = params[:cve]
-        else
-          @cvelist = Array.new
-        end
-        @binaries = params[:binaries]
-        if params[:bug] != nil
-          @buglist = params[:bug]
-        else
-          @buglist = Array.new
-        end
-        @category = params[:category]
-	@rating = params[:rating]
-        @summary = params[:summary]
-        @description = params[:description]
-        @relogin = params[:relogin]
-        @reboot = params[:reboot]
-	@zypp_restart_needed = params[:zypp_restart_needed]
-        flash[:error] = "Patchinfo '#{pkg_name}' already exists in project '#{@project}'"
-        render :controller => :patchinfo, :action => 'new_patchinfo', :project => @project
-        return
-      end
-      pkg = Package.new(:name => pkg_name, :project => @project,
-        :title => "Patchinfo", :description => "Collected packages for update")
-      pkg.save
-      node = Builder::XmlMarkup.new(:indent=>2)
-      xml = node.patchinfo do |n|
-        if binaries
-          binaries.each do |binary|
-            node.binary(binary)
-          end
-        end
-        node.packager    packager
-        buglist.each do |bug|
-          node.issue(:tracker=>"bnc", :id=>bug)
-        end
-        node.category    category
-	node.rating      rating
-        if category == "security"
-          cvelist.each do |cve|
-            node.issue(:tracker=>"CVE", :id=>cve)
-          end
-        end
-        node.summary     summary
-        node.description description
-        if reboot
-          node.reboot_needed
-        end
-        if relogin
-          node.relogin_needed
-        end
-        if zypp_restart_needed
-          node.zypp_restart_needed
-        end
-      end
-      begin
-        frontend.put_file( xml, :project => @project,
-          :package => pkg, :filename => filename,
-          :packager => [:packager], :category => [:category], 
-          :rating => [:rating], :bug => [:bug], :cve => [:cve],
-          :binarylist => [:binarylist], :binaries => [:binaries],
-          :summary => [:summary], :description => [:description],
-          :relogin => [:relogin], :reboot => [:reboot],
-          :zypp_restart_needed => [:zypp_restart_needed])
-        flash[:note] = "Successfully saved #{pkg_name}"
-      rescue Timeout::Error => e
-        flash[:error] = "Timeout when saving file. Please try again."
-      end
-      Patchinfo.free_cache(:project=> @project, :package => @package)
-      redirect_to :controller => "patchinfo", :action => "show",
-        :project => @project.name, :package => pkg_name
-    end
-    
-    if valid_params == false
-      @packager = params[:packager]
-      if params[:cve] != nil
-        @cvelist = params[:cve]
-      else
-        @cvelist = Array.new
-      end
-
-      @binaries = params[:binaries]
-      if params[:bug] != nil
-        @buglist = params[:bug]
-      else
-        @buglist = Array.new
-      end
-      @category = params[:category]
-      @rating = params[:rating]
-      @summary = params[:summary]
-      @description = params[:description]
-      @relogin = params[:relogin]
-      @reboot = params[:reboot]
-      @zypp_restart_needed = params[:zypp_restart_needed]
-      render :controller => :patchinfo, :action => "new_patchinfo", :project => @project
-    end
+  def update_patchinfo
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
+    result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST" ))
   end
 
   def edit_patchinfo
@@ -298,7 +169,9 @@ class PatchinfoController < ApplicationController
         cvelist = ""
       end
       node = Builder::XmlMarkup.new(:indent=>2)
-      xml = node.patchinfo do |n|
+      attrs = {}
+      attrs[:incident] = @package.project.gsub(/.*:/,'')
+      xml = node.patchinfo(attrs) do |n|
         if binaries
           binaries.each do |binary|
             node.binary(binary)
@@ -369,6 +242,7 @@ class PatchinfoController < ApplicationController
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package, :project => @project )
+      Patchinfo.free_cache(:project=> @project, :package => @package)
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
