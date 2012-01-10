@@ -142,7 +142,7 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_patchinfos_that_need_work"
     Rails.cache.delete cachekey unless opts[:cache]
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      Collection.find_cached(:id, :what => 'package', :predicate => "patchinfo/issue/[@state="OPEN" and owner/@login='#{login}']")
+      Collection.find_cached(:id, :what => 'package', :predicate => "patchinfo/issue/[@state='OPEN' and owner/@login='#{login}']")
     end
   end
 
