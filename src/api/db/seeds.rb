@@ -77,6 +77,8 @@ at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "InitializeDevelPackage", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "BranchTarget", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "QualityCategory", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)

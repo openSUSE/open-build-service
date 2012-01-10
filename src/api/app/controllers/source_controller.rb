@@ -1363,7 +1363,9 @@ class SourceController < ApplicationController
           packages.each do |pkg|
             unless @packages.map {|p| p[:package] }.include? pkg # avoid double instances
               logger.info "Found package instance via project link in #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}"
-              @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+              ltprj = pkg.db_project
+              ltprj = prj if prj.find_attribute("OBS", "BranchTarget")
+              @packages.push({ :base_project => pkg.db_project, :link_target_project => ltprj, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
             end
           end
         end
