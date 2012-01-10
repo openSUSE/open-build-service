@@ -80,10 +80,6 @@ module ProjectHelper
     return match[0]
   end
 
-  def patchinfo_from_incident(incident)
-    return frontend.get_source(:project => incident, :package => 'patchinfo', :filename => '_patchinfo')
-  end
-
   def colored_patchinfo_rating(rating)
     color = ""
     case rating.to_s
