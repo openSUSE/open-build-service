@@ -46,4 +46,7 @@
       <% end %>
     </tbody>
   </table>
+  <% javascript_tag do %>
+    $('#<%= incident_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {4: {sorter: false}, 5: {sorter: false}} });
+  <% end %>
 <% end %>
