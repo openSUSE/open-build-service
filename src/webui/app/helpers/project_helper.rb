@@ -84,7 +84,7 @@ module ProjectHelper
     return frontend.get_source(:project => incident, :package => 'patchinfo', :filename => '_patchinfo')
   end
 
-  def colored_rating(rating)
+  def colored_patchinfo_rating(rating)
     color = ""
     case rating.to_s
       when "low" then color = "green"
@@ -93,6 +93,15 @@ module ProjectHelper
       when "critical" then color = "maroon"
     end
     return "<span style=\"color: #{color};\">#{rating}</span>"
+  end
+
+  def colored_patchinfo_category(category)
+    color = ""
+    case category.to_s
+      when "recommended" then color = "green"
+      when "security" then color = "maroon"
+    end
+    return "<span style=\"color: #{color};\">#{category}</span>"
   end
 
 end

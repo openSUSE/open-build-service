@@ -21,8 +21,8 @@
           <td><%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %></td>
           <td><%= incident.value('title') %></td>
           <% if patchinfo %>
-            <td><%= patchinfo.category %> </td>
-            <td><%= raw colored_rating(patchinfo.rating) %></td>
+            <td><%= raw colored_patchinfo_category(patchinfo.category) %> </td>
+            <td><%= raw colored_patchinfo_rating(patchinfo.rating) %></td>
             <td><%= link_to(image_tag('icons/accept.png', :alt => 'View patchinfo', :title => 'View patchinfo'), :controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo') %></td>
           <% else %>
             <td>-</td>
