@@ -3657,7 +3657,7 @@ sub getfilelist {
 	if (!$error) {
 	  $serviceinfo->{'code'} = 'succeeded';
 	  $serviceinfo->{'xsrcmd5'} = $li->{'xservicemd5'};
-	} elsif ($error =~ /service in progress/) {
+	} elsif ($error eq 'service in progress') {
 	  $serviceinfo->{'code'} = 'running';
 	} else {
 	  $serviceinfo->{'code'} = 'failed';
