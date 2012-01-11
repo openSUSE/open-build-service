@@ -39,7 +39,8 @@
           <%if @buglist%>
             <% @buglist.reject{|bug| bug.blank? }.each do |bug| %>
               <div id="bug_<%= bug %>">
-                <%= hidden_field_tag "bug[]", bug, :id => "bugvalue_#{bug}" %><%= bug.to_s %>
+                <%= hidden_field_tag "bug[]", bug, :id => "bugvalue_#{bug}" %>
+                <%= link_to "#{bug.to_s}", "https://bugzilla.novell.com/show_bug.cgi?id=#{bug.to_s}" %>
                 <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#bug_#{bug}').remove(); return false;" %>
               </div>
             <%end%>
