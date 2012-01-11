@@ -121,7 +121,20 @@ module MaintenanceHelper
     if link and ret = ActiveXML::XMLNode.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.db_project.name)
       ret.delete_attribute('project') # its a local link, project name not needed
       ret.set_attribute('package', ret.package.gsub(/\..*/,'') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
-      answer = Suse::Backend.put "/source/#{targetProject.name}/#{targetPackageName}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+      link_xml = ret.dump_xml
+      answer = Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(@http_user.login)}", link_xml
+      md5 = Digest::MD5.hexdigest(link_xml)
+      # commit with noservice parameneter
+      upload_params = {
+        :user => @http_user.login,
+        :cmd => 'commitfilelist',
+        :noservice => '1',
+        :comment => "Set link to #{targetPackageName} via maintenance_release request",
+      }
+      upload_params[:requestid] = request.id if request
+      upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
+      upload_path << build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+      answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     else
       # copy sources
       # backend copy of current sources as full copy
