@@ -642,6 +642,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_link"
     assert_response 404
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked.#{incidentID}/_link"
+    assert_response :success
+    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}", :cicount => "copy" }
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incidentID}"

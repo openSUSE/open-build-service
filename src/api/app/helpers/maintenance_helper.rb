@@ -112,24 +112,36 @@ module MaintenanceHelper
       updateinfoId = mi.getUpdateinfoId( id_template )
     end
 
-    # copy sources
-    # backend copy of current sources as full copy
-    # that means the xsrcmd5 is different, but we keep the incident project anyway.
-    cp_params = {
-      :cmd => "copy",
-      :user => @http_user.login,
-      :oproject => sourcePackage.db_project.name,
-      :opackage => sourcePackage.name,
-      :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
-      :expand => "1",
-      :withvrev => "1",
-      :noservice => "1",
-    }
-    cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
-    cp_params[:requestid] = request.id if request
-    cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
-    cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
-    Suse::Backend.post cp_path, nil
+    # detect local links
+    link = nil
+    begin
+      link = Suse::Backend.get "/source/#{URI.escape(sourcePackage.db_project.name)}/#{URI.escape(sourcePackage.name)}/_link"
+    rescue Suse::Backend::HTTPError
+    end
+    if link and ret = ActiveXML::XMLNode.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.db_project.name)
+      ret.delete_attribute('project') # its a local link, project name not needed
+      ret.set_attribute('package', ret.package.gsub(/\..*/,'') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
+      answer = Suse::Backend.put "/source/#{targetProject.name}/#{targetPackageName}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+    else
+      # copy sources
+      # backend copy of current sources as full copy
+      # that means the xsrcmd5 is different, but we keep the incident project anyway.
+      cp_params = {
+        :cmd => "copy",
+        :user => @http_user.login,
+        :oproject => sourcePackage.db_project.name,
+        :opackage => sourcePackage.name,
+        :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
+        :expand => "1",
+        :withvrev => "1",
+        :noservice => "1",
+      }
+      cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
+      cp_params[:requestid] = request.id if request
+      cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
+      cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
+      Suse::Backend.post cp_path, nil
+    end
 
     # copy binaries
     sourcePackage.db_project.repositories.each do |sourceRepo|
@@ -146,7 +158,7 @@ module MaintenanceHelper
               :resign => "1",
             }
             cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
-            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{CGI.escape(releasetarget.target_repository.name)}/#{CGI.escape(arch.name)}/#{CGI.escape(targetPackageName)}"
+            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
             cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign])
             Suse::Backend.post cp_path, nil
           end
@@ -162,7 +174,7 @@ module MaintenanceHelper
 
     # create or update main package linking to incident package
     basePackageName = targetPackageName.gsub(/\..*/, '')
-    answer = Suse::Backend.get "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
+    answer = Suse::Backend.get "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
     xml = REXML::Document.new(answer.body.to_s)
     unless xml.elements["/directory/entry/@name='_patchinfo'"]
       # only if package does not contain a _patchinfo file
@@ -177,16 +189,16 @@ module MaintenanceHelper
         :comment => "Set link to #{targetPackageName} via maintenance_release request",
       }
       upload_params[:comment] += ", for updateinfo ID #{updateinfoId}" if updateinfoId
-      upload_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}/_link"
+      upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
       upload_path << build_query_from_hash(upload_params, [:user, :rev])
-      link = "<link package='#{CGI.escape(targetPackageName)}' cicount='copy' />\n"
+      link = "<link package='#{targetPackageName}' cicount='copy' />\n"
       md5 = Digest::MD5.hexdigest(link)
       answer = Suse::Backend.put upload_path, link
       # commit
       upload_params[:cmd] = 'commitfilelist'
       upload_params[:noservice] = '1'
       upload_params[:requestid] = request.id if request
-      upload_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(basePackageName)}"
+      upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
       upload_path << build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
       answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     end
