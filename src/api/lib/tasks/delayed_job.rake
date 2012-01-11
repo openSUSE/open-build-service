@@ -1,6 +1,6 @@
 require 'workers/status_monitor_job.rb'
 require 'workers/issue_trackers_to_backend_job.rb'
-require 'lib/workers/update_issues.rb'
+require 'workers/update_issues.rb'
 
 namespace :jobs do
   desc "Inject a job to update the workerstatus cache"
