@@ -5,6 +5,9 @@
     <div class="box show_left show_right">
       <h2 style="display: inline">Patchinfo-Editor for <%=h @project %></h2>
     </div>
+    <div style="border:solid 1px; background-color:#DDDDDD; height:25px; width:240px; margin-left:15px; text-align:center;">
+    <b><%= link_to "Update patchinfo from sources", :action => "updatepatchinfo", :project => @project, :package => @package %></b>
+    </div>
     <table class="patchinfo">
       <tr>
         <th>Packager: </th>
@@ -69,6 +72,21 @@
                 $("#cvelist").append("<div id='cve_" + cves[i] + "'><input type='hidden' name='cve[]' value='" + cves[i] + "'/>" + cves[i] + " " + "<a onclick='$(\"#cve_" + cves[i] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title = 'Remove CVE' alt='Remove CVE'></a>" + "</div>");
               }
               return false;
+            }
+
+            function update_patchinfo() {
+              $("#update_spinner").show();
+              $.ajax({
+                url: "updatepatchinfo",
+                type: "get",
+                data:{
+                  project: $("input#project").val(),
+                  package: $("input#package").val()
+                },
+                complete: function(){
+                   $("#update_spinner").hide();
+                }
+              });
             }
 
             $(document).ready(function(){

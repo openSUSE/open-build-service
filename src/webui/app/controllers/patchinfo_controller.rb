@@ -25,9 +25,11 @@ class PatchinfoController < ApplicationController
     read_patchinfo 
   end
 
-  def update_patchinfo
+  def updatepatchinfo
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
     result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST" ))
+    Patchinfo.free_cache(:project=> @project, :package => @package)
+    redirect_to :action => "edit_patchinfo", :project => @project, :package => @package
   end
 
   def edit_patchinfo
