@@ -14,5 +14,5 @@ end
 
 namespace :jobs do
   desc "Update states of existing issues"
-  task(:issuetrackers => :environment) { Delayed::Job.enqueue UpdateIssuesJobs.new }
+  task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
 end
