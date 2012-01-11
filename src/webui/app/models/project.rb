@@ -411,10 +411,8 @@ class Project < ActiveXML::Base
   def patchinfo
     cachekey = "maintenance_incident_patchinfo_#{self.name}"
     return Rails.cache.fetch(cachekey, :expires_in => 5.minutes) do
-      #TODO: We may want to have a PatchInfo model (with API support):
       begin
-        frontend = FrontendCompat.new
-        ActiveXML::Base.new(frontend.get_source(:project => self.name, :package => 'patchinfo', :filename => '_patchinfo'))
+        Patchinfo.find_cached(:project, :self.name, :package => 'patchinfo')
       rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
         nil
       end
