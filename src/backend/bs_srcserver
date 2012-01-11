@@ -3884,9 +3884,11 @@ sub sourcediff {
   $cacheid .= "/view:$cgi->{'view'}" if $view && $view ne 'unified';
   $cacheid .= "/fmax:$fmax" if defined $fmax;
   $cacheid .= "/tmax:$tmax" if defined $tmax;
+  $cgi->{'withissues'} = 1 if $cgi->{'onlyissues'};
   if ($cgi->{'withissues'}) {
     my @s = stat("$BSConfig::bsdir/issuetrackers.xml");
     $cacheid .= "/withissues:$s[9]/$s[7]/$s[1]" if @s;
+    $cacheid .= "/onlyissues" if $cgi->{'onlyissues'};
   }
   if ($cgi->{'file'}) {
     my %file = map {$_ => 1} @{$cgi->{'file'}};
@@ -3927,7 +3929,9 @@ sub sourcediff {
   my $d;
   if ($view eq 'xml') {
     my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax);
-    $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, %opts) };
+    if (!$cgi->{'onlyissues'}) {
+      $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, %opts) };
+    }
     if ($cgi->{'withissues'}) {
       my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
       $trackers = $trackers->{'issue-tracker'} || [];
@@ -6579,9 +6583,9 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool?' => \&sourcediff,
-  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool?' => \&linkdiff,
-  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool?' => \&servicediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool?' => \&sourcecopy,
