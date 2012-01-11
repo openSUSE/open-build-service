@@ -555,6 +555,15 @@ class MaintenanceTests < ActionController::IntegrationTest
                :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0_LinkedUpdateProject", :code=>"disabled" }
     assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"pack2.BaseDistro3", :code=>"scheduled" }
+    # try to create release request too early
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="' + maintenanceProject + '" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code=>"build_not_finished" }
     # upload build result as a worker would do
     inject_build_job( maintenanceProject, "pack2.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
     inject_build_job( maintenanceProject, "pack2.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )

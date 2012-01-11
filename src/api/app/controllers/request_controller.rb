@@ -351,6 +351,20 @@ class RequestController < ApplicationController
               entries.each do |entry|
                 next unless entry.attributes["name"] == "_patchinfo"
                 # check for build state and binaries
+                state = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/_result") )
+                repos = state.get_elements("/resultlist/result[@project='#{pkg.db_project.name}'')]")
+                unless repos
+                  render_error :status => 400, :errorcode => 'build_not_finished',
+                    :message => "The project'#{pkg.db_project.name}' has no building repositories"
+                  return
+                end
+                repos.each do |repo|
+                  unless ["finished", "publishing", "published", "unpublished"].include? repo.attributes['state']
+                    render_error :status => 400, :errorcode => 'build_not_finished',
+                      :message => "The repository '#{pkg.db_project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}"
+                    return
+                  end
+                end
                 pkg.db_project.repositories.each do |repo|
                   if repo and repo.architectures.first
                     binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
