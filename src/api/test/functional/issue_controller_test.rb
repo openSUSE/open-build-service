@@ -40,6 +40,25 @@ class IssueControllerTest < ActionController::IntegrationTest
     assert_no_tag :tag => 'password'
   end
 
+  def test_get_issue_for_package_and_project
+    ActionController::IntegrationTest::reset_auth
+    get '/source/Devel:BaseDistro:Update?view=issues'
+    assert_response 401
+    get '/source/Devel:BaseDistro:Update/pack3?view=issues'
+    assert_response 401
+
+    # as user
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get '/source/Devel:BaseDistro:Update/pack3?view=issues'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    get '/source/Devel:BaseDistro:Update?view=issues'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+  end
+
   def test_search_issues
     ActionController::IntegrationTest::reset_auth
     get "/search/package_id", :match => 'patchinfo/issue/@name="123456"'

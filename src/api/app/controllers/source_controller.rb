@@ -93,6 +93,10 @@ class SourceController < ApplicationController
           pro = DbProject.get_by_name project_name
           # we let the backend list the packages after we verified the project is visible
           if params.has_key? :view
+            if params["view"] == "issues"
+              render :text => pro.render_issues_axml(params), :content_type => 'text/xml'
+              return
+            end
             pass_to_backend
           else
             @dir = Package.find :all, :project => project_name
@@ -367,6 +371,15 @@ class SourceController < ApplicationController
     # GET /source/:project/:package
     #------------------------------
     if request.get?
+      if params["view"] == "issues"
+        unless tpkg
+          render_error :status => 400, :errorcode => "no_local_package",
+            :message => "Issues can only be shown for local packages"
+          return
+        end
+        render :text => tpkg.render_issues_axml(params), :content_type => 'text/xml'
+        return
+      end
 
       # exec
       path = request.path

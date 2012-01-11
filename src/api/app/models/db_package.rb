@@ -386,6 +386,7 @@ class DbPackage < ActiveRecord::Base
           self.db_package_issues.create( :issue => issue )
         }
       end
+    else
     end
   end
   private :private_set_package_kind
@@ -764,6 +765,18 @@ class DbPackage < ActiveRecord::Base
         render_axml
       end
     end
+  end
+
+  def render_issues_axml(params)
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+
+    xml = builder.package( :project => self.db_project.name, :name => self.name ) do |package|
+      self.db_package_issues.each do |i|
+        i.issue.render_body(package)
+      end
+    end
+
+    xml
   end
 
   def render_attribute_axml(params)

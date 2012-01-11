@@ -843,6 +843,22 @@ class DbProject < ActiveRecord::Base
     return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
   end
 
+  def render_issues_axml(params)
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+
+    xml = builder.project( :name => self.name ) do |project|
+      self.db_packages.each do |pkg|
+        project.package( :project => pkg.db_project.name, :name => pkg.name ) do |package|
+          pkg.db_package_issues.each do |i|
+            i.issue.render_body(package)
+          end
+        end
+      end
+    end
+
+    xml
+  end
+
   def render_attribute_axml(params)
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
