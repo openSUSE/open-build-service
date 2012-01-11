@@ -38,7 +38,7 @@
       <td>
         <% @buglist.each do |a| %>
           <% a.each do |bug| %>
-            <%= bug.to_s%>
+            <%= link_to "#{bug.to_s}", "https://bugzilla.novell.com/show_bug.cgi?id=#{bug.to_s}" %>
           <%end%>
           <br/>
         <%end%>
