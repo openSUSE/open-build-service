@@ -1317,14 +1317,16 @@ class SourceController < ApplicationController
         end
       else
         pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
-        prj = pkg.db_project if pkg and not prj.find_attribute("OBS", "BranchTarget")
+        unless prj.class == DbProject and prj.find_attribute("OBS", "BranchTarget")
+          prj = pkg.db_project if pkg 
+        end
       end
       tpkg_name = params[:target_package]
       tpkg_name = params[:package] unless tpkg_name
       tpkg_name += ".#{params[:project]}" if extend_names
       if pkg
         # local package
-        @packages.push({ :base_project => prj, :link_target_project => pkg.db_project, :package => pkg, :rev => params[:rev], :target_package => tpkg_name })
+        @packages.push({ :base_project => prj, :link_target_project => prj, :package => pkg, :rev => params[:rev], :target_package => tpkg_name })
       else
         # remote or not existing package
         @packages.push({ :base_project => prj, :link_target_project => (prj||params[:project]), :package => params[:package], :rev => params[:rev], :target_package => tpkg_name })

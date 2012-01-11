@@ -228,7 +228,8 @@ class DbProject < ActiveRecord::Base
     def get_by_name(name)
       dbp = find :first, :conditions => ["name = BINARY ?", name]
       if dbp.nil?
-        return dbp if dbp = find_remote_project(name)
+        dbp, remote_name = find_remote_project(name)
+        return dbp.name + ":" + remote_name if dbp
         raise UnknownObjectError, name
       end
       unless check_access?(dbp)
