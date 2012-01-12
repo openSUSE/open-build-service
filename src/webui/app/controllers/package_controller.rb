@@ -180,6 +180,7 @@ class PackageController < ApplicationController
     else
       @revision = Package.current_rev(@project, @package)
     end
+    @cleanup_source = @project.value('name').include?(':branches:') # Rather ugly decision finding...
   end
   def submit_request
     if params[:targetproject].nil? or params[:targetproject].empty?
@@ -189,6 +190,9 @@ class PackageController < ApplicationController
 
     begin
       params[:type] = "submit"
+      if not params[:sourceupdate] and params[:project].include?(':branches:')
+        params[:sourceupdate] = 'update' # Avoid auto-removal of branch
+      end
       req = BsRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e

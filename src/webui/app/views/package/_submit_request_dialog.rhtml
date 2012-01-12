@@ -113,7 +113,7 @@
             <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
           </span>
           <span id="sourceupdate_display">
-            <%= check_box_tag(:sourceupdate, 'cleanup') %> Remove local package if request is accepted
+            <%= check_box_tag(:sourceupdate, 'cleanup', @cleanup_source) %> Remove local package if request is accepted
           </span>
         </p>
         <p id="devel_project_warning" class="hidden">
