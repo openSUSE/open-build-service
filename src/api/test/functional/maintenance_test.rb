@@ -517,6 +517,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
+    get "/source/#{maintenanceProject}/patchinfo?view=issues"
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "0815"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "cve"
 
     # add another issue and update patchinfo
     put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy_file", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
@@ -527,6 +535,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "category", :content => "security" ) # changed due to CVE
     assert_tag( :tag => "issue", :attributes => {:id => "4201",  :tracker => "bnc"} )
+    get "/source/#{maintenanceProject}/patchinfo?view=issues"
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "cve"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "4201"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
 
     ### the backend is now building the packages, injecting results
     # run scheduler once to create job file. x86_64 scheduler gets no work

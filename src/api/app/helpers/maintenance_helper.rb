@@ -84,6 +84,7 @@ module MaintenanceHelper
         cp_path = "/source/#{CGI.escape(tprj.name)}/#{CGI.escape(pkg.name)}"
         cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid])
         Suse::Backend.post cp_path, nil
+        new.sources_changed
       end
     end
 
@@ -95,10 +96,13 @@ module MaintenanceHelper
     targetProject = DbProject.get_by_name targetProjectName
 
     # create package container, if missing
-    unless DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
-      new = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-      targetProject.db_packages << new
-      new.store
+    tpkg = nil
+    if DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
+      tpkg = DbPackage.get_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
+    else
+      tpkg = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      targetProject.db_packages << tpkg
+      tpkg.store
     end
 
     # get updateinfo id in case the source package comes from a maintenance project
@@ -135,6 +139,7 @@ module MaintenanceHelper
       upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
       upload_path << build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
       answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+      tpkg.set_package_kind_from_commit(answer.body)
     else
       # copy sources
       # backend copy of current sources as full copy
@@ -154,6 +159,7 @@ module MaintenanceHelper
       cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
       cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
       Suse::Backend.post cp_path, nil
+      tpkg.sources_changed
     end
 
     # copy binaries
@@ -191,10 +197,13 @@ module MaintenanceHelper
     xml = REXML::Document.new(answer.body.to_s)
     unless xml.elements["/directory/entry/@name='_patchinfo'"]
       # only if package does not contain a _patchinfo file
-      unless DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
-        new = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-        targetProject.db_packages << new
-        new.store
+      lpkg = nil
+      if DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
+        lpkg = DbPackage.get_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
+      else
+        lpkg = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+        targetProject.db_packages << lpkg
+        lpkg.store
       end
       upload_params = {
         :user => @http_user.login,
@@ -214,6 +223,7 @@ module MaintenanceHelper
       upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
       upload_path << build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
       answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+      lpkg.set_package_kind_from_commit(answer.body)
     end
   end
 end

@@ -335,6 +335,11 @@ class DbPackage < ActiveRecord::Base
     return result
   end
 
+  def sources_changed
+    self.update_timestamp
+    self.set_package_kind
+  end
+
   def add_package_kind( kinds )
     private_set_package_kind( kinds, nil, true )
   end
@@ -387,6 +392,40 @@ class DbPackage < ActiveRecord::Base
         }
       end
     else
+      # onlyissues gets the issues from .changes files
+      issue_state={}
+      # all 
+      begin
+        # no expand=1, so only branches are tracked
+        issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
+        xml = REXML::Document.new(issues.body.to_s)
+        xml.root.elements.each('issue') { |i|
+          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
+          issue_state[issue] = 'kept' 
+        }
+      rescue Suse::Backend::HTTPError
+      end
+
+      # issues introduced by local changes
+      if self.db_package_kinds.find_by_kind 'link'
+        begin
+          issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
+          xml = REXML::Document.new(issues.body.to_s)
+          xml.root.elements.each('issue') { |i|
+            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
+            issue_state[issue] = i.attributes['state']
+          }
+        rescue Suse::Backend::HTTPError
+        end
+      end
+
+      # store all
+      DbProject.transaction do
+        self.db_package_issues.destroy_all
+        issue_state.each do |issue, state|
+          self.db_package_issues.create( :issue => issue, :state => state )
+        end
+      end
     end
   end
   private :private_set_package_kind

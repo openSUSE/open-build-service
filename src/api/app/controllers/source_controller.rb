@@ -1086,7 +1086,6 @@ class SourceController < ApplicationController
           else
             tpkg = DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
           end
-          pack.set_package_kind('link') unless params[:rev] = 'repository'
         end
       end
 
@@ -1101,9 +1100,6 @@ class SourceController < ApplicationController
           end
           packager = User.get_by_login data.packager.to_s unless packager
         end
-        unless params[:rev] = 'repository'
-          pack.set_package_kind('patchinfo')
-        end
       end
 
       # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
@@ -1113,16 +1109,12 @@ class SourceController < ApplicationController
         pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
         prj.db_packages << pack
         pack.save
-      else
-        if package_name == "_project"
-          # TO BE IMPLEMENTED: add support for project update_timestamp
-        else
-          pack = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false, follow_project_links=false )
-          pack.update_timestamp
-        end
       end
 
       pass_to_backend path
+
+      # update package timestamp, kind and issues
+      pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? package_name
 
       update_product_autopackages params[:project] if package_name == "_product"
 
@@ -1139,7 +1131,7 @@ class SourceController < ApplicationController
       Suse::Backend.delete path
       unless package_name == "_pattern" or package_name == "_project"
         # _pattern was not a real package in old times
-        pack.update_timestamp
+        pack.sources_changed
       end
       if package_name == "_product"
         update_product_autopackages params[:project]
@@ -1198,7 +1190,7 @@ class SourceController < ApplicationController
     backend_pkgs.each_package do |package|
       path = "/source/#{URI.escape(tproject)}/#{package.name}/_meta"
       Package.new(backend_get(path), :project => tproject).save
-#      tpkg.set_package_kind
+      DbPackage.find_by_project_and_name(tproject, package.name).sources_changed
     end
   end
 
@@ -1685,6 +1677,7 @@ class SourceController < ApplicationController
         linked_package += "." + tpkg.name.gsub(/^[^\.]*\./,'') if extend_names
         ret.set_attribute('package', linked_package)
         answer = Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+        tpkg.sources_changed
       else
         path = "/source/#{URI.escape(tpkg.db_project.name)}/#{URI.escape(tpkg.name)}"
         oproject = p[:link_target_project].class == DbProject ? p[:link_target_project].name : p[:link_target_project]
@@ -1712,7 +1705,7 @@ class SourceController < ApplicationController
           answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
         end
 
-        tpkg.set_package_kind
+        tpkg.sources_changed
       end
     end
 
@@ -1919,6 +1912,7 @@ class SourceController < ApplicationController
     patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
     backend_put( patchinfo_path, xml.dump_xml )
+    pkg.sources_changed
     render_ok :data => {:targetproject => pkg.db_project.name, :targetpackage => pkg_name}
   end
 
@@ -1936,6 +1930,7 @@ class SourceController < ApplicationController
     patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
     answer = backend_put( patchinfo_path, xml.dump_xml )
+    pkg.sources_changed
 
     render_ok
   end
@@ -2088,7 +2083,7 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
-    pack.update_timestamp if pack # in case of _project package
+    pack.sources_changed if pack # in case of _project package
 
     if params[:package] == "_product"
       update_product_autopackages params[:project]
@@ -2161,8 +2156,6 @@ class SourceController < ApplicationController
           :message => "Unknown package #{spackage} in project #{sproject}"
         return
       end
-    else
-      tpkg.update_timestamp
     end
 
     # We need to use the project name of package object, since it might come via a project linked project
@@ -2170,7 +2163,7 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
     pass_to_backend path
 
-    tpkg.set_package_kind
+    tpkg.sources_changed
   end
 
   # POST /source/<project>/<package>?cmd=runservice
@@ -2179,11 +2172,12 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login
 
     pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
-    pack.update_timestamp
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend path
+
+    pack.sources_changed
   end
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
@@ -2206,7 +2200,6 @@ class SourceController < ApplicationController
     pkg_linkrev = params[:linkrev]
 
     pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source=true, follow_project_links=false
-    pkg.update_timestamp
 
     #convert link to branch
     rev = ""
@@ -2219,7 +2212,7 @@ class SourceController < ApplicationController
     end
     Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}", nil
 
-    pkg.set_package_kind
+    pkg.sources_changed
     render_ok
   end
 
