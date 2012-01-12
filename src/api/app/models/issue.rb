@@ -61,8 +61,8 @@ class Issue < ActiveRecord::Base
     self.issue_tracker.fetch_issues([self])
   end
 
-  def render_body(node)
-    node.issue({}) do |issue|
+  def render_body(node, change=nil)
+    node.issue({:change => change}) do |issue|
       issue.created_at(self.created_at)
       issue.updated_at(self.updated_at)   if self.updated_at
       issue.name(self.name)

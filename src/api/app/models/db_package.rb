@@ -370,9 +370,9 @@ class DbPackage < ActiveRecord::Base
         if xml.elements["/directory/entry/@name='_patchinfo'"]
           self.db_package_kinds.create :kind => 'patchinfo'
         end
-#        if xml.elements["/directory/entry/@name='_aggregate'"]
-#          self.db_package_kinds.create :type => 'aggregate'
-#        end
+        if xml.elements["/directory/entry/@name='_aggregate'"]
+          self.db_package_kinds.create :type => 'aggregate'
+        end
         if xml.elements["/directory/entry/@name='_link'"]
           self.db_package_kinds.create :kind => 'link'
         end
@@ -393,15 +393,15 @@ class DbPackage < ActiveRecord::Base
       end
     else
       # onlyissues gets the issues from .changes files
-      issue_state={}
+      issue_change={}
       # all 
       begin
         # no expand=1, so only branches are tracked
         issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
         xml = REXML::Document.new(issues.body.to_s)
-        xml.root.elements.each('issue') { |i|
-          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
-          issue_state[issue] = 'kept' 
+        xml.root.elements.each('/sourcediff/issues/issue') { |i|
+          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['issue-tracker'] )
+          issue_change[issue] = 'kept' 
         }
       rescue Suse::Backend::HTTPError
       end
@@ -411,9 +411,9 @@ class DbPackage < ActiveRecord::Base
         begin
           issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
           xml = REXML::Document.new(issues.body.to_s)
-          xml.root.elements.each('issue') { |i|
-            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
-            issue_state[issue] = i.attributes['state']
+          xml.root.elements.each('/sourcediff/issues/issue') { |i|
+            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['issue-tracker'] )
+            issue_change[issue] = i.attributes['state']
           }
         rescue Suse::Backend::HTTPError
         end
@@ -422,8 +422,8 @@ class DbPackage < ActiveRecord::Base
       # store all
       DbProject.transaction do
         self.db_package_issues.destroy_all
-        issue_state.each do |issue, state|
-          self.db_package_issues.create( :issue => issue, :state => state )
+        issue_change.each do |issue, change|
+          self.db_package_issues.create( :issue => issue, :change => change )
         end
       end
     end
@@ -811,7 +811,7 @@ class DbPackage < ActiveRecord::Base
 
     xml = builder.package( :project => self.db_project.name, :name => self.name ) do |package|
       self.db_package_issues.each do |i|
-        i.issue.render_body(package)
+        i.issue.render_body(package, i.change)
       end
     end
 

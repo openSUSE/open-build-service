@@ -125,7 +125,7 @@ CREATE TABLE `db_package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_package_id` int(11) NOT NULL,
   `issue_id` int(11) NOT NULL,
-  `change` enum('added','removed','kept') DEFAULT NULL,
+  `change` enum('added','deleted','changed','kept') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `db_package_id` (`db_package_id`),
   KEY `issue_id` (`issue_id`),
@@ -827,6 +827,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120110094300');
 INSERT INTO schema_migrations (version) VALUES ('20120110104300');
 
 INSERT INTO schema_migrations (version) VALUES ('20120111094300');
+
+INSERT INTO schema_migrations (version) VALUES ('20120112094300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
