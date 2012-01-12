@@ -67,7 +67,7 @@ class SearchController < ApplicationController
         end
         
         str = (render_all ? item.to_axml : item.to_axml_id)
-        output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
+        output << str.split(/\n/).map {|l| l.match(/\s*\</) ? "  "+l : l}.join("\n") + "\n"
       end
     rescue XpathEngine::IllegalXpathError => e
       render_error :status => 400, :message => "illegal xpath %s (#{e.message})" % predicate
