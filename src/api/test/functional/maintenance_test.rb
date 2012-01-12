@@ -537,6 +537,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :tag => "issue", :attributes => {:id => "4201",  :tracker => "bnc"} )
     get "/source/#{maintenanceProject}/patchinfo?view=issues"
     assert_response :success
+    assert_tag :tag => 'kind', :content => "patchinfo"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"

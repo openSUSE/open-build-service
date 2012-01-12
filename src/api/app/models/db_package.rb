@@ -810,6 +810,9 @@ class DbPackage < ActiveRecord::Base
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     xml = builder.package( :project => self.db_project.name, :name => self.name ) do |package|
+      self.db_package_kinds.each do |k|
+        package.kind(k.kind)
+      end
       self.db_package_issues.each do |i|
         i.issue.render_body(package, i.change)
       end
