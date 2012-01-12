@@ -192,9 +192,7 @@ class PackageController < ApplicationController
       req = BsRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
-      target_package = params[:package]
-      target_package = params[:targetpackage] if params[:targetpackage]
-      flash[:error] = "Unable to submit to '#{params[:targetproject]} / #{target_package}', target does not exist"
+      flash[:error] = "Unable to submit: #{e.message}"
       redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
     end
 
