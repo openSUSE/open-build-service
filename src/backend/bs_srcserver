@@ -5418,7 +5418,8 @@ sub binary_key_to_data {
   } elsif ($name =~ s/_([^_]+)_[^_]+\.deb$//) {
     $versrel = $1;
   }
-  my ($version, $release) = $versrel =~ /^(.*)(?:-([^-]*))?/;
+  my ($version, $release) = ($versrel, undef);
+  ($version, $release) = ($1, $2) if $version =~ /^(.*)-(.*?)$/;
   my $arch = pop(@p);
   while (@p > 1 && $p[0] =~ /:$/) {
     splice(@p, 0, 2, "$p[0]$p[1]");
@@ -5507,6 +5508,7 @@ sub search_published_binary_id {
   my $data = BSXPath::match($rootnode, $match) || [];
   # epoch?
   @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
+  delete $_->{'versrel'} for @$data;
   my $res = {};
   $res->{'matches'} = @$data;
   $res->{'limited'} = 'true' if $limit && @$data > $limit;

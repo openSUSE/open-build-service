@@ -988,6 +988,7 @@ our $binary_id = [
 	'package',
 	'repository',
 	'version',
+	'release',
 	'arch',
 	'filename',
 	'filepath',
