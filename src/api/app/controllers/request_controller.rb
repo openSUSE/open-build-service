@@ -343,7 +343,7 @@ class RequestController < ApplicationController
                 tprj = nil
               end
             end
-            tpkg = tpkg.gsub(/\..*/, '') # strip distro specific extension
+            tpkg = tpkg.gsub(/\.[^\.]*/, '') # strip distro specific extension
 
             # do not allow release requests without binaries
             if action.value("type") == "maintenance_release" and data and params["ignore_build_state"].nil?
@@ -624,7 +624,7 @@ class RequestController < ApplicationController
           if xml.elements["/directory/entry/@name='_patchinfo'"]
             predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{action.target.project}' and action/target/@package='#{action.target.package}'"
           else
-            tpkgprefix = action.target.package.gsub(/\..*/, '')
+            tpkgprefix = action.target.package.gsub(/\.[^\.]*/, '')
             predicate = "(state/@name='new' or state/@name='review') and action/target/@project='#{action.target.project}' and (action/target/@package='#{action.target.package}' or starts-with(action/target/@package,'#{tpkgprefix}.'))"
           end
 
@@ -695,7 +695,7 @@ class RequestController < ApplicationController
         if action.target.has_attribute? 'package'
           if action.value("type") == "maintenance_release"
             # use orignal/stripped name and also GA projects for maintenance packages
-            tpkg = tprj.find_package action.target.package.gsub(/\..*/, '')
+            tpkg = tprj.find_package action.target.package.gsub(/\.[^\.]*/, '')
           else
             # just the direct affected target
             tpkg = tprj.db_packages.find_by_name action.target.package
