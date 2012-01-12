@@ -183,6 +183,17 @@ class RequestController < ApplicationController
         # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
         flash[:note] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
       end
+
+      # Cleanup prj/pkg cache after auto-removal of source projects / packages (mostly from branches).
+      # To keep things simple, we don't check if the src prj had more pkgs, etc..
+      @req.each_action do |action|
+        if action.value('type') == 'submit' and action.has_element?('options') and action.options.value('sourceupdate') == 'cleanup'
+          Rails.cache.delete("#{action.source.project}_packages_mainpage")
+          Rails.cache.delete("#{action.source.project}_problem_packages")
+          Package.free_cache(:all, :project => action.source.project)
+          Package.free_cache(action.source.package, :project => action.source.project) if action.source.package
+        end
+      end
     end
     redirect_to :action => 'show', :id => params[:id]
   end
