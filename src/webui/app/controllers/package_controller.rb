@@ -428,10 +428,15 @@ class PackageController < ApplicationController
       result_project = result.find_first( "/status/data[@name='targetproject']" ).text
       result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      redirect_to :controller => 'package', :action => 'show',
-        :project => params[:project], :package => params[:package] and return
+      message, code, _ = ActiveXML::Transport.extract_error_message e
+      if code == "double_branch_package"
+        flash[:note] = "You already branched the package and got redirected to it instead"
+        bprj, bpkg = message.split("exists: ")[1].split('/', 2) # Hack to find out branch project / package
+        redirect_to :controller => 'package', :action => 'show', :project => bprj, :package => bpkg and return
+      else
+        flash[:error] = message
+        redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+      end
     end
     flash[:success] = "Branched package #{@project} / #{@package}"
     redirect_to :controller => 'package', :action => 'show',
