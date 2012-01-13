@@ -121,9 +121,11 @@ ActiveXML::Base.config do |conf|
 
     map.connect :project, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",
-      :delete => "rest:///source/:name?:force"
+      :delete => "rest:///source/:name?:force",
+      :issues => "rest:///source/:name?view=issues"
     map.connect :package, "rest:///source/:project/:name/_meta?:view",
-      :all    => "rest:///source/:project"
+      :all    => "rest:///source/:project",
+      :issues => "rest:///source/:project/:name?view=issues"
 
     map.connect :tagcloud, "rest:///tag/tagcloud?limit=:limit",
       :alltags  => "rest:///tag/tagcloud?limit=:limit",
