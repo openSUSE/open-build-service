@@ -306,7 +306,7 @@ class PackageController < ApplicationController
       @rev = @last_rev
     end
 
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&view=xml"
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&view=xml&withissues=1"
     path += "&linkrev=#{CGI.escape(params[:linkrev])}" if params[:linkrev]
     path += "&rev=#{CGI.escape(@rev)}" if @rev
     path += "&oproject=#{CGI.escape(@oproject)}" if @oproject
