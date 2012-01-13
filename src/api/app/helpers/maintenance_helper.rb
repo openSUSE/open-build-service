@@ -192,7 +192,7 @@ module MaintenanceHelper
     end
 
     # create or update main package linking to incident package
-    basePackageName = targetPackageName.gsub(/\..*/, '')
+    basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
     answer = Suse::Backend.get "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
     xml = REXML::Document.new(answer.body.to_s)
     unless xml.elements["/directory/entry/@name='_patchinfo'"]
