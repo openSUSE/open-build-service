@@ -409,13 +409,10 @@ class Project < ActiveXML::Base
   end
 
   def patchinfo
-    cachekey = "maintenance_incident_patchinfo_#{self.name}"
-    return Rails.cache.fetch(cachekey, :expires_in => 5.minutes) do
-      begin
-        Patchinfo.find_cached(:project => self.name, :package => 'patchinfo')
-      rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
-        nil
-      end
+    begin
+      return Patchinfo.find_cached(:project => self.name, :package => 'patchinfo')
+    rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
+      return nil
     end
   end
 
