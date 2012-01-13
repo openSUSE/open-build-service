@@ -371,7 +371,7 @@ class DbPackage < ActiveRecord::Base
           self.db_package_kinds.create :kind => 'patchinfo'
         end
         if xml.elements["/directory/entry/@name='_aggregate'"]
-          self.db_package_kinds.create :type => 'aggregate'
+          self.db_package_kinds.create :kind => 'aggregate'
         end
         if xml.elements["/directory/entry/@name='_link'"]
           self.db_package_kinds.create :kind => 'link'
