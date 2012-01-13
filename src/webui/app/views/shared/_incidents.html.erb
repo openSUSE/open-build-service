@@ -30,7 +30,7 @@
             <td><%= link_to(image_tag('icons/exclamation.png', :alt => 'Create patchinfo', :title => 'Create patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %></td>
           <% end %>
           <td>
-            <% if packages.length > 1 %>
+            <% if packages && packages.length > 1 %>
               <%= link_to(image_tag('icons/accept.png', :alt => "Has #{packages.length} packages", :title => "Has #{packages.count} packages"), :action => 'packages', :project => incident.value('name')) %>
             <% else %>
               <%= link_to(image_tag('icons/exclamation.png', :alt => 'Has no packages', :title => 'Has no packages'), :action => 'show', :project => incident.value('name')) %>
