@@ -846,11 +846,15 @@ class DbProject < ActiveRecord::Base
   def render_issues_axml(params)
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
+    filter_changes = nil
+    filter_changes = params[:changes].split(",") if params[:changes]
+
     xml = builder.project( :name => self.name ) do |project|
       self.db_packages.each do |pkg|
         project.package( :project => pkg.db_project.name, :name => pkg.name ) do |package|
           pkg.db_package_issues.each do |i|
-            i.issue.render_body(package)
+            next if filter_changes and not filter_changes.include? i.change
+            i.issue.render_body(package, i.change)
           end
         end
       end

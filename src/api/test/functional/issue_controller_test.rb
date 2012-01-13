@@ -128,6 +128,28 @@ Aha bnc#16\n
     assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "16"
 
+    get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=added"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "16"
+
+    get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=kept,deleted"
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "16"
+
+    get "/source/home:Iggy:branches:BaseDistro?view=issues&changes=kept,deleted"
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "16"
+
+    #cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end
