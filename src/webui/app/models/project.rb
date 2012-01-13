@@ -405,7 +405,7 @@ class Project < ActiveXML::Base
       when 'open' then predicate += " and repository/releasetarget/@trigger='maintenance'"
       when 'closed' then predicate += " and not(repository/releasetarget/@trigger='maintenance')"
     end
-    return Collection.find(:what => 'project', :predicate => predicate).each
+    return Collection.find_cached(:what => 'project', :predicate => predicate).each
   end
 
   def patchinfo
