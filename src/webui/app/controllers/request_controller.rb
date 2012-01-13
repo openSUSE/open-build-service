@@ -74,13 +74,16 @@ class RequestController < ApplicationController
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
   
     @is_maintainer = nil
-    @contains_submit_action = false
+    @contains_submit_action, @contains_change_devel_action = false, false
     contains_only_undiffable_actions, project_wide_delete_request = true, true
     @req.each_action do |action|
       if action.value("type") == "submit"
         @src_project = action.source.project
         @src_pkg = action.source.package
         @contains_submit_action = true
+      end
+      if action.value("type") == "change_devel"
+        @contains_change_devel_action = true
       end
       if ['submit', 'delete', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
         contains_only_undiffable_actions = false

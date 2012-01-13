@@ -265,7 +265,7 @@
       <p>
         <%= hidden_field_tag("id", @id) %>
         <% if @is_maintainer %>
-          <% if @actiondiffs && !@actiondiffs.empty? %>
+          <% if (@actiondiffs && !@actiondiffs.empty?) || @contains_change_devel_action %>
             <% if @state == "review" %>
               <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
             <% else %>
