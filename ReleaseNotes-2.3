@@ -154,3 +154,10 @@ Requirements:
 
 * Usage of Ruby on Rails version 2.3.14 is recommended.
 
+General Notes:
+==============
+
+* The api delayed job will parse all sources in all packages once after 
+  updating (to detect package kind and mentioned issues). This is a long
+  running job and will create some load.
+
