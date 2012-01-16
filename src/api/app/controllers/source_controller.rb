@@ -1322,7 +1322,7 @@ class SourceController < ApplicationController
         end
       else
         pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
-        unless prj.class == DbProject and prj.find_attribute("OBS", "BranchTarget")
+        if prj.class != DbProject and not prj.find_attribute("OBS", "BranchTarget")
           prj = pkg.db_project if pkg 
         end
       end
@@ -1414,19 +1414,25 @@ class SourceController < ApplicationController
           if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg_name )
             # We have a package in the update project already, take that
             p[:package] = pa
-            p[:link_target_project] = pa.db_project
-            logger.info "branch call found package in update project #{pa.db_project.name}"
+            if prj.class != DbProject and not prj.find_attribute("OBS", "BranchTarget")
+              p[:link_target_project] = pa.db_project
+              logger.info "branch call found package in update project #{pa.db_project.name}"
+            end
           else
             update_prj = DbProject.find_by_name( a.values[0].value )
             if update_prj
-              p[:link_target_project] = update_prj
+              if prj.class != DbProject and not prj.find_attribute("OBS", "BranchTarget")
+                p[:link_target_project] = update_prj
+              end
               update_pkg = update_prj.find_package( pkg_name )
               if update_pkg
                 # We have no package in the update project yet, but sources are reachable via project link
                 if update_prj.develproject and up = update_prj.develproject.find_package(pkg.name)
                   # nevertheless, check if update project has a devel project which contains an instance
                   p[:package] = up
-                  p[:link_target_project] = up.db_project unless copy_from_devel
+                  if prj.class != DbProject and not prj.find_attribute("OBS", "BranchTarget")
+                    p[:link_target_project] = up.db_project unless copy_from_devel
+                  end
                   logger.info "link target will create package in update project #{up.db_project.name} for #{prj.name}"
                 else
                   p[:package] = pkg
