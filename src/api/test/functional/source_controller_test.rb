@@ -853,7 +853,7 @@ end
     assert_response :success
     get "/source/home:tom:projectB/_meta"
     assert_response :success
-    assert_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "gone" }
+    assert_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> </project>"
     assert_response :success
 
@@ -878,7 +878,7 @@ end
     assert_response :success
     get "/source/home:tom:projectB/_meta"
     assert_response :success
-    assert_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "gone" }
+    assert_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> </project>"
     assert_response :success
 
@@ -1417,7 +1417,7 @@ end
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.repository.name, "home_coolo"
     assert_equal node.repository.path.project, "deleted"
-    assert_equal node.repository.path.repository, "gone"
+    assert_equal node.repository.path.repository, "deleted"
   end
 
   def test_diff_package

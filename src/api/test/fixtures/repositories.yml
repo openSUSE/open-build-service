@@ -30,7 +30,7 @@ repositories_144:
   block: 
   rebuild: 
   remote_project_name: 
-repositories_211: 
+deleted_deleted:
   name: deleted
   db_project_id: "1000"
   linkedbuild: 
@@ -67,14 +67,6 @@ repositories_83:
   db_project_id: "601"
   linkedbuild: 
   id: "83"
-  block: 
-  rebuild: 
-  remote_project_name: 
-repositories_84: 
-  name: gone
-  db_project_id: "1000"
-  linkedbuild: 
-  id: "84"
   block: 
   rebuild: 
   remote_project_name: 
