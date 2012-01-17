@@ -1,3 +1,19 @@
+QualityCategory_development: 
+  attrib_type_id: "75"
+  id: "84"
+  value: Development
+QualityCategory_private: 
+  attrib_type_id: "75"
+  id: "85"
+  value: Private
+QualityCategory_stable: 
+  attrib_type_id: "75"
+  id: "82"
+  value: Stable
+QualityCategory_testing: 
+  attrib_type_id: "75"
+  id: "83"
+  value: Testing
 attrib_allowed_values_67: 
   attrib_type_id: "59"
   id: "67"

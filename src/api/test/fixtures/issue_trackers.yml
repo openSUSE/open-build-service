@@ -8,6 +8,216 @@ cve_numbers:
   description: CVE numbers
   password: 
   user: 
+issue_trackers_25: 
+  regex: boost#(\d+)
+  kind: trac
+  name: boost
+  url: https://svn.boost.org/trac/boost/
+  id: "25"
+  show_url: https://svn.boost.org/trac/boost/ticket/@@@
+  description: Boost Trac
+  password: 
+  user: 
+issue_trackers_26: 
+  regex: bco#(\d+)
+  kind: bugzilla
+  name: bco
+  url: http://bugzilla.clutter-project.org/
+  id: "26"
+  show_url: http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@
+  description: Clutter Project Bugzilla
+  password: 
+  user: 
+issue_trackers_27: 
+  regex: RT#(\d+)
+  kind: ""
+  name: RT
+  url: https://rt.cpan.org/
+  id: "27"
+  show_url: http://rt.cpan.org/Public/Bug/Display.html?id=@@@
+  description: CPAN Bugs
+  password: 
+  user: 
+issue_trackers_28: 
+  regex: deb#(\d+)
+  kind: bugzilla
+  name: deb
+  url: http://bugs.debian.org/
+  id: "28"
+  show_url: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@
+  description: Debian Bugzilla
+  password: 
+  user: 
+issue_trackers_29: 
+  regex: fdo#(\d+)
+  kind: bugzilla
+  name: fdo
+  url: https://bugs.freedesktop.org/
+  id: "29"
+  show_url: https://bugs.freedesktop.org/show_bug.cgi?id=@@@
+  description: Freedesktop.org Bugzilla
+  password: 
+  user: 
+issue_trackers_30: 
+  regex: GCC#(\d+)
+  kind: bugzilla
+  name: GCC
+  url: http://gcc.gnu.org/bugzilla/
+  id: "30"
+  show_url: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@
+  description: GCC Bugzilla
+  password: 
+  user: 
+issue_trackers_31: 
+  regex: bgo#(\d+)
+  kind: bugzilla
+  name: bgo
+  url: https://bugzilla.gnome.org/
+  id: "31"
+  show_url: https://bugzilla.gnome.org/show_bug.cgi?id=@@@
+  description: Gnome Bugzilla
+  password: 
+  user: 
+issue_trackers_32: 
+  regex: bio#(\d+)
+  kind: bugzilla
+  name: bio
+  url: https://bugzilla.icculus.org/
+  id: "32"
+  show_url: https://bugzilla.icculus.org/show_bug.cgi?id=@@@
+  description: Icculus.org Bugzilla
+  password: 
+  user: 
+issue_trackers_33: 
+  regex: (?:Kernel|K|bko)#(\d+)
+  kind: bugzilla
+  name: bko
+  url: https://bugzilla.kernel.org/
+  id: "33"
+  show_url: https://bugzilla.kernel.org/show_bug.cgi?id=@@@
+  description: Kernel.org Bugzilla
+  password: 
+  user: 
+issue_trackers_34: 
+  regex: kde#(\d+)
+  kind: bugzilla
+  name: kde
+  url: https://bugs.kde.org/
+  id: "34"
+  show_url: https://bugs.kde.org/show_bug.cgi?id=@@@
+  description: KDE Bugzilla
+  password: 
+  user: 
+issue_trackers_35: 
+  regex: b?lp#(\d+)
+  kind: launchpad
+  name: lp
+  url: https://bugs.launchpad.net/bugs/
+  id: "35"
+  show_url: https://bugs.launchpad.net/bugs/@@@
+  description: Launchpad.net Bugtracker
+  password: 
+  user: 
+issue_trackers_36: 
+  regex: Meego#(\d+)
+  kind: bugzilla
+  name: Meego
+  url: https://bugs.meego.com/
+  id: "36"
+  show_url: https://bugs.meego.com/show_bug.cgi?id=@@@
+  description: Meego Bugs
+  password: 
+  user: 
+issue_trackers_37: 
+  regex: bmo#(\d+)
+  kind: bugzilla
+  name: bmo
+  url: https://bugzilla.mozilla.org/
+  id: "37"
+  show_url: https://bugzilla.mozilla.org/show_bug.cgi?id=@@@
+  description: Mozilla Bugzilla
+  password: 
+  user: 
+issue_trackers_38: 
+  regex: ITS#(\d+)
+  kind: ""
+  name: ITS
+  url: http://www.openldap.org/its/
+  id: "38"
+  show_url: http://www.openldap.org/its/index.cgi/Contrib?id=@@@
+  description: OpenLDAP Issue Tracker
+  password: 
+  user: 
+issue_trackers_39: 
+  regex: i#(\d+)
+  kind: bugzilla
+  name: i
+  url: http://openoffice.org/bugzilla/
+  id: "39"
+  show_url: http://openoffice.org/bugzilla/show_bug.cgi?id=@@@
+  description: OpenOffice.org Bugzilla
+  password: 
+  user: 
+issue_trackers_40: 
+  regex: "[Ff]ate#(\\d+)"
+  kind: fate
+  name: fate
+  url: https://features.opensuse.org/
+  id: "40"
+  show_url: https://features.opensuse.org/@@@
+  description: openSUSE Feature Database
+  password: 
+  user: 
+issue_trackers_41: 
+  regex: rh#(\d+)
+  kind: bugzilla
+  name: rh
+  url: https://bugzilla.redhat.com/
+  id: "41"
+  show_url: https://bugzilla.redhat.com/show_bug.cgi?id=@@@
+  description: RedHat Bugzilla
+  password: 
+  user: 
+issue_trackers_42: 
+  regex: bso#(\d+)
+  kind: bugzilla
+  name: bso
+  url: https://bugzilla.samba.org/
+  id: "42"
+  show_url: https://bugzilla.samba.org/show_bug.cgi?id=@@@
+  description: Samba Bugzilla
+  password: 
+  user: 
+issue_trackers_43: 
+  regex: sf#(\d+)
+  kind: sourceforge
+  name: sf
+  url: http://sf.net/support/
+  id: "43"
+  show_url: http://sf.net/support/tracker.php?aid=@@@
+  description: SourceForge.net Tracker
+  password: 
+  user: 
+issue_trackers_44: 
+  regex: Xamarin#(\d+)
+  kind: bugzilla
+  name: Xamarin
+  url: http://bugzilla.xamarin.com/index.cgi
+  id: "44"
+  show_url: http://bugzilla.xamarin.com/show_bug.cgi?id=@@@
+  description: Xamarin Bugzilla
+  password: 
+  user: 
+issue_trackers_45: 
+  regex: bxo#(\d+)
+  kind: bugzilla
+  name: bxo
+  url: https://bugzilla.xfce.org/
+  id: "45"
+  show_url: https://bugzilla.xfce.org/show_bug.cgi?id=@@@
+  description: XFCE Bugzilla
+  password: 
+  user: 
 novell_bugzilla: 
   regex: bnc#(\d+)
   kind: bugzilla

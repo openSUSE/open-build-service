@@ -22,6 +22,14 @@ repositories_144:
   block: 
   rebuild: 
   remote_project_name: 
+repositories_211: 
+  name: deleted
+  db_project_id: "1000"
+  linkedbuild: 
+  id: "211"
+  block: 
+  rebuild: 
+  remote_project_name: 
 repositories_75: 
   name: SUSE_Linux_10.1
   db_project_id: "226"

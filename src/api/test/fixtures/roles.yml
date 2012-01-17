@@ -1,35 +1,35 @@
-roles_1: 
+Admin: 
   title: Admin
   id: "1"
   global: "1"
   parent_id: 
-roles_2: 
+User: 
   title: User
   id: "2"
   global: "1"
   parent_id: 
-roles_3: 
-  title: maintainer
-  id: "3"
-  global: "0"
-  parent_id: 
-roles_4: 
+bugowner: 
   title: bugowner
   id: "4"
   global: "0"
   parent_id: 
-roles_5: 
+downloader: 
   title: downloader
   id: "5"
   global: "0"
   parent_id: 
-roles_6: 
-  title: reviewer
-  id: "6"
+maintainer: 
+  title: maintainer
+  id: "3"
   global: "0"
   parent_id: 
-roles_7: 
+reader: 
   title: reader
   id: "7"
+  global: "0"
+  parent_id: 
+reviewer: 
+  title: reviewer
+  id: "6"
   global: "0"
   parent_id: 

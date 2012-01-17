@@ -1,3 +1,24 @@
+OBS_ProjectStatusPackageFailComment: 
+  attrib_namespace_id: "9"
+  name: ProjectStatusPackageFailComment
+  value_count: "1"
+  id: "74"
+  type: 
+  description: 
+OBS_QualityCategory: 
+  attrib_namespace_id: "9"
+  name: QualityCategory
+  value_count: "1"
+  id: "75"
+  type: 
+  description: 
+OBS_ScreenShots: 
+  attrib_namespace_id: "9"
+  name: ScreenShots
+  value_count: 
+  id: "73"
+  type: 
+  description: 
 attrib_types_56: 
   attrib_namespace_id: "9"
   name: VeryImportantProject

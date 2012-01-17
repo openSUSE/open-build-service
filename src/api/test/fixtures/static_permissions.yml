@@ -16,9 +16,21 @@ static_permissions_13:
 static_permissions_14: 
   title: access
   id: "14"
+static_permissions_19: 
+  title: global_change_project
+  id: "19"
 static_permissions_2: 
   title: global_project_create
   id: "2"
+static_permissions_20: 
+  title: global_create_project
+  id: "20"
+static_permissions_21: 
+  title: global_change_package
+  id: "21"
+static_permissions_22: 
+  title: global_create_package
+  id: "22"
 static_permissions_3: 
   title: global_package_change
   id: "3"

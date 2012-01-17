@@ -40,3 +40,81 @@ attrib_type_modifiable_bies_973674845:
   attrib_type_id: "58"
   bs_user_id: "172"
   id: "973674845"
+attrib_type_modifiable_bies_973674869: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "56"
+  bs_user_id: "280"
+  id: "973674869"
+attrib_type_modifiable_bies_973674870: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "57"
+  bs_user_id: "280"
+  id: "973674870"
+attrib_type_modifiable_bies_973674871: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "64"
+  bs_user_id: "280"
+  id: "973674871"
+attrib_type_modifiable_bies_973674872: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "65"
+  bs_user_id: "280"
+  id: "973674872"
+attrib_type_modifiable_bies_973674873: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "58"
+  bs_user_id: "280"
+  id: "973674873"
+attrib_type_modifiable_bies_973674874: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "62"
+  bs_user_id: "280"
+  id: "973674874"
+attrib_type_modifiable_bies_973674875: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "63"
+  bs_user_id: "280"
+  id: "973674875"
+attrib_type_modifiable_bies_973674876: 
+  bs_group_id: 
+  bs_role_id: 
+  attrib_type_id: "73"
+  bs_user_id: "280"
+  id: "973674876"
+attrib_type_modifiable_bies_973674877: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "60"
+  bs_user_id: 
+  id: "973674877"
+attrib_type_modifiable_bies_973674878: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "74"
+  bs_user_id: 
+  id: "973674878"
+attrib_type_modifiable_bies_973674879: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "61"
+  bs_user_id: 
+  id: "973674879"
+attrib_type_modifiable_bies_973674880: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "66"
+  bs_user_id: 
+  id: "973674880"
+attrib_type_modifiable_bies_973674881: 
+  bs_group_id: 
+  bs_role_id: "3"
+  attrib_type_id: "75"
+  bs_user_id: 
+  id: "973674881"
