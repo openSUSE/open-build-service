@@ -25,41 +25,37 @@ class XpathEngine
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
           ]},
         '@issue_tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
+          ['LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
           ]},
         '@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
         'owner/@login' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id',
            'LEFT JOIN users ON users.id = issues.owner_id']},
         'title' => {:cpart => 'db_packages.title'},
         'description' => {:cpart => 'db_packages.description'},
+        'kind' => {:cpart => 'db_package_kinds.kind', :joins =>
+           ['LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
         'devel/@project' => {:cpart => 'projs.name', :joins => 
           ['left join db_packages devels on db_packages.develpackage_id = devels.id',
            'left join db_projects projs on devels.db_project_id=projs.id']},
         'devel/@package' => {:cpart => 'develpackage.name', :joins => 
           ['LEFT JOIN db_packages develpackage ON develpackage.id = db_packages.develpackage_id']},
-        'patchinfo/issue/@longname' => {:cpart => 'issues.long_name', :joins => 
+        'issue/@longname' => {:cpart => 'issues.long_name', :joins => 
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
+        'issue/@state' => {:cpart => 'issues.state', :joins => 
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
+        'issue/owner/@email' => {:cpart => 'users.email', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
-        'patchinfo/issue/@state' => {:cpart => 'issues.state', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
-        'patchinfo/issue/owner/@email' => {:cpart => 'users.email', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id',
            'LEFT JOIN users ON users.id = issues.owner_id']},
-        'patchinfo/issue/owner/@login' => {:cpart => 'users.login', :joins => 
+        'issue/owner/@login' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-           'LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id',
            'LEFT JOIN users ON users.id = issues.owner_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
@@ -232,7 +228,7 @@ class XpathEngine
     end
   end
 
-  def parse_predicate(stack)
+  def parse_predicate(stack, root=[])
     #logger.debug "------------------ predicate ---------------"
     #logger.debug "-- pred_array: #{stack.inspect} --"
 
@@ -255,7 +251,24 @@ class XpathEngine
         __send__ opname_int, *(stack)
         stack = []
       when :child
-        stack.shift if stack[0] == :any
+        t = stack.shift
+        if t == :qname
+          stack.shift
+          root << stack.shift
+          t = stack.shift
+          t = stack.shift
+          if t == :predicate
+            parse_predicate(stack[0], root)
+            stack.shift
+          else
+            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
+          end
+          root.pop
+        elsif t == :any
+          # noop, already shifted
+        else
+          raise IllegalXpathError, "unhandled token '#{t.inspect}'"
+        end
       else
         raise IllegalXpathError, "illegal token '#{token.inspect}'"
       end
@@ -271,7 +284,7 @@ class XpathEngine
       token = expr.shift
       case token
       when :child
-        expr.shift #:qname token
+        qname = expr.shift
         expr.shift #namespace
         a << expr.shift
       when :attribute
@@ -314,7 +327,7 @@ class XpathEngine
     str.gsub(/([_%])/, '\\\\\1')
   end
 
-  def xpath_op_eq(lv, rv)
+  def xpath_op_eq(lv, rv, root=[])
     #logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
 
     lval = evaluate_expr(lv)
@@ -338,11 +351,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_and(lv, rv)
+  def xpath_op_and(lv, rv, root=[])
     #logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
-    parse_predicate(lv)
+    parse_predicate(lv, root)
     lv_cond = @conditions.pop
-    parse_predicate(rv)
+    parse_predicate(rv, root)
     rv_cond = @conditions.pop
 
     condition = "(#{lv_cond} AND #{rv_cond})"

@@ -61,36 +61,46 @@ class IssueControllerTest < ActionController::IntegrationTest
 
   def test_search_issues
     ActionController::IntegrationTest::reset_auth
-    get "/search/package_id", :match => 'patchinfo/issue/@name="123456"'
+    get "/search/package_id", :match => 'issue/@name="123456"'
     assert_response 401
-    get "/search/package_id", :match => 'patchinfo/issue/@issue_tracker="bnc"'
+    get "/search/package_id", :match => 'issue/@issue_tracker="bnc"'
     assert_response 401
-    get "/search/package_id", :match => 'patchinfo/issue/[@name="123456" and @issue_tracker="bnc"]'
+    get "/search/package_id", :match => 'issue/[@name="123456" and @issue_tracker="bnc"]'
     assert_response 401
-    get "/search/package_id", :match => 'patchinfo/issue/owner/@login="fred"'
+    get "/search/package_id", :match => 'issue/owner/@login="fred"'
     assert_response 401
-    get "/search/package_id", :match => 'patchinfo/issue/@state="RESOLVED"'
+    get "/search/package_id", :match => 'issue/@state="RESOLVED"'
     assert_response 401
 
     # search via bug owner
     prepare_request_with_user "Iggy", "asdfasdf"
-    get "/search/package_id", :match => 'patchinfo/issue/owner/@login="fred"'
+    # running patchinfo search as done by webui
+    get "/search/package_id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]'
+    assert_response :success
+    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+
+    get "/search/package_id", :match => 'issue/owner/@login="fred"'
     assert_response :success
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # search for specific issue state, issue is in RESOLVED state actually
-    get "/search/package_id", :match => 'patchinfo/issue/@state="OPEN"'
+    get "/search/package_id", :match => 'issue/@state="OPEN"'
     assert_response :success
     assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # running patchinfo search as done by webui
-    get "/search/package_id", :match => 'patchinfo/issue/[@state="CLOSED" and owner/@login="fred"]'
+    get "/search/package_id", :match => '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]'
     assert_response :success
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
+    # test with not matching kind to verify that it does not match
+    get "/search/package_id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]'
+    assert_response :success
+    assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+
     # search via bug issue id
     # FIXME2.3: @issue_name should be named correct, but current XPATH parse can handle that
-    get "/search/package_id", :match => 'patchinfo/issue/[@issue_name="123456" and @issue_tracker="bnc"]'
+    get "/search/package_id", :match => 'issue/[@issue_name="123456" and @issue_tracker="bnc"]'
     assert_response :success
     assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
   end
