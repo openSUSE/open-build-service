@@ -368,10 +368,16 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def wait_for_publisher
-    events = nil
-    #     first time             3 => ".", ".." and ".ping"
-    while events.class != Dir or events.count > 3
+    counter = 0
+    while counter < 100
       events = Dir.open("#{RAILS_ROOT}/tmp/backend_data/events/publish")
+      #  3 => ".", ".." and ".ping"
+      break unless events.count > 3
+      sleep 0.5
+      counter = counter + 1
+    end
+    if counter == 100
+      raise "Waited 50 seconds for publisher"
     end
   end
 
