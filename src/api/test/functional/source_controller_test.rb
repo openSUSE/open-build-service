@@ -1327,7 +1327,7 @@ end
     assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted" )
     assert_response :success
 
-    # list deleted packages
+    # list deleted packages of existing project
     get "/source/kde4", :deleted => 1
     assert_response :success
     assert_tag( :tag => "entry", :attributes => { :name => "kdelibs"} )
@@ -1360,6 +1360,12 @@ end
     assert_response 404
     get "/source/kde4/_meta" 
     assert_response 404
+
+    # list deleted packages of deleted project
+# FIXME: not yet supported
+#    get "/source/kde4", :deleted => 1
+#    assert_response :success
+#    assert_tag( :tag => "entry", :attributes => { :name => "kdelibs"} )
 
     # list content of deleted project
     prepare_request_with_user "king", "sunflower"
