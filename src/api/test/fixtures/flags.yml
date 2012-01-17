@@ -151,8 +151,12 @@ flags_813496:
   db_project_id: "502"
   id: "813496"
   status: enable
-flags_BaseDistro2_0_LinkedUpdateProject_build_disable:
+flags_BaseDistro2_0_LinkedUpdateProject_build_disable: 
   position: "2"
+  architecture_id: 
+  repo: 
+  db_package_id: 
   flag: build
-  db_project_id: 2046
+  db_project_id: "2046"
+  id: "477459121"
   status: disable

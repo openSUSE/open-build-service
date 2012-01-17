@@ -15,6 +15,13 @@ namespace :db do
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables
     tables.each do |table_name|
       i = "000"
+      oldhash = YAML.load_file( "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml" ) || {}
+      idtokey = {}
+      oldhash.each do |key, record| 
+        if record.has_key? 'id'
+           idtokey[record['id']] = key
+        end
+      end
       File.open("#{RAILS_ROOT}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
         hash = {}
@@ -24,7 +31,8 @@ namespace :db do
             id=record['id']
           end
           raise "duplicated record" if hash.has_key? "#{table_name}_#{id}"
-          hash["#{table_name}_#{id}"] = record
+          key = idtokey[id] || "#{table_name}_#{id}"
+          hash[key] = record
         end
         local_to_yaml( hash, file)
       end

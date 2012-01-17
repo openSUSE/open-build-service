@@ -1,17 +1,20 @@
-novell_bugzilla:
-  id: 1
-  regex: "bnc#(\d+)"
-  kind: bugzilla
-  name: bnc
-  url: http://bugzilla.novell.com
-  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
-  description: Novell Bugzilla
-
-cve_numbers:
-  id: 2
-  regex: "CVE-\d{4,4}-\d{4,4}"
+cve_numbers: 
+  regex: CVE-\d{4,4}-\d{4,4}
   kind: cve
   name: cve
   url: http://cve.mitre.org
+  id: "2"
   show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@
   description: CVE numbers
+  password: 
+  user: 
+novell_bugzilla: 
+  regex: bnc#(\d+)
+  kind: bugzilla
+  name: bnc
+  url: http://bugzilla.novell.com
+  id: "1"
+  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
+  description: Novell Bugzilla
+  password: 
+  user: 

@@ -4,18 +4,6 @@ attribs_101:
   binary: 
   db_project_id: 
   id: "101"
-attribs_UpdateProject_for_BaseDistro: 
-  db_package_id: 
-  attrib_type_id: "57"
-  binary: 
-  db_project_id: "2042"
-  id: "102"
-attribs_UpdateProject_for_BaseDistro2_0: 
-  db_package_id: 
-  attrib_type_id: "57"
-  binary: 
-  db_project_id: "2045"
-  id: "103"
 attribs_1040753498: 
   db_package_id: 
   attrib_type_id: "62"
@@ -28,3 +16,15 @@ attribs_995394145:
   binary: 
   db_project_id: "2"
   id: "995394145"
+attribs_UpdateProject_for_BaseDistro: 
+  db_package_id: 
+  attrib_type_id: "57"
+  binary: 
+  db_project_id: "2042"
+  id: "102"
+attribs_UpdateProject_for_BaseDistro2_0: 
+  db_package_id: 
+  attrib_type_id: "57"
+  binary: 
+  db_project_id: "2045"
+  id: "103"

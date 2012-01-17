@@ -64,7 +64,7 @@ db_projects_2043:
   maintenance_project_id: 
   title: This is an update project for the base distro
   updated_at: 2005-01-01 00:00:01
-  type_id: 4
+  type_id: "4"
   remoteurl: 
   id: "2043"
   description: contains official released updates
@@ -100,7 +100,7 @@ db_projects_2046:
   maintenance_project_id: 
   title: This is another update project for the base distro
   updated_at: 2005-01-01 00:00:01
-  type_id: 4
+  type_id: "4"
   remoteurl: 
   id: "2046"
   description: contains official released updates, but this one has a project link to the original one
@@ -112,7 +112,7 @@ db_projects_2047:
   maintenance_project_id: "2048"
   title: This is another base distro, without update project
   updated_at: 2005-01-01 00:00:01
-  type_id: 4
+  type_id: "4"
   remoteurl: 
   id: "2047"
   description: Base distro without update project
