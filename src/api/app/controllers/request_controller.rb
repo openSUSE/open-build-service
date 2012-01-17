@@ -320,10 +320,12 @@ class RequestController < ApplicationController
             end
             data = nil
             missing_ok_link=false
+            suffix = ""
             while tprj == pkg.db_project.name
               data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
               e = data.elements["directory/linkinfo"]
               if e
+                suffix = ltpkg.gsub( /^#{e.attributes["package"]}/, '' )
                 ltpkg = e.attributes["package"]
                 tprj = e.attributes["project"]
                 missing_ok_link=true if e.attributes["missingok"]
@@ -343,7 +345,7 @@ class RequestController < ApplicationController
                 tprj = nil
               end
             end
-            tpkg = tpkg.gsub(/\.[^\.]*$/, '') # strip distro specific extension
+            tpkg = tpkg.gsub(/#{suffix}$/, '') # strip distro specific extension
 
             # do not allow release requests without binaries
             if action.value("type") == "maintenance_release" and data and params["ignore_build_state"].nil?
