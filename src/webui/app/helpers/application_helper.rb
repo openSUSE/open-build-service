@@ -319,7 +319,6 @@ module ApplicationHelper
     # always prepend a newline so the following code can eat up leading spaces over all lines
     comment.gsub!('(<br/> *) ', '\1&nbsp;')
     comment.gsub!(%r{^<br/>}, '')
-    comment = "<code>" + comment + "</code>"
     return comment.html_safe
   end
 
