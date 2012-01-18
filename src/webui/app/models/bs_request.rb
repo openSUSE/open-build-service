@@ -198,4 +198,85 @@ class BsRequest < ActiveXML::Base
     return ret
   end
 
+  def events
+    # Try to find out what happened over time...
+    events = {}
+    previous_item = nil
+    self.each_history do |item|
+      what, color = "", nil
+      case item.name
+        when "new" then
+          if previous_item && previous_item.name == "review"
+            what, color = "accepted review", "green" # Moving back to state 'new'
+          elsif previous_item && previous_item.name == "declined"
+            what, color = "reopened", "maroon"
+          else
+            what = "created request" # First history item, regardless of 'state' (may be 'review')
+          end
+        when "review" then
+          if !previous_item # First history item
+            what = "created request"
+          elsif previous_item && previous_item.name == "declined"
+            what = "reopened review"
+          else # Other items...
+            what = "added review"
+          end
+        when "accepted" then what, color = "accepted request", "green"
+        when "declined" then
+          color = "red"
+          if previous_item
+            case previous_item.name
+              when "review" then what = "declined review"
+              when "new" then what = "declined request"
+            end
+          end
+        when "superseded" then what = "superseded request"
+      end
+
+      events[item.when] = {:who => item.who, :what => what, :when => item.when, :comment => item.value('comment')}
+      events[item.when][:color] = color if color
+      previous_item = item
+    end
+    self.each_review do |item|
+      if ['accepted', 'declined'].include?(item.state)
+
+        reviewer = ''
+        if item.by_group
+          reviewer = item.value('by_group')
+        elsif item.by_project
+          reviewer = item.value('by_project')
+        elsif item.by_package
+          reviewer = item.value('by_package')
+        elsif item.by_user
+          reviewer = item.value('by_user')
+        end
+        events[item.when] = {:who => item.who, :what => "#{item.state} review for #{reviewer}", :when => item.when, :comment => item.value('comment')}
+        events[item.when][:color] = "green" if item.state == "accepted"
+        events[item.when][:color] = "red" if item.state == "declined"
+      end
+    end
+    # The <state ... /> element describes the last event in request's history:
+    state, what, color = self.state, "", ""
+    case state.value('name')
+      when "accepted" then what, color = "accepted request", "green"
+      when "declined" then what, color = "declined request", "red"
+      when "new"
+        if previous_item # Last history entry
+          what, color = "accepted review", "green"
+        else
+          what = "created request"
+        end
+      when "superseded" then what = "superseded request"
+    end
+
+    events[state.when] = {:who => state.who, :what => what, :when => state.when, :comment => state.value('comment')}
+    events[state.when][:color] = color if color
+    events[state.when][:superseded_by] = @superseded_by if @superseded_by
+    # That wasn't all to difficult, no? ;-)
+
+    sorted_events = [] # Store events sorted by key (i.e. datetime)
+    events.keys.sort.each { |key| sorted_events << events[key] }
+    return sorted_events
+  end
+
 end
