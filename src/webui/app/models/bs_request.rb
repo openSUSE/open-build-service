@@ -260,7 +260,7 @@ class BsRequest < ActiveXML::Base
     case state.value('name')
       when "accepted" then what, color = "accepted request", "green"
       when "declined" then what, color = "declined request", "red"
-      when "new"
+      when "new", "review"
         if previous_item # Last history entry
           what, color = "accepted review", "green"
         else
