@@ -194,6 +194,24 @@ class BsRequest < ActiveXML::Base
     return BsRequest.created_at(self)
   end
 
+  def reviews_for_user_and_others(user)
+    user_reviews, other_open_reviews = [], []
+    self.each_review do |review|
+      if review.state == 'new'
+        if user &&
+           (review.has_attribute?(:by_user) && user.login == review.by_user) ||
+           (review.has_attribute?(:by_group) && user.is_in_group?(review.by_group)) ||
+           (review.has_attribute?(:by_project) && user.is_maintainer?(review.by_project)) ||
+           (review.has_attribute?(:by_project) && review.has_attribute?(:by_package) && user.is_maintainer?(review.by_project, review.by_package))
+          user_reviews << review
+        else
+          other_open_reviews << review
+        end
+      end
+    end
+    return user_reviews, other_open_reviews
+  end
+
   def history
     ret = []
     self.each_history do |h|

@@ -1,14 +1,13 @@
-<% @pagetitle = "Request ##{@id}" %>
+<% @pagetitle = "Request #{@id}" %>
+<% @layouttype = 'custom' %>
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @pagetitle] %>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'jquery.autocomplete', 'jquery.tooltip' %>
 <% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.expander.min', 'jquery.tablesorter', 'jquery.tooltip.min' %>
+<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.expander.min', 'jquery.tooltip.min' %>
 
 <% content_for :ready_function do %>
-  $('#actions_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}}});
-  $('#history_table').tablesorter({widgets: ['zebra'], sortList: [[0,0]], headers: {3: {sorter: false}}});
   $('.expandable').expander({slicePoint: 80, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>
 
@@ -20,341 +19,216 @@
     <%= link_to ">>", :controller => :request, :action => :show, :id => @request_after %>
   <% end -%>
 </div>
+<div class="grid_10 alpha">
+  <div class="box box-shadow">
+    <% if @superseded_by %>
+      <h3 id="request_heading"><%= @pagetitle %> (<%= @state %> by request <%= link_to @superseded_by, :id => @superseded_by %>)</h3>
+    <% else %>
+      <h3 id="request_heading"><%= @pagetitle %> (<%= @state %>)</h3>
+    <% end %>
+    <p class="expandable"><%= format_comment(@req.value(:description)) %></p>
 
-<% if @superseded_by %>
-  <h3 id="request_heading"><%= @pagetitle %> (<%= @state %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
-<% else %>
-  <h3 id="request_heading"><%= @pagetitle %> (<%= @state %>)</h3>
-<% end %>
-
-<div>
-  <h3>Actions</h3>
-  <table id="actions_table" class="tablesorter">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th style="width: 50%">Source</th>
-        <th style="width: 50%">Target</th>
-        <th>Info</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @req.each_with_index('action') do |ae, index| %>
+    <table>
+      <thead>
         <tr>
-          <td><%= ae.value(:type) %></td>
-          <td>
-            <% if ae.has_element? :source %> <!-- <%= ae.source.project %> -->
-              <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
-                <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 64) %>
-                <%= link_to_if(Project.exists?(ae.source.project), src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
-                <% if Package.exists?(ae.source.project, ae.source.package) %>
-                  <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
-                  <% if ae.source.has_attribute?(:rev) && ae.source.rev != Package.current_rev(ae.source.project, ae.source.package) %>
-                  <%= link_to("(rev #{elide(ae.source.rev, 10)})", :controller => :package, :action => :files, :project => ae.source.project, :package => ae.source.package, :rev => ae.source.rev) %>
+          <th>Type</th>
+          <th>Source</th>
+          <th>Target</th>
+          <th>Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @req.each_with_index('action') do |ae, index| %>
+          <tr>
+            <td><%= ae.value(:type) %></td>
+            <td>
+              <% if ae.has_element? :source %> <!-- <%= ae.source.project %> -->
+                <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
+                  <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, 64) %>
+                  <%= link_to_if(Project.exists?(ae.source.project), src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
+                  <% if Package.exists?(ae.source.project, ae.source.package) %>
+                    <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                    <% if ae.source.has_attribute?(:rev) && ae.source.rev != Package.current_rev(ae.source.project, ae.source.package) %>
+                    <%= link_to("(rev #{elide(ae.source.rev, 10)})", :controller => :package, :action => :files, :project => ae.source.project, :package => ae.source.package, :rev => ae.source.rev) %>
+                    <% end %>
+                  <% else %>
+                    <%= src_pack %>
                   <% end %>
                 <% else %>
-                  <%= src_pack %>
+                  <%= link_to_if(Project.exists?(ae.source.project), elide(ae.source.project, 64), :controller => :project, :action => :show, :project => ae.source.project) %>
+                <% end %>
+              <% end %>
+            </td>
+            <td>
+            <% if ae.has_element?(:target) %>
+              <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
+                <% if ae.target.has_attribute?(:package) and Package.exists?(ae.target.project, ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                  <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, 64) %>
+                  <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
+                  <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                <% else %>
+                  <%= link_to(elide(ae.target.project, 64), :controller => :project, :action => :show, :project => ae.target.project) %>
                 <% end %>
               <% else %>
-                <%= link_to_if(Project.exists?(ae.source.project), elide(ae.source.project, 64), :controller => :project, :action => :show, :project => ae.source.project) %>
+                <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
+                  <%= link_to(elide(ae.target.package, 64), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                <% elsif ae.value(:type) == "delete" %>
+                  This project
+                <% end %>
               <% end %>
             <% end %>
-          </td>
-          <td>
-          <% if ae.has_element?(:target) %>
-            <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
-              <% if ae.target.has_attribute?(:package) and Package.exists?(ae.target.project, ae.target.package) %> <!-- /<%= ae.target.package %> -->
-                <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, 64) %>
-                <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
-                <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-              <% else %>
-                <%= link_to(elide(ae.target.project, 64), :controller => :project, :action => :show, :project => ae.target.project) %>
+            </td>
+            <td>
+              <% if ae.value(:type) == "add_role" %>
+                <% if ae.has_element? :group %>
+                  Role <b><%= ae.group.role %></b> for <b><%= ae.group.name %></b>
+                <% elsif ae.has_element? :person %>
+                  Role <b><%= ae.person.role %></b> for <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => ae.person.name, :no_gravatar => true} %>
+                <% end %>
+              <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
+                <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build results', :title => 'Build results', :id => "req_#{@req.value(:id)}_action_#{index}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                <% javascript_tag do %>
+                  setup_buildresult_tooltip('<%= "req_#{@req.value(:id)}_action_#{index}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
+                <% end %>
               <% end %>
-            <% else %>
-              <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
-                <%= link_to(elide(ae.target.package, 64), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-              <% elsif ae.value(:type) == "delete" %>
-                This project
+              <% if ae.has_element? :options and ae.options.has_element? :sourceupdate and ae.options.sourceupdate.text == 'cleanup' %>
+                <%= image_tag('icons/package_delete.png', :size => '16x16', :title => 'Package will be deleted after request was accepted', :alt => 'Package will be deleted after request was accepted') %>
               <% end %>
-            <% end %>
-          <% end %>
-          </td>
-          <td>
-            <% if ae.value(:type) == "add_role" %>
-              <% if ae.has_element? :group %>
-                Role <b><%= ae.group.role %></b> for <b><%= ae.group.name %></b>
-              <% elsif ae.has_element? :person %>
-                Role <b><%= ae.person.role %></b> for <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => ae.person.name, :no_icon => true} %>
-              <% end %>
-            <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
-              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build results', :title => 'Build results', :id => "req_#{@req.value(:id)}_action_#{index}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
-              <% javascript_tag do %>
-                setup_buildresult_tooltip('<%= "req_#{@req.value(:id)}_action_#{index}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
-              <% end %>
-            <% end %>
-            <% if ae.has_element? :options and ae.options.has_element? :sourceupdate and ae.options.sourceupdate.text == 'cleanup' %>
-              <%= image_tag('icons/package_delete.png', :size => '16x16', :title => 'Package will be deleted after request was accepted', :alt => 'Package will be deleted after request was accepted') %>
-            <% end %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
-<p><%= format_comment(@req.value(:description)) %></p>
-
-<div>
-  <h3>History</h3>
-  <table id="history_table" class="tablesorter">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>State</th>
-        <th>User</th>
-        <th style="width: 70%">Comment</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @req.history.each do |h| %>
-        <tr>
-          <td class="nowrap"><span class="hidden"><%= Time.parse(h[:when].to_s).to_i %></span><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
-          <td><%= h[:name] %></td>
-          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => h[:who]}%></td>
-          <td class="expandable"><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
-
-<% if @open_reviews > 0 and @state == 'review' %>
-  <% content_for :head_javascript do %>
-    function modifyReview(id, new_state) {
-      var comment = $('#review_comment_' + id).attr('value');
-      var data = {new_state: new_state, comment: comment};
-      if ($('#review_type_' + id).text() == "package") {
-        project_and_package = $('#review_name_' + id).text().split(' / ');
-        data['project'] = project_and_package[0].trim();
-        data['package'] = project_and_package[1].trim();
-      } else if ($('#review_type_' + id).text() == "user") {
-        data[$('#review_type_' + id).text()] = $('#review_name_' + id + '_raw').text();
-      } else {
-        data[$('#review_type_' + id).text()] = $('#review_name_' + id).text();
-      }
-      $.ajax({
-        url: '<%= url_for(:controller => 'request', :action => 'modify_review', :id => @id) %>',
-        type: 'POST',
-        data: data,
-        success: function(data) {
-          $('#review_table td#review_state_' + id).text(data);
-          $('#review_table td#review_buttons_' + id).remove();
-          $('#review_table td #review_comment_' + id).parent().html(comment.replace(/\n/g,'<br/>').replace(/ /g,'&nbsp;'));
-          if ($('.review_buttons').length == 0) {
-            $('#review_action_heading').remove(); // Remove 'Action' column if there are no buttons left
-          }
-
-          // The following is necessary to correctly set the request state in the heading ;-)
-          var review_states = $('.review_states');
-          var all_reviews_done = true;
-          for (var i=0, len=review_states.length; i<len; ++i) {
-            if (review_states[i].textContent == 'new') {
-              all_reviews_done = false; break;
-            }
-          }
-          if (all_reviews_done) {
-            var new_text = '';
-            if (data == 'accepted') {
-              new_text = $('#request_heading').text().replace(/\(.*\)/, '(new)');
-            } else if (data == 'declined') {
-              new_text = $('#request_heading').text().replace(/\(.*\)/, '(declined)');
-            }
-            $('#request_heading').text(new_text);
-          }
-        }
-      })
-    }
-  <% end %>
-<% end %>
-<% if @req.each_review.length > 0 %>
-  <div>
-    <h3>Reviews</h3>
-    <table id="review_table" class="tablesorter">
-      <tr>
-        <th style="width: 1%">State</th>
-        <th style="width: 1%">Type</th>
-        <th style="width: 8%">Reviewer</th>
-        <th style="width: 89%">Reviewer Comment</th>
-        <% if @open_reviews > 0 and @state == "review" %>
-          <th id="review_action_heading" style="width: 1%">Actions</th>
+            </td>
+          </tr>
         <% end %>
-      </tr>
-      <%-
-	 revnum=0
-	 @req.each_review do |r|
-	   revnum=revnum+1
-           comment = r.comment if r.has_element? :comment or nil%>
-        <tr>
-          <td id="review_state_<%= revnum %>" class="review_states nowrap"><%= r.state %></td>
-          <% if r.has_attribute? :by_user %>
-            <td id="review_type_<%= revnum %>">user</td>
-            <td id="review_name_<%= revnum %>" class="nowrap">
-              <span id="review_name_<%= revnum %>_raw" class="hidden"><%= r.by_user %></span>
-              <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => r.by_user}%>
-            </td>
-          <% elsif r.has_attribute? :by_group %>
-            <td id="review_type_<%= revnum %>">group</td>
-            <td id="review_name_<%= revnum %>"><%= r.by_group %></td>
-          <% elsif r.has_attribute? :by_project %>
-            <% if r.has_attribute? :by_package %>
-              <td id="review_type_<%= revnum %>">package</td>
-              <td id="review_name_<%= revnum %>" class ="nowrap">
-                <%= link_to(r.by_project.to_s + ' / ' + r.by_package.to_s, :controller => :package, :action => :show, :project => r.by_project, :package => r.by_package) %>
-              </td>
-            <% else %>
-              <td id="review_type_<%= revnum %>">project</td>
-              <td id="review_name_<%= revnum %>"><%= link_to(r.by_project, :controller => :project, :action => :show, :project => r.by_project) %></td>
-            <% end %>
-          <% end %>
-
-          <% if @open_reviews > 0 and @state == "review" and r.state != "accepted" and
-                ((r.has_attribute? :by_user and @user.login.to_s == r.by_user.to_s) or
-                 (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
-                 (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
-                 (r.has_attribute? :by_package and @user.is_maintainer?(r.by_project, r.by_package))) %>
-            <td><%= text_area_tag "review_comment_#{revnum}", comment, :size => '80x1', :style => 'width: 99%;' %></td>
-            <td class="review_buttons" id="review_buttons_<%= revnum %>">
-              <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{revnum}, 'accepted')") %>
-              <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{revnum}, 'declined')") %>
-            </td>
-          <% else %>
-            <td class="expandable"><%= format_comment(comment) %></td>
-          <% end %>
-        </tr>
-      <%end%>
+      </tbody>
     </table>
-    <% javascript_tag do %>
-      $('#review_table').tablesorter({widgets: ['zebra'], sortList: [[0,1]], headers: {3: {sorter: false}, 4: {sorter: false}}});
+
+    <% if !@other_open_reviews.empty? && ['new', 'review'].include?(@state) %>
+      <h4>Other Open Reviews</h4>
+      <% @other_open_reviews.each do |open_review| %>
+        <%= open_review.to_s %>
+      <% end %>
+    <% end %>
+
+    <% if !["accepted", "declined", "revoked", "superseded"].include?(@state) %>
+      <% if @is_maintainer || @is_author %>
+        <% form_tag(:action => "changerequest") do %>
+          <p>
+            <% if @actiondiffs && !@actiondiffs.empty? && @is_maintainer %>
+              <% if @contains_submit_action and not @submitter_is_target_maintainer %>
+                <%= check_box_tag(:add_submitter_as_maintainer) %> Add
+                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => BsRequest.creator(@req), :no_icon => true} %>
+              <% end %>
+              <% if @req.action.value("type") == "submit" and @target_pkg %>
+                <% linkinfo = @target_pkg.linkinfo %>
+                <% if linkinfo %>
+                  <%= check_box_tag('forward_link', "#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package
+                  <%= link_to("#{linkinfo.project} / #{linkinfo.package}", :controller => 'package', :action => 'show', :project => linkinfo.project, :package => linkinfo.package) %><br/>
+                <% end %>
+                <% @target_pkg.developed_packages.each_with_index do |pkg,index| %>
+                  <% if not(linkinfo and linkinfo.project == pkg.project and linkinfo.package == pkg.name) %>
+                    <%= check_box_tag("forward_devel_#{index}", "#{pkg.project}_#_#{pkg.name}", true) %> Forward to developed package
+                    <%= link_to("#{pkg.project} / #{pkg.name}", :controller => 'package', :action => 'show', :project => pkg.project, :package => pkg.name) %><br/>
+                  <% end %>
+                <% end %>
+              <% end %>
+            <% end %>
+            <b>Comment:</b><br/>
+            <%= text_field_tag(:reason, '', :style => "width: 99%") %>
+          </p>
+          <p>
+            <%= hidden_field_tag("id", @id) %>
+            <%# button_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
+            <%= button_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
+            <% if @is_maintainer %>
+              <% if !(@contains_submit_action && @actiondiffs && @actiondiffs.empty?) %>
+                <% if @state == "review" %>
+                  <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
+                <% else %>
+                  <%= submit_tag "Accept request", :name => 'accepted' %>
+                <% end %>
+              <% end %>
+              <% if @is_author %>
+                <%= submit_tag "Revoke request", :name => 'revoked' %>
+              <% else %>
+                <%= submit_tag "Decline request", :name => 'declined' %>
+              <% end %>
+            <% elsif @is_author %>
+              <%= submit_tag "Revoke request", :name => 'revoked' %>
+            <% end %>
+          </p>
+        <% end %>
+      <% end %>
+    <% elsif ["declined"].include?(@state) and @is_author %>
+      <% form_tag(:action => "changerequest") do %>
+        <p>
+          <b>Comment:</b><br/>
+          <%= text_field_tag(:reason, '', :style => "width: 99%") %>
+        </p>
+        <p>
+          <%= hidden_field_tag("id", @id) %>
+          <%= submit_tag "Revoke request", :name => 'revoked' %>
+          <%= submit_tag "Reopen request", :name => 'new' %>
+        </p>
+      <% end %>
     <% end %>
   </div>
-<% end %>
+</div>
 
-<% if !["accepted", "declined", "revoked", "superseded"].include?(@state) %>
-  <% if @is_maintainer || @is_author %>
-    <% if (@state == "review" || @state == "new") %>
-      <p>
-        <%= link_to_remote(image_tag('icons/user_add.png', :title => "Add reviewer"), :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
-        <%= link_to_remote("Add reviewer", :url => {:controller => :request, :action => :add_reviewer_dialog, :id => @id}) %>
-      </p>
-    <% end %>
-    <% form_tag(:action => "changerequest") do %>
-      <h3>Handle Request</h3>
-      <p>
-        <% if @actiondiffs && !@actiondiffs.empty? && @is_maintainer %>
-          <% if @contains_submit_action and not @submitter_is_target_maintainer %>
-            <%= check_box_tag(:add_submitter_as_maintainer) %> Add
-            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => BsRequest.creator(@req), :no_icon => true} %> as maintainer of the target package<br/>
-          <% end %>
-          <% if @req.action.value("type") == "submit" and @target_pkg %>
-            <% linkinfo = @target_pkg.linkinfo %>
-            <% if linkinfo %>
-              <%= check_box_tag('forward_link', "#{linkinfo.project}_#_#{linkinfo.package}") %> Forward to linked package
-              <%= link_to("#{linkinfo.project} / #{linkinfo.package}", :controller => 'package', :action => 'show', :project => linkinfo.project, :package => linkinfo.package) %><br/>
-            <% end %>
-            <% @target_pkg.developed_packages.each_with_index do |pkg,index| %>
-              <% if not(linkinfo and linkinfo.project == pkg.project and linkinfo.package == pkg.name) %>
-                <%= check_box_tag("forward_devel_#{index}", "#{pkg.project}_#_#{pkg.name}", true) %> Forward to developed package
-                <%= link_to("#{pkg.project} / #{pkg.name}", :controller => 'package', :action => 'show', :project => pkg.project, :package => pkg.name) %><br/>
-              <% end %>
-            <% end %>
-          <% end %>
-        <% end %>
-        <b>Comment:</b><br/>
-        <%= text_field_tag(:reason, '', :style => "width: 99%") %>
-      </p>
-      <p>
-        <%= hidden_field_tag("id", @id) %>
-        <% if @is_maintainer %>
-          <% if !(@contains_submit_action && @actiondiffs && @actiondiffs.empty?) %>
-            <% if @state == "review" %>
-              <%= submit_tag "Accept request", :name => 'accepted', :confirm => "Do you really want to approve this request, despite of open review requests ?" %>
-            <% else %>
-              <%= submit_tag "Accept request", :name => 'accepted' %>
-            <% end %>
-          <% end %>
-          <% if @is_author %>
-            <%= submit_tag "Revoke request", :name => 'revoked' %>
-          <% else %>
-            <%= submit_tag "Decline request", :name => 'declined' %>
-          <% end %>
-        <% elsif @is_author %>
-          <%= submit_tag "Revoke request", :name => 'revoked' %>
-        <% end %>
-      </p>
-    <% end %>
-  <% end %>
-<% elsif ["declined"].include?(@state) and @is_author %>
-  <% form_tag(:action => "changerequest") do %>
-    <p>
-      <b>Comment:</b><br/>
-      <%= text_field_tag(:reason, '', :style => "width: 99%") %>
-    </p>
-    <p>
-      <%= hidden_field_tag("id", @id) %>
-      <%= submit_tag "Revoke request", :name => 'revoked' %>
-      <%= submit_tag "Reopen request", :name => 'new' %>
-    </p>
-  <% end %>
-<% end %>
+<div class="grid_6 omega">
+  <div class="box box-shadow">
+    <div class="box-header aligncenter"><b>History</b></div>
+    <%= render :partial => 'recent_events_table' %>
+  </div>
+</div>
 
 <% if @actiondiffs and not @actiondiffs.empty? %>
-  <% if @actiondiffs.length != 1 %>
-    <h3>Diffs</h3>
-    <p>
-      <%= label_tag(:diff_action, 'Display diff for request action ') %>
-      <% select_options = [] %>
-      <% @actiondiffs.each_with_index do |actiondiff, action_index| %>
-        <% actiondiff[:sourcediffs].each_with_index do |_, sourcediff_index| %>
-          <% select_options << "#{action_index}_#{actiondiff[:type]}_#{sourcediff_index}" %>
+  <div class="grid_16 alpha omega">
+    <div class="box box-shadow">
+      <% if @actiondiffs.length != 1 %>
+        <p>
+          <%= label_tag(:diff_action, 'Display diff for request action ') %>
+          <% select_options = [] %>
+          <% @actiondiffs.each_with_index do |actiondiff, action_index| %>
+            <% actiondiff[:sourcediffs].each_with_index do |_, sourcediff_index| %>
+              <% select_options << "#{action_index}_#{actiondiff[:type]}_#{sourcediff_index}" %>
+            <% end %>
+          <% end %>
+          <%= select_tag(:diff_action, options_for_select(select_options)) %>:
+        </p>
+      <% end %>
+      <div>
+        <% @actiondiffs.each_with_index do |actiondiff, action_index| %>
+          <% actiondiff[:sourcediffs].each_with_index do |sourcediff, sourcediff_index| %>
+
+            <%# Depending on the request type, the project, package (and rev) for displaying file links is different ;-) %>
+            <% if actiondiff[:type] == 'delete' %>
+              <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
+            <% else %>
+              <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
+            <% end %>
+
+            <% if actiondiff[:sourcediffs].length != 1 %>
+              <h4>
+                <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
+                <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
+              </h4>
+            <% end %>
+
+            <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :issues => sourcediff[:issues], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{actiondiff[:type]}_#{sourcediff_index}", :css_class => "diff_action_display"}) %>
+          <% end %>
+        <% end %>
+        <p><%= link_to('Back to top', '#') %></p>
+      </div>
+      <% if @actiondiffs.length != 1 %>
+        <% javascript_tag do %>
+          function display_selected_action() {
+            $('#diff_action option:selected').each(function() {
+              $('.diff_action_display').hide();
+              $('#diff_action_' + $('#diff_action option:selected').attr('value')).show();
+            });
+          };
+          $('#diff_action').change(display_selected_action);
+          display_selected_action();
         <% end %>
       <% end %>
-      <%= select_tag(:diff_action, options_for_select(select_options)) %>:
-    </p>
-  <% else %>
-    <h3>Diff</h3>
-  <% end %>
-  <div>
-    <% @actiondiffs.each_with_index do |actiondiff, action_index| %>
-      <% actiondiff[:sourcediffs].each_with_index do |sourcediff, sourcediff_index| %>
-
-        <%# Depending on the request type, the project, package (and rev) for displaying file links is different ;-) %>
-        <% if actiondiff[:type] == 'delete' %>
-          <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
-        <% else %>
-          <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
-        <% end %>
-
-        <% if actiondiff[:sourcediffs].length != 1 %>
-          <h4>
-            <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
-            <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
-          </h4>
-        <% end %>
-
-        <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :issues => sourcediff[:issues], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{actiondiff[:type]}_#{sourcediff_index}", :css_class => "diff_action_display"}) %>
-      <% end %>
-    <% end %>
-    <p><%= link_to('Back to top', '#') %></p>
+    </div>
   </div>
-  <% if @actiondiffs.length != 1 %>
-    <% javascript_tag do %>
-      function display_selected_action() {
-        $('#diff_action option:selected').each(function() {
-          $('.diff_action_display').hide();
-          $('#diff_action_' + $('#diff_action option:selected').attr('value')).show();
-        });
-      };
-      $('#diff_action').change(display_selected_action);
-      display_selected_action();
-    <% end %>
-  <% end %>
 <% end %>

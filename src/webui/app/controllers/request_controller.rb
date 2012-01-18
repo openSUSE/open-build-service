@@ -40,9 +40,6 @@ class RequestController < ApplicationController
     begin
       @req = find_cached(BsRequest, params[:id]) if params[:id]
     rescue ActiveXML::Transport::Error => e
-      @req = nil # User input is directly passed to backend, avoid crashers
-    end
-    unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end
@@ -51,37 +48,15 @@ class RequestController < ApplicationController
     @state = @req.state.value("name")
     @is_author = @req.creator == session[:login]
     @superseded_by = @req.state.value("superseded_by")
-    @newpackage = []
 
-    @open_reviews = 0
-    @req.each_review do |review|
-      if review.state == 'new'
-        if review.has_attribute? :by_user
-          @open_reviews += 1 if review.by_user.to_s == session[:login]
-        end
+    @my_open_reviews, @other_open_reviews = [], []
+    @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
 
-        if session[:login]
-          user = find_cached(Person, session[:login])
-          if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
-             (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
-             (review.has_attribute? :by_project and review.has_attribute? :by_package and user.is_maintainer?(review.by_project, review.by_package))
-            @open_reviews += 1
-          end
-        end
-      end
-    end
-
-    @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
-  
     @is_maintainer = nil
     @contains_submit_action = false
     contains_only_undiffable_actions, project_wide_delete_request = true, true
     @req.each_action do |action|
-      if action.value("type") == "submit"
-        @src_project = action.source.project
-        @src_pkg = action.source.package
-        @contains_submit_action = true
-      end
+      @contains_submit_action = true if action.value("type") == "submit"
       if ['submit', 'delete', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
         contains_only_undiffable_actions = false
       end
@@ -99,8 +74,6 @@ class RequestController < ApplicationController
         @is_maintainer = @target_project && @target_project.can_edit?( session[:login] )
         if @target_pkg
           @is_maintainer = @is_maintainer || @target_pkg.can_edit?( session[:login] )
-        else
-          @newpackage << { :project => action.target.project, :package => target_pkg_name }
         end
       end
     end
@@ -122,6 +95,8 @@ class RequestController < ApplicationController
       # will be nul for after end
       @request_after = request_list[index+1]
     end
+
+    @events = @req.events()
 
     if !@spider_bot && !contains_only_undiffable_actions && !project_wide_delete_request
       # get the entire diff from the api
