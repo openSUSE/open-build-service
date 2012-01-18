@@ -1,0 +1,44 @@
+class TestData;  end
+class WebDriver < Selenium::WebDriver::Driver; end
+class WebPage;   end
+    class BuildServicePage < WebPage; end
+        class MainPage           < BuildServicePage; end
+        class LoginPage          < BuildServicePage; end
+        class MyProjectsPage     < BuildServicePage; end
+        class AllProjectsPage    < BuildServicePage; end
+        class NewProjectPage     < BuildServicePage; end
+        class SearchPage         < BuildServicePage; end
+        class SearchResultsPage  < BuildServicePage; end
+        class StatusMonitorPage  < BuildServicePage; end
+        class UserHomePage       < BuildServicePage; end
+        class MyRequestsPage     < BuildServicePage; end
+        class MyWorkPage         < BuildServicePage; end
+        class RequestDetailsPage < BuildServicePage; end
+        class ProjectPage        < BuildServicePage; end 
+            class ProjectUsersPage        < ProjectPage; end
+            class ProjectAddUserPage      < ProjectPage; end
+            class ProjectAddGroupPage     < ProjectPage; end
+            class ProjectConfigPage       < ProjectPage; end
+            class ProjectStatusPage       < ProjectPage; end
+            class ProjectOverviewPage     < ProjectPage; end
+            class ProjectPackagesPage     < ProjectPage; end
+            class ProjectRequestsPage     < ProjectPage; end
+            class ProjectRawConfigPage    < ProjectPage; end
+            class ProjectAttributesPage   < ProjectPage; end   
+            class ProjectSubprojectsPage  < ProjectPage; end
+            class ProjectRepositoriesPage < ProjectPage; end
+            class NewPackagePage          < ProjectPage; end
+            class NewPackageBranchPage    < ProjectPage; end
+            class PackagePage             < ProjectPage; end
+                class PackageUsersPage        < PackagePage; end
+                class PackageAddUserPage      < PackagePage; end
+                class PackageAddGroupPage     < PackagePage; end
+                class PackageSourcesPage      < PackagePage; end
+                class PackageOverviewPage     < PackagePage; end
+                class PackageRequestsPage     < PackagePage; end
+                class PackageRawConfigPage    < PackagePage; end
+                class PackageRevisionsPage    < PackagePage; end
+                class PackageAttributesPage   < PackagePage; end
+                class PackageRepositoriesPage < PackagePage; end
+                class PackageAddFilePage      < PackagePage; end
+                class PackageEditFilePage     < PackagePage; end
