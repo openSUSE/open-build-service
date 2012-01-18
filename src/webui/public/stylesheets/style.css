@@ -217,8 +217,8 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 }
 
 /* package and project view */
-.show_left  { margin-left: 20px; }
-.show_right { margin-right: 20px; }
+.show_left  { margin-left: 10px; }
+.show_right { margin-right: 10px; }
 
 table.patchinfo td { vertical-align: middle; }
 
