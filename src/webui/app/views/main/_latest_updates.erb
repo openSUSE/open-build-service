@@ -5,7 +5,7 @@
 <div class="box box-shadow">
   <div class="box-header aligncenter">Latest Updates <%= link_to(image_tag('feeds.png', :title => 'RSS Feed'), :action => 'latest_updates', :format => 'rss') %></div>
 
-  <table style="width: 90%">
+  <table>
     <tbody>
       <% @latest_updates.each do |update| %>
         <tr>

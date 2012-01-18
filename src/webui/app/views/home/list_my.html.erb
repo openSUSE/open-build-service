@@ -5,13 +5,14 @@
 <h3><%= @pagetitle %></h3>
 
 <h4>Watched Projects</h4>
-<%= render :partial => 'watch_list' %>
-<br/>
+<div style="width: 50%;">
+  <%= render :partial => 'watch_list' %>
+</div>
 
 <div style="width: 50%; float: left">
   <h4>Involved Projects</h4>
   <% unless @iprojects.blank? -%>
-    <table style="width: 92%" id='involved_prj-table' class='grid' title="Involved Projects">
+    <table id='involved_prj-table' class='grid' title="Involved Projects">
       <tr>
         <th>Project</th>
         <th style="width: 1%">Actions</th>
@@ -31,7 +32,7 @@
 <div style="width: 50%; float: left">
   <h4>Involved Packages</h4>
   <% unless @ipackages.blank? -%>
-  <table style="width: 92%" id='involved_pkg-table' class='grid' title="Involved Packages">
+  <table id='involved_pkg-table' class='grid' title="Involved Packages">
     <tr>
       <th>Project</th>
       <th>Package</th>
