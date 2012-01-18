@@ -25,7 +25,7 @@
           project: $('#targetproject').attr('value'),
           package: $('#package').attr('value'),
           types: "submit",
-          states: "new,review,declined",
+          states: "new,review",
         },
         success: function(data) {
           if (data.indexOf('No requests') == -1) {
