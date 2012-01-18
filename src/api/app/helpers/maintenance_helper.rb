@@ -2,10 +2,10 @@ module MaintenanceHelper
 
   # updates packages automatically generated in the backend after submitting a product file
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
-    mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
-
+    mi = nil
     tprj = nil
     DbProject.transaction do
+      mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
       tprj = DbProject.new :name => mi.project_name
       if baseProject
         # copy as much as possible from base project
@@ -14,16 +14,6 @@ module MaintenanceHelper
         tprj.save
         baseProject.flags.each do |f|
           tprj.flags.create(:status => f.status, :flag => f.flag)
-        end
-        baseProject.repositories.each do |r|
-          trepo = tprj.repositories.create :name => r.name
-          trepo.architectures = r.architectures
-          r.path_elements.each do |pe|
-            trepo.path_elements.create(:link => pe.link, :position => pe.position)
-          end
-          r.release_targets.each do |rr|
-            trepo.release_targets.create(:target_repository => rr.target_repository, :trigger => "maintenance")
-          end
         end
       else
         # mbranch call is enabling selected packages
@@ -60,35 +50,60 @@ module MaintenanceHelper
       mi.db_project_id = tprj.id
       mi.save!
     end
+    merge_into_maintenance_incident(tprj, baseProject, request ) if baseProject
+    return mi
+  end
 
-    # copy all packages and project source files from base project
+  def merge_into_maintenance_incident(incidentProject, base, request = nil)
+
+    # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
-    if baseProject
-      baseProject.db_packages.each do |pkg|
-        new = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
-        tprj.db_packages << new
-        pkg.flags.each do |f|
-          new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
-        end
-        new.store
-
-        # backend copy of current sources
-        cp_params = {
-          :cmd => "copy",
-          :user => @http_user.login,
-          :oproject => baseProject.name,
-          :opackage => pkg.name,
-          :comment => "Maintenance copy from project " + baseProject.name
-        }
-        cp_params[:requestid] = request.id if request
-        cp_path = "/source/#{CGI.escape(tprj.name)}/#{CGI.escape(pkg.name)}"
-        cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid])
-        Suse::Backend.post cp_path, nil
-        new.sources_changed
-      end
+    packages = nil
+    if base.class == DbProject
+      packages = base.db_packages
+    else
+      packages = [base]
     end
 
-    return mi
+    packages.each do |pkg|
+      new = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+      incidentProject.db_packages << new
+      pkg.flags.each do |f|
+        new.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+      end
+      new.store
+      # add missing repos
+      pkg.db_project.repositories.each do |r|
+        # skip existing ones
+        next if incidentProject.repositories.find_by_name r.name
+
+        trepo = incidentProject.repositories.create :name => r.name
+        trepo.architectures = r.architectures
+        r.path_elements.each do |pe|
+          trepo.path_elements.create(:link => pe.link, :position => pe.position)
+        end
+        r.release_targets.each do |rr|
+          trepo.release_targets.create(:target_repository => rr.target_repository, :trigger => "maintenance")
+        end
+      end
+
+      # backend copy of current sources
+      cp_params = {
+        :cmd => "copy",
+        :user => @http_user.login,
+        :oproject => pkg.db_project.name,
+        :opackage => pkg.name,
+        :comment => "Maintenance copy from project " + pkg.db_project.name
+      }
+      cp_params[:requestid] = request.id if request
+      cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(pkg.name)}"
+      cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid])
+      Suse::Backend.post cp_path, nil
+      new.sources_changed
+    end
+
+    incidentProject.save!
+    incidentProject.store
   end
 
   def release_package(sourcePackage, targetProjectName, targetPackageName, revision, sourceRepository, releasetargetRepository, timestamp, request = nil)
