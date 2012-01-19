@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
     end
 
     def find_by_email(email)
-      return find :first, :conditions => ["email = BINARY ?", email]
+      return find :first, :conditions => ["email = ?", email]
     end
   end
 
