@@ -57,6 +57,7 @@
 /src/webui/mkmf.log
 /src/webui/public/main/*.html
 /src/webui/public/documentation/obs
+/src/webui-testsuite/results*
 
 # All the other crap that fits nowhere specifically
 *~
