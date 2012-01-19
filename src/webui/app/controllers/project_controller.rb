@@ -759,6 +759,10 @@ class ProjectController < ApplicationController
 
   def save_person
     valid_http_methods :post
+    unless valid_user_name? params[:userid]
+      flash[:error] = "No valid user id given!"
+      redirect_to :action => :users, :project => params[:project] and return
+    end
     user = find_cached(Person, params[:userid])
     # FIXME/PITA: For invalid input, the lovely API person controller does a 'LIKE' SQL search to still return data.
     # This leads to a valid Person model instance with no 'login' set. Instead, it contains a list of _all_ users.
@@ -778,6 +782,10 @@ class ProjectController < ApplicationController
 
   def save_group
     valid_http_methods :post
+    unless valid_group_name? params[:groupid]
+      flash[:error] = "No valid group id given!"
+      redirect_to :action => :users, :project => params[:project] and return
+    end
     #FIXME: API Group controller routes don't support this currently.
     #group = find_cached(Group, params[:groupid])
     group = Group.list(params[:groupid])
@@ -798,9 +806,9 @@ class ProjectController < ApplicationController
 
   def remove_person
     valid_http_methods :post
-    if params[:userid].blank?
-      flash[:note] = "User removal aborted, no user id given!"
-      redirect_to :action => :show, :project => params[:project] and return
+    unless valid_user_name? params[:userid]
+      flash[:error] = "User removal aborted, no valid user id given!"
+      redirect_to :action => :users, :project => params[:project] and return
     end
     @project.remove_persons(:userid => params[:userid], :role => params[:role])
     if @project.save
@@ -813,9 +821,9 @@ class ProjectController < ApplicationController
 
   def remove_group
     valid_http_methods :post
-    if params[:groupid].blank?
-      flash[:note] = "Group removal aborted, no group id given!"
-      redirect_to :action => :show, :project => params[:project] and return
+    unless valid_group_name? params[:groupid]
+      flash[:error] = "Group removal aborted, no valid group id given!"
+      redirect_to :action => :users, :project => params[:project] and return
     end
     @project.remove_group(:groupid => params[:groupid], :role => params[:role])
     if @project.save

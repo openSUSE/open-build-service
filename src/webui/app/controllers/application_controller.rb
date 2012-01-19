@@ -160,6 +160,14 @@ class ApplicationController < ActionController::Base
     name =~ /^\w[-_\.\w&]*$/
   end
 
+  def valid_user_name? name
+    name =~ /^[\w\-_\.+]+$/
+  end
+
+  def valid_group_name? name
+    name =~ /^[\w\-_\.+]+$/
+  end
+
   def reset_activexml
     transport = ActiveXML::Config.transport_for(:project)
     transport.delete_additional_header "X-Username"
