@@ -55,7 +55,7 @@
         <% file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}" %>
         <% file_diff_text = file_element.value(:diff) || '' %>
         <% is_expanded = !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes')) %>
-        <tr>
+        <tr id="diff_headline_<%= file_id %>">
           <td style="width: 16px"><%# NOTE: Hand-crafted value for both '[+]' and '[-]' %>
             <% if file_diff_text.length > 0 %>
               <%= link_to_function('[-]', :onclick => "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
@@ -81,14 +81,14 @@
         <% if file_diff_text.length > 0 %>
           <% if is_expanded %>
             <tr id="diff_view_<%= file_id %>">
-              <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
+              <td align="center" valign="bottom"><%= link_to('Up', :anchor => "diff_headline_#{file_id}") %></td>
               <td colspan="2">
                 <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true} %>
               </td>
             </tr>
           <% else %>
             <tr id="diff_view_<%= file_id %>" class="hidden">
-              <td align="center" valign="bottom"><%= link_to('^', :anchor => "diff_view_#{file_id}") %></td>
+              <td align="center" valign="bottom"><%= link_to('Up', :anchor => "diff_headline_#{file_id}") %></td>
               <td colspan="2" id="diff_view_<%= file_id %>_placeholder"><%= file_diff_text %></td>
             </tr>
           <% end %>
