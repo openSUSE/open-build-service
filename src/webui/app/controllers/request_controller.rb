@@ -46,42 +46,15 @@ class RequestController < ApplicationController
 
     @id = Integer(@req.value("id"))
     @state = @req.state.value("name")
-    @is_author = @req.creator == session[:login]
+    @is_author = @req.creator().login == session[:login]
     @superseded_by = @req.state.value("superseded_by")
 
-    @my_open_reviews, @other_open_reviews = [], []
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
-
-    @is_maintainer = nil
-    @contains_submit_action = false
-    contains_only_undiffable_actions, project_wide_delete_request = true, true
-    @req.each_action do |action|
-      @contains_submit_action = true if action.value("type") == "submit"
-      if ['submit', 'delete', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
-        contains_only_undiffable_actions = false
-      end
-      if ['submit', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
-        project_wide_delete_request = false
-      end
-
-      @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
-      target_pkg_name = action.target.value :package
-      if target_pkg_name
-        @target_pkg = find_cached(Package, target_pkg_name, :project => action.target.project)
-        project_wide_delete_request = false
-      end
-      if @is_maintainer == nil or @is_maintainer == true
-        @is_maintainer = @target_project && @target_project.can_edit?( session[:login] )
-        if @target_pkg
-          @is_maintainer = @is_maintainer || @target_pkg.can_edit?( session[:login] )
-        end
-      end
-    end
-
-    @submitter_is_target_maintainer = false
-    creator = Person.find_cached(@req.creator)
-    if creator and @target_project
-      @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg)
+    @events = @req.events()
+    if @spider_bot # Don't fetch diff, may take to long
+      @actions = @req.actions(false)
+    else
+      @actions = @req.actions(true)
     end
 
     request_list = session[:requests]
@@ -96,30 +69,6 @@ class RequestController < ApplicationController
       @request_after = request_list[index+1]
     end
 
-    @events = @req.events()
-
-    if !@spider_bot && !contains_only_undiffable_actions && !project_wide_delete_request
-      # get the entire diff from the api
-      begin
-        @actiondiffs = Rails.cache.fetch("request_#{@id}_diff2", :expires_in => 7.days) do
-          result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
-          actiondiffs = []
-          # Parse each action and get the it's diff (per file)
-          result.each('action') do |action|
-            sourcediffs = []
-            # Parse earch sourcediff in that action:
-            action.each('sourcediff') do |sourcediff|
-              sourcediffs << sorted_filenames_from_sourcediff(sourcediff)
-            end
-            actiondiffs << {:type => action.value('type'), :sourcediffs => sourcediffs}
-          end
-          actiondiffs
-        end
-      rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        flash[:error] = "Unable to fetch diff: #{message}"
-      end
-    end
   end
 
   def sourcediff
@@ -267,7 +216,7 @@ private
     else
       target = find_cached(Project, req.action.target.project)
     end
-    target.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
+    target.add_person(:userid => BsRequest.creator(req).login, :role => "maintainer")
     target.save
   end
 

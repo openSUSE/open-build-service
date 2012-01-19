@@ -326,7 +326,7 @@ class PackageController < ApplicationController
       end
     end
 
-    filenames = sorted_filenames_from_sourcediff(ActiveXML::Base.new(rdiff))
+    filenames = BsRequest.sorted_filenames_from_sourcediff(ActiveXML::Base.new(rdiff))
     @files = filenames[:files]
     @filenames = filenames[:filenames]
   end
