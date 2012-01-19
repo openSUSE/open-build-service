@@ -123,7 +123,7 @@ class TC16__AddProjectUsers < TestCase
       :user => $data[:user1],
       :project => "home:user1"
     open_tab "Users"
-    add_user 'still-buggy?', "maintainer", :expect => :unknown_user
+    add_user 'still-buggy?', "maintainer", :expect => :invalid_userid
   end
   
   

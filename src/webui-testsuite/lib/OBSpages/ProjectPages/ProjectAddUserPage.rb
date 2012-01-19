@@ -9,9 +9,10 @@ class ProjectAddUserPage < ProjectPage
   #
   def validate_page
     super
-    validate { @driver.page_source.include? "Add New User to " + @project }
-    validate { @driver.page_source.include? "User:" }
-    validate { @driver.page_source.include? "Role:" }
+    ps = @driver.page_source
+    validate { ps.include? "Add New User to " + @project }
+    validate { ps.include? "User:" }
+    validate { ps.include? "Role:" }
   end
 
 
@@ -45,15 +46,19 @@ class ProjectAddUserPage < ProjectPage
     @driver[:id => 'userid'].submit
     
     if options[:expect] == :success
-      validate { flash_message_type == :info }
-      validate { flash_message == 
-        "Added user #{user} with role #{role} to project #{@project}" }
+      assert_equal flash_message_type, :info 
+      assert_equal flash_message,
+        "Added user #{user} with role #{role} to project #{@project}" 
       $page = ProjectUsersPage.new_ready @driver
     elsif options[:expect] == :unknown_user
       @url += "&role=" + role unless @url.include? 'role='
-      validate { flash_message_type == :alert }
-      validate { flash_message == "Unknown user with id '#{user}'" }
+      assert_equal flash_message_type, :alert 
+      assert_equal flash_message, "Unknown user with id '#{user}'"
       validate_page
+    elsif options[:expect] == :invalid_userid
+      assert_equal flash_message_type, :alert
+      assert_equal flash_message, "No valid user id given!"
+      $page = ProjectUsersPage.new_ready @driver
     else
       raise ArgumentError
     end

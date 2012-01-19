@@ -68,20 +68,17 @@ class TC14__Search < TestCase
   
 
   test :search_by_title do
-  depend_on :me
-
+    skip
   end
 
 
   test :search_by_description do
-  depend_on :me
-
+    skip
   end
 
 
   test :search_by_attributes do
-  depend_on :me
-
+    skip
   end
 
 
