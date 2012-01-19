@@ -28,7 +28,7 @@
     <% end %>
   </ul>
   <% unless @spider_bot -%>
-    <div id="advanced_tabs">
+    <div id="advanced_tabs" class="hidden">
       <ul>
         <%= tab 'Attributes', :controller => 'package', :action => 'attributes' %>
         <%= tab 'Meta', :controller => 'package', :action => 'meta' %>

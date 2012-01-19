@@ -36,7 +36,7 @@
       <li><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
     <% end %>
   </ul>
-  <div id="advanced_tabs">
+  <div id="advanced_tabs" class="hidden">
     <ul>
       <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
       <% unless @spider_bot -%>
