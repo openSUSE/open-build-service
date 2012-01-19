@@ -16,6 +16,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
       <name>test</name>
       <description>My test issue tracker</description>
       <regex>test#\d+test</regex>
+      <long-name>test#%s+test</long-name>
       <kind>bugzilla</kind>
       <user>obsbugbot</user>
       <password>secret</password>
@@ -39,6 +40,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "name", :content => "test"
     assert_tag :tag => "description", :content => "My test issue tracker"
     assert_tag :tag => "regex", :content => "test#\d+test"
+    assert_tag :tag => "long-name", :content => "test#%s+test"
     assert_tag :tag => "kind", :content => "bugzilla"
     assert_tag :tag => "url", :content => "http://example.com"
     assert_tag :tag => "show-url", :content => "http://example.com/@@@"
@@ -54,6 +56,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
       <name>test</name>
       <description>My even better test issue tracker</description>
       <regex>tester#\d+</regex>
+      <long-name>tester#%s+</long-name>
       <kind>cve</kind>
       <url>http://test.com</url>
       <show-url>http://test.com/@@@</show-url>
@@ -70,6 +73,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "name", :content => "test"
     assert_tag :tag => "description", :content => "My even better test issue tracker"
     assert_tag :tag => "regex", :content => "tester#\d+"
+    assert_tag :tag => "long-name", :content => "tester#%s+"
     assert_tag :tag => "kind", :content => "cve"
     assert_tag :tag => "url", :content => "http://test.com"
     assert_tag :tag => "show-url", :content => "http://test.com/@@@"

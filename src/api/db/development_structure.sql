@@ -310,6 +310,7 @@ CREATE TABLE `issue_trackers` (
   `regex` varchar(255) NOT NULL,
   `user` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
+  `long_name` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -317,14 +318,12 @@ CREATE TABLE `issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `issue_tracker_id` int(11) NOT NULL,
-  `long_name` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `owner_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `state` enum('OPEN','CLOSED','UNKNOWN') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_issues_on_long_name` (`long_name`),
   KEY `owner_id` (`owner_id`),
   KEY `issue_tracker_id` (`issue_tracker_id`),
   CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
@@ -831,6 +830,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120111094300');
 INSERT INTO schema_migrations (version) VALUES ('20120112094300');
 
 INSERT INTO schema_migrations (version) VALUES ('20120112194300');
+
+INSERT INTO schema_migrations (version) VALUES ('20120119194300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

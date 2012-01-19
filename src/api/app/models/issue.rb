@@ -61,13 +61,17 @@ class Issue < ActiveRecord::Base
     self.issue_tracker.fetch_issues([self])
   end
 
+  def long_name
+    return self.issue_tracker.long_name.gsub(/%s/, self.name)
+  end
+
   def render_body(node, change=nil)
     node.issue({:change => change}) do |issue|
       issue.created_at(self.created_at)
       issue.updated_at(self.updated_at)   if self.updated_at
       issue.name(self.name)
       issue.issue_tracker(self.issue_tracker.name)
-      issue.long_name(self.long_name)      if self.long_name
+      issue.long_name(self.long_name)
       issue.url(self.issue_tracker.show_url.gsub('@@@', self.name))
       issue.state(self.state)             if self.state
       issue.description(self.description) if self.description

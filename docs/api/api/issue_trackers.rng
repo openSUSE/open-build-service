@@ -21,6 +21,9 @@
         <element name="name">
           <text/>
         </element>
+        <element name="long-name">
+          <text/>
+        </element>
         <element name="kind">
           <text/>
         </element>

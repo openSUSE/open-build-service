@@ -10,7 +10,7 @@ class IssueTracker < ActiveRecord::Base
   validates_uniqueness_of :name, :regex
   validates_inclusion_of :kind, :in => ['', 'other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 
-  DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user], :skip_types => true }
+  DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user], :dasherize => true, :skip_types => true }
 
   def self.issues_in(text, diff_mode = false)
     ret = []
@@ -26,7 +26,7 @@ class IssueTracker < ActiveRecord::Base
         begin
           match = it.matches?(substr)
           if match
-            issue = Issue.find_or_create_by_name(match[-1], :issue_tracker => it, :long_name => match[0])
+            issue = Issue.find_or_create_by_name(match[-1], :issue_tracker => it)
             if diff_mode
               old_issues << issue if line.starts_with?('-')
               new_issues << issue if line.starts_with?('+')
