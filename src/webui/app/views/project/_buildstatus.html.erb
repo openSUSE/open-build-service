@@ -8,34 +8,30 @@
   <% elsif @buildresult.blank? %>
     <p><i>No build result available</i></p>
   <% else %>
-
     <table title="Repositories" class="repostatus">
       <% @buildresult.each do |repo, archarray| %>
         <% index = 0
            srepo = truncate(repo, :length => 19)
-           archarray.each do |arch, counts| -%>
+           archarray.each do |arch, counts| %>
           <tr class="target">
             <% if index == 0 %>
-              <td class="repo" valign="top" rowspan="<%= archarray.length %>">
-                <strong title="<%= h repo %>"><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo -%></strong>
+              <td class="repo nowrap" valign="top" rowspan="<%= archarray.length %>">
+                <b title="<%= h repo %>"><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo %></b>
               </td>
               <% index += 1 %>
             <% end %>
-            <td valign="top" class="arch">
-              <div class="nowrap" style="margin: 0 0.5ex">
-                <%= repo_status_icon @repostatushash[repo][arch] %> <%= h(arch) %>
-              </div>
+            <td valign="top" class="arch nowrap">
+              <%= repo_status_icon @repostatushash[repo][arch] %> <%= h(arch) %>
             </td>
-            <td class="codes"><% counts.each do |code, count| -%>
-                <div class="nowrap">
-                  <%= link_to("#{code}:&nbsp;#{count}".html_safe, { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
-                              'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow') -%>
-                </div>
-            <% end -%></td>
+            <td class="codes">
+              <% counts.each do |code, count| %>
+                <%= link_to("#{code}: #{count}", { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
+                            'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow') %>
+              <% end %>
+            </td>
           </tr>
         <% end %>
       <% end %>
     </table>
-
   <% end %>
 </div>
