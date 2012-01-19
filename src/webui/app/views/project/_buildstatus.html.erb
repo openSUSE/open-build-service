@@ -13,17 +13,17 @@
         <% index = 0
            srepo = truncate(repo, :length => 19)
            archarray.each do |arch, counts| %>
-          <tr class="target">
+          <tr>
             <% if index == 0 %>
-              <td class="repo nowrap" valign="top" rowspan="<%= archarray.length %>">
+              <td class="repo nowrap" rowspan="<%= archarray.length %>">
                 <b title="<%= h repo %>"><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo %></b>
               </td>
               <% index += 1 %>
             <% end %>
-            <td valign="top" class="arch nowrap">
+            <td class="nowrap">
               <%= repo_status_icon @repostatushash[repo][arch] %> <%= h(arch) %>
             </td>
-            <td class="codes">
+            <td>
               <% counts.each do |code, count| %>
                 <%= link_to("#{code}: #{count}", { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
                             'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow') %>
