@@ -79,10 +79,16 @@ class IssueTracker < ActiveRecord::Base
   end
 
   def update_issues()
-    oldest_time = Issue.find( :first, :order => :updated_at).updated_at
-    result = bugzilla_server.search(:last_change_time => oldest_time)
+    update_time_stamp = Time.at(Time.now.to_f - 5)
 
-    return private_fetch_issues(ids)
+    result = bugzilla_server.search(:last_change_time => self.issues_updated)
+
+    ret = private_fetch_issues(ids)
+
+    self.issues_updated = update_time_stamp
+    self.save!
+
+    return ret
   end
 
   def fetch_issues(issues=nil)
