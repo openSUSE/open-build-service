@@ -266,7 +266,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
             </attribute></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 403
-    assert_select "status[code] > summary", /Attribute: 'OBS:Maintained' has 1 values, but only 0 are allowed/
+    assert_select "status[code] > summary", /attribute 'OBS:Maintained' has 1 values, but only 0 are allowed/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
