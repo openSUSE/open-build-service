@@ -112,7 +112,7 @@ class TC12__AddPackageAttributes < TestCase
     add_new_attribute(
       :name   => "OBS:ProjectStatusPackageFailComment",
       :value  => "val1,val2,val3",
-      :expect => :wrong_number_of_values)
+      :expect => :too_many_values)
   end
 
 

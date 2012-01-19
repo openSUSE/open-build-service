@@ -140,6 +140,7 @@ passed  = 0
 failed  = 0
 skipped = 0
 TestRunner.add_all
+#TestRunner.set_limitto ["wrong_number_of_values_for_package_attribute", "search_for_home_projects"]
 
 # Run the test
 display = Headless.new

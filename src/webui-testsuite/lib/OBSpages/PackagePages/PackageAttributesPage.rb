@@ -103,6 +103,9 @@ class PackageAttributesPage < PackagePage
     elsif attribute[:expect] == :wrong_number_of_values
       validate { flash_message.include? "Saving attribute failed: attribute '#{attribute[:name]}' requires" }
       validate { flash_message.include? "values, but" }
+    elsif attribute[:expect] == :too_many_values
+      validate { flash_message.include? "Saving attribute failed: attribute '#{attribute[:name]}' has" }
+      validate { flash_message.include? "values, but" }
     end
     validate_page
   end
