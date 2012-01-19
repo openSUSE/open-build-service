@@ -121,7 +121,7 @@ class TC08__AddPackageSources < TestCase
   test :add_source_file_from_empty_url do
   depend_on :create_home_project_package_for_user
   
-    skip # known failure
+    skip # known failure TODO
     navigate_to PackageSourcesPage,
       :project => "home:user1",
       :package => "HomePackage1",
@@ -138,6 +138,7 @@ class TC08__AddPackageSources < TestCase
   test :add_source_file_from_invalid_local_path do
   depend_on :create_home_project_package_for_user
   
+    skip # you can not test that with firefox, it won't allow uploads of non existant files
     navigate_to PackageSourcesPage,
       :project => "home:user1",
       :package => "HomePackage1",
@@ -160,8 +161,9 @@ class TC08__AddPackageSources < TestCase
     open_add_file
     add_file(
       :upload_from => :remote_url,
-      :upload_path => 'http://no.such.remote.file.dude',
-      :expect => :invalid_upload_path)
+      :upload_path => 'http://no.such.remote.file.dude/path',
+      :name => "path",
+      :expect => :download_failed)
   end
   
   

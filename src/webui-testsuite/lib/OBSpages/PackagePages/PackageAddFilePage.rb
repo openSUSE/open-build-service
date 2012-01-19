@@ -65,7 +65,7 @@ class PackageAddFilePage < PackagePage
     file[:name] = File.basename(file[:upload_path]) if file[:name] == ""
     
     if file[:expect] == :success
-      assert_equal flash_message,  "The file #{file[:name]} has been added."
+      assert_equal flash_message, "The file #{file[:name]} has been added."
       assert_equal flash_message_type, :info
       $page = PackageSourcesPage.new_ready @driver
       # TODO: Check that new file is in the list
@@ -80,8 +80,14 @@ class PackageAddFilePage < PackagePage
       validate { flash_message_type == :alert }
       # Currently the page goes to Inteface Error. Implement when bug is fixed.  
       validate_page
+    elsif file[:expect] == :download_failed
+      # the _service file is added, but the download fails
+      fm = flash_messages
+      assert_equal fm.count, 2
+      assert_equal fm[0], "The file #{file[:name]} has been added." 
+      assert fm[1].include?("service download_url failed"), "expected '#{fm[1]}' to include 'Download failed'"
     else
-      throw "Invalid value for argument expect."
+      raise "Invalid value for argument expect."
     end
   end
   

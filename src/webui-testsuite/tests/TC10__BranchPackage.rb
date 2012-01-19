@@ -56,6 +56,7 @@ class TC10__BranchPackage < TestCase
       :project => "home:user2"
     open_branch_package
     create_package_branch(
+      :expect => :already_exists,
       :name => "HomePackage1",
       :original_name => "HomePackage1",
       :original_project => "home:user1")

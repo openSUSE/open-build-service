@@ -17,8 +17,9 @@ class SearchResultsPage < BuildServicePage
     else
       search_details = "with attribute \"#{@search_attribute}\""
     end
-    validate { @driver[:css => "div#content h3"].text =~ 
-      /^Search Results #{search_details} \(\d+\)$/ }
+    found_text = @driver[:css => "div#content h3"].text
+    assert found_text =~ /^Search Results #{search_details}\s+\(\d+\)$/, 
+           "'#{found_text}' did not match /^Search Results #{search_details}\s+\(\d+\)$/"
   end
   
 

@@ -9,12 +9,13 @@ class UserHomePage < BuildServicePage
   #
   def validate_page
     super
-    validate { @driver.page_source.include? "Home of " + current_user[:login] }
-    validate { @driver.page_source.include? "User Info" }
-    validate { @driver.page_source.include? "Profile picture:" }
-    validate { @driver.page_source.include? "Real name:" }
-    validate { @driver.page_source.include? "Email address:" }
-    validate { @driver.page_source.include? "Related Links" }
+    ps = @driver.page_source
+    validate { ps.include? "Home of " + current_user[:login] }
+    validate { ps.include? "User Info" }
+    validate { ps.include? "Profile picture:" }
+    validate { ps.include? "Real name:" }
+    validate { ps.include? "Email address:" }
+    validate { ps.include? "Related Links" }
   end
   
 
@@ -57,10 +58,9 @@ class UserHomePage < BuildServicePage
     @driver[:xpath => "//form[@action='/user/save']
       //input[@name='commit'][@value='Save changes']"].click
     
-    validate { 
-      flash_message == 
-        "User data for user '#{current_user[:login]}' successfully updated." }
-    validate { flash_message_type == :info }
+    assert_equal flash_message,
+        "User data for user '#{current_user[:login]}' successfully updated."
+    assert_equal flash_message_type, :info
     validate_page
     
     new_name = "No real name set." if new_name == ""

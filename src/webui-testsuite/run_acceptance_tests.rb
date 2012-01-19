@@ -43,7 +43,6 @@ require File.expand_path File.dirname(__FILE__) + '/tests/TC04__EditProject.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC05__AddProjectAttributes.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC06__DeleteProjectAttributes.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC07__CreatePackage.rb'
-if true
 require File.expand_path File.dirname(__FILE__) + '/tests/TC08__AddPackageSources.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC09__EditPackageSources.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC10__BranchPackage.rb'
@@ -58,7 +57,6 @@ require File.expand_path File.dirname(__FILE__) + '/tests/TC18__AddPackageUsers.
 require File.expand_path File.dirname(__FILE__) + '/tests/TC19__EditPackageUsers.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC20__DeletePackage.rb'
 require File.expand_path File.dirname(__FILE__) + '/tests/TC21__DeleteProject.rb'
-end
 
 
 # Setup all global settings
@@ -142,8 +140,6 @@ passed  = 0
 failed  = 0
 skipped = 0
 TestRunner.add_all
-TestRunner.set_limitto ["create_home_project_package_for_user"]
-#TestRunner.set_limitto ["add_source_file_from_empty_url"]
 
 # Run the test
 display = Headless.new

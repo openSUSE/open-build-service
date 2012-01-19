@@ -31,19 +31,20 @@ class PackageAttributesPage < PackagePage
     @url = @driver.current_url
   end
   
-  PACKAGE_ATTRIBUTES = [ "OBS:VeryImportantProject",
+  PACKAGE_ATTRIBUTES = [ "NSTEST:status",
+			 "OBS:VeryImportantProject",
                          "OBS:UpdateProject",
+			 "OBS:Maintained",
+			 "OBS:RequestCloned",
+                         "OBS:InitializeDevelPackage",
+                         "OBS:MaintenanceProject",
+                         "OBS:MaintenanceIdTemplate",
                          "OBS:RejectRequests",
                          "OBS:ApprovedRequestSource",
-                         "OBS:Maintained",
-                         "OBS:MaintenanceProject",
-                         "OBS:MaintenanceVersion",
-                         "OBS:MaintenanceIdTemplate",
-                         "OBS:ScreenShots",
-                         "OBS:RequestCloned",
-                         "OBS:ProjectStatusPackageFailComment",
-                         "OBS:InitializeDevelPackage",
-                         "OBS:QualityCategory" ]
+			 "OBS:BranchTarget", 
+			 "OBS:ScreenShots", 
+			 "OBS:ProjectStatusPackageFailComment", 
+			 "OBS:QualityCategory" ]
 
   
   # ============================================================================
@@ -74,13 +75,14 @@ class PackageAttributesPage < PackagePage
       :xpath => "//div[@id='content']//a[text()='Add a new attribute']"].click
 
     xpath_options = "//select[@id='attribute']/option"
-    validate { @driver.page_source.include? 'Add New Attribute' }
-    validate { @driver.page_source.include? 'Attribute name:' }
-    validate { @driver.page_source.include? 'Values (e.g. "bar,foo,..."):' }
+    ps = @driver.page_source
+    validate { ps.include? 'Add New Attribute' }
+    validate { ps.include? 'Attribute name:' }
+    validate { ps.include? 'Values (e.g. "bar,foo,..."):' }
     
     options = @driver.find_elements :xpath => xpath_options
     options_array = options.collect { |opt| opt.text }
-    assert options_array == PACKAGE_ATTRIBUTES
+    assert_equal options_array, PACKAGE_ATTRIBUTES
     
     @driver[:xpath => xpath_options + "[text()='#{attribute[:name]}']"].click
     @driver[:id => "values"].clear
@@ -89,17 +91,17 @@ class PackageAttributesPage < PackagePage
       "//div[@id='content']//input[@name='commit']"].click
 
     if attribute[:expect] == :success
-      validate { flash_message == "Attribute sucessfully added!" }
-      validate { flash_message_type == :info }
+      assert_equal flash_message, "Attribute sucessfully added!" 
+      assert_equal flash_message_type, :info 
     elsif attribute[:expect] == :no_permission
-      validate { flash_message ==
-        "Saving attribute failed: user #{@user[:login]} has no permission to change attribute" }
-      validate { flash_message_type == :alert }
+      assert_equal flash_message,
+        "Saving attribute failed: user #{@user[:login]} has no permission to change attribute"
+      assert_equal flash_message_type, :alert 
     elsif attribute[:expect] == :value_not_allowed
       validate { flash_message.include?(
         "Saving attribute failed: attribute value #{attribute[:value]} for") }
     elsif attribute[:expect] == :wrong_number_of_values
-      validate { flash_message.include? "Saving attribute failed: Attribute:" }
+      validate { flash_message.include? "Saving attribute failed: attribute '#{attribute[:name]}' requires" }
       validate { flash_message.include? "values, but" }
     end
     validate_page
@@ -168,13 +170,15 @@ class PackageAttributesPage < PackagePage
     validate { popup.text == "Really remove attribute '#{attribute[:name]}'?" }
 
     popup.accept
+    sleep 1 # http://code.google.com/p/selenium/issues/detail?id=3147
+
     if attribute[:expect] == :success
-      validate { flash_message == "Attribute sucessfully deleted!" }
-      validate { flash_message_type == :info }
+      assert_equal flash_message, "Attribute sucessfully deleted!"
+      assert_equal flash_message_type, :info
     elsif attribute[:expect] == :no_permission
-      validate { flash_message ==
-        "Deleting attribute failed: user #{@user[:login]} has no permission to change attribute" }
-      validate { flash_message_type == :alert }
+      assert_equal flash_message,
+        "Deleting attribute failed: user #{@user[:login]} has no permission to change attribute"
+      assert_equal flash_message_type, :alert
     end
     validate_page
   end

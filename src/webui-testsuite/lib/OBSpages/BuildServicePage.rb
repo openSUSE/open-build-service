@@ -140,11 +140,25 @@ class BuildServicePage < WebPage
   #
   def flash_message
     results = @driver.find_elements :xpath => "//div[@id='flash-messages']//span"
-    return results.first.text unless results.empty?
-    return ""
+    if results.empty?
+      return ""
+    end
+    raise "One flash expected, but we had more." if results.count != 1
+    return results.first.text
   end
   
-  
+  # ============================================================================
+  # Returns the text of the flash messages currenlty on screen
+  # @note Doesn't fail if no message is on screen. Returns empty list instead.
+  # @return [array]
+  #
+  def flash_messages
+    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//span"
+    ret = []
+    results.each { |r| ret << r.text }
+    return ret
+  end
+ 
   # ============================================================================
   # Returns the type of the flash message currenlty on screen
   # @note Does not fail if no message is on screen! Returns nil instead!

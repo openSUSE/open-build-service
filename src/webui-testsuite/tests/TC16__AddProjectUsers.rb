@@ -101,7 +101,7 @@ class TC16__AddProjectUsers < TestCase
       :user => $data[:user1],
       :project => "home:user1"
     open_tab "Users"
-    add_user "", "maintainer", :expect => :unknown_user
+    add_user "", "maintainer", :expect => :invalid_userid
   end
   
   
@@ -112,7 +112,7 @@ class TC16__AddProjectUsers < TestCase
       :user => $data[:user1],
       :project => "home:user1"
     open_tab "Users"
-    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', "maintainer", :expect => :unknown_user
+    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', "maintainer", :expect => :invalid_userid
   end
   
   

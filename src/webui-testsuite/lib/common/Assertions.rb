@@ -41,7 +41,8 @@ module Assertions
   # @param [String, nil] message optional message to be passed upon failure
   #
   def assert test, message=nil
-    fail test unless test
+    message ||= test.to_s
+    fail message unless test
   end
   
   

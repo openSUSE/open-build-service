@@ -51,9 +51,8 @@ class ProjectAddUserPage < ProjectPage
         "Added user #{user} with role #{role} to project #{@project}" 
       $page = ProjectUsersPage.new_ready @driver
     elsif options[:expect] == :unknown_user
-      @url += "&role=" + role unless @url.include? 'role='
       assert_equal flash_message_type, :alert 
-      assert_equal flash_message, "Unknown user with id '#{user}'"
+      assert_equal flash_message, "Unknown user '#{user}'"
       validate_page
     elsif options[:expect] == :invalid_userid
       assert_equal flash_message_type, :alert

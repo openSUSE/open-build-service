@@ -62,23 +62,19 @@ class TC12__AddPackageAttributes < TestCase
     add_new_attribute(
       :name   => "OBS:RejectRequests",
       :value  => "",
-      :expect => :no_permission)   
+      :expect => :wrong_number_of_values)   
     add_new_attribute(
       :name   => "OBS:ApprovedRequestSource",
       :value  => "",
-      :expect => :no_permission)   
+      :expect => :success)
     add_new_attribute(
       :name   => "OBS:Maintained",
       :value  => "",
-      :expect => :no_permission)   
+      :expect => :success)   
     add_new_attribute(
       :name   => "OBS:MaintenanceProject",
       :value  => "",
-      :expect => :no_permission)   
-    add_new_attribute(
-      :name   => "OBS:MaintenanceVersion",
-      :value  => "",
-      :expect => :no_permission)   
+      :expect => :no_permissions)
     add_new_attribute(
       :name   => "OBS:MaintenanceIdTemplate",
       :value  => "",
@@ -160,9 +156,6 @@ class TC12__AddPackageAttributes < TestCase
     add_new_attribute(
       :name  => "OBS:MaintenanceProject",
       :value => "")   
-    add_new_attribute(
-      :name  => "OBS:MaintenanceVersion",
-      :value => "12")   
     add_new_attribute(
       :name  => "OBS:MaintenanceIdTemplate",
       :value => "dontbesilly")   

@@ -2,7 +2,7 @@ class TC15__AllProjectsList < TestCase
 
 
   test :check_public_projects_list do
-  depend_on :login_as_user
+  depend_on :login_as_user, :create_global_project
   
     navigate_to AllProjectsPage, :user => :none
     filter_projects(
@@ -11,12 +11,16 @@ class TC15__AllProjectsList < TestCase
     refresh_page  
     
     assert displayed_projects.include? "PublicProject1"
-    assert displayed_projects.count == 1
+    assert displayed_projects.include? "BaseDistro"
+    # there are way more in the api fixtures
+    assert displayed_projects.count > 2
   end
 
 
   test :check_all_projects_list do
-  depend_on :login_as_user
+  depend_on :login_as_user, :create_subproject_with_long_description,
+    :create_subproject_with_long_description, :create_subproject_with_only_name, :create_subproject_for_user,
+    :create_global_project, :create_home_project_for_second_user
   
     navigate_to AllProjectsPage, :user => :none
     filter_projects(
@@ -31,12 +35,13 @@ class TC15__AllProjectsList < TestCase
     assert displayed_projects.include? "home:user1:SubProject2"
     assert displayed_projects.include? "home:user1:SubProject3"
     assert displayed_projects.include? "home:user2"
-    assert displayed_projects.count == 7
+    # all the others from the api fixtures are there too
+    assert displayed_projects.count > 7
   end
 
 
   test :filter_specific_project do
-  depend_on :login_as_user
+  depend_on :login_as_user, :create_subproject_with_long_description
   
     navigate_to AllProjectsPage, :user => :none
     filter_projects(
@@ -50,7 +55,7 @@ class TC15__AllProjectsList < TestCase
 
 
   test :filter_non_global_projects do
-  depend_on :login_as_user
+  depend_on :login_as_user, :create_subproject_with_long_description, :create_subproject_with_only_name, :create_subproject_for_user
   
     navigate_to AllProjectsPage, :user => :none
     filter_projects(
@@ -62,8 +67,7 @@ class TC15__AllProjectsList < TestCase
     assert displayed_projects.include? "home:user1:SubProject1"
     assert displayed_projects.include? "home:user1:SubProject2"
     assert displayed_projects.include? "home:user1:SubProject3"
-    assert displayed_projects.include? "home:user2"
-    assert displayed_projects.count == 6
+    assert displayed_projects.count > 6
   end
 
   test :filter_all_subprojects do
