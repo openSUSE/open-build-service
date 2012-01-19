@@ -555,11 +555,6 @@ class RequestController < ApplicationController
         end
 
         if action.value("type") == "maintenance_incident"
-          if action.source.has_attribute?(:package)
-            render_error :status => 400, :errorcode => 'illegal_request',
-              :message => "Maintenance requests accept only entire projects as source"
-            return
-          end
           # find target project via attribute, if not specified
           unless action.has_element? 'target' 
             action.add_element 'target'
@@ -587,7 +582,7 @@ class RequestController < ApplicationController
           end
           # validate project type
           prj = DbProject.get_by_name(action.target.project)
-          unless prj.project_type == "maintenance"
+          unless [ "maintenance", "maintenance_incident" ].include? prj.project_type
             render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
               :message => "incident projects shall only create below maintenance projects"
             return
@@ -925,6 +920,10 @@ class RequestController < ApplicationController
     end
   end
 
+  def command_setincident
+     command_changestate# :cmd => "setincident",
+                       # :incident
+  end
   def command_addreview
      command_changestate# :cmd => "addreview",
                        # :by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
@@ -1022,7 +1021,7 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
       return
-    elsif params[:cmd] == "addreview" 
+    elsif params[:cmd] == "addreview" or params[:cmd] == "setincident"
       unless [ "review", "new" ].include? req.state.name
         render_error :status => 403, :errorcode => "add_review_no_permission",
               :message => "The request is not in state new or review"
@@ -1127,6 +1126,28 @@ class RequestController < ApplicationController
               render_error :status => 404, :errorcode => "unknown_package",
                 :message => "Source package is missing for request #{req.id} (type #{action.value('type')})"
               return
+            end
+          end
+          # maintenance incident target permission checks
+          if [ "maintenance_incident" ].include? action.value("type")
+            if params[:cmd] == "setincident"
+              unless target_project.project_type == "maintenance"
+                render_error :status => 404, :errorcode => "target_not_maintenance",
+                  :message => "The target project is not of type maintenance but #{target_project.project_type}"
+                return
+              end
+              tip = DbProject.get_by_name(action.target.project + ":" + params[:incident])
+              if tip.is_locked?
+                render_error :status => 403, :errorcode => "project_locked",
+                  :message => "The target project is locked"
+                return
+              end
+            else
+              unless [ "maintenance", "maintenance_incident" ].include? target_project.project_type
+                render_error :status => 404, :errorcode => "target_not_maintenance_or_incident",
+                  :message => "The target project is not of type maintenance or incident but #{target_project.project_type}"
+                return
+              end
             end
           end
           # write access check in release targets
@@ -1277,6 +1298,42 @@ class RequestController < ApplicationController
 
     # permission granted for the request at this point
 
+    # special command defining an incident to be merged
+    req.each_action do |action|
+      incident_project = nil
+      if action.value("type") == "maintenance_incident"
+        tprj = DbProject.get_by_name action.target.project
+
+        if params[:cmd] == "setincident"
+          # use an existing incident
+          if tprj.project_type == "maintenance"
+            tprj = DbProject.get_by_name(action.target.project + ":" + params[:incident])
+            action.target.set_attribute("project", tprj.name)
+          end
+        else # the accept case, create a new incident if needed
+          if tprj.project_type == "maintenance"
+            # create incident if it is a maintenance project
+            unless incident_project
+              source = DbProject.get_by_name(action.source.project)
+              incident_project = create_new_maintenance_incident(tprj, source, req ).db_project
+            end
+            unless incident_project.name.start_with?(tprj.name)
+              render_error :status => 404, :errorcode => "multiple_maintenance_incidents",
+                :message => "This request handles different maintenance incidents, this is not allowed !"
+              return
+            end
+            action.target.set_attribute("project", incident_project.name)
+          end
+        end
+        req.save
+      end
+    end
+    # job done by changing target
+    if params[:cmd] == "setincident"
+      render_ok
+      return
+    end
+
     # All commands are process by the backend. Just the request accept is controlled by the api.
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :by_project, :by_package, :superseded_by, :comment])
     unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
@@ -1287,6 +1344,8 @@ class RequestController < ApplicationController
 
     # have a unique time stamp for release
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
+    # all maintenance_incident actions go into the same incident project
+    incident_project = nil
 
     # use the request description as comments for history
     params[:comment] = req.value(:description)
@@ -1432,13 +1491,21 @@ class RequestController < ApplicationController
           Suse::Backend.delete delete_path
 
       elsif action.value("type") == "maintenance_incident"
-        # create incident project
-        source_project = DbProject.get_by_name(action.source.project)
-        target_project = DbProject.get_by_name(action.target.project)
-        incident = create_new_maintenance_incident(target_project, source_project, req )
+        # create or merge into incident project
+        source = nil
+        if action.source.has_attribute? :package
+          source = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
+        else
+          source = DbProject.get_by_name(action.source.project)
+        end
 
-        # update request with real target project
-        action.target.set_attribute("project", incident.db_project.name)
+        incident_project = DbProject.get_by_name(action.target.project)
+
+        # the incident got created before
+        merge_into_maintenance_incident(incident_project, source, request = nil)
+
+        # update action with real target project
+        action.target.set_attribute("project", incident_project.name)
         req.save
 
       elsif action.value("type") == "maintenance_release"

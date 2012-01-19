@@ -50,7 +50,6 @@ module MaintenanceHelper
       mi.db_project_id = tprj.id
       mi.save!
     end
-    merge_into_maintenance_incident(tprj, baseProject, request ) if baseProject
     return mi
   end
 
