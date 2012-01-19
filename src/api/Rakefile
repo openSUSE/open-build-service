@@ -14,6 +14,9 @@ rescue LoadError
   puts "delayed tasks not available"
 end
 
+require 'workers/update_issues.rb'
+task(:updateissues => :environment) { UpdateIssuesJob.new }
+
 begin
   require 'ci/reporter/rake/test_unit'
 rescue LoadError

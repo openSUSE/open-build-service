@@ -1,6 +1,5 @@
 require 'workers/status_monitor_job.rb'
 require 'workers/issue_trackers_to_backend_job.rb'
-require 'workers/update_issues.rb'
 
 namespace :jobs do
   desc "Inject a job to update the workerstatus cache"
@@ -12,7 +11,3 @@ namespace :jobs do
   task(:issuetrackers => :environment) { Delayed::Job.enqueue IssueTrackersToBackendJob.new }
 end
 
-namespace :jobs do
-  desc "Update states of existing issues"
-  task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
-end
