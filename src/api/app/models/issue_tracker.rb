@@ -79,9 +79,13 @@ class IssueTracker < ActiveRecord::Base
   end
 
   def update_issues()
+    # before asking remote to ensure that it is older then on remote, assuming ntp works ...
+    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
+    # guarantee a complete search)
     update_time_stamp = Time.at(Time.now.to_f - 5)
 
     result = bugzilla_server.search(:last_change_time => self.issues_updated)
+    ids = result["bugs"].map{ |x| x.r["id"].to_s }
 
     ret = private_fetch_issues(ids)
 
@@ -103,44 +107,33 @@ class IssueTracker < ActiveRecord::Base
   end
 
   private
-  def private_fetch_issues(ids=nil)
+  def private_fetch_issues(ids)
     unless self.enable_fetch
      logger.info "Bug mentioned on #{self.name}, but fetching from server is disabled"
      return
     end
 
-    # before asking remote to ensure that it is older then on remote, assuming ntp works ...
-    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
-    # guarantee a complete search)
-    update_time_stamp = Time.at(Time.now.to_f - 5)
+    update_time_stamp = Time.at(Time.now.to_f)
 
     if kind == "bugzilla"
-      # the efficient way, but bugzilla just errors out usually with it:
-      # result = bugzilla_server.get(:ids => ids }, :permissive => true)
-      # So creating more load here for bugzilla
-      ids.each do |i|
-        # do not ask for missing entries
-        next unless Issue.find_by_name_and_tracker i.to_s, self.name
-
-        begin
-          result = bugzilla_server.get(:ids => [i])
-          result["bugs"].each{ |r|
-            issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
-            if issue
-              issue.state = Issue.bugzilla_state(r["status"])
-              u = User.find_by_email(r["assigned_to"].to_s)
-              logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
-              issue.owner_id = u.id if u
-              issue.updated_at = update_time_stamp
-              issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
-              issue.save
-            end
-          }
-        rescue RuntimeError => e
-          logger.error "Unable to fetch issue #{e.inspect}"
-        rescue XMLRPC::FaultException => e
-          logger.error "Error: #{e.faultCode} #{e.faultString}"
-        end
+      begin
+        result = bugzilla_server.get(:ids => [ids], :permissive => 1)
+        result["bugs"].each{ |r|
+          issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
+          if issue
+            issue.state = Issue.bugzilla_state(r["status"])
+            u = User.find_by_email(r["assigned_to"].to_s)
+            logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
+            issue.owner_id = u.id if u
+            issue.updated_at = update_time_stamp
+            issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
+            issue.save
+          end
+        }
+      rescue RuntimeError => e
+        logger.error "Unable to fetch issue #{e.inspect}"
+      rescue XMLRPC::FaultException => e
+        logger.error "Error: #{e.faultCode} #{e.faultString}"
       end
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
