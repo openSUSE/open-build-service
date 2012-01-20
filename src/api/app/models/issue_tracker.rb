@@ -117,24 +117,24 @@ class IssueTracker < ActiveRecord::Base
 
     if kind == "bugzilla"
       begin
-        result = bugzilla_server.get(:ids => [ids], :permissive => 1)
-        result["bugs"].each{ |r|
-          issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
-          if issue
-            issue.state = Issue.bugzilla_state(r["status"])
-            u = User.find_by_email(r["assigned_to"].to_s)
-            logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
-            issue.owner_id = u.id if u
-            issue.updated_at = update_time_stamp
-            issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
-            issue.save
-          end
-        }
+        result = bugzilla_server.get({:ids => ids, :permissive => 1})
       rescue RuntimeError => e
         logger.error "Unable to fetch issue #{e.inspect}"
       rescue XMLRPC::FaultException => e
         logger.error "Error: #{e.faultCode} #{e.faultString}"
       end
+      result["bugs"].each{ |r|
+        issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
+        if issue
+          issue.state = Issue.bugzilla_state(r["status"])
+          u = User.find_by_email(r["assigned_to"].to_s)
+          logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
+          issue.owner_id = u.id if u
+          issue.updated_at = update_time_stamp
+          issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
+          issue.save
+        end
+      }
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
       url = URI.parse("#{self.url}/#{self.name}?contenttype=text%2Fxml")
