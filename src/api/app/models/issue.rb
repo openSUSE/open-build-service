@@ -10,7 +10,10 @@ class Issue < ActiveRecord::Base
     issue = Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
     raise IssueNotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
     
-    issue.fetch_updates if force_update
+    if force_update
+      issue.fetch_updates
+      return Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
+    end
 
     return issue
   end
@@ -30,7 +33,10 @@ class Issue < ActiveRecord::Base
     issue = Issue.create( :name => name, :issue_tracker => issue_tracker ) if issue.nil? and create_missing
 
     # force update
-    issue.fetch_updates if force_update and not issue.nil?
+    if force_update and not issue.nil?
+      issue.fetch_updates
+      return Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
+    end
 
     return issue
   end
