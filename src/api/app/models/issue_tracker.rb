@@ -118,27 +118,30 @@ class IssueTracker < ActiveRecord::Base
 
     if kind == "bugzilla"
       # limit to 256 ids to avoid too much load and timeouts on bugzilla side
-      ids=ids[0..256]
-
-      begin
-        result = bugzilla_server.get({:ids => ids, :permissive => 1})
-      rescue RuntimeError => e
-        logger.error "Unable to fetch issue #{e.inspect}"
-      rescue XMLRPC::FaultException => e
-        logger.error "Error: #{e.faultCode} #{e.faultString}"
-      end
-      result["bugs"].each{ |r|
-        issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
-        if issue
-          issue.state = Issue.bugzilla_state(r["status"])
-          u = User.find_by_email(r["assigned_to"].to_s)
-          logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
-          issue.owner_id = u.id if u
-          issue.updated_at = update_time_stamp
-          issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
-          issue.save
+      limit_per_slice=256
+      while ids
+        begin
+          result = bugzilla_server.get({:ids => ids[0..limit_per_slice], :permissive => 1})
+        rescue RuntimeError => e
+          logger.error "Unable to fetch issue #{e.inspect}"
+        rescue XMLRPC::FaultException => e
+          logger.error "Error: #{e.faultCode} #{e.faultString}"
         end
-      }
+        result["bugs"].each{ |r|
+          issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
+          if issue
+            issue.state = Issue.bugzilla_state(r["status"])
+            u = User.find_by_email(r["assigned_to"].to_s)
+            logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
+            issue.owner_id = u.id if u
+            issue.updated_at = update_time_stamp
+            issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
+            issue.save
+          end
+        }
+
+        ids=ids[limit_per_slice..-1]
+      end
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
       url = URI.parse("#{self.url}/#{self.name}?contenttype=text%2Fxml")
