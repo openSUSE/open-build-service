@@ -172,7 +172,9 @@ class IssueTracker < ActiveRecord::Base
   end
 
   def bugzilla_server
-    server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi", user=self.user, password=self.password)
+    server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi")
+    server.user=self.user if self.user
+    server.password=self.password if self.password
     return server.proxy('Bug')
   end
 
