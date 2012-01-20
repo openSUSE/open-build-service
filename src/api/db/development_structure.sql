@@ -311,7 +311,8 @@ CREATE TABLE `issue_trackers` (
   `user` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `long_name` text NOT NULL,
-  `issues_updated` int(11) DEFAULT NULL,
+  `issues_updated` datetime DEFAULT '0000-00-00 00:00:00',
+  `enable_fetch` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -837,6 +838,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120119194300');
 INSERT INTO schema_migrations (version) VALUES ('20120119204300');
 
 INSERT INTO schema_migrations (version) VALUES ('20120119204301');
+
+INSERT INTO schema_migrations (version) VALUES ('20120120104301');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

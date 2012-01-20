@@ -239,4 +239,52 @@
     </element>
   </define>
 
+  <define ns="" name="issue-tracker-element">
+    <element name="issue-tracker">
+      <interleave>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="long-name">
+          <text/>
+        </element>
+        <element name="kind">
+          <text/>
+        </element>
+        <element name="description">
+          <text/>
+        </element>
+        <optional>
+          <element name="enable-fetch">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="issues-updated">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="user">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="password">
+            <text/>
+          </element>
+        </optional>
+        <element name="url">
+          <text/>
+        </element>
+        <element name="show-url">
+          <text/>
+        </element>
+        <element name="regex">
+          <text/>
+        </element>
+      </interleave>
+    </element>
+  </define>
+
 </grammar>

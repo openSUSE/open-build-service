@@ -1367,11 +1367,13 @@ our $issue_trackers = [
 	    'description',
 	    'kind',
             'long-name',
+            'enable-fetch',
 	    'regex',
 	    'user',
 #	    'password',    commented out on purpose, should not reach backend
 	    'show-url',
 	    'url',
+            'issues-updated',
      ]],
 ];
 

@@ -104,6 +104,11 @@ class IssueTracker < ActiveRecord::Base
 
   private
   def private_fetch_issues(ids=nil)
+    unless self.enable_fetch
+     logger.info "Bug mentioned on #{self.name}, but fetching from server is disabled"
+     return
+    end
+
     # before asking remote to ensure that it is older then on remote, assuming ntp works ...
     # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
     # guarantee a complete search)
