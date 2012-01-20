@@ -84,15 +84,19 @@ class IssueTracker < ActiveRecord::Base
     # guarantee a complete search)
     update_time_stamp = Time.at(Time.now.to_f - 5)
 
-    result = bugzilla_server.search(:last_change_time => self.issues_updated)
-    ids = result["bugs"].map{ |x| x.r["id"].to_s }
+    if kind == "bugzilla"
+      result = bugzilla_server.search(:last_change_time => self.issues_updated)
+      ids = result["bugs"].map{ |x| x["id"].to_i }
 
-    ret = private_fetch_issues(ids)
+      ret = private_fetch_issues(ids)
 
-    self.issues_updated = update_time_stamp
-    self.save!
+      self.issues_updated = update_time_stamp
+      self.save!
 
-    return true
+      return true
+    end
+
+    return false
   end
 
   def fetch_issues(issues=nil)
