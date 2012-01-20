@@ -98,7 +98,7 @@ class IssueTracker < ActiveRecord::Base
   def fetch_issues(issues=nil)
     unless issues
       # find all new issues for myself
-      issues = Issue.find :all, :conditions => ["(ISNULL(state) or ISNULL(owner_id)) and issue_tracker_id = BINARY ?", self.id]
+      issues = Issue.find :all, :conditions => ["ISNULL(state) and issue_tracker_id = BINARY ?", self.id]
     end
 
     ids = issues.map{ |x| x.name.to_s }
