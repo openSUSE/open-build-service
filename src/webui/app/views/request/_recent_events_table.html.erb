@@ -21,7 +21,7 @@
           <%= fuzzy_time_string(event[:when]) %>
         </td>
       </tr>
-      <% if event[:comment] %>
+      <% if event[:comment] && !event[:comment].empty? %>
         <tr class="odd">
           <td colspan="3" class="expandable_event_comment"><%= raw escape_and_transform_nonprintables(event[:comment]) %></td>
         </tr>
