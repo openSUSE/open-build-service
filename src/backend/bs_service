@@ -62,8 +62,6 @@ $servicedir="/usr/lib/obs/service" unless $servicedir;
 my $rootservicedir = $servicedir;
 $rootservicedir = $BSConfig::serviceroot."/".$servicedir if $BSConfig::serviceroot;
 
-my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
-
 sub usage {
   my ($ret) = @_;
 
