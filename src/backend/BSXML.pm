@@ -1012,6 +1012,7 @@ our $request = [
     'request' =>
 	'id',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
+	'key',		# cache key, not really in request
      [[ 'action' =>
 	    'type',	# currently submit, delete, change_devel, add_role, maintenance_release, maintenance_incident, set_bugowner
 	  [ 'source' =>

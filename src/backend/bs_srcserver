@@ -5499,7 +5499,7 @@ sub search_published_binary_id {
   my ($cgi, $match) = @_;
   my $binarydb = BSDB::opendb($extrepodb, 'binary');
   $binarydb->{'allkeyspath'} = 'name';
-  $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1};
+  $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1, 'baseproject' => 1};
   $binarydb->{'indexfunc'} = {'project' => \&published_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
   $binarydb->{'cheapfetch'} = 1;
@@ -5791,9 +5791,36 @@ sub createrequest {
 
 sub getrequest {
   my ($cgi, $id) = @_;
-  my $req = readxml("$requestsdir/$id", $BSXML::request, 1);
-  $req ||= readxml("$oldrequestsdir/$id", $BSXML::request, 1);
-  die("404 no such request '$id'\n") unless $req;
+  local *F;
+  my $rdir = $requestsdir;
+  if (!open(F, '<', "$rdir/$id")) {
+    $rdir = $oldrequestsdir;
+    if (!open(F, '<', "$rdir/$id")) {
+      die("404 no such request '$id'\n");
+    }
+  }
+  my $reqxml = '';
+  1 while sysread(F, $reqxml, 8192, length($reqxml));
+  my @s = stat(F);
+  close F;
+  die unless @s;
+  my $req = XMLin($BSXML::request, $reqxml);
+  my $key;
+  if ($cgi->{'withkey'} || $cgi->{'oldkey'}) {
+    $key = Digest::MD5::md5_hex("$s[9]/$s[7]/$s[1]");
+    $req->{'key'} = $key if $cgi->{'withkey'};
+    if ($cgi->{'oldkey'} && $key eq $cgi->{'oldkey'}) {
+      if (!$BSStdServer::isajax) {
+	my @args;
+	push @args, "withkey=1" if $cgi->{'withkey'};
+	push @args, "oldkey=$cgi->{'oldkey'}" if $cgi->{'oldkey'};
+	BSHandoff::handoff($ajaxsocket, "/request/$id", undef, @args);
+	exit(0);
+      }
+      BSWatcher::addfilewatcher("$rdir/$id");
+      return undef;
+    }
+  }
   return ($req, $BSXML::request);
 }
 
@@ -6684,7 +6711,7 @@ my $dispatches = [
   'POST:/request cmd: user:?' => \&createrequest,
   '/request' => \&getrequestlist,
   'POST:/request/$id:num cmd: newstate:? user:? comment:? by_user:? by_group:? by_project:? by_package:? superseded_by:?' => \&postrequest,
-  '/request/$id:num' => \&getrequest,
+  '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
   '/search/request $match: limit:num?' => \&search_request,
@@ -6705,6 +6732,7 @@ my $dispatches_ajax = [
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   '/source/$project/$package rev' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
+  '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
 ];
 
 ####################################################################

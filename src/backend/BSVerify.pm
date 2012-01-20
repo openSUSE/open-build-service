@@ -295,6 +295,7 @@ my %req_states = map {$_ => 1} qw {new revoked accepted superseded declined dele
 
 sub verify_request {
   my ($req) = @_;
+  die("request must not contain a key\n") if exists $req->{'key'};
   verify_num($req->{'id'}) if exists $req->{'id'};
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
