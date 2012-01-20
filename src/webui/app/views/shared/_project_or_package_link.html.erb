@@ -1,0 +1,16 @@
+<% project ||= nil %>
+<% package ||= nil %>
+<% short ||= false %>
+
+<% if package %>
+  <% if !short %>
+    package
+  <% end %>
+  <%= link_to("#{project} / #{package}", :controller => 'package', :action => 'show', :project => project, :package => package) %>
+<% else %>
+  <% if !short %>
+    project
+  <% end %>
+  <%= link_to(project, :controller => 'project', :action => 'show', :project => project) %>
+<% end %>
+
