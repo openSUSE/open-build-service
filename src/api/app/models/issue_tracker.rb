@@ -92,7 +92,7 @@ class IssueTracker < ActiveRecord::Base
     self.issues_updated = update_time_stamp
     self.save!
 
-    return ret
+    return true
   end
 
   def fetch_issues(issues=nil)
@@ -104,6 +104,7 @@ class IssueTracker < ActiveRecord::Base
     ids = issues.map{ |x| x.name.to_s }
 
     return private_fetch_issues(ids)
+    return true
   end
 
   private
@@ -116,6 +117,9 @@ class IssueTracker < ActiveRecord::Base
     update_time_stamp = Time.at(Time.now.to_f)
 
     if kind == "bugzilla"
+      # limit to 256 ids to avoid too much load and timeouts on bugzilla side
+      ids=ids[0..256]
+
       begin
         result = bugzilla_server.get({:ids => ids, :permissive => 1})
       rescue RuntimeError => e
