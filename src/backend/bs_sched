@@ -812,11 +812,12 @@ sub sendrepochangeevent {
 }
 
 sub set_repo_state {
-  my ($prp, $state) = @_;
+  my ($prp, $state, $details) = @_;
 
   unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
   
-  writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -e "$reporoot/$prp/$myarch";
+  $state .= " $details" if $details;
+  writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -d "$reporoot/$prp/$myarch";
 }
 
 
@@ -927,7 +928,7 @@ sub makedeltas {
     if (-e "$myjobsdir/$job") {
       # delta creation already in progress. wait...
       print "    delta creation already in progress...\n";
-      return undef, "in progress";
+      return undef, 'building';
     }
     my $srcmd5 = '';
     $srcmd5 .= $_->[2] for @needdelta;
@@ -1140,7 +1141,9 @@ sub prpfinished {
   my ($deltas, $err) = makedeltas($prp, $needdeltas ? $packs : undef, $pubenabled, $bconf, $prpsearchpath);
   if (!$deltas) {
       close(F);
-      return $err || 'error';
+      $err ||= 'internal error';
+      $err = "delta generation: $err";
+      return $err;
   }
 
   my $rdir = "$reporoot/$prp/$myarch/:repo";
@@ -5166,7 +5169,7 @@ while(1) {
     next if $error;
     my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
     print "  - $prp: no config ($lastprojid)\n";
-    set_repo_state($prp, 'broken');
+    set_repo_state($prp, 'broken', "no config ($lastprojid)");
     $prpfinished{$prp} = 1;
     next;
   }
@@ -5174,7 +5177,7 @@ while(1) {
   if (!$prptype || $prptype eq 'UNDEFINED') {
     my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
     print "  - $prp: bad config ($lastprojid)\n";
-    set_repo_state($prp, 'broken');
+    set_repo_state($prp, 'broken', "bad config ($lastprojid)");
     $prpfinished{$prp} = 1;
     next;
   }
@@ -5191,7 +5194,7 @@ while(1) {
   }
 
   mkdir_p("$reporoot/$prp/$myarch");
-  set_repo_state($prp, "scheduling");
+  set_repo_state($prp, 'scheduling');
 
   my $packs = $projpacks->{$projid}->{'package'} || {};
   my @packs = sort keys %$packs;
@@ -5258,7 +5261,7 @@ while(1) {
   }
   if ($error) {
     print "    $error\n";
-    set_repo_state($prp, "broken");
+    set_repo_state($prp, 'broken', $error);
     next;
   }
   
@@ -5990,12 +5993,14 @@ relsynccheck:
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
 
+  my $schedulerstate;
+  my $schedulerdetails;
   if (keys %building) {
-    set_repo_state($prp, "building");
+    $schedulerstate = 'building';
   } elsif (keys %unfinished) {
-    set_repo_state($prp, "blocked");
+    $schedulerstate = 'blocked';
   } else {
-    set_repo_state($prp, "finished");
+    $schedulerstate = 'finished';
   }
 
   # we always publish kiwi...
@@ -6026,6 +6031,7 @@ relsynccheck:
 	mkdir_p("$reporoot/$prp/$myarch");
 	$publisherror = prpfinished($prp, \@packs, \%pubenabled, $bconf, $prpsearchpath{$prp});
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless $publisherror || %unfinished;
+	$schedulerdetails = $publisherror if $publisherror;
       } else {
 	print "    publishing is disabled\n";
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, "disabled");
@@ -6047,6 +6053,8 @@ relsynccheck:
     delete $prpfinished{$prp};
     unlink("$reporoot/$prp/$myarch/:repodone");
   }
+
+  set_repo_state($prp, $schedulerstate, $schedulerdetails);
 
   if (%unfinished) {
     $prpunfinished{$prp} = scalar(keys %unfinished);

@@ -661,13 +661,6 @@ our $packstatuslist = [
      ]],
 ];
 
-our $packstatuslistlist = [
-    'packstatuslistlist' =>
-    'state',
-    'retryafter',
-     [ $packstatuslist ],
-];
-
 our $linkpatch = [
     '' =>
       [ 'add' =>
@@ -851,6 +844,7 @@ our $result = [
 	'repository',
 	'arch',
 	'state', # pra state, can be "unknown", "broken", "scheduling", "blocked", "building", "finished", "publishing", "published" or "unpublished"
+	'details',
 	'dirty', # marked for re-scheduling if element exists, state might not be correct anymore
       [ $buildstatus ],
       [ $binarylist ],
@@ -1013,6 +1007,7 @@ our $request = [
 	'id',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
 	'key',		# cache key, not really in request
+	'retryafter',	# timed out waiting for a key change
      [[ 'action' =>
 	    'type',	# currently submit, delete, change_devel, add_role, maintenance_release, maintenance_incident, set_bugowner
 	  [ 'source' =>

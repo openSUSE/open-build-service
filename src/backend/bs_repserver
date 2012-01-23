@@ -1115,17 +1115,18 @@ sub getschedulerstate {
   my ($projid, $repoid, $arch) = @_;
   local *F;
 
-  open(F, '<', "$reporoot/$projid/$repoid/$arch/:schedulerstate") || return 'unknown';
-  my $schedulerstate = readline(*F);
-  close(F);
+  my $schedulerstate = readstr("$reporoot/$projid/$repoid/$arch/:schedulerstate", 1) || 'unknown';
+  chomp $schedulerstate;
+  my $details;
+  ($schedulerstate, $details) = split(' ', $schedulerstate, 2);
 
-  if ($schedulerstate eq 'finished') {
+  if ($schedulerstate eq 'finished' && !$details) {
     return 'finished'     if -e "$eventdir/publish/${projid}::$repoid";
     return 'publishing'   if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
-    return 'unpublished'  if (readstr("$reporoot/$projid/$repoid/$arch/:repodone",1) || '') eq 'disabled';
+    return 'unpublished'  if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') eq 'disabled';
     return 'published';
   }
-  return $schedulerstate;
+  return ($schedulerstate, $details);
 }
 
 sub workerstatus {
@@ -1631,8 +1632,9 @@ sub getresult {
 	$ps->{'packststus'}->{$_} ||= 'unknown';
       }
     }
-    my $schedulerstate = getschedulerstate($projid, $repoid, $arch);
+    my ($schedulerstate, $schedulerdetails) = getschedulerstate($projid, $repoid, $arch);
     my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'state' => $schedulerstate };
+    $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
     $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
     $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
     fixpackstatus($prpa, $ps, \%buildingjobs);
