@@ -1,5 +1,6 @@
 <% elide_len ||= 40 %>
 <% request_table_id ||= 'request_table' %>
+<% hide_state ||= false %>
 
 <% if requests.blank? %>
   <p>No requests.</p>
@@ -12,7 +13,9 @@
         <th style="width: 40%">Target</th>
         <th style="width: 5%">Requester</th>
         <th style="width: 1%">Type</th>
-        <th style="width: 1%">State</th>
+        <% if !hide_state %>
+          <th style="width: 1%">State</th>
+        <% end %>
         <th style="width: 1%">Actions</th>
       </tr>
     </thead>
@@ -61,7 +64,9 @@
           </td>
           <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(req), :short => true}%></td>
           <td class="nowrap"><%= reqtype(req) %></td>
-          <td class="nowrap"><%= req.state.name %></td>
+          <% if !hide_state %>
+            <td class="nowrap"><%= req.state.name %></td>
+          <% end %>
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => "Show #{reqtype(req)} request ##{req.value(:id)}", :title => "Show #{reqtype(req)} request ##{req.value(:id)}"), :controller => :request, :action => :show, :id => req.value(:id)) -%>
             <% if ae.has_element? :source and ae.source.has_attribute? :package %>
@@ -76,6 +81,10 @@
     </tbody>
   </table>
   <% javascript_tag do %>
-    $('#<%= request_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {5: {sorter: false}} });
+    <% if !hide_state %>
+      $('#<%= request_table_id %>').tablesorter({ sortList: [[0,0]], headers: {5: {sorter: false}} });
+    <% else %>
+      $('#<%= request_table_id %>').tablesorter({ sortList: [[0,0]], headers: {4: {sorter: false}} });
+    <% end %>
   <% end %>
 <% end %>

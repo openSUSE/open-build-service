@@ -36,13 +36,13 @@
 
 <% if @open_reviews.count > 0 %>
 <h3 title="Someone asks you to review a change.">Open Reviews</h3>
-<%= render(:partial => 'shared/requests', :locals => { :requests => @open_reviews, :request_table_id => 'new_reviews_table' }) %>
+<%= render(:partial => 'shared/requests', :locals => { :requests => @open_reviews, :request_table_id => 'new_reviews_table', :hide_state => true }) %>
 <% end %>
 
 <h3 title="Someone requests to change something in your packages.">New Requests For You</h3>
-<%= render(:partial => 'shared/requests', :locals => { :requests => @new_requests, :request_table_id => 'new_requests_table' }) %>
+<%= render(:partial => 'shared/requests', :locals => { :requests => @new_requests, :request_table_id => 'new_requests_table', :hide_state => true }) %>
 
 <% if @declined_requests.count > 0 %>
 <h3 title="Some other party has declined a request you created.">Your Declined Requests</h3>
-<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'declined_requests_table' }) %>
+<%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'declined_requests_table', :hide_state => true }) %>
 <% end %>
