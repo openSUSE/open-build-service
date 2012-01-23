@@ -36,7 +36,7 @@
   <div style="float:right;">
     <h3>Issues mentioned</h3>
     <ul>
-      <% issues.each do |bug, url| %>
+      <% issues.sort.each do |bug, url| %>
         <li><%= link_to(bug, url, :class => 'issue_tracker_link') %></li>
       <% end %>
     </ul>
