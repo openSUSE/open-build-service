@@ -278,6 +278,9 @@ class ProjectController < ApplicationController
       @nr_releasetargets += 1 if repo.has_element?('releasetarget')
     end
 
+    @issues = {}
+    @issues = @project.issues() if @project.kind && @project.kind == "maintenance_incident"
+
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 

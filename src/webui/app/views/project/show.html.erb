@@ -84,6 +84,18 @@
             Maintained by <%= link_to(@project_maintenance_project, :action => 'show', :project => @project_maintenance_project) %>
           </li>
         <% end %>
+        <% if @issues[:patchinfo] %>
+          <li>
+            <%= image_tag 'icons/information.png' %>
+            <%= @issues[:patchinfo].length %> issue<%= @issues[:patchinfo].length == 1 ? '' : 's' %> in patchinfo
+          </li>
+        <% end %>
+        <% if @issues[:changes] %>
+          <li>
+            <%= image_tag 'icons/information.png' %>
+            <%= @issues[:changes].length %> issue<%= @issues[:changes].length == 1 ? '' : 's' %> in changes files
+          </li>
+        <% end %>
       </ul>
     </div>
     <div class="grid_5 omega">

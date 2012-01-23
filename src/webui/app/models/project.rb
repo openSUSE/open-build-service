@@ -426,27 +426,29 @@ class Project < ActiveXML::Base
   end
 
   def issues
-    issues = Project.find_cached(:issues, :name => self.name)
-    if issues
-      changes_issues = {}
-      patchinfo_issues = {}
-      issues.each(:package) do |package|
-        package.each(:issue) do |issue|
-          if package.value('name') == 'patchinfo'
-            patchinfo_issues[issue.value('long_name')] = issue
-          else
-            changes_issues[issue.value('long_name')] = issue
+    return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}") do
+      issues = Project.find_cached(:issues, :name => self.name)
+      if issues
+        changes_issues = {}
+        patchinfo_issues = {}
+        issues.each(:package) do |package|
+          package.each(:issue) do |issue|
+            if package.value('name') == 'patchinfo'
+              patchinfo_issues[issue.value('long_name')] = issue
+            else
+              changes_issues[issue.value('long_name')] = issue
+            end
           end
         end
+       #open_issues, closed_issues = 0, 0
+       #changes_issues.each do |name, issue|
+       #  open_issues += 1 if issue.value('state') == 'OPEN'
+       #  closed_issues += 1 if issue.value('state') == 'CLOSED'
+       #end
+        {:changes => changes_issues, :patchinfo => patchinfo_issues}
+      else
+        {}
       end
-     #open_issues, closed_issues = 0, 0
-     #changes_issues.each do |name, issue|
-     #  open_issues += 1 if issue.value('state') == 'OPEN'
-     #  closed_issues += 1 if issue.value('state') == 'CLOSED'
-     #end
-      return changes_issues, patchinfo_issues
-    else
-      return {}, {}
     end
   end
 

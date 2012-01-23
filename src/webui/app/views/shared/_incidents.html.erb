@@ -16,20 +16,24 @@
     </thead>
     <tbody>
       <% incidents.each do |incident| %>
-        <% patchinfo, packages = incident.patchinfo(), incident.packages() %>
+        <% patchinfo, packages, issues = incident.patchinfo(), incident.packages(), incident.issues() %>
         <tr>
           <td><%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %></td>
           <td><%= incident.value('title') %></td>
           <% if patchinfo %>
             <td><%= raw colored_patchinfo_category(patchinfo.category) %> </td>
             <td><%= raw colored_patchinfo_rating(patchinfo.rating) %></td>
-            <td><%= link_to(image_tag('icons/accept.png', :alt => 'View patchinfo', :title => 'View patchinfo'), :controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo') %></td>
+            <td class="nowrap"><%= link_to(image_tag('icons/accept.png', :alt => 'View patchinfo', :title => 'View patchinfo'), :controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo') %>
+              <% if patchinfo.each_issue.length > 0 %>
+                <%= patchinfo.each_issue.length %> issues
+              <% end %>
+            </td>
           <% else %>
             <td>-</td>
             <td>-</td>
             <td><%= link_to(image_tag('icons/exclamation.png', :alt => 'Create patchinfo', :title => 'Create patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %></td>
           <% end %>
-          <td>
+          <td class="nowrap">
             <% if packages && packages.length > 1 %>
               <%= link_to(image_tag('icons/accept.png', :alt => "Has #{packages.length} packages", :title => "Has #{packages.count} packages"), :action => 'packages', :project => incident.value('name')) %>
             <% else %>
@@ -40,6 +44,10 @@
             <%= link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
             <% javascript_tag do %>
               setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
+            <% end %>
+
+            <% if issues[:changes] %>
+              <%= issues[:changes].length %> issues
             <% end %>
           </td>
         </tr>
