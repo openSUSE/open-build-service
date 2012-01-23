@@ -733,7 +733,7 @@ sub issuediff {
   $trackers = [ @$trackers ];
   for (@$trackers) {
     $_ = { %$_ };
-    $_->{'regex'} = "($_->{'regex'})" unless /\(/;
+    $_->{'regex'} = "($_->{'regex'})" unless $_->{'regex'} =~ /\(/;
     $_->{'regex'} = "($_->{'regex'})";
     eval {
       $_->{'regex'} = qr/$_->{'regex'}/;
