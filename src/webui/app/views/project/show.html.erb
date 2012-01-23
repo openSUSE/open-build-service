@@ -87,7 +87,8 @@
         <% if @issues[:patchinfo] %>
           <li>
             <%= image_tag 'icons/information.png' %>
-            <%= @issues[:patchinfo].length %> issue<%= @issues[:patchinfo].length == 1 ? '' : 's' %> in patchinfo
+            <%= @issues[:patchinfo].length %> issue<%= @issues[:patchinfo].length == 1 ? '' : 's' %> in
+            <%= link_to('patchinfo', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
           </li>
         <% end %>
         <% if @issues[:changes] %>
