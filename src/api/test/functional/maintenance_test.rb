@@ -122,6 +122,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                        <sourceupdate>cleanup</sourceupdate>
                                      </options>
                                    </action>
+                                   <description>To fix my bug</description>
                                    <state name="new" />
                                  </request>'
     assert_response :success
@@ -188,6 +189,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                      </options>
                                    </action>
                                    <state name="new" />
+                                   <description>To fix my other bug</description>
                                  </request>'
     assert_response :success
     assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
@@ -222,6 +224,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     data = REXML::Document.new(@response.body)
     maintenanceNotNewProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
     assert_equal maintenanceProject, maintenanceNotNewProject
+
+    # no patchinfo was part in source project, got it created ?
+    get "/source/#{maintenanceProject}/patchinfo/_patchinfo"
+    assert_response :success
+    assert_tag :tag => 'packager', :content => "tom"
+    assert_tag :tag => 'description', :content => "To fix my bug"
 
     #validate cleanup
     get "/source/home:tom:branches:OBS_Maintained:pack2"

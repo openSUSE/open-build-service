@@ -227,6 +227,21 @@ class DbPackage < ActiveRecord::Base
       return ret
     end
 
+    def find_by_project_and_kind( project, kind )
+      sql =<<-END_SQL
+      SELECT pack.*
+      FROM db_packages pack
+      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
+      LEFT OUTER JOIN db_package_kinds kinds ON kinds.db_package_id = pack.id
+      WHERE pro.name = BINARY ? AND kinds.kind = BINARY ?
+      END_SQL
+
+      result = DbPackage.find_by_sql [sql, project.to_s, kind.to_s]
+      ret = result[0]
+      return nil unless DbPackage.check_access?(ret)
+      return ret
+    end
+
     def find_by_attribute_type( attrib_type, package=nil )
       # One sql statement is faster than a ruby loop
       # attribute match in package or project
