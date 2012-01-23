@@ -82,9 +82,9 @@
   </table>
   <% javascript_tag do %>
     <% if !hide_state %>
-      $('#<%= request_table_id %>').tablesorter({ sortList: [[0,0]], headers: {5: {sorter: false}} });
+      $('#<%= request_table_id %>').tablesorter({ sortList: [[0,0]], headers: {6: {sorter: false}} });
     <% else %>
-      $('#<%= request_table_id %>').tablesorter({ sortList: [[0,0]], headers: {4: {sorter: false}} });
+      $('#<%= request_table_id %>').tablesorter({ sortList: [[0,0]], headers: {5: {sorter: false}} });
     <% end %>
   <% end %>
 <% end %>
