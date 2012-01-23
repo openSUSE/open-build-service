@@ -492,8 +492,8 @@ class RequestController < ApplicationController
       if action.has_element?('target') and action.target.has_attribute?('project')
         tprj = DbProject.get_by_name action.target.project
         if tprj.class == DbProject and tprj.project_type == "maintenance_release" and action.value('type') == 'submit'
-          render_error :status => 400, :errorcode => 'request_rejected',
-            :message => "The target project #{action.target.project} is a maintenance release project, please use the maintenance workflow instead."
+          render_error :status => 400, :errorcode => 'submit_request_rejected',
+            :message => "The target project #{action.target.project} is a maintenance release project, a submit action is not possible, please use the maintenance workflow instead."
           return
         end
         if tprj.class == DbProject and (a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first)

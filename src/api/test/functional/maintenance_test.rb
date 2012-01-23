@@ -932,7 +932,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    assert_tag :tag => "status", :attributes => { :code => "submit_request_rejected" }
     assert_match /is a maintenance release project/, @response.body
   end
 
