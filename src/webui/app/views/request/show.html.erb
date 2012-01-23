@@ -36,7 +36,7 @@
 
       <% if @other_open_reviews.length > 0 %>
         <div class="grid_5 alpha">
-          <h4>Other Open Reviews</h4>
+          <h4>Open Reviews</h4>
           <%= render :partial => 'other_open_reviews' %>
         </div>
         <div class="clear"></div>
@@ -75,7 +75,54 @@
   <% end %>
   <% @actions.each_with_index do |action, action_index| %>
     <div class="action_display <%= 'hidden' if action_index > 0 %>" id="action_display_<%= action_index %>">
-      <%#TODO: describe action %>
+      <p>
+        <% if action[:type] == 'submit' %>
+          Submit
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg], :short => true} %>
+          to
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
+
+          <% if action[:creator_is_target_maintainer] %>
+            <%# TODO: Make this work for each submit action individually: %>
+            <%= check_box_tag(:add_submitter_as_maintainer) %> Add
+            <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => @req.creator()} %> as target maintainer<br/>
+          <% end %>
+          <% if action[:forward] %>
+            <% action[:forward].each do |forward| %>
+              <% index = 0 %>
+              <% if forward[:type] == 'link' %>
+                <%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}") %> Forward to linked package
+                <%= link_to("#{forward[:project]} / #{forward[:package]}", :controller => 'package', :action => 'show', :project => forward[:project], :package => forward[:package]) %><br/>
+              <% else %>
+                <%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true) %> Forward to developed package
+                <%= link_to("#{forward[:project]} / #{forward[:name]}", :controller => 'package', :action => 'show', :project => forward[:project], :package => forward[:name]) %><br/>
+                <% index += 1 %>>
+              <% end %>
+            <% end %>
+          <% end %>
+
+
+        <% elsif action[:type] == 'delete' %>
+          Delete
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
+        <% elsif action[:type] == 'add_role' %>
+          <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => action[:user]} %>
+          wants the role <b><%= action[:role] %></b> for
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
+        <% elsif action[:type] == 'change_devel' %>
+          Set the devel project to
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg]} %>
+          for
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
+        <% elsif action[:type] == 'maintenance_incident' %>
+
+        <% elsif action[:type] == 'maintenance_release' %>
+        <% end %>
+      </p>
+
+
+
+      <%#TODO: Add buildsresult partial on the right %>
 
       <% if action[:sourcediff] %>
         <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
@@ -85,11 +132,22 @@
             <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
           <% end %>
 
+          <% if action[:sourcediff].length != 1 %>
+            <h4>
+              <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
+              <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
+            </h4>
+          <% end %>
+
+          <%#TODO: Move issue rendering into seperate partial on the right %>
+          <%#TODO: Redo source/target link display %>
           <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :issues => sourcediff[:issues], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}"}) %>
         <% end %>
+        <p><%= link_to('Back to top', '#') %></p>
       <% end %>
+
+
     </div>
   <% end %>
-  <p><%= link_to('Back to top', '#') %></p>
 </div>
 

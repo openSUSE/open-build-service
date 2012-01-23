@@ -338,54 +338,62 @@ class BsRequest < ActiveXML::Base
     return Rails.cache.fetch("request_#{value('id')}_actions", :expires_in => 7.days) do
       actions, action_index = [], 0
       each_action do |xml|
-        action = {:type => xml.value('type')}
+        action = {:type => xml.value('type'), :xml => xml}
 
-        sprj, spkg, tprj, tpkg = nil, nil, nil, nil
         if xml.has_element?(:source) && xml.source.has_attribute?(:project)
-          sprj = Project.find_cached(xml.source.project)
-          spkg = Package.find_cached(xml.source.package, :project => xml.source.project) if xml.source.has_attribute?(:package)
+          action[:sprj] = Project.find_cached(xml.source.project)
+          action[:spkg] = Package.find_cached(xml.source.package, :project => xml.source.project) if xml.source.has_attribute?(:package)
         end
         if xml.has_element?(:target) && xml.target.has_attribute?(:project)
-          tprj = Project.find_cached(xml.target.project)
-          tpkg = Package.find_cached(xml.target.package, :project => xml.target.project) if xml.target.has_attribute?(:package)
+          action[:tprj] = Project.find_cached(xml.target.project)
+          action[:tpkg] = Package.find_cached(xml.target.package, :project => xml.target.project) if xml.target.has_attribute?(:package)
         end
 
         case xml.value('type') # All further stuff depends on action type...
         when 'submit' then
-          action[:name] = "Submit #{spkg.value('name')}"
+          action[:name] = "Submit #{action[:spkg].value('name')}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
-          #action[:creator_is_target_maintainer] = true if self.creator.is_maintainer?(tprj, tpkg)
+          action[:creator_is_target_maintainer] = true if self.creator.is_maintainer?(action[:tprj], action[:tpkg])
+          action[:buildresult] = true
 
-          if tpkg
-            linkinfo = tpkg.linkinfo
+          if action[:tpkg]
+            linkinfo = action[:tpkg].linkinfo
             if linkinfo
               action[:forward] ||= []
-              action[:forward] << {:project => linkinfo.projet, :package => linkinfo.package, :type => 'link', :default => false}
+              action[:forward] << {:project => linkinfo.projet, :package => linkinfo.package, :type => 'link'}
             end
-            tpkg.developed_packages.each do |dev_pkg|
+            action[:tpkg].developed_packages.each do |dev_pkg|
               action[:forward] ||= []
-              action[:forward] << {:project => dev_pkg.project, :package => dev_pkg.name, :type => 'devel', :default => true}
+              action[:forward] << {:project => dev_pkg.project, :package => dev_pkg.name, :type => 'devel'}
             end
           end
 
         when 'delete' then
-          action[:name] = 'Delete'
+          if action[:tpkg]
+            action[:name] = "Delete #{action[:tpkg]}"
+          else
+            action[:name] = "Delete #{action[:tprj]}"
+          end
 
-          if tpkg # API / Backend don't support whole project diff currently
+          if action[:tpkg] # API / Backend don't support whole project diff currently
             action[:sourcediff] = actiondiffs()[action_index] if with_diff
           end
         when 'add_role' then 
           action[:name] = 'Add Role'
+          action[:role] = xml.person.value('role')
+          action[:user] = xml.person.value('name')
         when 'change_devel' then 
           action[:name] = 'Change Devel'
         when 'set_bugowner' then 
           action[:name] = 'Set Bugowner'
         when 'maintenance_incident' then
-          action[:name] = 'Incident'
+          action[:name] = 'Maintenance Incident'
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
+          action[:buildresult] = true
         when 'maintenance_release' then
-          action[:name] = "Release #{spkg.value('name').split('.')[0]}"
+          action[:name] = "Release #{action[:spkg].value('name').split('.')[0]}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
+          action[:buildresult] = true
         end
         action_index += 1
         actions << action
