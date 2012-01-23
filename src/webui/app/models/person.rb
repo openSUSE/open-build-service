@@ -133,7 +133,7 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      BsRequest.list(:states => 'new,review', :user => login.to_s)
+      BsRequest.list(:states => 'new,review', :user => login)
     end
   end
 
@@ -151,9 +151,9 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_requests_that_need_work"
     Rails.cache.delete cachekey unless opts[:cache]
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      [BsRequest.list({:states => 'declined', :roles => "creator", :user => login.to_s}),
-       BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login.to_s}),
-       BsRequest.list({:states => 'new', :roles => "maintainer", :user => login.to_s})]
+      [BsRequest.list({:states => 'declined', :roles => "creator", :user => login}),
+       BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login}),
+       BsRequest.list({:states => 'new', :roles => "maintainer", :user => login})]
     end
   end
 
