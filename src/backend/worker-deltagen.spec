@@ -11,13 +11,21 @@ Build deltas for publishing
 cd %_sourcedir
 odir="%_topdir/OTHER"
 mkdir -p "$odir"
+
+# check if makedeltarpm supports the '-m' option
+mopt=
+case `makedeltarpm -m 512 /dev/null /dev/null /dev/null 2>&1` in
+  *invalid\ option*) ;;
+  *) mopt="-m 512" ;;
+esac
+
 for i in *.old ; do
   if ! test -e "$i"; then
     continue
   fi
   i="${i%.old}"
   rm -f "$odir/$i.drpm" "$odir/$i.out" "$odir/$i.seq" "$odir/$i.dseq"
-  if makedeltarpm -s "$odir/$i.seq" "$i.old" "$i.new" "$odir/$i.drpm" 2>&1 | tee "$i.err" ; then
+  if makedeltarpm $mopt -s "$odir/$i.seq" "$i.old" "$i.new" "$odir/$i.drpm" 2>&1 | tee "$i.err" ; then
     rm -f "$odir/$i.err"
     newsize=$(stat -c %s "$i.new")
     drpmsize=$(stat -c %s "$odir/$i.drpm")
