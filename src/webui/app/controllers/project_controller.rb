@@ -1377,7 +1377,11 @@ class ProjectController < ApplicationController
   end
 
   def maintenance_incidents
-    @incidents = @project.maintenance_incidents(params[:type] || 'open')
+    if @spider_bot
+      @incidents = []
+    else
+      @incidents = @project.maintenance_incidents(params[:type] || 'open')
+    end
   end
 
   def list_incidents
