@@ -426,7 +426,7 @@ class Project < ActiveXML::Base
   end
 
   def issues
-    return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}") do
+    return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}", :expires_in => 5.minutes) do
       issues = Project.find_cached(:issues, :name => self.name)
       if issues
         changes_issues, patchinfo_issues = {}, {}
