@@ -72,7 +72,8 @@
           <td>
             <%# Exclude package "patchinfo" %>
             <% if packages.length > 1 %>
-              <%= link_to(packages.length - 1, {:action => 'packages', :project => incident.value('name')}, {:style => 'color: green;'}) %>
+              <% title = packages.map{|p| "#{p.value('name').split('.')[0]} "}.join %>
+              <%= link_to(packages.length - 1, {:action => 'packages', :project => incident.value('name')}, {:style => 'color: green;', :title => title}) %>
             <% else %>
               <%= link_to('0', {:action => 'packages', :project => incident.value('name')}, {:style => 'color: red;'}) %>
             <% end %>
@@ -90,7 +91,8 @@
           </td>
           <td>
             <% if requests && requests.length > 0 %>
-              <%= link_to("#{requests.length} open", {:action => 'requests', :project => incident.value('name')}, {:style => 'color: red;'}) %>
+              <% title = requests.map{|r| "#{r.value('id')} "}.join %>
+              <%= link_to("#{requests.length} open", {:action => 'requests', :project => incident.value('name')}, {:style => 'color: red;', :title => title}) %>
             <% else %>
               -
             <% end %>
