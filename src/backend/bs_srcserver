@@ -203,6 +203,7 @@ sub runservice {
   my $packid = $rev->{'package'};
   die("No project defined for source update!") unless defined $projid;
   die("No package defined for source update!") unless defined $packid;
+  return if $packid eq '_project';
 
   if ($files->{'/SERVICE'}) {
     # check serialization
@@ -771,6 +772,10 @@ sub getrev {
     if (!$rev && -d "$projectsdir/$projid.pkg/$packid.git") {
       return getrev_git($projid, $packid);
     }
+    if (!$rev && ($packid eq '_project' && -e "$projectsdir/$projid.conf")) {
+      addrev_meta({'user' => 'internal', 'comment' => 'initial commit'}, $projid, undef, undef, undef, undef, 'rev');
+      $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+    }
     $rev = {'srcmd5' => $emptysrcmd5} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev" || -e "$projectsdir/$projid.pkg/$packid.mrev";
@@ -872,7 +877,7 @@ sub addrev {
   # check if the commit will need a service run
   my $servicemark;
   delete $files->{'/SERVICE'};	# just in case...
-  if (!$BSConfig::old_style_services) {
+  if (!$BSConfig::old_style_services && $packid ne '_project') {
     if (!$cgi->{'noservice'}) {
       # we do not want any generated files in the commit!
       delete $files->{$_} for grep {/^_service[:_]/} keys %$files;
@@ -969,7 +974,9 @@ sub addrev {
   }
   
   my $rev_old = getrev($projid, $packid);
+  $rev_old->{'keepsignkey'} = 1;
   my $files_old = lsrev($rev_old);
+  delete $rev_old->{'keepsignkey'};
   my $filestr = BSNotify::generate_commit_flist($files_old, $files);
 
   $rev->{'version'} = $cgi->{'version'} if defined $cgi->{'version'};
@@ -1129,7 +1136,7 @@ sub lsrev {
   chomp @files;
   my $files = {map {substr($_, 34) => substr($_, 0, 32)} @files};
   # hack: do not list _signkey in project meta
-  delete $files->{'_signkey'} if $packid eq '_project';
+  delete $files->{'_signkey'} if $packid eq '_project' && !$rev->{'keepsignkey'};
   if ($linkinfo) {
     $linkinfo->{'lsrcmd5'} = $files->{'/LOCAL'} if $files->{'/LOCAL'};
     $linkinfo->{'srcmd5'} = $files->{'/LINK'} if $files->{'/LINK'};
@@ -2034,7 +2041,9 @@ sub addrev_meta {
   if ($rev) {
     $rev->{'project'} = $projid;
     $rev->{'package'} = $rpackid;
+    $rev->{'keepsignkey'} = 1;
     $files = lsrev($rev);
+    delete $rev->{'keepsignkey'};
   } else {
     $files = {};
     if ((defined($packid) && -e "$projectsdir/$projid.pkg/$packid.xml") || (!defined($packid) && -e "$projectsdir/$projid.xml")) {
