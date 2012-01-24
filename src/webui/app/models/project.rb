@@ -417,7 +417,7 @@ class Project < ActiveXML::Base
   end
 
   def packages
-    pkgs = Package.find_cached(:project => self.name)
+    pkgs = Package.find(:all, :project => self.name)
     if pkgs
       return pkgs.each
     else
