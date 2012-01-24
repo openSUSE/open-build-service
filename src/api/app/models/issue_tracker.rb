@@ -177,6 +177,7 @@ class IssueTracker < ActiveRecord::Base
 
   def bugzilla_server
     server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi")
+    server.timeout = 300 # 5 minutes timeout
     server.user=self.user if self.user
     server.password=self.password if self.password
     return server.proxy('Bug')
