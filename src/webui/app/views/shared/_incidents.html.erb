@@ -43,9 +43,11 @@
             </td>
             <td class="nowrap">
               <% if issues[:missing] && issues[:missing].length > 0 %>
-                <span style="color: red;"><%= issues[:missing].length %> missing</span>
+                <% title = issues[:missing].keys.sort.map{|k| "#{k} "}.join %>
+                <%= link_to("#{issues[:missing].length} missing", "#", {:style => 'color: red;', :title => title}) %>
               <% elsif issues[:patchinfo] && issues[:patchinfo].length > 0 %>
-                <span style="color: green;"><%= issues[:patchinfo].length %> fixed</span>
+                <% title = issues[:patchinfo].keys.sort.map{|k| "#{k} "}.join %>
+                <%= link_to("#{issues[:patchinfo].length} fixed", "#", {:style => 'color: green;', :title => title}) %>
               <% else %>
                 -
               <% end %>
@@ -58,9 +60,11 @@
           <% end %>
           <td class="nowrap">
             <% if issues[:optional] && issues[:optional].length > 0 %>
-              <span style="color: olive;"><%= issues[:optional].length %> optional</span>
+              <% title = issues[:optional].keys.sort.map{|k| "#{k} "}.join %>
+              <%= link_to("#{issues[:optional].length} optional", "#", {:style => 'color: olive;', :title => title}) %>
             <% elsif issues[:changes] && issues[:changes].length > 0 %>
-              <span style="color: green;"><%= issues[:changes].length %> fixed</span>
+              <% title = issues[:changes].keys.sort.map{|k| "#{k} "}.join %>
+              <%= link_to("#{issues[:changes].length} fixed", "#", {:style => 'color: green;', :title => title}) %>
             <% else %>
               -
             <% end %>
