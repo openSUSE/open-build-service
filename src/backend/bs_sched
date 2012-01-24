@@ -906,7 +906,9 @@ sub makedeltas {
 	    }
 	  }
 	}
+	last if $partial_job;
       }
+      last if $partial_job;
     }
     last if $partial_job;
   }
