@@ -462,4 +462,11 @@ class Project < ActiveXML::Base
       end
   end
 
+  def requests(opts)
+    opts = {:project => self.name}.merge opts
+    return Rails.cache.fetch("project_requests_#{self.name}_#{opts}", :expires_in => 5.minutes) do
+      BsRequest.list(opts)
+    end
+  end
+
 end
