@@ -843,7 +843,8 @@ our $result = [
 	'project',
 	'repository',
 	'arch',
-	'state', # pra state, can be "unknown", "broken", "scheduling", "blocked", "building", "finished", "publishing", "published" or "unpublished"
+	'code',	# pra state, can be "unknown", "broken", "scheduling", "blocked", "building", "finished", "publishing", "published" or "unpublished"
+	'state', # old name of 'code', to be removed
 	'details',
 	'dirty', # marked for re-scheduling if element exists, state might not be correct anymore
       [ $buildstatus ],

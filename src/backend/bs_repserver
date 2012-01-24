@@ -1633,7 +1633,7 @@ sub getresult {
       }
     }
     my ($schedulerstate, $schedulerdetails) = getschedulerstate($projid, $repoid, $arch);
-    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'state' => $schedulerstate };
+    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'code' => $schedulerstate, 'state' => $schedulerstate };
     $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
     $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
     $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
