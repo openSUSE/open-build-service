@@ -849,6 +849,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
     assert_response :success
     assert_tag :parent => { :tag => "binarylist" },  :tag => 'binary', :attributes => { :filename => "package.rpm" } 
+    get "/source/BaseDistro2.0:LinkedUpdateProject/_project/_history"
+    assert_response :success
+    assert_tag :parent => { :tag => "revision" },  :tag => 'comment', :content => "Release from project: My:Maintenance:#{incidentID}"
 
     # no maintenance trigger exists anymore
     get "/source/#{maintenanceProject}/_meta"

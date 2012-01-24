@@ -1348,6 +1348,7 @@ class RequestController < ApplicationController
     acceptTimeStamp = Time.now.utc.strftime "%Y-%m-%d %H:%M:%S"
     # all maintenance_incident actions go into the same incident project
     incident_project = nil
+    projectCommit = {}
 
     # use the request description as comments for history
     params[:comment] = req.value(:description)
@@ -1541,6 +1542,7 @@ class RequestController < ApplicationController
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
 #FIXME2.5: support limiters to specified repositories
         release_package(pkg, action.target.project, action.target.package, action.source.rev, nil, nil, acceptTimeStamp, req)
+        projectCommit[action.target.project] = action.source.project
       end
 
       # general source cleanup, used in submit and maintenance_incident actions
@@ -1573,6 +1575,21 @@ class RequestController < ApplicationController
         update_product_autopackages action.target.project
       end
     end
+
+    # log release events once in target project
+    projectCommit.each do |tprj, sprj|
+      commit_params = {
+        :cmd => "commit",
+        :user => @http_user.login,
+        :requestid => params[:id],
+        :rev => "latest",
+        :comment => "Release from project: " + sprj
+      }
+      commit_path = "/source/#{URI.escape(tprj)}/_project"
+      commit_path << build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
+      Suse::Backend.post commit_path, nil
+    end
+
     pass_to_backend path
   end
 end
