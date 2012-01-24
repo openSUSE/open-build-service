@@ -4686,7 +4686,7 @@ sub sourcebranch {
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   my $orev = $cgi->{'orev'};
   die("cannot branch myself\n") if $oprojid eq $projid && $opackid eq $packid;
-  $orev = getrev($oprojid, $opackid, undef, undef, $cgi->{'missingok'});
+  $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
   my $files = lsrev_expanded($orev);	# modifies srcmd5, thus also needed for keepcontent case
   if ($cgi->{'keepcontent'}) {
