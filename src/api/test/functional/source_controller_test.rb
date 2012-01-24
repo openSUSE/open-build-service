@@ -1624,9 +1624,8 @@ end
     assert_response :success
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
-# FIXME: construct a linked package object to test this
-#    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "linkdiff"
-#    assert_response :success
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked", :cmd => "linkdiff"
+    assert_response :success
 
     # read-write user, binary operations must be allowed
     prepare_request_with_user "king", "sunflower"

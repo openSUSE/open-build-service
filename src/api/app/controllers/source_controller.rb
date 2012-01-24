@@ -252,13 +252,13 @@ class SourceController < ApplicationController
     admin_user = @http_user.is_admin?
     deleted_package = params.has_key? :deleted
     # valid post commands
-    valid_commands=['diff', 'branch', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
+    valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
                     'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
                     'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
                     'getprojectservices']
     # list of commands which are allowed even when the project has the package only via a project link
-    read_commands = ['branch', 'diff', 'linkdiff', 'showlinked', 'getprojectservices']
-    source_untouched_commands = ['branch', 'diff', 'linkdiff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
+    read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
+    source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
     # list of cammands which create the target package
     package_creating_commands = ['branch', 'copy', 'undelete']
 
@@ -2128,7 +2128,7 @@ class SourceController < ApplicationController
     opackage_name = params[:opackage]
  
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev, :unified ,:missingok, :meta, :file, :filelimit, :tarlimit, :view, :withissues])
+    path << build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev, :unified ,:missingok, :meta, :file, :filelimit, :tarlimit, :view, :withissues, :onlyissues])
     pass_to_backend path
   end
 
@@ -2137,7 +2137,16 @@ class SourceController < ApplicationController
     valid_http_methods :post
 
     path = request.path
-    path << build_query_from_hash(params, [:rev, :unified, :linkrev])
+    path << build_query_from_hash(params, [:cmd, :rev, :unified, :linkrev, :file, :filelimit, :tarlimit, :view, :withissues, :onlyissues])
+    pass_to_backend path
+  end
+
+  # POST /source/<project>/<package>?cmd=servicediff
+  def index_package_servicediff
+    valid_http_methods :post
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :rev, :unified, :file, :filelimit, :tarlimit, :view, :withissues, :onlyissues])
     pass_to_backend path
   end
 

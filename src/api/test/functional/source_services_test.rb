@@ -108,6 +108,9 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
     get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
     assert_response :success
+    post "/source/home:tom/service?cmd=servicediff", nil
+    assert_match(/\+Version: 0816/, @response.body)
+    assert_response :success
 
     # submit to other package
     post "/request?cmd=create", '<request>
