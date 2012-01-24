@@ -75,7 +75,11 @@
           </td>
           <td>
             <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results" %>
-            <%= link_to(image_tag('icons/information.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+            <% if incident.build_succeeded? %>
+            <%= link_to(image_tag('icons/accept.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+            <% else %>
+              <%= link_to(image_tag('icons/exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+            <% end %>
             <% javascript_tag do %>
               setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
             <% end %>
@@ -91,7 +95,6 @@
             <% if incident.is_locked? %>
               <%= image_tag('icons/accept.png', :alt => 'Locked', :title => 'Locked') %>
             <% else %>
-              <%# image_tag('icons/exclamation.png', :alt => 'Not locked', :title => 'Not locked') %>
               -
             <% end %>
           </td>

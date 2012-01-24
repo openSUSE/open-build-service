@@ -469,4 +469,27 @@ class Project < ActiveXML::Base
     end
   end
 
+  def buildresults(view = 'summary')
+    return Buildresult.find_cached(:project => self.name, :view => view)
+  end
+
+  def build_succeeded?
+    states = {}
+    buildresults().each('result') do |result|
+      result.each('summary') do |summary|
+        summary.each('statuscount') do |statuscount|
+          states[statuscount.value('code')] ||= 0
+          states[statuscount.value('code')] += statuscount.value('count').to_i()
+        end
+      end
+    end
+    return false unless states.keys # No buildresult is bad
+    #bad, good = 0, 0
+    states.each do |state, count|
+      return false if ['broken', 'failed', 'unresolvable'].include?(state)
+      #good += 1 if ['succeeded', 'disabled', 'locked'].include?(state)
+    end
+    return true
+  end
+
 end
