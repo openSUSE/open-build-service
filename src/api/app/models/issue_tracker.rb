@@ -99,6 +99,15 @@ class IssueTracker < ActiveRecord::Base
     return false
   end
 
+  # this function is usually never called. Just for debugging and disaster recovery
+  def enforced_update_all_issues()
+    issues = Issue.find :all, :conditions => ["issue_tracker_id = BINARY ?", self.id]
+    ids = issues.map{ |x| x.name.to_s }
+
+    private_fetch_issues(ids)
+    return true
+  end
+
   def fetch_issues(issues=nil)
     unless issues
       # find all new issues for myself
@@ -107,7 +116,7 @@ class IssueTracker < ActiveRecord::Base
 
     ids = issues.map{ |x| x.name.to_s }
 
-    return private_fetch_issues(ids)
+    private_fetch_issues(ids)
     return true
   end
 
