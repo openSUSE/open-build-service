@@ -1417,14 +1417,14 @@ class SourceController < ApplicationController
           if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg_name )
             # We have a package in the update project already, take that
             p[:package] = pa
-            unless prj.class == DbProject and prj.find_attribute("OBS", "BranchTarget")
+            unless p[:link_target_project].class == DbProject and p[:link_target_project].find_attribute("OBS", "BranchTarget")
               p[:link_target_project] = pa.db_project
               logger.info "branch call found package in update project #{pa.db_project.name}"
             end
           else
             update_prj = DbProject.find_by_name( a.values[0].value )
             if update_prj
-              unless prj.class == DbProject and prj.find_attribute("OBS", "BranchTarget")
+              unless p[:link_target_project].class == DbProject and p[:link_target_project].find_attribute("OBS", "BranchTarget")
                 p[:link_target_project] = update_prj
               end
               update_pkg = update_prj.find_package( pkg_name )
@@ -1433,7 +1433,7 @@ class SourceController < ApplicationController
                 if update_prj.develproject and up = update_prj.develproject.find_package(pkg.name)
                   # nevertheless, check if update project has a devel project which contains an instance
                   p[:package] = up
-                  unless prj.class == DbProject and prj.find_attribute("OBS", "BranchTarget")
+                  unless p[:link_target_project].class == DbProject and p[:link_target_project].find_attribute("OBS", "BranchTarget")
                     p[:link_target_project] = up.db_project unless copy_from_devel
                   end
                   logger.info "link target will create package in update project #{up.db_project.name} for #{prj.name}"
