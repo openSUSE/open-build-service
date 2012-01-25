@@ -1517,6 +1517,7 @@ class RequestController < ApplicationController
             patchinfo = DbPackage.new(:name => "patchinfo", :title => "Patchinfo", :description => "Collected packages for update")
             incident_project.db_packages << patchinfo
             patchinfo.add_flag("build", "enable", nil, nil)
+            patchinfo.add_flag("publish", "enable", nil, nil)
             patchinfo.store
 
             # create patchinfo XML file

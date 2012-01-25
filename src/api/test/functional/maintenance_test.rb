@@ -148,6 +148,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
 
+    # test build and publish flags
+    get "/source/#{maintenanceProject}/_meta"
+    assert_tag :parent => { :tag => "build" }, :tag => "disable"
+    assert_tag :parent => { :tag => "publish" }, :tag => "disable"
+    assert_response :success
+    get "/source/#{maintenanceProject}/patchinfo/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "build" }, :tag => "enable"
+    assert_tag :parent => { :tag => "publish" }, :tag => "enable"
+
     # create maintenance request with invalid target
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
@@ -375,6 +385,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
     assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "home:tom:branches:OBS_Maintained:pack2" )
+    get "/source/home:tom:branches:OBS_Maintained:pack2/patchinfo/_meta"
+    assert_response :success
+    assert_tag :parent => { :tag => "build" }, :tag => "enable"
+    assert_tag :parent => { :tag => "publish" }, :tag => "enable"
 
     # create maintenance request
     # without specifing target, the default target must get found via attribute

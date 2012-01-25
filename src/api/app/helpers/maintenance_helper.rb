@@ -20,9 +20,10 @@ module MaintenanceHelper
         tprj.save
         tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
       end
+      # publish is disabled, just patchinfos get enabled
+      tprj.flags.create( :flag => 'publish', :status => "disable" )
       if noaccess
         tprj.flags.create( :flag => 'access', :status => "disable" )
-        tprj.flags.create( :flag => 'publish', :status => "disable" )
       end
       # take over roles from maintenance project
       maintenanceProject.project_user_role_relationships.each do |r| 
