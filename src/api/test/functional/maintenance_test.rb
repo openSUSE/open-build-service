@@ -653,11 +653,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro3"} )
 
     # create some changes, including issue_tracker references
-    put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy_file", "DUMMY bnc#1042 CVE-2009-0815"
+    put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042"
     assert_response :success
     post "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1"
     assert_response :success
-    assert_match /DUMMY bnc#1042 CVE-2009-0815/, @response.body
+    assert_match /DUMMY bnc#1042/, @response.body
 
     # add a new package with defined link target
     post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => maintenanceProject, :missingok => 1, :extend_package_names => 1
@@ -690,15 +690,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
     get "/source/#{maintenanceProject}/patchinfo?view=issues"
     assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "0815"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "cve"
 
     # add another issue and update patchinfo
-    put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy_file", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
+    put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
     assert_response :success
     post "/source/#{maintenanceProject}/patchinfo?cmd=updatepatchinfo"
     assert_response :success
@@ -709,6 +708,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{maintenanceProject}/patchinfo?view=issues"
     assert_response :success
     assert_tag :tag => 'kind', :content => "patchinfo"
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
