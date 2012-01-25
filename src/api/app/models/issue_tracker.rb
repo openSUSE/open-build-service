@@ -143,12 +143,25 @@ class IssueTracker < ActiveRecord::Base
         result["bugs"].each{ |r|
           issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
           if issue
-            issue.state = Issue.bugzilla_state(r["status"])
+            if r["is_open"]
+              # bugzilla sees it as open
+              issue.state = Issue.states["OPEN"]
+            elsif r["is_open"] == false
+              # bugzilla sees it as closed
+              issue.state = Issue.states["CLOSED"]
+            else
+              # bugzilla does not tell a state
+              issue.state = Issue.bugzilla_state(r["status"])
+            end
             u = User.find_by_email(r["assigned_to"].to_s)
             logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
             issue.owner_id = u.id if u
             issue.updated_at = update_time_stamp
-            issue.description = r["summary"] # FIXME2.3 check for internal only bugs here
+            if r["is_private"]
+              issue.description = nil
+            else
+              issue.description = r["summary"]
+            end
             issue.save
           end
         }
