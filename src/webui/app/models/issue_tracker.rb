@@ -20,10 +20,5 @@ class IssueTracker < ActiveXML::Base
       return reply
     end
 
-    def issues_in(text)
-      path = "/issue_trackers/issues_in?format=json&text=#{URI.escape(text)}"
-      response = ActiveXML::Config::transport_for(:issuetracker).direct_http(URI(path))
-      return ActiveSupport::JSON.decode(response)
-    end
   end
 end

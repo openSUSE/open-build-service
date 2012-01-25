@@ -643,6 +643,9 @@ Parameters:
   dontupdatesource: Do not update origin package, optional (copy only)
   comment: comment for history, optional
   meta: switch to meta files
+  view: may be "xml" for structured answered (for diff commands)
+  withissues: set to get issues parsed from changelogs (for diff commands)
+  onlyissues: used to limit to issues (for diff commands)
 
 
 
