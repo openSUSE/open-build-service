@@ -4314,6 +4314,7 @@ my %lookat_next;	# not so important, next series
 my @lookat_low;         # not so important
 my @lookat_med;         # do those first (out of band), triggered through direct build results
 my @lookat_high;        # do those really first so that our users are happy, triggered through user interaction
+my @lookat_adminhigh;   # absolut first ones, can only be filled manually from the admin
 
 
 # read old state if present
@@ -4339,6 +4340,7 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     @lookat_low = @{$schedstate->{'lookat'} || []};
     @lookat_med = @{$schedstate->{'lookat_oob'} || []};
     @lookat_high = @{$schedstate->{'lookat_oobhigh'} || []};
+    @lookat_adminhigh = @{$schedstate->{'lookat_oobadminhigh'} || []};
 
     # update changed hash
     %changed_low = ();
@@ -4501,7 +4503,7 @@ while(1) {
     %lookat_next = ();
   }
 
-  if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
+  if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high && !@lookat_adminhigh) {
     if ($testmode) {
       print "Test mode, all sources and events processed, exiting...\n";
       exit(0);
@@ -4657,21 +4659,29 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'rebuild' || $ev->{'type'} eq 'recheck') {
+      if ($ev->{'type'} eq 'rebuild' || $ev->{'type'} eq 'recheck' || $ev->{'type'} eq 'admincheck') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
 	my $repoid = $ev->{'repository'};
+        my $prp;
         if (defined($repoid)) {
-          my $prp = "$projid/$repoid";
-          $changed_high{$prp} ||= 1;
+          $prp = "$projid/$repoid";
           $changed_dirty{$prp} = 1;
         } else {
-          for my $prp (@prps) {
+          for $prp (@prps) {
             if ((split('/', $prp, 2))[0] eq $projid) {
-              $changed_high{$prp} ||= 1;
+              if ($ev->{'type'} eq 'admincheck') {
+                push @lookat_adminhigh, $prp;
+              } else {
+                $changed_high{$prp} ||= 1;
+              }
               $changed_dirty{$prp} = 1;
             }
           }
+        }
+        if ($ev->{'type'} eq 'admincheck') {
+          push @lookat_adminhigh, $prp;
+        } else {
 	  $changed_high{$projid} ||= 1;
         }
 	next;
@@ -4786,6 +4796,7 @@ while(1) {
 	$schedstate->{'lookat'} = \@new_lookat;
 	$schedstate->{'lookat_oob'} = \@lookat_med;
 	$schedstate->{'lookat_oobhigh'} = \@lookat_high;
+	$schedstate->{'lookat_oobadminhigh'} = \@lookat_adminhigh;
 	$schedstate->{'prpfinished'} = \%prpfinished;
 	$schedstate->{'globalnotready'} = \%prpnotready;
 	$schedstate->{'delayedfetchprojpacks'} = \%delayedfetchprojpacks;
@@ -5002,7 +5013,11 @@ while(1) {
   my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
 
   my $prp;
-  if (@lookat_low && $notlow > 10) {
+  if (@lookat_adminhigh) {
+    $prp = shift @lookat_adminhigh;
+    print "$msgtm looking on admin request at $prp" if defined $prp;
+  }
+  if (!defined($prp) && @lookat_low && $notlow > 10) {
     $prp = shift @lookat_low;
     print "$msgtm looking at low prio $prp";
     @lookat_high = grep {$_ ne $prp} @lookat_high;

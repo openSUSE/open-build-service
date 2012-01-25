@@ -474,11 +474,18 @@ sub shutdown_scheduler {
 }
 
 sub check_project {
-  my ($project, $repo, $arch, $deep) = @_;
+  my ($project, $repo, $arch, $deep, $admin) = @_;
   if (defined $deep) {
     write_event($project, $repo, $arch, 'package');
+    if (defined $admin) {
+      write_event($project, $repo, $arch, 'admincheck');
+    };
   } else {
-    write_event($project, $repo, $arch, 'recheck');
+    if (defined $admin) {
+      write_event($project, $repo, $arch, 'admincheck');
+    } else {
+      write_event($project, $repo, $arch, 'recheck');
+    }
   }
 }
 
