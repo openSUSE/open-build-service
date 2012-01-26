@@ -22,6 +22,7 @@
 
 . /etc/sysconfig/proxy
 . /etc/sysconfig/obs-server
+# This file may still exist from OBS 2.1 and before.
 if test -e /etc/sysconfig/obs-worker; then
 . /etc/sysconfig/obs-worker
 fi
