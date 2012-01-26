@@ -71,6 +71,10 @@ module FlagHelper
 	   repo = xmlflag.repository if xmlflag.has_attribute? :repository
 	   repo ||= nil
 
+           #find existing same flag and obsolete it
+	   self.flags.find_by_flag_and_status(flagtype, 'enable', repo, arch)
+	   self.flags.find_by_flag_and_status(flagtype, 'disable', repo, arch)
+
 	   #instantiate new flag object
 	   self.flags.create(:status => xmlflag.element_name, :position => position, :flag => flagtype) do |flag|
 	     #set the flag attributes

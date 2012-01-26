@@ -651,6 +651,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/"+maintenanceProject+"/pack2.BaseDistro3/_meta"
     assert_response :success
     assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro3"} )
+    # set lock disabled to check later the valid result when enabling
+    post "/source/#{maintenanceProject}?cmd=set_flag&flag=lock&status=disable"
+    assert_response :success
 
     # create some changes, including issue_tracker references
     put "/source/"+maintenanceProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042"
@@ -817,6 +820,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{maintenanceProject}/_meta"
     assert_response :success
     assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    assert_no_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
     # approve review
     prepare_request_with_user "king", "sunflower"
