@@ -75,10 +75,12 @@ class PackInfo
   attr_accessor :develpack
   attr_accessor :buildinfo
 
-  def initialize(projname, name)
-    @project = projname
-    @name = name
-    @key = projname + "/" + name
+  def initialize(db_pack)
+    @project = db_pack.db_project.name
+    @name = db_pack.name
+    # we don't store the full package object as it can become huge
+    @db_pack_id = db_pack.id
+    @key = @project + "/" + name
     @devel_project = nil
     @devel_package = nil
     @link = LinkInfo.new
@@ -113,6 +115,18 @@ class PackInfo
           develpack.to_xml(:builder => xml)
         end
       end
+      db_pack = DbPackage.find_by_id(@db_pack_id)
+      xml.persons do
+        db_pack.each_user do |u|
+          xml.person( :userid => u.login, :role => u.role_name )
+        end
+      end unless db_pack.package_user_role_relationships.empty?
+      xml.groups do
+        db_pack.each_group do |g|
+          xml.group( :groupid => g.title, :role => g.role_name )
+        end
+      end unless db_pack.package_group_role_relationships.empty?
+
       if @error then xml.error(error) end
       if @link.project
         xml.link(:project => @link.project, :package => @link.package, :targetmd5 => @link.targetmd5)
@@ -267,8 +281,7 @@ class ProjectStatusHelper
   end
 
   def self.add_recursively(mypackages, projects, dbpack)
-    name = dbpack.name
-    pack = PackInfo.new(dbpack.db_project.name, name)
+    pack = PackInfo.new(dbpack)
     return if mypackages.has_key? pack.key
 
     if dbpack.develpackage
@@ -346,7 +359,7 @@ class ProjectStatusHelper
     links.each do |proj, packages|
       tocheck = Array.new
       packages.each do |name|
-        pack = PackInfo.new(proj, name)
+        pack = PackInfo.new(DbPackage.find_by_project_and_name(proj, name))
         next if mypackages.has_key? pack.key
         tocheck << pack
         mypackages[pack.key] = pack
