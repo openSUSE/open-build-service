@@ -34,12 +34,10 @@
       </td>
     </tr>
     <tr>
-      <th>Bugzilla: </th>
+      <th>Issues: </th>
       <td>
-        <% @buglist.each do |a| %>
-          <% a.each do |bug| %>
-            <%= link_to "#{bug.to_s}", "https://bugzilla.novell.com/show_bug.cgi?id=#{bug.to_s}" %>
-          <%end%>
+        <% @issues.each do |issue| %>
+          <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>
           <br/>
         <%end%>
       </td>
@@ -50,20 +48,6 @@
         <%=@category%>
       </td>
     </tr>
-    <% if @category == "security" %>
-      <tr>
-        <th>CVE: </th>
-        <td>
-          <%  @cvelist.each do |a| %>
-            <% a.each do |cve| %>
-              <%= cve.to_s%>
-            <%end%>
-            <br/>
-          <%end%>
-
-        </td>
-      </tr>
-    <%end%>
     <tr>
       <th>Rating: </th>
       <td>
