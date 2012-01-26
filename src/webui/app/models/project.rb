@@ -482,6 +482,14 @@ class Project < ActiveXML::Base
                 end
               end
             end
+          else
+            # Last chance, package building is disabled, maybe it's name aligns to the release target..
+            release_targets_ng.each do |rt_key, rt_value|
+              if rt_value[:reponame] == rt_name
+                release_targets_ng[rt_key][:packages] << pkg
+                break
+              end
+            end
           end
           pkg.linkdiff.each(:issue) do |issue|
             release_targets_ng[rt_name][:issues][issue.value('long_name')] = issue
@@ -523,6 +531,7 @@ class Project < ActiveXML::Base
   def build_succeeded?(repository = nil)
     states = {}
     repository_states = {}
+
     buildresults().each('result') do |result|
 
       if repository && result.repository == repository
@@ -543,12 +552,12 @@ class Project < ActiveXML::Base
       end
     end
     if repository
-      return false unless repository_states[repository].keys # No buildresult is bad
+      return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, count|
         return false if ['broken', 'failed', 'unresolvable'].include?(state)
       end
     else
-      return false unless states.keys # No buildresult is bad
+      return false unless states.empty? # No buildresult is bad
       states.each do |state, count|
         return false if ['broken', 'failed', 'unresolvable'].include?(state)
       end
