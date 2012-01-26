@@ -359,7 +359,9 @@ class ProjectStatusHelper
     links.each do |proj, packages|
       tocheck = Array.new
       packages.each do |name|
-        pack = PackInfo.new(DbPackage.find_by_project_and_name(proj, name))
+        pack = DbPackage.find_by_project_and_name(proj, name)
+        next unless pack # broken link
+        pack = PackInfo.new(pack)
         next if mypackages.has_key? pack.key
         tocheck << pack
         mypackages[pack.key] = pack
