@@ -11,8 +11,6 @@ include RequestHelper
 
 class ProjectController < ApplicationController
 
-  class NoChangesError < Exception; end
-
   before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
@@ -1263,16 +1261,10 @@ class ProjectController < ApplicationController
         end
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
-          currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
-            begin
-              if currentpack['changesmd5'] != currentpack['develchangesmd5']
-                'different_changes'
-              else
-                'different_sources'
-              end
-            rescue NoChangesError => e
-              e.message
-            end
+          if currentpack['changesmd5'] != currentpack['develchangesmd5']
+            currentpack['problems'] << 'different_changes'
+          else
+            currentpack['problems'] << 'different_sources'
           end
         end
       elsif @current_develproject != no_project
