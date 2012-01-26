@@ -520,21 +520,38 @@ class Project < ActiveXML::Base
     return Buildresult.find_cached(:project => self.name, :view => view)
   end
 
-  def build_succeeded?
+  def build_succeeded?(repository = nil)
     states = {}
+    repository_states = {}
     buildresults().each('result') do |result|
-      result.each('summary') do |summary|
-        summary.each('statuscount') do |statuscount|
-          states[statuscount.value('code')] ||= 0
-          states[statuscount.value('code')] += statuscount.value('count').to_i()
+
+      if repository && result.repository == repository
+        repository_states[repository] ||= {}
+        result.each('summary') do |summary|
+          summary.each('statuscount') do |statuscount|
+            repository_states[repository][statuscount.value('code')] ||= 0
+            repository_states[repository][statuscount.value('code')] += statuscount.value('count').to_i()
+          end
+        end
+      else
+        result.each('summary') do |summary|
+          summary.each('statuscount') do |statuscount|
+            states[statuscount.value('code')] ||= 0
+            states[statuscount.value('code')] += statuscount.value('count').to_i()
+          end
         end
       end
     end
-    return false unless states.keys # No buildresult is bad
-    #bad, good = 0, 0
-    states.each do |state, count|
-      return false if ['broken', 'failed', 'unresolvable'].include?(state)
-      #good += 1 if ['succeeded', 'disabled', 'locked'].include?(state)
+    if repository
+      return false unless repository_states[repository].keys # No buildresult is bad
+      repository_states[repository].each do |state, count|
+        return false if ['broken', 'failed', 'unresolvable'].include?(state)
+      end
+    else
+      return false unless states.keys # No buildresult is bad
+      states.each do |state, count|
+        return false if ['broken', 'failed', 'unresolvable'].include?(state)
+      end
     end
     return true
   end

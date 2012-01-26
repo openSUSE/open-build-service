@@ -101,8 +101,8 @@
             </td>
             <td>
               <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results" %>
-              <% if incident.build_succeeded? %>
-              <%= link_to(image_tag('icons/tick.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+              <% if incident.build_succeeded?(rt[:reponame]) %>
+                <%= link_to(image_tag('icons/tick.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
               <% else %>
                 <%= link_to(image_tag('icons/exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
               <% end %>
