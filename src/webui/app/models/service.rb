@@ -160,7 +160,7 @@ class Service < ActiveXML::Base
   def getParameters(serviceid)
      ret = []
      each("/services/service[#{serviceid}]/param") do |p|
-       ret << { :name => p.value(:name), :value => p.find_first(:value).text }
+       ret << { :name => p.value(:name), :value => p.text }
      end
 
      return ret
