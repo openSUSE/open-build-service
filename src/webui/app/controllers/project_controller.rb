@@ -3,6 +3,7 @@ require 'collection'
 require 'buildresult'
 require 'role'
 require 'models/package'
+require 'json'
 
 include ActionView::Helpers::UrlHelper
 include ApplicationHelper
@@ -1136,38 +1137,6 @@ class ProjectController < ApplicationController
     render :partial => "edit_comment"
   end
 
-  def get_changes_md5(project, package)
-    begin
-      dir = find_cached(Directory, :project => project, :package => package, :expand => "1")
-    rescue => e
-      dir = nil
-    end
-    return nil unless dir
-    changes = []
-    dir.each_entry do |entry|
-      name = entry.name.to_s
-      if name =~ /.changes$/
-        if name == package + ".changes"
-          return entry.md5.to_s
-        end
-        changes << entry.md5.to_s
-      end
-    end
-    if changes.size == 1
-      return changes[0]
-    end
-    logger.debug "can't find unique changes file: " + dir.dump_xml
-    raise NoChangesError, "no .changes file in #{project}/#{package}"
-  end
-  private :get_changes_md5
-
-  def changes_file_difference(project1, package1, project2, package2)
-    md5_1 = get_changes_md5(project1, package1)
-    md5_2 = get_changes_md5(project2, package2)
-    return md5_1 != md5_2
-  end
-  private :changes_file_difference
-
   def status
     status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
       ProjectStatus.find(:project => @project)
@@ -1270,6 +1239,8 @@ class ProjectController < ApplicationController
       currentpack['md5'] = p.value 'verifymd5'
       currentpack['md5'] ||= p.srcmd5
 
+      currentpack['changesmd5'] = p.value 'changesmd5'
+
       if p.has_element? :develpack
         @develprojects << p.develpack.proj
         currentpack['develproject'] = p.develpack.proj
@@ -1284,6 +1255,7 @@ class ProjectController < ApplicationController
         if p.develpack.has_element? 'package'
           currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
           currentpack['develmd5'] ||= p.develpack.package.srcmd5
+          currentpack['develchangesmd5'] = p.develpack.package.value 'changesmd5'
 
           if p.develpack.package.has_element? :error
              currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
@@ -1293,7 +1265,7 @@ class ProjectController < ApplicationController
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
           currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
             begin
-              if changes_file_difference(@project.name, p.name, currentpack['develproject'], currentpack['develpackage'])
+              if currentpack['changesmd5'] != currentpack['develchangesmd5']
                 'different_changes'
               else
                 'different_sources'
@@ -1334,6 +1306,10 @@ class ProjectController < ApplicationController
     @develprojects.insert(1, no_project)
 
     @packages.sort! { |x,y| x['name'] <=> y['name'] }
+    
+    unless params[:render_json].nil?
+      render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => "text/plain" and return
+    end
   end
 
   def maintained_projects
@@ -1343,6 +1319,7 @@ class ProjectController < ApplicationController
   def add_maintained_project_dialog
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
+
   def add_maintained_project
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].nil? or params[:maintained_project].empty?
