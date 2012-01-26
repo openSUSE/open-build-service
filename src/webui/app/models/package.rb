@@ -362,5 +362,11 @@ class Package < ActiveXML::Base
     return Package.has_attribute?(self.project, self.name, attribute_namespace, attribute_name)
   end
 
+  def linkdiff
+    path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
+    res = ActiveXML::Config::transport_for(:package).direct_http(URI("#{path}"), :method => 'POST', :data => '')
+    return Sourcediff.new(res)
+  end
+
 end
 
