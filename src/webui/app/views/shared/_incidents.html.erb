@@ -7,40 +7,70 @@
     <thead>
       <tr>
         <th rowspan="2" style="width: 1%">ID</th>
-        <!--<th rowspan="2" style="width: 1%">Age</th>-->
         <th rowspan="2" style="width: 40%">Summary</th>
-        <th colspan="3">Patchinfo</th>
-        <th colspan="3">Packages</th>
-        <th rowspan="2" style="width: 1%">Requests</th>
-        <th rowspan="2" style="width: 1%">Lock</th>
+        <th rowspan="2" style="width: 1%">Info</th>
+        <th rowspan="2" style="width: 1%">Release Targets</th>
+        <th colspan="2">Patchinfo</th>
+        <th rowspan="2">Issues</th>
+        <th colspan="2">Packages</th>
       </tr>
       <tr>
         <th style="width: 1%">Category</th>
         <th style="width: 1%">Rating</th>
-        <th style="width: 1%">Issues</th>
-
-        <th style="width: 1%">Issues</th>
         <th style="width: 1%">#</th>
-        <th style="width: 1%">Results</th>
+        <th style="width: 1%">Build</th>
       </tr>
     </thead>
     <tbody>
       <% incidents.each do |incident| %>
-        <% patchinfo, packages, issues, requests = incident.patchinfo(), incident.packages(), incident.issues(), incident.requests({:roles => 'target', :states => 'new,review'}) %>
-        <tr>
-          <td><%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %></td>
-          <!--<td class="nowrap">
-            <span class="hidden"><%# Time.parse(req.state.when).to_i %></span>
-            <%# fuzzy_time_string(req.state.when) %>
-          </td>-->
-          <td><%= incident.value('title') %></td>
-          <% if patchinfo %>
-            <td>
-              <%= link_to(patchinfo.category, {:controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo'}, {:style => "color: #{patchinfo_category_color(patchinfo.category)};"}) %>
-            </td>
-            <td>
-              <%= link_to(patchinfo.rating, {:controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo'}, {:style => "color: #{patchinfo_rating_color(patchinfo.rating)};"}) %>
-            </td>
+        <% issues = incident.issues() %>
+        <% index = 0 %>
+        <% release_targets_ng = incident.release_targets_ng() %>
+        <% release_targets_ng.each do |rt_name, rt| %>
+          <tr>
+            <% if index == 0 %>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>"><%= incident.value('title') %></td>
+              <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
+                <% if incident.is_locked? %>
+                  <%= image_tag('icons/lock.png', :alt => 'Locked', :title => 'Locked') %>
+                <% end %>
+                <% rqs_in = incident.requests({:roles => 'target', :states => 'new,review'}) %>
+                <% if rqs_in && rqs_in.length > 0 %>
+                  <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
+                  <% if rqs_in.length == 1 %>
+                    <%= link_to(image_tag('icons/exclamation.png', :alt => text, :title => text), :controller => 'request', :action => 'show', :id => rqs_in[0].value('id')) %>
+                  <% else %>
+                    <%= link_to(image_tag('icons/exclamation.png', :alt => text, :title => text), :action => 'requests', :project => incident.value('name')) %>
+                  <% end %>
+                <% end %>
+                <% rqs_out = incident.requests({:roles => 'source', :states => 'new,review', :types => 'maintenance_release'}) %>
+                <% if rqs_out && rqs_out.length > 0 %>
+                  <% text = "#{rqs_out.length} release request#{rqs_out.length == 1 ? '' : 's'}" %>
+                  <% if rqs_out.length == 1 %>
+                    <%= link_to(image_tag('icons/rainbow.png', :alt => text, :title => text), :controller => 'request', :action => 'show', :id => rqs_out[0].value('id')) %>
+                  <% else %>
+                    <%= link_to(image_tag('icons/rainbow.png', :alt => text, :title => text), :action => 'requests', :project => incident.value('name')) %>
+                  <% end %>
+                <% end %>
+              </td>
+            <% end %>
+            <td><b><%= rt_name %></b></td>
+            <% if rt[:patchinfo] %>
+              <td>
+                <%= link_to(rt[:patchinfo].category, {:controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo'}, {:style => "color: #{patchinfo_category_color(rt[:patchinfo].category)};"}) %>
+              </td>
+              <td>
+                <%= link_to(rt[:patchinfo].rating, {:controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo'}, {:style => "color: #{patchinfo_rating_color(rt[:patchinfo].rating)};"}) %>
+              </td>
+            <% else %>
+              <td colspan="2">
+                <%= link_to(image_tag('icons/exclamation.png', :alt => 'Missing patchinfo', :title => 'Missing patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %>
+                <%= link_to('Missing patchinfo', {:controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo'}, {:style => 'color: red;'}) %>
+              </td>
+            <% end %>
             <td class="nowrap">
               <% if issues[:missing] && issues[:missing].length > 0 %>
                 <% title = issues[:missing].keys.sort.map{|k| "#{k} "}.join %>
@@ -51,64 +81,39 @@
               <% else %>
                 -
               <% end %>
+              <% if issues[:optional] && issues[:optional].length > 0 %>
+                <% title = issues[:optional].keys.sort.map{|k| "#{k} "}.join %>
+                <%= link_to("#{issues[:optional].length} optional", "#", {:style => 'color: olive;', :title => title}) %>
+              <% elsif issues[:changes] && issues[:changes].length > 0 %>
+                <% title = issues[:changes].keys.sort.map{|k| "#{k} "}.join %>
+                <%= link_to("#{issues[:changes].length} fixed", "#", {:style => 'color: green;', :title => title}) %>
+              <% else %>
+                -
+              <% end %>
             </td>
-          <% else %>
-            <td colspan="3">
-              <%= link_to(image_tag('icons/exclamation.png', :alt => 'Missing patchinfo', :title => 'Missing patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %>
-              <%= link_to('Missing patchinfo', {:controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo'}, {:style => 'color: red;'}) %>
+            <td>
+              <% if rt[:packages].length > 0 %>
+                <% title = rt[:packages].map{|p| "#{p.value('name').split('.')[0]} "}.join %>
+                <%= link_to(rt[:packages].length, {:action => 'packages', :project => incident.value('name')}, {:style => 'color: green;', :title => title}) %>
+              <% else %>
+                <%= link_to('0', {:action => 'packages', :project => incident.value('name')}, {:style => 'color: red;'}) %>
+              <% end %>
             </td>
-          <% end %>
-          <td class="nowrap">
-            <% if issues[:optional] && issues[:optional].length > 0 %>
-              <% title = issues[:optional].keys.sort.map{|k| "#{k} "}.join %>
-              <%= link_to("#{issues[:optional].length} optional", "#", {:style => 'color: olive;', :title => title}) %>
-            <% elsif issues[:changes] && issues[:changes].length > 0 %>
-              <% title = issues[:changes].keys.sort.map{|k| "#{k} "}.join %>
-              <%= link_to("#{issues[:changes].length} fixed", "#", {:style => 'color: green;', :title => title}) %>
-            <% else %>
-              -
-            <% end %>
-          </td>
-          <td>
-            <%# Exclude package "patchinfo" %>
-            <% if packages.length > 1 %>
-              <% title = packages.map{|p| "#{p.value('name').split('.')[0]} "}.join %>
-              <%= link_to(packages.length - 1, {:action => 'packages', :project => incident.value('name')}, {:style => 'color: green;', :title => title}) %>
-            <% else %>
-              <%= link_to('0', {:action => 'packages', :project => incident.value('name')}, {:style => 'color: red;'}) %>
-            <% end %>
-          </td>
-          <td>
-            <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results" %>
-            <% if incident.build_succeeded? %>
-            <%= link_to(image_tag('icons/accept.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
-            <% else %>
-              <%= link_to(image_tag('icons/exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
-            <% end %>
-            <% javascript_tag do %>
-              setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
-            <% end %>
-          </td>
-          <td>
-            <% if requests && requests.length > 0 %>
-              <% title = requests.map{|r| "#{r.value('id')} "}.join %>
-              <%= link_to("#{requests.length} open", {:action => 'requests', :project => incident.value('name')}, {:style => 'color: red;', :title => title}) %>
-            <% else %>
-              -
-            <% end %>
-          </td>
-          <td>
-            <% if incident.is_locked? %>
-              <%= image_tag('icons/accept.png', :alt => 'Locked', :title => 'Locked') %>
-            <% else %>
-              -
-            <% end %>
-          </td>
-        </tr>
+            <td>
+              <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results" %>
+              <% if incident.build_succeeded? %>
+              <%= link_to(image_tag('icons/tick.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+              <% else %>
+                <%= link_to(image_tag('icons/exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+              <% end %>
+              <% javascript_tag do %>
+                setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
+              <% end %>
+            </td>
+            <% index += 1 %>
+          </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
-  <% javascript_tag do %>
-    /*$('#<%= incident_table_id %>').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {4: {sorter: false}, 5: {sorter: false}} });*/
-  <% end %>
 <% end %>

@@ -453,6 +453,53 @@ class Project < ActiveXML::Base
     end
   end
 
+  def release_targets_ng
+    return Rails.cache.fetch("incident_release_targets_ng_#{self.name}", :expires_in => 5.minutes) do
+      release_targets_ng = {}
+      self.each(:repository) do |repo|
+        if repo.has_element?(:releasetarget)
+          release_targets_ng[repo.releasetarget.value('project')] = {:reponame => repo.value('name'), :issues => {}, :packages => [], :patchinfo => nil}
+        end
+      end
+
+      global_patchinfo = nil
+      self.packages.each do |package|
+        pkg_name, rt_name = package.value('name').split('.', 2)
+        pkg = Package.find_cached(package.value('name'), :project => self.name)
+        if rt_name
+          if pkg_name == "patchinfo"
+            release_targets_ng[rt_name][:patchinfo] = Patchinfo.find_cached(:project => self.name, :package => pkg_name)
+          elsif pkg.has_element?(:build)
+            # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
+            # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
+            pkg.build.each(:enable) do |enable|
+              if enable.has_attribute?(:repository)
+                release_targets_ng.each do |rt_key, rt_value|
+                  if rt_value[:reponame] == enable.value('repository')
+                    release_targets_ng[rt_key][:packages] << pkg
+                    break
+                  end
+                end
+              end
+            end
+          end
+          pkg.linkdiff.each(:issue) do |issue|
+            release_targets_ng[rt_name][:issues][issue.value('long_name')] = issue
+          end
+        elsif # Global 'patchinfo' without specific release target
+          global_patchinfo = self.patchinfo()
+        end
+      end
+
+      if global_patchinfo
+        release_targets_ng.each do |rt_name, rt|
+          rt[:patchinfo] = global_patchinfo
+        end
+      end
+      return release_targets_ng
+    end
+  end
+
   def is_locked?
       flagdetails = Project.find_cached(self.name, :view => 'flagdetails')
       if flagdetails.has_element?('lock') && flagdetails.lock.has_element?('disable')
