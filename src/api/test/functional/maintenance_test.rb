@@ -157,6 +157,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => "build" }, :tag => "enable"
     assert_tag :parent => { :tag => "publish" }, :tag => "enable"
+    assert_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
 
     # create maintenance request with invalid target
     post "/request?cmd=create", '<request>
@@ -389,6 +390,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => "build" }, :tag => "enable"
     assert_tag :parent => { :tag => "publish" }, :tag => "enable"
+    assert_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
 
     # create maintenance request
     # without specifing target, the default target must get found via attribute

@@ -1899,6 +1899,7 @@ class SourceController < ApplicationController
       prj.db_packages << pkg
       pkg.add_flag("build", "enable", nil, nil)
       pkg.add_flag("publish", "enable", nil, nil)
+      pkg.add_flag("useforbuild", "disable", nil, nil)
       pkg.store
     end
 
