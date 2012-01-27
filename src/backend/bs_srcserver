@@ -1123,11 +1123,14 @@ sub lsrev {
   } else {
     die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$srcmd5-MD5SUMS") {
+    if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$srcmd5-MD5SUMS" && -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
       $treedir = "$srcrep/$packid";
     }
     if (!open(F, '<', "$treedir/$srcmd5-MD5SUMS")) {
       return {'_linkerror' => $srcmd5} if -e "$srcrep/$packid/$srcmd5-_linkerror";
+      my $error = readstr("$treedir/$srcmd5-_serviceerror", 1);
+      chomp $error if $error;
+      die(str2utf8xml("$error\n")) if $error && $error ne '';
       die("$projid/$packid/$srcmd5: not in repository. Either not existing or misconfigured server setting for '\$nosharedtrees' setting in BSConfig.pm\n");
     }
   }
@@ -1737,6 +1740,10 @@ sub handleservice {
     $sfiles = lsrev($rev);
   } elsif (-e "$treedir/$smd5-MD5SUMS") {
     $sfiles = lsrev($rev);
+  } elsif (! -e "$projectsdir/$rev->{'project'}.pkg/$rev->{'package'}.xml") {
+    # not our own package, don't run service. try getrev/lsrev instead.
+    my $rrev = getrev($rev->{'project'}, $rev->{'package'}, $smd5);
+    $sfiles = lsrev($rrev);
   }
   if ($sfiles) {
     if ($sfiles->{'_service_error'}) {
@@ -1746,6 +1753,7 @@ sub handleservice {
     }
     return $sfiles;
   }
+  # don't have it yet
   my $error = readstr("$treedir/$smd5-_serviceerror", 1);
   chomp $error if $error;
   die(str2utf8xml("$error\n")) if $error && $error ne '';
