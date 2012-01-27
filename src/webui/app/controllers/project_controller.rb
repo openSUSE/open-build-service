@@ -1147,6 +1147,7 @@ class ProjectController < ApplicationController
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
     @limit_to_old = !(params[:limit_to_old].nil? || params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
+    filter_for_user = params[:filter_for_user]
     
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
@@ -1191,14 +1192,15 @@ class ProjectController < ApplicationController
     end
 
     @develprojects = Array.new
+    project_maintainer_cache = Hash.new
 
     @packages = Array.new
     status.each_package do |p|
       currentpack = Hash.new
       currentpack['name'] = p.name
       currentpack['failedcomment'] = comments[p.name] if comments.has_key? p.name
-      newest = 0
 
+      newest = 0
       p.each_failure do |f|
         next if f.repo =~ /snapshot/
         next if newest > (Integer(f.time) rescue 0)
@@ -1240,24 +1242,55 @@ class ProjectController < ApplicationController
       currentpack['changesmd5'] = p.value 'changesmd5'
 
       if p.has_element? :develpack
-        @develprojects << p.develpack.proj
-        currentpack['develproject'] = p.develpack.proj
-        if (@current_develproject != p.develpack.proj or @current_develproject == no_project) and @current_develproject != all_packages
+        dproject = p.develpack.proj
+        @develprojects << dproject
+        currentpack['develproject'] = dproject
+        if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_packages
           next
         end
         currentpack['develpackage'] = p.develpack.pack
-        key = "%s/%s" % [p.develpack.proj, p.develpack.pack]
+        key = "%s/%s" % [dproject, p.develpack.pack]
         if submits.has_key? key
           currentpack['requests_to'].concat(submits[key])
         end
         if p.develpack.has_element? 'package'
-          currentpack['develmd5'] = p.develpack.package.value 'verifymd5'
-          currentpack['develmd5'] ||= p.develpack.package.srcmd5
-          currentpack['develchangesmd5'] = p.develpack.package.value 'changesmd5'
+          dp = p.develpack.package
+          currentpack['develmd5'] = dp.value 'verifymd5'
+          currentpack['develmd5'] ||= dp.srcmd5
+          currentpack['develchangesmd5'] = dp.value 'changesmd5'
 
-          if p.develpack.package.has_element? :error
-             currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
+          if dp.has_element? :error
+             currentpack['problems'] << 'error-' + dp.error.to_s
           end
+
+          newest = 0
+          dp.each_failure do |f|
+            next if newest > (Integer(f.time) rescue 0)
+            next if f.srcmd5 != dp.srcmd5
+            currentpack['develfailedarch'] = f.repo.split('/')[1]
+            currentpack['develfailedrepo'] = f.repo.split('/')[0]
+            newest = Integer(f.time)
+            currentpack['develfirstfail'] = newest
+          end
+
+          unless filter_for_user.nil?
+            if dp.has_element? 'persons'
+              # if the package has specific maintainer, we ignore project maintainers
+              founduser = nil
+              dp.persons.each_person do |u|
+                if u.userid == filter_for_user and u.role == 'maintainer'
+                  founduser = true
+                end
+              end
+              next if founduser.nil?
+            else
+	      unless project_maintainer_cache.has_key? dproject
+                devel_project = find_cached(Project, dproject)
+                project_maintainer_cache[dproject] = devel_project.is_maintainer? filter_for_user
+              end
+              next unless project_maintainer_cache[dproject]
+            end
+          end          
         end
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
@@ -1290,6 +1323,7 @@ class ProjectController < ApplicationController
             !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
         end
       end
+      #currentpack['thefullthing'] = p.dump_xml
       @packages << currentpack
     end
 
