@@ -538,7 +538,7 @@ class Project < ActiveXML::Base
 
   def is_locked?
       flagdetails = Project.find_cached(self.name, :view => 'flagdetails')
-      if flagdetails.has_element?('lock') && flagdetails.lock.has_element?('disable')
+      if flagdetails.has_element?('lock') && flagdetails.lock.has_element?('enable')
         return true
       else
         return false
