@@ -372,6 +372,8 @@ class ProjectStatusHelper
     mypackages.values.each do |package|
       if package.project == dbproj.name and package.link.project
         newkey = package.link.project + "/" + package.link.package
+	# broken links
+	next unless mypackages.has_key? newkey
         package.link.targetmd5 = mypackages[newkey].verifymd5
         package.link.targetmd5 ||= mypackages[newkey].srcmd5
       end
