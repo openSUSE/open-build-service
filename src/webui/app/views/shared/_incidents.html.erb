@@ -10,20 +10,19 @@
         <th rowspan="2" style="width: 40%">Summary</th>
         <th rowspan="2" style="width: 1%">Info</th>
         <th rowspan="2" style="width: 1%">Release Targets</th>
-        <th colspan="2">Patchinfo</th>
-        <th rowspan="2">Issues</th>
-        <th colspan="2">Packages</th>
+        <th colspan="3" style="width: 1%">Patchinfo</th>
+        <th colspan="3" style="width: 1%">Packages</th>
       </tr>
       <tr>
-        <th style="width: 1%">Category</th>
-        <th style="width: 1%">Rating</th>
-        <th style="width: 1%">#</th>
-        <th style="width: 1%">Build</th>
+        <th>Category</th>
+        <th>Rating</th>
+        <th colspan="2" style="width: 1%">Issues</th>
+        <th>#</th>
+        <th>Build</th>
       </tr>
     </thead>
     <tbody>
       <% incidents.each do |incident| %>
-        <% issues = incident.issues() %>
         <% index = 0 %>
         <% release_targets_ng = incident.release_targets_ng() %>
         <% release_targets_ng.each do |rt_name, rt| %>
@@ -71,25 +70,15 @@
                 <%= link_to('Missing patchinfo', {:controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo'}, {:style => 'color: red;'}) %>
               </td>
             <% end %>
-            <td class="nowrap">
-              <% if issues[:missing] && issues[:missing].length > 0 %>
-                <% title = issues[:missing].keys.sort.map{|k| "#{k} "}.join %>
-                <%= link_to("#{issues[:missing].length} missing", "#", {:style => 'color: red;', :title => title}) %>
-              <% elsif issues[:patchinfo] && issues[:patchinfo].length > 0 %>
-                <% title = issues[:patchinfo].keys.sort.map{|k| "#{k} "}.join %>
-                <%= link_to("#{issues[:patchinfo].length} fixed", "#", {:style => 'color: green;', :title => title}) %>
-              <% else %>
-                -
-              <% end %>
-              <% if issues[:optional] && issues[:optional].length > 0 %>
-                <% title = issues[:optional].keys.sort.map{|k| "#{k} "}.join %>
-                <%= link_to("#{issues[:optional].length} optional", "#", {:style => 'color: olive;', :title => title}) %>
-              <% elsif issues[:changes] && issues[:changes].length > 0 %>
-                <% title = issues[:changes].keys.sort.map{|k| "#{k} "}.join %>
-                <%= link_to("#{issues[:changes].length} fixed", "#", {:style => 'color: green;', :title => title}) %>
-              <% else %>
-                -
-              <% end %>
+            <td colspan="2" class="nowrap">
+              <% patchinfo_issues, package_issues = rt[:patchinfo].issues, rt[:package_issues] %>
+              <% issue_color = incident_issue_color(patchinfo_issues.length, package_issues.length) %>
+              <% issue_color = 'red' if patchinfo_issues.empty? %>
+              <span style="color: <%= issue_color %>;">
+                <%= link_to(patchinfo_issues.length, {:controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo'}, {:style => "color: #{issue_color}", :title => patchinfo_issues.keys.sort.map{|k| "#{k} "}.join}) %>
+                /
+                <%= link_to(package_issues.length, "#", {:style => "color: #{issue_color}", :title => package_issues.keys.sort.map{|k| "#{k} "}.join}) %>
+              </span>
             </td>
             <td>
               <% if rt[:packages].length > 0 %>
