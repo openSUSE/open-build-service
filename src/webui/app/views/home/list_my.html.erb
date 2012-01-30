@@ -1,5 +1,5 @@
-<% @pagetitle = "Projects of #{user}" %>
-<% @pagetitle = "My Projects" if user.to_s == session[:login] %>
+<% @pagetitle = "Projects of #{@displayed_user}" %>
+<% @pagetitle = "My Projects" if @displayed_user.to_s == session[:login] %>
 <% @crumb_list = [@pagetitle] -%>
 
 <h3><%= @pagetitle %></h3>

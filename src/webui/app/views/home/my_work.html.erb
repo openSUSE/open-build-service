@@ -9,8 +9,8 @@
 <h3><%= @pagetitle %></h3>
 
 <p>
-  This page summarizes all tasks where an action is requested from user <%= user.to_s%>.
-  <%= link_to('You can also use your complete list of requests.', :action => 'requests', :user => user.to_s) %>
+  This page summarizes all tasks where an action is requested from user <%= @displayed_user.to_s%>.
+  <%= link_to('You can also use your complete list of requests.', :action => 'requests', :user => @displayed_user.to_s) %>
 </p>
 
 <!-- patchinfos which are still running -->

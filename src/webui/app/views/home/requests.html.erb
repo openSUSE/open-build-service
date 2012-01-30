@@ -1,14 +1,14 @@
-<% @pagetitle = "Requests for #{h(user)}" %>
-<% @pagetitle = 'My Requests' if user.to_s == session[:login] %>
+<% @pagetitle = "Requests for #{h(@displayed_user)}" %>
+<% @pagetitle = 'My Requests' if @displayed_user.to_s == session[:login] %>
 <% @crumb_list = [@pagetitle] %>
 
 <h3><%= @pagetitle %></h3>
 
-<% if user.to_s != session[:login] %>
+<% if @displayed_user.to_s != session[:login] %>
   <ul>
-    <li><%= link_to('User profile', :controller => 'home', :user => user.to_s) %></li>
-    <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => 'home:' + user.to_s) %></li>
+    <li><%= link_to('User profile', :controller => 'home', :user => @displayed_user.to_s) %></li>
+    <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => 'home:' + @displayed_user.to_s) %></li>
   </ul>
 <% end %>
 
-<%= render(:partial => 'shared/select_requests', :locals => {:requests => @requests, :userid => user.to_s}) %>
+<%= render(:partial => 'shared/select_requests', :locals => {:requests => @requests, :userid => @displayed_user.to_s}) %>

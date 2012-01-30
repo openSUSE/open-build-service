@@ -1,24 +1,23 @@
 class HomeController < ApplicationController
 
-  before_filter :require_login
+  before_filter :require_login, :except => [:my_work]
   before_filter :check_user
+  before_filter :overwrite_user, :only => [:index, :my_work, :requests, :list_my]
 
   def index
-    user = find_cached(Person, params['user'] ) if params['user']
-    @user = user if user
   end
 
   def my_work
-    user = find_cached(Person, params['user'] ) if params['user']
-    @user = user if user
-    @declined_requests, @open_reviews, @new_requests = @user.requests_that_need_work(:cache => false)
-    @open_patchinfos = @user.running_patchinfos(:cache => false)
+    unless @displayed_user
+      require_login 
+      return
+    end
+    @declined_requests, @open_reviews, @new_requests = @displayed_user.requests_that_need_work(:cache => false)
+    @open_patchinfos = @displayed_user.running_patchinfos(:cache => false)
   end
 
   def requests
-    user = find_cached(Person, params['user'] ) if params['user']
-    @user = user if user
-    @requests = @user.involved_requests(:cache => false)
+    @requests = @displayed_user.involved_requests(:cache => false)
   end
 
   def home_project
@@ -26,13 +25,11 @@ class HomeController < ApplicationController
   end
 
   def list_my
-    user = find_cached(Person, params['user'] ) if params['user']
-    @user = user if user
-    @user.free_cache if discard_cache?
-    @iprojects = @user.involved_projects.each.map {|x| x.name}.uniq.sort
+    @displayed_user.free_cache if discard_cache?
+    @iprojects = @displayed_user.involved_projects.each.map {|x| x.name}.uniq.sort
     @ipackages = Hash.new
-    pkglist = @user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
-    pkglist.sort(&@user.method('packagesorter')).each do |pack|
+    pkglist = @displayed_user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
+    pkglist.sort(&@displayed_user.method('packagesorter')).each do |pack|
       @ipackages[pack.project] ||= Array.new
       @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
     end
@@ -45,4 +42,10 @@ class HomeController < ApplicationController
     render :partial => 'watch_list'
   end
 
+  def overwrite_user
+    @displayed_user = @user
+    user = find_cached(Person, params['user'] ) if params['user']
+    @displayed_user = user if user
+  end
+  private :overwrite_user
 end

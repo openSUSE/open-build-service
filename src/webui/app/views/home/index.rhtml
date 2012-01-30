@@ -1,4 +1,4 @@
-<% @pagetitle = "Home of #{user}" %>
+<% @pagetitle = "Home of #{@displayed_user}" %>
 <% @crumb_list = [@pagetitle] %>
 
 <h3><%= @pagetitle %></h3>
@@ -8,7 +8,7 @@
 <p><strong>Profile picture:</strong></p>
 <table>
   <tr>
-    <td><a href="http://gravatar.com/emails"><%= gravatar_image(user.email.to_s, 60) if user.email %></a></td>
+    <td><a href="http://gravatar.com/emails"><%= gravatar_image(@displayed_user.email.to_s, 60) if @displayed_user.email %></a></td>
     <td>Profile pictures are provided by <a href="http://gravatar.com/">Gravatar</a>,<br/> and are based on your email address
       <a href="http://gravatar.com/emails" class="block avatar"><span>Update your picture...</span></a>
     </td>
@@ -17,25 +17,25 @@
 
 <p>
   <strong>Real name:</strong>
-  <% if user.realname && !user.realname.to_s.empty? %>
-    <%= h(user.realname) %>
+  <% if @displayed_user.realname && !@displayed_user.realname.to_s.empty? %>
+    <%= h(@displayed_user.realname) %>
   <% else %>
     <em>No real name set.</em>
   <% end %>
 </p>
-<p><strong>Email address:</strong> <%= mail_to(user.email) %></p>
+<p><strong>Email address:</strong> <%= mail_to(@displayed_user.email) %></p>
 
-<% if user.to_s == session[:login] %>
+<% if @displayed_user.to_s == session[:login] %>
   <p><%= image_tag('icons/user_edit.png') %> <%= link_to("Edit user data", :controller => "user", :action => "edit") %></p>
   <% if defined?( CHANGE_PASSWD ) && CHANGE_PASSWD == 'on' %>
     <p><%= image_tag('icons/key.png') %> <%= link_to("Change password", :controller => "user", :action => "change_my_password") %></p>
   <% end %>
 <% end %>
 
-<% if not @user.groups.empty? %>
+<% if not @displayed_user.groups.empty? %>
   <h4>Groups Memberships</h4>
   <ul>
-  <% @user.groups.each do |group| %>
+  <% @displayed_user.groups.each do |group| %>
     <li><%= group %> </li>
   <% end %>
   </ul>
@@ -43,7 +43,7 @@
 
 <h4>Related Links</h4>
 <ul>
-  <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => "home:#{user.to_s}") %></li>
-  <li><%= link_to('Involved projects', :action => 'list_my', :user => user.to_s) %></li>
-  <li><%= link_to('Involved requests', :action => 'requests', :user => user.to_s) %></li>
+  <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => "home:#{@displayed_user.to_s}") %></li>
+  <li><%= link_to('Involved projects', :action => 'list_my', :user => @displayed_user.to_s) %></li>
+  <li><%= link_to('Involved requests', :action => 'requests', :user => @displayed_user.to_s) %></li>
 </ul>
