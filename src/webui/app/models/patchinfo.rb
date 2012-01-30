@@ -18,6 +18,15 @@ class Patchinfo < ActiveXML::Base
     return result
   end
 
+  def issues
+    issues = {}
+    self.each('issue') do |issue|
+      issue = Issue.find_cached(issue.value('id'), :tracker => issue.value('tracker'))
+      issues[issue.value('long_name')] = issue
+    end
+    return issues
+  end
+
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
