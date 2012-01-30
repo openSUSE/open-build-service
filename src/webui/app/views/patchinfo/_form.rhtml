@@ -38,14 +38,18 @@
         <div id="issuelist">
           <%if @issues%>
             <% @issues.reject{|issue| issue.blank? }.each do |issue| %>
-              <div id="issue_<%= issue[0] %>_<%= issue[1] %>">
-                <%= hidden_field_tag "issue[]", "#{issue[0]}_#{issue[1]}_#{issue[2]}", :id => "issuevalue_#{issue[0]}_#{issue[1]}" %>
-                <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>
-                <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;" %>
-              </div>
+                <div id="issue_<%= issue[0] %>_<%= issue[1] %>">
+                  <%= hidden_field_tag "issue[]", "#{issue[0]}", :id => "issueid_#{issue[0]}_#{issue[1]}" %>
+                  <%= hidden_field_tag "issuetracker[]", "#{issue[1]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}" %>
+                  <%= hidden_field_tag "issueurl[]", "#{issue[2]}", :id => "issueurl_#{issue[0]}_#{issue[1]}" %>
+                  <%= hidden_field_tag "issuedesc[]", "#{issue[3]}", :id => "issuedesc_#{issue[0]}_#{issue[1]}" %>
+                  <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>
+                  <%=issue[3].to_s %>
+                  <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;" %>
+                </div>
+              <%end%>
             <%end%>
-          <%end%>
-        </div>
+          </div>
         </td>
         <td>List of bugs which the Patch fixes</td>
       </tr>
@@ -55,9 +59,11 @@
           <%= select_tag "tracker", options_for_select(@trackerlist, :selected => @tracker)%>
           <%= text_field_tag 'issueid', @issueid %>
           <%= link_to image_tag('icons/bug_add.png', :alt => "Add Bug", :title => "Add Bug"), '#', :onclick => 'append_bug($("#issueid").val(), $("#tracker").val()); return false;' %>
+          <%= image_tag('ajax-loader.gif', :id => "issue_spinner", :class => "hidden") %>
 
           <% content_for :head_javascript do %>
             function append_bug(issueid, tracker) {
+              $('#issue_spinner').show();
               var issues = new Array();
               issueid = issueid.replace(/, /g, ',');
               issues = issueid.split(",");
@@ -73,7 +79,15 @@
                     package: $("#package").val()
                   },
                   success: function(data){
-                    $("#issuelist").append("<div id='issue_" + data[0] + "_" + data[1] + "'><input type='hidden' name='issue[]' id='issuevalue_" + data[0] + "_" + data[1] + "' value='" + data[0] + "_" + data[1] + "_" + data[2] +  "'/>" + "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + " " + "<a onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'><img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
+                    $("#issue_spinner").hide();
+                    $("#issuelist").append("<div id='issue_" + data[0] + "_" + data[1] + "'>" + 
+                    "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" + 
+                    "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
+                    "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +
+                    "<input type='hidden' name='issuedesc[]' id='issuedesc_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
+                    "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ": " + data[3] + " " + 
+                    "<a onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
+                    "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
                   }
                 });
               };
