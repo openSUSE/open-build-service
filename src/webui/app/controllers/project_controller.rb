@@ -1132,6 +1132,28 @@ class ProjectController < ApplicationController
     render :partial => "edit_comment"
   end
 
+  def status_filter_user(project, package, filter_for_user, project_maintainer_cache)
+     return nil if filter_for_user.nil?
+     if package.has_element? 'persons'
+       # if the package has specific maintainer, we ignore project maintainers
+       founduser = nil
+       package.persons.each_person do |u|
+         if u.userid == filter_for_user and u.role == 'maintainer'
+           founduser = true
+         end
+       end
+       return true if founduser.nil?
+     else
+       unless project_maintainer_cache.has_key? project
+         devel_project = find_cached(Project, project)
+         project_maintainer_cache[project] = devel_project.is_maintainer? filter_for_user
+       end
+       return true unless project_maintainer_cache[project]
+     end
+     return nil
+  end
+  private :status_filter_user
+
   def status
     status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
       ProjectStatus.find(:project => @project)
@@ -1270,24 +1292,7 @@ class ProjectController < ApplicationController
             currentpack['develfirstfail'] = newest
           end
 
-          unless filter_for_user.nil?
-            if dp.has_element? 'persons'
-              # if the package has specific maintainer, we ignore project maintainers
-              founduser = nil
-              dp.persons.each_person do |u|
-                if u.userid == filter_for_user and u.role == 'maintainer'
-                  founduser = true
-                end
-              end
-              next if founduser.nil?
-            else
-	      unless project_maintainer_cache.has_key? dproject
-                devel_project = find_cached(Project, dproject)
-                project_maintainer_cache[dproject] = devel_project.is_maintainer? filter_for_user
-              end
-              next unless project_maintainer_cache[dproject]
-            end
-          end          
+          next if status_filter_user(dproject, dp, filter_for_user, project_maintainer_cache)
         end
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
@@ -1298,6 +1303,7 @@ class ProjectController < ApplicationController
           end
         end
       elsif @current_develproject != no_project
+        next if status_filter_user(@project, p, filter_for_user, project_maintainer_cache)
         next if @current_develproject != all_packages
       end
 
