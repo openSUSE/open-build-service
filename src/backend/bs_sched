@@ -4553,6 +4553,7 @@ while(1) {
     my %fetchprojpacks;
     my %fetchprojpacks_nodelay;
     my %deepcheck;
+    my %lowprioproject;
 
     if (@events > 1) {
       # sort events a bit, exit events go first ;-)
@@ -4644,6 +4645,7 @@ while(1) {
 	my $projid = $ev->{'project'};
 	next unless defined $projid;
 	push @{$fetchprojpacks{$projid}}, undef;
+	$lowprioproject{$projid} = 1;
 	next;
       }
 
@@ -4928,14 +4930,15 @@ while(1) {
       my %fetchlinkedprojpacks;
       my %fetchlinkedprojpacks_srcchange;
       for my $projid (sort keys %fetchprojpacks) {
+	my $changed = $lowprioproject{$projid} && $projpacks->{$projid} && !$deepcheck{$projid} ? \%changed_low : \%changed_high;
 	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
 	  for my $prp (@prps) {
             if ((split('/', $prp, 2))[0] eq $projid) {
-	      $changed_high{$prp} = 2;
-              $changed_dirty{$prp} = 1;
+	      $changed->{$prp} = 2;
+	      $changed_dirty{$prp} = 1;
 	    }
 	  }
-	  $changed_high{$projid} = 2;
+	  $changed->{$projid} = 2;
 	  # more work if the project was deleted
 	  # (if it's just a config change we really do not care about source links)
 	  if (!$projpacks->{$projid} || $deepcheck{$projid}) {
@@ -4944,14 +4947,15 @@ while(1) {
 	      push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
 	    }
 	  }
-	}
-	for my $prp (@prps) {
-	  if ((split('/', $prp, 2))[0] eq $projid) {
-	    $changed_high{$prp} ||= 1;
-            $changed_dirty{$prp} = 1;
+	} else {
+	  for my $prp (@prps) {
+	    if ((split('/', $prp, 2))[0] eq $projid) {
+	      $changed_high{$prp} ||= 1;
+	      $changed_dirty{$prp} = 1;
+	    }
 	  }
+	  $changed_high{$projid} ||= 1;
 	}
-	$changed_high{$projid} ||= 1;
 
 	my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
 	for my $packid (sort keys %packids) {
