@@ -368,5 +368,16 @@ class Package < ActiveXML::Base
     return Sourcediff.new(res)
   end
 
+  def issues_in_linkdiff
+    issues = {}
+    linkdiff = self.linkdiff()
+    if linkdiff.has_element?('issues')
+      linkdiff.issues.each(:issue) do |issue|
+        issues[issue.value('long-name')] = issue
+      end
+    end
+    return issues
+  end
+
 end
 
