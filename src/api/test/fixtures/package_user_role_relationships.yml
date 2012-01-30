@@ -28,3 +28,8 @@ package_user_role_relationships_950742816:
   role_id: "6"
   bs_user_id: "42"
   id: "950742816"
+reviewer_for_Basedistro_pack2: 
+  db_package_id: "10094"
+  role_id: "6"
+  bs_user_id: "1"
+  id: "950742817"

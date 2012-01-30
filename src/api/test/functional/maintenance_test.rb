@@ -826,7 +826,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
     assert_response :success
-    post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_user=adrian&comment=blahfasel"
+    post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_user=fred&comment=blahfasel" # default package reviewer
     assert_response :success
 
     # release packages
