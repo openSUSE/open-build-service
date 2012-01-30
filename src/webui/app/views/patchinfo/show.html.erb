@@ -37,8 +37,8 @@
       <th>Issues: </th>
       <td>
         <% @issues.each do |issue| %>
-          <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>
-          <br/>
+         <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>: <%= issue[3].to_s %>
+         <br/>
         <%end%>
       </td>
     </tr>

@@ -73,6 +73,9 @@ class PatchinfoController < ApplicationController
     @issues = []
     if @file.has_element?("issue")
       @file.each_issue do |a|
+        if a.text == ""
+          get_issue_desc(a.value(:id), a.tracker)
+        end
         issue = Array.new
         issueid = a.value(:id)
         issueurl = IssueTracker.find(:name => a.tracker)
@@ -81,6 +84,7 @@ class PatchinfoController < ApplicationController
         issue << issueid
         issue << a.tracker
         issue << issueurl
+        issue << a.text
         @issues << issue
       end
     end
@@ -146,7 +150,14 @@ class PatchinfoController < ApplicationController
       relogin = params[:relogin]
       reboot = params[:reboot]
       zypp_restart_needed = params[:zypp_restart_needed]
-      issues = params[:issue]
+      issues = Array.new
+      params[:issue].each_with_index do |new_issue, index|
+        issue = Array.new
+        issue << new_issue
+        issue << params[:issuetracker][index]
+        issue << params[:issuedesc][index]
+        issues << issue
+      end
       rating = params[:rating]
       node = Builder::XmlMarkup.new(:indent=>2)
       attrs = {}
@@ -159,9 +170,7 @@ class PatchinfoController < ApplicationController
         end
         node.packager    packager
         issues.each do |issue|
-          issueid = issue.split("_").first
-          tracker = issue.split("_").second
-          node.issue(:tracker=>tracker, :id=>issueid)
+          node.issue(issue[2], :tracker=>issue[1], :id=>issue[0])
         end
         node.category    params[:category]
         node.rating      rating
@@ -199,8 +208,12 @@ class PatchinfoController < ApplicationController
       @packager = params[:packager]
       @binaries = params[:binaries]
       @issues = Array.new
-      params[:issue].each do |a| 
-        issue = a.split("_",3) 
+      params[:issue].each_with_index do |new_issue, index|
+        issue = Array.new
+        issue << new_issue
+        issue << params[:issuetracker][index]
+        issue << params[:issueurl][index]
+        issue << params[:issuedesc][index]
         @issues << issue
       end
       @category = params[:category]
@@ -248,9 +261,22 @@ class PatchinfoController < ApplicationController
     issueurl = issueurl.each("/issue-tracker/show-url").first.text
     issueurl = issueurl.sub(/@@@/, params[:issueid])
     @issue << issueurl
+    get_issue_desc(params[:issueid], params[:tracker])
+    @issue << @issuedesc
     render :nothing => true, :json => @issue
   end
 
+  def get_issue_desc(issueid, tracker)
+    path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
+    result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+    if result.description == nil
+      path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
+      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+    end
+    @issuedesc = result.description.text if result.description
+    @issuedesc = "" if !result.description
+  end 
+    
   private
 
   def get_tracker
