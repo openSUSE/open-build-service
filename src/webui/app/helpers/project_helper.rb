@@ -100,6 +100,7 @@ module ProjectHelper
   end
 
   def incident_issue_color(patchinfo_issues, package_issues)
+    return 'red' if package_issues == 0
     if patchinfo_issues == package_issues
       return 'green'
     elsif patchinfo_issues < package_issues
