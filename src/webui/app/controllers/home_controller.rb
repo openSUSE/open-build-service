@@ -14,6 +14,17 @@ class HomeController < ApplicationController
     end
     @declined_requests, @open_reviews, @new_requests = @displayed_user.requests_that_need_work(:cache => false)
     @open_patchinfos = @displayed_user.running_patchinfos(:cache => false)
+    respond_to do |format|
+      format.html
+      format.json do
+        rawdata = Hash.new
+        rawdata["declined"] = @declined_requests
+        rawdata["review"] = @open_reviews
+        rawdata["new"] = @new_requests
+        rawdata["patchinfos"] = @open_patchinfos
+        render :text => JSON.pretty_generate(rawdata)
+      end
+    end
   end
 
   def requests

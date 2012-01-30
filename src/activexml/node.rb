@@ -177,6 +177,10 @@ module ActiveXML
       self.class.logger
     end
 
+    def to_json(*a)
+      Hash.from_xml(dump_xml).to_json(*a)
+    end
+
     def to_s
       #raise "to_s is obsolete #{self.inspect}"
       ret = ''
