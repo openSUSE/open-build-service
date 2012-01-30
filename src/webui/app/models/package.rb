@@ -363,9 +363,13 @@ class Package < ActiveXML::Base
   end
 
   def linkdiff
-    path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
-    res = ActiveXML::Config::transport_for(:package).direct_http(URI("#{path}"), :method => 'POST', :data => '')
-    return Sourcediff.new(res)
+    begin
+      path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
+      res = ActiveXML::Config::transport_for(:package).direct_http(URI("#{path}"), :method => 'POST', :data => '')
+      return Sourcediff.new(res)
+    rescue ActiveXML::Transport::Error
+      return nil
+    end
   end
 
   def issues_in_linkdiff
