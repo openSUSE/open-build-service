@@ -71,7 +71,12 @@
               </td>
             <% end %>
             <td colspan="2" class="nowrap">
-              <% patchinfo_issues, package_issues = rt[:patchinfo].issues, rt[:package_issues] %>
+              <% if rt[:patchinfo] %>
+                <% patchinfo_issues = rt[:patchinfo].issues %>
+              <% else %>
+                <% patchinfo_issues = {} %>
+              <% end %>
+              <% package_issues = rt[:package_issues] %>
               <% issue_color = incident_issue_color(patchinfo_issues.length, package_issues.length) %>
               <span style="color: <%= issue_color %>;">
                 <%= link_to(patchinfo_issues.length, {:controller => 'patchinfo', :action => 'show', :project => incident.value('name'), :package => 'patchinfo', :file => '_patchinfo'}, {:style => "color: #{issue_color}", :title => patchinfo_issues.keys.sort.map{|k| "#{k} "}.join}) %>
