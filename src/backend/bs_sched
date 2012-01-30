@@ -1420,7 +1420,7 @@ sub update_dst_full {
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
-  # check for lock
+  # check for lock and patchinfo
   if ($projpacks->{$projid} && $projpacks->{$projid}->{'package'} && $projpacks->{$projid}->{'package'}->{$packid}) {
     my $locked = 0;
     $locked = enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked) if $projpacks->{$projid}->{'lock'};
@@ -1430,6 +1430,7 @@ sub update_dst_full {
       print "    package is locked\n";
       return;
     }
+    $useforbuildenabled = 0 if $pdata->{'patchinfo'};
   }
 
   my $jobrepo;
@@ -5237,6 +5238,8 @@ while(1) {
     # delete full entries
     my $useforbuildenabled = 1;
     $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+    # hmm, need to exclude patchinfos here. cheating.
+    $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
     update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
     $changed_med{$prp} = 2;
     sendrepochangeevent($prp);
