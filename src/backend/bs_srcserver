@@ -2834,7 +2834,11 @@ sub putproject {
 
   my %except = map {$_ => 1} qw{title description person group url attributes};
   if (!identical($oldproj, $proj, \%except)) {
-    notify_repservers('project', $projid);
+    if ($cgi->{'lowprio'}) {
+      notify_repservers('lowprioproject', $projid);
+    } else {
+      notify_repservers('project', $projid);
+    }
   }
 
   $proj = readproj($projid);
@@ -6618,7 +6622,7 @@ my $dispatches = [
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
   '/source/$project/_meta rev?' => \&getproject,
-  'PUT:/source/$project/_meta user:? comment:? requestid:num?' => \&putproject,
+  'PUT:/source/$project/_meta user:? comment:? requestid:num? lowprio:bool?' => \&putproject,
 
   '/source/$project/_pubkey rev?' => \&getpubkey,
   'DELETE:/source/$project/_pubkey user:? comment:?' => \&deletekey,

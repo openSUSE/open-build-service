@@ -4640,7 +4640,7 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'projevent' || $ev->{'type'} eq 'project') {
+      if ($ev->{'type'} eq 'projevent' || $ev->{'type'} eq 'project' || $ev->{'type'} eq 'lowprioproject') {
 	my $projid = $ev->{'project'};
 	next unless defined $projid;
 	push @{$fetchprojpacks{$projid}}, undef;

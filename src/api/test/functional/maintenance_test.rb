@@ -97,8 +97,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # search for maintained packages like osc is doing
     get "/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.package.each.count, 3
+    assert_tag :tag => "collection", :children => { :count => 2 }
    
     # do the real mbranch for default maintained packages
     prepare_request_with_user "tom", "thunder"
@@ -268,8 +267,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # search for maintained packages like osc is doing
     get "/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
-    assert_equal ret.package.each.count, 3
+    assert_tag :tag => "collection", :children => { :count => 3 }
    
     # do the real mbranch for default maintained packages
     prepare_request_with_user "tom", "thunder"
@@ -828,8 +826,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
     assert_response :success
+    post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_user=adrian&comment=blahfasel"
+    assert_response :success
 
     # release packages
+    get "/request/#{reqid}"
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response :success
     run_scheduler( "i586" )

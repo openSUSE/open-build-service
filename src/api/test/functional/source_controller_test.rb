@@ -843,6 +843,8 @@ end
     assert_response :success
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
+    put "/source/home:tom:projectC/_meta", "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    assert_response :success
     # delete a repo
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response 400
@@ -854,13 +856,50 @@ end
     get "/source/home:tom:projectB/_meta"
     assert_response :success
     assert_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> </project>"
+    get "/source/home:tom:projectC/_meta"
     assert_response :success
+    assert_tag :tag => 'path', :attributes => { :project => "home:tom:projectB", :repository => "repoB" } # unmodified
 
     # cleanup
     delete "/source/home:tom:projectA"
     assert_response :success
     delete "/source/home:tom:projectB"
+    assert_response 403 # projectC still linking
+    delete "/source/home:tom:projectC"
+    assert_response :success
+    delete "/source/home:tom:projectB"
+    assert_response :success
+  end
+
+  def test_full_remove_repository_dependencies
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    assert_response :success
+    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    assert_response :success
+    put "/source/home:tom:projectC/_meta", "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    assert_response :success
+    # delete a repo
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "repo_dependency"} )
+    delete "/source/home:tom:projectA"
+    assert_response 403
+    put "/source/home:tom:projectA/_meta?force=1&remove_linking_repositories=1", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    assert_response :success
+    get "/source/home:tom:projectB/_meta"
+    assert_response :success
+    assert_no_tag :tag => 'path'
+    get "/source/home:tom:projectC/_meta"
+    assert_response :success
+    assert_no_tag :tag => 'path'
+
+    # cleanup
+    delete "/source/home:tom:projectA"
+    assert_response :success
+    delete "/source/home:tom:projectB"
+    assert_response :success
+    delete "/source/home:tom:projectC"
     assert_response :success
   end
 

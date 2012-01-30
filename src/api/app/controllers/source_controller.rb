@@ -761,32 +761,27 @@ class SourceController < ApplicationController
 
       # find linking repos which get deleted
       removedRepositories = Array.new
+      linkingRepositories = Array.new
       if prj
         prj.repositories.each do |repo|
           if !rdata.has_element?("repository[@name='#{repo.name}']") and not repo.remote_project_name
-            repo.linking_repositories.each do |lrep|
-              removedRepositories << lrep
-            end
+            # collect repositories to remove
+            removedRepositories << repo
+            linkingRepositories += repo.linking_repositories
           end
         end
       end
-      if removedRepositories.length > 0
-        if params[:force] and not params[:force].empty?
-          # replace links to this projects with links to the "deleted" project
-          del_repo = DbProject.find_by_name("deleted").repositories[0]
-          removedRepositories.each do |link_rep|
-            link_rep.path_elements.find(:all).each { |pe| pe.destroy }
-            link_rep.path_elements.create(:link => del_repo, :position => 1)
-            link_rep.save
-            # update backend
-            link_rep.db_project.store
-          end
-        else
-          lrepstr = removedRepositories.map{|l| l.db_project.name+'/'+l.name}.join "\n"
+      if linkingRepositories.length > 0
+        unless params[:force] and not params[:force].empty?
+          lrepstr = linkingRepositories.map{|l| l.db_project.name+'/'+l.name}.join "\n"
           render_error :status => 400, :errorcode => "repo_dependency",
             :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
           return
         end
+      end
+      if removedRepositories.length > 0
+        # do remove
+        private_remove_repositories( removedRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
       end
 
       # Check for maintenance-related parts
@@ -1232,6 +1227,51 @@ class SourceController < ApplicationController
     # create incident project
     incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
     render_ok :data => {:targetproject => incident.db_project.name}
+  end
+
+  def private_remove_repositories( repositories, full_remove = false )
+    del_repo = DbProject.find_by_name("deleted").repositories[0]
+
+    repositories.each do |repo|
+      linking_repos = repo.linking_repositories
+      prj = repo.db_project
+
+
+      if full_remove == true
+        # recursive for INDIRECT linked repositories
+        unless linking_repos.length < 1
+          private_remove_repositories( linking_repos, true )
+        end
+
+        # try to remove the repository 
+        # but never remove the deleted one
+        unless repo == del_repo
+          # permission check
+          unless @http_user.can_modify_project?(prj)
+            render_error :status => 403, :errorcode => 'change_project_no_permission',
+              :message => "No permission to remove a repository in project '#{prj.name}'"
+            return
+          end
+        end
+      else
+        # just modify foreign linking repositories. Always allowed
+        linking_repos.each do |lrepo|
+          lrepo.path_elements.each do |pe|
+            if pe.link == repo
+              pe.link = del_repo
+              pe.save
+            end
+          end
+          lrepo.db_project.store(nil, true) # low prio storage
+        end
+      end
+
+      # remove this repository
+      logger.info "updating project '#{prj.name}'"
+      prj.repositories.find(repo).destroy
+      prj.save
+      prj.store(nil, true) # low prio storage
+    end
   end
 
   # POST /source?cmd=branch (aka osc mbranch)

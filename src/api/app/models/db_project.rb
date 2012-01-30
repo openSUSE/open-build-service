@@ -772,7 +772,7 @@ class DbProject < ActiveRecord::Base
     end #transaction
   end
 
-  def store(login=nil)
+  def store(login=nil, lowprio=false)
     # update timestamp and save
     self.save!
     # expire cache
@@ -781,6 +781,7 @@ class DbProject < ActiveRecord::Base
     if write_through?
       login = User.current.login unless login # Allow to override if User.current isn't available yet
       path = "/source/#{self.name}/_meta?user=#{URI.escape(login)}"
+      path += "?lowprio=1" if lowprio
       Suse::Backend.put_source( path, to_axml )
     end
 
