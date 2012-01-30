@@ -471,15 +471,15 @@ class Project < ActiveXML::Base
       self.packages.each do |package|
         pkg_name, rt_name = package.value('name').split('.', 2)
         pkg = Package.find_cached(package.value('name'), :project => self.name)
-        if rt_name
+        if pkg && rt_name
           if pkg_name == 'patchinfo'
             # Holy crap, we found a patchinfo that is specific to (at least) one release target!
             pi = Patchinfo.find_cached(:project => self.name, :package => pkg_name)
             release_targets_ng[rt_name][:patchinfo] = pi
           else
             # Here we try hard to find the release target our current package is build for:
+            found = false
             if pkg.has_element?(:build)
-              found = false
               # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
               # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
               pkg.build.each(:enable) do |enable|
@@ -503,17 +503,21 @@ class Project < ActiveXML::Base
               release_targets_ng.each do |rt_key, rt_value|
                 if rt_value[:reponame] == rt_name
                   rt_name = rt_key # Save for re-use
+                  found = true
                   break
                 end
               end
             end
 
-            # Let's silently hope that an incident newer introduces new (sub-)packages....
-            release_targets_ng[rt_name][:packages] << pkg
-            linkdiff = pkg.linkdiff()
-            if linkdiff.has_element?('issues')
-              linkdiff.issues.each(:issue) do |issue|
-                release_targets_ng[rt_name][:package_issues][issue.value('long-name')] = issue
+            # Build-disabled packages can't be matched to release targets....
+            if found
+              # Let's silently hope that an incident newer introduces new (sub-)packages....
+              release_targets_ng[rt_name][:packages] << pkg
+              linkdiff = pkg.linkdiff()
+              if linkdiff && linkdiff.has_element?('issues')
+                linkdiff.issues.each(:issue) do |issue|
+                  release_targets_ng[rt_name][:package_issues][issue.value('long-name')] = issue
+                end
               end
             end
           end
