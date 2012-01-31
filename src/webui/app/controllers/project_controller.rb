@@ -1180,13 +1180,13 @@ class ProjectController < ApplicationController
 
     if @include_versions || @limit_to_old
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
-        :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
+        :name => 'UpstreamVersion', :project => @project, :expires_in => 20.minutes)
       attributes.each('/attribute/project/package') do |p|
         upstream_versions[p.value(:name)] = p.find_first("values/value").text
       end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
-        :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
+        :name => 'UpstreamTarballURL', :project => @project, :expires_in => 20.minutes)
       attributes.each('/attribute/project/package') do |p|
         upstream_urls[p.value(:name)] = p.find_first("values/value").text
       end if attributes
@@ -1277,6 +1277,7 @@ class ProjectController < ApplicationController
           currentpack['develmd5'] = dp.value 'verifymd5'
           currentpack['develmd5'] ||= dp.srcmd5
           currentpack['develchangesmd5'] = dp.value 'changesmd5'
+          currentpack['develmtime'] = dp.value 'maxmtime'
 
           if dp.has_element? :error
              currentpack['problems'] << 'error-' + dp.error.to_s

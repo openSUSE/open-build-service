@@ -65,7 +65,8 @@
           if p['requests_from'].empty?
             p['problems'].sort.each do |c|
               if c == 'different_changes'
-                outs << link_to("Different changes in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
+                outs << link_to("Different changes in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                   :action => :rdiff, :oproject => @project, :opackage => p['name'])
                 sortkey = "5-changes" + p['name']
                 icon = "changes"
