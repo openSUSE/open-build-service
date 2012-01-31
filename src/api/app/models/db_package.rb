@@ -835,13 +835,13 @@ class DbPackage < ActiveRecord::Base
       end
       self.db_package_issues.each do |i|
         next if filter_changes and not filter_changes.include? i.change
-        next if states and (not i.issue.state or not states.include? i.issue.state.text)
+        next if states and (not i.issue.state or not states.include? i.issue.state)
         o = nil
         if i.issue.owner_id
           # self.owner must not by used, since it is reserved by rails
           o = User.find_by_id i.issue.owner_id
         end
-        next if login and (not o or not login == o.login.text)
+        next if login and (not o or not login == o.login)
         i.issue.render_body(package, i.change)
       end
     end
