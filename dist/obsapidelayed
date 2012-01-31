@@ -37,7 +37,11 @@
 
 . /etc/rc.status
 
-DELAYED_BIN=/srv/www/obs/api/script/delayed_job.api
+DELAYED_BIN=/srv/www/vhosts/opensuse.org/obs-api/current/script/delayed_job.api
+ln -sf ${DELAYED_BIN%.api} $DELAYED_BIN
+
+# number of parallel jobs
+NUM=3
 
 # Reset status of this service
 rc_reset
@@ -46,13 +50,14 @@ case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
         export RAILS_ENV="production"
-        startproc -u wwwrun -g www -- $DELAYED_BIN run
+        startproc -u apirun -g www -- $DELAYED_BIN start -n $NUM
 
 	rc_status -v
 	;;
     stop)
 	echo -n "Stoping OBS api delayed job handler "
 	killproc -TERM $DELAYED_BIN
+        $DELAYED_BIN stop
 
 	rc_status -v
 	;;
@@ -86,7 +91,8 @@ case "$1" in
 	;;
     status)
 	echo -n "Checking for service delayed OBS api jobs "
-	checkproc $DELAYED_BIN
+	checkproc delayed_job.0
+        [ $? == $NUM ]
 	rc_status -v
 	;;
     *)
