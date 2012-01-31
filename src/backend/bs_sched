@@ -3376,6 +3376,9 @@ sub checkpatchinfo {
   return ('broken', 'missing archs') unless @archs;	# can't happen
   my $patchinfo = $pdata->{'patchinfo'};
 
+  my $ptype = 'local';
+  $ptype = 'binary' if ($projpacks->{$projid}->{'kind'} || '') eq 'maintenance_incident';
+  
   my $broken;
   # find packages
   my @packages;
@@ -3448,6 +3451,24 @@ sub checkpatchinfo {
 
   return ('broken', $broken) if $broken;
 
+  my @new_meta;
+  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
+
+  if ($ptype eq 'local') {
+    # only rebuild if patchinfo source changes
+    my @meta;
+    if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+      @meta = <F>;
+      close F;
+      chomp @meta;
+    }
+    if (@meta == 1 && $meta[0] eq $new_meta[0]) {
+      print "      - $packid (patchinfo)\n";
+      print "        nothing changed\n";
+      return ('done');
+    }
+  }
+
   # collect em
   my $apackstatus;
   my @blocked;
@@ -3484,16 +3505,28 @@ sub checkpatchinfo {
 	push @blocked, "$arch/$apackid";
 	$blockedarch = 1;
       }
-      my ($ameta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
-      if (!$ameta) {
-	push @blocked, "$arch/$apackid";
-	$blockedarch = 1;
-      } else {
-        if ($metas{$apackid} && $metas{$apackid} ne $ameta) {
-	  push @blocked, "meta/$apackid";
+      if ($ptype eq 'binary') {
+	# like aggregates
+	my $d = "$reporoot/$projid/$repoid/$myarch/$apackid";
+	my @d = grep {/\.rpm/} ls($d);
+	my $m = '';
+	for my $b (sort @d) {
+	  my @s = stat("$d/$b");
+	  $m .= "$b\0$s[9]/$s[7]/$s[1]\0" if @s;
+	}
+	$metas{"$arch/$apackid"} = Digest::MD5::md5_hex($m);
+      } elsif ($ptype eq 'direct' || $ptype eq 'transitive') {
+	my ($ameta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
+	if (!$ameta) {
+	  push @blocked, "$arch/$apackid";
 	  $blockedarch = 1;
 	} else {
-	  $metas{$apackid} = $ameta;
+	  if ($metas{$apackid} && $metas{$apackid} ne $ameta) {
+	    push @blocked, "meta/$apackid";
+	    $blockedarch = 1;
+	  } else {
+	    $metas{$apackid} = $ameta;
+	  }
 	}
       }
       push @tocopy, "$arch/$apackid";
@@ -3512,14 +3545,11 @@ sub checkpatchinfo {
     return ('blocked', join(', ', @blocked));
   }
 
-  my @new_meta;
-  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for (sort(keys %metas)) {
     push @new_meta, "$metas{$_}  $_";
   }
 
-
-  # is this a new one?
+  # compare with stored meta
   my @meta;
   if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
     @meta = <F>;
@@ -3533,12 +3563,14 @@ sub checkpatchinfo {
   }
 
   # now collect...
-  return ('scheduled', [ \@tocopy]);
+  return ('scheduled', [ \@tocopy, \%metas, $ptype]);
 }
 
 sub rebuildpatchinfo {
   my ($projid, $repoid, $packid, $pdata, $info, $data) = @_;
   my @tocopy = @{$data->[0]};
+  my $ckmetas = $data->[1];
+  my $ptype = $data->[2];
   
   print "      - $packid (patchinfo)\n";
   print "        rebuilding\n";
@@ -3576,9 +3608,19 @@ sub rebuildpatchinfo {
     my @bins;
     my $meta;
     my $from;
+    my $mpackid;
 
-    ($meta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
-    if ($updateinfodata_tocopy{$tocopy} && $meta && $updateinfodata->{'metas'}->{$apackid} eq $meta) {
+    if ($ptype eq 'local') {
+      # always reuse old packages
+    } elsif ($ptype eq 'binary') {
+      $mpackid = "$arch/$apackid";
+    } elsif ($ptype eq 'direct' || $ptype eq 'transitive') {
+      $mpackid = $apackid;
+    } else {
+      $broken = "illegal ptype";
+      last;
+    }
+    if ($updateinfodata_tocopy{$tocopy} && (!defined($mpackid) || ($updateinfodata->{'metas'}->{$mpackid} || '') eq $ckmetas->{$mpackid})) {
       print "        reusing old packages for '$tocopy'\n";
       $from = "$reporoot/$projid/$repoid/$myarch/$packid";
       @bins = grep {$updateinfodata->{'binaryorigins'}->{$_} eq $tocopy} keys(%{$updateinfodata->{'binaryorigins'}});
@@ -3587,21 +3629,35 @@ sub rebuildpatchinfo {
       @bins = grep {/\.rpm$/} ls ($from);
       print "$from @bins";
     }
-    if (!$meta) {
-      $broken = "$tocopy has no meta";
-      last;
+    if (defined($mpackid)) {
+      my $meta = $ckmetas->{$mpackid};
+      if (!$meta) {
+	$broken = "$tocopy has no meta";
+	last;
+      }
+      $metas{$mpackid} ||= $meta;
+      if ($metas{$mpackid} ne $meta) {
+	$broken = "$mpackid has different sources";
+	last;
+      }
     }
-    $metas{$apackid} ||= $meta;
-    if ($metas{$apackid} ne $meta) {
-      $broken = "$apackid has different sources";
-      last;
-    }
-    for my $bin (@bins) {
-      next if $donebins{$bin};
-      
+    my $m = '';
+    for my $bin (sort @bins) {
+      if ($donebins{$bin}) {
+        if ($ptype eq 'binary') {
+	  my @s = stat("$from/$bin");
+	  $m .= "$b\0$s[9]/$s[7]/$s[1]\0" if @s;
+        }
+        next;
+      }
       if (!link("$from/$bin", "$jobdatadir/$bin")) {
         my $error = "link $from/$bin $jobdatadir/$bin: $!\n";
         return ('broken', $error);
+      }
+      if ($ptype eq 'binary') {
+        # be extra careful with em, recalculate meta
+	my @s = stat("$jobdatadir/$bin");
+	$m .= "$b\0$s[9]/$s[7]/$s[1]\0" if @s;
       }
       my $d;
       eval {
@@ -3631,6 +3687,7 @@ sub rebuildpatchinfo {
       $upd->{'restart_suggested'} = 'True' if exists $patchinfo->{'zypp_restart_needed'};
       push @upackages, $upd;
     }
+    $metas{$mpackid} = Digest::MD5::md5_hex($m) if $ptype eq 'binary';
   }
   my $update = {};
   $update->{'status'} = 'stable';
