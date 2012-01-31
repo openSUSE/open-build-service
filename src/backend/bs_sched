@@ -3627,7 +3627,6 @@ sub rebuildpatchinfo {
     } else {
       $from = "$reporoot/$projid/$repoid/$tocopy";
       @bins = grep {/\.rpm$/} ls ($from);
-      print "$from @bins";
     }
     if (defined($mpackid)) {
       my $meta = $ckmetas->{$mpackid};
@@ -3646,7 +3645,7 @@ sub rebuildpatchinfo {
       if ($donebins{$bin}) {
         if ($ptype eq 'binary') {
 	  my @s = stat("$from/$bin");
-	  $m .= "$b\0$s[9]/$s[7]/$s[1]\0" if @s;
+	  $m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
         }
         next;
       }
@@ -3657,7 +3656,7 @@ sub rebuildpatchinfo {
       if ($ptype eq 'binary') {
         # be extra careful with em, recalculate meta
 	my @s = stat("$jobdatadir/$bin");
-	$m .= "$b\0$s[9]/$s[7]/$s[1]\0" if @s;
+	$m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
       }
       my $d;
       eval {
