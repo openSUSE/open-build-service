@@ -17,6 +17,10 @@ class IssueTracker < ActiveRecord::Base
     path = "/issue_trackers"
     logger.debug "Write issue tracker information to backend..."
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
+
+    # We need to parse again ALL sources ...
+    require 'lib/workers/update_package_meta_job.rb'
+    Delayed::Job.enqueue UpdatePackageMetaJob.new
   end
 
   def self.get_by_name(name)
