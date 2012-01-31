@@ -37,7 +37,7 @@
 
 . /etc/rc.status
 
-DELAYED_BIN=/srv/www/vhosts/opensuse.org/obs-api/current/script/delayed_job.api
+DELAYED_BIN=/srv/www/obs/api/script/delayed_job.api
 ln -sf ${DELAYED_BIN%.api} $DELAYED_BIN
 
 # number of parallel jobs
