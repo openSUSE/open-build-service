@@ -67,29 +67,37 @@
               var issues = new Array();
               issueid = issueid.replace(/, /g, ',');
               issues = issueid.split(",");
+              jQuery.unique(issues)
               for(var i = 0; i < issues.length; i++) {
-                $.ajax({
-                  url: "new_tracker",
-                  type: "get",
-                  dataType: "json",
-                  data:{
-                    issueid: issues[i],
-                    tracker: tracker,
-                    project: $("#project").val(),
-                    package: $("#package").val()
-                  },
-                  success: function(data){
-                    $("#issue_spinner").hide();
-                    $("#issuelist").append("<div id='issue_" + data[0] + "_" + data[1] + "'>" + 
-                    "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" + 
-                    "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
-                    "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +
-                    "<input type='hidden' name='issuedesc[]' id='issuedesc_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
-                    "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ": " + data[3] + " " + 
-                    "<a onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
-                    "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
+                issues[i] = issues[i].replace(/ /, '');
+                if ($("div#issue_" + issues[i] + "_" + tracker).length > 0){
+                  alert("Tracker " + tracker + "issue " + issues[i] + " already exists");
+                  $("#issue_spinner").hide();
+                }
+                else{
+                  $.ajax({
+                    url: "new_tracker",
+                    type: "get",
+                    dataType: "json",
+                    data:{
+                      issueid: issues[i],
+                      tracker: tracker,
+                      project: $("#project").val(),
+                      package: $("#package").val()
+                    },
+                    success: function(data){
+                      $("#issue_spinner").hide();
+                      $("#issuelist").append("<div id='issue_" + data[0] + "_" + data[1] + "'>" + 
+                      "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" + 
+                      "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
+                      "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +
+                      "<input type='hidden' name='issuedesc[]' id='issuedesc_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
+                      "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ": " + data[3] + " " + 
+                      "<a onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
+                      "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
                   }
                 });
+              };
               };
               return false;
             }
@@ -108,6 +116,13 @@
                 }
               });
             }
+            $(document).ready(function(){
+              $("#summary").keypress(function(event){
+                if(event.keyCode == 13){
+                  event.preventDefault();
+                }
+              });
+            });
 
           <% end %>
 

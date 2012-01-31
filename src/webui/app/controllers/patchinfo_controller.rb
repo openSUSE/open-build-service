@@ -267,14 +267,29 @@ class PatchinfoController < ApplicationController
   end
 
   def get_issue_desc(issueid, tracker)
-    path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
-    result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
-    if result.description == nil
-      path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
-      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+    if tracker != "cve"
+      bug = tracker + "#" + issueid
+    else
+      bug = issueid
     end
-    @issuedesc = result.description.text if result.description
-    @issuedesc = "" if !result.description
+    path = "/issue_trackers/#{CGI.escape(tracker)}"
+    tracker_result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+    regexp = "^"
+    regexp += tracker_result.regex.text
+    regexp += "$"
+    regexp = Regexp.new(regexp)
+    if bug =~ regexp
+      path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
+      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+      if result.description == nil
+        path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
+        result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+      end
+      @issuedesc = result.description.text if result.description
+      @issuedesc = "" if !result.description
+    else
+      @issuedesc = "invalid"
+    end
   end 
     
   private
