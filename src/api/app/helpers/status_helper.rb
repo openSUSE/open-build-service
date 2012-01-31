@@ -70,7 +70,7 @@ end
 
 class PackInfo
   attr_accessor :devel_project, :devel_package
-  attr_accessor :srcmd5, :verifymd5, :changesmd5, :error, :link
+  attr_accessor :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :link
   attr_reader :name, :project, :key
   attr_accessor :develpack
   attr_accessor :buildinfo
@@ -102,6 +102,7 @@ class PackInfo
              :version => version,
              :srcmd5 => srcmd5,
              :changesmd5 => changesmd5,
+             :maxmtime => maxmtime,
              :release => release }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
@@ -176,7 +177,7 @@ class ProjectStatusHelper
 	mypackages[key].error = e.text
         break
       end
-      cmd5 = Rails.cache.fetch("changes-%s" % p.value('srcmd5')) do
+      cmd5, mtime = Rails.cache.fetch("change-data-%s" % p.value('srcmd5')) do
         begin
           directory = Directory.find(:project => proj, :package => packname, :expand => 1)
         rescue ActiveXML::Transport::Error
@@ -184,12 +185,17 @@ class ProjectStatusHelper
         end
         changesfile="%s.changes" % packname
         md5 = ''
+        mtime = 0
         directory.each_entry do |e|
-          md5 = e.value(:md5) if e.value(:name) == changesfile
+          if e.value(:name) == changesfile
+            md5 = e.value(:md5) 
+          end
+          mtime = max(mtime, Integer(e.value(:mtime)))
         end if directory
-        md5
+        [md5, mtime]
       end
       mypackages[key].changesmd5 = cmd5 unless cmd5.empty?
+      mypackages[key].maxmtime = mtime unless mtime == 0
     end if data
   end
 
@@ -309,7 +315,7 @@ class ProjectStatusHelper
   end
 
   def self.filter_by_package_name(name)
-    #return (name =~ /perl-/)
+    #return (name =~ /sy/)
     return true
   end
 
