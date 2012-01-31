@@ -1266,9 +1266,9 @@ class SourceController < ApplicationController
         end
       end
 
-      # remove this repository
-      logger.info "updating project '#{prj.name}'"
-      if r=prj.repositories.find(repo)
+      # remove this repository, but be careful, because we may have done it already.
+      if Repository.exists?(repo) and r=prj.repositories.find(repo)
+         logger.info "updating project '#{prj.name}'"
          r.destroy
          prj.save
          prj.store(nil, true) # low prio storage
