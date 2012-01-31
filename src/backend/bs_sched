@@ -3507,7 +3507,7 @@ sub checkpatchinfo {
       }
       if ($ptype eq 'binary') {
 	# like aggregates
-	my $d = "$reporoot/$projid/$repoid/$myarch/$apackid";
+	my $d = "$reporoot/$projid/$repoid/$arch/$apackid";
 	my @d = grep {/\.rpm/} ls($d);
 	my $m = '';
 	for my $b (sort @d) {
