@@ -190,7 +190,7 @@ class ProjectStatusHelper
           if e.value(:name) == changesfile
             md5 = e.value(:md5) 
           end
-          mtime = max(mtime, Integer(e.value(:mtime)))
+          mtime = [mtime, Integer(e.value(:mtime))].max
         end if directory
         [md5, mtime]
       end
