@@ -824,8 +824,10 @@ class DbPackage < ActiveRecord::Base
   def render_issues_axml(params)
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
-    filter_changes = nil
+    filter_changes = states = nil
     filter_changes = params[:changes].split(",") if params[:changes]
+    states = params[:states].split(",") if params[:states]
+    login = params[:login]
 
     xml = builder.package( :project => self.db_project.name, :name => self.name ) do |package|
       self.db_package_kinds.each do |k|
@@ -833,6 +835,13 @@ class DbPackage < ActiveRecord::Base
       end
       self.db_package_issues.each do |i|
         next if filter_changes and not filter_changes.include? i.change
+        next if states and (not i.issue.state or not states.include? i.issue.state.text)
+        o = nil
+        if i.issue.owner_id
+          # self.owner must not by used, since it is reserved by rails
+          o = User.find_by_id i.issue.owner_id
+        end
+        next if login and (not o or not login == o.login.text)
         i.issue.render_body(package, i.change)
       end
     end

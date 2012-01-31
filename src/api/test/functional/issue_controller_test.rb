@@ -159,6 +159,22 @@ Aha bnc#16\n
     assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "16"
 
+    get "/source/home:Iggy:branches:BaseDistro?view=issues&login=unknown"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }
+
+    get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&login=unknown"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }
+
+    get "/source/home:Iggy:branches:BaseDistro?view=issues&states=OPEN,CLOSED"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }
+
+    get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&states=OPEN,CLOSED"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }
+
     #cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
