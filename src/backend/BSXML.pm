@@ -254,6 +254,7 @@ our $projpack = [
     'repoid',
      [[ 'project' =>
 	    'name',
+	    'kind',
 	     [],
 	    'title',
 	    'description',

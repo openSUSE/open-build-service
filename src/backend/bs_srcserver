@@ -2287,6 +2287,9 @@ sub getprojpack {
       $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
     }
     next unless $proj;
+    for (qw{kind}) {
+      $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
+    }
 
     my %expandedrepos;
 
