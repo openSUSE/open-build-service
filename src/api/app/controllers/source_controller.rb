@@ -1268,9 +1268,11 @@ class SourceController < ApplicationController
 
       # remove this repository
       logger.info "updating project '#{prj.name}'"
-      prj.repositories.find(repo).destroy
-      prj.save
-      prj.store(nil, true) # low prio storage
+      if r=prj.repositories.find(repo)
+         r.destroy
+         prj.save
+         prj.store(nil, true) # low prio storage
+      end
     end
   end
 
