@@ -141,7 +141,42 @@ class Person < ActiveXML::Base
     cachekey = "#{login}_patchinfos_that_need_work"
     Rails.cache.delete cachekey unless opts[:cache]
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      Collection.find_cached(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{login}']]")
+      array = Array.new
+      col = Collection.find_cached(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{CGI.escape(login)}']]")
+      col.each_package do |pi|
+        hash = { :package => { :project => pi.project, :name => pi.name } }
+        issues = Array.new
+
+        # get users open issues for package
+        path = "/source/#{CGI.escape(pi.project)}/#{CGI.escape(pi.name)}?view=issues&states=OPEN&login='#{CGI.escape(login)}'"
+        frontend = ActiveXML::Config::transport_for( :package )
+        answer = frontend.direct_http URI(path), :method => "GET"
+        doc = ActiveXML::Base.new(answer)
+        doc.each("/package/issue") do |s|
+          i = {}
+          i[:name]= s.find_first("name").text
+          i[:issue_tracker]= s.find_first("issue_tracker").text
+          i[:long_name]= s.find_first("long_name").text
+          i[:url]= s.find_first("url").text
+          if description=s.find_first("description")
+            i[:description] = description.text
+          end
+          if state=s.find_first("state")
+            i[:state] = state.text
+          end
+          if login=s.find_first("login")
+            i[:login] = login.text
+          end
+          if updated_at=s.find_first("updated_at")
+            i[:updated_at] = updated_at.text
+          end
+          issues << i
+        end
+
+        hash[:issues] = issues
+        array << hash
+      end
+      return array
     end
   end
 
