@@ -457,22 +457,26 @@ if (-d "$buildroot" && $check_build) {
 		      my $dp = Storable::retrieve("$pra/$prap") || {};
 		    } || warn ("ERROR: $pra/$prap broken, $@");
 		  } elsif ($prap eq ":packstatus") {
-		    # OMG ...
 		    eval {
 		      my $dp = Storable::retrieve("$pra/$prap") || {};
 		    } || eval {
 		      my $dp = readxml("$pra/$prap",$BSXML::packstatuslist,0);
 		    } || warn ("ERROR: $pra/$prap is not a perl storable and not a packstatuslist");
-		  } elsif ($prap eq ":jobhistory"
-			|| $prap eq ":repodone"
-			|| $prap eq ":schedulerstate"
+		  } elsif ($prap eq ":jobhistory") {
+                    eval {
+                      my @hist = BSFileDB::fdb_getall("$pra/$prap", $BSXML::jobhistlay)
+                    } || warn ("ERROR: $pra/$prap is not parsable");
+		  } elsif ($prap eq ":schedulerstate") {
+		    # FIXME check 1 line content
+		  } elsif ($prap eq ":repodone"
 			|| $prap eq ":schedulerstate.dirty") {
-		    # fixme check content
+		    # empty files, ignore them
 		  } elsif ($prap eq ":repostate") {
 		    eval {
 		      my $repstate = readxml("$pra/$prap",$BSXML::repositorystate,0);
 		    } || warn ("ERROR: $pra/$prap broken repostate $@");
 		  } elsif ($prap eq ":full.solv") {
+                    # FIXME
 		    #my $pool = BSSolv::pool->new();
 		    #eval {
 		    #	my $cache = $pool->repofromfile($proj,"$pra/$prap");
