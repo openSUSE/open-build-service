@@ -66,9 +66,16 @@ class PersonController < ApplicationController
         render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
           :message => "no permission to change userinfo for user #{user.login}" and return
       end
-      if !user and @http_user.is_admin?
-        user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
-        user.state = User.states["locked"]
+      if !user
+        if @http_user.is_admin?
+          user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
+          user.state = User.states["locked"]
+        else
+          logger.debug "Tried to create non-existing user without admin rights"
+          @errorcode = 404
+          @summary = "Requested non-existing user"
+          render :template => 'error', :status => @errorcode and return
+        end
       end
 
       xml = REXML::Document.new(request.raw_post)
