@@ -8,7 +8,10 @@ class UpdatePackageMetaJob
       next unless DbProject.exists?(prj)
       prj.db_packages.each do |pkg|
         next unless DbPackage.exists?(pkg)
-        pkg.set_package_kind
+        begin
+          pkg.set_package_kind
+        rescue Suse::Backend::HTTPError
+        end
       end
     end
   end
