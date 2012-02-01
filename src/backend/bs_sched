@@ -3378,6 +3378,7 @@ sub checkpatchinfo {
 
   my $ptype = 'local';
   $ptype = 'binary' if ($projpacks->{$projid}->{'kind'} || '') eq 'maintenance_incident';
+  $ptype = 'binary' if $projid =~ /^openSUSE:Maintenance/;
   
   my $broken;
   # find packages
