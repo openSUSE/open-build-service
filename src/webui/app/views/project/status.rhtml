@@ -68,12 +68,13 @@
                 age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
                 outs << link_to("Different changes in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                   :action => :rdiff, :oproject => @project, :opackage => p['name'])
-                sortkey = "5-changes" + p['name']
+                sortkey = "5-changes-#{p['develmtime']}-" + p['name']
                 icon = "changes"
               elsif c == 'different_sources'
-                outs << link_to("Different sources in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
+                outs << link_to("Different sources in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                   :action => :rdiff, :oproject => @project, :opackage => p['name'])
-                sortkey = "6-changes" + p['name']
+                sortkey = "6-changes-#{p['develmtime']}-" + p['name']
                 icon = "changes"
               elsif c == 'diff_against_link'
                 outs << link_to("Linked package is different", :controller => :package, :oproject => p['lproject'], :opackage => p['lpackage'],
@@ -84,6 +85,11 @@
                 outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                   :action => :show)
                 sortkey = "1-problem-" + p['name']
+                icon = "error"
+	      elsif c == 'currently_declined'
+                outs << link_to("Current sources were declined: request #{p['currently_declined']}", 
+				:controller => :request, :action => :show, :id => p['currently_declined'])
+                sortkey = "2-declines-" + p['name']
                 icon = "error"
               else
                 outs << link_to(c, :controller => :package, :project => p['develproject'], :package => p['develpackage'],

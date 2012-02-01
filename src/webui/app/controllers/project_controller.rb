@@ -1201,7 +1201,6 @@ class ProjectController < ApplicationController
     raw_requests.each_request do |r|
       id = r.value('id').to_i
       @requests[id] = r
-      #logger.debug r.dump_xml + " " + (r.has_element?('action') ? r.action.value('type') : "false")
       if r.has_element?('action') && r.action.value('type') == "submit"
         target = r.action.target
         key = target.value('project') + "/" + target.value('package')
@@ -1210,14 +1209,37 @@ class ProjectController < ApplicationController
       end
     end
 
+    declines = Hash.new
+    declined_requests = BsRequest.list({:states => 'declined', :roles => "target", :project => @project.name})
+    declined_requests.each do |r|
+      id = r.value('id').to_i
+      @requests[id] = r
+      if r.has_element?('action') && r.action.value('type') == "submit"
+        target = r.action.target
+        source = r.action.source
+        key = r.action.target.value('package')
+        unless declines[key] && declines[key][:id] > id
+          declines[key] = {
+            :id => id, 
+            :project => source.value(:project), 
+            :package => source.value(:package), 
+            :rev => source.value(:rev) }
+        end
+      end
+    end
+    
+    #logger.debug declines.inspect
+
     @develprojects = Array.new
     project_maintainer_cache = Hash.new
 
     @packages = Array.new
     status.each_package do |p|
       currentpack = Hash.new
-      currentpack['name'] = p.name
-      currentpack['failedcomment'] = comments[p.name] if comments.has_key? p.name
+      pname = p.value(:name)
+      #next unless pname == "media-player-info"
+      currentpack['name'] = pname
+      currentpack['failedcomment'] = comments[p.value(:name)] if comments.has_key? pname
 
       newest = 0
       p.each_failure do |f|
@@ -1234,14 +1256,14 @@ class ProjectController < ApplicationController
       currentpack['requests_from'] = Array.new
       currentpack['requests_to'] = Array.new
 
-      key = @project.name + "/" + p.name
+      key = @project.name + "/" + pname
       if submits.has_key? key
         currentpack['requests_from'].concat(submits[key])
       end
 
       currentpack['version'] = p.version
-      if upstream_versions.has_key? p.name
-        upstream_version = upstream_versions[p.name]
+      if upstream_versions.has_key? pname
+        upstream_version = upstream_versions[pname]
         begin
           gup = Gem::Version.new(p.version)
           guv = Gem::Version.new(upstream_version)
@@ -1251,7 +1273,7 @@ class ProjectController < ApplicationController
 
         if gup && guv && gup < guv
           currentpack['upstream_version'] = upstream_version
-          currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
+          currentpack['upstream_url'] = upstream_urls[pname] if upstream_urls.has_key? pname
         end
       end
 
@@ -1296,11 +1318,25 @@ class ProjectController < ApplicationController
           next if status_filter_user(dproject, dp, filter_for_user, project_maintainer_cache)
         end
 
-        if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
-          if currentpack['changesmd5'] != currentpack['develchangesmd5']
-            currentpack['problems'] << 'different_changes'
-          else
-            currentpack['problems'] << 'different_sources'
+        if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
+          if declines[pname] && 
+              declines[pname][:project] == dp.value(:project) &&
+              declines[pname][:package] == dp.value(:name)
+            
+            sourcerev = Package.current_rev(dp.value(:project), dp.value(:name))
+            if sourcerev == declines[pname][:rev]
+              currentpack['currently_declined'] = declines[pname][:id]
+              currentpack['problems'] << 'currently_declined'
+            else
+              currentpack['declined_request'] = declines[pname]
+            end
+          end
+          if currentpack['currently_declined'].nil?
+            if currentpack['changesmd5'] != currentpack['develchangesmd5']
+              currentpack['problems'] << 'different_changes'
+            else
+              currentpack['problems'] << 'different_sources'
+            end
           end
         end
       elsif @current_develproject != no_project
@@ -1336,9 +1372,12 @@ class ProjectController < ApplicationController
     @develprojects.insert(1, no_project)
 
     @packages.sort! { |x,y| x['name'] <=> y['name'] }
-    
-    unless params[:render_json].nil?
-      render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => "text/plain" and return
+
+    respond_to do |format|
+      format.json {
+        render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => "text/plain"
+      } 
+      format.html 
     end
   end
 
