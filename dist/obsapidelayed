@@ -38,7 +38,6 @@
 . /etc/rc.status
 
 DELAYED_BIN=/srv/www/obs/api/script/delayed_job.api
-ln -sf ${DELAYED_BIN%.api} $DELAYED_BIN
 
 # number of parallel jobs
 NUM=3
@@ -50,14 +49,14 @@ case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
         export RAILS_ENV="production"
-        startproc -u apirun -g www -- $DELAYED_BIN start -n $NUM
+        startproc -w -u wwwrun -g www -- $DELAYED_BIN start -n $NUM
 
 	rc_status -v
 	;;
     stop)
 	echo -n "Stoping OBS api delayed job handler "
-	killproc -TERM $DELAYED_BIN
-        $DELAYED_BIN stop
+        export RAILS_ENV="production"
+        startproc -w -u wwwrun -g www -- $DELAYED_BIN stop
 
 	rc_status -v
 	;;
