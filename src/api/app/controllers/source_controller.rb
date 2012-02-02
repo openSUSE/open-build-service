@@ -1698,7 +1698,7 @@ class SourceController < ApplicationController
           # take over debuginfo config from origin project
           tpkg.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName ) if prj.enabled_for?('debuginfo', repo.name, nil)
         end
-        unless extend_names
+        if add_repositories
           # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
           p[:link_target_project].flags.each do |f|
             unless [ "build", "publish", "lock" ].include?(f.flag)
@@ -1707,9 +1707,7 @@ class SourceController < ApplicationController
               end
             end
           end
-          if add_repositories
-            tprj.flags.create(:status => "disable", :flag => 'publish') unless tprj.flags.find_by_flag_and_status( 'publish', 'disable' )
-          end
+          tprj.flags.create(:status => "disable", :flag => 'publish') unless tprj.flags.find_by_flag_and_status( 'publish', 'disable' )
         end
       else
         # FIXME for remote project instances

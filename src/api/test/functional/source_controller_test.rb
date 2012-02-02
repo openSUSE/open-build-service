@@ -2124,6 +2124,9 @@ end
     assert_response :success
 
     # branch again
+    get "/source/home:coolo:test/_meta"
+    assert_response :success
+    oldmeta = @response.body
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response 400
     assert_match(/branch target package already exists/, @response.body)
@@ -2134,6 +2137,10 @@ end
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
     assert_response 400
     assert_match(/no such revision/, @response.body)
+    # project meta must be untouched
+    get "/source/home:coolo:test/_meta"
+    assert_response :success
+    assert_equal oldmeta, @response.body
     # FIXME: do a real commit and branch afterwards
 
     # now with a new project
