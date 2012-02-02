@@ -681,6 +681,20 @@ sub copyfiles {
   }
 }
 
+sub copytreefile {
+  my ($treedir, $lprojid, $packid, $md5) = @_;
+  return unless $md5;
+
+  my $ltreedir = "$treesdir/$lprojid/$packid";
+  $ltreedir = "$srcrep/$packid" if $BSConfig::nosharedtrees == 2 && ! -e "$ltreedir/$md5-MD5SUMS";
+
+  if (-e "$ltreedir/$md5-MD5SUMS") {
+    my $meta = readstr("$ltreedir/$md5-MD5SUMS");
+    mkdir_p($treedir);
+    writestr("$uploaddir/$$", "$treedir/$md5-MD5SUMS", $meta);
+  }
+}
+
 sub getrev_git {
   my ($projid, $packid, $rev) = @_;
   my $gitdir = "$projectsdir/$projid.pkg/$packid.git";
@@ -724,20 +738,32 @@ sub getrev {
 	if ($lrev) {
 	  # make sure that we may access the sources of this package
 	  checksourceaccess($lprojid, $packid);
-	  my $files = lsrev($lrev);
+
+          my $linkinfo = {};
+          my $files = lsrev($lrev, $linkinfo);
+	
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
+
 	  my $srcmd5 = $lrev->{'srcmd5'};
+	  my $lsrcmd5 = $linkinfo->{'lsrcmd5'};
+	  my $xservicemd5 = $linkinfo->{'xservicemd5'};
+	  my $lservicemd5 = $linkinfo->{'lservicemd5'};
+
 	  if ($BSConfig::nosharedtrees && $srcmd5 ne $emptysrcmd5) {
 	    # copy the tree
 	    my $treedir = "$treesdir/$projid/$packid";
 	    if (! -e "$treedir/$srcmd5-MD5SUMS") {
 	      my $ltreedir = "$treesdir/$lprojid/$packid";
 	      $ltreedir = "$srcrep/$packid" if $BSConfig::nosharedtrees == 2 && ! -e "$ltreedir/$srcmd5-MD5SUMS";
-	      if (-e "$ltreedir/$srcmd5-MD5SUMS") {
-		my $meta = readstr("$ltreedir/$srcmd5-MD5SUMS");
-	        mkdir_p($treedir);
-		writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
-	      } else {
+
+              # try to copy all known tree files, otherwise this might trigger
+              # avoidable runservice calls. Goal: avoid all avoidable runservices.
+              copytreefile($treedir, $lprojid, $packid, $lsrcmd5);
+              copytreefile($treedir, $lprojid, $packid, $lservicemd5);
+              copytreefile($treedir, $lprojid, $packid, $xservicemd5);
+
+              copytreefile($treedir, $lprojid, $packid, $srcmd5);
+	      if (! -e "$ltreedir/$srcmd5-MD5SUMS") {
 		addmeta($projid, $packid, $files);	# last resort...
 	      }
 	    }
