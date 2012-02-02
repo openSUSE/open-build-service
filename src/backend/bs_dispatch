@@ -72,7 +72,7 @@ my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
 my %cando = (
-# this code needs to be handled via a worker/dispatcher capability system in future
+# this is breaking native builds of arm/mips/sh4, the cross compile compat needs to become configurable per prpa in future
   'i586'    => [          'i586',         'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
   'i686'    => [          'i586', 'i686', 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
   'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
