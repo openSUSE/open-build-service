@@ -83,16 +83,15 @@ my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
 
-#FIXME 3.0: obsolete the not exiting arm architectures
 my %cando = (
-  'armv4l'  => [                                          'armv4l'                                                                                      ],
-  'armv5l'  => [                                          'armv4l', 'armv5l'                    , 'armv5el'                                             ],
-  'armv6l'  => [                                          'armv4l', 'armv5l', 'armv6l'          , 'armv5el', 'armv6el'                                  ],
-  'armv7l'  => [                                          'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el' ],
-  'sh4'     => [                                                                                                                        'sh4' ],
-  'i586'    => [          'i586',                         'armv4l', 'armv5l', 'armv6l', 'armv7l', 'mips', 'mipsel', 'sh4' ],
-  'i686'    => [          'i586',         'i686',         'armv4l', 'armv5l', 'armv6l', 'armv7l', 'mips', 'mipsel', 'sh4' ],
-  'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32', 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'mips', 'mipsel', 'sh4' ],
+  'armv4l'  => ['armv4l'                                                                                      ],
+  'armv5l'  => ['armv4l', 'armv5l'                    , 'armv5el'                                             ],
+  'armv6l'  => ['armv4l', 'armv5l', 'armv6l'          , 'armv5el', 'armv6el'                                  ],
+  'armv7l'  => ['armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el' ],
+  'sh4'     => ['sh4' ],
+  'i586'    => [          'i586',                       ],
+  'i686'    => [          'i586',         'i686',       ],
+  'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32'],
 #
   'parisc'  => ['hppa', 'hppa64:linux64'],
   'parisc64'=> ['hppa64', 'hppa:linux32'],
@@ -1441,13 +1440,14 @@ sub dobuild {
   my $packid = $buildinfo->{'package'};
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
+  my $helperarch = $buildinfo->{'hostarch'} || $arch;
   my $kiwimode;
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
   my $deltamode;
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
 
   my $helper = '';
-  /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
+  /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
 
   my @lt = localtime(time());
   my $timestring = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];

@@ -441,6 +441,7 @@ our $buildinfo = [
 	[],
 	'job',
 	'arch',
+	'hostarch',     # for cross build
 	'error',
 	'srcmd5',
 	'verifymd5',
