@@ -84,7 +84,7 @@
               <% if ae.has_element? :group %>
                 Role <b><%= ae.group.role %></b> for <b><%= ae.group.name %></b>
               <% elsif ae.has_element? :person %>
-                Role <b><%= ae.person.role %></b> for <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => ae.person.name, :no_gravatar => true} %>
+                Role <b><%= ae.person.role %></b> for <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => ae.person.name, :no_icon => true} %>
               <% end %>
             <% elsif ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build results', :title => 'Build results', :id => "req_#{@req.value(:id)}_action_#{index}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
@@ -119,7 +119,7 @@
         <tr>
           <td class="nowrap"><span class="hidden"><%= Time.parse(h[:when].to_s).to_i %></span><%= fuzzy_time_string(Time.at(h[:when]).to_s) %></td>
           <td><%= h[:name] %></td>
-          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => h[:who]}%></td>
+          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => h[:who]}%></td>
           <td class="expandable"><%= raw escape_and_transform_nonprintables(h[:comment]) if h.has_key?(:comment) and not h[:comment].nil? %></td>
         </tr>
       <% end %>
@@ -199,7 +199,7 @@
             <td id="review_type_<%= revnum %>">user</td>
             <td id="review_name_<%= revnum %>" class="nowrap">
               <span id="review_name_<%= revnum %>_raw" class="hidden"><%= r.by_user %></span>
-              <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => r.by_user}%>
+              <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => r.by_user}%>
             </td>
           <% elsif r.has_attribute? :by_group %>
             <td id="review_type_<%= revnum %>">group</td>
@@ -252,7 +252,7 @@
         <% if @actiondiffs && !@actiondiffs.empty? && @is_maintainer %>
           <% if @contains_submit_action and not @submitter_is_target_maintainer %>
             <%= check_box_tag(:add_submitter_as_maintainer) %> Add
-            <%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => BsRequest.creator(@req), :no_gravatar => true} %> as maintainer of the target package<br/>
+            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => BsRequest.creator(@req), :no_icon => true} %> as maintainer of the target package<br/>
           <% end %>
           <% if @req.action.value("type") == "submit" and @target_pkg %>
             <% linkinfo = @target_pkg.linkinfo %>

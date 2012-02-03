@@ -25,7 +25,7 @@
                 <%= raw msg.to_s %>
               </td>
               <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(msg.created_at) %></td>
-              <td class="nowrap" style="width: 1%"><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => msg.value(:user), :short => true }%></td>
+              <td class="nowrap" style="width: 1%"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.value(:user), :short => true }%></td>
               <% if @user and @user.is_admin? %>
                 <td class="norwap" style="width: 1%"><%= link_to_remote(image_tag('icons/comment_delete.png', :title => 'Remove message'), :url => {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}) %></td>
               <% end %>

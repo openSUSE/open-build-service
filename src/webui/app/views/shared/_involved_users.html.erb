@@ -67,7 +67,7 @@
       <tbody>
         <% @users.each do |user| %>
           <tr>
-            <td><%= render :partial => 'shared/user_with_realname_and_gravatar', :locals => {:user => user}%></td>
+            <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user}%></td>
             <% @roles.each do |role| %>
               <td>
                 <% if defined? @package %>

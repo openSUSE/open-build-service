@@ -5,7 +5,7 @@
   <% else %>
     <% user = commit[:user] || '-' %>
     <% realname = Person.realname_for_login(user) %>
-    <%= gravatar_image(Person.email_for_login(user)) %>
+    <%= user_icon(user)) %>
     <% if not realname.empty? %>
       <%= link_to(realname + " (" + user + ")", :controller => :home, :user => user) %>
     <% else %>

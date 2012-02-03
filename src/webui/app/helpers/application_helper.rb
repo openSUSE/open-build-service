@@ -111,10 +111,9 @@ module ApplicationHelper
     abs_path
   end
 
-  def gravatar_image(email, size=20)
-    hash = Digest::MD5.hexdigest(email.downcase)
-    return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=#{size}&d=" + image_url('local/default_face.png'), 
-      :width => size, :height => size
+  def user_icon(login, size=20)
+    return image_tag(url_for(:controller => :home, :action => :icon, :id => login.to_s, :size => size), 
+                     :width => size, :height => size)
   end
 
   def fuzzy_time_string(time)

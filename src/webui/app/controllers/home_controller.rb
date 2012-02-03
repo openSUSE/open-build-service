@@ -1,10 +1,42 @@
+require 'net/http'
+
 class HomeController < ApplicationController
 
-  before_filter :require_login, :except => [:my_work]
-  before_filter :check_user
+  before_filter :require_login, :except => [:my_work, :icon]
+  before_filter :check_user, :except => [:icon]
   before_filter :overwrite_user, :only => [:index, :my_work, :requests, :list_my]
 
   def index
+  end
+
+  def icon
+    user = params[:id]
+    size = params[:size]
+    Rails.cache.delete("home_face_#{user}") if discard_cache?
+    content = Rails.cache.fetch("home_face_#{user}", :expires_in => 1.hour) do
+
+      email = Person.email_for_login(user)
+      hash = Digest::MD5.hexdigest(email.downcase)
+      http = Net::HTTP.new("www.gravatar.com")
+      begin
+        http.start
+        response, content = http.get "/avatar/#{hash}?s=#{size}&d=404"
+	content = nil unless response == Net::HTTPOK
+      rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
+	logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
+        http = nil
+      end
+      http.finish if http
+
+      unless content
+        f = File.open("#{RAILS_ROOT}/public/images/local/default_face.png", "r")
+        content = f.read
+        f.close
+      end
+      content
+    end
+
+    render :text => content, :layout => false, :content_type => "image/png"
   end
 
   def my_work

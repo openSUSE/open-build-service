@@ -1,9 +1,9 @@
 <% short ||= false %>
-<% no_gravatar ||= false %>
+<% no_icon ||= false %>
 <% realname = Person.realname_for_login(user) %>
 
-<% unless no_gravatar %>
-  <%= gravatar_image(Person.email_for_login(user)) %>
+<% unless no_icon %>
+  <%= user_icon(user) %>
 <% end %>
 
 <% unless realname.empty? or short == true %>
