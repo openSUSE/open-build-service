@@ -926,6 +926,21 @@ end
     assert_response :success
   end
 
+  def test_delete_project_with_local_devel_packages
+    prepare_request_with_user "tom", "thunder"
+    put "/source/home:tom:project/_meta", "<project name='home:tom:project'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
+    assert_response :success
+    put "/source/home:tom:project/A/_meta", "<package name='A' project='home:tom:project'> <title/> <description/></package>"
+    assert_response :success
+    put "/source/home:tom:project/B/_meta", "<package name='B' project='home:tom:project'> <title/> <description/> <devel package='A'/> </package>"
+    assert_response :success
+    put "/source/home:tom:project/C/_meta", "<package name='C' project='home:tom:project'> <title/> <description/> <devel package='B'/> </package>"
+    assert_response :success
+    # delete the project including the packages
+    delete "/source/home:tom:project"
+    assert_response :success
+  end
+
   def test_devel_project_cycle
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> </project>"

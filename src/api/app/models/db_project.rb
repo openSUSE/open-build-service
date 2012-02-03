@@ -73,6 +73,17 @@ class DbProject < ActiveRecord::Base
         end
       end
     end
+    # deleting local devel packages
+    self.db_packages.each do |pkg|
+      if pkg.develpackage_id
+        pkg.develpackage_id = nil
+        pkg.save
+      end
+      if pkg.develproject_id
+        pkg.develproject_id = nil
+        pkg.save
+      end
+    end
   end
 
 #  def before_validation
