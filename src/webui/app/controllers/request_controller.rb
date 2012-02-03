@@ -47,7 +47,7 @@ class RequestController < ApplicationController
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end
 
-    @id = @req.value("id")
+    @id = Integer(@req.value("id"))
     @state = @req.state.value("name")
     @is_author = @req.creator == session[:login]
     @superseded_by = @req.state.value("superseded_by")
@@ -106,6 +106,18 @@ class RequestController < ApplicationController
     creator = Person.find_cached(@req.creator)
     if creator and @target_project
       @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg)
+    end
+
+    request_list = session[:requests]
+    @request_before = nil
+    @request_after  = nil
+    index = request_list.index(@id) if request_list
+    if index and index > 0
+      @request_before = request_list[index-1]
+    end
+    if index
+      # will be nul for after end
+      @request_after = request_list[index+1]
     end
 
     if !@spider_bot && !contains_only_undiffable_actions && !project_wide_delete_request
@@ -208,6 +220,7 @@ class RequestController < ApplicationController
     requests = BsRequest.list(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
+    session[:requests] = requests.each.map {|r| Integer(r.value(:id)) }.sort
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len}
   end
 

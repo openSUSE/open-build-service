@@ -12,6 +12,15 @@
   $('.expandable').expander({slicePoint: 80, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>
 
+<div id="request_navigation_box" style="position: absolute; right: 0.3em;">
+  <% if @request_before -%>
+    <%= link_to "<<", :controller => :request, :action => :show, :id => @request_before %>
+  <% end -%>
+  <% if @request_after -%>
+    <%= link_to ">>", :controller => :request, :action => :show, :id => @request_after %>
+  <% end -%>
+</div>
+
 <% if @superseded_by %>
   <h3 id="request_heading"><%= @pagetitle %> (<%= @state %> by request #<%= link_to @superseded_by, :id => @superseded_by %>)</h3>
 <% else %>

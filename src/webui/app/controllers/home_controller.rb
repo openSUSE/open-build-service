@@ -29,6 +29,7 @@ class HomeController < ApplicationController
 
   def requests
     @requests = @displayed_user.involved_requests(:cache => false)
+    session[:requests] = @requests.each.map {|r| Integer(r.value(:id)) }
   end
 
   def home_project
