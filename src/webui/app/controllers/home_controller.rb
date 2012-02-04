@@ -11,16 +11,17 @@ class HomeController < ApplicationController
 
   def icon
     user = params[:id]
-    size = params[:size]
-    Rails.cache.delete("home_face_#{user}") if discard_cache?
-    content = Rails.cache.fetch("home_face_#{user}", :expires_in => 1.hour) do
+    size = params[:size] || '20'
+    key = "home_face_#{user}_#{size}"
+    Rails.cache.delete(key) if discard_cache?
+    content = Rails.cache.fetch(key, :expires_in => 5.hour) do
 
       email = Person.email_for_login(user)
       hash = Digest::MD5.hexdigest(email.downcase)
       http = Net::HTTP.new("www.gravatar.com")
       begin
         http.start
-        response, content = http.get "/avatar/#{hash}?s=#{size}&d=404"
+        response, content = http.get "/avatar/#{hash}?s=#{size}&d=wavatar"
 	content = nil unless response.is_a?(Net::HTTPSuccess)
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
 	logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
