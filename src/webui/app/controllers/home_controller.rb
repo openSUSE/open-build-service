@@ -21,7 +21,7 @@ class HomeController < ApplicationController
       begin
         http.start
         response, content = http.get "/avatar/#{hash}?s=#{size}&d=404"
-	content = nil unless response == Net::HTTPOK
+	content = nil unless response.is_a?(Net::HTTPSuccess)
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
 	logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
         http = nil
