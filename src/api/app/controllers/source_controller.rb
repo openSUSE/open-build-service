@@ -58,8 +58,15 @@ class SourceController < ApplicationController
 
   def projectlist
     # list all projects (visible to user)
-    dir = Project.find :all
-    render :text => dir.dump_xml, :content_type => "text/xml"
+    dir = DbProject.find(:all, :select => 'name').map {|i| i.name }.sort
+    output = String.new
+    output << "<?xml version='1.0' encoding='UTF-8'?>\n"
+    output << "<directory>\n"
+    dir.each do |item|
+      output << "  <entry name=\"#{item.to_xs}\"/>\n"
+    end
+    output << "</directory>\n"
+    render :text => output, :content_type => "text/xml"
     return
   end
 
