@@ -606,6 +606,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source/BaseDistro3/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
+    # validate correct :Update project setup
+    get "/source/BaseDistro2.0:LinkedUpdateProject/_meta"
+    assert_response :success
+    assert_tag( :parent => { :tag => "build" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
+    assert_tag( :parent => { :tag => "publish" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
+
     # create a maintenance incident
     post "/source", :cmd => "createmaintenanceincident"
     assert_response :success
@@ -690,7 +696,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     put "/source/#{maintenanceProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
     get "/source/#{maintenanceProject}/patchinfo/_meta"
-    assert_tag( :parent => {:tag => "build"}, :tag => "enable", :content => nil )
+    assert_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
+    assert_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
     get "/source/#{maintenanceProject}/patchinfo?view=issues"
     assert_response :success
     assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
@@ -874,6 +881,18 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/BaseDistro2.0:LinkedUpdateProject/_project/_history"
     assert_response :success
     assert_tag :parent => { :tag => "revision" },  :tag => 'comment', :content => "Release from project: My:Maintenance:#{incidentID}"
+    get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incidentID}/_meta"
+    assert_response :success
+    # must not build in Update project
+    assert_no_tag( :parent => {:tag => "build"}, :tag => "enable" )
+    # must be published in Update project
+    assert_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_meta"
+    assert_response :success
+    # must not build in Update project
+    assert_no_tag( :parent => {:tag => "build"}, :tag => "enable" )
+    # must be published only via patchinfos
+    assert_no_tag( :parent => {:tag => "publish"}, :tag => "enable" )
 
     # no maintenance trigger exists anymore
     get "/source/#{maintenanceProject}/_meta"
@@ -925,7 +944,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/BaseDistro2.0:LinkedUpdateProject/_result"
     assert_response :success
-    assert_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"published"}
+    # it is unpublished, because api does not see a single published package. this still verifies that repo is not in intermediate state anymore.
+    assert_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"unpublished"}
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
     assert_response :success
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm"

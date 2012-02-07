@@ -160,3 +160,12 @@ flags_BaseDistro2_0_LinkedUpdateProject_build_disable:
   db_project_id: "2046"
   id: "477459121"
   status: disable
+flags_BaseDistro2_0_LinkedUpdateProject_publish_disable: 
+  position: "3"
+  architecture_id: 
+  repo: 
+  db_package_id: 
+  flag: publish
+  db_project_id: "2046"
+  id: "477459122"
+  status: disable
