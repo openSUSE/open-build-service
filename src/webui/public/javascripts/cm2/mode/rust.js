@@ -4,11 +4,12 @@ CodeMirror.defineMode("rust", function() {
     "if": "if-style", "while": "if-style", "else": "else-style",
     "do": "else-style", "ret": "else-style", "fail": "else-style",
     "break": "atom", "cont": "atom", "const": "let", "resource": "fn",
-    "let": "let", "fn": "fn", "for": "for", "alt": "alt", "obj": "fn",
-    "lambda": "fn", "type": "type", "tag": "tag", "mod": "mod",
+    "let": "let", "fn": "fn", "for": "for", "alt": "alt", "iface": "iface",
+    "impl": "impl", "type": "type", "enum": "enum", "mod": "mod",
     "as": "op", "true": "atom", "false": "atom", "assert": "op", "check": "op",
     "claim": "op", "native": "ignore", "unsafe": "ignore", "import": "else-style",
-    "export": "else-style", "copy": "op", "log": "op", "log_err": "op"
+    "export": "else-style", "copy": "op", "log": "op", "log_err": "op",
+    "use": "op", "bind": "op", "self": "atom"
   };
   var typeKeywords = function() {
     var keywords = {"fn": "fn", "block": "fn", "obj": "obj"};
@@ -83,7 +84,7 @@ CodeMirror.defineMode("rust", function() {
       return r("prefix", "variable-2");
     }
     if (state.keywords.propertyIsEnumerable(content))
-      return r(state.keywords[content], "keyword");
+      return r(state.keywords[content], content.match(/true|false/) ? "atom" : "keyword");
     return r("name", "variable");
   }
 
@@ -168,15 +169,20 @@ CodeMirror.defineMode("rust", function() {
     };
   }
 
+  function stat_of(comb, tag) {
+    return cont(pushlex("stat", tag), comb, poplex, block);
+  }
   function block(type) {
     if (type == "}") return cont();
-    if (type == "let") return cont(pushlex("stat", "let"), letdef, poplex, block);
-    if (type == "fn") return cont(pushlex("stat"), fndef, poplex, block);
+    if (type == "let") return stat_of(letdef1, "let");
+    if (type == "fn") return stat_of(fndef);
     if (type == "type") return cont(pushlex("stat"), tydef, endstatement, poplex, block);
-    if (type == "tag") return cont(pushlex("stat"), tagdef, poplex, block);
-    if (type == "mod") return cont(pushlex("stat"), mod, poplex, block);
+    if (type == "enum") return stat_of(enumdef);
+    if (type == "mod") return stat_of(mod);
+    if (type == "iface") return stat_of(iface);
+    if (type == "impl") return stat_of(impl);
     if (type == "open-attr") return cont(pushlex("]"), commasep(expression, "]"), poplex);
-    if (type == "ignore") return cont(block);
+    if (type == "ignore" || type.match(/[\]\);,]/)) return cont(block);
     return pass(pushlex("stat"), expression, poplex, endstatement, block);
   }
   function endstatement(type) {
@@ -213,15 +219,19 @@ CodeMirror.defineMode("rust", function() {
       if (content == "||") return cont(poplex, pushlex("}", "block"), block);
     }
     if (content == "mutable" || (content.match(/^\w+$/) && cx.stream.peek() == ":"
-                                 && !cx.stream.match("::", false))) return pass(recliteral);
+                                 && !cx.stream.match("::", false)))
+      return pass(record_of(expression));
     return pass(block);
   }
-  function recliteral(type) {
-    if (content == "mutable" || content == "with") {cx.marked = "keyword"; return cont(recliteral);}
-    if (content.match(/^\w*$/)) {cx.marked = "variable"; return cont(recliteral);}
-    if (type == ":") return cont(expression, recliteral);
-    if (type == "}") return cont();
-    return cont(recliteral);
+  function record_of(comb) {
+    function ro(type) {
+      if (content == "mutable" || content == "with") {cx.marked = "keyword"; return cont(ro);}
+      if (content.match(/^\w*$/)) {cx.marked = "variable"; return cont(ro);}
+      if (type == ":") return cont(comb, ro);
+      if (type == "}") return cont();
+      return cont(ro);
+    }
+    return ro;
   }
   function blockvars(type) {
     if (type == "name") {cx.marked = "def"; return cont(blockvars);}
@@ -229,11 +239,15 @@ CodeMirror.defineMode("rust", function() {
     return cont(blockvars);
   }
 
-  function letdef(type) {
-    if (type == ";") return cont();
-    if (content == "=") return cont(expression, letdef);
-    if (type == ",") return cont(letdef);
-    return pass(pattern, maybetype, letdef);
+  function letdef1(type) {
+    if (type.match(/[\]\)\};]/)) return cont();
+    if (content == "=") return cont(expression, letdef2);
+    if (type == ",") return cont(letdef1);
+    return pass(pattern, maybetype, letdef1);
+  }
+  function letdef2(type) {
+    if (type.match(/[\]\)\};,]/)) return pass(letdef1);
+    else return pass(expression, letdef2);
   }
   function maybetype(type) {
     if (type == ":") return cont(typecx, rtype, valcx);
@@ -244,11 +258,13 @@ CodeMirror.defineMode("rust", function() {
     return pass();
   }
   function fndef(type) {
+    if (content == "@" || content == "~") {cx.marked = "keyword"; return cont(fndef);}
     if (type == "name") {cx.marked = "def"; return cont(fndef);}
     if (content == "<") return cont(typarams, fndef);
     if (type == "{") return pass(expression);
     if (type == "(") return cont(pushlex(")"), commasep(argdef, ")"), poplex, fndef);
     if (type == "->") return cont(typecx, rtype, valcx, fndef);
+    if (type == ";") return cont();
     return cont(fndef);
   }
   function tydef(type) {
@@ -257,27 +273,41 @@ CodeMirror.defineMode("rust", function() {
     if (content == "=") return cont(typecx, rtype, valcx);
     return cont(tydef);
   }
-  function tagdef(type) {
-    if (type == "name") {cx.marked = "def"; return cont(tagdef);}
-    if (content == "<") return cont(typarams, tagdef);
+  function enumdef(type) {
+    if (type == "name") {cx.marked = "def"; return cont(enumdef);}
+    if (content == "<") return cont(typarams, enumdef);
     if (content == "=") return cont(typecx, rtype, valcx, endstatement);
-    if (type == "{") return cont(pushlex("}"), typecx, tagblock, valcx, poplex);
-    return cont(tagdef);
+    if (type == "{") return cont(pushlex("}"), typecx, enumblock, valcx, poplex);
+    return cont(enumdef);
   }
-  function tagblock(type) {
+  function enumblock(type) {
     if (type == "}") return cont();
-    if (type == "(") return cont(pushlex(")"), commasep(rtype, ")"), poplex, tagblock);
+    if (type == "(") return cont(pushlex(")"), commasep(rtype, ")"), poplex, enumblock);
     if (content.match(/^\w+$/)) cx.marked = "def";
-    return cont(tagblock);
+    return cont(enumblock);
   }
   function mod(type) {
     if (type == "name") {cx.marked = "def"; return cont(mod);}
     if (type == "{") return cont(pushlex("}"), block, poplex);
     return pass();
   }
+  function iface(type) {
+    if (type == "name") {cx.marked = "def"; return cont(iface);}
+    if (content == "<") return cont(typarams, iface);
+    if (type == "{") return cont(pushlex("}"), block, poplex);
+    return pass();
+  }
+  function impl(type) {
+    if (content == "<") return cont(typarams, impl);
+    if (content == "of" || content == "for") {cx.marked = "keyword"; return cont(rtype, impl);}
+    if (type == "name") {cx.marked = "def"; return cont(impl);}
+    if (type == "{") return cont(pushlex("}"), block, poplex);
+    return pass();
+  }
   function typarams(type) {
     if (content == ">") return cont();
     if (content == ",") return cont(typarams);
+    if (content == ":") return cont(rtype, typarams);
     return pass(rtype, typarams);
   }
   function argdef(type) {
@@ -291,6 +321,7 @@ CodeMirror.defineMode("rust", function() {
     if (type == "atom") return cont(rtypemaybeparam);
     if (type == "op" || type == "obj") return cont(rtype);
     if (type == "fn") return cont(fntype);
+    if (type == "{") return cont(pushlex("{"), record_of(rtype), poplex);
     return matchBrackets(type, rtype);
   }
   function rtypemaybeparam(type) {
@@ -306,6 +337,7 @@ CodeMirror.defineMode("rust", function() {
     if (type == "name") {cx.marked = "def"; return cont(patternmaybeop);}
     if (type == "atom") return cont(patternmaybeop);
     if (type == "op") return cont(pattern);
+    if (type.match(/[\]\)\};,]/)) return pass();
     return matchBrackets(type, pattern);
   }
   function patternmaybeop(type) {
@@ -314,16 +346,21 @@ CodeMirror.defineMode("rust", function() {
     else return pass();
   }
   function altbody(type) {
-    if (type == "{") return cont(pushlex("}", "alt"), altblock, poplex);
+    if (type == "{") return cont(pushlex("}", "alt"), altblock1, poplex);
     return pass();
   }
-  function altblock(type) {
+  function altblock1(type) {
     if (type == "}") return cont();
-    if (type == "|") return cont(altblock);
-    if (content == "when") {cx.marked = "keyword"; return cont(expression, altblock);}
-    if (type == "{") return cont(pushlex("}", "alt"), block, poplex, altblock);
-    return pass(pattern, altblock);
+    if (type == "|") return cont(altblock1);
+    if (content == "when") {cx.marked = "keyword"; return cont(expression, altblock2);}
+    if (type.match(/[\]\);,]/)) return cont(altblock1);
+    return pass(pattern, altblock2);
   }
+  function altblock2(type) {
+    if (type == "{") return cont(pushlex("}", "alt"), block, poplex, altblock1);
+    else return pass(altblock1);
+  }
+
   function macro(type) {
     if (type.match(/[\[\(\{]/)) return matchBrackets(type, expression);
     return pass();

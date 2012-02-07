@@ -42,9 +42,9 @@
   };
 
   CodeMirror.defineMode("php", function(config, parserConfig) {
-    var htmlMode = CodeMirror.getMode(config, "text/html");
-    var jsMode = CodeMirror.getMode(config, "text/javascript");
-    var cssMode = CodeMirror.getMode(config, "text/css");
+    var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
+    var jsMode = CodeMirror.getMode(config, "javascript");
+    var cssMode = CodeMirror.getMode(config, "css");
     var phpMode = CodeMirror.getMode(config, phpConfig);
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
@@ -99,7 +99,8 @@
         if (state.curState == html) cur = htmlNew;
         else if (state.curState == php) cur = phpNew;
         else cur = CodeMirror.copyState(state.curMode, state.curState);
-        return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur, curClose: state.curClose};
+        return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur,
+                curClose: state.curClose, mode: state.mode};
       },
 
       token: dispatch,
