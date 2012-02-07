@@ -123,6 +123,7 @@ class PackageController < ApplicationController
        return
     end
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
+    Service.free_cache(:all) if discard_cache?
     @srcmd5   = params[:srcmd5]
     @revision = params[:rev]
     @current_rev = Package.current_rev(@project, @package.name)
