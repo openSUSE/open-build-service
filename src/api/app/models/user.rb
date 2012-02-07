@@ -40,11 +40,6 @@ class User < ActiveRecord::Base
       Thread.current[:admin] = isadmin
     end
 
-    def nobodyID
-      return @@nobodyId if @@nobodyId
-      @@nobodyId = get_by_login("_nobody_").id
-    end
-
     def get_by_login(login)
       u = find :first, :conditions => ["login = BINARY ?", login]
       raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
