@@ -162,8 +162,11 @@ class BsRequest < ActiveXML::Base
     def creator(req)
       if req.has_element?(:history)
         #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
-        return req.history.who if req.history.class == ActiveXML::LibXMLNode
-        return req.history.first[:who]
+        if req.history.class == ActiveXML::LibXMLNode
+          return req.history.who
+        else
+          return req.history.first[:who]
+        end
       else
         return req.state.who
       end
@@ -172,8 +175,11 @@ class BsRequest < ActiveXML::Base
     def created_at(req)
       if req.has_element?(:history)
         #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
-        return req.history.when if req.history.class == ActiveXML::LibXMLNode
-        return req.history.first[:when]
+        if req.history.class == ActiveXML::LibXMLNode
+          return req.history.when
+        else
+          return req.history.first[:when]
+        end
       else
         return req.state.when
       end
