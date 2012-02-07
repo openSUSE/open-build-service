@@ -206,7 +206,7 @@ class BsRequest < ActiveXML::Base
 
       if sourcediff.has_element?(:issues)
         sourcediff.issues.each do |issue|
-          issues_hash[issue.value('long-name')] = issue.value('show-url')
+          issues_hash[issue.value('long-name')] = Issue.find_cached(issue.value('name'), :tracker => issue.value('issue-tracker'))
         end
       end
 
