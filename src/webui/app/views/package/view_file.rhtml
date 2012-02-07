@@ -4,6 +4,10 @@
 <%= render :partial => "tabs" %>
 
 <h3><%= @pagetitle %></h3>
+<% if @rev %>
+  <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', :project => @project, :package => @package, :file => @filename) %></p>
+<% end %>
+
 <div style="margin-left: 15px; margin-right: 15px;">
   <% if @addeditlink %>
     <% if @filename.ends_with?('.changes') %>
