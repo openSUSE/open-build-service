@@ -47,6 +47,7 @@ class HomeController < ApplicationController
     end
     @declined_requests, @open_reviews, @new_requests = @displayed_user.requests_that_need_work(:cache => false)
     @open_patchinfos = @displayed_user.running_patchinfos(:cache => false)
+    session[:requests] = (@declined_requests + @open_reviews  + @new_requests).each.map {|r| Integer(r.value(:id)) }
     respond_to do |format|
       format.html
       format.json do
