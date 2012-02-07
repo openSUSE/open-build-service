@@ -160,14 +160,14 @@ class BsRequest < ActiveXML::Base
     end
 
     def creator(req)
-      return Rails.cache.fetch("request_#{@id}_creator", :expires_in => 7.days) do
+      return Rails.cache.fetch("request_#{req.value('id')}_creator", :expires_in => 7.days) do
         login = ''
         if req.has_element?(:history)
           #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
           if req.history.class == ActiveXML::LibXMLNode
-            return req.history.who
+            login = req.history.who
           else
-            return req.history.first[:who]
+            login = req.history.first[:who]
           end
         else
           login = req.state.who
