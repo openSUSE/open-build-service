@@ -6096,21 +6096,24 @@ relsynccheck:
     }
     $repodonestate .= "\0$_" for sort keys %unfinished;
     $repodonestate = Digest::MD5::md5_hex($repodonestate);
+    if (@packs && !grep {$_} values %pubenabled) {
+      # all packages have publish disabled hint
+      $repodonestate = "disabled:$repodonestate";
+    }
     if (-e "$reporoot/$prp/$myarch/:repodone") {
       my $oldrepodone = readstr("$reporoot/$prp/$myarch/:repodone", 1) || '';
       unlink("$reporoot/$prp/$myarch/:repodone") if $oldrepodone ne $repodonestate;
     }
     my $publisherror;
     if (! -e "$reporoot/$prp/$myarch/:repodone") {
-      if (!@packs || grep {$_} values %pubenabled) {
+      if (($repodonestate !~ /^disabled/) || -d "$reporoot/$prp/$myarch/:repo") {
 	mkdir_p("$reporoot/$prp/$myarch");
 	$publisherror = prpfinished($prp, \@packs, \%pubenabled, $bconf, $prpsearchpath{$prp});
-	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless $publisherror || %unfinished;
-	$schedulerdetails = $publisherror if $publisherror;
       } else {
 	print "    publishing is disabled\n";
-	writestr("$reporoot/$prp/$myarch/:repodone", undef, "disabled");
       }
+      writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless $publisherror || %unfinished;
+      $schedulerdetails = $publisherror if $publisherror;
     }
     if (!%unfinished && !$publisherror) {
       $prpfinished{$prp} = 1;

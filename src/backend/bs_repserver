@@ -1123,7 +1123,7 @@ sub getschedulerstate {
   if ($schedulerstate eq 'finished' && !$details) {
     return 'finished'     if -e "$eventdir/publish/${projid}::$repoid";
     return 'publishing'   if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
-    return 'unpublished'  if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') eq 'disabled';
+    return 'unpublished'  if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
     return 'published';
   }
   return ($schedulerstate, $details);
