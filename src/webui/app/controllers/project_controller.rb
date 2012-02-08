@@ -1283,7 +1283,7 @@ class ProjectController < ApplicationController
       currentpack['changesmd5'] = p.value 'changesmd5'
 
       if p.has_element? :develpack
-        dproject = p.develpack.proj
+        dproject = p.develpack.value(:proj)
         @develprojects << dproject
         currentpack['develproject'] = dproject
         if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_packages
@@ -1340,7 +1340,7 @@ class ProjectController < ApplicationController
           end
         end
       elsif @current_develproject != no_project
-        next if status_filter_user(@project, p, filter_for_user, project_maintainer_cache)
+        next if status_filter_user(@project.name, p, filter_for_user, project_maintainer_cache)
         next if @current_develproject != all_packages
       end
 
