@@ -148,7 +148,7 @@
         success: function(data) {
           $('#review_table td#review_state_' + id).text(data);
           $('#review_table td#review_buttons_' + id).remove();
-          $('#review_table td #review_comment_' + id).parent().html(comment.replace('\n','<br/>'));
+          $('#review_table td #review_comment_' + id).parent().html(comment.replace(/\n/g,'<br/>').replace(/ /g,'&nbsp;'));
           if ($('.review_buttons').length == 0) {
             $('#review_action_heading').remove(); // Remove 'Action' column if there are no buttons left
           }
@@ -221,7 +221,7 @@
                  (r.has_attribute? :by_group and @user.is_in_group?(r.by_group)) or
                  (r.has_attribute? :by_project and @user.is_maintainer?(r.by_project)) or
                  (r.has_attribute? :by_package and @user.is_maintainer?(r.by_project, r.by_package))) %>
-            <td><%= text_area_tag "review_comment_#{revnum}", comment, :size => '80x1', :style => 'width: 99%; height: 16px;' %></td>
+            <td><%= text_area_tag "review_comment_#{revnum}", comment, :size => '80x1', :style => 'width: 99%;' %></td>
             <td class="review_buttons" id="review_buttons_<%= revnum %>">
               <%= link_to_function(image_tag("icons/accept.png"), :onclick => "modifyReview(#{revnum}, 'accepted')") %>
               <%= link_to_function(image_tag("icons/cancel.png"), :onclick => "modifyReview(#{revnum}, 'declined')") %>
