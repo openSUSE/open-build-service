@@ -3886,12 +3886,22 @@ sub sourcediff {
       }
       $files = handlelinks($rev, $files, \%li);
       die("bad link: $files\n") unless ref $files;
-      $cgi->{'olinkrev'} = $li{'srcmd5'} if $cgi->{'olinkrev'} && $cgi->{'olinkrev'} eq 'linkrev';
+
+      # some nasty magic to improve diff usability
       if ($l && $cgi->{'linkrev'} && $l->{'project'} eq $oprojid && $l->{'package'} eq $opackid && !$l->{'rev'} && !$cgi->{'orev'}) {
         # we're diffing against the link target. As the user specified a baserev, we should use it
         # instead of the latest source
         $orev = getrev($oprojid, $opackid, $li{'srcmd5'});
         $ofiles = lsrev($orev);
+      }
+      # olinkrev=linkrev: reuse same linkrev if the link target matches
+      if ($cgi->{'olinkrev'} && $cgi->{'olinkrev'} eq 'linkrev' && $ofiles->{'_link'}) {
+	my $ol = repreadxml($orev, '_link', $ofiles->{'_link'}, $BSXML::link, 1);
+	if ($ol) {
+	  $ol->{'project'} = $orev->{'project'} unless defined $ol->{'project'};
+	  $ol->{'package'} = $orev->{'package'} unless defined $ol->{'package'};
+	}
+	$cgi->{'olinkrev'} = $li{'srcmd5'} if $l && $ol && $l->{'project'} eq $ol->{'project'} && $l->{'package'} eq $ol->{'package'};
       }
     }
     if ($ofiles->{'_link'}) {
