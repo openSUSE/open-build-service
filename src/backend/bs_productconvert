@@ -770,6 +770,8 @@ sub writeMigrationSPECfile( $$$$$ )
 {
     my( $file, $prodRef, $product, $newpatchlevel, $migtarget ) = @_;
     my $mproduct = Storable::dclone($product);
+    undef $mproduct->{summary};
+    undef $mproduct->{shortsummary};
 
     if ($migtarget) {
 	$mproduct->{name} = $product->{name}."-".$migtarget."-migration";
@@ -793,11 +795,16 @@ sub writeMigrationSPECfile( $$$$$ )
     $package_name =~ s/\./_/g;
     $content.="Name:           $package_name\n";
 
+    my $sum_str = "";
     if ($migtarget) {
-	$content.="Summary:        $product->{name} $migtarget Migration Product\n";
+	$sum_str = "$product->{name} $migtarget Migration Product";
     } else {
-	$content.="Summary:        $product->{name} Service Pack $newpatchlevel Migration Product\n";
+	$sum_str = "$product->{name} Service Pack $newpatchlevel Migration Product";
     }
+    $content.="Summary:        $sum_str\n";
+    push @{$mproduct->{summary}}, { '_content' => $sum_str };
+    push @{$mproduct->{shortsummary}}, { '_content' => $sum_str };
+
     $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
     $content.="License:        BSD 3-Clause\n";
