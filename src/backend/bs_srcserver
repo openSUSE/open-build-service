@@ -4558,7 +4558,8 @@ sub update_link_in_service {
   return $xservicemd5 unless $sfiles && $sfiles->{'_link'};
   return $xservicemd5 if $sfiles->{'_link'} && $sfiles->{'_link'} eq $files->{'_link'};	# nothing changed
   # okay, we need to generate a new service commit
-  my $servicemark = genservicemark($rev->{'project'}, $rev->{'package'}, $files, 1);
+  my $servicemark = genservicemark($rev->{'project'}, $rev->{'package'}, $files, undef, 1);
+  return undef unless $servicemark;
   # delete all non-service files unless it's a branch
   if (!$isbranch) {
     for (keys %$sfiles) {
