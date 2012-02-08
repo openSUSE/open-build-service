@@ -82,9 +82,8 @@ class DbPackage < ActiveRecord::Base
           #
           options[:joins] += " LEFT JOIN flags f ON f.db_project_id = prj.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag
           options[:joins] += " LEFT JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
-          options[:joins] += " LEFT JOIN users u ON ur.bs_user_id = u.id"
 
-          cond = "((f.flag = 'access' AND u.login = '#{User.current ? User.current.login : "_nobody_"}') OR ISNULL(f.flag))"
+          cond = "((f.flag = 'access' AND ur.bs_user_id = #{User.current ? User.currentID : User.nobodyID}) OR ISNULL(f.flag))"
           if options[:conditions].nil?
             options[:conditions] = cond
           else
