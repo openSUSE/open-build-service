@@ -2661,6 +2661,8 @@ sub deltafinished {
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   my $code = $js->{'result'} || 'failed';
+  my $status = {'readytime' => $info->{'readytime'} || $info->{'starttime'}};
+  addjobhist($prp, $info, $status, $js, $code);
   if ($code ne 'succeeded') {
     print "  - $job: build failed\n";
     unlink("$dst/logfile");
