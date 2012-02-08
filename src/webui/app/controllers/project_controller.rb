@@ -1044,14 +1044,12 @@ class ProjectController < ApplicationController
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
-      @meta = params[:meta]
-      render :template => "project/edit_meta" and return
+      render :text => message, :status => 400, :content_type => "text/plain"
+      return
     end
 
-    flash[:note] = "Config successfully saved"
     Project.free_cache params[:project]
-    redirect_to :action => :meta, :project => params[:project] and return
+    render :text => "Config successfully saved", :content_type => "text/plain"
   end
 
   def prjconf
