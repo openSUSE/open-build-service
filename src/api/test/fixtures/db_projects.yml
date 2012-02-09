@@ -85,7 +85,7 @@ db_projects_2044:
 db_projects_2045: 
   name: BaseDistro2.0
   created_at: 2005-01-01 00:00:01
-  maintenance_project_id: "2048"
+  maintenance_project_id:
   title: This is another base distro
   updated_at: 2005-01-01 00:00:01
   type_id: 
@@ -97,7 +97,7 @@ db_projects_2045:
 db_projects_2046: 
   name: BaseDistro2.0:LinkedUpdateProject
   created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
+  maintenance_project_id: "2048"
   title: This is another update project for the base distro
   updated_at: 2005-01-01 00:00:01
   type_id: "4"
