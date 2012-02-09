@@ -33,9 +33,6 @@
               </td>
               <td rowspan="<%= release_targets_ng.length %>"><%= incident.value('title') %></td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
-                <% if incident.is_locked? %>
-                  <%= image_tag('icons/lock.png', :alt => 'Locked', :title => 'Locked') %>
-                <% end %>
                 <% rqs_in = incident.requests({:roles => 'target', :states => 'new,review'}) %>
                 <% if rqs_in && rqs_in.length > 0 %>
                   <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
@@ -52,6 +49,10 @@
                     <%= link_to(image_tag('icons/rainbow.png', :alt => text, :title => text), :controller => 'request', :action => 'show', :id => rqs_out[0].value('id')) %>
                   <% else %>
                     <%= link_to(image_tag('icons/rainbow.png', :alt => text, :title => text), :action => 'requests', :project => incident.value('name')) %>
+                  <% end %>
+                <% else %>
+                  <% if incident.is_locked? %>
+                    <%= image_tag('icons/lock.png', :alt => 'Locked', :title => 'Locked') %>
                   <% end %>
                 <% end %>
               </td>
