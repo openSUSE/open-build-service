@@ -33,9 +33,9 @@
       <div class="grid_5 alpha">
         <h4>Information</h4>
         <ul class="clean_list">
-          <li><%= image_tag 'icons/information.png' %> In state <b><%= @state %></b></li>
+          <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
           <% if @superseded_by %>
-            <li><%= image_tag 'icons/exclamation.png' %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
+            <li><%= image_tag('icons/exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
           <% end %>
           <% if @other_open_reviews.length > 0 %>
             <%= render :partial => 'other_open_reviews' %>
@@ -43,21 +43,38 @@
         </ul>
       </div>
 
-      <%#TODO: Only display actions if there's sth. to do for the current user %>
-      <div class="grid_5 omega">
-        <h4>Actions</h4>
-        <ul class="clean_list">
-          <li></li>
-          <% if @my_open_reviews.length > 0 %>
-            <% @my_open_reviews.each do %>
-              <li>
-                accept review...
-              <%# render :partial => 'other_open_reviews' %>
-              </li>
+      <% if !["accepted", "revoked", "superseded"].include?(@state) %>
+        <div class="grid_5 omega">
+          <h4>Actions</h4>
+          <ul class="clean_list">
+            <li></li>
+            <% if @my_open_reviews.length > 0 %>
+              <% @my_open_reviews.each do %>
+                <li>
+                  accept review...
+                <%# render :partial => 'other_open_reviews' %>
+                </li>
+              <% end %>
             <% end %>
-          <% end %>
-        </ul>
-      </div>
+            <% if @state == 'declined' && (@is_author || @is_target_maintainer)%>
+              <li><%= image_tag('icons/arrow-redo.png') %> Reopen request</li>
+            <% end %>
+            <% if ['new', 'review'].include?(@state) %>
+              <% if @is_author %>
+                <li><%= image_tag('icons/arrow-undo.png') %> Revoke request</li>
+                <li><%= image_tag('icons/user_add.png') %> Add review</li>
+              <% elsif @is_target_maintainer %>
+                <li><%= image_tag('icons/accept.png') %> Accept request</li>
+                <li><%= image_tag('icons/cancel.png') %> Decline request</li>
+                <li>
+                  <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add reviewer...'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                  <%= link_to_remote('Add reviewer...', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                </li>
+              <% end %>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
       <div class="clear"></div>
     </div>
   </div>

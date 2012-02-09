@@ -48,14 +48,11 @@ class RequestController < ApplicationController
     @state = @req.state.value("name")
     @is_author = @req.creator().login == session[:login]
     @superseded_by = @req.state.value("superseded_by")
+    @is_target_maintainer = @req.is_target_maintainer?(session[:login])
 
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
     @events = @req.events()
-    if @spider_bot # Don't fetch diff, may take to long
-      @actions = @req.actions(false)
-    else
-      @actions = @req.actions(true)
-    end
+    @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
 
     #TODO: Move to model:
     request_list = session[:requests]
