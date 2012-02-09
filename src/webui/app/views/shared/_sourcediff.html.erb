@@ -66,7 +66,7 @@
             <tr id="diff_view_<%= file_id %>">
               <td align="center" valign="bottom"><%= link_to('Up', :anchor => "diff_headline_#{file_id}") %></td>
               <td colspan="2">
-                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true} %>
+                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :no_border => true} %>
               </td>
             </tr>
           <% else %>
