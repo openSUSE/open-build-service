@@ -136,6 +136,35 @@ class SourceServicesTest < ActionController::IntegrationTest
     get "/source/home:tom/new_package/_service:set_version:pack.spec?expand=1"
     assert_response :success
 
+    # branch and submit requsts
+    post "/source/home:tom/service", :cmd => "branch"
+    assert_response :success
+    put "/source/home:tom:branches:home:tom/service/new_file", "content"
+    assert_response :success
+    wait_for_service( "home:tom:branches:home:tom", "service" )
+    get "/source/home:tom:branches:home:tom/service/_service:set_version:pack.spec?expand=1"
+    assert_response :success
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:tom:branches:home:tom" package="service"/>
+                                     <target project="home:tom" package="service"/>
+                                     <options>
+                                       <sourceupdate>update</sourceupdate>
+                                     </options>
+                                   </action>
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value('id')
+    # accept
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success 
+    get "/source/home:tom:branches:home:tom/service/_service:set_version:pack.spec?expand=1"
+    assert_response :success
+    get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
+    assert_response :success
+
     # remove service
     put "/source/home:tom/service/_service", '<services/>' # empty list
     assert_response :success
@@ -150,6 +179,8 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response 404
 
     # cleanup
+    delete "/source/home:tom:branches:home:tom"
+    assert_response :success
     delete "/source/home:tom/new_package"
     assert_response :success
     delete "/source/home:tom/service"
