@@ -33,7 +33,7 @@
       <div class="grid_5 alpha">
         <h4>Information</h4>
         <ul class="clean_list">
-          <li><%= image_tag 'icons/information.png' %> State <%= @state %></li>
+          <li><%= image_tag 'icons/information.png' %> In state <b><%= @state %></b></li>
           <% if @superseded_by %>
             <li><%= image_tag 'icons/exclamation.png' %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
           <% end %>
