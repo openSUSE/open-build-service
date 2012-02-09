@@ -416,4 +416,24 @@ class BsRequest < ActiveXML::Base
     end
   end
 
+  # Check if 'user' is maintainer in _all_ request targets:
+  def is_target_maintainer?(user)
+    return Rails.cache.fetch("request_#{value('id')}_is_target_maintainer_#{user}", :expires_in => 7.days) do
+      has_target, is_target_maintainer = false, true
+      each_action do |xml|
+        if xml.has_element?(:target) && xml.target.has_attribute?(:project)
+          has_target = true
+          if xml.target.has_attribute?(:package)
+            tpkg = Package.find_cached(xml.target.package, :project => xml.target.project)
+            is_target_maintainer &= tpkg.can_edit?(user) if tpkg
+          else
+            tprj = Project.find_cached(xml.target.project)
+            is_target_maintainer &= tprj.can_edit?(user) if tprj
+          end
+        end
+      end
+      has_target && is_target_maintainer
+    end
+  end
+
 end
