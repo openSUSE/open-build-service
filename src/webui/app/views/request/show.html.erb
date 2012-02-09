@@ -79,6 +79,9 @@
         <% if action[:type] == 'submit' %>
           Submit
           <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg], :short => true} %>
+          <% if action[:srev] && action[:srev] != Package.current_rev(action[:sprj], action[:spkg]) %>
+            (<%= link_to("(revision #{action[:srev]}", :controller => 'package', :action => 'files', :project => action[:sprj], :package => action[:spkg], :rev => action[:srev]) %>)
+          <% end %>
           to
           <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
 
@@ -126,34 +129,54 @@
         <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
           <div class="grid_10 alpha">
             <div class="box show_left show_bottom">
-              <div class="box-header aligncenter"><b>Sourcediff</b></div>
-                <% if action[:type] == 'delete' %>
-                  <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
-                <% else %>
-                  <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
-                <% end %>
+              <div class="box-header aligncenter"><b>Source Diff</b></div>
+              <% if action[:type] == 'delete' %>
+                <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
+              <% else %>
+                <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
+              <% end %>
 
-                <% if action[:sourcediff].length != 1 %>
-                  <h4>
-                    <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
-                    <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
-                  </h4>
-                <% end %>
+              <% if action[:sourcediff].length != 1 %>
+                <h4>
+                  <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
+                  <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
+                </h4>
+              <% end %>
 
-                <%#TODO: Redo source/target link display %>
-                <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}"}) %>
+              <%#TODO: Redo source/target link display %>
+              <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}"}) %>
               <p><%= link_to('Back to top', '#') %></p>
             </div>
           </div>
 
-          <% if sourcediff[:buildresults] %>
-            <div class="grid_6 omega">
-              <div class="box show_right show_bottom">
-                <div class="box-header aligncenter"><b>Build Results</b></div>
-                <%#TODO: Add buildsresult partial on the right %>
+          <div class="grid_6 omega">
+            <div class="box show_right show_bottom">
+              <div class="box-header aligncenter">
+                <b>Build Results</b>
+                <%= image_tag('ajax-loader.gif', :id => "buildresult_spinner_#{action_index}", :class => "hidden") %>
               </div>
+              <% javascript_tag do %>
+                $('#buildresult_spinner_<%= action_index %>').show();
+                $.ajax({
+                  url: '<%= url_for(:controller => :package, :action => :reload_buildstatus) %>',
+                  data: {
+                    <%= "'project': '" + project + "'," unless not defined?(project) %>
+                    <%= "'package': '" + package + "'," unless not defined?(package) %>
+                  },
+                  success: function(data) {
+                    $('#buildresult_display_<%= action_index %>').html(data);
+                  },
+                  error: function(data) {
+                    $('#buildresult_display_<%= action_index %>').html('<p>No build result available</p>');
+                  },
+                  complete: function(data) {
+                    $('#buildresult_spinner_<%= action_index %>').hide();
+                  }
+                });
+              <% end %>
+              <div id="buildresult_display_<%= action_index %>"></div>
             </div>
-          <% end %>
+          </div>
 
           <% if sourcediff[:issues].length > 0 %>
             <div class="grid_6 omega">

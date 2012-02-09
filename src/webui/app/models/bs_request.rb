@@ -343,6 +343,7 @@ class BsRequest < ActiveXML::Base
         if xml.has_element?(:source) && xml.source.has_attribute?(:project)
           action[:sprj] = Project.find_cached(xml.source.project)
           action[:spkg] = Package.find_cached(xml.source.package, :project => xml.source.project) if xml.source.has_attribute?(:package)
+          action[:srev] = xml.source.value('rev') if xml.source.has_attribute?(:rev)
         end
         if xml.has_element?(:target) && xml.target.has_attribute?(:project)
           action[:tprj] = Project.find_cached(xml.target.project)
@@ -354,7 +355,6 @@ class BsRequest < ActiveXML::Base
           action[:name] = "Submit #{action[:spkg].value('name')}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
           action[:creator_is_target_maintainer] = true if self.creator.is_maintainer?(action[:tprj], action[:tpkg])
-          action[:buildresult] = true
 
           if action[:tpkg]
             linkinfo = action[:tpkg].linkinfo
@@ -389,11 +389,9 @@ class BsRequest < ActiveXML::Base
         when 'maintenance_incident' then
           action[:name] = 'Maintenance Incident'
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
-          action[:buildresult] = true
         when 'maintenance_release' then
           action[:name] = "Release #{action[:spkg].value('name').split('.')[0]}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
-          action[:buildresult] = true
         end
         action_index += 1
         actions << action

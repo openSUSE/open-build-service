@@ -57,6 +57,7 @@ class RequestController < ApplicationController
       @actions = @req.actions(true)
     end
 
+    #TODO: Move to model:
     request_list = session[:requests]
     @request_before = nil
     @request_after  = nil
@@ -68,7 +69,6 @@ class RequestController < ApplicationController
       # will be nul for after end
       @request_after = request_list[index+1]
     end
-
   end
 
   def sourcediff
