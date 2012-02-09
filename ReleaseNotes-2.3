@@ -75,11 +75,15 @@ headers regardless to it's configuration. Please use apache2 from openSUSE:Tools
 project to get this fixed for now.
 Also the patched version of rubygem-passenger from openSUSE:Tools project is recommended.
 
-Known Regressions to 2.1:
-=========================
+Known incompatible changes to OBS 2.1:
+======================================
 
 * The experimental marked _patchinfo file format has changed incompatible.
   It is considered to be stable now.
+
+* Building arm, mips or sh4 repositories on i586 or x86_64 hosts require an additional
+  line in project config, defining the host architecture. (eg. Hostarch: x86_64)
+  (Native build of these architectures is working now in return)
 
 Features:
 =========
@@ -95,6 +99,7 @@ Features:
   - review of requests by project or package maintainers is possible now (FATE #310806)
   - better Cross-Site Scripting (XSS) protection
   - larger number of request handling improvements
+  - tracking of bugzilla or CVE issues in source changes and tracking servers
 
 * backend:
   - dispatcher got rewritten having a more clever sort order based on defined
@@ -150,7 +155,7 @@ Requirements:
 * The OBS server should not run on a system with less than 2GB memory. 
   4GB is recommended, esp. when the same system is also building packages.
 
-* Use osc 0.133 or later to get access to the new features.
+* Use osc 0.134 or later to get access to the new features.
 
 * Usage of Ruby on Rails version 2.3.14 is recommended.
 
