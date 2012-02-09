@@ -85,6 +85,9 @@ class RequestController < ApplicationController
       if ['submit', 'delete', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
         contains_only_undiffable_actions = false
       end
+      if ['submit', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
+        project_wide_delete_request = false
+      end
 
       @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
       target_pkg_name = action.target.value :package
