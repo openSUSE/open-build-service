@@ -4588,7 +4588,8 @@ sub sourcecopy {
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
-  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service({ %$orev }) : lsrev($orev);
+  my $orev_srcmd5 = $orev->{'srcmd5'};  # so that we can restore it later
+  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev) : lsrev($orev);
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   my $autosimplifylink;
@@ -4636,6 +4637,7 @@ sub sourcecopy {
   delete $cgi->{'vrev'};
 
   if ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
+    $orev->{'srcmd5'} = $orev_srcmd5;	# back to unexpanded
     my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$autosimplifylink->{'patches'}->{''} || []};
     if ($isbranch) {
       # update base rev so that there are no changes
