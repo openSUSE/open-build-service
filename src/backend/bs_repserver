@@ -1148,7 +1148,7 @@ sub workerstatus {
   @a = ls($jobsdir) unless $cgi->{'scheduleronly'};
   for my $a (@a) {
     next unless -d "$jobsdir/$a";
-    my @d = grep {!/^\./ && !/:(?:dir|new)$/} ls("$jobsdir/$a");
+    my @d = grep {!/^\./ && !/:(?:dir|new|cross)$/} ls("$jobsdir/$a");
     my %d = map {$_ => 1} @d;
     for my $d (grep {/:status$/} @d) {
       delete $d{$d};

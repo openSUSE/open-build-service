@@ -48,6 +48,7 @@ use Build;
 use BSDB;
 use Meta;
 use BSSolv;
+use BSCando;
 
 use strict;
 
@@ -90,6 +91,10 @@ if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
 }
 
 my $myarch = $ARGV[0] || 'i586';
+
+if (!$BSCando::knownarch{$myarch}) {
+  die("Architecture '$myarch' is unknown, please adapt BSCando.pm\n");
+}
 
 my $myjobsdir = "$jobsdir/$myarch";
 my $myeventdir = "$eventdir/$myarch";
@@ -506,6 +511,17 @@ sub killbuilding {
   }
 }
 
+sub add_crossmarker {
+  my ($bconf, $job) = @_;
+  my $hostarch = $bconf->{'hostarch'};
+  return if $hostarch eq $myarch;
+  return unless $BSCando::knownarch{$hostarch};
+  my $marker = "$jobsdir/$hostarch/$job:$hostarch:cross";
+  return if -e $marker;
+  mkdir_p("$jobsdir/$hostarch");
+  BSUtil::touch($marker);
+}
+
 #
 # set_building  - create a new build job
 #
@@ -536,8 +552,11 @@ sub set_building {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
-  return "$job-$srcmd5" if -s "$myjobsdir/$job-$srcmd5";
-  return $job if -s "$myjobsdir/$job";
+  if (-s "$myjobsdir/$job-$srcmd5") {
+    add_crossmarker($bconf, "$job-$srcmd5") if $bconf->{'hostarch'};
+    return "$job-$srcmd5";
+  }
+  return $job if -s "$myjobsdir/$job";	# obsolete
   my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $job = "$job-$srcmd5";
 
@@ -695,6 +714,7 @@ sub set_building {
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+  add_crossmarker($bconf, $job) if $bconf->{'hostarch'};
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
   $ourjobs{$job} = 1;
@@ -5256,6 +5276,12 @@ while(1) {
     $prpfinished{$prp} = 1;
     next;
   }
+  if ($bconf->{'hostarch'} && !$BSCando::knownarch{$bconf->{'hostarch'}}) {
+    print "  - $prp: bad hostarch ($bconf->{'hostarch'})\n";
+    set_repo_state($prp, 'broken', "bad hostarch ($bconf->{'hostarch'})");
+    $prpfinished{$prp} = 1;
+    next;
+  }
   print "  - $prp\n";
 
   my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
@@ -5811,6 +5837,7 @@ while(1) {
       if (-s "$myjobsdir/$job") {
 	# print "      - $packid ($packtype)\n";
 	# print "        already scheduled\n";
+	add_crossmarker($job) if $bconf->{'hostarch'};
         my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
 	$building{$packid} = $job;
 	$notready{$pname} = 1 if $useforbuildenabled;
