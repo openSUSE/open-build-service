@@ -5837,7 +5837,7 @@ while(1) {
       if (-s "$myjobsdir/$job") {
 	# print "      - $packid ($packtype)\n";
 	# print "        already scheduled\n";
-	add_crossmarker($job) if $bconf->{'hostarch'};
+	add_crossmarker($bconf, $job) if $bconf->{'hostarch'};
         my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
 	$building{$packid} = $job;
 	$notready{$pname} = 1 if $useforbuildenabled;
