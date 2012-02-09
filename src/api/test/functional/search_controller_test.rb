@@ -140,7 +140,28 @@ class SearchControllerTest < ActionController::IntegrationTest
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
     assert repos.include?('HiddenProject/nada')
+  end
 
+  def get_package_count
+    return ActiveXML::Base.new(@response.body).each_package.length
+  end
+
+  def test_pagination
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package"
+    assert_response :success
+    assert_tag :tag => 'collection'
+    all_packages_count = get_package_count
+
+    get "/search/package", :limit => 3
+    assert_response :success
+    assert_tag :tag => 'collection'
+    assert get_package_count == 3
+
+    get "/search/package", :offset => 3
+    assert_response :success
+    assert_tag :tag => 'collection'
+    assert get_package_count == (all_packages_count - 3)
   end
 
 end

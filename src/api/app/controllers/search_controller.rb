@@ -55,7 +55,7 @@ class SearchController < ApplicationController
     output << "<collection>\n"
 
     begin
-      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order).merge({"render_all" => render_all})) do |item|
+      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order, :limit, :offset).merge({"render_all" => render_all})) do |item|
         if item.kind_of? DbPackage or item.kind_of? DbProject
           # already checked in this case
         elsif item.kind_of? Repository

@@ -221,10 +221,25 @@ class XpathEngine
       @sort_order = @attribs[@base_table][opt[:sort_by]][:cpart] + " " + opt[:order].to_s.upcase
     end
 
+    # Pagination parameters:
+    @limit = opt['limit'].to_i if opt['limit']
+    @offset = opt['offset'].to_i if opt['offset']
+
     #logger.debug "-- cond_ary: #{cond_ary.inspect} --"
     model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                    :conditions => cond_ary, :order => @sort_order ) do |item|
-      yield(item)
+                    :conditions => cond_ary, :order => @sort_order) do |item|
+      # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
+      # and the :start param only works on primary keys, but we're in a block so we can control
+      # what we 'yield' after we constructed our (presumably) huge table with find_each...
+      if @offset && @offset > 0
+        @offset -= 1
+      else
+        yield(item)
+        if @limit
+          @limit -= 1
+          break if @limit == 0
+        end
+      end
     end
   end
 
