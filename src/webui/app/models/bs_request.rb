@@ -358,13 +358,23 @@ class BsRequest < ActiveXML::Base
 
           if action[:tpkg]
             linkinfo = action[:tpkg].linkinfo
-            if linkinfo
-              action[:forward] ||= []
-              action[:forward] << {:project => linkinfo.projet, :package => linkinfo.package, :type => 'link'}
-            end
             action[:tpkg].developed_packages.each do |dev_pkg|
               action[:forward] ||= []
               action[:forward] << {:project => dev_pkg.project, :package => dev_pkg.name, :type => 'devel'}
+            end
+            if linkinfo
+              lprj, lpkg = linkinfo.project, linkinfo.package
+              link_is_already_devel = false
+              action[:forward].each do |forward|
+                if forward[:project] == lprj && forward[:package] == lpkg
+                  link_is_already_devel = true
+                  break
+                end
+              end
+              if !link_is_already_devel
+                action[:forward] ||= []
+                action[:forward] << {:project => linkinfo.project, :package => linkinfo.package, :type => 'link'}
+              end
             end
           end
 

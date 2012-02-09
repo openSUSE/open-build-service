@@ -49,12 +49,12 @@ class RequestController < ApplicationController
     @is_author = @req.creator().login == session[:login]
     @superseded_by = @req.state.value("superseded_by")
     @is_target_maintainer = @req.is_target_maintainer?(session[:login])
+    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer)
 
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
     @events = @req.events()
     @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
 
-    #TODO: Move to model:
     request_list = session[:requests]
     @request_before = nil
     @request_after  = nil

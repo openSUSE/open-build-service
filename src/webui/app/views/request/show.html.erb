@@ -23,14 +23,15 @@
 <div class="grid_16 box box-shadow alpha omega">
   <div class="grid_10 alpha">
     <div class="box show_left show_bottom">
-      <h3><%= @pagetitle %></h3>
-      <% if @req.value(:description).empty? %>
-        <p><i>No request description</i></p>
-      <% else %>
-        <p id="expandable_comment"><%= format_comment(@req.value(:description)) %></p>
-      <% end %>
-
-      <div class="grid_5 alpha">
+      <div class="grid_6 alpha omega">
+        <h3><%= @pagetitle %></h3>
+        <% if @req.value(:description).empty? %>
+          <p><i>No request description</i></p>
+        <% else %>
+          <p id="expandable_comment"><%= format_comment(@req.value(:description)) %></p>
+        <% end %>
+      </div>
+      <div class="grid_4 alpha omega">
         <h4>Information</h4>
         <ul class="clean_list">
           <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
@@ -38,44 +39,91 @@
             <li><%= image_tag('icons/exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
           <% end %>
           <% if @other_open_reviews.length > 0 %>
-            <%= render :partial => 'other_open_reviews' %>
+            <% @other_open_reviews.each do |open_review| %>
+              <li>
+                <%= image_tag('icons/exclamation.png') %>
+                Open review for
+                <% if open_review.has_attribute?(:by_user) %>
+                  <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => open_review.value(:by_user), :short => true} %>
+                <% elsif open_review.has_attribute?(:by_group) %>
+                  <%= open_review.value(:by_group) %>
+                <% elsif open_review.has_attribute?(:by_project) %>
+                  <% if open_review.has_attribute?(:by_package) %>
+                    <%= link_to("#{open_review.value('by_project')} / #{open_review.value('by_package')}", :controller => 'package', :actio => 'show', :project => open_review.value(:by_project), :package => open_review.value(:by_package)) %>
+                  <% else %>
+                    <%= link_to(open_review.value(:by_project), :controller => 'project', :action => 'show', :project => open_review.value( by_project)) %>
+                  <% end %>
+                <% end %>
+              </li>
+            <% end %>
           <% end %>
         </ul>
       </div>
+      <div class="clear"></div>
+    </div>
 
-      <% if !["accepted", "revoked", "superseded"].include?(@state) %>
-        <div class="grid_5 omega">
-          <h4>Actions</h4>
+    <div class="box show_left">
+      <div class="box-header header-tabs">
+        <ul id="review_descision_select">
+          <li class="<%= 'selected' if @my_open_reviews.length > 0 %>">
+            <a class="review_descision_link" id="review_descision_link_0" href="#">My Reviews</a>
+          </li>
+          <li class="<%= 'selected' if @my_open_reviews.length == 0 %>">
+            <a class="review_descision_link" id="review_descision_link_1" href="#">My Pending Descision</a>
+          </li>
+        </ul>
+      </div>
+      <% javascript_tag do %>
+        $('.review_descision_link').click(function (event) {
+          $('#review_descision_select li.selected').attr('class', '');
+          $(event.target).parent().attr('class', 'selected')
+          $('.review_descision_display').hide();
+          index = event.target.id.split('review_descision_link_')[1]
+          $('#review_descision_display_' + index).show();
+        });
+      <% end %>
+
+      <div class="review_descision_display <%= 'hidden' if @my_open_reviews.length == 0 %>" id="review_descision_display_0">
+        <% if @my_open_reviews.length > 0 %>
           <ul class="clean_list">
-            <li></li>
-            <% if @my_open_reviews.length > 0 %>
-              <% @my_open_reviews.each do %>
-                <li>
-                  accept review...
-                <%# render :partial => 'other_open_reviews' %>
-                </li>
-              <% end %>
-            <% end %>
-            <% if @state == 'declined' && (@is_author || @is_target_maintainer)%>
-              <li><%= image_tag('icons/arrow-redo.png') %> Reopen request</li>
-            <% end %>
-            <% if ['new', 'review'].include?(@state) %>
-              <% if @is_author %>
-                <li><%= image_tag('icons/arrow-undo.png') %> Revoke request</li>
-                <li><%= image_tag('icons/user_add.png') %> Add review</li>
-              <% elsif @is_target_maintainer %>
-                <li><%= image_tag('icons/accept.png') %> Accept request</li>
-                <li><%= image_tag('icons/cancel.png') %> Decline request</li>
-                <li>
-                  <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add reviewer...'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-                  <%= link_to_remote('Add reviewer...', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-                </li>
-              <% end %>
+            <% @my_open_reviews.each do %>
+              <li> accept review...  </li>
             <% end %>
           </ul>
-        </div>
-      <% end %>
-      <div class="clear"></div>
+        <% else %>
+          <p><i>There are currently no open reviews for you!</i></p>
+        <% end %>
+        <% if @can_add_reviews %>
+          <p>
+            <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review for someone else'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+            <%= link_to_remote('Add a review for someone else', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+          </p>
+        <% end %>
+      </div>
+      <div class="review_descision_display <%= 'hidden' if @my_open_reviews.length > 0 %>" id="review_descision_display_1">
+        <% if ['new', 'review', 'declined'].include?(@state) && @is_target_maintainer || @is_author %>
+          <% form_tag(:action => "changerequest") do %>
+            <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x1', :style => "width: 99%") %></p>
+            <p>
+              <%= hidden_field_tag(:id, @id) %>
+              <% if ['new', 'review'].include?(@state) && @is_target_maintainer %>
+                <% if @state == 'review' %>
+                  <%= submit_tag 'Accept request', :name => 'accepted', :confirm => 'Do you really want to approve this request, despite of open review requests?' %>
+                <% else %>
+                  <%= submit_tag 'Accept request', :name => 'accepted' %>
+                <% end %>
+                <%= submit_tag 'Decline request', :name => 'declined' if !@is_author %>
+              <% end %>
+              <% if ['new', 'review', 'declined'].include?(@state) && @is_author %>
+                <%= submit_tag 'Revoke request', :name => 'revoked' %>
+              <% end %>
+              <% if @state == 'declined' && @is_author || @is_target_maintainer %>
+                <%= submit_tag 'Reopen request', :name => 'new'%>
+              <% end %>
+            </p>
+          <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -124,7 +172,7 @@
             <%# TODO: Make this work for each submit action individually: %>
             <br/><%= check_box_tag(:add_submitter_as_maintainer) %> Add
             <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator().login, :no_icon => true} %> as maintainer for
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %> if request is accepted
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
             <br/>
           <% end %>
 
@@ -133,11 +181,11 @@
               <% index = 0 %>
               <% if forward[:type] == 'link' %>
                 <%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}") %> Forward to linked package
-                <%= link_to("#{forward[:project]} / #{forward[:package]}", :controller => 'package', :action => 'show', :project => forward[:project], :package => forward[:package]) %><br/>
+                <%= render :partial => 'shared/project_or_package_link', :locals => {:project => forward[:project], :package => forward[:package], :short => true} %><br/>
               <% else %>
                 <%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true) %> Forward to developed package
-                <%= link_to("#{forward[:project]} / #{forward[:name]}", :controller => 'package', :action => 'show', :project => forward[:project], :package => forward[:name]) %><br/>
-                <% index += 1 %>>
+                <%= render :partial => 'shared/project_or_package_link', :locals => {:project => forward[:project], :package => forward[:package], :short => true} %><br/>
+                <% index += 1 %>
               <% end %>
             <% end %>
           <% end %>
@@ -180,7 +228,7 @@
       <% if action[:sourcediff] %>
         <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
           <div class="grid_10 alpha">
-            <div class="box show_left show_bottom">
+            <div class="box show_left">
               <div class="box-header aligncenter"><b>Source Diff</b></div>
               <% if action[:type] == 'delete' %>
                 <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
@@ -228,28 +276,23 @@
               <% end %>
               <div id="buildresult_display_<%= action_index %>"></div>
             </div>
-          </div>
 
-          <% if sourcediff[:issues].length > 0 %>
-            <div class="grid_6 omega">
+            <% if sourcediff[:issues].length > 0 %>
               <div class="box show_right show_bottom">
                 <div class="box-header aligncenter"><b>Mentioned Issues</b></div>
                 <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
               </div>
-            </div>
-          <% end %>
+            <% end %>
 
-          <% if sourcediff[:rpmlint] %>>
-            <div class="grid_6 omega">
+            <% if sourcediff[:rpmlint] %>>
               <div class="box show_right">
                 <div class="box-header aligncenter"><b>Rpmlint Output</b></div>
                 <%#TODO: Add issues partial on the right %>
               </div>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
         <% end %>
       <% end %>
     </div>
   <% end %>
 </div>
-
