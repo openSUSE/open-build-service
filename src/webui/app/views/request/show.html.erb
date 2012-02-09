@@ -3,9 +3,9 @@
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @id] %>
 
 <% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete', 'jquery.tooltip' %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
 <% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.expander.min', 'jquery.tooltip.min' %>
+<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.expander.min' %>
 
 <% content_for :ready_function do %>
   $('#expandable_comment').expander({slicePoint: 320, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
@@ -42,9 +42,12 @@
           <% end %>
         </ul>
       </div>
+
+      <%#TODO: Only display actions if there's sth. to do for the current user %>
       <div class="grid_5 omega">
         <h4>Actions</h4>
         <ul class="clean_list">
+          <li></li>
           <% if @my_open_reviews.length > 0 %>
             <% @my_open_reviews.each do %>
               <li>
@@ -141,9 +144,19 @@
             <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
           </b>
         <% elsif action[:type] == 'maintenance_incident' %>
-
+          <b>
+            Start new incident from
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg]} %>
+            in
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
+          </b>
         <% elsif action[:type] == 'maintenance_release' %>
-
+          <b>
+            Release
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg]} %>
+            to
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
+          </b>
         <% end %>
       </p>
 
