@@ -2105,12 +2105,14 @@ sub getbuildinfo {
   my @vmdeps = Build::get_vminstalls($bconf);
   my @cbpdeps = Build::get_cbpreinstalls($bconf); # crossbuild preinstall
   my @cbdeps = Build::get_cbinstalls($bconf);  # crossbuild install
+  my @sb2deps = Build::get_sb2installs($bconf);  # sb2 install
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
   my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %cbpdeps = map {$_ => 1} @cbpdeps;
   my %cbdeps = map {$_ => 1} @cbdeps;
+  my %sb2deps = map {$_ => 1} @sb2deps;
   my %edeps = map {$_ => 1} @edeps;
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
@@ -2202,7 +2204,7 @@ sub getbuildinfo {
       push @{$allnames{$n}}, $p;
       $dep2pkg{$n} = $p;
     }
-    @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
+    @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps, @sb2deps);
     for (@bdeps) {
       for my $p (@{$allnames{$_} || []}) {
 	my $b = {'name' => $_};
@@ -2232,7 +2234,7 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
 
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps, @sb2deps);
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
@@ -2249,6 +2251,7 @@ sub getbuildinfo {
     $b->{'vminstall'} = 1 if $vmdeps{$_};
     $b->{'cbpreinstall'} = 1 if $cbpdeps{$_};
     $b->{'cbinstall'} = 1 if $cbdeps{$_};
+    $b->{'sb2install'} = 1 if $sb2deps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
     $b->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});

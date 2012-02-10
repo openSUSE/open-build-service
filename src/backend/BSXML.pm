@@ -465,6 +465,7 @@ our $buildinfo = [
 	'vminstall',
 	'cbpreinstall',
 	'cbinstall',
+	'sb2install',
 	'runscripts',
 	'notmeta',
 	'noinstall',
