@@ -335,8 +335,15 @@ class StatusController < ApplicationController
             end
           end
 
+	  # expansion error
+	  if buildinfo.has_element? :error
+             missingdeps << buildinfo.value(:error)
+	     buildcode='failed' 
+	  end
+
           buildinfo.each_bdep do |b|
             unless b.value(:preinstall)
+	      logger.debug "B #{b.dump_xml}"
               unless packages.has_key? b.value(:name)
                 missingdeps << b.name
               end
@@ -385,7 +392,7 @@ class StatusController < ApplicationController
         if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
           buildcode='failed' # has to be
         end
- 
+	
         unless buildcode
           buildcode="unknown"
           begin
