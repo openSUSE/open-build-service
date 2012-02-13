@@ -8,6 +8,17 @@ class MainController < ApplicationController
     @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
     unless @spider_bot
       @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+      # first time login ?
+      if @user and not find_cached(Project, "home:#{session[:login]}")
+        if @user.is_admin?
+          # go first to server configuration, afterwards to home directory creation
+          redirect_to :controller => :configuration, :action => :connect_instance
+          return
+        else
+          redirect_to :controller => :project, :action => :new, :project => "home:#{login}"
+          return
+        end
+      end
     end
   rescue ActiveXML::Transport::UnauthorizedError => e
     @anonymous_forbidden = true
