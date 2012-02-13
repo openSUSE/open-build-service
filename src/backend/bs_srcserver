@@ -5881,8 +5881,7 @@ sub postrequest {
     $req->{'state'} = {'name' => 'review'};
     $req->{'state'}->{'who'} = $cgi->{'user'};
     $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
-    my @lt = localtime(time());
-    $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
+    $req->{'state'}->{'when'} = $mytime;
     if ($cgi->{'by_user'}) {
       push @{$req->{'review'}}, { 'state' => 'new', 'by_user' => $cgi->{'by_user'}, 'comment' => $cgi->{'comment'} };
     } elsif ($cgi->{'by_group'}) {
@@ -6666,12 +6665,12 @@ my $dispatches = [
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
   '/source/$project/$package view=info rev? linkrev? parse:bool? repository? arch?' => \&getpackagesourceinfo,
-  '/source/$project/$package rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
+  '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? deleted:bool?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
-  '/source/$project/$package/$filename rev? expand:bool? meta:bool?' => \&getfile,
+  '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool?' => \&getfile,
   'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
 
