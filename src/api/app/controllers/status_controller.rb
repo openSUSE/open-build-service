@@ -85,8 +85,6 @@ class StatusController < ApplicationController
       data = nil
     end
     data=ActiveXML::Base.new(data || update_workerstatus_cache)
-    #accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
-    #accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
     data.each_building do |b|
       prj = DbProject.find_by_name(b.project)
       # no prj -> we are not allowed
@@ -95,6 +93,13 @@ class StatusController < ApplicationController
         b.set_attribute('project', "---")
         b.set_attribute('repository', "---")
         b.set_attribute('package', "---")
+      end
+    end
+    # FIXME2.5: The current architecture model is a gross hack, not connected at all 
+    #           to the backend config.
+    data.each_scheduler do |s|
+      if a=Architecture.find_by_name(s.arch)
+        a.available=true
       end
     end
     send_data data.dump_xml

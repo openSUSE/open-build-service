@@ -3,6 +3,13 @@ puts "Seeding architectures table..."
 ["armv4l", "armv5l", "armv6l", "armv7l", "armv5el", "armv6el", "armv7el", "armv8el", "hppa", "i586", "i686", "ia64", "local", "mips", "mips32", "mips64", "ppc", "ppc64", "s390", "s390x", "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64"].each do |arch_name|
   Architecture.find_or_create_by_name :name => arch_name
 end
+# following our default config
+["armv7l", "i586", "x86_64"].each do |arch_name|
+  a=Architecture.find_by_name(arch_name)
+  a.available=true
+  a.recommended=true
+  a.save
+end
 
 puts "Seeding roles table..."
 admin_role      = Role.find_or_create_by_title :title => "Admin", :global => true
