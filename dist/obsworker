@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (c) 2007, Novell Inc.
+# Copyright (c) 2007-2011, SUSE Inc.
 #
 # Author: adrian@suse.de
 #
@@ -21,7 +21,10 @@
 . /etc/rc.status
 
 . /etc/sysconfig/proxy
-. /etc/sysconfig/obs-server
+if test -e /etc/sysconfig/obs-server; then
+  # optional on workers
+  . /etc/sysconfig/obs-server
+fi
 # This file may still exist from OBS 2.1 and before.
 if test -e /etc/sysconfig/obs-worker; then
 . /etc/sysconfig/obs-worker

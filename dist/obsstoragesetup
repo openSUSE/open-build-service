@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (c) 2010, Novell Inc.
+# Copyright (c) 2010-12, SUSE Inc.
 #
 # Author: adrian@suse.de
 #
@@ -22,7 +22,9 @@
 . /etc/rc.status
 
 # package or appliance defaults
-source /etc/sysconfig/obs-server
+if [ -e /etc/sysconfig/obs-server ]; then
+  source /etc/sysconfig/obs-server
+fi
 
 # instance defaults
 if [ -e /etc/buildhost.config ]; then
