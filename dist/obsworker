@@ -116,13 +116,6 @@ if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
         if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
             VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
         fi
-    else
-        echo "Warning: VM build enabled but either"
-        echo "         OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE or "
-        echo "         OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE are not set."
-        echo ""
-        echo "Worker startup failed"
-        exit 1
     fi
 fi
 
