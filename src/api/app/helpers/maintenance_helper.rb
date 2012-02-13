@@ -741,6 +741,7 @@ module MaintenanceHelper
         path = "/source/#{URI.escape(tpkg.db_project.name)}/#{URI.escape(tpkg.name)}"
         oproject = p[:link_target_project].class == DbProject ? p[:link_target_project].name : p[:link_target_project]
         myparam = { :cmd => "branch",
+                    :noservice => "1",
                     :oproject => oproject,
                     :opackage => p[:package],
                     :user => @http_user.login,

@@ -1452,7 +1452,7 @@ class RequestController < ApplicationController
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
-              r = Suse::Backend.post "/source/#{CGI.escape(action.target.project)}/#{CGI.escape(action.target.package)}?cmd=branch&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+              r = Suse::Backend.post "/source/#{CGI.escape(action.target.project)}/#{CGI.escape(action.target.package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
             end
           end
 
@@ -1472,6 +1472,7 @@ class RequestController < ApplicationController
             h[:comment] = "initialized devel package after accepting #{params[:id]}"
             h[:requestid] = params[:id]
             h[:keepcontent] = "1"
+            h[:noservice] = "1"
             h[:oproject] = action.target.project
             h[:opackage] = action.target.package
             cp_path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}"
