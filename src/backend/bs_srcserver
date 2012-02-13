@@ -4739,7 +4739,7 @@ sub sourcebranch {
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   my $rev = addrev($cgi, $projid, $packid, $lfiles);
-  runservice($cgi, $rev, $lfiles);
+  runservice($cgi, $rev, $lfiles) unless $cgi->{'noservice'};
   delete $rev->{'project'};
   delete $rev->{'package'};
   BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
@@ -6654,7 +6654,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool?' => \&sourcecopy,
-  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool?' => \&sourcebranch,
+  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:? time:num?' => \&undeletepackage,
