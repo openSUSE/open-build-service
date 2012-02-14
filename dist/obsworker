@@ -130,7 +130,7 @@ case "$1" in
 #        echo "zombie on"       > $screenrc
         echo "caption always" >> $screenrc
 
-        if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
+        if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
             NUM="$OBS_WORKER_INSTANCES"
         else
             # start one build backend per CPU
@@ -168,7 +168,7 @@ case "$1" in
         OBS_WORKER_OPT1="$OBS_WORKER_OPT"
         I=0
         while test "$NUM" -gt "$I"; do
-            if [ "$OBS_WORKER_PORTBASE" -gt 0 ]; then
+            if [ 0"$OBS_WORKER_PORTBASE" -gt 0 ]; then
                 port="--port $((OBS_WORKER_PORTBASE + I))"
             else
                 port=""
