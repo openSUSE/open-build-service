@@ -69,9 +69,7 @@ chmod 0755 "$MOUNTDIR/$INNERSCRIPT" "$MOUNTDIR/${INNERSCRIPT}.command"
 # construct jail
 LXC_CONF="/obs.service.$$"
 echo "lxc.utsname = obs.service.$$" > $LXC_CONF
-if [ "$WITH_NET" == "1" ] ; then
-  mount -t proc proc $MOUNTDIR/proc
-else
+if [ "$WITH_NET" != "1" ] ; then
   echo "lxc.network.type = empty" >> $LXC_CONF
   echo "lxc.network.flags = up" >> $LXC_CONF
 fi
@@ -79,6 +77,7 @@ fi
 echo "lxc.tty = 1" >> $LXC_CONF
 #echo "lxc.mount = /etc/fstab" >> $LXC_CONF
 echo "lxc.rootfs = $MOUNTDIR" >> $LXC_CONF
+mount -t proc proc $MOUNTDIR/proc
 
 lxc-info -n obs.service.jail.$$ >& /dev/null && lxc-destroy -n obs.service.jail.$$ >& /dev/null
 RETURN="0"
@@ -101,9 +100,7 @@ if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f | wc -l` -gt 0 ]; then
 fi
 
 # cleanup
-if [ "$WITH_NET" == "1" ] ; then
-  umount "$MOUNTDIR/proc"
-fi
+umount "$MOUNTDIR/proc"
 umount "$MOUNTDIR$INNERSRCDIR"
 umount "$MOUNTDIR$INNEROUTDIR"
 umount "$MOUNTDIR"
