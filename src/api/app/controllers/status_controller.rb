@@ -225,7 +225,10 @@ class StatusController < ApplicationController
     end
 
     fileinfo.each_requires_ext do |r|
-      unless r.has_element? :providedby
+      if r.has_element? :providedby
+        p = r.providedby
+        ret << p.value(:name)
+      else
         ret << "#{file}:#{r.dep}"
       end
     end
@@ -380,7 +383,9 @@ class StatusController < ApplicationController
               return
             end
             if md && md.size > 0
-              missingdeps << md
+              md.each do |p|
+                missingdeps << p unless packages.has_key? p
+              end
             end
           end
         end
@@ -429,7 +434,7 @@ class StatusController < ApplicationController
           end
         end
         outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
-        outputxml << " missing='#{missingdeps.join(',').to_xs}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
+        outputxml << " missing='#{missingdeps.uniq.join(',').to_xs}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
         outputxml << "/>\n"
       end
       outputxml << " </repository>\n"
