@@ -733,7 +733,43 @@ end
     assert_response :success
   end
 
-  def test_auto_revoke_when_source_gets_removed
+  def test_auto_revoke_when_source_gets_removed_maintenance_incident
+    prepare_request_with_user 'tom', 'thunder'
+    post "/source/kde4/kdebase", :cmd => :branch
+    assert_response :success
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id1 = node.value(:id)
+
+    prepare_request_with_user 'king', 'sunflower'
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response :success
+
+    # delete projects
+    prepare_request_with_user 'tom', 'thunder'
+    delete "/source/home:tom:branches:kde4"
+    assert_response :success
+
+    # request got automatically revoked
+    get "/request/#{id1}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+
+    # test revoke
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response 403
+  end
+
+  def test_auto_revoke_when_source_gets_removed_submit
     prepare_request_with_user 'tom', 'thunder'
     post "/source/kde4/kdebase", :cmd => :branch
     assert_response :success
