@@ -223,7 +223,6 @@ class StatusController < ApplicationController
     if fileinfo.release.to_s != release
       raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
     end
-
     fileinfo.each_requires_ext do |r|
       if r.has_element? :providedby
         p = r.providedby
@@ -351,7 +350,6 @@ class StatusController < ApplicationController
 
           buildinfo.each_bdep do |b|
             unless b.value(:preinstall)
-	      logger.debug "B #{b.dump_xml}"
               unless packages.has_key? b.value(:name)
                 missingdeps << b.name
               end
@@ -384,7 +382,7 @@ class StatusController < ApplicationController
             end
             if md && md.size > 0
               md.each do |p|
-                missingdeps << p unless packages.has_key? p
+                missingdeps << p unless (packages.has_key?(p) || filename_arch != arch)
               end
             end
           end
