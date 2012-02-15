@@ -1,4 +1,39 @@
 require 'nokogiri'
+require 'json'
+
+# adding a function to the ruby hash
+class Hash
+  def elements(name)
+    unless name.kind_of? String
+      raise ArgumentError, "expected string"
+    end
+    return unless self.has_key? name
+    unless self[name].kind_of? Array
+      yield self[name]
+      return
+    end
+    self[name].each do |n|
+      yield n
+    end
+  end
+
+  def value(name)
+    return self[name.to_s]
+  end
+
+  def has_element?(name)
+    return self.has_key? name.to_s
+  end
+
+  def method_missing( symbol, *args, &block )
+    if args.size > 0 || !block.nil?
+      raise RuntimeError, "das geht zuweit"
+    end
+    
+    ActiveXML::Config.logger.debug "method_missing -#{symbol}- #{block.inspect}"
+    return self[symbol.to_s]
+  end
+end
 
 module ActiveXML
 
@@ -247,9 +282,11 @@ module ActiveXML
     def to_hash
       options = @@hash_options[self.class.name] || {}
       options = {:key_attr => [:name], :force_array => [:entry] }.merge(options)
-      logger.debug "to_hash #{options.inspect} #{self.dump_xml}"
-      ret = to_hash_element(_data, options)
-      logger.debug "after to_hash #{ret.inspect}"
+      #logger.debug "to_hash #{options.inspect} #{self.dump_xml}"
+      ret = nil
+      x = Benchmark.measure { ret = to_hash_element(_data, options) }
+      #logger.debug "after to_hash #{JSON.pretty_generate(ret)}"
+      #logger.debug "took #{x}"
       ret
     end
     
