@@ -1424,7 +1424,7 @@ class ProjectController < ApplicationController
     if @spider_bot
       @incidents = []
     else
-      @incidents = @project.maintenance_incidents(params[:type] || 'open')
+      @incidents = @project.maintenance_incidents(params[:type] || 'open', {:limit => 20})
     end
   end
 
@@ -1432,8 +1432,12 @@ class ProjectController < ApplicationController
     if @spider_bot || !request.xhr?
       render :text => 'no ajax', :status => 400 and return
     end
-    incidents = @project.maintenance_incidents(params[:type] || 'open')
-    render :partial => 'shared/incidents', :locals => { :incidents => incidents }
+    incidents = @project.maintenance_incidents(params[:type] || 'open', params.slice(:limit, :offset))
+    if params[:append]
+      render :partial => 'shared/incident_table_entries', :locals => { :incidents => incidents }
+    else
+      render :partial => 'shared/incident_table', :locals => { :incidents => incidents }
+    end
   end
 
   private

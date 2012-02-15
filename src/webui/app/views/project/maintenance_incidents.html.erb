@@ -17,17 +17,50 @@
       url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
       data: {
         'type': $('#incident_type_select')[0].value,
+        'limit': 20,
       },
       success: function(data) {
         $('#incident_display').html(data);
-          if (data.indexOf('No incidents') == -1) {
-            incident_count = $('#incident_table tbody').children().length;
-            $('#incident_count').html('(' + incident_count.toString() + ')');
-          } else {
-            $('#incident_count').html('');
-          }
+        if (data.indexOf('No incidents') == -1) {
+          incident_count = $('#incident_table tbody').children().length;
+          $('#incident_count').html('(' + incident_count.toString() + ')');
+        } else {
+          $('#incident_count').html('');
+        }
+      },
+      complete: function(data) {
         $('#spinner').hide();
-      }
+        $('#more_incidents_link').show()
+      },
+    });
+  }
+
+  function appendIncidents() {
+    old_incident_count = $('#incident_table tbody').children().length;
+    $('#spinner').show();
+    $.ajax({
+      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
+      data: {
+        'type': $('#incident_type_select')[0].value,
+        'append': true,
+        'limit': 5,
+        'offset': old_incident_count,
+      },
+      success: function(data) {
+        $('#incident_table tbody').append(data);
+        if (data.indexOf('No incidents') == -1) {
+          incident_count = $('#incident_table tbody').children().length;
+          $('#incident_count').html('(' + incident_count.toString() + ')');
+          if ((old_incident_count + 5) != incident_count) {
+            $('#more_incidents_link').hide()
+          }
+        } else {
+          $('#incident_count').html('');
+        }
+      },
+      complete: function(data) {
+        $('#spinner').hide();
+      },
     });
   }
 <% end %>
@@ -43,5 +76,7 @@
 </p>
 
 <div id="incident_display">
-  <%= render(:partial => 'shared/incidents', :locals => { :incidents => @incidents }) unless not defined?(@incidents) %>
+  <%= render(:partial => 'shared/incident_table', :locals => {:incidents => @incidents, :incident_table_id => 'incident_table'}) unless not defined?(@incidents) %>
 </div>
+
+<p id="more_incidents_link"><%= link_to_function('Get more incidents...', 'appendIncidents()') %></p>
