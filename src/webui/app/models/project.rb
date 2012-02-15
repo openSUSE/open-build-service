@@ -399,13 +399,17 @@ class Project < ActiveXML::Base
   end
 
   # Returns maintenance incidents by type for current project (if any)
-  def maintenance_incidents(type = 'open')
+  def maintenance_incidents(type = 'open', opts = {})
     predicate = "starts-with(@name,'#{self.name}:') and @kind='maintenance_incident'"
     case type
       when 'open' then predicate += " and repository/releasetarget/@trigger='maintenance'"
       when 'closed' then predicate += " and not(repository/releasetarget/@trigger='maintenance')"
     end
-    return Collection.find_cached(:what => 'project', :predicate => predicate).each
+    path = "/search/project/?match=#{CGI.escape(predicate)}"
+    path += "&limit=#{opts[:limit]}" if opts[:limit]
+    path += "&offset=#{opts[:offset]}" if opts[:offset]
+    result = ActiveXML::Config::transport_for(:project).direct_http(URI(path))
+    return Collection.new(result).each
   end
 
   def patchinfo
