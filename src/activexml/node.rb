@@ -5,6 +5,7 @@ module ActiveXML
   class LibXMLNode
 
     @@elements = {}
+    @@hash_options = {}
 
     class << self
 
@@ -47,6 +48,10 @@ module ActiveXML
         elements.each do |elem|
           @@elements[elem] = self
         end
+      end
+
+      def to_hash_options( opts )
+        @@hash_options[self.name] = opts
       end
 
     end
@@ -177,8 +182,79 @@ module ActiveXML
       self.class.logger
     end
 
+    def to_hash_element(parent, options)
+      ret = Hash.new
+      parent.attribute_nodes.each { |node|
+        ret[node.node_name] = node.value
+      }
+      parent.children.each do |child|
+        name = child.name
+        if child.element?
+          subtree = to_hash_element(child, options)
+          
+          if ret[name]
+            unless ret[name].kind_of?(Array)
+              ret[name] = [ ret[name] ]
+            end
+            ret[name].push(subtree)
+          else
+            ret[name] = subtree
+          end
+        elsif child.text?
+          text = child.to_s
+          unless text.strip.empty?
+            return text
+          end # otherwise we ignore white space
+        else
+          raise RuntimeError, "no idea how to handle node #{child.inspect}"
+        end
+      end
+      force_array = options[:force_array]
+      force_array.each do |name|
+        name = name.to_s
+        if ret[name] && !ret[name].kind_of?(Array)
+          ret[name] = [ ret[name] ]
+        end
+      end if force_array
+      key_attr = options[:key_attr]
+      mapped_key_attr = nil
+      key_attr.each do |key|
+        key = key.to_s
+        if ret[key]
+          if mapped_key_attr
+            raise RuntimeError, "found two key attrs. This won't work."
+          end
+          if ret.size == 1
+            ret = ret[key]
+            # make it the only one
+          else
+            keyvalue = ret[key]
+            ret.delete(key)
+            nret = Hash.new
+            nret[keyvalue] = ret
+            ret = nret
+            mapped_key_attr = true
+          end
+        end
+      end if key_attr
+      return ret
+    end
+    private :to_hash_element
+
+    # this function is a simplified version of XML::Simple of cpan fame
+    # you can control the options for to_hash in calling to_hash_options 
+    # in the class. Currently support :keyattr and :force_array
+    def to_hash
+      options = @@hash_options[self.class.name] || {}
+      options = {:key_attr => [:name], :force_array => [:entry] }.merge(options)
+      logger.debug "to_hash #{options.inspect} #{self.dump_xml}"
+      ret = to_hash_element(_data, options)
+      logger.debug "after to_hash #{ret.inspect}"
+      ret
+    end
+    
     def to_json(*a)
-      Hash.from_xml(dump_xml).to_json(*a)
+      to_hash.to_json(*a)
     end
 
     def to_s
