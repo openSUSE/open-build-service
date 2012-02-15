@@ -15,7 +15,7 @@ class MainController < ApplicationController
           redirect_to :controller => :configuration, :action => :connect_instance
           return
         else
-          redirect_to :controller => :project, :action => :new, :project => "home:#{login}"
+          redirect_to :controller => :project, :action => :new, :project => "home:#{@user.login.to_s}"
           return
         end
       end
