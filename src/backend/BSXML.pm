@@ -1022,6 +1022,7 @@ our $request = [
 	  [ 'target' =>
 		'project',
 		'package',
+		'releaseproject', # for incident request
 	        'repository', # for merge request
 	  ],
 	  [ 'person' =>

@@ -85,6 +85,45 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_maintenance_request_from_foreign_project
+    prepare_request_with_user "tom", "thunder"
+
+    # create maintenance request for one package from a unrelated project
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id1 = node.value(:id)
+
+    # accept request
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request/#{id1}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+
+    get "/request/#{id1}"
+    assert_response :success
+    data = REXML::Document.new(@response.body)
+    incidentProject=data.elements["/request/action/target"].attributes.get_attribute("project").to_s
+
+    get "/source/#{incidentProject}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
+    assert_response :success
+    assert_tag( :tag => "linkinfo", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
+
+    # no patchinfo was part in source project, got it created ?
+    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    assert_response :success
+    assert_tag :tag => 'packager', :content => "tom"
+    assert_tag :tag => 'description', :content => "To fix my bug"
+  end
+
   def test_mbranch_and_maintenance_per_package_request
     # setup maintained attributes
     prepare_request_with_user "maintenance_coord", "power"

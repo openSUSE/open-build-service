@@ -1506,7 +1506,7 @@ class RequestController < ApplicationController
         incident_project = DbProject.get_by_name(action.target.project)
 
         # the incident got created before
-        merge_into_maintenance_incident(incident_project, source, request = nil)
+        merge_into_maintenance_incident(incident_project, source, action.target.releaseproject, req)
 
         # update action with real target project
         action.target.set_attribute("project", incident_project.name)
