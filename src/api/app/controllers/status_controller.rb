@@ -225,8 +225,13 @@ class StatusController < ApplicationController
     end
     fileinfo.each_requires_ext do |r|
       if r.has_element? :providedby
-        p = r.providedby
-        ret << p.value(:name)
+        provided = []
+        r.each_providedby { |p| provided << p.name }
+        if provided.size == 1
+          ret << provided[0] # simplify
+        else
+          ret << provided
+        end
       else
         ret << "#{file}:#{r.dep}"
       end
@@ -385,9 +390,19 @@ class StatusController < ApplicationController
               render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
               return
             end
-            if md && md.size > 0
-              md.each do |p|
-                tmp_md << p unless (packages.has_key?(p) || filename_arch != arch)
+            if md && md.size > 0 && filename_arch == arch
+              md.each do |pl|
+                if pl.kind_of?(String)
+                  tmp_md << p unless packages.has_key?(pl)
+                else
+                  found = nil
+                  pl.each do |p|
+                    found = 1 if packages.has_key?(p)
+                  end
+                  if found.nil?
+                    tmp_md << pl.join('|')
+                  end
+                end
               end
             end
           end
