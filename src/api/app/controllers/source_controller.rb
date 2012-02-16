@@ -365,8 +365,8 @@ class SourceController < ApplicationController
         tprj = tpkg.db_project unless tpkg.nil? # for remote package case
         if request.delete? or (request.post? and not read_commands.include? command)
           unless @http_user.can_modify_package?(tpkg)
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to execute command '#{command}' for package #{tpkg.name}"
+            render_error :status => 403, :errorcode => "delete_package_no_permission",
+              :message => "no permission to delete package #{tpkg.name} in project #{tpkg.db_project.name}"
             return
           end
         end
