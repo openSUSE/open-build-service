@@ -516,7 +516,7 @@ sub add_crossmarker {
   my $hostarch = $bconf->{'hostarch'};
   return if $hostarch eq $myarch;
   return unless $BSCando::knownarch{$hostarch};
-  my $marker = "$jobsdir/$hostarch/$job:$hostarch:cross";
+  my $marker = "$jobsdir/$hostarch/$job:$myarch:cross";
   return if -e $marker;
   mkdir_p("$jobsdir/$hostarch");
   BSUtil::touch($marker);

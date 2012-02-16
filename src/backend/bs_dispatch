@@ -369,7 +369,7 @@ while (1) {
 	push @{$crossarchs{$2}}, $1 if /^(.*):([^:]+):cross$/;
       }
       for my $crossarch (sort keys %crossarchs) {
-	next unless $idlearch{$crossarch};
+	next unless $idlearch{$arch};
 	my %cj = map {$_ => 1} ls("$jobsdir/$crossarch");
 	# deltete orphaned marker
 	for (@{$crossarchs{$crossarch}}) {
@@ -574,7 +574,7 @@ while (1) {
 	  last;
 	}
       }
-      my @idle = List::Util::shuffle(@{$idlearch{$ic->{'hostarch'} || $arch} || []});
+      my @idle = List::Util::shuffle(@{$idlearch{$ic->{$job}->{'hostarch'} || $arch} || []});
       last unless @idle;
       my %poweridle;
       if ($powerjobs{$job}) {
