@@ -138,7 +138,7 @@ class Person < ActiveXML::Base
   end
 
   def running_patchinfos(opts = {})
-    cachekey = "#{login}_patchinfos_that_need_work"
+    cachekey = "#{login}_patchinfos_that_need_work2"
     Rails.cache.delete cachekey unless opts[:cache]
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
       array = Array.new

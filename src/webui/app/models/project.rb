@@ -430,7 +430,7 @@ class Project < ActiveXML::Base
   end
 
   def issues
-    return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}", :expires_in => 5.minutes) do
+    return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}2", :expires_in => 5.minutes) do
       issues = Project.find_cached(:issues, :name => self.name, :expires_in => 5.minutes)
       if issues
         changes_issues, patchinfo_issues = {}, {}
@@ -458,7 +458,7 @@ class Project < ActiveXML::Base
   end
 
   def release_targets_ng
-    return Rails.cache.fetch("incident_release_targets_ng_#{self.name}", :expires_in => 5.minutes) do
+    return Rails.cache.fetch("incident_release_targets_ng_#{self.name}2", :expires_in => 5.minutes) do
       # First things first, get release targets as defined by the project, err.. incident. Later on we
       # magically find out which of the contained packages, err. updates are build against those release
       # targets.
