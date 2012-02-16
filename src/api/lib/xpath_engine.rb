@@ -43,9 +43,6 @@ class XpathEngine
            'left join db_projects projs on devels.db_project_id=projs.id']},
         'devel/@package' => {:cpart => 'develpackage.name', :joins => 
           ['LEFT JOIN db_packages develpackage ON develpackage.id = db_packages.develpackage_id']},
-        'issue/@longname' => {:cpart => 'issues.long_name', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
         'issue/@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
