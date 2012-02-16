@@ -356,6 +356,10 @@ class StatusController < ApplicationController
             end
           end
           
+          # we track the binaries we built and what they depend on - to then filter out
+          # the own binaries from that list
+          tmp_md = Array.new
+          ownbinaries = Hash.new
           uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}")
           binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
           binaries.each_binary do |f|
@@ -368,6 +372,7 @@ class StatusController < ApplicationController
             filename_arch = m[4]
             # work around as long as we build ia64 baselibs (soon to be gone)
             next if filename_arch == "ia64"
+            ownbinaries[filename_file] = 1
             md = nil
             begin
               md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
@@ -382,11 +387,15 @@ class StatusController < ApplicationController
             end
             if md && md.size > 0
               md.each do |p|
-                missingdeps << p unless (packages.has_key?(p) || filename_arch != arch)
+                tmp_md << p unless (packages.has_key?(p) || filename_arch != arch)
               end
             end
           end
+          tmp_md.each do |p|
+            missingdeps << p unless ownbinaries.has_key?(p)
+          end
         end
+        
         # if the package does not appear in build history, check flags
         if everbuilt == 0
           spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
