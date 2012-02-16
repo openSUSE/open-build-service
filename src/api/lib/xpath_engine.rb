@@ -20,13 +20,6 @@ class XpathEngine
       'db_packages' => {
         '@project' => {:cpart => 'db_projects.name'},
         '@name' => {:cpart => 'db_packages.name'},
-        '@issue_name' => {:cpart => 'issues.name', :joins =>
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
-          ]},
-        '@issue_tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
-          ]},
         '@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
@@ -46,6 +39,13 @@ class XpathEngine
         'issue/@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
+        'issue/@name' => {:cpart => 'issues.name', :joins =>
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+          ]},
+        'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
+          ['LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
+          ]},
         'issue/owner/@email' => {:cpart => 'users.email', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
@@ -183,7 +183,7 @@ class XpathEngine
         namespace = @stack.shift
         node = @stack.shift
       when :predicate
-        parse_predicate @stack.shift
+        parse_predicate([], @stack.shift)
       else
         raise IllegalXpathError, "unhandled token '#{token.inspect}'"
       end
@@ -240,7 +240,7 @@ class XpathEngine
     end
   end
 
-  def parse_predicate(stack, root=[])
+  def parse_predicate(root, stack)
     #logger.debug "------------------ predicate ---------------"
     #logger.debug "-- pred_array: #{stack.inspect} --"
 
@@ -253,14 +253,14 @@ class XpathEngine
         if not respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
-        __send__ fname_int, *(stack.shift)
+        __send__ fname_int, root, *(stack.shift)
       when *@operators
         opname = token.to_s
         opname_int = "xpath_op_"+opname
         if not respond_to? opname_int
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
-        __send__ opname_int, *(stack)
+        __send__ opname_int, root, *(stack)
         stack = []
       when :child
         t = stack.shift
@@ -270,7 +270,7 @@ class XpathEngine
           t = stack.shift
           t = stack.shift
           if t == :predicate
-            parse_predicate(stack[0], root)
+            parse_predicate(root, stack[0])
             stack.shift
           else
             raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
@@ -282,14 +282,14 @@ class XpathEngine
           raise IllegalXpathError, "unhandled token '#{t.inspect}'"
         end
       else
-        raise IllegalXpathError, "illegal token '#{token.inspect}'"
+        raise IllegalXpathError, "illegal token X '#{token.inspect}'"
       end
     end
 
     #logger.debug "-------------- predicate finished ----------"
   end
 
-  def evaluate_expr(expr, escape=false)
+  def evaluate_expr(expr, root, escape=false)
     table = @base_table
     a = Array.new
     while expr.length > 0
@@ -320,7 +320,7 @@ class XpathEngine
         raise IllegalXpathError, "illegal token: '#{token.inspect}'"
       end
     end
-    key = a.join "/"
+    key = (root+a).join "/"
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
@@ -339,11 +339,11 @@ class XpathEngine
     str.gsub(/([_%])/, '\\\\\1')
   end
 
-  def xpath_op_eq(lv, rv, root=[])
+  def xpath_op_eq(root, lv, rv)
     #logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
 
-    lval = evaluate_expr(lv)
-    rval = evaluate_expr(rv)
+    lval = evaluate_expr(lv, root)
+    rval = evaluate_expr(rv, root)
 
     condition = "#{lval} = #{rval}"
     #logger.debug "-- condition: [#{condition}]"
@@ -351,11 +351,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_neq(lv, rv)
+  def xpath_op_neq(root, lv, rv)
     #logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
 
-    lval = evaluate_expr(lv)
-    rval = evaluate_expr(rv)
+    lval = evaluate_expr(lv, root)
+    rval = evaluate_expr(rv, root)
 
     condition = "#{lval} != #{rval}"
     #logger.debug "-- condition: [#{condition}]"
@@ -363,11 +363,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_and(lv, rv, root=[])
+  def xpath_op_and(root, lv, rv)
     #logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
-    parse_predicate(lv, root)
+    parse_predicate(root, lv)
     lv_cond = @conditions.pop
-    parse_predicate(rv, root)
+    parse_predicate(root, rv)
     rv_cond = @conditions.pop
 
     condition = "(#{lv_cond} AND #{rv_cond})"
@@ -376,12 +376,12 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_or(lv, rv)
-    #logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
+  def xpath_op_or(root, lv, rv)
+    #logger.debug "-- xpath_op_or(#{lv.inspect}, #{rv.inspect}) --"
 
-    parse_predicate(lv)
+    parse_predicate(root, lv)
     lv_cond = @conditions.pop
-    parse_predicate(rv)
+    parse_predicate(root, rv)
     rv_cond = @conditions.pop
 
     condition = "(#{lv_cond} OR #{rv_cond})"
@@ -390,11 +390,11 @@ class XpathEngine
     @conditions << condition
   end 
 
-  def xpath_func_contains(haystack, needle)
+  def xpath_func_contains(root, haystack, needle)
     #logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
 
-    hs = evaluate_expr(haystack)
-    ne = evaluate_expr(needle, true)
+    hs = evaluate_expr(haystack, root)
+    ne = evaluate_expr(needle, root, true)
 
     condition = "LOWER(CONVERT(#{hs} USING latin1)) LIKE LOWER(CONCAT('%',#{ne},'%'))"
     #logger.debug "-- condition : [#{condition}]"
@@ -402,7 +402,7 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_func_not(expr)
+  def xpath_func_not(root, expr)
     #logger.debug "-- xpath_func_not(#{expr}) --"
 
     # An XPath query like "not(@foo='bar')" in the SQL world means, all rows where the 'foo' column
@@ -418,7 +418,7 @@ class XpathEngine
     # capabilities of your DBMS is neeed :-)
 
     @condition_values_needed = 2
-    parse_predicate(expr)
+    parse_predicate(root, expr)
     cond = @conditions.pop
 
     condition = "(NOT #{cond} OR #{cond} IS NULL)"
@@ -428,11 +428,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_func_starts_with(x, y)
+  def xpath_func_starts_with(root, x, y)
     #logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
 
-    s1 = evaluate_expr(x)
-    s2 = evaluate_expr(y, true)
+    s1 = evaluate_expr(x, root)
+    s2 = evaluate_expr(y, root, true)
 
     condition = "#{s1} LIKE CONCAT(#{s2},'%')"
     #logger.debug "-- condition: [#{condition}]"
@@ -440,11 +440,11 @@ class XpathEngine
     @conditions << condition 
   end 
 
-  def xpath_func_ends_with(x, y)
+  def xpath_func_ends_with(root, x, y)
     #logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
 
-    s1 = evaluate_expr(x)
-    s2 = evaluate_expr(y, true)
+    s1 = evaluate_expr(x, root)
+    s2 = evaluate_expr(y, root, true)
 
     condition = "#{s1} LIKE CONCAT('%',#{s2})"
     #logger.debug "-- condition: [#{condition}]"
