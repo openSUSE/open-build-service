@@ -393,7 +393,7 @@ class StatusController < ApplicationController
             if md && md.size > 0 && filename_arch == arch
               md.each do |pl|
                 if pl.kind_of?(String)
-                  tmp_md << p unless packages.has_key?(pl)
+                  tmp_md << pl unless packages.has_key?(pl)
                 else
                   found = nil
                   pl.each do |p|
