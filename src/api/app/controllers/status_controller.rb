@@ -410,10 +410,13 @@ class StatusController < ApplicationController
             missingdeps << p unless ownbinaries.has_key?(p)
           end
         end
-        
+
+        # Is the package visible
+        spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
+        next unless spkg
+
         # if the package does not appear in build history, check flags
         if everbuilt == 0
-          spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
           buildflag=spkg.find_flag_state("build", srep.name, arch.to_s)
           logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
           if buildflag == 'disable'
