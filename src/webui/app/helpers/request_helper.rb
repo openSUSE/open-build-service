@@ -18,4 +18,13 @@ module RequestHelper
     type
   end
 
+  def request_state_icon(request)
+    case request.state.value('name')
+      when 'new' then return 'icons/flag_green.png'
+      when 'review' then return 'icons/flag_yellow.png'
+      when 'declined' then return'icons/flag_red.png'
+      else return ''
+    end
+  end
+
 end
