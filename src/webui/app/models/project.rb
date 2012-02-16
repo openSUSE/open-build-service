@@ -437,18 +437,18 @@ class Project < ActiveXML::Base
         issues.each(:package) do |package|
           package.each(:issue) do |issue|
             if package.value('name') == 'patchinfo'
-              patchinfo_issues[issue.value('long_name')] = issue
+              patchinfo_issues[issue.value('label')] = issue
             else
-              changes_issues[issue.value('long_name')] = issue
+              changes_issues[issue.value('label')] = issue
             end
           end
         end
         missing_issues, optional_issues = {}, {}
-        changes_issues.each do |long_name, issue|
-          optional_issues[long_name] = issue unless patchinfo_issues.has_key?(long_name)
+        changes_issues.each do |label, issue|
+          optional_issues[label] = issue unless patchinfo_issues.has_key?(label)
         end
-        patchinfo_issues.each do |long_name, issue|
-          missing_issues[long_name] = issue unless changes_issues.has_key?(long_name)
+        patchinfo_issues.each do |label, issue|
+          missing_issues[label] = issue unless changes_issues.has_key?(label)
         end
         {:changes => changes_issues, :patchinfo => patchinfo_issues, :missing => missing_issues, :optional => optional_issues}
       else
@@ -520,7 +520,7 @@ class Project < ActiveXML::Base
               linkdiff = pkg.linkdiff()
               if linkdiff && linkdiff.has_element?('issues')
                 linkdiff.issues.each(:issue) do |issue|
-                  release_targets_ng[rt_name][:package_issues][issue.value('long-name')] = issue
+                  release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
                 end
               end
             end

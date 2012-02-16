@@ -31,7 +31,7 @@
           <td><%= link_to shortened_pkg, :controller => :package, :action => :show, :project => pi[:package][:project], :package => pi[:package][:name]%></td>
           <td>
             <% pi[:issues].each do |i| -%>
-              <%= link_to i[:long_name], i[:url], :title => i[:description]%>,
+              <%= link_to i[:label], i[:url], :title => i[:summary]%>,
             <% end -%>
           </td>
           <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => pi[:package][:project], :pkgname => pi[:package][:name], :controller => :project  %></td>

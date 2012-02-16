@@ -451,7 +451,7 @@ module ApplicationHelper
 
     if sourcediff.has_element?(:issues)
       sourcediff.issues.each do |issue|
-        issues_hash[issue.value('long-name')] = issue.value('show-url')
+        issues_hash[issue.value('label')] = issue.value('url')
       end
     end
 
