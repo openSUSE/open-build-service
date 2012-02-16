@@ -86,8 +86,14 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_maintenance_request_from_foreign_project
-    prepare_request_with_user "tom", "thunder"
+    # special kdelibs
+    prepare_request_with_user "king", "sunflower"
+    put "/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta", "<package name='kdelibs'><title/><description/></package>"
+    assert_response :success
+    put "/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/empty", "NOOP"
+    assert_response :success
 
+    prepare_request_with_user "tom", "thunder"
     # create maintenance request for one package from a unrelated project
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
@@ -102,6 +108,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
+
+    # validate that request is diffable (not broken)
+    post "/request/#{id1}?cmd=diff&view=xml", nil
+    assert_response :success
+    # the diffed packages
+    assert_tag( :tag => "old", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
+    assert_tag( :tag => "new", :attributes => { :project => "kde4", :package => "kdelibs" } )
+    # the expected file transfer
+    assert_tag( :tag => "source", :attributes => { :project => "kde4", :package => "kdelibs" } )
+    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    # diff contains the critical lines
+    assert_match( /^\-NOOP/, @response.body )
+    assert_match( /^\+argl/, @response.body )
 
     # accept request
     prepare_request_with_user "maintenance_coord", "power"
@@ -122,6 +141,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => 'packager', :content => "tom"
     assert_tag :tag => 'description', :content => "To fix my bug"
+
+    # cleanup
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/kdelibs"
+    assert_response :success
   end
 
   def test_mbranch_and_maintenance_per_package_request

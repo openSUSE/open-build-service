@@ -89,8 +89,11 @@ module MaintenanceHelper
         end
         branch_params = { :target_project => incidentProject.name,
                           :maintenance => 1, 
-                          :missingok => 1, 
                           :project => releaseproject, :package => package_name }
+        # it is fine to have new packages
+        unless DbPackage.exists_by_project_and_name(releaseproject, package_name, follow_project_links=true)
+          branch_params[:missingok]= 1
+        end
         ret = do_branch branch_params
         new_pkg = DbPackage.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
 

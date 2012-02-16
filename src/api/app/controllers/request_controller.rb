@@ -825,6 +825,7 @@ class RequestController < ApplicationController
 
         spkgs.each do |spkg|
           target_project = target_package = nil
+
           if action.has_element? :target
             target_project = action.target.project
             target_package = action.target.package if action.target.has_attribute? :package
@@ -840,6 +841,10 @@ class RequestController < ApplicationController
               target_package = e.attributes["package"]
             end
           end
+
+          # maintenance incidents shall show the final result after release
+          target_package = action.source.package if target_package.nil?
+          target_project = action.target.releaseproject if action.target.has_attribute? :releaseproject
 
           if action.has_element? :acceptinfo
             # OBS 2.1 adds acceptinfo on request accept
