@@ -124,9 +124,9 @@ class IssueTracker < ActiveRecord::Base
             issue.owner_id = u.id if u
             issue.updated_at = update_time_stamp
             if r["is_private"]
-              issue.description = nil
+              issue.summary = nil
             else
-              issue.description = r["summary"]
+              issue.summary = r["summary"]
             end
             issue.save
           end

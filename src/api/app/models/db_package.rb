@@ -414,7 +414,7 @@ class DbPackage < ActiveRecord::Base
         issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
         xml = REXML::Document.new(issues.body.to_s)
         xml.root.elements.each('/sourcediff/issues/issue') { |i|
-          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['issue-tracker'] )
+          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
           issue_change[issue] = 'kept' 
         }
       rescue Suse::Backend::HTTPError
@@ -426,7 +426,7 @@ class DbPackage < ActiveRecord::Base
           issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
           xml = REXML::Document.new(issues.body.to_s)
           xml.root.elements.each('/sourcediff/issues/issue') { |i|
-            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['issue-tracker'] )
+            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
             issue_change[issue] = i.attributes['state']
           }
         rescue Suse::Backend::HTTPError

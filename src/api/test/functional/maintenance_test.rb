@@ -724,7 +724,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source/#{incidentProject}?cmd=set_flag&flag=lock&status=disable"
     assert_response :success
 
-    # create some changes, including issue_tracker references
+    # create some changes, including issue tracker references
     put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042"
     assert_response :success
     post "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1"
@@ -767,7 +767,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "0815"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
 
     # add another issue and update patchinfo
     put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
@@ -784,11 +784,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
     assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "cve"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "cve"
     assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "4201"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'issue_tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
 
     # test that another, new started branch is getting the source changes from this incident in flight
     post "/source/BaseDistro2.0/pack2", :cmd => "branch", :maintenance => 1

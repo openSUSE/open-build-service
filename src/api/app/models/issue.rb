@@ -67,8 +67,8 @@ class Issue < ActiveRecord::Base
     self.issue_tracker.fetch_issues([self])
   end
 
-  def long_name
-    return self.issue_tracker.long_name.gsub(/%s/, self.name)
+  def label
+    return self.issue_tracker.label.gsub(/%s/, self.name)
   end
 
   def render_body(node, change=nil)
@@ -76,11 +76,11 @@ class Issue < ActiveRecord::Base
       issue.created_at(self.created_at)
       issue.updated_at(self.updated_at)   if self.updated_at
       issue.name(self.name)
-      issue.issue_tracker(self.issue_tracker.name)
-      issue.long_name(self.long_name)
+      issue.tracker(self.issue_tracker.name)
+      issue.label(self.label)
       issue.url(self.issue_tracker.show_url.gsub('@@@', self.name))
       issue.state(self.state)             if self.state
-      issue.description(self.description) if self.description
+      issue.summary(self.summary) if self.summary
 
       if self.owner_id
         # self.owner must not by used, since it is reserved by rails

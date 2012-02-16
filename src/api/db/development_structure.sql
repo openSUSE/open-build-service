@@ -310,7 +310,7 @@ CREATE TABLE `issue_trackers` (
   `regex` varchar(255) NOT NULL,
   `user` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `long_name` text NOT NULL,
+  `label` text NOT NULL,
   `issues_updated` datetime DEFAULT NULL,
   `enable_fetch` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -320,7 +320,7 @@ CREATE TABLE `issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `issue_tracker_id` int(11) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `summary` varchar(255) DEFAULT NULL,
   `owner_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -850,6 +850,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120124114301');
 INSERT INTO schema_migrations (version) VALUES ('20120124114302');
 
 INSERT INTO schema_migrations (version) VALUES ('20120124114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20120216114303');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

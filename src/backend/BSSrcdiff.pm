@@ -718,8 +718,8 @@ sub issues {
     for (keys %issues) {
       $ret->{$_} = {
 	'name' => $issues{$_},
-	'long-name' => $_,
-        'issue-tracker' => $tracker,
+	'label' => $_,
+        'tracker' => $tracker,
       };
     }
   }
@@ -784,13 +784,13 @@ sub issuediff {
     push @deleted , $oldissues{$_};
   }
   for my $issue (@changed, @added, @deleted) {
-    my $tracker = $issue->{'issue-tracker'};
-    my $url = $tracker->{'show-url'};
+    my $tracker = $issue->{'tracker'};
+    my $url = $tracker->{'url'};
     if ($url) {
       $url =~ s/\@\@\@/$issue->{'name'}/g;
-      $issue->{'show-url'} = $url;
+      $issue->{'url'} = $url;
     }
-    $issue->{'issue-tracker'} = $tracker->{'name'};
+    $issue->{'tracker'} = $tracker->{'name'};
   }
   return [ @changed, @added, @deleted ];
 }

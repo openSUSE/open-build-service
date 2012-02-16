@@ -3,7 +3,7 @@
   <description>Novell Bugzilla</description>
   <kind>bugzilla</kind>
   <name>bnc</name>
-  <long-name>bnc#%s</long-name>
+  <label>bnc#%s</label>
   <regex>bnc#\d+</regex>
   <show-url>https://bugzilla.novell.com/show_bug.cgi?id=@@@</show-url>
   <url>https://bugzilla.novell.com/</url>

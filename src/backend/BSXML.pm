@@ -1351,10 +1351,10 @@ our $sourcediff = [
       [ 'issues' =>
 	 [[ 'issue' =>
 		'state',
-		'issue-tracker',
+		'tracker',
 		'name',
-		'long-name',
-		'show-url',
+		'label',
+		'url',
 	 ]]
       ],
 ];
@@ -1366,7 +1366,7 @@ our $issue_trackers = [
 	    'name',
 	    'description',
 	    'kind',
-            'long-name',
+            'label',
             'enable-fetch',
 	    'regex',
 	    'user',

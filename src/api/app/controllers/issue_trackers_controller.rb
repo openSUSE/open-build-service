@@ -47,7 +47,7 @@ class IssueTrackersController < ApplicationController
                                            :kind => xml.xpath('kind[1]/text()').to_s,
                                            :description => xml.xpath('description[1]/text()').to_s,
                                            :regex => xml.xpath('regex[1]/text()').to_s,
-                                           :long_name => xml.xpath('long-name[1]/text()').to_s,
+                                           :label => xml.xpath('label[1]/text()').to_s,
                                            :url => xml.xpath('url[1]/text()').to_s,
                                            :enable_fetch => xml.xpath('enable-fetch[1]/text()').to_s,
                                            :show_url => xml.xpath('show-url[1]/text()').to_s)
@@ -88,7 +88,7 @@ class IssueTrackersController < ApplicationController
         attribs[:password] = xml.xpath('password[1]/text()').to_s unless xml.xpath('password[1]/text()').empty?
         attribs[:regex] = xml.xpath('regex[1]/text()').to_s unless xml.xpath('regex[1]/text()').empty?
         attribs[:url] = xml.xpath('url[1]/text()').to_s unless xml.xpath('url[1]/text()').empty?
-        attribs[:long_name] = xml.xpath('long-name[1]/text()').to_s unless xml.xpath('long-name[1]/text()').empty?
+        attribs[:label] = xml.xpath('label[1]/text()').to_s unless xml.xpath('label[1]/text()').empty?
         attribs[:enable_fetch] = xml.xpath('enable-fetch[1]/text()').to_s unless xml.xpath('enable-fetch[1]/text()').empty?
         attribs[:show_url] = xml.xpath('show-url[1]/text()').to_s unless xml.xpath('show-url[1]/text()').empty?
         ret = @issue_tracker.update_attributes(attribs)
