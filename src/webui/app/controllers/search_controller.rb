@@ -18,10 +18,10 @@ class SearchController < ApplicationController
       redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
     end
 
-    @search_issue = params[:issue_name].strip
+    @search_issue = params[:issue_name].strip if params[:issue_name] && !params[:issue_name].blank?
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
     @attribute = params[:attribute]
-    if (!@search_text or @search_text.length < 2) && @attribute.blank? && @search_issue.blank?
+    if (!@search_text or @search_text.length < 2) && @attribute.blank? && !@search_issue
       flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
       redirect_to :action => 'index' and return
     end
@@ -30,7 +30,7 @@ class SearchController < ApplicationController
     if params[:advanced]
       @search_what = []
       @search_what << 'package' if params[:package]
-      @search_what << 'project' if params[:project] and @search_issue.blank?
+      @search_what << 'project' if params[:project] and !@search_issue
     end
 
     weight_for = {
@@ -57,7 +57,7 @@ class SearchController < ApplicationController
           p << "contains(title,'#{@search_text}')" if params[:title]
           p << "contains(description,'#{@search_text}')" if params[:description]
           predicate = p.join(' or ')
-        elsif not @search_issue.blank?
+        elsif @search_issue
           tracker_name = params[:issue_tracker].gsub(/ .*/,'')
           changes="@change='added'" # could become configurable in webui, further options would be "changed" or "deleted". "kept" makes no sense IMHO.
           predicate = "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
