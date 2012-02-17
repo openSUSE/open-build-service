@@ -68,7 +68,7 @@ class Issue < ActiveRecord::Base
   end
 
   def label
-    return self.issue_tracker.label.gsub(/%s/, self.name)
+    return self.issue_tracker.label.gsub('@@@', self.name)
   end
 
   def render_body(node, change=nil)
