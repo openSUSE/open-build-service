@@ -13,7 +13,8 @@ class XpathEngine
       'package' => 'db_packages',
       'project' => 'db_projects',
       'person' => 'users',
-      'repository' => 'repositories'
+      'repository' => 'repositories',
+      'issue' => 'issues',
     }
 
     @attribs = {
@@ -115,6 +116,15 @@ class XpathEngine
           ['LEFT JOIN attribs ON attribs.db_project_id = db_projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
+      },
+      'issues' => {
+        '@name' => {:cpart => 'issues.name'},
+        '@state' => {:cpart => 'issues.state'},
+        '@tracker' => {:cpart => 'issue_trackers.name'},
+        'owner/@email' => {:cpart => 'users.email', :joins => 
+          ['LEFT JOIN users ON users.id = issues.owner_id']},
+        'owner/@login' => {:cpart => 'users.login', :joins => 
+          ['LEFT JOIN users ON users.id = issues.owner_id']},
       }
     }
 
@@ -209,6 +219,9 @@ class XpathEngine
     when 'repositories'
       model = Repository
       includes = [:db_project]
+    when 'issues'
+      model = Issue
+      includes = [:issue_tracker]
     else
       logger.debug "strange base table: #{@base_table}"
     end

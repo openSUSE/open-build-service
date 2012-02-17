@@ -124,6 +124,41 @@ class SearchControllerTest < ActionController::IntegrationTest
     return ret
   end
 
+  def test_search_issues
+    prepare_request_with_user "Iggy", "asdfasdf" 
+    get "/search/issue", :match => '[@name="123456"]'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'name', :content => "123456"
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'tracker', :content => "bnc"
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'state', :content => "CLOSED"
+    assert_tag :parent => { :tag => 'owner'}, :tag => 'login', :content => "fred"
+
+    get "/search/issue", :match => '[@name="123456" and @tracker="bnc"]'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+
+    get "/search/issue", :match => '[@name="0123456" and @tracker="bnc"]'
+    assert_response :success
+    assert_no_tag :tag => 'issue'
+
+    get "/search/issue", :match => '[@tracker="bnc" and (@name="123456" or @name="1234")]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 2 }
+
+    get "/search/issue", :match => '[@tracker="bnc" and (@name="123456" or @name="1234") and @state="CLOSED"]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 1 }
+
+    get "/search/issue", :match => '[owner/@login="fred"]'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+
+    get "/search/issue", :match => '[owner/@email="fred@feuerstein.de"]'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+  end
+
   def test_search_repository_id
     prepare_request_with_user "Iggy", "asdfasdf" 
     get "/search/repository_id"

@@ -1210,6 +1210,19 @@ Parameters:
 XmlResult: collection
 
 
+GET /search/issue
+
+  Searches for issue metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /issue[<match>]. Only complete issue information will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
 
 == Published binary package tree
 

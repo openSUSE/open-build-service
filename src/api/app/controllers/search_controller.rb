@@ -23,6 +23,10 @@ class SearchController < ApplicationController
     search(:repository, false)
   end
 
+  def issue
+    search(:issue, true)
+  end
+
   def attribute
     unless params[:namespace] and params[:name]
       render_error :status => 400, :message => "need namespace and name parameter"
@@ -61,6 +65,8 @@ class SearchController < ApplicationController
         elsif item.kind_of? Repository
           # This returns nil if access is not allowed
           next unless DbProject.find_by_id item.db_project_id
+        elsif item.kind_of? Issue
+          # all our hosted issues are public atm
         else
           render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
           return

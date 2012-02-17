@@ -72,7 +72,9 @@ class Issue < ActiveRecord::Base
   end
 
   def render_body(node, change=nil)
-    node.issue({:change => change}) do |issue|
+    p={}
+    p[:change] = change if change
+    node.issue(p) do |issue|
       issue.created_at(self.created_at)
       issue.updated_at(self.updated_at)   if self.updated_at
       issue.name(self.name)
@@ -98,7 +100,15 @@ class Issue < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new do |node|
       self.render_body node
     end
-    builder.to_xml
+    builder.to_xml :indent => 2, :encoding => 'UTF-8', 
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
+
+  def to_axml
+    Rails.cache.fetch('issue_%d' % self.id) do
+      render_axml
+    end
   end
 
 end
