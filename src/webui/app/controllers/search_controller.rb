@@ -10,18 +10,25 @@ class SearchController < ApplicationController
   def search
     redirect_to :action => "index" and return unless params[:search_text]
 
-    @search_text = params[:search_text].strip
-    if @search_text.starts_with?("obs://")
-      # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
-      disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
-      disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
-      redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
+    @search_text = nil
+    unless params[:search_text].blank?
+      @search_text = params[:search_text].strip
+      if @search_text.starts_with?("obs://")
+        # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
+        disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
+        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
+        redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
+      end
+      @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
     end
 
-    @search_issue = params[:issue_name].strip if params[:issue_name] && !params[:issue_name].blank?
-    @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
-    @attribute = params[:attribute]
-    if (!@search_text or @search_text.length < 2) && @attribute.blank? && !@search_issue
+    @search_issue = nil
+    @search_issue = params[:issue_name].strip unless params[:issue_name].blank?
+
+    @attribute = nil
+    @attribute = params[:attribute] unless params[:attribute].blank?
+
+    if (!@search_text or @search_text.length < 2) && !@attribute && !@search_issue
       flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
       redirect_to :action => 'index' and return
     end
@@ -51,28 +58,25 @@ class SearchController < ApplicationController
     @search_what.each do |s_what|
       # build xpath predicate
       if params[:advanced]
-        p = []
-        if not @search_text.blank?
+        pand = []
+        if @search_text
+          p = []
           p << "contains(@name,'#{@search_text}')" if params[:name]
           p << "contains(title,'#{@search_text}')" if params[:title]
           p << "contains(description,'#{@search_text}')" if params[:description]
-          predicate = p.join(' or ')
-        elsif @search_issue
+          pand << p.join(' or ')
+        end
+        if @search_issue
           tracker_name = params[:issue_tracker].gsub(/ .*/,'')
-          changes="@change='added'" # could become configurable in webui, further options would be "changed" or "deleted". "kept" makes no sense IMHO.
-          predicate = "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
-        else
-          flash[:error] = "ERROR: Internal search error... please report..."
-          redirect_to :action => 'index' and return
+          changes="@change='added' or @change='kept'" # could become configurable in webui, further options would be "changed" or "deleted".
+                                                      # best would be to prefer links with "added" on top of results
+          pand << "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
+        end
+        if @attribute
+          pand << "contains(attribute/@name,'#{@attribute}')"
         end
 
-        unless @attribute.blank?
-          if predicate.empty?
-            predicate = "contains(attribute/@name,'#{@attribute}')"
-          else
-            predicate << " and contains(attribute/@name,'#{@attribute}')"
-          end
-        end
+        predicate = pand.join(' and ')
 
         if predicate.empty?
           flash[:error] = "You need to search for name, title, description or attributes."
@@ -85,7 +89,7 @@ class SearchController < ApplicationController
 
       # collect all results and give them some weight
       collection.send("each_#{s_what}") do |result|
-        s = @search_text
+
         weight = 0
 
         log_prefix = "weighting search result #{s_what} \"#{result.name}\" by"
@@ -96,46 +100,53 @@ class SearchController < ApplicationController
           log_weight(log_prefix, 'is_a_project', weight)
         end
 
-        # weight if name matches exact
-        if result.name.to_s.downcase == @search_text.downcase
-          weight += weight_for[:name_exact_match]
-          log_weight(log_prefix, 'name_exact_match', weight)
-        end
-        quoted_s = Regexp.quote(s)
-        # weight the name
-        if    (match = result.name.to_s.scan(/\b#{quoted_s}\b/i)) != []
-          weight += match.length * weight_for[:name_full_match]
-          log_weight(log_prefix, 'name_full_match', weight)
-        elsif (match = result.name.to_s.scan(/\b#{quoted_s}/i)) != []
-          weight += match.length * weight_for[:name_start_match]
-          log_weight(log_prefix, 'name_start_match', weight)
-        elsif (match = result.name.to_s.scan(/#{quoted_s}/i)) != []
-          weight += match.length * weight_for[:name_contained]
-          log_weight(log_prefix, 'name_contained', weight)
-        end
+        # IMPLEMENT_ME: prefer links with added issues on issue search
 
-        # weight the title
-        if    (match = result.title.to_s.scan(/\b#{quoted_s}\b/i)) != []
-          weight += match.length * weight_for[:title_full_match]
-          log_weight(log_prefix, 'title_full_match', weight)
-        elsif (match = result.title.to_s.scan(/\b#{quoted_s}/i)) != []
-          weight += match.length * weight_for[:title_start_match]
-          log_weight(log_prefix, 'title_start_match', weight)
-        elsif (match = result.title.to_s.scan(/#{quoted_s}/i)) != []
-          weight += match.length * weight_for[:title_contained]
-          log_weight(log_prefix, 'title_contained', weight)
-        end
+        if @search_text
+          s = @search_text
 
-        # weight the description
-        if    (match = result.description.to_s.scan(/\b#{quoted_s}\b/i)) != []
-          weight += match.length * weight_for[:description_full_match]
-          log_weight(log_prefix, 'description_full_match', weight)
-        elsif (match = result.description.to_s.scan(/\b#{quoted_s}/i)) != []
-          weight += match.length * weight_for[:description_start_match]
-          log_weight(log_prefix, 'description_start_match', weight)
-        elsif (match = result.description.to_s.scan(/#{quoted_s}/i)) != []
-          weight += match.length * weight_for[:description_contained]
-          log_weight(log_prefix, 'description_contained', weight)
+          # weight if name matches exact
+          if result.name.to_s.downcase == s.downcase
+            weight += weight_for[:name_exact_match]
+            log_weight(log_prefix, 'name_exact_match', weight)
+          end
+
+          quoted_s = Regexp.quote(s)
+          # weight the name
+          if    (match = result.name.to_s.scan(/\b#{quoted_s}\b/i)) != []
+            weight += match.length * weight_for[:name_full_match]
+            log_weight(log_prefix, 'name_full_match', weight)
+          elsif (match = result.name.to_s.scan(/\b#{quoted_s}/i)) != []
+            weight += match.length * weight_for[:name_start_match]
+            log_weight(log_prefix, 'name_start_match', weight)
+          elsif (match = result.name.to_s.scan(/#{quoted_s}/i)) != []
+            weight += match.length * weight_for[:name_contained]
+            log_weight(log_prefix, 'name_contained', weight)
+          end
+
+          # weight the title
+          if    (match = result.title.to_s.scan(/\b#{quoted_s}\b/i)) != []
+            weight += match.length * weight_for[:title_full_match]
+            log_weight(log_prefix, 'title_full_match', weight)
+          elsif (match = result.title.to_s.scan(/\b#{quoted_s}/i)) != []
+            weight += match.length * weight_for[:title_start_match]
+            log_weight(log_prefix, 'title_start_match', weight)
+          elsif (match = result.title.to_s.scan(/#{quoted_s}/i)) != []
+            weight += match.length * weight_for[:title_contained]
+            log_weight(log_prefix, 'title_contained', weight)
+          end
+
+          # weight the description
+          if    (match = result.description.to_s.scan(/\b#{quoted_s}\b/i)) != []
+            weight += match.length * weight_for[:description_full_match]
+            log_weight(log_prefix, 'description_full_match', weight)
+          elsif (match = result.description.to_s.scan(/\b#{quoted_s}/i)) != []
+            weight += match.length * weight_for[:description_start_match]
+            log_weight(log_prefix, 'description_start_match', weight)
+          elsif (match = result.description.to_s.scan(/#{quoted_s}/i)) != []
+            weight += match.length * weight_for[:description_contained]
+            log_weight(log_prefix, 'description_contained', weight)
+          end
         end
 
         @results << {:type => s_what, :data => result, :weight => weight}
