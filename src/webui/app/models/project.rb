@@ -465,7 +465,7 @@ class Project < ActiveXML::Base
       release_targets_ng = {}
       self.each(:repository) do |repo|
         if repo.has_element?(:releasetarget)
-          release_targets_ng[repo.releasetarget.value('project')] = {:reponame => repo.value('name'), :packages => [], :patchinfo => nil, :package_issues => {}}
+          release_targets_ng[repo.releasetarget.value('project')] = {:reponame => repo.value('name'), :packages => [], :patchinfo => nil, :package_issues => {}, :package_issues_by_tracker => {}}
         end
       end
 
@@ -521,6 +521,9 @@ class Project < ActiveXML::Base
               if linkdiff && linkdiff.has_element?('issues')
                 linkdiff.issues.each(:issue) do |issue|
                   release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
+
+                  release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
+                  release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
                 end
               end
             end

@@ -27,6 +27,15 @@ class Patchinfo < ActiveXML::Base
     end
   end
 
+  def issues_by_tracker
+    issues_by_tracker = {}
+    self.issues.each do |issue|
+      issues_by_tracker[issue.value('tracker')] ||= []
+      issues_by_tracker[issue.value('tracker')] << issue
+    end
+    return issues_by_tracker
+  end
+
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
