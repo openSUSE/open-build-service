@@ -1,6 +1,7 @@
 class SearchController < ApplicationController
 
   before_filter :set_attribute_list
+  before_filter :set_tracker_list
 
   def index
     @search_what = %w{package project}
@@ -17,9 +18,10 @@ class SearchController < ApplicationController
       redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
     end
 
+    @search_issue = params[:issue_name].strip
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
     @attribute = params[:attribute]
-    if (!@search_text or @search_text.length < 2) && @attribute.blank?
+    if (!@search_text or @search_text.length < 2) && @attribute.blank? && @search_issue.blank?
       flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
       redirect_to :action => 'index' and return
     end
@@ -28,7 +30,7 @@ class SearchController < ApplicationController
     if params[:advanced]
       @search_what = []
       @search_what << 'package' if params[:package]
-      @search_what << 'project' if params[:project]
+      @search_what << 'project' if params[:project] and @search_issue.blank?
     end
 
     weight_for = {
@@ -50,10 +52,19 @@ class SearchController < ApplicationController
       # build xpath predicate
       if params[:advanced]
         p = []
-        p << "contains(@name,'#{@search_text}')" if params[:name]
-        p << "contains(title,'#{@search_text}')" if params[:title]
-        p << "contains(description,'#{@search_text}')" if params[:description]
-        predicate = p.join(' or ')
+        if not @search_text.blank?
+          p << "contains(@name,'#{@search_text}')" if params[:name]
+          p << "contains(title,'#{@search_text}')" if params[:title]
+          p << "contains(description,'#{@search_text}')" if params[:description]
+          predicate = p.join(' or ')
+        elsif not @search_issue.blank?
+          tracker_name = params[:issue_tracker].gsub(/ .*/,'')
+          changes="@change='added'" # could become configurable in webui, further options would be "changed" or "deleted". "kept" makes no sense IMHO.
+          predicate = "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
+        else
+          flash[:error] = "ERROR: Internal search error... please report..."
+          redirect_to :action => 'index' and return
+        end
 
         unless @attribute.blank?
           if predicate.empty?
@@ -70,7 +81,6 @@ class SearchController < ApplicationController
       else
         predicate = "contains(@name,'#{@search_text}')"
       end
-
       collection = find_cached(Collection, :what => s_what, :predicate => predicate, :expires_in => 5.minutes)
 
       # collect all results and give them some weight
@@ -156,4 +166,13 @@ def set_attribute_list
       d.each {|f| @attribute_list << "#{d.init_options[:namespace]}:#{f.value(:name)}"}
     end
   end
+end
+
+def set_tracker_list
+  trackers = find_cached(IssueTracker, :all)
+  @issue_tracker_list = []
+  trackers.each("/issue-trackers/issue-tracker") do |t|
+    @issue_tracker_list << "#{t.name.text} (#{t.description.text})"
+  end
+  @issue_tracker_list.sort!
 end
