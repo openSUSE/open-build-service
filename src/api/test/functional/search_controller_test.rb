@@ -138,6 +138,11 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
 
+    # opposite order to test database joins
+    get "/search/issue", :match => '[@tracker="bnc" and @name="123456"]'
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+
     get "/search/issue", :match => '[@name="0123456" and @tracker="bnc"]'
     assert_response :success
     assert_no_tag :tag => 'issue'

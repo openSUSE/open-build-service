@@ -45,7 +45,8 @@ class XpathEngine
            'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
           ]},
         'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
+          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+           'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
           ]},
         'issue/@change' => {:cpart => 'db_package_issues.change'},
         'issue/owner/@email' => {:cpart => 'users.email', :joins => 
