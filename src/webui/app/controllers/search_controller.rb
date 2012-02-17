@@ -81,7 +81,7 @@ class SearchController < ApplicationController
       else
         predicate = "contains(@name,'#{@search_text}')"
       end
-      collection = find_cached(Collection, :what => s_what, :predicate => predicate, :expires_in => 5.minutes)
+      collection = find_cached(Collection, :what => s_what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
 
       # collect all results and give them some weight
       collection.send("each_#{s_what}") do |result|
