@@ -1050,12 +1050,13 @@ class PackageController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       @meta = params[:meta]
+      render :text => message, :status => 400, :content_type => "text/plain"
       return
     end
     
     flash[:note] = "Config successfully saved"
     Package.free_cache @package, :project => @project
-    redirect_to :action => :meta, :project => @project, :package => @package
+    render :text => "Config successfully saved", :content_type => "text/plain"
   end
 
   def attributes
