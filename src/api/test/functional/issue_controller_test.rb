@@ -186,6 +186,18 @@ Aha bnc#123456\n
     assert_response :success
     assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
+    get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]'
+    assert_response :success
+    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+
+    get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]'
+    assert_response :success
+    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+
+    get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]'
+    assert_response :success
+    assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+
     #cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
