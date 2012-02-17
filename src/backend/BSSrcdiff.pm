@@ -716,9 +716,11 @@ sub issues {
     pop @issues if @issues & 1;	# hmm
     my %issues = @issues;
     for (keys %issues) {
-      $ret->{$_} = {
+      my $label = $tracker->{'label'};
+      $label =~ s/\@\@\@/$issues{$_}/g;
+      $ret->{$label} = {
 	'name' => $issues{$_},
-	'label' => $_,
+	'label' => $label,
         'tracker' => $tracker,
       };
     }

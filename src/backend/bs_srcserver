@@ -3913,7 +3913,8 @@ sub sourcediff {
   my $view = $cgi->{'view'} || '';
   $view = 'unified' if $cgi->{'unified'};
   die("unsupported view '$view'\n") if $view && ($view ne 'xml' && $view ne 'unified');
-  my $cacheid = "$orev->{'srcmd5'}/$rev->{'srcmd5'}";
+  my $cacheid = "//cacheversion:1/";
+  $cacheid .= "$orev->{'srcmd5'}/$rev->{'srcmd5'}";
   $cacheid .= "/unified:1" if $view && $view eq 'unified';
   $cacheid .= "/view:$cgi->{'view'}" if $view && $view ne 'unified';
   $cacheid .= "/fmax:$fmax" if defined $fmax;
