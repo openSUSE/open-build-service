@@ -28,12 +28,35 @@ class RequestController < ApplicationController
 
   def modify_review
     valid_http_methods :post
-    begin
-      BsRequest.modifyReview(params[:id], params[:new_state], params)
-      render :text => params[:new_state]
-    rescue BsRequest::ModifyError => e
-      render :text => e.message
+
+    opts = {}
+    params.each do |key, value|
+      opts[:new_review_state] = 'accepted' if key == 'accepted'
+      opts[:new_review_state] = 'declined' if key == 'declined'
+
+      # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
+      # HTML ids. Thus we have to parse 'params' a bit:
+      opts[:id] = value if key.starts_with?('review_request_id_')
+      opts[:user] = value if key.starts_with?('review_by_user_')
+      opts[:group] = value if key.starts_with?('review_by_group_')
+      opts[:project] = value if key.starts_with?('review_by_project_')
+      opts[:package] = value if key.starts_with?('review_by_package_')
     end
+
+    msg = "#{opts[:new_review_state]} review for"
+    msg += " user #{opts[:user]}" if opts.has_key?(:user)
+    msg += " group #{opts[:group]}" if opts.has_key?(:group)
+    msg += " project #{opts[:project]}" if opts.has_key?(:project)
+    msg += " package #{opts[:package]}" if opts.has_key?(:package)
+
+    begin
+      BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
+      flash[:note] = msg
+    rescue BsRequest::ModifyError => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+    end
+    redirect_to :action => 'show', :id => opts[:id]
   end
 
   def show
