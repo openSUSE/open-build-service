@@ -1377,4 +1377,29 @@ our $issue_trackers = [
      ]],
 ];
 
+our $appdataitem = [ 
+    'application' =>
+    [ 'id' => 
+      'type', 
+      '_content' ],
+    'pkgname',
+    'name',
+    'summary',
+    [ 'icon' => 
+      'type', 
+      '_content' ],
+    [ 'appcategories' => 
+      [ 'appcategory' ] 
+    ],
+    [ 'url' => 
+      'type', 
+      '_content' 
+    ]
+];
+    
+our $appdata = [
+    'applications' => 'version',
+    [ $appdataitem ]
+];
+
 1;
