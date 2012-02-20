@@ -13,7 +13,6 @@ module ValidationHelper
     return true if name == "_product"
     return true if name =~ /^_product:\w[-_+\w\.]*$/
     # obsolete, just for backward compatibility
-    return true if name == "patchinfo:"
     return true if name =~ /^_patchinfo:\w[-_+\w\.]*$/
     name =~ /^\w[-_+\w\.]*$/
   end
