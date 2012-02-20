@@ -787,7 +787,7 @@ sub issuediff {
   }
   for my $issue (@changed, @added, @deleted) {
     my $tracker = $issue->{'tracker'};
-    my $url = $tracker->{'url'};
+    my $url = $tracker->{'show-url'};
     if ($url) {
       $url =~ s/\@\@\@/$issue->{'name'}/g;
       $issue->{'url'} = $url;
