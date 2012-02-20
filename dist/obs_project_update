@@ -71,9 +71,9 @@ for f in $prjlist
 do
 # Copy pkg meta info before checking out target package
 (set -x && 
-    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | osc -A $targetobs meta pkg -F - $targetprj/$f) ||
-    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | osc -A $targetobs meta pkg -F - $targetprj/$f) ||
-    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | osc -A $targetobs meta pkg -F - $targetprj/$f)
+    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | osc -A $targetobs meta pkg -F - $targetprj/$f) ||
+    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" |osc -A $targetobs meta pkg -F - $targetprj/$f) ||
+    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | osc -A $targetobs meta pkg -F - $targetprj/$f)
 )
 # Check out target packages
 (set -x && 
@@ -100,7 +100,7 @@ rm -rf M && mkdir -p M/$targetprj && (cd S/$sourceprj && tar cf - . ) | (cd M/$t
 for f in *
 do
 DATE=$(date)
-(set -x && cd $f && osc -A $targetobs addremove && osc -A $targetobs ci -m "updated: @ $DATE from -A $sourceobs $targetprj/$f" )
+(set -x && cd $f && osc -A $targetobs addremove && osc -A $targetobs ci -m "updated: on $DATE from -A $sourceobs $sourceprj/$f to $targetprj/$f" )
 done
 )
 
