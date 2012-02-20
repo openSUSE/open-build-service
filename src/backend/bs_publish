@@ -388,7 +388,7 @@ sub createrepo_rpmmd {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @$signargs;
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $pubkey) if $pubkey;
   }
   if ($BSConfig::repodownload) {
@@ -551,7 +551,7 @@ EOL
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @$signargs;
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && print("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
   }
   if ($BSConfig::sign) {
@@ -603,7 +603,7 @@ sub createpatterns_rpmmd {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @$signargs;
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
   }
 }
 
@@ -658,7 +658,7 @@ sub createpatterns_comps {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @$signargs;
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
   }
 }
 
@@ -1506,6 +1506,16 @@ while(1) {
     };
     if ($@) {
       warn("publish failed: $@");
+      # delete state from repoinfo so that we will really re-publish
+      if (-s "$reporoot/$prp/:repoinfo") {
+	eval {
+	  my $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo") || {};
+	  if ($repoinfo->{'state'}) {
+	    delete $repoinfo->{'state'};
+	    Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
+	  }
+	};
+      }
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
     } else {
