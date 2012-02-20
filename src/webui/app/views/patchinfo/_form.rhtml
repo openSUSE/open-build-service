@@ -52,7 +52,7 @@
       </tr>
       <tr>
         <th style="border:solid 1px;">
-          <%= link_to "Update issues from sources", :action => "updatepatchinfo", :project => @project, :package => @package %></th>
+		<%= link_to "Update issues from sources", {:action => "updatepatchinfo", :project => @project, :package => @package}, {:confirm => "Attention! All unsaved data getting lost! Continue?", :method => :post } %></th>
         <td>
           <%= select_tag "tracker", options_for_select(@trackerlist, :selected => @tracker)%>
           <%= text_field_tag 'issueid', @issueid %>
