@@ -772,6 +772,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add another issue and update patchinfo
     put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
     assert_response :success
+    get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
+    assert_response :success
+    assert_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "1042"
+    assert_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "4201"
+    assert_tag :tag => 'kind', :content => "link"
     post "/source/#{incidentProject}/patchinfo?cmd=updatepatchinfo"
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"

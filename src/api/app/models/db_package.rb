@@ -381,13 +381,13 @@ class DbPackage < ActiveRecord::Base
         self.db_package_kinds.destroy_all unless _noreset
         directory = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}").body unless directory
         xml = REXML::Document.new(directory.to_s)
-        if xml.elements["/directory/entry/@name='_patchinfo'"]
+        if xml.elements["/directory/entry[@name='_patchinfo']"]
           self.db_package_kinds.create :kind => 'patchinfo'
         end
-        if xml.elements["/directory/entry/@name='_aggregate'"]
+        if xml.elements["/directory/entry[@name='_aggregate']"]
           self.db_package_kinds.create :kind => 'aggregate'
         end
-        if xml.elements["/directory/entry/@name='_link'"]
+        if xml.elements["/directory/entry[@name='_link']"]
           self.db_package_kinds.create :kind => 'link'
         end
         # further types my be product, spec, dsc, kiwi in future
