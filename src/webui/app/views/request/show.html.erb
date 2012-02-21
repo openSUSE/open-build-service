@@ -95,14 +95,14 @@
               <% if @state == 'declined' && (@is_author || @is_target_maintainer) %>
                 <%= submit_tag 'Reopen request', :name => 'new' %>
               <% end %>
+              <% if @can_add_reviews %>
+                <span style="float: right;">
+                  <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                  <%= link_to_remote('Add a review', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                </span>
+              <% end %>
             </p>
           <% end %>
-        <% end %>
-        <% if @can_add_reviews %>
-          <p>
-            <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-            <%= link_to_remote('Add a review', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-          </p>
         <% end %>
       </div>
       <% if @my_open_reviews.length > 0 %>
