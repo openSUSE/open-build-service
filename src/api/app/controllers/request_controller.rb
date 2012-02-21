@@ -289,6 +289,85 @@ class RequestController < ApplicationController
 
     # expand release and submit request targets if not specified
     req.each_action do |action|
+      if [ "maintenance_incident" ].include?(action.value("type"))
+        # find maintenance project
+        maintenanceProject = nil
+        if action.has_element? 'target' and action.target.has_attribute?(:project)
+          maintenanceProject = DbProject.get_by_name action.target.project
+        else
+          # hardcoded default. frontends can lookup themselfs a different target via attribute search
+          at = AttribType.find_by_name("OBS:MaintenanceProject")
+          unless at
+            render_error :status => 404, :errorcode => 'not_found',
+              :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
+            return
+          end
+          maintenanceProject = DbProject.find_by_attribute_type( at ).first()
+          unless maintenanceProject
+            render_error :status => 400, :errorcode => 'project_not_found',
+              :message => "There is no project flagged as maintenance project on server and no target in request defined."
+            return
+          end
+          action.add_element 'target'
+          action.target.set_attribute("project", maintenanceProject.name)
+        end
+        unless maintenanceProject.project_type == "maintenance" or maintenanceProject.project_type == "maintenance_incident"
+          render_error :status => 400, :errorcode => 'no_maintenance_project',
+            :message => "Maintenance incident requests have to go to projects of type maintenance or maintenance_incident"
+          return
+        end
+
+        # validate release target project
+        targetproject = nil
+        if action.target.has_attribute? 'releaseproject'
+          targetproject = DbProject.get_by_name action.target.releaseproject
+        else
+          packages = []
+          if action.source.has_attribute? 'package'
+            packages << DbPackage.get_by_project_and_name( action.source.project, action.source.package )
+          else
+            packages = DbProject.get_by_name(action.source.project).db_packages
+          end
+          # follow link for all packages
+          packages.each do |pkg|
+            next if pkg.db_package_kinds.find_by_kind 'patchinfo'
+            tprj = pkg.db_project.name
+            ltpkg = pkg.name
+            while tprj == pkg.db_project.name
+              begin
+                data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
+                e = data.elements["directory/linkinfo"]
+                if e
+                  tprj = e.attributes["project"]
+                  ltpkg = e.attributes["package"]
+                else
+                  tprj = nil
+                end
+              rescue ActiveXML::Transport::NotFoundError
+                tprj = nil
+              end
+            end
+            unless tprj
+              render_error :status => 400, :errorcode => 'no_maintenance_release_target',
+                :message => "Package #{pkg.name} is neither linked nor have a proper release target definition"
+              return
+            end
+            targetproject = DbProject.get_by_name tprj
+            unless targetproject.project_type == "maintenance_release"
+              render_error :status => 400, :errorcode => 'no_maintenance_release_target',
+                :message => "Maintenance incident request contains no proper defined release target project for package #{pkg.name}"
+              return
+            end
+          end
+        end
+
+        unless targetproject and targetproject.project_type == "maintenance_release"
+          render_error :status => 400, :errorcode => 'no_maintenance_release_target',
+            :message => "Maintenance incident request contains no proper defined release target project"
+          return
+        end
+      end
+
       if [ "submit", "maintenance_release" ].include?(action.value("type"))
         unless action.has_element? 'target'
           packages = Array.new
@@ -555,30 +634,10 @@ class RequestController < ApplicationController
         end
 
         if action.value("type") == "maintenance_incident"
-          # find target project via attribute, if not specified
-          unless action.has_element? 'target' 
-            action.add_element 'target'
-          end
           if action.target.has_attribute?(:package)
             render_error :status => 400, :errorcode => 'illegal_request',
               :message => "Maintenance requests accept only projects as target"
             return
-          end
-          unless action.target.has_attribute?(:project)
-            # hardcoded default. frontends can lookup themselfs a different target via attribute search
-            at = AttribType.find_by_name("OBS:MaintenanceProject")
-            unless at
-              render_error :status => 404, :errorcode => 'not_found',
-                :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
-              return
-            end
-            prj = DbProject.find_by_attribute_type( at ).first()
-            unless prj
-              render_error :status => 404, :errorcode => 'project_not_found',
-                :message => "There is no project flagged as maintenance project on server and no target in request defined."
-              return
-            end
-            action.target.set_attribute("project", prj.name)
           end
           # validate project type
           prj = DbProject.get_by_name(action.target.project)

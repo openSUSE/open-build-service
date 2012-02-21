@@ -229,7 +229,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    </action>
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "incident_has_no_maintenance_project" }
+    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_project" }
     # valid target..
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
@@ -453,6 +453,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :parent => { :tag => "publish" }, :tag => "enable"
     assert_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
 
+    # delete kdelibs package again or incident creation will fail since it does not point to a maintained project.
+    delete "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4"
+    assert_response :success
+
     # create maintenance request
     # without specifing target, the default target must get found via attribute
     post "/request?cmd=create", '<request>
@@ -474,7 +478,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
     assert_match(/new_content_2137/, @response.body) # check if our changes are part of the diff
-    assert_match(/new_content_0815/, @response.body)
 
     # store data for later checks
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
@@ -513,7 +516,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/#{incidentProject}"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :count => "9" } )
+    assert_tag( :tag => "directory", :attributes => { :count => "8" } )
 
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
@@ -1083,7 +1086,38 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "incident_has_no_maintenance_project" }
+    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_project" }
+
+    # submit foreign package without releaseproject
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_release_target" }
+
+    # submit foreign package with wrong releaseproject
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="home:tom" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_release_target" }
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="NOT_EXISTING" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
   end
 
   def test_create_invalid_release_request
