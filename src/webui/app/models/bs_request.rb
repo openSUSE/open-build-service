@@ -272,7 +272,7 @@ class BsRequest < ActiveXML::Base
           if !previous_item # First history item
             what = "created request"
           elsif previous_item && previous_item.name == "declined"
-            what = "reopened review"
+            what, color = "reopened review", 'maroon'
           else # Other items...
             what = "added review"
           end
@@ -280,7 +280,7 @@ class BsRequest < ActiveXML::Base
         when "declined" then
           color = "red"
           if previous_item
-            case previous_item.name
+            case previous_item.value('name')
               when "review" then what = "declined review"
               when "new" then what = "declined request"
             end
@@ -294,18 +294,7 @@ class BsRequest < ActiveXML::Base
     end
     self.each_review do |item|
       if ['accepted', 'declined'].include?(item.state)
-
-        reviewer = ''
-        if item.by_group
-          reviewer = item.value('by_group')
-        elsif item.by_project
-          reviewer = item.value('by_project')
-        elsif item.by_package
-          reviewer = item.value('by_package')
-        elsif item.by_user
-          reviewer = item.value('by_user')
-        end
-        events[item.when] = {:who => item.who, :what => "#{item.state} review for #{reviewer}", :when => item.when, :comment => item.value('comment')}
+        events[item.when] = {:who => item.who, :what => "#{item.state} review for #{reviewer_for_history_item(item)}", :when => item.when, :comment => item.value('comment')}
         events[item.when][:color] = "green" if item.state == "accepted"
         events[item.when][:color] = "red" if item.state == "declined"
       end
@@ -317,11 +306,15 @@ class BsRequest < ActiveXML::Base
       when "declined" then what, color = "declined request", "red"
       when "new", "review"
         if previous_item # Last history entry
-          what, color = "accepted review", "green"
+          case previous_item.value('name')
+            when 'review' then what, color = "accepted review for #{previous_item.value('who')}", 'green'
+            when 'declined' then what, color = 'reopened request', 'maroon'
+          end
         else
           what = "created request"
         end
-      when "superseded" then what = "superseded request"
+      when "superseded" then what, color = 'superseded request', 'green'
+      when "revoked" then what, color = 'revoked request', 'green'
     end
 
     events[state.when] = {:who => state.who, :what => what, :when => state.when, :comment => state.value('comment')}
@@ -446,4 +439,17 @@ class BsRequest < ActiveXML::Base
     end
   end
 
+  def reviewer_for_history_item(item)
+    reviewer = ''
+    if item.by_group
+      reviewer = item.value('by_group')
+    elsif item.by_project
+      reviewer = item.value('by_project')
+    elsif item.by_package
+      reviewer = item.value('by_package')
+    elsif item.by_user
+      reviewer = item.value('by_user')
+    end
+    return reviewer
+  end
 end
