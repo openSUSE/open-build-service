@@ -35,7 +35,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "BaseDistro:Update"
-    assert_equal ret.package, "pack1"
+    assert_nil ret.package
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
@@ -48,7 +48,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "Devel:BaseDistro:Update"
-    assert_equal ret.package, "pack2"
+    assert_nil ret.package
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
@@ -61,7 +61,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "Devel:BaseDistro:Update"
-    assert_equal ret.package, "pack3"
+    assert_nil ret.package
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
@@ -74,7 +74,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "BaseDistro2.0:LinkedUpdateProject"
-    assert_equal ret.package, "pack2"
+    assert_nil ret.package
 
     # check if we can upload a link to a packge only exist via project link
     put "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link", @response.body
@@ -193,6 +193,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => 'packager', :content => "tom"
     assert_tag :tag => 'description', :content => "To fix my bug"
+
+    # reopen ...
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request/#{id2}?cmd=changestate&newstate=new"
+    assert_response 403
 
     # cleanup
     prepare_request_with_user "king", "sunflower"

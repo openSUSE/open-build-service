@@ -2176,7 +2176,7 @@ end
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "home:Iggy"
-    assert_equal ret.package, "TestPack"
+    assert_nil ret.package
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch

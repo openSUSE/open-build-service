@@ -52,7 +52,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => 'NEW_PACKAGE' } )
+    assert_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => nil } )
     put "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file", "my content"
     assert_response :success
 
@@ -1347,7 +1347,7 @@ end
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "BaseDistro2.0:LinkedUpdateProject"
-    assert_equal ret.package, "pack2"
+    assert_nil ret.package # same package name
 
     # create request
     req = "<request>
@@ -1386,7 +1386,7 @@ end
     # pack2 got created
     get "/source/DummY/pack2/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => "pack2" } )
+    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => nil } )
 
     # create delete request two times
     prepare_request_with_user "tom", "thunder"
