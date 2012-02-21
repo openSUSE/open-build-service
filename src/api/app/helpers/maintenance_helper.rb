@@ -89,7 +89,9 @@ module MaintenanceHelper
         end
         branch_params = { :target_project => incidentProject.name,
                           :maintenance => 1, 
+                          :comment => "Initial new branch", 
                           :project => releaseproject, :package => package_name }
+        branch_params[:requestid] = request.id if request
         # it is fine to have new packages
         unless DbPackage.exists_by_project_and_name(releaseproject, package_name, follow_project_links=true)
           branch_params[:missingok]= 1
@@ -106,6 +108,7 @@ module MaintenanceHelper
         branch_params = { :target_project => incidentProject.name,
                           :maintenance => 1, 
                           :project => linked_project, :package => linked_package }
+        branch_params[:requestid] = request.id if request
         ret = do_branch branch_params
         new_pkg = DbPackage.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
       else
@@ -127,11 +130,12 @@ module MaintenanceHelper
         :oproject => pkg.db_project.name,
         :opackage => pkg.name,
         :keeplink => 1,
-        :comment => "Maintenance copy from project " + pkg.db_project.name
+        :expand => 1,
+        :comment => "Maintenance incident copy from project " + pkg.db_project.name
       }
       cp_params[:requestid] = request.id if request
       cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
-      cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :keeplink, :comment, :requestid])
+      cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :keeplink, :expand, :comment, :requestid])
       Suse::Backend.post cp_path, nil
 
       new_pkg.sources_changed
@@ -548,6 +552,8 @@ module MaintenanceHelper
             p[:link_target_project] = p[:package].db_project
             p[:target_package] = p[:package].name
             p[:target_package] += ".#{p[:link_target_project].name}" if extend_names
+            # user specified target name
+            p[:target_package] = params[:target_package] if params[:target_package]
             logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
           end
         end

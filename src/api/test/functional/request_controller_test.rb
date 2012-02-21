@@ -740,11 +740,11 @@ end
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                     <target project="My:Maintenance" releaseproject="BaseDistro3" />
                                    </action>
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
