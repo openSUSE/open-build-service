@@ -1391,6 +1391,12 @@ our $appdataitem = [
     [ 'appcategories' => 
       [ 'appcategory' ] 
     ],
+    [ 'mimetypes' =>
+      [ 'mimetype' ]
+    ],
+    [ 'keywords' => 
+      [ 'keyword' ]
+    ],
     [ 'url' => 
       'type', 
       '_content' 
