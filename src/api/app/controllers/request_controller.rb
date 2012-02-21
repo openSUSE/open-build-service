@@ -898,7 +898,7 @@ class RequestController < ApplicationController
 
           # the target is by default the _link target
           # maintenance_release creates new packages instance, but are changing the source only according to the link
-          if target_package.nil? or action.value('type') == "maintenance_release"
+          if target_package.nil? or [ "maintenance_release", "maintenance_incident" ].include? action.value('type')
             data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}") )
             e = data.elements["directory/linkinfo"]
             if e
@@ -908,8 +908,10 @@ class RequestController < ApplicationController
           end
 
           # maintenance incidents shall show the final result after release
-          target_package = action.source.package if target_package.nil?
           target_project = action.target.releaseproject if action.target.has_attribute? :releaseproject
+
+          # fallback name as last resort
+          target_package = action.source.package if target_package.nil?
 
           if action.has_element? :acceptinfo
             # OBS 2.1 adds acceptinfo on request accept
