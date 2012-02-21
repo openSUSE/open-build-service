@@ -1383,7 +1383,8 @@ class RequestController < ApplicationController
             tprj = DbProject.get_by_name(action.target.project + ":" + params[:incident])
             action.target.set_attribute("project", tprj.name)
           end
-        else # the accept case, create a new incident if needed
+        elsif params[:cmd] == "changestate" and params[:newstate] == "accepted"
+          # the accept case, create a new incident if needed
           if tprj.project_type == "maintenance"
             # create incident if it is a maintenance project
             unless incident_project
