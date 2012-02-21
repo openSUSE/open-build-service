@@ -4725,7 +4725,7 @@ sub sourcebranch {
   }
   my $l = {};
   $l->{'project'} = $oprojid if $oprojid ne $projid;
-  $l->{'package'} = $opackid if $opackid ne $projid;
+  $l->{'package'} = $opackid if $opackid ne $packid;
   $l->{'missingok'} = "true" if defined $cgi->{'missingok'} && $orev->{'srcmd5'} eq $emptysrcmd5;
   $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
   $l->{'baserev'} = $orev->{'srcmd5'};
