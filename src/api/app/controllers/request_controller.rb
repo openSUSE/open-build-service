@@ -361,6 +361,12 @@ class RequestController < ApplicationController
           end
         end
 
+        # Automatically switch to update project
+        if a = targetproject.find_attribute("OBS", "UpdateProject") and a.values[0]
+          targetproject = DbProject.get_by_name a.values[0].value
+          action.target.set_attribute("releaseproject", targetproject.name)
+        end
+
         unless targetproject and targetproject.project_type == "maintenance_release"
           render_error :status => 400, :errorcode => 'no_maintenance_release_target',
             :message => "Maintenance incident request contains no proper defined release target project"
