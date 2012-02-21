@@ -46,7 +46,11 @@
         </td>
       <% end %>
       <td colspan="2" class="nowrap">
-        <% patchinfo_issues_by_tracker = rt[:patchinfo].issues_by_tracker %>
+        <% if rt[:patchinfo] %>
+          <% patchinfo_issues_by_tracker = rt[:patchinfo].issues_by_tracker %>
+        <% else %>
+          <% patchinfo_issues_by_tracker = {} %>
+        <% end %>
         <% package_issues_by_tracker = rt[:package_issues_by_tracker] %>
         <% trackers = patchinfo_issues_by_tracker.merge(package_issues_by_tracker) %>
         <% trackers.keys.each_with_index do |tracker, index| %>
