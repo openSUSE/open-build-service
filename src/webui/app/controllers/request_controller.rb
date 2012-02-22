@@ -44,16 +44,8 @@ class RequestController < ApplicationController
       opts[:package] = value if key.starts_with?('review_by_package_')
     end
 
-    msg = "#{opts[:new_review_state]} review for"
-    msg += " user #{opts[:user]}" if opts.has_key?(:user)
-    msg += " group #{opts[:group]}" if opts.has_key?(:group)
-    msg += " project #{opts[:project]}" if opts.has_key?(:project)
-    msg += " package #{opts[:package]}" if opts.has_key?(:package)
-    msg += ": #{opts[:comment]}" if opts.has_key?(:comment)
-
     begin
       BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
-      flash[:note] = msg
     rescue BsRequest::ModifyError => e
       message, _, _ = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
