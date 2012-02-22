@@ -185,7 +185,7 @@
           <b>Submit
           <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg], :short => true} %>
           <% if action[:srev] && action[:srev] != Package.current_rev(action[:sprj], action[:spkg]) %>
-            (<%= link_to("(revision #{action[:srev]}", :controller => 'package', :action => 'files', :project => action[:sprj], :package => action[:spkg], :rev => action[:srev]) %>)
+            (<%= link_to("revision #{action[:srev]}", :controller => 'package', :action => 'files', :project => action[:sprj], :package => action[:spkg], :rev => action[:srev]) %>)
           <% end %>
           to
           <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
