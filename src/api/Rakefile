@@ -15,7 +15,7 @@ rescue LoadError
 end
 
 require 'workers/update_issues.rb'
-task(:updateissues => :environment) { UpdateIssuesJob.new }
+task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
 
 begin
   require 'ci/reporter/rake/test_unit'
