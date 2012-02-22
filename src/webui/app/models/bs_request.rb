@@ -339,24 +339,25 @@ class BsRequest < ActiveXML::Base
         action = {:type => xml.value('type'), :xml => xml}
 
         if xml.has_element?(:source) && xml.source.has_attribute?(:project)
-          action[:sprj] = Project.find_cached(xml.source.project)
-          action[:spkg] = Package.find_cached(xml.source.package, :project => xml.source.project) if xml.source.has_attribute?(:package)
+          action[:sprj] = xml.source.value('project')
+          action[:spkg] = xml.source.value('package') if xml.source.has_attribute?(:package)
           action[:srev] = xml.source.value('rev') if xml.source.has_attribute?(:rev)
         end
         if xml.has_element?(:target) && xml.target.has_attribute?(:project)
-          action[:tprj] = Project.find_cached(xml.target.project)
-          action[:tpkg] = Package.find_cached(xml.target.package, :project => xml.target.project) if xml.target.has_attribute?(:package)
+          action[:tprj] = xml.target.value('project')
+          action[:tpkg] = xml.target.value('package') if xml.target.has_attribute?(:package)
         end
 
         case xml.value('type') # All further stuff depends on action type...
         when 'submit' then
-          action[:name] = "Submit #{action[:spkg].value('name')}"
+          action[:name] = "Submit #{action[:spkg]}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
           action[:creator_is_target_maintainer] = true if self.creator.is_maintainer?(action[:tprj], action[:tpkg])
 
           if action[:tpkg]
-            linkinfo = action[:tpkg].linkinfo
-            action[:tpkg].developed_packages.each do |dev_pkg|
+            target_package = Package.find_cached(action[:tpkg], :project => action[:tprj])
+            linkinfo = target_package.linkinfo
+            target_package.developed_packages.each do |dev_pkg|
               action[:forward] ||= []
               action[:forward] << {:project => dev_pkg.project, :package => dev_pkg.name, :type => 'devel'}
             end
@@ -398,7 +399,7 @@ class BsRequest < ActiveXML::Base
           action[:name] = 'Maintenance Incident'
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
         when 'maintenance_release' then
-          action[:name] = "Release #{action[:spkg].value('name').split('.')[0]}"
+          action[:name] = "Release #{action[:spkg].split('.')[0]}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
         end
         action_index += 1
@@ -410,15 +411,18 @@ class BsRequest < ActiveXML::Base
 
   def actiondiffs
     return Rails.cache.fetch("request_#{value('id')}_actiondiffs", :expires_in => 7.days) do
-      transport ||= ActiveXML::Config::transport_for :bsrequest
-      result = ActiveXML::Base.new(transport.direct_http(URI("/request/#{value('id')}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
       actiondiffs = []
-      result.each_action do |action| # Parse each action and get the it's diff (per file)
-        sourcediffs = []
-        action.each_sourcediff do |sourcediff| # Parse earch sourcediff in that action
-          sourcediffs << BsRequest.sorted_filenames_from_sourcediff(sourcediff)
+      begin
+        transport ||= ActiveXML::Config::transport_for :bsrequest
+        result = ActiveXML::Base.new(transport.direct_http(URI("/request/#{value('id')}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
+        result.each_action do |action| # Parse each action and get the it's diff (per file)
+          sourcediffs = []
+          action.each_sourcediff do |sourcediff| # Parse earch sourcediff in that action
+            sourcediffs << BsRequest.sorted_filenames_from_sourcediff(sourcediff)
+          end
+          actiondiffs << sourcediffs
         end
-        actiondiffs << sourcediffs
+      rescue ActiveXML::Transport::NotFoundError => e
       end
       actiondiffs
     end
