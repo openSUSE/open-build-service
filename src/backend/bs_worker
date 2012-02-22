@@ -1145,6 +1145,8 @@ sub getbinaries_kiwiproduct {
 	      my $rarch = $1;
 	      mkdir_p("$param->{'directory'}/$rarch");
 	      $name = "$rarch/$name";
+	    } else { 
+	      $name = "$arch/$name";
 	    }
 	    return $name;
 	  },
