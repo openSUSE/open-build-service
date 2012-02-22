@@ -80,7 +80,7 @@
         </div>
         <div class="review_descision_display <%= 'hidden' if @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
           <% if @can_handle_request %>
-            <% form_tag(:action => "changerequest") do %>
+            <% form_tag({:action => 'changerequest'}, {:id => 'request_handle_form'}) do %>
               <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x1', :style => "width: 99%") %></p>
               <p>
                 <%= hidden_field_tag(:id, @id) %>
@@ -105,6 +105,25 @@
                   </span>
                 <% end %>
               </p>
+            <% end %>
+            <% javascript_tag do %>
+              $('#request_handle_form').submit(function () {
+                /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
+                if ($('.submitter_is_maintainer_checkbox').size() != 0) {
+                  additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
+                             '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
+                             '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>'
+                  $('#request_handle_form p:last').append(additional_element);
+                }
+                if ($('.forward_checkbox').size() != 0) {
+                  $('.forward_checkbox').each(function (index) {
+                    additional_element = '<input id="' + $(this).attr('id') +
+                               '" name="' + $(this).attr('name') +
+                               '" type="hidden" value="' + $(this).attr('value') + '"/>'
+                    $('#request_handle_form p:last').append(additional_element);
+                  });
+                }
+              });
             <% end %>
           <% end %>
         </div>
@@ -174,19 +193,20 @@
           <% if @can_handle_request %>
             <% if !action[:creator_is_target_maintainer] %>
               <%# TODO: Make this work for each submit action individually: %>
-              <br/><%= check_box_tag(:add_submitter_as_maintainer) %> Add
+              <br/><%= check_box_tag(:add_submitter_as_maintainer, "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %> Add
               <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator().login, :no_icon => true} %> as maintainer for
               <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
             <% end %>
 
             <% if action[:forward] %>
+              <%# TODO: Make this work for each submit action individually: %>
               <% action[:forward].each do |forward| %>
                 <% index = 0 %>
                 <% if forward[:type] == 'link' %>
-                  <br/><%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}") %> Forward to linked package
+                  <br/><%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}", false, :class => 'forward_checkbox') %> Forward to linked package
                   <%= render :partial => 'shared/project_or_package_link', :locals => {:project => forward[:project], :package => forward[:package], :short => true} %><br/>
                 <% else %>
-                  <br/><%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true) %> Forward to developed package
+                  <br/><%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, :class => 'forward_checkbox') %> Forward to developed package
                   <%= render :partial => 'shared/project_or_package_link', :locals => {:project => forward[:project], :package => forward[:package], :short => true} %><br/>
                   <% index += 1 %>
                 <% end %>

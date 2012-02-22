@@ -118,9 +118,16 @@ class RequestController < ApplicationController
     if change_request(changestate, params)
       if params[:add_submitter_as_maintainer]
         if changestate != 'accepted'
-           flash[:error] = "Will not add maintainer for not accepted requests"
+          flash[:error] = "Will not add maintainer for not accepted requests"
         else
-           add_maintainer(@req)
+          tprj, tpkg = params[:add_submitter_as_maintainer].split('_#_') # split into project and package
+          if tpkg
+            target = find_cached(Package, tpkg, :project => tprj)
+          else
+            target = find_cached(Project, tprj)
+          end
+          target.add_person(:userid => BsRequest.creator(@req).login, :role => "maintainer")
+          target.save
         end
       end
     end
@@ -231,16 +238,6 @@ private
       flash[:error] = e.message
     end
     return false
-  end
-
-  def add_maintainer(req)
-    if req.action.target.has_attribute?('package')
-      target = find_cached(Package, req.action.target.package, :project => req.action.target.project)
-    else
-      target = find_cached(Project, req.action.target.project)
-    end
-    target.add_person(:userid => BsRequest.creator(req).login, :role => "maintainer")
-    target.save
   end
 
 end
