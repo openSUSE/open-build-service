@@ -354,8 +354,8 @@ class BsRequest < ActiveXML::Base
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
           action[:creator_is_target_maintainer] = true if self.creator.is_maintainer?(action[:tprj], action[:tpkg])
 
-          if action[:tpkg]
-            target_package = Package.find_cached(action[:tpkg], :project => action[:tprj])
+          target_package = Package.find_cached(action[:tpkg], :project => action[:tprj])
+          if target_package
             linkinfo = target_package.linkinfo
             target_package.developed_packages.each do |dev_pkg|
               action[:forward] ||= []
