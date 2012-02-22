@@ -127,8 +127,9 @@ CREATE TABLE `db_package_issues` (
   `issue_id` int(11) NOT NULL,
   `change` enum('added','deleted','changed','kept') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `db_package_id` (`db_package_id`),
-  KEY `issue_id` (`issue_id`),
+  KEY `index_db_package_issues_on_db_package_id` (`db_package_id`),
+  KEY `index_db_package_issues_on_issue_id` (`issue_id`),
+  KEY `index_db_package_issues_on_db_package_id_and_issue_id` (`db_package_id`,`issue_id`),
   CONSTRAINT `db_package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `db_package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -328,6 +329,7 @@ CREATE TABLE `issues` (
   PRIMARY KEY (`id`),
   KEY `owner_id` (`owner_id`),
   KEY `issue_tracker_id` (`issue_tracker_id`),
+  KEY `index_issues_on_name_and_issue_tracker_id` (`name`,`issue_tracker_id`),
   CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
   CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -858,6 +860,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120217114303');
 INSERT INTO schema_migrations (version) VALUES ('20120217114304');
 
 INSERT INTO schema_migrations (version) VALUES ('20120220114304');
+
+INSERT INTO schema_migrations (version) VALUES ('20120222105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
