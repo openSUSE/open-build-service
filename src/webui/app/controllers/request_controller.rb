@@ -36,6 +36,7 @@ class RequestController < ApplicationController
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
       # HTML ids. Thus we have to parse 'params' a bit:
+      opts[:comment] = value if key.starts_with?('review_comment_')
       opts[:id] = value if key.starts_with?('review_request_id_')
       opts[:user] = value if key.starts_with?('review_by_user_')
       opts[:group] = value if key.starts_with?('review_by_group_')
@@ -48,6 +49,7 @@ class RequestController < ApplicationController
     msg += " group #{opts[:group]}" if opts.has_key?(:group)
     msg += " project #{opts[:project]}" if opts.has_key?(:project)
     msg += " package #{opts[:package]}" if opts.has_key?(:package)
+    msg += ": #{opts[:comment]}" if opts.has_key?(:comment)
 
     begin
       BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
@@ -73,6 +75,7 @@ class RequestController < ApplicationController
     @superseded_by = @req.state.value("superseded_by")
     @is_target_maintainer = @req.is_target_maintainer?(session[:login])
     @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer)
+    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author)
 
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
     @events = @req.events()
