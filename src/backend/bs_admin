@@ -710,7 +710,7 @@ while (@ARGV) {
       } elsif ($ref->{'type'} eq 'cve') {
         $b = { 'id' => $ref->{'id'}, 'tracker' => 'CVE' };
       } else {
-       die("Unhadled type $ref->{'type'}");
+       die("Unhandled type $ref->{'type'}");
       };
       push @{$patchinfo->{'issue'}}, $b;
     };
@@ -722,6 +722,7 @@ while (@ARGV) {
     for my $file (@{$updateinfo->{'pkglist'}->{'collection'}[0]->{'package'} || []}) {
       system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $id/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
     }
+    system( "rpm -qp --qf '%{SOURCERPM}\n' $id/*rpm|while read i; do find $pooldirecotory -name \$i | xargs -I {} cp {} $id/; done" );
     my $ufc;
     $ufc->{'update'} = [];
     push @{$ufc->{"update"}}, $updateinfo;
