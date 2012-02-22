@@ -122,7 +122,7 @@
 <div class="grid_7 omega">
   <div class="box show_right">
     <div class="box-header aligncenter">
-      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "reload_buildstatus", :project => @project, :package => @package}, :update => "package_buildstatus") %>
+      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "buildstatus", :project => @project, :package => @package}, :update => "package_buildstatus") %>
     </div>
     <%= render :partial => 'buildstatus' %>
   </div>

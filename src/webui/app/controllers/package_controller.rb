@@ -1012,17 +1012,14 @@ class PackageController < ApplicationController
     logger.debug "imported description from spec file"
   end
 
-  def reload_buildstatus
-    unless request.xhr?
-      render :text => 'no ajax', :status => 400 and return
-    end
+  def buildresult
+    render :text => 'no ajax', :status => 400 and return if not request.xhr?
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     fill_status_cache unless @buildresult.blank?
     render :partial => 'buildstatus'
   end
-
 
   def set_url_form
     if @package.has_element? :url

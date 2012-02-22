@@ -117,10 +117,5 @@
 </div>
 
 <div class="grid_6 omega">
-  <div class="box show_right">
-    <div class="box-header aligncenter">
-      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "reload_buildstatus", :project => @project, :package => @package}, :update => "package_buildstatus") %>
-    </div>
-    <%= render :partial => 'buildstatus' %>
-  </div>
+  <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>
 </div>

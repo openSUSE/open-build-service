@@ -273,39 +273,7 @@
           </div>
 
           <div class="grid_6 omega">
-            <div class="box show_right show_bottom">
-              <div class="box-header aligncenter">
-                <b>Build Results</b>
-                <%= link_to_function(image_tag('reload.png', :alt => 'Reload Build Results', :title => 'Reload Build Results'), 'update_buildresult()', :id => "buildresult_reload_#{action_index}") %>
-                <%= image_tag('ajax-loader.gif', :id => "buildresult_spinner_#{action_index}", :class => "hidden") %>
-              </div>
-              <% javascript_tag do %>
-                function update_buildresult() {
-                  $('#buildresult_spinner_<%= action_index %>').show();
-                  $('#buildresult_reload_<%= action_index %>').hide();
-                  $.ajax({
-                    url: '<%= url_for(:controller => :package, :action => :reload_buildstatus) %>',
-                    data: {
-                      <%= "'project': '" + project + "'," unless not defined?(project) %>
-                      <%= "'package': '" + package + "'," unless not defined?(package) %>
-                    },
-                    success: function(data) {
-                      $('#buildresult_display_<%= action_index %>').html(data);
-                    },
-                    error: function(data) {
-                      $('#buildresult_display_<%= action_index %>').html('<p>No build result available</p>');
-                    },
-                    complete: function(data) {
-                      $('#buildresult_spinner_<%= action_index %>').hide();
-                      $('#buildresult_reload_<%= action_index %>').show();
-                    }
-                  });
-                }
-
-                update_buildresult();
-              <% end %>
-              <div id="buildresult_display_<%= action_index %>"></div>
-            </div>
+            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
 
             <% if sourcediff[:issues].length > 0 %>
               <div class="box show_right show_bottom">
