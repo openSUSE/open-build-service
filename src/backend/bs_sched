@@ -1207,7 +1207,7 @@ sub prpfinished {
       next if $bin eq '.updateinfodata';
       my $rbin = $bin;
       # XXX: should be source name instead?
-      $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml' || $bin eq 'appdata.xml';
+      $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml';
       next if exists $origin{$rbin};	# first one wins
       if ($nosourceaccess) {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
