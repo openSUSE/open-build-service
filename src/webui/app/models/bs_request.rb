@@ -206,7 +206,7 @@ class BsRequest < ActiveXML::Base
 
       if sourcediff.has_element?(:issues)
         sourcediff.issues.each do |issue|
-          issues_hash[issue.value('long-name')] = Issue.find_cached(issue.value('name'), :tracker => issue.value('issue-tracker'))
+          issues_hash[issue.value('label')] = Issue.find_cached(issue.value('name'), :tracker => issue.value('tracker'))
         end
       end
 
@@ -256,22 +256,22 @@ class BsRequest < ActiveXML::Base
   def events
     # Try to find out what happened over time...
     events = {}
-    previous_item = nil
+    previous_history_item = nil
     self.each_history do |item|
       what, color = "", nil
       case item.name
         when "new" then
-          if previous_item && previous_item.name == "review"
+          if previous_history_item && previous_history_item.name == "review"
             what, color = "accepted review", "green" # Moving back to state 'new'
-          elsif previous_item && previous_item.name == "declined"
+          elsif previous_history_item && previous_history_item.name == "declined"
             what, color = "reopened", "maroon"
           else
             what = "created request" # First history item, regardless of 'state' (may be 'review')
           end
         when "review" then
-          if !previous_item # First history item
+          if !previous_history_item # First history item
             what = "created request"
-          elsif previous_item && previous_item.name == "declined"
+          elsif previous_history_item && previous_history_item.name == "declined"
             what, color = "reopened review", 'maroon'
           else # Other items...
             what = "added review"
@@ -279,8 +279,8 @@ class BsRequest < ActiveXML::Base
         when "accepted" then what, color = "accepted request", "green"
         when "declined" then
           color = "red"
-          if previous_item
-            case previous_item.value('name')
+          if previous_history_item
+            case previous_history_item.value('name')
               when "review" then what = "declined review"
               when "new" then what = "declined request"
             end
@@ -290,24 +290,29 @@ class BsRequest < ActiveXML::Base
 
       events[item.when] = {:who => item.who, :what => what, :when => item.when, :comment => item.value('comment')}
       events[item.when][:color] = color if color
-      previous_item = item
+      previous_history_item = item
     end
+    last_review_item = nil
     self.each_review do |item|
       if ['accepted', 'declined'].include?(item.state)
         events[item.when] = {:who => item.who, :what => "#{item.state} review for #{reviewer_for_history_item(item)}", :when => item.when, :comment => item.value('comment')}
         events[item.when][:color] = "green" if item.state == "accepted"
         events[item.when][:color] = "red" if item.state == "declined"
       end
+      last_review_item = item
     end
     # The <state ... /> element describes the last event in request's history:
     state, what, color = self.state, "", ""
+    comment = state.value('comment')
     case state.value('name')
       when "accepted" then what, color = "accepted request", "green"
       when "declined" then what, color = "declined request", "red"
       when "new", "review"
-        if previous_item # Last history entry
-          case previous_item.value('name')
-            when 'review' then what, color = "accepted review for #{previous_item.value('who')}", 'green'
+        if previous_history_item # Last history entry
+          case previous_history_item.value('name')
+            when 'review' then
+              what, color = "accepted review for #{previous_history_item.value('who')}", 'green'
+              comment = last_review_item.value('comment') # Yes, the comment for the last history item is in the last review ;-)
             when 'declined' then what, color = 'reopened request', 'maroon'
           end
         else
@@ -317,7 +322,7 @@ class BsRequest < ActiveXML::Base
       when "revoked" then what, color = 'revoked request', 'green'
     end
 
-    events[state.when] = {:who => state.who, :what => what, :when => state.when, :comment => state.value('comment')}
+    events[state.when] = {:who => state.who, :what => what, :when => state.when, :comment => comment}
     events[state.when][:color] = color if color
     events[state.when][:superseded_by] = @superseded_by if @superseded_by
     # That wasn't all to difficult, no? ;-)
