@@ -1819,12 +1819,7 @@ sub getkiwiproductpackages {
 	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
         }
         # need package, scan content
-	my @bins;
-	if (-e "$reporoot/$aprp/$arch/$apackid/.bininfo") {
-	  @bins = map {substr($_, 34)} split("\n", readstr("$reporoot/$aprp/$arch/$apackid/.bininfo"));
-	} else {
-	  @bins = grep {/\.rpm$/} ls ("$reporoot/$aprp/$arch/$apackid");
-	}
+	my @bins = grep {/\.rpm$|\.xml$/} ls ("$reporoot/$aprp/$arch/$apackid");
         my $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
@@ -1837,6 +1832,9 @@ sub getkiwiproductpackages {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  push @got, "$aprp/$arch/$apackid/$b";
 	}
+        for my $b (@bins) {
+	  push @got, "$aprp/$arch/$apackid/$b" if $b =~ /^.*-appdata.xml$/;
+        }
       }
     }
   }
@@ -2124,9 +2122,20 @@ sub getbuildinfo {
     my @bins = getkiwiproductpackages($proj, $repo, $pdata, $info, \@edeps);
     for my $b (@bins) {
       my @bn = split('/', $b);
-      next unless $bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
-      my $d = {'name' => $1, 'version' => $2, 'release' => $3, 'arch' => $4, 'project' => $bn[0], 'repository' => $bn[1], 'package' => $bn[3]};
+      my $d = { 'binary' => $bn[-1] };
+      if ($bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+        $d->{'name'} = $1;
+        $d->{'version'} = $2; 
+        $d->{'release'} = $3;
+        $d->{'arch'} = $4;
+      } else {
+        # for now we only support appdata.xml
+        next unless $bn[-1] =~ /^(.*)-appdata.xml$/;
+      }
+      $d->{'project'} = $bn[0];
+      $d->{'repository'} = $bn[1];
       $d->{'repoarch'} = $bn[2] if $bn[2] ne $arch;
+      $d->{'package'} = $bn[3];
       $d->{'noinstall'} = 1;
       push @bdeps, $d;
     }
