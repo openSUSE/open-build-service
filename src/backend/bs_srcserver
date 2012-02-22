@@ -6373,7 +6373,7 @@ sub addevent {
   }
   $ev->{'time'} = time();
   mkdir_p($eventdir);
-  my $size = 65536;	#keep at least 64k of data
+  my $size = 131072;	#keep at least 128k of data
   if (-s "$eventdir/lastevents" && -s _ >= $size * 2) {
     local *F;
     BSUtil::lockopen(\*F, '+>>', "$eventdir/lastevents");
