@@ -273,7 +273,7 @@
           </div>
 
           <div class="grid_6 omega">
-            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
+            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index, :show_bottom => true} %>
 
             <% if sourcediff[:issues].length > 0 %>
               <div class="box show_right show_bottom">
