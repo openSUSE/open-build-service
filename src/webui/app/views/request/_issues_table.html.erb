@@ -15,9 +15,9 @@
           </td>
           <td><%= issue.value('state').capitalize if issue.value('state') %></td>
         </tr>
-        <% if issue.value('description') %>
+        <% if issue.value('summary') %>
           <tr class="odd">
-            <td colspan="3" class="expandable_issue_description"><%= issue.value('description') %></td>
+            <td colspan="3" class="expandable_issue_description"><%= issue.value('summary') %></td>
           </tr>
         <% end %>
       <% end %>
