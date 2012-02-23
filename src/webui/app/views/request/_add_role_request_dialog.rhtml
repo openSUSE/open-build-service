@@ -6,7 +6,7 @@
         <b>Add Role Request</b>
       </div>
 
-      <p>Request role addition to <b><%= h((defined? @package) ? @package : @project) %></b></p>
+      <p>Do you want to request a role addition to <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project, :package => @package} %>?</p>
 
       <% form_tag(:action => "add_role_request", :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>

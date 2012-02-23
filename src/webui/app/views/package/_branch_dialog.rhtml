@@ -6,7 +6,7 @@
         <b>Branch Confirmation</b>
       </div>
 
-      <p>Branch <b><%= h @package.name %></b>?</p>
+      <p>Do you really want to branch <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>?</p>
 
       <% form_tag({:controller => :package, :action => :branch}, :method => :post) do %>
         <%= hidden_field_tag(:project, @project) %>
