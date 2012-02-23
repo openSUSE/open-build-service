@@ -3399,6 +3399,8 @@ sub checkpatchinfo {
   return ('broken', 'missing archs') unless @archs;	# can't happen
   my $patchinfo = $pdata->{'patchinfo'};
 
+  return ('broken', $patchinfo->{'stopped'}) if $patchinfo->{'stopped'};
+
   my $ptype = 'local';
   $ptype = 'binary' if ($projpacks->{$projid}->{'kind'} || '') eq 'maintenance_incident';
   
