@@ -14,11 +14,6 @@ To Do List
 * package build status popup should be more informative
   - The current popup is nice, but for most projects it shows too much informations. A summary would do
 
-* /request/diff needs love
-  - Mostly missing is the history. Right now it only shows a mix of all history lines.
-  - What is missing too is to shorten the diff by default. Right now it loads a huge diff into memory
-    and then it let’s javascript make the syntax highlighting. Both are evil
-
 * We need nicer progress graphics
   - /monitor uses graphics that coolo made with gimp → SCANDAL!
 
