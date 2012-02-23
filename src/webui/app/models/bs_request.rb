@@ -254,22 +254,22 @@ class BsRequest < ActiveXML::Base
   def events
     # Try to find out what happened over time...
     events = {}
-    previous_history_item = nil
+    last_history_item = nil
     self.each_history do |item|
       what, color = "", nil
       case item.name
         when "new" then
-          if previous_history_item && previous_history_item.name == "review"
-            what, color = "accepted review", "green" # Moving back to state 'new'
-          elsif previous_history_item && previous_history_item.name == "declined"
+          if last_history_item && last_history_item.name == "review"
+            what, color = "acCEPted review", "green" # Moving back to state 'new'
+          elsif last_history_item && last_history_item.name == "declined"
             what, color = "reopened", "maroon"
           else
             what = "created request" # First history item, regardless of 'state' (may be 'review')
           end
         when "review" then
-          if !previous_history_item # First history item
+          if !last_history_item # First history item
             what = "created request"
-          elsif previous_history_item && previous_history_item.name == "declined"
+          elsif last_history_item && last_history_item.name == "declined"
             what, color = "reopened review", 'maroon'
           else # Other items...
             what = "added review"
@@ -277,8 +277,8 @@ class BsRequest < ActiveXML::Base
         when "accepted" then what, color = "accepted request", "green"
         when "declined" then
           color = "red"
-          if previous_history_item
-            case previous_history_item.value('name')
+          if last_history_item
+            case last_history_item.value('name')
               when "review" then what = "declined review"
               when "new" then what = "declined request"
             end
@@ -288,7 +288,7 @@ class BsRequest < ActiveXML::Base
 
       events[item.when] = {:who => item.who, :what => what, :when => item.when, :comment => item.value('comment')}
       events[item.when][:color] = color if color
-      previous_history_item = item
+      last_history_item = item
     end
     last_review_item = nil
     self.each_review do |item|
@@ -306,10 +306,13 @@ class BsRequest < ActiveXML::Base
       when "accepted" then what, color = "accepted request", "green"
       when "declined" then what, color = "declined request", "red"
       when "new", "review"
-        if previous_history_item # Last history entry
-          case previous_history_item.value('name')
+        if last_history_item # Last history entry
+          case last_history_item.value('name')
             when 'review' then
-              what, color = "accepted review for #{previous_history_item.value('who')}", 'green'
+              # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
+              # request # remained in state 'review', but another review was accepted in between. That is kind of hard
+              # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
+              what, color = "accepted review for #{last_history_item.value('who')}", 'green'
               comment = last_review_item.value('comment') # Yes, the comment for the last history item is in the last review ;-)
             when 'declined' then what, color = 'reopened request', 'maroon'
           end
