@@ -586,7 +586,7 @@ class Project < ActiveXML::Base
         end
       end
     end
-    if repository
+    if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, count|
         return false if ['broken', 'failed', 'unresolvable'].include?(state)
