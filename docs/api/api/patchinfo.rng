@@ -85,6 +85,14 @@
         <data type="string"/>
       </attribute>
       <optional>
+        <attribute name="documented">
+          <choice>
+            <value>true</value>
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
         <text/>
       </optional>
     </element>

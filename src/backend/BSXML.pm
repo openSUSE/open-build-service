@@ -236,6 +236,8 @@ our $patchinfo = [
          [[ 'issue' =>
 		'tracker',
 		'id',
+		'documented',
+                [],
 		'_content',
 	 ]],
             'category',
