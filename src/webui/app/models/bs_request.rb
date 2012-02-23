@@ -160,20 +160,18 @@ class BsRequest < ActiveXML::Base
     end
 
     def creator(req)
-      return Rails.cache.fetch("request_#{req.value('id')}_creator", :expires_in => 7.days) do
-        login = ''
-        if req.has_element?(:history)
-          #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
-          if req.history.class == ActiveXML::LibXMLNode
-            login = req.history.who
-          else
-            login = req.history.first[:who]
-          end
+      login = ''
+      if req.has_element?(:history)
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
+        if req.history.class == ActiveXML::LibXMLNode
+          login = req.history.who
         else
-          login = req.state.who
+          login = req.history.first[:who]
         end
-        Person.find_cached(login)
+      else
+        login = req.state.who
       end
+      Person.find_cached(login)
     end
 
     def sorted_filenames_from_sourcediff(sourcediff)
