@@ -121,6 +121,10 @@ class PatchinfoController < ApplicationController
     else
       @zypp_restart_needed = false
     end
+    if @file.has_element?("stopped")
+      @block = true
+      @block_reason = @file.stopped.text
+    end
   end
 
   def save
@@ -185,16 +189,13 @@ class PatchinfoController < ApplicationController
         if zypp_restart_needed
           node.zypp_restart_needed
         end
+        if params[:block] == "true"
+          node.stopped  params[:block_reason]
+        end
       end
       begin
         frontend.put_file( xml, :project => @project,
-          :package => @package, :filename => filename,
-          :packager => [:packager], :category => [:category],
-          :rating => [:rating], :issue => [:issue], 
-          :binarylist => [:binarylist], :binaries => [:binaries],
-          :summary => [:summary], :description => [:description],
-          :relogin => [:relogin], :reboot => [:reboot],
-          :zypp_restart_needed => [:zypp_restart_needed])
+          :package => @package, :filename => filename)
         flash[:note] = "Successfully edited #{@package}"
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
@@ -223,6 +224,8 @@ class PatchinfoController < ApplicationController
       @relogin = params[:relogin]
       @reboot = params[:reboot]
       @zypp_restart_needed = params[:zypp_restart_needed]
+      @block = params[:block]
+      @block_reason = params[:block_reason]
       render :action => "edit_patchinfo", :project => @project, :package => @package
     end
   end

@@ -5,7 +5,7 @@
     <div class="box show_left show_right">
       <h2 style="display: inline">Patchinfo-Editor for <%=h @project %></h2>
     </div>
-    <table class="patchinfo" width="100%">
+    <table class="patchinfo" width="99%">
       <colgroup>
         <col width="15%"/>
       </colgroup>
@@ -19,10 +19,11 @@
       <th><%=image_tag ("info.png", :title =>"Please select the binaries (ctrl+left) which your patch includes", :alt => "Binaryinfo")%> Binaries: </th>
       <% if !@binarylist.empty? %>
         <td>
-          <% options = Array.new
-          @binarylist.each {|d| options << "#{d.to_s}"}
-          opt = {:options => options}%>
-          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5%>
+          <% available_bin = Array.new
+            @binarylist.each {|d| available_bin << "#{d.to_s}"}
+            selected_bin = Array.new
+            #@binaries.each {|bin| selected_bin << "#{bin.to_s}"}%>
+          <%= select_tag "available_binaries", options_for_select(available_bin), :multiple =>true, :size => 5%>
         </td>
         <% else %>
           <td><strong>No binaries available!</strong></td>
@@ -102,6 +103,9 @@
           <%= check_box_tag("reboot", true, @reboot) %>
         </td>
       </tr>
+      <tr style="background-color:red;"><th>Block release?</th><td><%= check_box_tag("block", true, @block, :onchange => "enable_block_reason()") %></td></tr>
+      <tr style="background-color:red"><th>Reason:</th>
+      <td><%=text_field_tag "block_reason", @block_reason, :size => 70 %></td></tr>
       <tr><td colspan="2" align="right">
           <%= submit_tag "Save Patchinfo" %>
       </td></tr>
@@ -110,6 +114,15 @@
     <%= hidden_field_tag("package", @package)%>
   </div>
           <% content_for :head_javascript do %>
+            function enable_block_reason(){
+              if ($("input[name='block']:checked").val() == "true"){
+                $("#block_reason").removeAttr("disabled");
+              }
+              else{
+                $("#block_reason").attr("disabled", "true");
+              }
+            }
+
             function append_bug(issueid, tracker) {
               $('#issue_spinner').show();
               var issues = new Array();
@@ -164,7 +177,32 @@
                 }
               });
             }
+
+            function moveSelectedItems(source, destination){
+              var selected = $(source+' option:selected').remove();
+              var sorted = $.makeArray($(destination+' option').add(selected)).sort(function(a,b){
+              return $(a).text() > $(b).text() ? 1:-1;
+            });
+            $(destination).empty().append(sorted);
+            }
+
             $(document).ready(function(){
+
+              $('#add').click(function(){
+                moveSelectedItems('#available_binaries', '#selected_binaries');
+              });
+              $('#addAll').click(function(){
+                $('#available_binaries option').attr('selected', 'true');
+                moveSelectedItems('#available_binaries', '#selected_binaries');
+              });
+              $('#remove').click(function(){
+                moveSelectedItems('#selected_binaries', '#available_binaries');
+              });
+              $('#removeAll').click(function(){
+                $('#selected_binaries option').attr('selected', 'true');
+                moveSelectedItems('#selected_binaries', '#available_binaries');
+              });
+
               $("#summary").keypress(function(event){
                 if(event.keyCode == 13){
                   event.preventDefault();
