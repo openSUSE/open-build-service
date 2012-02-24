@@ -423,7 +423,7 @@ class BsRequest < ActiveXML::Base
           end
           actiondiffs << sourcediffs
         end
-      rescue ActiveXML::Transport::NotFoundError => e
+      rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
       end
       actiondiffs
     end
