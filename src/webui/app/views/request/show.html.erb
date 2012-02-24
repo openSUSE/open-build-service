@@ -24,7 +24,7 @@
   <div class="grid_10 alpha">
     <div class="box show_left show_bottom">
       <div class="grid_7 alpha omega">
-        <h3><%= @pagetitle %></h3>
+        <h3><%= @pagetitle %> (<%= @state %>)</h3>
         <% if @req.value(:description).empty? %>
           <p><i>No request description</i></p>
         <% else %>
