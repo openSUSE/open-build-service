@@ -1165,8 +1165,8 @@ class ProjectController < ApplicationController
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
     filter_for_user = params[:filter_for_user]
     
-    attributes = find_cached(PackageAttribute, :namespace => 'OBS',
-      :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
+    attributes = find_hashed(PackageAttribute, :namespace => 'OBS', 
+      :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes) 
     comments = Hash.new
     attributes.get("project").elements("package") do |p|
       p.elements("values") do |v|
@@ -1178,22 +1178,21 @@ class ProjectController < ApplicationController
     upstream_urls = Hash.new
 
     if @include_versions || @limit_to_old
-      attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
+      attributes = find_hashed(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 20.minutes)
       attributes.get("project").elements("package") do |p|
         p.elements("values") {|v| upstream_versions[p["name"]] = v["value"] }
       end if attributes
 
-      attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
+      attributes = find_hashed(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 20.minutes)
       attributes.get("project").elements("package") do |p|
         p.elements("values") {|v| upstream_urls[p["name"]] = v["value"] }
       end if attributes
     end
 
-    raw_requests = Rails.cache.fetch("requests_new_hash", :expires_in => 5.minutes) do
-      Collection.find(:what => 'request', :predicate => "(state/@name='new' or state/@name='review')").to_hash
-    end
+    raw_requests = find_hashed(Collection,
+      :what => 'request', :predicate => "(state/@name='new' or state/@name='review')", :expires_in => 5.minutes)
 
     @requests = Hash.new
     submits = Hash.new
@@ -1210,9 +1209,14 @@ class ProjectController < ApplicationController
     end
 
     declines = Hash.new
-    declined_requests = BsRequest.list({:states => 'declined', :roles => "target", :project => @project.name})
+    declined_requests = Rails.cache.fetch("declined_requests_#{@project.name}", :expires_in => 10.minutes) do
+      ret = []
+      BsRequest.list({:states => 'declined', :roles => "target", :project => @project.name}).each do |r|
+        ret << r.to_hash
+      end 
+      ret
+    end
     declined_requests.each do |r|
-      r = r.to_hash
       id = r['id'].to_i
       @requests[id] = r
       r.elements('action') do |action|
