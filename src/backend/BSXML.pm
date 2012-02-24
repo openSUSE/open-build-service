@@ -236,6 +236,8 @@ our $patchinfo = [
          [[ 'issue' =>
 		'tracker',
 		'id',
+		'documented',
+                [],
 		'_content',
 	 ]],
             'category',
@@ -244,6 +246,7 @@ our $patchinfo = [
             'description',
             'swampid',	# obsolete
             'packager',
+            'stopped',
             'zypp_restart_needed',
             'reboot_needed',
             'relogin_needed',

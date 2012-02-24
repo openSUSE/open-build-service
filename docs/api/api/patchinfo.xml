@@ -7,6 +7,7 @@
   <issue tracker="bnc" id="123456"/>
   <issue tracker="bnc" id="123456">Add syntax check</issue>
   <issue tracker="CVE" id="CVE-2011-1234">Fixes remote root hole</issue>
+  <issue tracker="CVE" id="CVE-2011-1234" documented="false">Fixes remote root hole</issue>
 
   <category>security</category>
   <rating>low</rating>

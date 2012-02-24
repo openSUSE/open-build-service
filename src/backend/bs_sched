@@ -842,6 +842,96 @@ sub set_repo_state {
 }
 
 
+# create a delta job
+#
+# output: $job           - the job identifier
+#         $error         - in case we could not start the job
+sub createdeltajob {
+  my ($projid, $repoid, $packid, $bconf, $prpsearchpath, $suffix, $needdelta) = @_;
+
+  my $job = jobname("$projid/$repoid", $packid);
+  $job .= "-$suffix" if defined $suffix;
+  if (-e "$myjobsdir/$job") {
+    return undef, 'building'; # delta creation already in progress
+  }
+  my $srcmd5 = '';
+  $srcmd5 .= $_->[2] for @$needdelta;
+  $srcmd5 = Digest::MD5::md5_hex($srcmd5);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  mkdir_p($jobdatadir);
+  BSUtil::cleandir($jobdatadir);
+  return (undef, "could not create jobdir") unless -d $jobdatadir;
+  for my $delta (@$needdelta) {
+    #print Dumper($delta);
+    my $deltaid = $delta->[2];
+    link($delta->[0], "$jobdatadir/$deltaid.old") || return (undef, "link error: $!");
+    link($delta->[1], "$jobdatadir/$deltaid.new") || return (undef, "link error: $!");
+    my $qold = Build::Rpm::query("$jobdatadir/$deltaid.old", 'evra' => 1);
+    my $qnew = Build::Rpm::query("$jobdatadir/$deltaid.new", 'evra' => 1);
+    return (undef, "bad rpms") unless $qold && $qnew;
+    return (undef, "name/arch mismatch") if $qold->{'name'} ne $qnew->{'name'} || $qold->{'arch'} ne $qnew->{'arch'};
+    $qold->{'epoch'} = '' unless defined $qold->{'epoch'};
+    $qnew->{'epoch'} = '' unless defined $qnew->{'epoch'};
+    my $info = '';
+    $info .= ucfirst($_).": $qnew->{$_}\n" for qw{name epoch version release arch};
+    $info .= "Old".ucfirst($_).": $qold->{$_}\n" for qw{name epoch version release arch};
+    writestr("$jobdatadir/$deltaid.info", undef, $info);
+  }
+  # create job
+  my $prptype = $bconf->{'type'};
+  my ($eok, @bdeps) = Build::get_build($bconf, [], "deltarpm");
+  if (!$eok) {
+    print "        unresolvables:\n";
+    print "          $_\n" for @bdeps;
+    return (undef, "unresolvable: ".join(', ', @bdeps));
+  }
+  my $now = time();
+  my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
+  my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+  my %bdeps = map {$_ => 1} @bdeps;
+  my %pdeps = map {$_ => 1} @pdeps;
+  my %vmdeps = map {$_ => 1} @vmdeps;
+  @bdeps = unify(@pdeps, @vmdeps, @bdeps);
+  for (@bdeps) {
+    $_ = {'name' => $_}; 
+    $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+    $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
+    $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
+    $_->{'notmeta'} = 1;
+  }
+  my $searchpath = [];
+  for (@$prpsearchpath) {
+    my @pr = split('/', $_, 2);
+    if ($remoteprojs{$pr[0]}) {
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+    } else {
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+    }
+  }
+
+  my $binfo = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'package' => $packid,
+    'file' => '_delta',
+    'srcmd5' => $srcmd5,
+    'reason' => 'source change',
+    'srcserver' => $BSConfig::srcserver,
+    'reposerver' => $BSConfig::reposerver,
+    'job' => $job,
+    'arch' => $myarch,
+    'readytime' => $now,
+    'bdep' => \@bdeps,
+    'path' => $searchpath,
+    'needed' => 0,
+  };
+
+  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+  print "    created deltajob...\n";
+  return $job;
+}
+
 # make sure that we have all of the deltas we need
 # create a deltajob if some are missing
 # note that we must have the repo lock so that $extrep does not change!
@@ -859,7 +949,25 @@ sub makedeltas {
   my %deltaids;
 
   my $partial_job;
+  my $unfinished;
   my $jobsize = 0;
+
+  my $suffix;
+  my $running_jobs = 0;
+  my $maxjobs = 100;
+
+  my %running_ids;
+  if ($maxjobs > 1) {
+    $suffix = 0;
+    my $jobprefix = jobname($prp, '_deltas');
+    for my $job (grep {$_ eq $jobprefix || /^\Q$jobprefix-\E\d+$/} ls($myjobsdir)) {
+      $running_jobs++;
+      if ($job =~ /(\d+)$/) {
+        $suffix = $1 if $1 > $suffix;
+      }
+      $running_ids{$_} = 1 for grep {s/\.info$//} ls("$myjobsdir/$job:dir");
+    }
+  }
 
   for my $packid (@{$packs || []}) {
     next if $pubenabled && !$pubenabled->{$packid};
@@ -918,12 +1026,22 @@ sub makedeltas {
 	      push @{$havedelta{"$packid/$bin"}}, [ $deltaid, $obin ];
 	    }
 	  } else {
+	    $unfinished = 1;
+	    next if $running_ids{$deltaid};
 	    push @needdelta, [ "$aextrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
 	    $jobsize += $s[7] + $binstat[7];
 	    if ($jobsize > 500000000) {
-	      $partial_job = 1;
-	      print "    partial delta job\n";
-	      last;
+	      # flush the job
+	      if ($running_jobs >= $maxjobs) {
+		print "    too many delta jobs running\n";
+	        $partial_job = 1;
+	        last;
+	      }
+	      my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, ++$suffix, \@needdelta);
+	      return (undef, $joberror) if $joberror;
+	      $running_jobs++ if $job;
+	      @needdelta = ();
+	      $jobsize = 0;
 	    }
 	  }
 	}
@@ -934,101 +1052,22 @@ sub makedeltas {
     last if $partial_job;
   }
 
-  # ddir maintenance
-  if (!$partial_job) {
-    my @ddir = sort(ls($ddir));
-    for my $deltaid (grep {!$deltaids{$_} && !/\.dseq$/} @ddir) {
-      next if $deltaid eq 'logfile';
-      unlink("$ddir/$deltaid");		# no longer need this one
-      unlink("$ddir/$deltaid.dseq");	# no longer need this one
-    }
+  if (@needdelta && $running_jobs < $maxjobs) {
+    my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, ++$suffix, \@needdelta);
+    return (undef, $joberror) if $joberror;
   }
 
-  if (@needdelta) {
-    # create a delta job
-    my $packid = '_deltas';
-    my $job = jobname($prp, $packid);
-    if (-e "$myjobsdir/$job") {
-      # delta creation already in progress. wait...
-      print "    delta creation already in progress...\n";
-      return undef, 'building';
-    }
-    my $srcmd5 = '';
-    $srcmd5 .= $_->[2] for @needdelta;
-    $srcmd5 = Digest::MD5::md5_hex($srcmd5);
-    my $jobdatadir = "$myjobsdir/$job:dir";
-    mkdir_p($jobdatadir);
-    BSUtil::cleandir($jobdatadir);
-    return undef unless -d $jobdatadir;
-    for my $delta (@needdelta) {
-      #print Dumper($delta);
-      my $deltaid = $delta->[2];
-      link($delta->[0], "$jobdatadir/$deltaid.old") || return undef;
-      link($delta->[1], "$jobdatadir/$deltaid.new") || return undef;
-      my $qold = Build::Rpm::query("$jobdatadir/$deltaid.old", 'evra' => 1);
-      my $qnew = Build::Rpm::query("$jobdatadir/$deltaid.new", 'evra' => 1);
-      return undef unless $qold && $qnew;
-      return undef if $qold->{'name'} ne $qnew->{'name'} || $qold->{'arch'} ne $qnew->{'arch'};
-      $qold->{'epoch'} = '' unless defined $qold->{'epoch'};
-      $qnew->{'epoch'} = '' unless defined $qnew->{'epoch'};
-      my $info = '';
-      $info .= ucfirst($_).": $qnew->{$_}\n" for qw{name epoch version release arch};
-      $info .= "Old".ucfirst($_).": $qold->{$_}\n" for qw{name epoch version release arch};
-      writestr("$jobdatadir/$deltaid.info", undef, $info);
-    }
-    # create job
-    my $prptype = $bconf->{'type'};
-    my ($eok, @bdeps) = Build::get_build($bconf, [], "deltarpm");
-    if (!$eok) {
-      print "        unresolvables:\n";
-      print "          $_\n" for @bdeps;
-      return (undef, "unresolvable: ".join(', ', @bdeps));
-    }
-    my $now = time();
-    my @pdeps = Build::get_preinstalls($bconf);
-    my @vmdeps = Build::get_vminstalls($bconf);
-    my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
-    my %bdeps = map {$_ => 1} @bdeps;
-    my %pdeps = map {$_ => 1} @pdeps;
-    my %vmdeps = map {$_ => 1} @vmdeps;
-    @bdeps = unify(@pdeps, @vmdeps, @bdeps);
-    for (@bdeps) {
-      $_ = {'name' => $_}; 
-      $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
-      $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
-      $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
-      $_->{'notmeta'} = 1;
-    }
-    my $searchpath = [];
-    for (@$prpsearchpath) {
-      my @pr = split('/', $_, 2);
-      if ($remoteprojs{$pr[0]}) {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
-      } else {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
-      }
-    }
-
-    my $binfo = {
-      'project' => $projid,
-      'repository' => $repoid,
-      'package' => $packid,
-      'file' => '_delta',
-      'srcmd5' => $srcmd5,
-      'reason' => 'source change',
-      'srcserver' => $BSConfig::srcserver,
-      'reposerver' => $BSConfig::reposerver,
-      'job' => $job,
-      'arch' => $myarch,
-      'readytime' => $now,
-      'bdep' => \@bdeps,
-      'path' => $searchpath,
-      'needed' => 0,
-    };
-
-    writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
-    print "    creating deltas...\n";
+  if ($unfinished) {
+    print "    waiting for deltajobs to finish\n";
     return (undef, 'building');
+  }
+
+  # ddir maintenance
+  my @ddir = sort(ls($ddir));
+  for my $deltaid (grep {!$deltaids{$_} && !/\.dseq$/} @ddir) {
+    next if $deltaid eq 'logfile';
+    unlink("$ddir/$deltaid");		# no longer need this one
+    unlink("$ddir/$deltaid.dseq");	# no longer need this one
   }
   return \%havedelta;
 }
@@ -3398,6 +3437,8 @@ sub checkpatchinfo {
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;	# can't happen
   my $patchinfo = $pdata->{'patchinfo'};
+
+  return ('broken', $patchinfo->{'stopped'}) if $patchinfo->{'stopped'};
 
   my $ptype = 'local';
   $ptype = 'binary' if ($projpacks->{$projid}->{'kind'} || '') eq 'maintenance_incident';

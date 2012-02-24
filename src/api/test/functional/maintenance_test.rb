@@ -916,6 +916,26 @@ class MaintenanceTests < ActionController::IntegrationTest
     inject_build_job( incidentProject, "packNew.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
     inject_build_job( incidentProject, "packNew.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )
     inject_build_job( incidentProject, "pack2.BaseDistro3", "BaseDistro3", "i586" )
+    # block patchinfo build
+    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    assert_response :success
+    pi = REXML::Document.new( @response.body )
+    pi.root.add_element "stopped"
+    pi.elements["//stopped"].text = "The issue is not fixed for real yet"
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.to_s
+    assert_response :success
+    # collect the job results
+    run_scheduler( "x86_64" )
+    run_scheduler( "i586" )
+    wait_for_publisher()
+    get "/build/#{incidentProject}/_result"
+    assert_response :success
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
+               :tag => "status", :attributes => { :package=>"patchinfo", :code=>"broken" }
+    # un-block patchinfo build
+    pi.root.delete_element 'stopped'
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.to_s
+    assert_response :success
     # collect the job results
     run_scheduler( "x86_64" )
     run_scheduler( "i586" )
@@ -924,6 +944,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"succeeded" }
+
 
     # check updateinfo
     get "/build/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/i586/patchinfo/updateinfo.xml"
