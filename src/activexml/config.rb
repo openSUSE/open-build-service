@@ -6,7 +6,7 @@ module ActiveXML
     DEFAULTS = Hash.new
 
     # if xml should be parsed on load (false) or on first element/attribute access (true)
-    DEFAULTS[:lazy_evaluation] = false
+    DEFAULTS[:lazy_evaluation] = true
 
     # globally deactivate write_through to backend on PUT requests
     DEFAULTS[:global_write_through] = true

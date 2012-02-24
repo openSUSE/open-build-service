@@ -1168,8 +1168,10 @@ class ProjectController < ApplicationController
     attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
-    attributes.each('/attribute/project/package') do |p|
-      comments[p.value(:name)] = p.find_first("values/value").text
+    attributes.get("project").elements("package") do |p|
+      p.elements("values") do |v|
+        comments[p["name"]] = v["value"]
+      end
     end if attributes
 
     upstream_versions = Hash.new
@@ -1178,14 +1180,14 @@ class ProjectController < ApplicationController
     if @include_versions || @limit_to_old
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 20.minutes)
-      attributes.each('/attribute/project/package') do |p|
-        upstream_versions[p.value(:name)] = p.find_first("values/value").text
+      attributes.get("project").elements("package") do |p|
+        p.elements("values") {|v| upstream_versions[p["name"]] = v["value"] }
       end if attributes
 
       attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 20.minutes)
-      attributes.each('/attribute/project/package') do |p|
-        upstream_urls[p.value(:name)] = p.find_first("values/value").text
+      attributes.get("project").elements("package") do |p|
+        p.elements("values") {|v| upstream_urls[p["name"]] = v["value"] }
       end if attributes
     end
 

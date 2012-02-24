@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'json'
+require 'xmlhash'
 
 # adding a function to the ruby hash
 class Hash
@@ -7,14 +8,26 @@ class Hash
     unless name.kind_of? String
       raise ArgumentError, "expected string"
     end
-    return unless self.has_key? name
-    unless self[name].kind_of? Array
-      yield self[name]
-      return
+    sub = self[name]
+    return [] unless sub
+    unless sub.kind_of? Array
+      if block_given?
+        yield sub
+	return
+      else
+        return [sub]
+      end
     end
-    self[name].each do |n|
+    return sub unless block_given? 
+    sub.each do |n|
       yield n
     end
+  end
+
+  def get(name)
+    sub = self[name]
+    return sub if sub
+    return {}
   end
 
   def value(name)
@@ -25,9 +38,13 @@ class Hash
     return self.has_key? name.to_s
   end
 
+  def has_attribute?(name) 
+    return self.has_key? name.to_s
+  end
+
   def method_missing( symbol, *args, &block )
     if args.size > 0 || !block.nil?
-      raise RuntimeError, "das geht zuweit"
+      raise RuntimeError, "das geht zuweit #{symbol.inspect}(#{args.inspect})"
     end
     
     ActiveXML::Config.logger.debug "method_missing -#{symbol}- #{block.inspect}"
@@ -40,7 +57,6 @@ module ActiveXML
   class LibXMLNode
 
     @@elements = {}
-    @@hash_options = {}
 
     class << self
 
@@ -85,15 +101,9 @@ module ActiveXML
         end
       end
 
-      def to_hash_options( opts )
-        @@hash_options[self.name] = opts
-      end
-
     end
 
     #instance methods
-
-    attr_accessor :throw_on_method_missing
 
     def initialize( data )
       if data.kind_of? Nokogiri::XML::Node
@@ -116,13 +126,13 @@ module ActiveXML
         raise "constructor needs either XML::Node, String or Hash"
       end
 
-      @throw_on_method_missing = true
       cleanup_cache
     end
 
     def parse(data)
       raise ParseError.new('Empty XML passed!') if data.empty?
       begin
+	#puts "parse #{self.class}"
         @data = Nokogiri::XML::Document.parse(data.to_str.strip, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
       rescue Nokogiri::XML::SyntaxError => e
         logger.error "Error parsing XML: #{e}"
@@ -217,60 +227,22 @@ module ActiveXML
       self.class.logger
     end
 
-    def to_hash_element(parent, options)
-      ret = Hash.new
-      parent.attribute_nodes.each { |node|
-        ret[node.node_name] = node.value
-      }
-      parent.children.each do |child|
-        name = child.name
-        if child.element?
-          subtree = to_hash_element(child, options)
-          
-          if ret[name]
-            unless ret[name].kind_of?(Array)
-              ret[name] = [ ret[name] ]
-            end
-            ret[name].push(subtree)
-          else
-            ret[name] = subtree
-          end
-        elsif child.text?
-          text = child.to_s
-          unless text.strip.empty?
-            return text
-          end # otherwise we ignore white space
-        else
-          raise RuntimeError, "no idea how to handle node #{child.inspect}"
-        end
-      end
-      force_array = options[:force_array]
-      force_array.each do |name|
-        name = name.to_s
-        if ret[name] && !ret[name].kind_of?(Array)
-          ret[name] = [ ret[name] ]
-        end
-      end if force_array
-      return ret
-    end
-    private :to_hash_element
-
     # this function is a simplified version of XML::Simple of cpan fame
-    # you can control the options for to_hash in calling to_hash_options 
-    # in the class. Currently support :keyattr and :force_array
     def to_hash
-      options = @@hash_options[self.class.name] || {}
-      options = {:force_array => [:entry] }.merge(options)
-      #logger.debug "to_hash #{options.inspect} #{self.dump_xml}"
-      ret = nil
-      x = Benchmark.measure { ret = to_hash_element(_data, options) }
-      #logger.debug "after to_hash #{JSON.pretty_generate(ret)}"
-      #logger.debug "took #{x}"
-      ret
+      return @hash_cache if @hash_cache
+      #logger.debug "to_hash #{options.inspect} #{dump_xml}"
+      x = Benchmark.measure { @hash_cache  = Xmlhash.parse(dump_xml) }
+      #logger.debug "after to_hash #{JSON.pretty_generate(@hash_cache)}"
+      #puts "to_hash #{self.class} #{x}"
+      @hash_cache
     end
     
     def to_json(*a)
       to_hash.to_json(*a)
+    end
+
+    def freeze
+      raise "activexml can't be frozen"
     end
 
     def to_s
@@ -285,14 +257,7 @@ module ActiveXML
     end
 
     def marshal_dump
-      [@throw_on_method_missing, @node_cache, dump_xml]
-    end
-
-    def marshal_load(dumped)
-      @throw_on_method_missing, @node_cache, @raw_data = dumped
-      @data = nil
-      @node_cache = {}
-      @value_cache = {}
+      raise "you don't want to put it in cache - never!"
     end
 
     def dump_xml
@@ -304,6 +269,9 @@ module ActiveXML
     end
 
     def to_param
+      if @hash_cache
+         return @hash_cache["name"]
+      end
       _data.attributes['name'].value
     end
 
@@ -311,6 +279,7 @@ module ActiveXML
       raise ArgumentError, "argument must be a string" unless node.kind_of? String
       xmlnode = Nokogiri::XML::Document.parse(node, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
       _data.add_child(xmlnode)
+      cleanup_cache
       xmlnode
     end
 
@@ -329,6 +298,7 @@ module ActiveXML
     def cleanup_cache
       @node_cache = {}
       @value_cache = {}
+      @hash_cache = nil
     end
 
     def clone
@@ -341,6 +311,9 @@ module ActiveXML
     #query can either be an element name, an xpath, or any object
     #whose to_s method evaluates to an element name or xpath
     def has_element?( query )
+      if @hash_cache && query.kind_of?(Symbol)
+        return @hash_cache.has_key? query.to_s
+      end
       !find_first( query ).nil?
     end
 
@@ -349,6 +322,9 @@ module ActiveXML
     end
 
     def has_attribute?( query )
+      if @hash_cache && query.kind_of?(Symbol)
+        return @hash_cache.has_key? query.to_s
+      end
       _data.attributes.has_key?(query.to_s)
     end
 
@@ -357,6 +333,7 @@ module ActiveXML
     end
 
     def delete_attribute( name )
+      cleanup_cache
       _data.remove_attribute(name.to_s)
     end
 
@@ -378,6 +355,7 @@ module ActiveXML
     end
 
     def set_attribute( name, value)
+       cleanup_cache
        _data[name] = value
     end
 
@@ -393,11 +371,15 @@ module ActiveXML
     end
 
     def value( symbol ) 
-      return nil unless _data
-
       symbols = symbol.to_s
 
+      if @hash_cache 
+	  ret = @hash_cache[symbols]
+	  return ret if ret && ret.kind_of?(String)
+      end
       return @value_cache[symbols] if @value_cache.has_key?(symbols)
+
+      return nil unless _data
 
       if _data.attributes.has_key?(symbols)
         return @value_cache[symbols] = _data.attributes[symbols].value

@@ -294,6 +294,12 @@ class ApplicationController < ActionController::Base
     classname.find_cached( *args )
   end
 
+  def find_hashed(classname, *args)
+    ret = classname.find_cached( *args )
+    return {} unless ret
+    ret.to_hash
+  end
+
   def send_exception_mail?
     return !local_request? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
   end
@@ -441,7 +447,7 @@ class ApplicationController < ActionController::Base
 
   # After filter to clean up caches
   def clean_cache
-    Person.clean_cache
+    ActiveXML::Base.free_object_cache
   end
 
   def require_available_architectures

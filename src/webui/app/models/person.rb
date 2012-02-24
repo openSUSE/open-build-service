@@ -33,31 +33,23 @@ class Person < ActiveXML::Base
     doc
   end
   
-  @@person_cache = Hash.new
-  def self.clean_cache
-    @@person_cache.clear
-  end
-
   def self.find_cached(login, opts = {})
      if opts.has_key?(:is_current)
        # skip memcache
-       @@person_cache[login] = Person.find login
+       Person.free_cache(login, opts)
      end
-     if @@person_cache.has_key? login
-       return @@person_cache[login]
-     end
-     @@person_cache[login] = super
+     super
   end
 
   def self.email_for_login(person)
-    p = Person.find_cached(person)
-    return p.value(:email) if p
+    p = Person.find_hashed(person)
+    return p["email"] if p
     return ''
   end
 
   def self.realname_for_login(person)
-    p = Person.find_cached(person)
-    return p.value(:realname) if p
+    p = Person.find_hashed(person)
+    return p["realname"] if p
     return ''
   end
 
@@ -79,7 +71,6 @@ class Person < ActiveXML::Base
     add_element('watchlist') unless has_element?(:watchlist)
     watchlist.add_element('project', :name => name)
     logger.debug "user '#{login}' is now watching project '#{name}'"
-    @@person_cache.delete(login)
     Rails.cache.delete("person_#{login}_watchlist")
   end
 
@@ -88,7 +79,6 @@ class Person < ActiveXML::Base
     return nil unless watches? name
     watchlist.delete_element "project[@name='#{name}']"
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
-    @@person_cache.delete(login)
     Rails.cache.delete("person_#{login}_watchlist")
   end
 

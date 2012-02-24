@@ -1,7 +1,6 @@
 class Package < ActiveXML::Base
    
   handles_xml_element 'package'
-  to_hash_options :force_array => [:entry]
 
   #cache variables
   attr_accessor :linkinfo
