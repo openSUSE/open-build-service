@@ -689,7 +689,7 @@ while (@ARGV) {
     my $repo = shift @ARGV;
     my $arch = shift @ARGV;
     wipe_notyet($project, $repo, $arch);
-    check_project($project, $repo, $arch);
+    check_project($project, $repo, $arch, undef, 1); # with adminhighprio
   } elsif ($arg eq "--create-patchinfo-from-updateinfo") {
     my $uf = shift @ARGV;
     my $pooldirecotory = shift @ARGV;
