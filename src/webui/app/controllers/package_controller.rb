@@ -1131,7 +1131,13 @@ class PackageController < ApplicationController
     end
     @project ||= params[:project]
     unless params[:package].blank?
-      @package = find_cached(Package, params[:package], :project => @project )
+      begin
+        @package = find_cached(Package, params[:package], :project => @project )
+      rescue ActiveXML::Transport::Error => e
+        flash[:error] = e.message
+        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 400
+        return	
+      end
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
