@@ -844,6 +844,14 @@ our $summary = [
      ]],
 ];
 
+our $schedulerstats = [
+    'stats' =>
+	'lastchecked',
+	'checktime',
+	'lastfinished',
+	'lastpublished',
+];
+
 our $result = [
     'result' =>
 	'project',
@@ -856,6 +864,7 @@ our $result = [
       [ $buildstatus ],
       [ $binarylist ],
         $summary,
+	$schedulerstats,
 ];
 
 our $resultlist = [
@@ -1194,11 +1203,13 @@ our $dispatchprios = [
 # list of used services for a package or project
 our $services = [
     'services' =>
-    [[ 'service' =>
-       'name',
-       'mode', # "localonly" is skipping this service on server side, "trylocal" is trying to merge changes directly in local files, "disabled" is just skipping it
-       [],
-       [[ 'param' => 'name', '_content' ]],
+     [[ 'service' =>
+            'name',
+            'mode', # "localonly" is skipping this service on server side, "trylocal" is trying to merge changes directly in local files, "disabled" is just skipping it
+         [[ 'param' =>
+	        'name',
+                '_content'
+         ]],
     ]],
 ];
 
@@ -1210,18 +1221,19 @@ our $servicetype = [
         [],
         'summary',
         'description',
-        [[ 'parameter' =>
-                     'name',
-                     [],
-                     'description',
-                     'required', # don't run without this parameter
-                     'allowmultiple', # This parameter can be used multiple times
-                     [[ 'allowedvalue' => '_content' ]], # list of possible values
-        ]],
+     [[ 'parameter' =>
+	    'name',
+	    [],
+	    'description',
+	    'required',		# don't run without this parameter
+	    'allowmultiple',	# This parameter can be used multiple times
+          [ 'allowedvalue' ],	# list of possible values
+     ]],
 ];
+
 our $servicelist = [
     'servicelist' =>
-        [ $servicetype ],
+      [ $servicetype ],
 ];
 
 our $updateinfoitem = [
@@ -1383,33 +1395,36 @@ our $issue_trackers = [
 
 our $appdataitem = [ 
     'application' =>
-    [ 'id' => 
-      'type', 
-      '_content' ],
-    'pkgname',
-    'name',
-    'summary',
-    [ 'icon' => 
-      'type', 
-      '_content' ],
-    [ 'appcategories' => 
-      [ 'appcategory' ] 
-    ],
-    [ 'mimetypes' =>
-      [ 'mimetype' ]
-    ],
-    [ 'keywords' => 
-      [ 'keyword' ]
-    ],
-    [ 'url' => 
-      'type', 
-      '_content' 
-    ]
+      [ 'id' => 
+	    'type', 
+	    '_content'
+      ],
+	'pkgname',
+	'name',
+	'summary',
+      [ 'icon' => 
+	    'type', 
+	    '_content'
+      ],
+      [ 'appcategories' => 
+          [ 'appcategory' ] 
+      ],
+      [ 'mimetypes' =>
+          [ 'mimetype' ]
+      ],
+      [ 'keywords' => 
+          [ 'keyword' ]
+      ],
+      [ 'url' => 
+	    'type', 
+	    '_content' 
+      ]
 ];
     
 our $appdata = [
-    'applications' => 'version',
-    [ $appdataitem ]
+    'applications' =>
+	'version',
+      [ $appdataitem ]
 ];
 
 1;

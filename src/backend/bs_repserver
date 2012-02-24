@@ -1617,6 +1617,7 @@ sub getresult {
   my %packfilter = map {$_ => 1} @{$cgi->{'package'} || []};
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
+  my %lastpublished;
   for my $prpa (@$prpas) {
     my %sum;
     my ($projid, $repoid, $arch) = split('/', $prpa, 3);
@@ -1677,6 +1678,25 @@ sub getresult {
       my @sum = grep {exists $sum{$_}} @order;
       push @sum, grep {!$order{$_}} sort keys %sum;
       $sl->{'summary'} = {'statuscount' => [ map {{'code' => $_, 'count' => $sum{$_}}} @sum ] };
+    }
+    if ($cgi->{'withstats'}) {
+      my $stats = {};
+      my @s = stat("$reporoot/$prpa/:packstatus");
+      $stats->{'lastchecked'} = $s[9] if @s;
+      @s = stat("$reporoot/$prpa/:repoinfo");
+      $stats->{'lastfinished'} = $s[9] if @s;	# not really true for image builds...
+      my $prp = $prpa;
+      $prp =~ s/\/[^\/]+$//;
+      if (!exists($lastpublished{$prp})) {
+	$lastpublished{$prp} = undef;
+        my @s = stat("$reporoot/$prp/:repoinfo");
+	my $ri = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1);
+	if ($ri && $ri->{'state'}) {
+	  $lastpublished{$prp} = $s[9];
+	}
+      }
+      $stats->{'lastpublished'} = $lastpublished{$prp} if $lastpublished{$prp};
+      $sl->{'stats'} = $stats;
     }
     push @$r, $sl;
   }
@@ -2962,7 +2982,7 @@ my $dispatches = [
   # info
   '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? summary:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
   'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
@@ -2975,7 +2995,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? summary:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 ];

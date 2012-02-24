@@ -172,7 +172,7 @@ sub verify_prpa {
 
 sub verify_resultview {
   my $view = $_[0];
-  die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist';
+  die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist' && $view ne 'stats';
 }
 
 sub verify_disableenable {
