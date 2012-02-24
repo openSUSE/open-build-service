@@ -1037,7 +1037,8 @@ sub makedeltas {
 	        $partial_job = 1;
 	        last;
 	      }
-	      my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, ++$suffix, \@needdelta);
+	      $suffix++ if defined $suffix;
+	      my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, $suffix, \@needdelta);
 	      return (undef, $joberror) if $joberror;
 	      $running_jobs++ if $job;
 	      @needdelta = ();
@@ -1053,7 +1054,8 @@ sub makedeltas {
   }
 
   if (@needdelta && $running_jobs < $maxjobs) {
-    my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, ++$suffix, \@needdelta);
+    $suffix++ if defined $suffix;
+    my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, $suffix, \@needdelta);
     return (undef, $joberror) if $joberror;
   }
 
