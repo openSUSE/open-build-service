@@ -968,7 +968,7 @@ sub publish {
 	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
 	push @updateinfos, @{$updateinfo->{'update'} || []};
       }
-      if ($bin =~ /:appdata.xml$/) {
+      if ($bin =~ /-appdata.xml$/) {
         # collect application data
         my $appdataxml = readstr("$r/$bin", 1) || '';
 	$appdatas_state .= Digest::MD5::md5_hex($appdataxml);
