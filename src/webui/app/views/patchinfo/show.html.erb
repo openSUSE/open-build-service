@@ -84,5 +84,8 @@
         <%=@reboot%>
       </td>
     </tr>
+    <% if @block %>
+      <tr style="background-color:red;"><th>Blocked:</th><td><%=@block_reason%></td></tr>
+    <%end%>
   </table>
 </div>
