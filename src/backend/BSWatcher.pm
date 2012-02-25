@@ -300,59 +300,81 @@ sub rpc_recv_stream_handler {
   #print "rpc_recv_stream_handler\n";
   $ev->{'paused'} = 1;	# always need more bytes!
 nextchunk:
-  $ev->{'replbuf'} =~ s/^\r?\n//s;
-  if ($ev->{'replbuf'} !~ /\r?\n/s) {
-    return unless $rev->{'eof'};
-    print "rpc_recv_stream_handler: premature EOF\n";
-    BSServerEvents::stream_close($rev, $ev);
-    return;
-  }
-  if ($ev->{'replbuf'} !~ /^([0-9a-fA-F]+)/) {
-    print "rpc_recv_stream_handler: bad chunked data\n";
-    BSServerEvents::stream_close($rev, $ev);
-    return;
-  }
-  my $cl = hex($1);
-  # print "rpc_recv_stream_handler: chunk len $cl\n";
-  if ($cl < 0 || $cl >= 16000) {
-    print "rpc_recv_stream_handler: illegal chunk size: $cl\n";
-    BSServerEvents::stream_close($rev, $ev);
-    return;
-  }
-  if ($cl == 0) {
-    # wait till trailer is complete
-    if ($ev->{'replbuf'} !~ /\n\r?\n/s) {
+  my $cl;
+  if ($rev->{'contentlength'}) {
+    #print "Continuation of the chunk\n";
+    $cl = $rev->{'contentlength'};
+  } else {
+    #print "Beginning of the chunk\n";
+    print tr_str($ev->{'replbuf'});
+    $ev->{'replbuf'} =~ s/^\r?\n//s;
+    if ($ev->{'replbuf'} !~ /\r?\n/s) {
       return unless $rev->{'eof'};
       print "rpc_recv_stream_handler: premature EOF\n";
       BSServerEvents::stream_close($rev, $ev);
       return;
     }
-    #print "rpc_recv_stream_handler: chunk EOF\n";
-    my $trailer = $ev->{'replbuf'};
-    $trailer =~ s/^(.*?\r?\n)/\r\n/s;	# delete chunk header
-    $trailer =~ s/\n\r?\n.*//s;		# delete stuff after trailer
-    $trailer =~ s/\r$//s;
-    $trailer = substr($trailer, 2) if $trailer ne '';
-    $trailer .= "\r\n" if $trailer ne '';
-    $ev->{'chunktrailer'} = $trailer;
-    BSServerEvents::stream_close($rev, $ev);
-    return;
+    if ($ev->{'replbuf'} !~ /^([0-9a-fA-F]+)/) {
+      print "rpc_recv_stream_handler: bad chunked data\n";
+      BSServerEvents::stream_close($rev, $ev);
+      return;
+    }
+    $cl = hex($1);
+    #print "rpc_recv_stream_handler: chunk len $cl\n";
+    if ($cl < 0) {
+      print "rpc_recv_stream_handler: illegal chunk size: $cl\n";
+      BSServerEvents::stream_close($rev, $ev);
+      return;
+    }
+    if ($cl == 0) {
+      print "cl=0\n";
+      # wait till trailer is complete
+      if ($ev->{'replbuf'} !~ /\n\r?\n/s) {
+        return unless $rev->{'eof'};
+        print "rpc_recv_stream_handler: premature EOF\n";
+        BSServerEvents::stream_close($rev, $ev);
+        return;
+      }
+      print "rpc_recv_stream_handler: chunk EOF\n";
+      my $trailer = $ev->{'replbuf'};
+      $trailer =~ s/^(.*?\r?\n)/\r\n/s;	# delete chunk header
+      $trailer =~ s/\n\r?\n.*//s;		# delete stuff after trailer
+      $trailer =~ s/\r$//s;
+      $trailer = substr($trailer, 2) if $trailer ne '';
+      $trailer .= "\r\n" if $trailer ne '';
+      $ev->{'chunktrailer'} = $trailer;
+      BSServerEvents::stream_close($rev, $ev);
+      return;
+    }
+    $ev->{'replbuf'} =~ /^(.*?\r?\n)/s;
+    if ($rev->{'eof'}) {
+      print "rpc_recv_stream_handler: premature EOF\n";
+      BSServerEvents::stream_close($rev, $ev);
+      return;
+    }
+    $ev->{'replbuf'} = substr($ev->{'replbuf'}, length($1));
   }
-  $ev->{'replbuf'} =~ /^(.*?\r?\n)/s;
-  if (length($1) + $cl > length($ev->{'replbuf'})) {
-    return unless $rev->{'eof'};
-    print "rpc_recv_stream_handler: premature EOF\n";
-    BSServerEvents::stream_close($rev, $ev);
-    return;
+  #printf "Chunk len=%d, replbuf len=%d\n", $cl, length($ev->{'replbuf'});
+  my $data = $ev->{'replbuf'};
+
+  if (length($data)) {
+    if ($cl + 2 < length($data)) {
+      $data = substr($ev->{'replbuf'}, 0, $cl);
+      $ev->{'replbuf'} = substr($ev->{'replbuf'}, $cl + 2);
+    } else {
+      $data = $ev->{'replbuf'};
+      $ev->{'replbuf'} = '';
+    }
+
+    #printf "Sending %d bytes of data to the handler\n", length($data);
+    # handler returns false: cannot consume now, try later
+    return unless $ev->{'datahandler'}->($ev, $rev, $data);
+
+    $cl -= length($data);
+    #printf "Data is sent. New cl=%d, buffer len=%d\n", $cl, length($ev->{'replbuf'});
   }
 
-  my $data = substr($ev->{'replbuf'}, length($1), $cl);
-  my $nextoff = length($1) + $cl;
-
-  # handler returns false: cannot consume now, try later
-  return unless $ev->{'datahandler'}->($ev, $rev, $data);
-
-  $ev->{'replbuf'} = substr($ev->{'replbuf'}, $nextoff);
+  $rev->{'contentlength'} = $cl;
 
   goto nextchunk if length($ev->{'replbuf'});
 
