@@ -223,11 +223,15 @@ class ProjectController < ApplicationController
 
   def load_packages_mainpage
     if @spider_bot
-      @packages = nil
+      @packages = []
       return
     end
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
-      find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
+      ret = [] 
+      find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds ).each do |pkg|
+	      ret << pkg.value(:name)
+      end
+      ret
     end
   end
   protected :load_packages_mainpage
@@ -241,8 +245,7 @@ class ProjectController < ApplicationController
 
     load_packages_mainpage
 
-    @nr_packages = 0
-    @nr_packages = @packages.each.size if @packages
+    @nr_packages = @packages.size
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
       buildresult = find_cached(Buildresult, :project => @project, :view => 'status', 
@@ -261,15 +264,13 @@ class ProjectController < ApplicationController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    if @packages
-      @packages.each do |pkg_element|
-        if pkg_element.name == 'patchinfo'
-          Package.find_cached(pkg_element.name, :project => @project).files.each do |pkg_file|
-            @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
-          end
+    @packages.each do |pkg_element|
+      if pkg_element == 'patchinfo'
+        Package.find_cached(pkg_element, :project => @project).files.each do |pkg_file|
+          @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
         end
       end
-    end if @packages
+    end
 
     @nr_releasetargets = 0
     @open_maintenance_incidents = @project.maintenance_incidents('open')
@@ -501,7 +502,7 @@ class ProjectController < ApplicationController
     end
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
     jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
-            :limit => @packages.each.size * 3, :code => ['succeeded', 'unchanged'])
+            :limit => @packages.size * 3, :code => ['succeeded', 'unchanged'])
     unless bdep and jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to :action => :show, :project => @project
@@ -570,7 +571,11 @@ class ProjectController < ApplicationController
     opts = {:norender => false}.merge opts
     load_packages
     # push to long time cache for the project frontpage
-    Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
+    names = []
+    @packages.each do |pkg|
+	    names << pkg.value(:name)
+    end
+    Rails.cache.write("#{@project}_packages_mainpage", names, :expires_in => 30.minutes)
     @patchinfo = []
     unless @packages.blank?
       @packages.each do |p|
