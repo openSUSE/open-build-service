@@ -56,6 +56,7 @@ class Person < ActiveXML::Base
   def initialize(data)
     super(data)
     @login = self.value(:login)
+    @groups = nil
   end
 
   def login
@@ -183,13 +184,12 @@ class Person < ActiveXML::Base
   end
 
   def groups
-    return Rails.cache.fetch("person_#{login}_groups", :expires_in => 5.minutes) do
-      groups = []
-      PersonGroup.find(login).each('/directory/entry') do |e|
-          groups << e.value('name')
-      end
-      groups
+    return @groups if @groups
+    @groups = []
+    PersonGroup.find(login).to_hash.elements("entry") do |e|
+        groups << e['name']
     end
+    @groups
   end
 
   def packagesorter(a, b)
