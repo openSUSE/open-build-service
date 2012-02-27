@@ -2609,7 +2609,7 @@ sub getprojpack {
 	    my $conf = $bconfs{$repoid};
 	    my $type = $conf->{'type'};
 	    if (!$type || $type eq 'UNDEFINED') {
-	      $rinfo->{'error'} = 'bad build configuration';
+	      $rinfo->{'error'} = 'bad build configuration, no build type defined or detected';
 	      next;
 	    }
             my ($md5, $file) = findfile($rev, $repoid, $type, $files);
@@ -6531,7 +6531,7 @@ sub sourceinfo {
     (undef, $file) = findfile($rev, $cgi->{'repository'}, $type, $files);
   }
   if (!$type) {
-    $r->{'error'} = 'bad build configuration';
+    $r->{'error'} = 'bad build configuration, no build type defined or detected';
     return $r;
   }
   if (!$file) {
