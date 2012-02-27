@@ -203,7 +203,7 @@ class PackageController < ApplicationController
 
     # Supersede logic has to be below addition as we need the new request id
     if params[:supersede]
-      pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => "new,review", :types => "submit")
+      pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => 'new,review,declined', :types => 'submit')
       pending_requests.each do |request|
         next if request.value(:id) == req.value(:id) # ignore newly created request
         begin
