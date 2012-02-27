@@ -57,7 +57,7 @@
           <ul id="review_descision_select">
             <% if @can_handle_request %>
               <li class="<%= 'selected' if !@can_add_reviews || @my_open_reviews.length == 0 %>">
-                <a class="review_descision_link" id="review_descision_link_-1" href="#">My Descision</a>
+                <a class="review_descision_link" id="review_descision_link_-1" href="#">My Decision</a>
               </li>
             <% end %>
             <% if @can_add_reviews && @my_open_reviews.length > 0 %>
