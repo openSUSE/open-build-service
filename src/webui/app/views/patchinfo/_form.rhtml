@@ -42,9 +42,16 @@
                   <%= hidden_field_tag "issuetracker[]", "#{issue[1]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issueurl[]", "#{issue[2]}", :id => "issueurl_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issuesum[]", "#{issue[3]}", :id => "issuesum_#{issue[0]}_#{issue[1]}" %>
-		  <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%><br/>
-                  <%=issue[3].to_s %>
-                  <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;" %>
+		  <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>:<br/> 
+                  <div id="issue_desc_<%= issue[0]%>_<%=issue[1]%>" onclick="change_issue_desc('<%=issue[0]%>_<%=issue[1]%>');" style="float:left;"> 
+                    <%=issue[3].to_s %>
+                  </div>
+                  <div id="change_desc_<%= issue[0]%>_<%=issue[1]%>" style="display:none;">
+                    <%= text_field_tag "desc_" + issue[0] + "_" + issue[1], issue[3].to_s, :size => issue[3].to_s.length %>
+                    <%= link_to image_tag('ok.png', :alt => "Ok", :title => "Change description"), '#', :onclick => "changeDesc('ok', '#{issue[0]}_#{issue[1]}');" %>
+                    <%= link_to image_tag('req-decline.png', :alt => "Cancel", :title => "Cancel changes"), '#', :onclick => "changeDesc('cancel', '#{issue[0]}_#{issue[1]}');" %>
+                  </div>
+                <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", :style => "clear:both;", :id => "remove_#{issue[0]}_#{issue[1]}" %>
                 </div>
               <%end%>
             <%end%>
@@ -153,8 +160,16 @@
                       "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
                       "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +
                       "<input type='hidden' name='issuesum[]' id='issuesum_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
-                      "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ": " + data[3] + " " +
-                      "<a onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
+                      "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ":<br/>" + 
+                      "<div id='issue_desc_" + data[0] + "_" + data[1] + "' style='float:left;' onclick='change_issue_desc(\"" + data[0] + 
+                      "_" + data[1] + "\");'>" + data[3] + "</div>" + 
+                      "<div id='change_desc_" + data[0] + "_" + data[1] + "' style='display:none;'>" + 
+                      "<input id='desc_" + data[0] + "_" + data[1] + "' type='text' value='" + data[3] + "' size=" + data[3].length + 
+                      " name='desc_" + data[0] + "_" + data[1] + "'/><a onclick='changeDesc(\"ok\", \"" + data[0] + "_" + data[1] + "\");' href='#'>" + 
+                      "<img title='Change description' src='/images/ok.png' alt='Ok'></a>" + 
+                      "<a onclick='changeDesc(\"cancel\", \"" + data[0] + "_" + data[1] + "\");' href='#'>" +
+                      "<img title='Cancel changes' src='/images/req-decline.png' alt='Cancel'></a></div>" +
+"<a id='remove_" + data[0] + "_" + data[1] +"' onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
                       "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
                   }
                 });
@@ -176,6 +191,28 @@
                    $("#update_spinner").hide();
                 }
               });
+            }
+
+            function change_issue_desc(issue) {
+              var issuedesc = "#issue_desc_" + issue;
+              var changedesc = "#change_desc_" + issue;
+              $(issuedesc).hide();
+              $("#remove_" + issue).hide();              
+              $(changedesc).show();
+              $("#desc_" + issue).val($(issuedesc).text().trim());
+            }
+
+            function changeDesc(state, issue) {
+              var issuedesc = "#issue_desc_" + issue;
+              var changedesc = "#change_desc_" + issue;
+              var desctext = $("#desc_" + issue).val();
+              if (state == "ok") {
+                $(issuedesc).text(desctext);
+                $("#issuesum_" + issue).val(desctext);
+              }
+              $(issuedesc).show();
+              $("#remove_" + issue).show();
+              $(changedesc).hide();
             }
 
             function moveSelectedItems(source, destination){
