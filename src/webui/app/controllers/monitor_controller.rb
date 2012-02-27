@@ -2,10 +2,15 @@ class MonitorController < ApplicationController
 
   before_filter :require_settings, :only => [:old, :index, :filtered_list, :update_building]
   before_filter :require_available_architectures, :only => [:index]
+  before_filter :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
+
+  def fetch_workerstatus
+     @workerstatus = Workerstatus.find(:all).to_hash
+     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
+  end
+  private :fetch_workerstatus
 
   def old
-    @workerstatus = Workerstatus.find :all
-    Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
   end
 
   def index
@@ -13,21 +18,18 @@ class MonitorController < ApplicationController
       redirect_to :project => params[:project]
     else
       begin
-         @workerstatus = Workerstatus.find :all
-         Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
+         fetch_workerstatus
       rescue ActiveXML::Transport::NotFoundError
-         @workerstatus = nil
+         @workerstatus = {}
       end
 
       workers = Hash.new
       workers_list = Array.new
-      if @workerstatus
-        @workerstatus.each_building do |b|
-          workers_list << [b.workerid, b.hostarch]
-        end
-        @workerstatus.each_idle do |b|
-          workers_list << [b.workerid, b.hostarch]
-        end
+      @workerstatus.elements("building") do |b|
+        workers_list << [b["workerid"], b["hostarch"]]
+      end
+      @workerstatus.elements("idle") do |b|
+        workers_list << [b["workerid"], b["hostarch"]]
       end
       workers_list.each do |bid, barch|
         hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
@@ -43,28 +45,20 @@ class MonitorController < ApplicationController
   end
 
   def filtered_list
-    @workerstatus = Workerstatus.find :all
-    Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
     render :partial => 'building_table'
   end
 
   def update_building
-    begin
-       workerstatus = Workerstatus.find :all
-    rescue Timeout::Error
-       render :json => []
-       return
-    end
     workers = Hash.new
     max_time = 4 * 3600
-    workerstatus.each_idle do |b|
-      id=b.workerid.gsub(%r{[:./]}, '_')
+    @workerstatus.elements("idle") do |b|
+      id=b["workerid"].gsub(%r{[:./]}, '_')
       workers[id] = Hash.new
     end
 
-    workerstatus.each_building do |b|
-      id=b.workerid.gsub(%r{[:./]}, '_')
-      delta = (Time.now - Time.at(b.starttime.to_i)).round
+    @workerstatus.elements("building") do |b|
+      id=b["workerid"].gsub(%r{[:./]}, '_')
+      delta = (Time.now - Time.at(b["starttime"].to_i)).round
       if delta < 5
 	delta = 5
       end
@@ -75,8 +69,8 @@ class MonitorController < ApplicationController
       if (delta > 100)
 	delta = 100
       end
-      workers[id] = { "delta" => delta, "project" => b.project, "repository" => b.repository, 
-	"package" => b.package, "arch" => b.arch, "starttime" => b.starttime}
+      workers[id] = { "delta" => delta, "project" => b["project"], "repository" => b["repository"], 
+	"package" => b["package"], "arch" => b["arch"], "starttime" => b["starttime"]}
     end
     # logger.debug workers.inspect
     render :json => workers

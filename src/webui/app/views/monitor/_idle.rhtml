@@ -1,13 +1,14 @@
 <h2>Idle hosts</h2>
-<% if @workerstatus.has_element? :idle and @workerstatus.each_idle.length > 0 %>
-  <%= @workerstatus.each_idle.length %> of <%= pluralize(@workerstatus.clients, 'host') %> idle.
+<% idlehosts = @workerstatus.elements("idle") %>
+<%  if idlehosts.length > 0 %>
+  <%= idlehosts.length %> of <%= pluralize(@workerstatus["clients"], 'host') %> idle.
   <table class="building">
     <tr><th>Host</th><th>Arch</th></tr>
-    <% @workerstatus.each_idle do |b| %>
-    <tr><td><%= b.workerid %></td><td><%= b.hostarch %></td></tr>
+    <% idlehosts.each do |b| %>
+    <tr><td><%= b["workerid"] %></td><td><%= b["hostarch"] %></td></tr>
     <% end %>
   </table>
 <% else %>
-  None of the <%= pluralize(@workerstatus.clients, 'host') %> idle.
+  None of the <%= pluralize(@workerstatus["clients"], 'host') %> idle.
 <% end %>
 

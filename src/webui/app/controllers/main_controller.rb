@@ -28,15 +28,15 @@ class MainController < ApplicationController
   # This action does the heavy lifting for the index method and is only invoked by an AJAX request
   def systemstatus
     render :text => 'no ajax', :status => 400 and return unless request.xhr? # Only serve AJAX-requests
-    if not @spider_bot
-      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 5.minutes, :shared => true) do
-        Workerstatus.find :all
+    if @spider_bot
+      @workerstatus = {}
+    else
+      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
+        Workerstatus.find(:all).to_hash
       end
     end
     @waiting_packages = 0
-    if @workerstatus
-      @workerstatus.each_waiting {|waiting| @waiting_packages += waiting.jobs.to_i}
-    end
+    @workerstatus.elements("waiting") {|waiting| @waiting_packages += waiting["jobs"].to_i}
     @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
     @busy = nil
     require_available_architectures unless @spider_bot

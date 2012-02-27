@@ -28,7 +28,7 @@
        $(".tablesorter").trigger("sorton",[sorting]); 
 <% end %>
 
-<% if @workerstatus.has_element? :building %>
+<% if @workerstatus.has_key? "building" %>
 <table class="building tablesorter">
   <thead>
     <tr>
@@ -41,15 +41,15 @@
      </tr>
   </thead>
   <tbody>
-      <% @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b|
-          next if (!@project_filter.nil? && b.project !~ /#{Regexp.quote(@project_filter)}/i )
+      <% @workerstatus.elements("building").sort {|a,b| b["starttime"] <=> a["starttime"] }.each do |b|
+          next if (!@project_filter.nil? && b["project"] !~ /#{Regexp.quote(@project_filter)}/i )
       %>
     <tr>
         <td class="project">
-            <% if b.project.include? "---" %>
+            <% if b["project"].include? "---" %>
 -------
             <% else %>
-                <% project = b.project %>
+                <% project = b["project"] %>
                 <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
                 <% if (!@project_filter) || (@project_filter != project) %>
                     <span class="filter_by">
@@ -59,28 +59,28 @@
             <% end %>
         </td>
         <td class="package">
-            <% if b.package.include? "---" %>
+            <% if b["package"].include? "---" %>
 -------
             <% else %>
-                <%= link_to b.package, :controller => 'package', :action => 'show', :project => project, :package => b.package %>
+                <%= link_to b["package"], :controller => 'package', :action => 'show', :project => project, :package => b["package"] %>
             <% end %>
         </td>
         <td class="repository arch">
-            <% if b.repository.include? "---" %>
+            <% if b["repository"].include? "---" %>
 -------
             <% else %>
-                <%= link_to b.repository + ' - ' + b.arch,
+                <%= link_to b["repository"] + ' - ' + b["arch"],
                       :controller => 'package',
                       :action => 'live_build_log',
-                      :project => b.project,
-                      :package => b.package,
-                      :repository => b.repository,
-                      :arch => b.arch
+                      :project => b["project"],
+                      :package => b["package"],
+                      :repository => b["repository"],
+                      :arch => b["arch"]
                 %>
             <% end %>
         </td>
         <%
-          start_time = Time.at(b.starttime.to_i)
+          start_time = Time.at(b["starttime"].to_i)
           if start_time < @dead_line
             n = ((start_time - @dead_line).abs/60/@interval_steps).round
             n = (@max_color < n) ? 0 : @max_color - n
@@ -91,13 +91,13 @@
         %>
         <td class="starttime" <%= raw warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
               <%= distance_of_time_in_words(@time_now, start_time, true) %>
-	      <span style="display: none" class="sorttime"><%= b.starttime.to_i %></span>
+	      <span style="display: none" class="sorttime"><%= b["starttime"].to_i %></span>
         </td>
         <td class="uri">
-            <%= b.workerid %>
+            <%= b["workerid"] %>
         </td>
         <td class="hostarch">
-            <%= b.hostarch %>
+            <%= b["hostarch"] %>
         </td>
     </tr>
     <% end %>

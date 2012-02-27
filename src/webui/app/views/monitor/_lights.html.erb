@@ -4,27 +4,27 @@
 
 <div id="schedulerstatus" class="statuslights">
   <h2>Scheduler Status</h2>
-  <% if @workerstatus.has_element? :scheduler -%>
+  <% if @workerstatus.has_key? "scheduler" -%>
     <ul>
-      <% @workerstatus.each_scheduler do |sched| -%>
+      <% @workerstatus.elements("scheduler") do |sched| -%>
         <li class="scheduler_status">
           <div class="statuswrapper">
             <%
             state="green"
-            if sched.state == "dead"
+            if sched["state"] == "dead"
               state="red"
             else
-              if !sched.has_attribute? :starttime
+              if !sched.has_key? "starttime"
                 state="yellow"
               end
             end
           %>
             <div class="statuslight <%= "status_" + state %>" style="margin: auto"></div>
-            <div class="statusarch">[<%=h sched.arch %>]</div>
+            <div class="statusarch">[<%=h sched["arch"] %>]</div>
             <span class="hidden statustext">
-              <%=h sched.arch %>: <%=h sched.state %>
-              <% if sched.has_attribute? :starttime -%>
-                <% start_time = Time.at(sched.starttime.to_i) -%>
+              <%=h sched["arch"] %>: <%=h sched["state"] %>
+              <% if sched.has_key? "starttime" -%>
+                <% start_time = Time.at(sched["starttime"].to_i) -%>
                 for <%= distance_of_time_in_words(@time_now, start_time, true) %> (last restart: <%= start_time.iso8601 %>)
               <% end -%>
             </span>

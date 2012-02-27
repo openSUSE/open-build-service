@@ -1,12 +1,12 @@
 <div id="schedulerstatus">
   <h2>Scheduler Status</h2>
-  <% if @workerstatus.has_element? :scheduler -%>
+  <% if @workerstatus.has_key? "scheduler" -%>
     <ul>
-      <% @workerstatus.each_scheduler do |sched| -%>
+      <% @workerstatus.elements("scheduler") do |sched| -%>
         <li>
-          <strong><%=h sched.arch %></strong>: <%=h sched.state %>
-          <% if sched.has_attribute? :starttime -%>
-            <% start_time = Time.at(sched.starttime.to_i) -%>
+          <strong><%=h sched["arch"] %></strong>: <%=h sched["state"] %>
+          <% if sched.has_key? "starttime" -%>
+            <% start_time = Time.at(sched["starttime"].to_i) -%>
             for <%= distance_of_time_in_words(@time_now, start_time, true) %> (last restart: <%= start_time.iso8601 %>)
           <% end -%>
         </li>

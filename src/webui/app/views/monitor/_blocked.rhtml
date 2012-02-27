@@ -1,8 +1,6 @@
 <br>
 <h2>Blocked Queue</h2>
-<% if @workerstatus.has_element? :blocked %>
-  <% @workerstatus.each_blocked.sort {|a,b| a.arch <=> b.arch }.each do |entry| %>
-    <%= entry.arch %>: <%= entry.jobs %> blocked<br />
-  <% end %>
+<% @workerstatus.elements("blocked").sort {|a,b| a["arch"] <=> b["arch"] }.each do |entry| %>
+  <%= entry.arch %>: <%= entry.jobs %> blocked<br />
 <% end %>
 

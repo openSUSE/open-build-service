@@ -1,4 +1,4 @@
-<% if @workerstatus.each_waiting.size == 0 %>
+<% if @workerstatus.elements("waiting").size == 0 %>
 	<p><i>No scheduler statistics</i></p>
 <% else %>
 <table class="building">
@@ -11,24 +11,28 @@
      </tr>
   </thead>
   <tbody>
-    <% @workerstatus.each_waiting.sort {|a,b| a.arch <=> b.arch }.each do |entrywaiting| %>
+    <% @workerstatus.elements("waiting").sort {|a,b| a["arch"] <=> b["arch"] }.each do |entrywaiting| %>
       <% outblocked = nil %>
       <% outbuildavg = nil %>
       <tr>
         <td class="arch">
-          <%= entrywaiting.arch %>
+          <%= entrywaiting["arch"] %>
         </td>
           <td class="waiting">
-          <span class="aligncenter"><%= entrywaiting.jobs %></span>
+          <span class="aligncenter"><%= entrywaiting["jobs"] %></span>
         </td>
         <td class="blocked">
-	  <% @workerstatus.each("blocked[@arch='#{entrywaiting.arch}']") { |w| outblocked = w.value(:jobs) } -%>
+          <% @workerstatus.elements("blocked") do |b|
+               outblocked = b["jobs"] if b["arch"] == entrywaiting["arch"]
+	     end %>
           <span class="aligncenter"><%= outblocked || " - "%></span>
         </td>
         <td class="avgjobtime">
-          <% @workerstatus.each("buildavg[@arch='#{entrywaiting.arch}']") do |w| 
-               outbuildavg = distance_of_time_in_words(Time.at(w.value(:buildavg).to_i), Time.at(0), true)
-             end -%>
+          <% @workerstatus.elements("buildavg") do |b|
+            if b["arch"] == entrywaiting["arch"]
+              outbuildavg = distance_of_time_in_words(Time.at(b["buildavg"].to_i), Time.at(0), true)
+            end
+          end %>
           <span class="aligncenter"><%= outbuildavg || " - " %> </span>
         </td>
       </tr>

@@ -5,7 +5,7 @@
       <div class="aligncenter" id="overallgraph" style="height:250px; margin: 0px 20px 20px 20px"></div>
       <p class="description">
         The above graphs show the number of active build jobs last week, 
-        currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
+        currently <%= @workerstatus.elements("building").length %> of <%= @workerstatus["clients"] %> build hosts are busy building packages.
         At the moment <%= @waiting_packages %> packages are waiting on the different architectures.
       </p>
       <% javascript_tag do %>

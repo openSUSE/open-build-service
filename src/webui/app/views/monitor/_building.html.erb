@@ -1,7 +1,7 @@
 <div id="building_all">
   <%
-  max_clients = @workerstatus.clients
-  build_count = @workerstatus.each_building.length
+  max_clients = @workerstatus["clients"]
+  build_count = @workerstatus.elements("building").length
 %>
   <h2>Building</h2>
   <div class="info">
