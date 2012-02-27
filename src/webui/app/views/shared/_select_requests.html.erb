@@ -1,3 +1,5 @@
+<% no_target ||= false %>
+
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'jquery.tooltip' %>
 <% end %>
@@ -15,6 +17,7 @@
         <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
         <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
         <%= "'subprojects': 'true'," if defined?(subprojects) && subprojects %>
+        <%= "'no_target': 'true'," if no_target %>
       },
       success: function(data) {
         $('#request_display').html(data);
@@ -43,5 +46,5 @@
 </p>
 
 <div id="request_display">
-  <%= render(:partial => 'shared/requests', :locals => { :requests => requests }) unless not defined?(requests) %>
+  <%= render(:partial => 'shared/requests', :locals => {:requests => requests, :no_target => no_target}) unless not defined?(requests) %>
 </div>

@@ -1,6 +1,7 @@
 <% elide_len ||= 40 %>
 <% request_table_id ||= 'request_table' %>
 <% hide_state ||= false %>
+<% no_target ||= false %>
 
 <% if requests.blank? %>
   <p>No requests.</p>
@@ -10,7 +11,9 @@
       <tr>
         <th style="width: 1%">Modified</th>
         <th style="width: 40%">Source</th>
-        <th style="width: 40%">Target</th>
+        <% if !no_target%>
+          <th style="width: 40%">Target</th>
+        <% end %>
         <th style="width: 5%">Requester</th>
         <th style="width: 1%">Type</th>
         <% if !hide_state %>
@@ -43,25 +46,27 @@
               <% end %>
             <% end %>
           </td>
-          <td>
-            <% if ae.has_element?(:target) %>
-              <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
-                <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and Package.exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
-                  <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
-                  <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
-                  <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+          <% if !no_target%>
+            <td>
+              <% if ae.has_element?(:target) %>
+                <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
+                  <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and Package.exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                    <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
+                    <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
+                    <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                  <% else %>
+                    <%= link_to(elide(ae.target.project, elide_len), :controller => :project, :action => :show, :project => ae.target.project) %>
+                  <% end %>
                 <% else %>
-                  <%= link_to(elide(ae.target.project, elide_len), :controller => :project, :action => :show, :project => ae.target.project) %>
-                <% end %>
-              <% else %>
-                <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
-                  <%= link_to(elide(ae.target.package, elide_len), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-                <% elsif ae.value(:type) == "delete" %>
-                  This project
+                  <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
+                    <%= link_to(elide(ae.target.package, elide_len), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                  <% elsif ae.value(:type) == "delete" %>
+                    This project
+                  <% end %>
                 <% end %>
               <% end %>
-            <% end %>
-          </td>
+            </td>
+          <% end %>
           <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => BsRequest.creator(req).login, :short => true}%></td>
           <td class="nowrap"><%= reqtype(req) %></td>
           <% if !hide_state %>
