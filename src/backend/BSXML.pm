@@ -1274,6 +1274,7 @@ our $updateinfoitem = [
 
 our $updateinfo = [
     'updates' =>
+      'xmlns',
       [ $updateinfoitem ],
 ];
 
