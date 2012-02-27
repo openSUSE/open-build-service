@@ -2019,8 +2019,7 @@ sub update_project_meta {
   my $cold = Build::read_config($myarch, split("\n", $oldproj->{'config'} || ''));
   my $cnew = Build::read_config($myarch, split("\n", $proj->{'config'} || ''));
   return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
-
-  # XXX: should really also compare build type
+  return 0 unless identical($cold->{'type'}, $cnew->{'type'});
   $projpacks->{$projid} = $proj;
   return 1;
 }
