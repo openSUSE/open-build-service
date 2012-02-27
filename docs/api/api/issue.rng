@@ -13,11 +13,11 @@
         <element name="name">
           <text/>
         </element>
-        <element name="issue-tracker">
+        <element name="tracker">
           <text/>
         </element>
         <optional>
-          <element name="long-name">
+          <element name="label">
             <text/>
           </element>
         </optional>

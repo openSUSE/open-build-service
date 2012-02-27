@@ -15,6 +15,7 @@
         <% if @user and @user.is_admin? %>
           <%= proceed_link 'configure.png', 'Configuration', :controller => 'configuration', :action => 'index' %>
           <%= proceed_link 'list.png', 'All Projects', :controller => 'project', :action => 'list_public' %>
+          <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
         <% else %>
           <%= proceed_link 'start-here.png', 'My Projects', :controller => 'home', :action => 'list_my' if session[:login] %>
           <%= proceed_link 'list.png', 'All Projects', :controller => 'project', :action => 'list_public' %>

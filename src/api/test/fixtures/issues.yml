@@ -4,7 +4,7 @@ complete:
   updated_at: 2012-01-17 08:39:48
   owner_id: "1"
   id: "1"
-  description: OBS is not bugfree!
+  summary: OBS is not bugfree!
   state: CLOSED
   issue_tracker_id: "1"
 new: 
@@ -13,6 +13,6 @@ new:
   updated_at: 2012-01-17 08:39:48
   owner_id: 
   id: "2"
-  description: 
+  summary: 
   state: 
   issue_tracker_id: "1"

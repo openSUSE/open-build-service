@@ -28,85 +28,50 @@ class RequestController < ApplicationController
 
   def modify_review
     valid_http_methods :post
-    begin
-      BsRequest.modifyReview(params[:id], params[:new_state], params)
-      render :text => params[:new_state]
-    rescue BsRequest::ModifyError => e
-      render :text => e.message
+
+    opts = {}
+    params.each do |key, value|
+      opts[:new_review_state] = 'accepted' if key == 'accepted'
+      opts[:new_review_state] = 'declined' if key == 'declined'
+
+      # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
+      # HTML ids. Thus we have to parse 'params' a bit:
+      opts[:comment] = value if key.starts_with?('review_comment_')
+      opts[:id] = value if key.starts_with?('review_request_id_')
+      opts[:user] = value if key.starts_with?('review_by_user_')
+      opts[:group] = value if key.starts_with?('review_by_group_')
+      opts[:project] = value if key.starts_with?('review_by_project_')
+      opts[:package] = value if key.starts_with?('review_by_package_')
     end
+
+    begin
+      BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
+    rescue BsRequest::ModifyError => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+    end
+    redirect_to :action => 'show', :id => opts[:id]
   end
 
   def show
     begin
       @req = find_cached(BsRequest, params[:id]) if params[:id]
     rescue ActiveXML::Transport::Error => e
-      @req = nil # User input is directly passed to backend, avoid crashers
-    end
-    unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end
 
     @id = Integer(@req.value("id"))
     @state = @req.state.value("name")
-    @is_author = @req.creator == session[:login]
+    @is_author = @req.creator().login == session[:login]
     @superseded_by = @req.state.value("superseded_by")
-    @newpackage = []
+    @is_target_maintainer = @req.is_target_maintainer?(session[:login])
+    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer)
+    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author)
 
-    @open_reviews = 0
-    @req.each_review do |review|
-      if review.state == 'new'
-        if review.has_attribute? :by_user
-          @open_reviews += 1 if review.by_user.to_s == session[:login]
-        end
-
-        if session[:login]
-          user = find_cached(Person, session[:login])
-          if (review.has_attribute? :by_group and user.is_in_group? review.by_group) or
-             (review.has_attribute? :by_project and user.is_maintainer? review.by_project) or
-             (review.has_attribute? :by_project and review.has_attribute? :by_package and user.is_maintainer?(review.by_project, review.by_package))
-            @open_reviews += 1
-          end
-        end
-      end
-    end
-
-    @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
-  
-    @is_maintainer = nil
-    @contains_submit_action = false
-    contains_only_undiffable_actions, project_wide_delete_request = true, true
-    @req.each_action do |action|
-      if action.value("type") == "submit"
-        @src_project = action.source.project
-        @src_pkg = action.source.package
-        @contains_submit_action = true
-      end
-      if ['submit', 'delete', 'maintenance_incident', 'maintenance_release'].include?(action.value('type'))
-        contains_only_undiffable_actions = false
-      end
-
-      @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
-      target_pkg_name = action.target.value :package
-      if target_pkg_name
-        @target_pkg = find_cached(Package, target_pkg_name, :project => action.target.project)
-        project_wide_delete_request = false
-      end
-      if @is_maintainer == nil or @is_maintainer == true
-        @is_maintainer = @target_project && @target_project.can_edit?( session[:login] )
-        if @target_pkg
-          @is_maintainer = @is_maintainer || @target_pkg.can_edit?( session[:login] )
-        else
-          @newpackage << { :project => action.target.project, :package => target_pkg_name }
-        end
-      end
-    end
-
-    @submitter_is_target_maintainer = false
-    creator = Person.find_cached(@req.creator)
-    if creator and @target_project
-      @submitter_is_target_maintainer = creator.is_maintainer?(@target_project, @target_pkg)
-    end
+    @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
+    @events = @req.events()
+    @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
 
     request_list = session[:requests]
     @request_before = nil
@@ -118,29 +83,6 @@ class RequestController < ApplicationController
     if index
       # will be nul for after end
       @request_after = request_list[index+1]
-    end
-
-    if !@spider_bot && !contains_only_undiffable_actions && !project_wide_delete_request
-      # get the entire diff from the api
-      begin
-        @actiondiffs = Rails.cache.fetch("request_#{@id}_diff2", :expires_in => 7.days) do
-          result = ActiveXML::Base.new(frontend.transport.direct_http(URI("/request/#{@id}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
-          actiondiffs = []
-          # Parse each action and get the it's diff (per file)
-          result.each('action') do |action|
-            sourcediffs = []
-            # Parse earch sourcediff in that action:
-            action.each('sourcediff') do |sourcediff|
-              sourcediffs << sorted_filenames_from_sourcediff(sourcediff)
-            end
-            actiondiffs << {:type => action.value('type'), :sourcediffs => sourcediffs}
-          end
-          actiondiffs
-        end
-      rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        flash[:error] = "Unable to fetch diff: #{message}"
-      end
     end
   end
 
@@ -168,9 +110,16 @@ class RequestController < ApplicationController
     if change_request(changestate, params)
       if params[:add_submitter_as_maintainer]
         if changestate != 'accepted'
-           flash[:error] = "Will not add maintainer for not accepted requests"
+          flash[:error] = "Will not add maintainer for not accepted requests"
         else
-           add_maintainer(@req)
+          tprj, tpkg = params[:add_submitter_as_maintainer].split('_#_') # split into project and package
+          if tpkg
+            target = find_cached(Package, tpkg, :project => tprj)
+          else
+            target = find_cached(Project, tprj)
+          end
+          target.add_person(:userid => BsRequest.creator(@req).login, :role => "maintainer")
+          target.save
         end
       end
     end
@@ -281,16 +230,6 @@ private
       flash[:error] = e.message
     end
     return false
-  end
-
-  def add_maintainer(req)
-    if req.action.target.has_attribute?('package')
-      target = find_cached(Package, req.action.target.package, :project => req.action.target.project)
-    else
-      target = find_cached(Project, req.action.target.project)
-    end
-    target.add_person(:userid => BsRequest.creator(req), :role => "maintainer")
-    target.save
   end
 
 end

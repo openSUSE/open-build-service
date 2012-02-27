@@ -3,6 +3,13 @@ puts "Seeding architectures table..."
 ["armv4l", "armv5l", "armv6l", "armv7l", "armv5el", "armv6el", "armv7el", "armv8el", "hppa", "i586", "i686", "ia64", "local", "mips", "mips32", "mips64", "ppc", "ppc64", "s390", "s390x", "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64"].each do |arch_name|
   Architecture.find_or_create_by_name :name => arch_name
 end
+# following our default config
+["armv7l", "i586", "x86_64"].each do |arch_name|
+  a=Architecture.find_by_name(arch_name)
+  a.available=true
+  a.recommended=true
+  a.save
+end
 
 puts "Seeding roles table..."
 admin_role      = Role.find_or_create_by_title :title => "Admin", :global => true
@@ -118,26 +125,26 @@ EOT
 )
 
 puts "Seeding issue trackers ..."
-IssueTracker.find_or_create_by_name('boost', :description => 'Boost Trac', :kind => 'trac', :regex => 'boost#(\d+)', :url => 'https://svn.boost.org/trac/boost/', :long_name => "boost#%s", :show_url => 'https://svn.boost.org/trac/boost/ticket/@@@')
-IssueTracker.find_or_create_by_name('bco', :description => 'Clutter Project Bugzilla', :kind => 'bugzilla', :regex => 'bco#(\d+)', :url => 'http://bugzilla.clutter-project.org/', :long_name => "bco#%s", :show_url => 'http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('RT', :description => 'CPAN Bugs', :kind => 'other', :regex => 'RT#(\d+)', :url => 'https://rt.cpan.org/', :long_name => "RT#%s", :show_url => 'http://rt.cpan.org/Public/Bug/Display.html?id=@@@')
-IssueTracker.find_or_create_by_name('cve', :description => 'CVE Numbers', :kind => 'cve', :regex => '(CVE-\d{4,4}-\d{4,4})', :url => 'http://cve.mitre.org/', :long_name => "%s", :show_url => 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@')
-IssueTracker.find_or_create_by_name('deb', :description => 'Debian Bugzilla', :kind => 'bugzilla', :regex => 'deb#(\d+)', :url => 'http://bugs.debian.org/', :long_name => "deb#%s", :show_url => 'http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@')
-IssueTracker.find_or_create_by_name('fdo', :description => 'Freedesktop.org Bugzilla', :kind => 'bugzilla', :regex => 'fdo#(\d+)', :url => 'https://bugs.freedesktop.org/', :long_name => "fdo#%s", :show_url => 'https://bugs.freedesktop.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('GCC', :description => 'GCC Bugzilla', :kind => 'bugzilla', :regex => 'GCC#(\d+)', :url => 'http://gcc.gnu.org/bugzilla/', :long_name => "GCC#%s", :show_url => 'http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bgo', :description => 'Gnome Bugzilla', :kind => 'bugzilla', :regex => 'bgo#(\d+)', :url => 'https://bugzilla.gnome.org/', :long_name => "bgo#%s", :show_url => 'https://bugzilla.gnome.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bio', :description => 'Icculus.org Bugzilla', :kind => 'bugzilla', :regex => 'bio#(\d+)', :url => 'https://bugzilla.icculus.org/', :long_name => "bio#%s", :show_url => 'https://bugzilla.icculus.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bko', :description => 'Kernel.org Bugzilla', :kind => 'bugzilla', :regex => '(?:Kernel|K|bko)#(\d+)', :url => 'https://bugzilla.kernel.org/', :long_name => "bko#%s", :show_url => 'https://bugzilla.kernel.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('kde', :description => 'KDE Bugzilla', :kind => 'bugzilla', :regex => 'kde#(\d+)', :url => 'https://bugs.kde.org/', :long_name => "kde#%s", :show_url => 'https://bugs.kde.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('lp', :description => 'Launchpad.net Bugtracker', :kind => 'launchpad', :regex => 'b?lp#(\d+)', :url => 'https://bugs.launchpad.net/bugs/', :long_name => "lp#%s", :show_url => 'https://bugs.launchpad.net/bugs/@@@')
-IssueTracker.find_or_create_by_name('Meego', :description => 'Meego Bugs', :kind => 'bugzilla', :regex => 'Meego#(\d+)', :url => 'https://bugs.meego.com/', :long_name => "Meego#%s", :show_url => 'https://bugs.meego.com/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bmo', :description => 'Mozilla Bugzilla', :kind => 'bugzilla', :regex => 'bmo#(\d+)', :url => 'https://bugzilla.mozilla.org/', :long_name => "bmo#%s", :show_url => 'https://bugzilla.mozilla.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bnc', :description => 'Novell Bugzilla', :enable_fetch => true, :kind => 'bugzilla', :regex => 'bnc#(\d+)', :url => 'https://bugzilla.novell.com/', :long_name => "bnc#%s", :show_url => 'https://bugzilla.novell.com/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('ITS', :description => 'OpenLDAP Issue Tracker', :kind => 'other', :regex => 'ITS#(\d+)', :url => 'http://www.openldap.org/its/', :long_name => "ITS#%s", :show_url => 'http://www.openldap.org/its/index.cgi/Contrib?id=@@@')
-IssueTracker.find_or_create_by_name('i', :description => 'OpenOffice.org Bugzilla', :kind => 'bugzilla', :regex => 'i#(\d+)', :url => 'http://openoffice.org/bugzilla/', :long_name => "boost#%s", :show_url => 'http://openoffice.org/bugzilla/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('fate', :description => 'openSUSE Feature Database', :kind => 'fate', :regex => '[Ff]ate#(\d+)', :url => 'https://features.opensuse.org/', :long_name => "fate#%s", :show_url => 'https://features.opensuse.org/@@@')
-IssueTracker.find_or_create_by_name('rh', :description => 'RedHat Bugzilla', :kind => 'bugzilla', :regex => 'rh#(\d+)', :url => 'https://bugzilla.redhat.com/', :long_name => "rh#%s", :show_url => 'https://bugzilla.redhat.com/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bso', :description => 'Samba Bugzilla', :kind => 'bugzilla', :regex => 'bso#(\d+)', :url => 'https://bugzilla.samba.org/', :long_name => "bso#%s", :show_url => 'https://bugzilla.samba.org/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('sf', :description => 'SourceForge.net Tracker', :kind => 'sourceforge', :regex => 'sf#(\d+)', :url => 'http://sf.net/support/', :long_name => "sf#%s", :show_url => 'http://sf.net/support/tracker.php?aid=@@@')
-IssueTracker.find_or_create_by_name('Xamarin', :description => 'Xamarin Bugzilla', :kind => 'bugzilla', :regex => 'Xamarin#(\d+)', :url => 'http://bugzilla.xamarin.com/index.cgi', :long_name => "Xamarin#%s", :show_url => 'http://bugzilla.xamarin.com/show_bug.cgi?id=@@@')
-IssueTracker.find_or_create_by_name('bxo', :description => 'XFCE Bugzilla', :kind => 'bugzilla', :regex => 'bxo#(\d+)', :url => 'https://bugzilla.xfce.org/', :long_name => "bxo#%s", :show_url => 'https://bugzilla.xfce.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('boost', :description => 'Boost Trac', :kind => 'trac', :regex => 'boost#(\d+)', :url => 'https://svn.boost.org/trac/boost/', :label => 'boost#@@@', :show_url => 'https://svn.boost.org/trac/boost/ticket/@@@')
+IssueTracker.find_or_create_by_name('bco', :description => 'Clutter Project Bugzilla', :kind => 'bugzilla', :regex => 'bco#(\d+)', :url => 'http://bugzilla.clutter-project.org/', :label => 'bco#@@@', :show_url => 'http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('RT', :description => 'CPAN Bugs', :kind => 'other', :regex => 'RT#(\d+)', :url => 'https://rt.cpan.org/', :label => 'RT#@@@', :show_url => 'http://rt.cpan.org/Public/Bug/Display.html?id=@@@')
+IssueTracker.find_or_create_by_name('cve', :description => 'CVE Numbers', :kind => 'cve', :regex => '(CVE-\d{4,4}-\d{4,4})', :url => 'http://cve.mitre.org/', :label => '@@@', :show_url => 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@')
+IssueTracker.find_or_create_by_name('deb', :description => 'Debian Bugzilla', :kind => 'bugzilla', :regex => 'deb#(\d+)', :url => 'http://bugs.debian.org/', :label => 'deb#@@@', :show_url => 'http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@')
+IssueTracker.find_or_create_by_name('fdo', :description => 'Freedesktop.org Bugzilla', :kind => 'bugzilla', :regex => 'fdo#(\d+)', :url => 'https://bugs.freedesktop.org/', :label => 'fdo#@@@', :show_url => 'https://bugs.freedesktop.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('GCC', :description => 'GCC Bugzilla', :kind => 'bugzilla', :regex => 'GCC#(\d+)', :url => 'http://gcc.gnu.org/bugzilla/', :label => 'GCC#@@@', :show_url => 'http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bgo', :description => 'Gnome Bugzilla', :kind => 'bugzilla', :regex => 'bgo#(\d+)', :url => 'https://bugzilla.gnome.org/', :label => 'bgo#@@@', :show_url => 'https://bugzilla.gnome.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bio', :description => 'Icculus.org Bugzilla', :kind => 'bugzilla', :regex => 'bio#(\d+)', :url => 'https://bugzilla.icculus.org/', :label => 'bio#@@@', :show_url => 'https://bugzilla.icculus.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bko', :description => 'Kernel.org Bugzilla', :kind => 'bugzilla', :regex => '(?:Kernel|K|bko)#(\d+)', :url => 'https://bugzilla.kernel.org/', :label => 'bko#@@@', :show_url => 'https://bugzilla.kernel.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('kde', :description => 'KDE Bugzilla', :kind => 'bugzilla', :regex => 'kde#(\d+)', :url => 'https://bugs.kde.org/', :label => 'kde#@@@', :show_url => 'https://bugs.kde.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('lp', :description => 'Launchpad.net Bugtracker', :kind => 'launchpad', :regex => 'b?lp#(\d+)', :url => 'https://bugs.launchpad.net/bugs/', :label => 'lp#@@@', :show_url => 'https://bugs.launchpad.net/bugs/@@@')
+IssueTracker.find_or_create_by_name('Meego', :description => 'Meego Bugs', :kind => 'bugzilla', :regex => 'Meego#(\d+)', :url => 'https://bugs.meego.com/', :label => 'Meego#@@@', :show_url => 'https://bugs.meego.com/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bmo', :description => 'Mozilla Bugzilla', :kind => 'bugzilla', :regex => 'bmo#(\d+)', :url => 'https://bugzilla.mozilla.org/', :label => 'bmo#@@@', :show_url => 'https://bugzilla.mozilla.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bnc', :description => 'Novell Bugzilla', :enable_fetch => true, :kind => 'bugzilla', :regex => 'bnc#(\d+)', :url => 'https://bugzilla.novell.com/', :label => 'bnc#@@@', :show_url => 'https://bugzilla.novell.com/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('ITS', :description => 'OpenLDAP Issue Tracker', :kind => 'other', :regex => 'ITS#(\d+)', :url => 'http://www.openldap.org/its/', :label => 'ITS#@@@', :show_url => 'http://www.openldap.org/its/index.cgi/Contrib?id=@@@')
+IssueTracker.find_or_create_by_name('i', :description => 'OpenOffice.org Bugzilla', :kind => 'bugzilla', :regex => 'i#(\d+)', :url => 'http://openoffice.org/bugzilla/', :label => 'boost#@@@', :show_url => 'http://openoffice.org/bugzilla/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('fate', :description => 'openSUSE Feature Database', :kind => 'fate', :regex => '[Ff]ate#(\d+)', :url => 'https://features.opensuse.org/', :label => 'fate#@@@', :show_url => 'https://features.opensuse.org/@@@')
+IssueTracker.find_or_create_by_name('rh', :description => 'RedHat Bugzilla', :kind => 'bugzilla', :regex => 'rh#(\d+)', :url => 'https://bugzilla.redhat.com/', :label => 'rh#@@@', :show_url => 'https://bugzilla.redhat.com/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bso', :description => 'Samba Bugzilla', :kind => 'bugzilla', :regex => 'bso#(\d+)', :url => 'https://bugzilla.samba.org/', :label => 'bso#@@@', :show_url => 'https://bugzilla.samba.org/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('sf', :description => 'SourceForge.net Tracker', :kind => 'sourceforge', :regex => 'sf#(\d+)', :url => 'http://sf.net/support/', :label => 'sf#@@@', :show_url => 'http://sf.net/support/tracker.php?aid=@@@')
+IssueTracker.find_or_create_by_name('Xamarin', :description => 'Xamarin Bugzilla', :kind => 'bugzilla', :regex => 'Xamarin#(\d+)', :url => 'http://bugzilla.xamarin.com/index.cgi', :label => 'Xamarin#@@@', :show_url => 'http://bugzilla.xamarin.com/show_bug.cgi?id=@@@')
+IssueTracker.find_or_create_by_name('bxo', :description => 'XFCE Bugzilla', :kind => 'bugzilla', :regex => 'bxo#(\d+)', :url => 'https://bugzilla.xfce.org/', :label => 'bxo#@@@', :show_url => 'https://bugzilla.xfce.org/show_bug.cgi?id=@@@')

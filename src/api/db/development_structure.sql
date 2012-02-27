@@ -75,6 +75,7 @@ CREATE TABLE `attrib_types` (
   `value_count` int(11) DEFAULT NULL,
   `attrib_namespace_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_attrib_types_on_attrib_namespace_id_and_name` (`attrib_namespace_id`,`name`),
   KEY `index_attrib_types_on_name` (`name`),
   KEY `attrib_namespace_id` (`attrib_namespace_id`),
   CONSTRAINT `attrib_types_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`)
@@ -86,6 +87,7 @@ CREATE TABLE `attrib_values` (
   `value` text NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_attrib_values_on_attrib_id_and_position` (`attrib_id`,`position`),
   KEY `index_attrib_values_on_attrib_id` (`attrib_id`),
   CONSTRAINT `attrib_values_ibfk_1` FOREIGN KEY (`attrib_id`) REFERENCES `attribs` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -127,8 +129,9 @@ CREATE TABLE `db_package_issues` (
   `issue_id` int(11) NOT NULL,
   `change` enum('added','deleted','changed','kept') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `db_package_id` (`db_package_id`),
-  KEY `issue_id` (`issue_id`),
+  UNIQUE KEY `index_db_package_issues_on_db_package_id_and_issue_id` (`db_package_id`,`issue_id`),
+  KEY `index_db_package_issues_on_issue_id` (`issue_id`),
+  KEY `index_db_package_issues_on_db_package_id` (`db_package_id`),
   CONSTRAINT `db_package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `db_package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -310,7 +313,7 @@ CREATE TABLE `issue_trackers` (
   `regex` varchar(255) NOT NULL,
   `user` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `long_name` text NOT NULL,
+  `label` text NOT NULL,
   `issues_updated` datetime DEFAULT NULL,
   `enable_fetch` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -320,12 +323,13 @@ CREATE TABLE `issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `issue_tracker_id` int(11) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `summary` varchar(255) DEFAULT NULL,
   `owner_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `state` enum('OPEN','CLOSED','UNKNOWN') DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_issues_on_name_and_issue_tracker_id` (`name`,`issue_tracker_id`),
   KEY `owner_id` (`owner_id`),
   KEY `issue_tracker_id` (`issue_tracker_id`),
   CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
@@ -850,6 +854,18 @@ INSERT INTO schema_migrations (version) VALUES ('20120124114301');
 INSERT INTO schema_migrations (version) VALUES ('20120124114302');
 
 INSERT INTO schema_migrations (version) VALUES ('20120124114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20120216114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20120217114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20120217114304');
+
+INSERT INTO schema_migrations (version) VALUES ('20120220114304');
+
+INSERT INTO schema_migrations (version) VALUES ('20120222105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20120223105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

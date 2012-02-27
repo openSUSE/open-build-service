@@ -74,7 +74,7 @@ class PatchinfoController < ApplicationController
     if @file.has_element?("issue")
       @file.each_issue do |a|
         if a.text == ""
-          get_issue_desc(a.value(:id), a.tracker)
+          get_issue_sum(a.value(:id), a.tracker)
         end
         issue = Array.new
         issueid = a.value(:id)
@@ -121,6 +121,10 @@ class PatchinfoController < ApplicationController
     else
       @zypp_restart_needed = false
     end
+    if @file.has_element?("stopped")
+      @block = true
+      @block_reason = @file.stopped.text
+    end
   end
 
   def save
@@ -155,7 +159,7 @@ class PatchinfoController < ApplicationController
         issue = Array.new
         issue << new_issue
         issue << params[:issuetracker][index]
-        issue << params[:issuedesc][index]
+        issue << params[:issuesum][index]
         issues << issue
       end
       rating = params[:rating]
@@ -185,16 +189,13 @@ class PatchinfoController < ApplicationController
         if zypp_restart_needed
           node.zypp_restart_needed
         end
+        if params[:block] == "true"
+          node.stopped  params[:block_reason]
+        end
       end
       begin
         frontend.put_file( xml, :project => @project,
-          :package => @package, :filename => filename,
-          :packager => [:packager], :category => [:category],
-          :rating => [:rating], :issue => [:issue], 
-          :binarylist => [:binarylist], :binaries => [:binaries],
-          :summary => [:summary], :description => [:description],
-          :relogin => [:relogin], :reboot => [:reboot],
-          :zypp_restart_needed => [:zypp_restart_needed])
+          :package => @package, :filename => filename)
         flash[:note] = "Successfully edited #{@package}"
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
@@ -213,7 +214,7 @@ class PatchinfoController < ApplicationController
         issue << new_issue
         issue << params[:issuetracker][index]
         issue << params[:issueurl][index]
-        issue << params[:issuedesc][index]
+        issue << params[:issuesum][index]
         @issues << issue
       end
       @category = params[:category]
@@ -223,6 +224,8 @@ class PatchinfoController < ApplicationController
       @relogin = params[:relogin]
       @reboot = params[:reboot]
       @zypp_restart_needed = params[:zypp_restart_needed]
+      @block = params[:block]
+      @block_reason = params[:block_reason]
       render :action => "edit_patchinfo", :project => @project, :package => @package
     end
   end
@@ -261,12 +264,12 @@ class PatchinfoController < ApplicationController
     issueurl = issueurl.each("/issue-tracker/show-url").first.text
     issueurl = issueurl.sub(/@@@/, params[:issueid])
     @issue << issueurl
-    get_issue_desc(params[:issueid], params[:tracker])
-    @issue << @issuedesc
+    get_issue_sum(params[:issueid], params[:tracker])
+    @issue << @issuesum
     render :nothing => true, :json => @issue
   end
 
-  def get_issue_desc(issueid, tracker)
+  def get_issue_sum(issueid, tracker)
     if tracker != "cve"
       bug = tracker + "#" + issueid
     else
@@ -281,14 +284,14 @@ class PatchinfoController < ApplicationController
     if bug =~ regexp
       path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
       result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
-      if result.description == nil
+      if result.summary == nil
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
         result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
       end
-      @issuedesc = result.description.text if result.description
-      @issuedesc = "" if !result.description
+      @issuesum = result.summary.text if result.summary
+      @issuesum = "" if !result.summary
     else
-      @issuedesc = "invalid"
+      @issuesum = "invalid"
     end
   end 
     

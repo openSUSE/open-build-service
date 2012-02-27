@@ -2176,7 +2176,7 @@ end
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "home:Iggy"
-    assert_equal ret.package, "TestPack"
+    assert_nil ret.package
     assert_not_nil ret.baserev
     assert_not_nil ret.patches
     assert_not_nil ret.patches.branch
@@ -2255,7 +2255,7 @@ end
 
     post "/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response 403
-    assert_match(/no permission to execute command/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "delete_package_no_permission" }
 
     post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
@@ -2348,7 +2348,7 @@ end
 
     post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
-    assert_match(/no permission to execute command/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "delete_package_no_permission" }
 
     post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success
@@ -2395,7 +2395,7 @@ end
 
     post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
-    assert_match(/no permission to execute command/, @response.body)
+    assert_tag :tag => "status", :attributes => { :code => "delete_package_no_permission" }
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success

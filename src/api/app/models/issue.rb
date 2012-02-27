@@ -67,20 +67,22 @@ class Issue < ActiveRecord::Base
     self.issue_tracker.fetch_issues([self])
   end
 
-  def long_name
-    return self.issue_tracker.long_name.gsub(/%s/, self.name)
+  def label
+    return self.issue_tracker.label.gsub('@@@', self.name)
   end
 
   def render_body(node, change=nil)
-    node.issue({:change => change}) do |issue|
+    p={}
+    p[:change] = change if change
+    node.issue(p) do |issue|
       issue.created_at(self.created_at)
       issue.updated_at(self.updated_at)   if self.updated_at
       issue.name(self.name)
-      issue.issue_tracker(self.issue_tracker.name)
-      issue.long_name(self.long_name)
+      issue.tracker(self.issue_tracker.name)
+      issue.label(self.label)
       issue.url(self.issue_tracker.show_url.gsub('@@@', self.name))
       issue.state(self.state)             if self.state
-      issue.description(self.description) if self.description
+      issue.summary(self.summary) if self.summary
 
       if self.owner_id
         # self.owner must not by used, since it is reserved by rails
@@ -98,7 +100,15 @@ class Issue < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new do |node|
       self.render_body node
     end
-    builder.to_xml
+    builder.to_xml :indent => 2, :encoding => 'UTF-8', 
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
+
+  def to_axml
+    Rails.cache.fetch('issue_%d' % self.id) do
+      render_axml
+    end
   end
 
 end

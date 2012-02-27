@@ -138,7 +138,7 @@ class Person < ActiveXML::Base
   end
 
   def running_patchinfos(opts = {})
-    cachekey = "#{login}_patchinfos_that_need_work"
+    cachekey = "#{login}_patchinfos_that_need_work2"
     Rails.cache.delete cachekey unless opts[:cache]
     return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
       array = Array.new
@@ -155,11 +155,11 @@ class Person < ActiveXML::Base
         doc.each("/package/issue") do |s|
           i = {}
           i[:name]= s.find_first("name").text
-          i[:issue_tracker]= s.find_first("issue_tracker").text
-          i[:long_name]= s.find_first("long_name").text
+          i[:tracker]= s.find_first("tracker").text
+          i[:label]= s.find_first("label").text
           i[:url]= s.find_first("url").text
-          if description=s.find_first("description")
-            i[:description] = description.text
+          if summary=s.find_first("summary")
+            i[:summary] = summary.text
           end
           if state=s.find_first("state")
             i[:state] = state.text

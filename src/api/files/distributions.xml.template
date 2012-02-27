@@ -45,6 +45,24 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
+ <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11-SP2">
+  <name>SUSE SLE-11 SP2</name>
+  <project>openSUSE.org:SUSE:SLE-11:SP2</project>
+  <reponame>SLE_11_SP2</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/suse-SLE-11-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLE-11-16.png"/>
+  <link>http://www.suse.com/</link>
+ </distribution>
+ <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11-SP1">
+  <name>SUSE SLE-11 SP1</name>
+  <project>openSUSE.org:SUSE:SLE-11:SP1</project>
+  <reponame>SLE_11_SP1</reponame>
+  <repository>standard</repository>
+  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/suse-SLE-11-8.png"/>
+  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLE-11-16.png"/>
+  <link>http://www.suse.com/</link>
+ </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11">
   <name>SUSE SLE-11</name>
   <project>openSUSE.org:SUSE:SLE-11</project>

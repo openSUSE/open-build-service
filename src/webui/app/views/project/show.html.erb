@@ -1,15 +1,15 @@
-<% @pagetitle = "Show Project #{@project}" %>
+<% @pagetitle = "Show #{@project}" %>
 <% project_bread_crumb %>
 
 <%= render :partial => 'tabs' %>
 
 <div class="grid_10 alpha">
-  <div class="show_left box">
-    <h3 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
-
-    <%= render :partial => 'shared/description', :locals => {:description => @project.description.text} %>
-
-    <div class="grid_5 alpha">
+  <div class="box show_left show_bottom">
+    <div class="grid_7 alpha omega">
+      <h3 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
+      <%= render :partial => 'shared/description', :locals => {:description => @project.description.text} %>
+    </div>
+    <div class="grid_3 alpha omega">
       <h4>Information</h4>
       <ul class="clean_list">
         <% if @is_maintenance_project %>
@@ -86,84 +86,77 @@
         <% end %>
       </ul>
     </div>
-    <div class="grid_5 omega">
-      <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
-        <h4>Actions</h4>
-        <ul class="clean_list">
-          <% if not @bugowners_mail.empty? and !BUGZILLA_HOST.nil? %>
-            <li>
-              <%= link_to(image_tag('tools-report-bug.png', :title => 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
-              <%= link_to('Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
-            </li>
-          <% end -%>
-          <% if session[:login] %>
-            <% if @project.can_edit?( session[:login] ) %>
-              <% unless @project.is_remote? %>
-                <% if @is_incident_project and @nr_packages > 0 && @has_patchinfo %>
-                  <li>
-                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request to release'), :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
-                    <%= link_to_remote('Request to release', :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
-                  </li>
-                <% elsif @is_maintenance_project %>
-                  <li>
-                    <%= link_to(image_tag('icons/brick_add.png', :title => 'Create maintenance incident'), :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
-                    <%= link_to('Create maintenance incident', :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
-                  </li>
-                <% else %>
-                  <li>
-                    <%= link_to(image_tag('icons/package_add.png', :title => 'Create package'), :controller => 'project', :action => 'new_package', :project => @project) %>
-                    <%= link_to('Create package', :controller => 'project', :action => 'new_package', :project => @project) %>
-                  </li>
-                  <li>
-                    <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
-                    <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
-                  </li>
-                  <% if @nr_releasetargets > 0 %>
-                    <li>
-                      <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request maint. update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
-                      <%= link_to_remote('Request maint. update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
-                    </li>
-                  <% end %>
-                <% end %>
-              <% end %>
-              <li>
-                <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit description"), :action => 'edit', :project => @project) %>
-                <%= link_to("Edit description", :action => 'edit', :project => @project) %>
-              </li>
-              <li>
-                <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
-                <%= link_to_remote('Delete project', :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
-              </li>
-            <% else %>
-              <li>
-                <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request role addition"), :url => {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}) %>
-                <%= link_to_remote("Request role addition", :url => {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}) %>
-              </li>
-              <li>
-                <%= link_to_remote(image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => {:controller => 'request', :action => 'delete_request_dialog', :project => @project}) %>
-                <%= link_to_remote('Request deletion', :url => {:controller => 'request', :action => 'delete_request_dialog', :project => @project}) %>
-              </li>
-            <% end %>
-          <% end %>
-        </ul>
-      <% end %>
-    </div>
     <div class="clear"></div>
   </div>
+
+  <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
+    <div class="box show_left">
+      <div class="box-header header-tabs">
+        <ul>
+          <li class="selected"><a href="#">My Actions</a></li>
+        </ul>
+      </div>
+      <ul class="clean_list">
+        <% if not @bugowners_mail.empty? and !BUGZILLA_HOST.nil? %>
+          <li>
+            <%= link_to(image_tag('tools-report-bug.png', :title => 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
+            <%= link_to('Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
+          </li>
+        <% end -%>
+        <% if session[:login] %>
+          <% if @project.can_edit?( session[:login] ) %>
+            <% unless @project.is_remote? %>
+              <% if @is_incident_project and @nr_packages > 0 && @has_patchinfo %>
+                <li>
+                  <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request to release'), :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
+                  <%= link_to_remote('Request to release', :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
+                </li>
+              <% elsif @is_maintenance_project %>
+                <li>
+                  <%= link_to(image_tag('icons/brick_add.png', :title => 'Create maintenance incident'), :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
+                  <%= link_to('Create maintenance incident', :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
+                </li>
+              <% else %>
+                <li>
+                  <%= link_to(image_tag('icons/package_add.png', :title => 'Create package'), :controller => 'project', :action => 'new_package', :project => @project) %>
+                  <%= link_to('Create package', :controller => 'project', :action => 'new_package', :project => @project) %>
+                </li>
+                <li>
+                  <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
+                  <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
+                </li>
+                <% if @nr_releasetargets > 0 %>
+                  <li>
+                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request maint. update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                    <%= link_to_remote('Request maint. update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                  </li>
+                <% end %>
+              <% end %>
+            <% end %>
+            <li>
+              <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit description"), :action => 'edit', :project => @project) %>
+              <%= link_to("Edit description", :action => 'edit', :project => @project) %>
+            </li>
+            <li>
+              <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
+              <%= link_to_remote('Delete project', :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
+            </li>
+          <% else %>
+            <li>
+              <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request role addition"), :url => {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}) %>
+              <%= link_to_remote("Request role addition", :url => {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}) %>
+            </li>
+            <li>
+              <%= link_to_remote(image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => {:controller => 'request', :action => 'delete_request_dialog', :project => @project}) %>
+              <%= link_to_remote('Request deletion', :url => {:controller => 'request', :action => 'delete_request_dialog', :project => @project}) %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 </div>
 
 <div class="grid_6 omega">
-  <div class="show_right box">
-    <% unless @is_maintenance_project %>
-      <div class="box-header aligncenter">
-        Build Status <%= reload_to_remote(:title => 'Reload Status', :url => {:action => 'buildresult', :project => @project}, :update => 'project_buildstatus') %>
-      </div>
-      <%= render :partial => 'buildstatus' %>
-    <% else %>
-      <div class="box-header aligncenter">
-        Maintenance Status <%= reload_to_remote(:title => 'Reload Status', :url => {:action => 'maintenance_status', :project => @project}, :update => 'maintenance_status') %>
-      </div>
-      <%#TODO: render :partial => 'maintenance_status' %>
-    <% end %>
-  </div>
+  <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name')} %>
 </div>

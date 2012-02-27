@@ -19,12 +19,21 @@ class Patchinfo < ActiveXML::Base
   end
 
   def issues
-    issues = {}
-    self.each('issue') do |issue|
-      issue = Issue.find_cached(issue.value('id'), :tracker => issue.value('tracker'))
-      issues[issue.value('long_name')] = issue
+    issues = Patchinfo.find_cached(:issues, :project => self.init_options[:project], :package => self.init_options[:package])
+    if issues
+      return issues.each('issue')
+    else
+      return []
     end
-    return issues
+  end
+
+  def issues_by_tracker
+    issues_by_tracker = {}
+    self.issues.each do |issue|
+      issues_by_tracker[issue.value('tracker')] ||= []
+      issues_by_tracker[issue.value('tracker')] << issue
+    end
+    return issues_by_tracker
   end
 
   def is_maintainer? userid

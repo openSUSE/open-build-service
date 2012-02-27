@@ -6,7 +6,7 @@
         <b>Create Delete Request</b>
       </div>
 
-      <p>Request to delete <b><%= h((defined? @package) ? elide(@package, 30) : elide(@project, 30)) %></b></p>
+      <p>Do you really want to request the deletion of <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project, :package => @package} %>?</p>
 
       <% form_tag(:action => 'delete_request', :method => 'post') do %>
         <%= hidden_field_tag(:project, @project) %>

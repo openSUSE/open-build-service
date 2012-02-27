@@ -26,27 +26,11 @@
   }
 <% end %>
 
+<% editor_width ||= 'auto' %>
 <% css_class ||= nil %>
 <% css_id ||= nil %>
-<% issues ||= nil %>
 
 <div <%= "class=\"#{css_class}\"".html_safe if css_class %> <%= "id=\"#{css_id}\"".html_safe if css_id %> >
-<% if issues && issues.length > 0 %>
-  <%# TODO: Anything but nice, move to 'box' when request view is restructured: %>
-  <div style="float:right;">
-    <h3>Issues mentioned</h3>
-    <ul>
-      <% issues.sort.each do |bug, url| %>
-        <li><%= link_to(bug, url, :class => 'issue_tracker_link') %></li>
-      <% end %>
-    </ul>
-  </div>
-  <%# Stupid XHTML-1.0 strict doesn't like 'target', but all browsers do. Thus, sneak around validation to %>
-  <%# allow opening a new window upon click: %>
-  <% javascript_tag do %>
-    $('a.issue_tracker_link').attr('target', '_blank')
-  <% end %>
-<% end %>
 <% if filenames && filenames.length > 0 %>
   <table>
     <tbody>
@@ -83,7 +67,7 @@
             <tr id="diff_view_<%= file_id %>">
               <td align="center" valign="bottom"><%= link_to('Up', :anchor => "diff_headline_#{file_id}") %></td>
               <td colspan="2">
-                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true} %>
+                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :no_border => true, :width => editor_width} %>
               </td>
             </tr>
           <% else %>

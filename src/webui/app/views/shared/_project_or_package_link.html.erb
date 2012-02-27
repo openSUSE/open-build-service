@@ -1,0 +1,20 @@
+<% package ||= nil %>
+<% rev ||= nil %>
+<% short ||= false %>
+
+<% if package %>
+  <% if !short %>
+    package
+  <% end %>
+  <% package_exists = Package.find_cached(package, :project => project) %>
+  <%= link_to_if(package_exists, "#{project} / #{package}", :controller => 'package', :action => 'show', :project => project, :package => package) %>
+  <% if rev && rev != Package.current_rev(project, package) %>
+    (<%= link_to_if(package_exists, "revision #{rev}", :controller => 'package', :action => 'files', :project => project, :package => package, :rev => rev) %>)
+  <% end %>
+<% else %>
+  <% if !short %>
+    project
+  <% end %>
+  <%= link_to_if(Project.find_cached(project), project, :controller => 'project', :action => 'show', :project => project) %>
+<% end %>
+

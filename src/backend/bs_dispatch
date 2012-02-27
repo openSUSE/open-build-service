@@ -47,6 +47,7 @@ use BSConfig;
 use BSRPC;
 use BSUtil;
 use BSXML;
+use BSCando;
 
 use strict;
 
@@ -71,30 +72,11 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
-my %cando = (
-# this is breaking native builds of arm/mips/sh4, the cross compile compat needs to become configurable per prpa in future
-  'i586'    => [          'i586',         'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
-  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
-  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el', 'mips', 'mipsel',       'sh4'],
-#
-  'ppc'     => [                                                                                        'ppc'                ],
-  'ppc64'   => [                                                                                        'ppc', 'ppc64',      ],
-  'armv4l'  => [                          'armv4l'                                                                           ],
-  'armv5l'  => [                          'armv4l', 'armv5l', 'armv5el',                                                               ],
-  'armv6l'  => [                          'armv4l', 'armv5l', 'armv6l', 'armv5el', 'armv6el'                                                     ],
-  'armv7l'  => [                          'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el'                                          ],
-  'sh4'     => [                                                                                                        'sh4'],
-  'parisc'  => ['hppa', 'hppa64:linux64'],
-  'parisc64'=> ['hppa64', 'hppa:linux32'],
-  'ia64'    => ['ia64'],
-  's390'    => ['s390'],
-  's390x'   => ['s390x', 's390'],
-  'sparc'   => ['sparcv8', 'sparc'],
-  'sparc64' => ['sparc64v', 'sparc64', 'sparcv9v', 'sparcv9', 'sparcv8:linux32' , 'sparc:linux32'],
-  'mips'    => ['mips'],
-  'mips64'  => ['mips64', 'mips'],
-  'local'   => ['local'],
-);
+# strip helpers from cando
+my %cando = %BSCando::cando;
+for my $hostarch (values %cando) {
+  s/:.*// for @{$hostarch || []};
+}
 
 # 4h build will add .5 to the load
 # 4h idle will half the load
@@ -371,9 +353,35 @@ while (1) {
   #print "finding jobs\n";
   my %jobs;
   my %maybesrcchange;
-  for my $arch (sort keys %idlearch) {
+  my @archs = sort keys %idlearch;
+  my %archdone;
+  my %crossarchlist;
+  while (@archs) {
+    my $arch = shift @archs;
+    next if $archdone{$arch};
+    $archdone{$arch} = 1;
     my $ic = $infocache{$arch} || {};
     my @b = grep {!/^\./} ls("$jobsdir/$arch");
+    my @crossb = grep {/:cross$/} @b;
+    if (@crossb) {
+      my %crossarchs;
+      for (@crossb) {
+	push @{$crossarchs{$2}}, $1 if /^(.*):([^:]+):cross$/;
+      }
+      for my $crossarch (sort keys %crossarchs) {
+	next unless $idlearch{$arch};
+	my %cj = map {$_ => 1} ls("$jobsdir/$crossarch");
+	# deltete orphaned marker
+	for (@{$crossarchs{$crossarch}}) {
+	  next if $cj{$_};
+	  print "  - deleting orphaned cross marker $arch/$_:${crossarch}:cross\n";
+	  unlink("$jobsdir/$arch/$_:${crossarch}:cross");
+	}
+	push @archs, $crossarch;
+	$crossarchlist{$crossarch}->{$arch} = 1;
+      }
+      @b = grep {!/:cross$/} @b;
+    }
     my %locked = map {$_ => 1} grep {/:status$/} @b;
     my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
     for (grep {!$notlocked{$_}} keys (%{$infocache{$arch} || {}})) {
@@ -496,7 +504,10 @@ while (1) {
   while (@jobprpas) {
     my $prpa = shift @jobprpas;
     my $arch = (split('/', $prpa))[2];
-    next unless @{$idlearch{$arch} || []};
+    if (!@{$idlearch{$arch} || []}) {
+      next unless $crossarchlist{$arch};	# where can be also build that?
+      next unless grep {@{$idlearch{$_} || []}} keys %{$crossarchlist{$arch}};
+    }
     my @b = @{$jobs{$prpa} || []};
     next unless @b;
 
@@ -563,7 +574,7 @@ while (1) {
 	  last;
 	}
       }
-      my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
+      my @idle = List::Util::shuffle(@{$idlearch{$ic->{$job}->{'hostarch'} || $arch} || []});
       last unless @idle;
       my %poweridle;
       if ($powerjobs{$job}) {

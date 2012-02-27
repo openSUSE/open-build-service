@@ -29,6 +29,18 @@
       Require attribute: <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]) %>
       <%= hidden_field_tag 'advanced', 'on' -%>
     </p>
+
+  <hr/>
+
+    <p>
+      Search for packages with tracker issues:
+    </p>
+    <p>
+      <% params[:issue_tracker] = "bnc (Novell Bugzilla)" if params[:issue_tracker].nil? %> <!-- FIXME: default should become configurable on api server -->
+      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker]) %>
+      <%= text_field_tag 'issue_name', params[:issue_name], :size => 10 -%>
+      <%= submit_tag 'Search' -%>
+    </p>
   <% end -%>
 
 </div>

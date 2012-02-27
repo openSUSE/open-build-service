@@ -11,7 +11,7 @@
     <table title="Repositories" class="repostatus">
       <% @buildresult.each do |repo, archarray| %>
         <% index = 0
-           srepo = truncate(repo, :length => 19)
+           srepo = truncate(repo, :length => 17)
            archarray.each do |arch, counts| %>
           <tr>
             <% if index == 0 %>

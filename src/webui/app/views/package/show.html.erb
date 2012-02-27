@@ -1,16 +1,16 @@
-<% @pagetitle = "Show Package #{@package} (Project #{@project})" %>
-<% project_bread_crumb @package.name -%>
+<% @pagetitle = "Show #{@project} / #{@package}" %>
+<% project_bread_crumb @package.name %>
 
-<%= render :partial => "tabs" %>
+<%= render :partial => 'tabs' %>
 
 <div class="grid_10 alpha">
-  <div class="box show_left">
-    <h3 style="display: inline"><%=h @package %></h3>
-
-    <p><%=h @package.title %></p>
-    <%= render :partial => "shared/description", :locals => {:description => @package.description.text} %>
-
-    <div class="grid_5 alpha">
+  <div class="box show_left show_bottom">
+    <div class="grid_7 alpha omega">
+      <h3 style="display: inline"><%=h @package %></h3>
+      <p><%=h @package.title %></p>
+      <%= render :partial => "shared/description", :locals => {:description => @package.description.text} %>
+    </div>
+    <div class="grid_3 alpha omega">
       <h4>Information</h4>
       <ul class="clean_list">
         <li>
@@ -67,60 +67,59 @@
         <% end %>
       </ul>
     </div>
-
-    <div class="grid_5 omega">
-      <% if (not @bugowners_mail.empty? and not BUGZILLA_HOST.nil?) or session[:login] %>
-        <h4>Actions</h4>
-        <ul class="clean_list">
-          <% unless @bugowners_mail.empty? or BUGZILLA_HOST.nil? %>
-            <li>
-              <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
-              <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
-            </li>
-          <% end %>
-          <% if session[:login] %>
-            <% if Package.current_rev(@project, @package) %>
-              <li>
-                <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Branch package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
-              </li>
-              <li>
-                <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Submit package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-              </li>
-            <% end %>
-            <% if @package.can_edit?(session[:login]) %>
-              <li>
-                <%= link_to image_tag('icons/package_edit.png', :title => "Edit description"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
-                <%= link_to "Edit description", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
-              </li>
-              <li>
-                <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Delete package'), :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
-                <%= link_to_remote 'Delete package', :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
-              </li>
-            <% else %>
-              <li>
-                <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request role addition"), :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
-                <%= link_to_remote("Request role addition", :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
-              </li>
-              <li>
-                <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request deletion'), :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
-                <%= link_to_remote 'Request deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
-              </li>
-            <% end %>
-          <% end %>
-        </ul>
-      <% end %>
-    </div>
     <div class="clear"></div>
   </div>
+
+  <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
+    <div class="box show_left">
+      <div class="box-header header-tabs">
+        <ul>
+          <li class="selected"><a href="#">My Actions</a></li>
+        </ul>
+      </div>
+      <ul class="clean_list">
+        <% unless @bugowners_mail.empty? or BUGZILLA_HOST.nil? %>
+          <li>
+            <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+            <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+          </li>
+        <% end %>
+        <% if session[:login] %>
+          <% if Package.current_rev(@project, @package) %>
+            <li>
+              <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
+              <%= link_to_remote 'Branch package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
+            </li>
+            <li>
+              <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+              <%= link_to_remote 'Submit package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+            </li>
+          <% end %>
+          <% if @package.can_edit?(session[:login]) %>
+            <li>
+              <%= link_to image_tag('icons/package_edit.png', :title => "Edit description"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+              <%= link_to "Edit description", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+            </li>
+            <li>
+              <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Delete package'), :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
+              <%= link_to_remote 'Delete package', :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
+            </li>
+          <% else %>
+            <li>
+              <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request role addition"), :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
+              <%= link_to_remote("Request role addition", :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
+            </li>
+            <li>
+              <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request deletion'), :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
+              <%= link_to_remote 'Request deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 </div>
 
 <div class="grid_6 omega">
-  <div class="box show_right">
-    <div class="box-header aligncenter">
-      Build Status <%= reload_to_remote(:title => "Reload Status", :url => {:action => "reload_buildstatus", :project => @project, :package => @package}, :update => "package_buildstatus") %>
-    </div>
-    <%= render :partial => 'buildstatus' %>
-  </div>
+  <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>
 </div>

@@ -40,6 +40,11 @@ class User < ActiveRecord::Base
       Thread.current[:admin] = isadmin
     end
 
+    def nobodyID
+      return Thread.current[:nobody_id] if Thread.current[:nobody_id]
+      Thread.current[:nobody_id] = get_by_login("_nobody_").id
+    end
+
     def get_by_login(login)
       u = find :first, :conditions => ["login = BINARY ?", login]
       raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
@@ -103,17 +108,6 @@ class User < ActiveRecord::Base
     end
 
     xml
-  end
-
-  # This method can be used to lookup or create the user's home project
-  def find_or_create_home_project
-    home_project = DbProject.find_by_name("home:#{self.login}")
-    unless home_project # Create the user's home repository
-      home_project = DbProject.new(:name => "home:#{self.login}", :title => "#{self.login}'s Home Project", :description => "Please add a suitable description and don't forget to add some repositories you want to build your packages against (just click on 'Repositories' above). Have fun!")
-      home_project.add_user(self, 'maintainer')
-      home_project.store(self.login)
-    end
-    return home_project
   end
 
   # Returns true if the the state transition from "from" state to "to" state

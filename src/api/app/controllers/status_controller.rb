@@ -85,8 +85,6 @@ class StatusController < ApplicationController
       data = nil
     end
     data=ActiveXML::Base.new(data || update_workerstatus_cache)
-    #accessprjs  = DbProject.find_by_sql("select p.id from db_projects p join flags f on f.db_project_id = p.id where f.flag='access'")
-    #accesspkgs  = DbPackage.find_by_sql("select p.id from db_packages p join flags f on f.db_package_id = p.id where f.flag='access'")
     data.each_building do |b|
       prj = DbProject.find_by_name(b.project)
       # no prj -> we are not allowed
@@ -95,6 +93,13 @@ class StatusController < ApplicationController
         b.set_attribute('project', "---")
         b.set_attribute('repository', "---")
         b.set_attribute('package', "---")
+      end
+    end
+    # FIXME2.5: The current architecture model is a gross hack, not connected at all 
+    #           to the backend config.
+    data.each_scheduler do |s|
+      if a=Architecture.find_by_name(s.arch)
+        a.available=true
       end
     end
     send_data data.dump_xml
@@ -218,9 +223,16 @@ class StatusController < ApplicationController
     if fileinfo.release.to_s != release
       raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
     end
-
     fileinfo.each_requires_ext do |r|
-      unless r.has_element? :providedby
+      if r.has_element? :providedby
+        provided = []
+        r.each_providedby { |p| provided << p.name }
+        if provided.size == 1
+          ret << provided[0] # simplify
+        else
+          ret << provided
+        end
+      else
         ret << "#{file}:#{r.dep}"
       end
     end
@@ -335,6 +347,12 @@ class StatusController < ApplicationController
             end
           end
 
+	  # expansion error
+	  if buildinfo.has_element? :error
+             missingdeps << buildinfo.value(:error)
+	     buildcode='failed' 
+	  end
+
           buildinfo.each_bdep do |b|
             unless b.value(:preinstall)
               unless packages.has_key? b.value(:name)
@@ -343,6 +361,10 @@ class StatusController < ApplicationController
             end
           end
           
+          # we track the binaries we built and what they depend on - to then filter out
+          # the own binaries from that list
+          tmp_md = Array.new
+          ownbinaries = Hash.new
           uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}")
           binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
           binaries.each_binary do |f|
@@ -355,6 +377,7 @@ class StatusController < ApplicationController
             filename_arch = m[4]
             # work around as long as we build ia64 baselibs (soon to be gone)
             next if filename_arch == "ia64"
+            ownbinaries[filename_file] = 1
             md = nil
             begin
               md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
@@ -367,15 +390,31 @@ class StatusController < ApplicationController
               render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
               return
             end
-            if md && md.size > 0
-              missingdeps << md
+            if md && md.size > 0 && filename_arch == arch
+              md.each do |pl|
+                if pl.kind_of?(String)
+                  tmp_md << pl unless packages.has_key?(pl)
+                else
+                  found = nil
+                  pl.each do |p|
+                    found = 1 if packages.has_key?(p)
+                  end
+                  if found.nil?
+                    tmp_md << pl.join('|')
+                  end
+                end
+              end
             end
           end
+          tmp_md.each do |p|
+            missingdeps << p unless ownbinaries.has_key?(p)
+          end
         end
+
         # if the package does not appear in build history, check flags
         if everbuilt == 0
           spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
-          buildflag=spkg.find_flag_state("build", srep.name, arch.to_s)
+          buildflag=spkg.find_flag_state("build", srep.name, arch.to_s) if spkg
           logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
           if buildflag == 'disable'
             buildcode='disabled'
@@ -385,7 +424,7 @@ class StatusController < ApplicationController
         if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
           buildcode='failed' # has to be
         end
- 
+	
         unless buildcode
           buildcode="unknown"
           begin
@@ -417,7 +456,7 @@ class StatusController < ApplicationController
           end
         end
         outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
-        outputxml << " missing='#{missingdeps.join(',').to_xs}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
+        outputxml << " missing='#{missingdeps.uniq.join(',').to_xs}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
         outputxml << "/>\n"
       end
       outputxml << " </repository>\n"

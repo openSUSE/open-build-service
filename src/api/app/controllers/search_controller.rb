@@ -23,6 +23,10 @@ class SearchController < ApplicationController
     search(:repository, false)
   end
 
+  def issue
+    search(:issue, true)
+  end
+
   def attribute
     unless params[:namespace] and params[:name]
       render_error :status => 400, :message => "need namespace and name parameter"
@@ -55,12 +59,14 @@ class SearchController < ApplicationController
     output << "<collection>\n"
 
     begin
-      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order).merge({"render_all" => render_all})) do |item|
+      xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order, :limit, :offset).merge({"render_all" => render_all})) do |item|
         if item.kind_of? DbPackage or item.kind_of? DbProject
           # already checked in this case
         elsif item.kind_of? Repository
           # This returns nil if access is not allowed
           next unless DbProject.find_by_id item.db_project_id
+        elsif item.kind_of? Issue
+          # all our hosted issues are public atm
         else
           render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
           return

@@ -309,8 +309,6 @@ class ApplicationController < ActionController::Base
       if @http_user.state == User.states['confirmed']
         logger.debug "USER found: #{@http_user.login}"
         @user_permissions = Suse::Permission.new( @http_user )
-        # Make sure the user has a valid home project
-        @http_user.find_or_create_home_project()
         return true
       end
     end

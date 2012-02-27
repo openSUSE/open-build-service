@@ -52,7 +52,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => 'NEW_PACKAGE' } )
+    assert_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => nil } )
     put "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file", "my content"
     assert_response :success
 
@@ -733,7 +733,43 @@ end
     assert_response :success
   end
 
-  def test_auto_revoke_when_source_gets_removed
+  def test_auto_revoke_when_source_gets_removed_maintenance_incident
+    prepare_request_with_user 'tom', 'thunder'
+    post "/source/kde4/kdebase", :cmd => :branch
+    assert_response :success
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                     <target project="My:Maintenance" releaseproject="BaseDistro3" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id1 = node.value(:id)
+
+    prepare_request_with_user 'king', 'sunflower'
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response :success
+
+    # delete projects
+    prepare_request_with_user 'tom', 'thunder'
+    delete "/source/home:tom:branches:kde4"
+    assert_response :success
+
+    # request got automatically revoked
+    get "/request/#{id1}"
+    assert_response :success
+    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+
+    # test revoke
+    prepare_request_with_user 'adrian', 'so_alone'
+    post "/request/#{id1}?cmd=changestate&newstate=declined"
+    assert_response 403
+  end
+
+  def test_auto_revoke_when_source_gets_removed_submit
     prepare_request_with_user 'tom', 'thunder'
     post "/source/kde4/kdebase", :cmd => :branch
     assert_response :success
@@ -1311,7 +1347,7 @@ end
     assert_response :success
     ret = ActiveXML::XMLNode.new @response.body
     assert_equal ret.project, "BaseDistro2.0:LinkedUpdateProject"
-    assert_equal ret.package, "pack2"
+    assert_nil ret.package # same package name
 
     # create request
     req = "<request>
@@ -1350,7 +1386,7 @@ end
     # pack2 got created
     get "/source/DummY/pack2/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => "pack2" } )
+    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => nil } )
 
     # create delete request two times
     prepare_request_with_user "tom", "thunder"

@@ -1,5 +1,5 @@
 <% content_for :ready_function do %>
-  $('.expandable_row').expander({slicePoint: 50, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
+  $('.expandable_event_comment').expander({slicePoint: 48, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>
 
 <table>
@@ -21,9 +21,9 @@
           <%= fuzzy_time_string(event[:when]) %>
         </td>
       </tr>
-      <% if event[:comment] %>
+      <% if event[:comment] && !event[:comment].empty? %>
         <tr class="odd">
-          <td colspan="3" class="expandable_row"><%= raw escape_and_transform_nonprintables(event[:comment]) %></td>
+          <td colspan="3" class="expandable_event_comment"><%= raw escape_and_transform_nonprintables(event[:comment]) %></td>
         </tr>
       <% end %>
     <% end %>

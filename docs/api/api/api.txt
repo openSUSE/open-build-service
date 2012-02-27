@@ -360,10 +360,14 @@ POST /source/<project>
   undelete: undelete the project and all packages existing when the project got removed.
   showlinked: List all projects linking to this one
   createmaintenanceincident: create a single mainatenance incident project as sub project
+  set_flag: change a defined flag, requires at least flag and status parameters
 
 Parameters:
   noaccess: the new created project will be read protected
-
+  repository: set_flag for given repository (optional)
+  arch: set_flag for given arch (optional)
+  flag: modify this flag (build/publish/..) for set_flag command
+  status: enable or disable for set_flag command
 
 
 === Packages
@@ -518,6 +522,18 @@ Parameters:
   missingok: the target package does not exist
   add_repositories: bool, optional, adds repositories base on source project (default for new projects)
   extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=set_flag
+  Modify or set a defined flag for package
+
+Parameters:
+  repository: set_flag for given repository (optional)
+  arch: set_flag for given arch (optional)
+  flag: modify this flag (build/publish/..) for set_flag command
+  status: enable or disable for set_flag command
 
 XmlResult: status
 
@@ -1186,6 +1202,19 @@ GET /search/request
   Searches for requests using xpath. A xpath predicate has to be
   specified using the match parameter. The predicate will be used in this
   expression: /request[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/issue
+
+  Searches for issue metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /issue[<match>]. Only complete issue information will be returned.
 
 Parameters:
 

@@ -67,10 +67,14 @@ class IssueTracker < ActiveRecord::Base
 
   # this function is usually never called. Just for debugging and disaster recovery
   def enforced_update_all_issues()
+    update_time_stamp = Time.at(Time.now.to_f - 5)
+
     issues = Issue.find :all, :conditions => ["issue_tracker_id = BINARY ?", self.id]
     ids = issues.map{ |x| x.name.to_s }
 
     private_fetch_issues(ids)
+    self.issues_updated = update_time_stamp
+    self.save!
     return true
   end
 
@@ -124,9 +128,9 @@ class IssueTracker < ActiveRecord::Base
             issue.owner_id = u.id if u
             issue.updated_at = update_time_stamp
             if r["is_private"]
-              issue.description = nil
+              issue.summary = nil
             else
-              issue.description = r["summary"]
+              issue.summary = r["summary"]
             end
             issue.save
           end

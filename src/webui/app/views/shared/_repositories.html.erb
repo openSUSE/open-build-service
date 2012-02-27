@@ -1,40 +1,3 @@
-<% content_for :head_javascript do %>
-    var last_triggered_flag;
-    function trigger_success(request) {
-      $('#' + last_triggered_flag).replaceWith(request);
-      $('.flag_trigger').click(trigger);
-      $(".flagimage").animate({opacity: 1}, 200);
-      $('#error_' + last_triggered_flag).text('');
-      last_triggered_flag = null;
-      $('.spinner').hide();
-    }
-
-    function trigger_error(xhr, ajaxOptions, thrownError){
-          $(".flagimage").animate({opacity: 1}, 200);
-          $('.spinner').hide();
-          $('#error_' + last_triggered_flag).text(xhr.responseText);
-          last_triggered_flag = null;
-    }    
-
-    function trigger() {
-      if (last_triggered_flag) { return false; }
-      var javascript_options = <%= options_for_ajax(:url => 'dummy') %>;
-      last_triggered_flag = $(this).parents(".flag_table").attr("id");
-      javascript_options['url'] = $(this).attr("href");
-      javascript_options['success'] = trigger_success;
-      javascript_options['error'] = trigger_error;
-      $(this).parents(".flag_toggle").hide();
-      $(".flagimage").animate({opacity: 0.2}, 500);
-      $('#spinner_' + last_triggered_flag).show();
-      $.ajax(javascript_options);
-      return false;
-    }
-<% end %>
-
-<% content_for :ready_function do %>
-   $('.flag_trigger').click(trigger);
-<% end %>
-
 <% if obj.has_element? 'build' %>
   <div style="min-width: 50%; float: left">
     <h3>Build Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_build', :class => 'spinner hidden' %><span id='error_flag_table_build' class='flagerror'></span></h3>
@@ -66,3 +29,34 @@
 <% end %>
 
 <div class="clear"></div>
+
+<% javascript_tag do %>
+  function trigger() {
+    var last_triggered_flag = $(this).parents('.flag_table').attr('id');
+
+    $(this).parents('.flag_toggle').hide();
+    $('.flagimage').animate({opacity: 0.2}, 500);
+    $('#spinner_' + last_triggered_flag).show();
+
+    $.ajax({
+      url: $(this).attr('href'),
+      type: 'POST',
+      data: {dummy: ''}, /* Need at least some POST form data, otherwise .ajaxSend won't add the 'authenticity_token' */
+      success: function (data) {
+        $('#' + last_triggered_flag).replaceWith(data);
+        $('.flag_trigger').click(trigger); /* Re-bind event handler to new '.flag_trigger' elements */
+        $('#error_' + last_triggered_flag).text('');
+      },
+      error: function(data) {
+        $('#error_' + last_triggered_flag).text(data);
+      },
+      complete: function(data) {
+        $('.flagimage').animate({opacity: 1}, 200);
+        $('.spinner').hide();
+      }
+    })
+    return false;
+  }
+
+  $('.flag_trigger').click(trigger);
+<% end %>

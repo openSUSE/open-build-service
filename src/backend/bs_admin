@@ -380,6 +380,22 @@ sub update_request_db {
   }
 }
 
+sub insert_request_db {
+  my ($file) = @_;
+  my $requestdb  = "$BSConfig::bsdir/db/request";
+  my $requestdir = "$BSConfig::bsdir/requests";
+  mkdir_p($requestdb) unless -d $requestdb;
+
+  my $db = BSDB::opendb($requestdb, '');
+  $db->{'noindex'} = {'id' => 1};
+
+  my @rid = split ('/',$file);
+  $rid = $rid[-1];
+  my $req = readxml("$requestdir/$rid", $BSXML::request, 1);
+  print "WARNING: unable to parse request: $rid!\n" unless $req;
+  $db->updateindex($rid, {}, $req || {});
+}
+
 sub check_xml_file {
   my ($file, $type) = @_;
 
@@ -403,7 +419,6 @@ sub check_product_xml_file {
     die("ERROR: Unable to parse xml file !\n");
   }
 }
-
 
 sub check_kiwi_xml {
   my ($project, $package) = @_;
@@ -538,7 +553,12 @@ while (@ARGV) {
     check_xml_file($file, $BSXML::request);
   } elsif ($arg eq "--update-request-db") {
     BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-    update_request_db();
+    if (@ARGV == 1) {
+       my $file = shift @ARGV;
+	insert_request_db($file);
+    } else {
+	update_request_db();
+    }
   } elsif ($arg eq "--update-source-db") {
     BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
     for my $projid (findprojects()) {
@@ -669,7 +689,7 @@ while (@ARGV) {
     my $repo = shift @ARGV;
     my $arch = shift @ARGV;
     wipe_notyet($project, $repo, $arch);
-    check_project($project, $repo, $arch);
+    check_project($project, $repo, $arch, undef, 1); # with adminhighprio
   } elsif ($arg eq "--create-patchinfo-from-updateinfo") {
     my $uf = shift @ARGV;
     my $pooldirecotory = shift @ARGV;
@@ -690,7 +710,7 @@ while (@ARGV) {
       } elsif ($ref->{'type'} eq 'cve') {
         $b = { 'id' => $ref->{'id'}, 'tracker' => 'CVE' };
       } else {
-       die("Unhadled type $ref->{'type'}");
+       die("Unhandled type $ref->{'type'}");
       };
       push @{$patchinfo->{'issue'}}, $b;
     };
@@ -702,6 +722,7 @@ while (@ARGV) {
     for my $file (@{$updateinfo->{'pkglist'}->{'collection'}[0]->{'package'} || []}) {
       system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $id/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
     }
+    system( "rpm -qp --qf '%{SOURCERPM}\n' $id/*rpm|while read i; do find $pooldirecotory -name \$i | xargs -I {} cp {} $id/; done" );
     my $ufc;
     $ufc->{'update'} = [];
     push @{$ufc->{"update"}}, $updateinfo;

@@ -1,4 +1,4 @@
-<% width ||= '100%' %>
+<% width ||= 'auto' %>
 <% height ||= '600px' %>
 <% save ||= false %>
 <% read_only ||= false %>
@@ -15,8 +15,7 @@
     .CodeMirror-scroll {
       height: <%= height %>;
       <% if height == 'auto' %>
-        overflow-y: hidden;
-        overflow-x: auto;
+        overflow: auto;
       <% end %>
       width: <%= width %>;
     }
@@ -61,6 +60,8 @@
                 <% end %>
               <% end %>
             },
+            success: function(data, textStatus, xhdr) { if (false) { alert(xhdr.responseText); } },
+            error: function(xhdr) { $(".save").removeClass("inactive"); alert(xhdr.responseText); },
           })
         },
       <% else %>

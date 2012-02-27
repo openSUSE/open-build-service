@@ -1,0 +1,43 @@
+<% index ||= '' %>
+<% show_bottom ||= false %>
+
+<% if defined?(package) %>
+  <% controller = 'package' %>
+<% else %>
+  <% controller = 'project' %>
+<% end %>
+
+<div class="box show_right<%= ' show_bottom' if show_bottom %>">
+  <div class="box-header aligncenter">
+    <b>Build Results</b>
+    <%= link_to_function(image_tag('reload.png', :alt => 'Reload', :title => 'Reload'), 'update_buildresult()', :id => "buildresult_reload_#{index}") %>
+    <%= image_tag('ajax-loader.gif', :id => "buildresult_spinner_#{index}", :class => "hidden") %>
+  </div>
+  <% javascript_tag do %>
+    function update_buildresult() {
+      $('#buildresult_spinner_<%= index %>').show();
+      $('#buildresult_reload_<%= index %>').hide();
+      $.ajax({
+        url: '<%= url_for(:controller => controller, :action => 'buildresult') %>',
+        data: {
+          <%= "'project': '" + project + "'," unless not defined?(project) %>
+          <%= "'package': '" + package + "'," unless not defined?(package) %>
+        },
+        success: function(data) {
+          $('#buildresult_display_<%= index %>').html(data);
+        },
+        error: function(data) {
+          $('#buildresult_display_<%= index %>').html('<p>No build result available</p>');
+        },
+        complete: function(data) {
+          $('#buildresult_spinner_<%= index %>').hide();
+          $('#buildresult_reload_<%= index %>').show();
+        }
+      });
+    }
+
+    update_buildresult();
+  <% end %>
+  <div id="buildresult_display_<%= index %>"></div>
+</div>
+

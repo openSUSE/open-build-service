@@ -82,9 +82,8 @@ class DbPackage < ActiveRecord::Base
           #
           options[:joins] += " LEFT JOIN flags f ON f.db_project_id = prj.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag
           options[:joins] += " LEFT JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
-          options[:joins] += " LEFT JOIN users u ON ur.bs_user_id = u.id"
 
-          cond = "((f.flag = 'access' AND u.login = '#{User.current ? User.current.login : "_nobody_"}') OR ISNULL(f.flag))"
+          cond = "((f.flag = 'access' AND ur.bs_user_id = #{User.current ? User.currentID : User.nobodyID}) OR ISNULL(f.flag))"
           if options[:conditions].nil?
             options[:conditions] = cond
           else
@@ -382,13 +381,13 @@ class DbPackage < ActiveRecord::Base
         self.db_package_kinds.destroy_all unless _noreset
         directory = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}").body unless directory
         xml = REXML::Document.new(directory.to_s)
-        if xml.elements["/directory/entry/@name='_patchinfo'"]
+        if xml.elements["/directory/entry[@name='_patchinfo']"]
           self.db_package_kinds.create :kind => 'patchinfo'
         end
-        if xml.elements["/directory/entry/@name='_aggregate'"]
+        if xml.elements["/directory/entry[@name='_aggregate']"]
           self.db_package_kinds.create :kind => 'aggregate'
         end
-        if xml.elements["/directory/entry/@name='_link'"]
+        if xml.elements["/directory/entry[@name='_link']"]
           self.db_package_kinds.create :kind => 'link'
         end
         # further types my be product, spec, dsc, kiwi in future
@@ -415,7 +414,7 @@ class DbPackage < ActiveRecord::Base
         issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
         xml = REXML::Document.new(issues.body.to_s)
         xml.root.elements.each('/sourcediff/issues/issue') { |i|
-          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['issue-tracker'] )
+          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
           issue_change[issue] = 'kept' 
         }
       rescue Suse::Backend::HTTPError
@@ -427,7 +426,7 @@ class DbPackage < ActiveRecord::Base
           issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
           xml = REXML::Document.new(issues.body.to_s)
           xml.root.elements.each('/sourcediff/issues/issue') { |i|
-            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['issue-tracker'] )
+            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
             issue_change[issue] = i.attributes['state']
           }
         rescue Suse::Backend::HTTPError

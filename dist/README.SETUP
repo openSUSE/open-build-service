@@ -1,142 +1,155 @@
 This file briefly describes how to setup an Open Build Service
-(OBS) with the rpm packages from the openSUSE project.  By default all
-services run on the same system.  This document does not describe how
+(OBS) with the rpm packages from the openSUSE project. By default all
+services run on the same system. This document does not describe how
 to distribute them to increase reliability and do load balancing, but
 this is possible.
 
 An easier way to run OBS is via using the OBS Appliance. It is also 
 usable for a production server. Please find details here:
 
-   http://wiki.opensuse.org/openSUSE:Build_Service_Appliance
+  http://wiki.opensuse.org/openSUSE:Build_Service_Appliance
 
-1. run the backend
+
+1. Run the backend
 ==================
-The backend hosts all sources and built packages.  It also schedules
-the jobs.
-You need to install the "obs-server" package for this.
 
-1.1 start the following services in this order
+The backend hosts all sources and built packages. It also schedules
+the jobs. You need to install the "obs-server" package for this.
+
+
+1.1 Start the following services in this order
 ==============================================
 
 WARNING: The following commands start services which are accessible from the outside.
          Do not do this on a system connected to an untrusted network or make sure 
          to block the ports with a firewall.
 
-   rcobsrepserver start
-   rcobssrcserver start
-   rcobsscheduler start
-   rcobsdispatcher start
-   rcobspublisher  start
+  rcobsrepserver start
+  rcobssrcserver start
+  rcobsscheduler start
+  rcobsdispatcher start
+  rcobspublisher start
 
 The data gets stored inside the /srv/obs directory by default.
 
-1.2 start the following optional services
+
+1.2 Start the following optional services
 =========================================
 
 You may start
 
-   rcobssigner start
+  rcobssigner start
 
 in case you want to use the automatic package signing features.
 
 You may start
 
-   rcobswarden start
+  rcobswarden start
 
 in case you want to monitor your workers
 
-2. start the workers
+
+2. Start the workers
 ====================
 The workers ask the backend for open build jobs and do the build.
 You need to install the "obs-worker" package for this.
 
-2.1 local worker
+
+2.1 Local worker
 ================
+
 A worker can be started on localhost by calling
 
-   # rcobsworker start
+  rcobsworker start
 
-2.2 setup multiple workers on remote systems
+
+2.2 Setup multiple workers on remote systems
 ============================================
+
 A worker can be started on other machines in your network (in Internet too, 
 but you should have a really fast Internet connection ;-)). You must install
-the package obs-worker on this machine and change some configuration files on both
-systems.
+the package "obs-worker" on this machine and change some configuration files 
+on both systems.
 
-2.2.1 necessary changes on machine *main* machine
+
+2.2.1 Necessary changes on machine *main* machine
 =================================================
-Please check /usr/lib/obs/server/BSConfig.pm on the main machine. By default everything
-is correct here, since it automatically uses the local hostname.
 
-2.2.2 necessary changes on worker machine
+Please check /usr/lib/obs/server/BSConfig.pm on the main machine. By default 
+everything is correct here, since it automatically uses the local hostname.
+
+
+2.2.2 Necessary changes on worker machine
 =========================================
-Install the package 'obs-worker' and edit the file /etc/sysconfig/obs-worker: 
-change the variable OBS_REPO_SERVERS to main.fqdn:5252 
-where main.fqdn is the output of 'hostname -f' or IP on *main* machine.
 
-3. run the api
+If you have installed the package "obs-worker", edit the file 
+/etc/sysconfig/obs-worker to change the variable OBS_REPO_SERVERS to 
+"main.fqdn:5252" where "main.fqdn" is the output of "hostname -f" or 
+the IP on the *main* machine.
+
+
+3. Run the api
 ==============
 
 You need to install the "obs-api" package for this and a MySQL server
 on this or a remote host. When using SLE11, the needed packages are only
 available after adding the SDK to the available installation repositories.
 
+
 3.1 Setup and configure the MySQL database
 ==========================================
 
-3.1 Initialize fresh Database
+
+3.1.1 Initialize fresh Database
 =============================
 
 * start the MySQL database
 
-     # rcmysql start    # use "insserv mysql" for permanent start
+    rcmysql start    # use "insserv mysql" for permanent start
 
   If you do this for the first time, MySQL will initialize itself and
   ask to create a root password in the database.
 
   After starting mysql for the first time, run the program
 
-     # mysql_secure_installation
+    mysql_secure_installation
 
-  If you want to give the 'root' user the rights to always access your mysql
-  database, create a file '/root/.my.cnf' with the following content:
+  If you want to give the "root" user the rights to always access your mysql
+  database, create a file "/root/.my.cnf" with the following content:
   
-[client]
-user = root
-password = foobar
-[mysqladmin]
-user= root
-password = foobar
+    [client]
+    user = root
+    password = foobar
+    [mysqladmin]
+    user= root
+    password = foobar
 
   Make sure that this file has the correct permissions with the command:
 
-     # chmod 0600 /root/.my.cnf
+    chmod 0600 /root/.my.cnf
 
 * Create the empty production databases:
 
-      # mysql -u root -p
-      mysql> create database api_production;
-      mysql> create database webui_production;
-      mysql> quit
+    # mysql -u root -p
+    mysql> create database api_production;
+    mysql> create database webui_production;
+    mysql> quit
 
 * If you use the MySQL database for other services, too, then
-  it's recommended to add a separate MySQL user, e.g. 'obs', like
+  it's recommended to add a separate MySQL user, e.g. "obs", like
   this:
 
-      # mysql -u root -p'your-password'
-
-      create user 'obs'@'%' identified by 'obspassword';
-
-      create user 'obs'@'localhost' identified by 'obspassword';
-
-      GRANT all privileges
+    # mysql -u root -p'your-password'
+    mysql> create user 'obs'@'%' identified by 'obspassword';
+    mysql> create user 'obs'@'localhost' identified by 'obspassword';
+    mysql> GRANT all privileges
       ON api_production.* 
       TO 'obs'@'%', 'obs'@'localhost';
-
-      FLUSH PRIVILEGES;
+    mysql> FLUSH PRIVILEGES;
+    mysql> quit
 
 * Configure your MySQL user and password in
-  in the "production:" section of the api and webui config: 
+  in the "production" section of the api and webui config: 
 
     /srv/www/obs/api/config/database.yml
     /srv/www/obs/webui/config/database.yml
@@ -145,13 +158,14 @@ password = foobar
 
 * populate the database
 
-      # cd /srv/www/obs/api/
-      # sudo RAILS_ENV="production" rake db:setup
-      # sudo chown -R wwwrun.www log tmp
+    cd /srv/www/obs/api/
+    sudo RAILS_ENV="production" rake db:setup
+    sudo chown -R wwwrun.www log tmp
 
-      # cd /srv/www/obs/webui/
-      # sudo RAILS_ENV="production" rake db:setup
-      # sudo chown -R wwwrun.www log tmp
+    cd /srv/www/obs/webui/
+    sudo RAILS_ENV="production" rake db:setup
+    sudo chown -R wwwrun.www log tmp
+
 
 3.2 Setup and configure apache2 for the api and webui
 =====================================================
@@ -163,33 +177,36 @@ some packages are built).
 An overview page about your OBS instance can be found behind http://localhost
 
 The obs-api package comes with a apache vhost file, which does not need to get
-modified when you stay with these defaults. /etc/apache2/vhosts.d/obs.conf
+modified when you stay with these defaults: /etc/apache2/vhosts.d/obs.conf
 
 Install the required packages via
 
- # zypper in obs-api apache2 apache2-mod_xforward rubygem-passenger-apache2
+  zypper in obs-api apache2 apache2-mod_xforward rubygem-passenger-apache2
 
 Add the follwing apache modules in /etc/sysconfig/apache2:
  
- APACHE_MODULES="... passenger rewrite proxy proxy_http xforward headers"
+  APACHE_MODULES="... passenger rewrite proxy proxy_http xforward headers"
 
 Enable SSL in /etc/sysconfig/apache2 via
 
- APACHE_SERVER_FLAGS="-DSSL"
+  APACHE_SERVER_FLAGS="-DSSL"
 
 Generate an ssl certificate via following commands:
 
- # mkdir /srv/obs/certs
- # openssl genrsa -out /srv/obs/certs/server.key 1024 
- # openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.csr
- # openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
- # cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem 
+  mkdir /srv/obs/certs
+  openssl genrsa -out /srv/obs/certs/server.key 1024 
+  openssl req -new -key /srv/obs/certs/server.key \
+          -out /srv/obs/certs/server.csr
+  openssl x509 -req -days 365 -in /srv/obs/certs/server.csr \
+          -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
+  cat /srv/obs/certs/server.key /srv/obs/certs/server.crt \
+      > /srv/obs/certs/server.pem
 
 
 3.2.1 Change /srv/www/obs/webui/config/options.yml
 ==================================================
 
-If you change the hostnames/ips of the api, you need to adjust 
+If you change the hostnames/IPs of the api, you need to adjust 
 "source_server_url" accordingly in
 
   /srv/www/obs/webui/config/options.yml
@@ -222,12 +239,12 @@ It is recommended to enable
 as well here.
 
 
-3.2.4 Restart apache2
+3.2.3 Restart apache2
 =====================
 
 Afterwards you can start the OBS web api via 
 
-    rcapache2 start  # use "insserv apache2" for permanent start
+  rcapache2 start  # use "insserv apache2" for permanent start
 
 
 4. Setup initial distributions
@@ -236,7 +253,9 @@ Afterwards you can start the OBS web api via
 The easiest way is reuse a base distro hosted at openSUSE.org.
 The Open Build Service has a mechanism to reuse projects from a remote instance
 since version 0.9. It is recommended to use this mechanism.
-In addition to that, it is also possible to copy base projects with the provided scripts.
+In addition to that, it is also possible to copy base projects with the 
+provided scripts (see 4.2 below).
+
 
 4.1 Reuse projects hosted on openSUSE.org build service
 =======================================================
@@ -249,9 +268,9 @@ You can do this via clicking on the "Setup OBS" link in your web interface.
 
 The alternative manual way is to call the following command:
 
- # curl -0 --user "Admin:opensuse" -X PUT \
-        -T /usr/share/doc/packages/obs-api/openSUSE.org.xml  \
-        https://localhost:444/source/openSUSE.org/_meta
+  curl -0 --user "Admin:opensuse" -X PUT \
+       -T /usr/share/doc/packages/obs-api/openSUSE.org.xml \
+       https://localhost:444/source/openSUSE.org/_meta
 
 
 4.2 import base distributions into the backend
@@ -261,22 +280,21 @@ This point can be skipped, when you did run point 4.1 successfully.
 In case you want a full copy of a base distribution you need to do
 the following steps:
 
- # become root user
- su -
+  # As root, validate that osc has account data. You may need to enter your
+  # account data for api.openSUSE.org here.
+  osc
 
- # validate that osc has account data, you may need to enter your
- # account data for api.openSUSE.org here
- osc
+  # Run the script to mirror "openSUSE:11.2", for example (for this command,
+  # you need the package "obs-utils").
+  obs_mirror_project openSUSE:11.2 standard i586
 
- # run the script to mirror openSUSE:11.2 for example (needs package obs-utils)
- obs_mirror_project openSUSE:11.2 standard i586
+  # Restart the scheduler to scan the new project
+  rcobsscheduler restart
 
- # restart the scheduler to scan the new project
- rcobsscheduler restart
+  # Run the api import script:
+  # cd /srv/www/obs/api/script
+  # RAILS_ENV="production" ruby import
 
- Run the api import script:
- # cd /srv/www/obs/api/script
- # RAILS_ENV="production" ruby import
 
 5. Access
 =========
@@ -291,49 +309,55 @@ The web interface is accessible via
 
 The default user is "Admin" with the password "opensuse".
 
+
 5.1 Changing the default URLs
 =============================
 
 To change the default URLs of the api, configure the lighttpd vhosts
-accordingly. Edit '/etc/apache2/vhosts.d/obs.conf' and add the new virtual
+accordingly. Edit /etc/apache2/vhosts.d/obs.conf and add the new virtual
 hostnames.
 
 Then change the FRONTEND_HOST variable in 
 /srv/www/obs/webui/config/environments/production.rb
 to also point to the new api URL.
 
+
 6. Using osc with your local build service:
 ===========================================
 
 In order to use the command line tool for the build service, run osc with
 
- osc -A https://your_server:444 ls
+  osc -A https://your_server:444 ls
 
 for example. osc asks the first time for a user and password pair.
 
 
 6.1. Test build
 ===============
-You can do a test build like this:
 
-(in a svn co of the current openSUSE build server, in the
-buildservice/dist subdir)
+You can do a test build like this (for example, in a svn checkout of 
+the current openSUSE build server, in the buildservice/dist subdir):
 
-Add an openSUSE:Tools project with an obs-server package.  the
+Add an "openSUSE:Tools" project with an "obs-server" package. The
 following commands offer you a template project or package description
-file.  In the self- explanatory xml, only enable the 10.2 distro on
+file. In the self-explanatory xml, only enable the 10.2 distro on
 i586:
 
-   osc -A http://$servername:81 meta prj openSUSE:Tools -e
+  osc -A http://$servername:81 meta prj openSUSE:Tools -e
 
-check whether that worked on http://$servername/project/list_all
+Check whether that worked on
 
-   osc -A http://$servername:81 meta pkg openSUSE:Tools obs-server -e
+  http://$servername/project/list_all
 
-check whether that worked on
-   http://$servername/project/show?project=openSUSE%3ATools
+Do the same for the package:
 
-Now prepare for a check-in.  This will do a checkout and locally build
+  osc -A http://$servername:81 meta pkg openSUSE:Tools obs-server -e
+
+Check whether that worked on
+
+  http://$servername/project/show?project=openSUSE%3ATools
+
+Now prepare for a check-in. This will do a checkout and locally build
 using the packages from your local buildserver:
 
   OSCOPT="-A http://$servername:81" ./distribute
@@ -344,10 +368,15 @@ now do a check-in into the build server:
   osc add *
   osc ci
 
-The rebuild will automatically be triggered.  Monitor the build status
+The rebuild will automatically be triggered. Monitor the build status
 here:
 
   http://localhost/project/monitor?project=openSUSE%3ATools
+
+or via osc, in the same directory as indicated above, with the command:
+
+  osc r
+
 
 6.2. Run and Stop the Service
 =============================
@@ -375,36 +404,43 @@ To start and stop everything you can use the following command sequences:
 
 To automatically start everything at system boot you can use the following:
 
-  chkconfig --add \
-	mysql  obssrcserver  obsrepserver \
-	obsscheduler  obspublisher  obsdispatcher \
-	obsworker  \
-	apache2 
+  chkconfig --add  mysql  obssrcserver  obsrepserver  obsscheduler \
+                   obspublisher  obsdispatcher obsworker  \
+                   apache2
 
-Use chkconfig --del analogously to no longer automatically start them
+Use "chkconfig --del" analogously to no longer automatically start them
 at boot.
+
 
 6.3 Optional services
 =====================
 
 The following service are optional:
+
  * obswarden
    It checks if build hosts are dying and cleans up hanging builds
+
  * obssigner
    It is used to sign packages via the obs-sign daemon. You need to configure
    it in BSConfig.pm before you can use it.
+
  * obsservice
-   The is the source service daemon. OBS 1.7 just comes with a download
-   service so far. This feature is considered to be experimental so far,
-   but can be already extended with own services.
+   This is the source service daemon. Older versions of OBS (<= 1.7) just came
+   with a download service. Newer versions include a couple of "obs-service-*"
+   packages that can be installed separately.
+   This feature is considered to be experimental so far, but can be already 
+   extended with own services.
 
 The following runlevel scripts are only running on the OBS Appliance for
 auto configuration:
+
  * obsstoragesetup
    Configures storage volumes based on LVM partitions automatically.
+
  * obsapisetup
    Updates automatically the database layout and configures the web server
    automatically based on your network setup.
+
 
 7. Feedback
 ===========
@@ -418,12 +454,14 @@ opensuse-buildservice@opensuse.org
 
  * OBS in the production mode uses memcached optionally. 
    You can install and enable it as a service:
-      # zypper in memcached
-      # rcmemcached start
+
+       zypper in memcached
+       rcmemcached start
 
  * logs are located in various directories.
-   apache2: /var/log/apache2
-   obs: /srv/obs/log
-   api: /srv/www/obs/api/log
-   webui: /srv/www/obs/webui/log
+
+       apache2: /var/log/apache2
+       obs: /srv/obs/log
+       api: /srv/www/obs/api/log
+       webui: /srv/www/obs/webui/log
 

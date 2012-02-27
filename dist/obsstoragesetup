@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (c) 2010, Novell Inc.
+# Copyright (c) 2010-12, SUSE Inc.
 #
 # Author: adrian@suse.de
 #
@@ -22,7 +22,9 @@
 . /etc/rc.status
 
 # package or appliance defaults
-source /etc/sysconfig/obs-server
+if [ -e /etc/sysconfig/obs-server ]; then
+  source /etc/sysconfig/obs-server
+fi
 
 # instance defaults
 if [ -e /etc/buildhost.config ]; then
@@ -195,7 +197,7 @@ EOF
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
-			if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
+			if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
 				# got config setting from sysconfig or PXE server
 				NUM="$OBS_WORKER_INSTANCES"
 			else
@@ -242,7 +244,7 @@ EOF
 			fi
 
 			if [ -z "$OBS_WORKER_ROOT_SIZE" ]; then
-				VG_SIZE=`vgdisplay OBS --units M | grep "Free  PE" | sed 's,.* \([^ ]*\)\..*MB$,\1,'`
+				VG_SIZE=`vgdisplay OBS --units M | grep "Free  PE" | sed 's,.* \([^ ]*\) MB$,\1,'`
 				VG_SIZE=$(( $VG_SIZE - $OBS_WORKER_CACHE_SIZE - ( $NUM * $OBS_WORKER_SWAP_SIZE ) ))
 				OBS_WORKER_ROOT_SIZE=$(( $VG_SIZE / $NUM ))
 				if test $OBS_WORKER_ROOT_SIZE -lt $(( 4 * 1024 )); then

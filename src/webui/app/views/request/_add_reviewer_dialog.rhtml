@@ -6,7 +6,7 @@
         <b>Add Reviewer</b>
       </div>
 
-      <p>Add a reviewer to <b>request #<%= @request_id %></b></p>
+      <p>Add a reviewer to request <%= @request_id %></p>
 
       <% form_tag(:action => "add_reviewer") do %>
         <%= hidden_field_tag(:id, @request_id) %>

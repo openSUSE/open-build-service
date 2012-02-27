@@ -1,2 +1,2 @@
 * * * * *       wwwrun    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:workerstatus
-1 * * * *       wwwrun    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s updateissues
+1 * * * *       wwwrun    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:updateissues

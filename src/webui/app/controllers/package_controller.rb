@@ -326,7 +326,7 @@ class PackageController < ApplicationController
       end
     end
 
-    filenames = sorted_filenames_from_sourcediff(ActiveXML::Base.new(rdiff))
+    filenames = BsRequest.sorted_filenames_from_sourcediff(ActiveXML::Base.new(rdiff))
     @files = filenames[:files]
     @filenames = filenames[:filenames]
   end
@@ -1012,17 +1012,14 @@ class PackageController < ApplicationController
     logger.debug "imported description from spec file"
   end
 
-  def reload_buildstatus
-    unless request.xhr?
-      render :text => 'no ajax', :status => 400 and return
-    end
+  def buildresult
+    render :text => 'no ajax', :status => 400 and return if not request.xhr?
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     fill_status_cache unless @buildresult.blank?
     render :partial => 'buildstatus'
   end
-
 
   def set_url_form
     if @package.has_element? :url
@@ -1050,12 +1047,13 @@ class PackageController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       @meta = params[:meta]
+      render :text => message, :status => 400, :content_type => "text/plain"
       return
     end
     
     flash[:note] = "Config successfully saved"
     Package.free_cache @package, :project => @project
-    redirect_to :action => :meta, :project => @project, :package => @package
+    render :text => "Config successfully saved", :content_type => "text/plain"
   end
 
   def attributes
@@ -1133,7 +1131,13 @@ class PackageController < ApplicationController
     end
     @project ||= params[:project]
     unless params[:package].blank?
-      @package = find_cached(Package, params[:package], :project => @project )
+      begin
+        @package = find_cached(Package, params[:package], :project => @project )
+      rescue ActiveXML::Transport::Error => e
+        flash[:error] = e.message
+        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 400
+        return	
+      end
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"

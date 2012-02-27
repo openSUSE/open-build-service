@@ -5,34 +5,33 @@
     <div class="box show_left show_right">
       <h2 style="display: inline">Patchinfo-Editor for <%=h @project %></h2>
     </div>
-    <div style="border:solid 1px; background-color:#DDDDDD; height:25px; width:240px; margin-left:15px; text-align:center;">
-    <b><%= link_to "Update patchinfo from sources", :action => "updatepatchinfo", :project => @project, :package => @package %></b>
-    </div>
-    <table class="patchinfo">
+    <table class="patchinfo" width="99%">
+      <colgroup>
+        <col width="15%"/>
+      </colgroup>
       <tr>
         <th>Packager: </th>
         <td>
 	<%= text_field_tag('packager', @packager)%>
         </td>
-        <td></td>
       </tr>
       <tr>
-      <th>Binaries: </th>
+      <th><%=image_tag ("info.png", :title =>"Please select the binaries (ctrl+left) which your patch includes", :alt => "Binaryinfo")%> Binaries: </th>
       <% if !@binarylist.empty? %>
         <td>
-          <% options = Array.new
-          @binarylist.each {|d| options << "#{d.to_s}"}
-          opt = {:options => options}%>
-          <%=  select_tag "binaries", options_for_select(options, @binaries), :multiple =>true, :size => 5%>
+          <% available_bin = Array.new
+            @binarylist.each {|d| available_bin << "#{d.to_s}"}
+            selected_bin = Array.new
+            #@binaries.each {|bin| selected_bin << "#{bin.to_s}"}%>
+          <%= select_tag "available_binaries", options_for_select(available_bin), :multiple =>true, :size => 5%>
         </td>
-	<td>Please select the binaries (ctrl+left) which your patch includes</td>
         <% else %>
           <td><strong>No binaries available!</strong></td>
             <td></td>
         <% end %>
       </tr>
       <tr>
-        <th>Issues: </th>
+        <th><%=image_tag ("info.png", :title =>"List of issues what the update fixes", :alt => "Issueinfo")%> Issues: </th>
         <td>
 
         <div id="issuelist">
@@ -42,8 +41,8 @@
                   <%= hidden_field_tag "issue[]", "#{issue[0]}", :id => "issueid_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issuetracker[]", "#{issue[1]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issueurl[]", "#{issue[2]}", :id => "issueurl_#{issue[0]}_#{issue[1]}" %>
-                  <%= hidden_field_tag "issuedesc[]", "#{issue[3]}", :id => "issuedesc_#{issue[0]}_#{issue[1]}" %>
-                  <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>
+                  <%= hidden_field_tag "issuesum[]", "#{issue[3]}", :id => "issuesum_#{issue[0]}_#{issue[1]}" %>
+		  <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%><br/>
                   <%=issue[3].to_s %>
                   <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;" %>
                 </div>
@@ -51,17 +50,79 @@
             <%end%>
           </div>
         </td>
-        <td>List of bugs which the Patch fixes</td>
       </tr>
       <tr>
-        <th></th>
+        <th style="border:solid 1px;">
+		<%= link_to "Update issues from sources", {:action => "updatepatchinfo", :project => @project, :package => @package}, {:confirm => "Attention! All unsaved data getting lost! Continue?", :method => :post } %></th>
         <td>
           <%= select_tag "tracker", options_for_select(@trackerlist, :selected => @tracker)%>
           <%= text_field_tag 'issueid', @issueid %>
-          <%= link_to image_tag('icons/bug_add.png', :alt => "Add Bug", :title => "Add Bug"), '#', :onclick => 'append_bug($("#issueid").val(), $("#tracker").val()); return false;' %>
+          <%= link_to image_tag('icons/bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issueid").val(), $("#tracker").val()); return false;' %>
           <%= image_tag('ajax-loader.gif', :id => "issue_spinner", :class => "hidden") %>
-
+        </td>
+      </tr>
+      <tr>
+        <th><%=image_tag ("info.png", :title =>"Choose the category of your update", :alt => "Categoryinfo")%> Category: </th>
+        <td>
+          <%= select_tag "category", options_for_select(["","recommended", "security", "optional", "feature"], @category)%>
+        </td>
+      </tr>
+     <tr>
+       <th><%=image_tag ("info.png", :title =>"Select the rating of this update", :alt => "Ratinginfo")%> Rating: </th>
+         <td>
+           <%= select_tag "rating", options_for_select(["low","moderate", "important", "critical"], @rating)%>
+         </td>
+       </tr>
+       <tr>
+        <th><%=image_tag ("info.png", :title =>"Enter a short summary. Mainpackage: shortdescription of the mainfix", :alt => "Summaryinfo")%> Summary: </th>
+        <td>
+          <%=  text_area_tag 'summary', @summary, :rows => 1, :cols => 60 %>
+        </td>
+      </tr>
+      <tr>
+        <th><%=image_tag ("info.png", :title =>"Enter a full description what the update fixes", :alt => "Descriptioninfo")%> Description: </th>
+        <td>
+          <%=  text_area_tag 'description', @description, :rows => 10, :cols => 65 %>
+        </td>
+      </tr>
+      <tr>
+        <th><%=image_tag ("info.png", :title =>"Set if a relog for the update is suggested", :alt => "Relogininfo")%> Relogin suggested?</th>
+        <td>
+          <%= check_box_tag("relogin", true, @relogin) %>
+        </td>
+      </tr>
+      <tr>
+        <th><%=image_tag ("info.png", :title =>"Set if a restart of the package-manager is suggested", :alt => "Package-managerinfo")%> Package-manager restart suggested?</th>
+	<td>
+          <%= check_box_tag("zypp_restart_needed", true, @zypp_restart_needed)%>
+	</td>
+      </tr>
+      <tr>
+        <th><%=image_tag ("info.png", :title =>"Set if a reboot for the update is suggested", :alt => "Rebootinfo")%> Reboot suggested?</th>
+        <td>
+          <%= check_box_tag("reboot", true, @reboot) %>
+        </td>
+      </tr>
+      <tr style="background-color:red;"><th>Block release?</th><td><%= check_box_tag("block", true, @block, :onchange => "enable_block_reason()") %></td></tr>
+      <tr style="background-color:red"><th>Reason:</th>
+      <td><%=text_field_tag "block_reason", @block_reason, :size => 70 %></td></tr>
+      <tr><td colspan="2" align="right">
+          <%= submit_tag "Save Patchinfo" %>
+      </td></tr>
+    </table>
+    <%= hidden_field_tag("project", @project.name)%>
+    <%= hidden_field_tag("package", @package)%>
+  </div>
           <% content_for :head_javascript do %>
+            function enable_block_reason(){
+              if ($("input[name='block']:checked").val() == "true"){
+                $("#block_reason").removeAttr("disabled");
+              }
+              else{
+                $("#block_reason").attr("disabled", "true");
+              }
+            }
+
             function append_bug(issueid, tracker) {
               $('#issue_spinner').show();
               var issues = new Array();
@@ -87,12 +148,12 @@
                     },
                     success: function(data){
                       $("#issue_spinner").hide();
-                      $("#issuelist").append("<div id='issue_" + data[0] + "_" + data[1] + "'>" + 
-                      "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" + 
+                      $("#issuelist").append("<div id='issue_" + data[0] + "_" + data[1] + "'>" +
+                      "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" +
                       "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
                       "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +
-                      "<input type='hidden' name='issuedesc[]' id='issuedesc_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
-                      "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ": " + data[3] + " " + 
+                      "<input type='hidden' name='issuesum[]' id='issuesum_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
+                      "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ": " + data[3] + " " +
                       "<a onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
                       "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
                   }
@@ -116,77 +177,37 @@
                 }
               });
             }
+
+            function moveSelectedItems(source, destination){
+              var selected = $(source+' option:selected').remove();
+              var sorted = $.makeArray($(destination+' option').add(selected)).sort(function(a,b){
+              return $(a).text() > $(b).text() ? 1:-1;
+            });
+            $(destination).empty().append(sorted);
+            }
+
             $(document).ready(function(){
+
+              $('#add').click(function(){
+                moveSelectedItems('#available_binaries', '#selected_binaries');
+              });
+              $('#addAll').click(function(){
+                $('#available_binaries option').attr('selected', 'true');
+                moveSelectedItems('#available_binaries', '#selected_binaries');
+              });
+              $('#remove').click(function(){
+                moveSelectedItems('#selected_binaries', '#available_binaries');
+              });
+              $('#removeAll').click(function(){
+                $('#selected_binaries option').attr('selected', 'true');
+                moveSelectedItems('#selected_binaries', '#available_binaries');
+              });
+
               $("#summary").keypress(function(event){
                 if(event.keyCode == 13){
                   event.preventDefault();
                 }
               });
             });
-
           <% end %>
-
-        </td>
-        <td>Add an additional bug here (must have 6 numbers)<br/>
-            single or a comma-separated list e.g.: <br/>
-            "123456, 654321"</td>
-      </tr>
-      <tr>
-        <th>Category: </th>
-        <td>
-          <%= select_tag "category", options_for_select(["","recommended", "security", "optional", "feature"], @category)%>
-        </td>
-        <td>Choose the category of your patch</td>
-      </tr>
-     <tr>
-       <th>Rating: </th>
-         <td>
-           <%= select_tag "rating", options_for_select(["low","moderate", "important", "critical"], @rating)%>
-         </td>
-         <td>Select the rating for this update.</td>
-       </tr>
-       <tr>
-        <th>Summary: </th>
-        <td>
-          <%=  text_area_tag 'summary', @summary, :rows => 1, :cols => 60 %>
-        </td>
-        <td>Enter a summary. It should have the following format:<br />
-          Mainpackage: ca. 10 signs long short-explanation what the patch fixes
-        </td>
-      </tr>
-      <tr>
-        <th>Description: </th>
-        <td>
-          <%=  text_area_tag 'description', @description, :rows => 10, :cols => 65 %>
-        </td>
-        <td>Enter a full description what your patch fixes</td>
-      </tr>
-      <tr>
-        <th>Relogin suggested?</th>
-        <td>
-          <%= check_box_tag("relogin", true, @relogin) %>
-        </td>
-        <td>Set if a relog for the update is suggested.</td>
-      </tr>
-      <tr>
-        <th>Package-manager restart suggested?</th>
-	<td>
-          <%= check_box_tag("zypp_restart_needed", true, @zypp_restart_needed)%>
-	</td>
-	<td>Set if a restart of the package-manager is suggested.</td>
-      </tr>
-      <tr>
-        <th>Reboot suggested?</th>
-        <td>
-          <%= check_box_tag("reboot", true, @reboot) %>
-        </td>
-        <td>Set if a reboot for the update is suggested.</td>
-      </tr>
-      <tr><td></td><td></td><td align="right">
-          <%= submit_tag "Save Patchinfo" %>
-      </td></tr>
-    </table>
-    <%= hidden_field_tag("project", @project.name)%>
-    <%= hidden_field_tag("package", @package)%>
-  </div>
 <% end %>

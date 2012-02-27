@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (c) 2007, Novell Inc.
+# Copyright (c) 2007-2011, SUSE Inc.
 #
 # Author: adrian@suse.de
 #
@@ -21,7 +21,10 @@
 . /etc/rc.status
 
 . /etc/sysconfig/proxy
-. /etc/sysconfig/obs-server
+if test -e /etc/sysconfig/obs-server; then
+  # optional on workers
+  . /etc/sysconfig/obs-server
+fi
 # This file may still exist from OBS 2.1 and before.
 if test -e /etc/sysconfig/obs-worker; then
 . /etc/sysconfig/obs-worker
@@ -113,13 +116,6 @@ if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
         if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
             VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
         fi
-    else
-        echo "Warning: VM build enabled but either"
-        echo "         OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE or "
-        echo "         OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE are not set."
-        echo ""
-        echo "Worker startup failed"
-        exit 1
     fi
 fi
 
@@ -134,7 +130,7 @@ case "$1" in
 #        echo "zombie on"       > $screenrc
         echo "caption always" >> $screenrc
 
-        if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
+        if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
             NUM="$OBS_WORKER_INSTANCES"
         else
             # start one build backend per CPU
@@ -172,7 +168,7 @@ case "$1" in
         OBS_WORKER_OPT1="$OBS_WORKER_OPT"
         I=0
         while test "$NUM" -gt "$I"; do
-            if [ "$OBS_WORKER_PORTBASE" -gt 0 ]; then
+            if [ 0"$OBS_WORKER_PORTBASE" -gt 0 ]; then
                 port="--port $((OBS_WORKER_PORTBASE + I))"
             else
                 port=""

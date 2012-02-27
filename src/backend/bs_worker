@@ -46,6 +46,7 @@ use BSXML;
 use BSKiwiXML;
 use BSHTTP;
 use BSBuild;
+use BSCando;
 
 use strict;
 
@@ -82,29 +83,6 @@ my $buildlog_maxsize = 500 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
-
-my %cando = (
-  'armv4l'  => ['armv4l'                                                                                      ],
-  'armv5l'  => ['armv4l', 'armv5l'                    , 'armv5el'                                             ],
-  'armv6l'  => ['armv4l', 'armv5l', 'armv6l'          , 'armv5el', 'armv6el'                                  ],
-  'armv7l'  => ['armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv7el', 'armv7hl', 'armv8el' ],
-  'sh4'     => ['sh4' ],
-  'i586'    => [          'i586',                       ],
-  'i686'    => [          'i586',         'i686',       ],
-  'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32'],
-#
-  'parisc'  => ['hppa', 'hppa64:linux64'],
-  'parisc64'=> ['hppa64', 'hppa:linux32'],
-  'ppc'     => ['ppc'],
-  'ppc64'   => ['ppc64', 'ppc:powerpc32'],
-  'ia64'    => ['ia64'],
-  's390'    => ['s390'],
-  's390x'   => ['s390x', 's390:s390'],
-  'sparc'   => ['sparcv8', 'sparc'],
-  'sparc64' => ['sparc64v', 'sparc64', 'sparcv9v', 'sparcv9', 'sparcv8:linux32', 'sparc:linux32'],
-  'mips'    => ['mips'],
-  'mips64'  => ['mips64', 'mips:mips32'],
-);
 
 $hostcheck = $BSConfig::workerhostcheck if defined($BSConfig::workerhostcheck);
 
@@ -179,7 +157,7 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --arch      : define hostarch (overrides 'uname -m')
                      currently supported architectures: 
-                     @{[sort keys %cando]}
+                     @{[sort keys %BSCando::cando]}
 
        --kvm       : enable kvm
 
@@ -469,7 +447,7 @@ if (!$hostarch) {
   die("could not determine hostarch\n") unless $hostarch;
 }
 
-die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch} || ($hostarch eq 'local' && $localkiwi);
+die("arch $hostarch cannot build anything!\n") unless $BSCando::cando{$hostarch} || ($hostarch eq 'local' && $localkiwi);
 
 $srcserver = $BSConfig::srcserver unless defined $srcserver;
 @reposervers = @BSConfig::reposervers unless @reposervers;
@@ -1167,6 +1145,8 @@ sub getbinaries_kiwiproduct {
 	      my $rarch = $1;
 	      mkdir_p("$param->{'directory'}/$rarch");
 	      $name = "$rarch/$name";
+	    } else { 
+	      $name = "$arch/$name";
 	    }
 	    return $name;
 	  },
@@ -1447,7 +1427,7 @@ sub dobuild {
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
 
   my $helper = '';
-  /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
+  /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
 
   my @lt = localtime(time());
   my $timestring = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
