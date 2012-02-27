@@ -170,7 +170,7 @@ class RequestController < ApplicationController
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
     session[:requests] = requests.each.map {|r| Integer(r.value(:id)) }.sort
-    render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len}
+    render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
   end
 
   def list_small
