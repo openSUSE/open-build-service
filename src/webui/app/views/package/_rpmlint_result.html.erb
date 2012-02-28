@@ -1,9 +1,9 @@
 <% index ||= '' %>
 <p>
-  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_arch_hash.keys)) %>
+  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_arch_hash.keys.sort)) %>
   <% i = 0 %>
   <% @repo_arch_hash.each do |repo, arches| %>
-    <%= select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches), :class => "rpmlint_arch_select_#{index}") %>
+    <%= select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.sort), :class => "rpmlint_arch_select_#{index}") %>
   <% end %>
   <%= image_tag('ajax-loader.gif', :id => "rpmlint_spinner_#{index}", :class => 'hidden') %>
 </p>
@@ -12,11 +12,11 @@
 </p>
 
 <% javascript_tag do %>
-  $('.rpmlint_repo_select_<%= index %>').change(function (data) {
+  function update_arch_display(data) {
     $('.rpmlint_arch_select_<%= index %>').hide();
-    $('#rpmlint_arch_select_<%= index %>_' + $('#incident_type_select').attr('value')).show();
+    $('#rpmlint_arch_select_<%= index %>_' + $('#rpmlint_repo_select_<%= index %>').attr('value')).show();
     update_rpmlint_display();
-  });
+  }
 
   function update_rpmlint_display() {
     $('#rpmlint_spinner_<%= index %>').show();
@@ -38,6 +38,7 @@
     });
   }
 
+  $('#rpmlint_repo_select_<%= index %>').change(update_arch_display);
   $('.rpmlint_arch_select_<%= index %>').change(update_rpmlint_display);
-  update_rpmlint_display();
+  update_arch_display();
 <% end %>
