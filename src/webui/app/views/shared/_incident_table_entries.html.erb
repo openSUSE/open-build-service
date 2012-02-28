@@ -18,7 +18,7 @@
               <%= link_to(image_tag('icons/exclamation.png', :alt => text, :title => text), :action => 'requests', :project => incident.value('name')) %>
             <% end %>
           <% end %>
-          <% rqs_out = incident.requests({:roles => 'source', :states => 'new,review', :types => 'maintenance_release'}) %>
+          <% rqs_out = incident.requests({:roles => 'source', :states => 'new,review,declined', :types => 'maintenance_release'}) %>
           <% if rqs_out && rqs_out.length > 0 %>
             <% rqs_out.each do |rq_out| %>
               <% text = "Release request in state '#{rq_out.state.value('name')}'" %>
