@@ -21,8 +21,6 @@
   <%= render(:partial => 'shared/incident_table', :locals => {:incidents => @incidents, :incident_table_id => 'incident_table'}) unless not defined?(@incidents) %>
 </div>
 
-<p id="more_incidents_link"><%= link_to_function('Get more incidents...', 'appendIncidents()') %></p>
-
 <% javascript_tag do %>
   function updateIncidentDisplay() {
     $('#spinner').show();
@@ -37,13 +35,13 @@
         if (data.indexOf('No incidents') == -1) {
           incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
           $('#incident_count').html('(' + incident_count.toString() + ')');
+          appendIncidents();
         } else {
           $('#incident_count').html('');
         }
       },
       complete: function(data) {
         $('#spinner').hide();
-        $('#more_incidents_link').show()
       },
     });
   }
@@ -56,7 +54,7 @@
       data: {
         'type': $('#incident_type_select')[0].value,
         'append': true,
-        'limit': 5,
+        'limit': 20,
         'offset': old_incident_count,
       },
       success: function(data) {
@@ -64,8 +62,8 @@
         if (data.indexOf('No incidents') == -1) {
           incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
           $('#incident_count').html('(' + incident_count.toString() + ')');
-          if ((old_incident_count + 5) != incident_count) {
-            $('#more_incidents_link').hide()
+          if ((old_incident_count + 20) == incident_count) {
+            appendIncidents();
           }
         } else {
           $('#incident_count').html('');
@@ -77,5 +75,9 @@
     });
   }
 
-  <%= "updateIncidentDisplay();" unless defined?(@incidents) %>
+  <% if defined?(@incidents) %>
+    appendIncidents();
+  <% else %>
+    updateIncidentDisplay();
+  <% end %>
 <% end %>
