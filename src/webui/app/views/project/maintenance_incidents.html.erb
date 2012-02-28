@@ -3,70 +3,12 @@
 
 <%= render :partial => 'tabs' %>
 
-<h3><%= @pagetitle %></h3>
-
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag 'jquery.tooltip' %>
 <% end %>
-<%= javascript_include_tag 'jquery.tablesorter', 'jquery.tooltip.min' %>
+<%= javascript_include_tag 'jquery.tablesorter', 'jquery.tooltip.min', 'jquery.expander.min' %>
 
-<% content_for :head_javascript do %>
-  function updateIncidentDisplay() {
-    $('#spinner').show();
-    $.ajax({
-      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
-      data: {
-        'type': $('#incident_type_select')[0].value,
-        'limit': 20,
-      },
-      success: function(data) {
-        $('#incident_display').html(data);
-        if (data.indexOf('No incidents') == -1) {
-          incident_count = $('#incident_table tbody').children().length;
-          $('#incident_count').html('(' + incident_count.toString() + ')');
-        } else {
-          $('#incident_count').html('');
-        }
-      },
-      complete: function(data) {
-        $('#spinner').hide();
-        $('#more_incidents_link').show()
-      },
-    });
-  }
-
-  function appendIncidents() {
-    old_incident_count = $('#incident_table tbody').children().length;
-    $('#spinner').show();
-    $.ajax({
-      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
-      data: {
-        'type': $('#incident_type_select')[0].value,
-        'append': true,
-        'limit': 5,
-        'offset': old_incident_count,
-      },
-      success: function(data) {
-        $('#incident_table tbody').append(data);
-        if (data.indexOf('No incidents') == -1) {
-          incident_count = $('#incident_table tbody').children().length;
-          $('#incident_count').html('(' + incident_count.toString() + ')');
-          if ((old_incident_count + 5) != incident_count) {
-            $('#more_incidents_link').hide()
-          }
-        } else {
-          $('#incident_count').html('');
-        }
-      },
-      complete: function(data) {
-        $('#spinner').hide();
-      },
-    });
-  }
-<% end %>
-<% content_for :ready_function do %>
-  <%= "updateIncidentDisplay();" unless defined?(@incidents) %>
-<% end %>
+<h3><%= @pagetitle %></h3>
 
 <p>
   Display <%= select_tag("incident_type_select", options_for_select(['open', 'closed'], 'open'), :onchange => "updateIncidentDisplay();") %>
@@ -80,3 +22,60 @@
 </div>
 
 <p id="more_incidents_link"><%= link_to_function('Get more incidents...', 'appendIncidents()') %></p>
+
+<% javascript_tag do %>
+  function updateIncidentDisplay() {
+    $('#spinner').show();
+    $.ajax({
+      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
+      data: {
+        'type': $('#incident_type_select')[0].value,
+        'limit': 20,
+      },
+      success: function(data) {
+        $('#incident_display').html(data);
+        if (data.indexOf('No incidents') == -1) {
+          incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
+          $('#incident_count').html('(' + incident_count.toString() + ')');
+        } else {
+          $('#incident_count').html('');
+        }
+      },
+      complete: function(data) {
+        $('#spinner').hide();
+        $('#more_incidents_link').show()
+      },
+    });
+  }
+
+  function appendIncidents() {
+    old_incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
+    $('#spinner').show();
+    $.ajax({
+      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
+      data: {
+        'type': $('#incident_type_select')[0].value,
+        'append': true,
+        'limit': 5,
+        'offset': old_incident_count,
+      },
+      success: function(data) {
+        $('#incident_table tbody').append(data);
+        if (data.indexOf('No incidents') == -1) {
+          incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
+          $('#incident_count').html('(' + incident_count.toString() + ')');
+          if ((old_incident_count + 5) != incident_count) {
+            $('#more_incidents_link').hide()
+          }
+        } else {
+          $('#incident_count').html('');
+        }
+      },
+      complete: function(data) {
+        $('#spinner').hide();
+      },
+    });
+  }
+
+  <%= "updateIncidentDisplay();" unless defined?(@incidents) %>
+<% end %>
