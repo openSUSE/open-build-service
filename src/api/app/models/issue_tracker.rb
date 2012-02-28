@@ -61,7 +61,7 @@ class IssueTracker < ActiveRecord::Base
         return true
       end
     elsif kind == "cve"
-      unless self.enable_fetch
+      if self.enable_fetch
         # fixed URL of all entries
         # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
         http = Net::HTTP.start("cve.mitre.org")
@@ -222,7 +222,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
       end
 
       #@@myIssue = Issue.find_or_create_by_name_and_tracker(cve, @@myTracker.name)
-      @@myIssue = Issue.find_by_name_and_tracker name, @@myTracker.name
+      @@myIssue = Issue.find_by_name_and_tracker cve, @@myTracker.name
       @@mySummary = ""
       @@isDesc = false
     end
