@@ -54,14 +54,29 @@ class IssueTracker < ActiveRecord::Base
       result = bugzilla_server.search(:last_change_time => self.issues_updated)
       ids = result["bugs"].map{ |x| x["id"].to_i }
 
-      ret = private_fetch_issues(ids)
+      if private_fetch_issues(ids)
+        self.issues_updated = update_time_stamp
+        self.save!
 
-      self.issues_updated = update_time_stamp
-      self.save!
-
+        return true
+      end
+    elsif kind == "cve"
+      # fixed URL of all entries
+      # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
+      http = Net::HTTP.start("cve.mitre.org")
+      header = http.head("/data/downloads/allitems.xml.gz")
+      mtime = Time.parse(header["Last-Modified"])
+      if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
+        # new file exists
+        h = http.get("/data/downloads/allitems.xml.gz")
+        unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
+        listener = CVEparser.new()
+        listener.set_tracker(self)
+        parser = Nokogiri::XML::SAX::Parser.new(listener)
+        parser.parse_io(unzipedio)
+      end
       return true
     end
-
     return false
   end
 
@@ -72,10 +87,12 @@ class IssueTracker < ActiveRecord::Base
     issues = Issue.find :all, :conditions => ["issue_tracker_id = BINARY ?", self.id]
     ids = issues.map{ |x| x.name.to_s }
 
-    private_fetch_issues(ids)
-    self.issues_updated = update_time_stamp
-    self.save!
-    return true
+    if private_fetch_issues(ids)
+      self.issues_updated = update_time_stamp
+      self.save!
+      return true
+    end
+    return false
   end
 
   def fetch_issues(issues=nil)
@@ -86,15 +103,14 @@ class IssueTracker < ActiveRecord::Base
 
     ids = issues.map{ |x| x.name.to_s }
 
-    private_fetch_issues(ids)
-    return true
+    return private_fetch_issues(ids)
   end
 
   private
   def private_fetch_issues(ids)
     unless self.enable_fetch
      logger.info "Bug mentioned on #{self.name}, but fetching from server is disabled"
-     return
+     return false
     end
 
     update_time_stamp = Time.at(Time.now.to_f)
@@ -107,8 +123,10 @@ class IssueTracker < ActiveRecord::Base
           result = bugzilla_server.get({:ids => ids[0..limit_per_slice], :permissive => 1})
         rescue RuntimeError => e
           logger.error "Unable to fetch issue #{e.inspect}"
+          return false
         rescue XMLRPC::FaultException => e
           logger.error "Error: #{e.faultCode} #{e.faultString}"
+          return false
         end
         result["bugs"].each{ |r|
           issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
@@ -149,7 +167,7 @@ class IssueTracker < ActiveRecord::Base
         url = URI.parse(resp.header['location']) if resp.header['location']
       end while resp.header['location']
       # TODO: Parse returned XML and return proper JSON
-      return resp.body
+      return false
     elsif kind == "trac"
       # TODO: Most trac instances demand a login, maybe worth having one ;-)
       server = XMLRPC::Client.new2("#{self.url}/rpc")
@@ -161,10 +179,11 @@ class IssueTracker < ActiveRecord::Base
           # The url would be http://user:pass@trac-inst.com/login/rpc
           #server = XMLRPC::Client.new2("#{self.url}/login/rpc")
         end
+        return false
       end
-    elsif kind == "cve"
-      # FIXME: add support
     end
+    # everything succeeded
+    return true
   end
 
   def bugzilla_server
@@ -176,3 +195,52 @@ class IssueTracker < ActiveRecord::Base
   end
 
 end
+
+# internal CVE parser class
+class CVEparser < Nokogiri::XML::SAX::Document
+  @@myTracker = nil
+  @@myIssue = nil
+  @@mySummary = ""
+  @@isDesc = false
+
+  def set_tracker(tracker)
+    @@myTracker = tracker
+  end
+
+  def start_element(name, attrs=[])
+    if name == "item"
+      cve=nil
+      attrs.each_index do |i|
+        if attrs[i][0] == "name"
+          cve = attrs[i][1]
+        end
+      end
+
+      #@@myIssue = Issue.find_or_create_by_name_and_tracker(cve, @@myTracker.name)
+      @@myIssue = Issue.find_by_name_and_tracker name, @@myTracker.name
+      @@mySummary = ""
+      @@isDesc = false
+    end
+    if @@myIssue and name == "desc"
+      @@isDesc=true
+    else
+      @@isDesc=false
+    end
+  end
+
+  def characters(content)
+    if @@isDesc
+      @@mySummary += content.chomp
+    end
+  end
+
+  def end_element(name)
+    return unless name == "item"
+    unless @@mySummary.blank?
+      @@myIssue.summary = @@mySummary
+      @@myIssue.save
+    end
+    @@myIssue = nil
+  end
+end
+
