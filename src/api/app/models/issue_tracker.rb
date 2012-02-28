@@ -61,24 +61,26 @@ class IssueTracker < ActiveRecord::Base
         return true
       end
     elsif kind == "cve"
-      # fixed URL of all entries
-      # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
-      http = Net::HTTP.start("cve.mitre.org")
-      header = http.head("/data/downloads/allitems.xml.gz")
-      mtime = Time.parse(header["Last-Modified"])
-      if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
-        # new file exists
-        h = http.get("/data/downloads/allitems.xml.gz")
-        unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
-        listener = CVEparser.new()
-        listener.set_tracker(self)
-        parser = Nokogiri::XML::SAX::Parser.new(listener)
-        parser.parse_io(unzipedio)
-        # done
-        self.issues_updated = mtime
-        self.save
+      unless self.enable_fetch
+        # fixed URL of all entries
+        # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
+        http = Net::HTTP.start("cve.mitre.org")
+        header = http.head("/data/downloads/allitems.xml.gz")
+        mtime = Time.parse(header["Last-Modified"])
+        if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
+          # new file exists
+          h = http.get("/data/downloads/allitems.xml.gz")
+          unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
+          listener = CVEparser.new()
+          listener.set_tracker(self)
+          parser = Nokogiri::XML::SAX::Parser.new(listener)
+          parser.parse_io(unzipedio)
+          # done
+          self.issues_updated = mtime
+          self.save
+        end
+        return true
       end
-      return true
     end
     return false
   end
