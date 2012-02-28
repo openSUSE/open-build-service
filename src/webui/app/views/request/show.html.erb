@@ -23,7 +23,7 @@
 <div class="grid_16 box box-shadow alpha omega">
   <div class="grid_10 alpha">
     <div class="box show_left show_bottom">
-      <div class="grid_7 alpha omega">
+      <div class="grid_6 alpha omega">
         <h3><%= @pagetitle %> (<%= @state %>)</h3>
         <% if @req.value(:description).empty? %>
           <p><i>No request description</i></p>
@@ -31,7 +31,7 @@
           <p id="expandable_comment"><%= format_comment(@req.value(:description)) %></p>
         <% end %>
       </div>
-      <div class="grid_3 alpha omega">
+      <div class="grid_4 alpha omega">
         <h4>Information</h4>
         <ul class="clean_list">
           <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
