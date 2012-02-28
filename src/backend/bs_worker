@@ -995,8 +995,13 @@ sub getbinaries_kiwiproduct {
     if ($linklocal) {
       $res = [];
       for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
-        next unless $name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	my $rarch = $1;
+	my $rarch;
+	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  $rarch = $1;
+	} elsif ($name =~ /appdata.xml$/) {
+	  $rarch = $arch; 
+	}
+	next unless $rarch;
 	mkdir_p("$ddir/$rarch") unless -d "$ddir/$rarch";
 	if (!link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name")) {
 	  # link fails if file already exists, rpc just overwrites
