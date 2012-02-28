@@ -71,9 +71,9 @@ for f in $prjlist
 do
 # Copy pkg meta info before checking out target package
 (set -x && 
-    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | osc -A $targetobs meta pkg -F - $targetprj/$f) ||
-    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" |osc -A $targetobs meta pkg -F - $targetprj/$f) ||
-    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | osc -A $targetobs meta pkg -F - $targetprj/$f)
+    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | sed -e "s/<package project=\"$sourceprj\"/<package project=\"$targetprj\"/g" | osc -A $targetobs meta pkg -F - $targetprj/$f) ||
+    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | sed -e "s/<package project=\"$sourceprj\"/<package project=\"$targetprj\"/g" | osc -A $targetobs meta pkg -F - $targetprj/$f) ||
+    (osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | grep -v "<group groupid" | sed -e "s/<package project=\"$sourceprj\"/<package project=\"$targetprj\"/g" | osc -A $targetobs meta pkg -F - $targetprj/$f)
 )
 # Check out target packages
 (set -x && 
