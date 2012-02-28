@@ -1,6 +1,6 @@
 <%= render :partial => "package/tabs" %>
 
-<% form_tag :action => "save"  do %>
+<% form_tag({:action => "save"}, :id => "patchinfo")  do %>
   <div class="section">
     <div class="box show_left show_right">
       <h2 style="display: inline">Patchinfo-Editor for <%=h @project %></h2>
@@ -16,14 +16,29 @@
         </td>
       </tr>
       <tr>
-      <th><%=image_tag ("info.png", :title =>"Please select the binaries (ctrl+left) which your patch includes", :alt => "Binaryinfo")%> Binaries: </th>
+      <th><%=image_tag("info.png", :title =>"Please select the binaries (ctrl+left) which your patch includes", :alt => "Binaryinfo")%> Binaries: </th>
       <% if !@binarylist.empty? %>
         <td>
           <% available_bin = Array.new
             @binarylist.each {|d| available_bin << "#{d.to_s}"}
             selected_bin = Array.new
-            #@binaries.each {|bin| selected_bin << "#{bin.to_s}"}%>
-          <%= select_tag "available_binaries", options_for_select(available_bin), :multiple =>true, :size => 5%>
+            @binaries.each {|bin| selected_bin << "#{bin.to_s}"}%>
+            <div id="aval_bin" style="float:left;">
+	    <%= select_tag "available_binaries", options_for_select(available_bin), :multiple =>true, :size => 6, :style => "min-width:200px;"%>
+            </div>
+            <div id="bin_options" style="float:left;">
+            <input id="add" type="button" value="&gt;" style="width:28px;"/><br/>
+            <input id="addAll" type="button" value="&gt;&gt;" style="width:28px;"/><br/>
+            <input id="removeAll"  type="button" value="&lt;&lt;" style="width:28px;"/><br/>
+            <input id="remove" type="button" value="&lt;" style="width:28px;"/><br/>
+            </div>
+            <div id="sele_bin">
+            <% if !selected_bin.empty? %>
+              <%= select_tag "selected_binaries", options_for_select(selected_bin), :multiple => true, :size => 6, :style => "min-width:200px;"%>
+            <% else %>
+              <%= select_tag "selected_binaries", "<option value=''></option>".html_safe, :multiple => true, :size => 6, :style => "min-width:200px;" %>
+            <% end %>
+            </div>
         </td>
         <% else %>
           <td><strong>No binaries available!</strong></td>
@@ -31,7 +46,7 @@
         <% end %>
       </tr>
       <tr>
-        <th><%=image_tag ("info.png", :title =>"List of issues what the update fixes", :alt => "Issueinfo")%> Issues: </th>
+        <th><%=image_tag("info.png", :title =>"List of issues what the update fixes", :alt => "Issueinfo")%> Issues: </th>
         <td>
 
         <div id="issuelist">
@@ -48,8 +63,8 @@
                   </div>
                   <div id="change_desc_<%= issue[0]%>_<%=issue[1]%>" style="display:none;">
                     <%= text_field_tag "desc_" + issue[0] + "_" + issue[1], issue[3].to_s, :size => issue[3].to_s.length %>
-                    <%= link_to image_tag('ok.png', :alt => "Ok", :title => "Change description"), '#', :onclick => "changeDesc('ok', '#{issue[0]}_#{issue[1]}');" %>
-                    <%= link_to image_tag('req-decline.png', :alt => "Cancel", :title => "Cancel changes"), '#', :onclick => "changeDesc('cancel', '#{issue[0]}_#{issue[1]}');" %>
+                    <%= link_to image_tag('ok.png', :alt => "Ok", :title => "Change description"), '#', :onclick => "changeDesc('ok', '#{issue[0]}_#{issue[1]}'); return false;" %>
+                    <%= link_to image_tag('req-decline.png', :alt => "Cancel", :title => "Cancel changes"), '#', :onclick => "changeDesc('cancel', '#{issue[0]}_#{issue[1]}'); return false;" %>
                   </div>
                 <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", :style => "clear:both;", :id => "remove_#{issue[0]}_#{issue[1]}" %>
                 </div>
@@ -69,43 +84,43 @@
         </td>
       </tr>
       <tr>
-        <th><%=image_tag ("info.png", :title =>"Choose the category of your update", :alt => "Categoryinfo")%> Category: </th>
+        <th><%=image_tag("info.png", :title =>"Choose the category of your update", :alt => "Categoryinfo")%> Category: </th>
         <td>
           <%= select_tag "category", options_for_select(["","recommended", "security", "optional", "feature"], @category)%>
         </td>
       </tr>
      <tr>
-       <th><%=image_tag ("info.png", :title =>"Select the rating of this update", :alt => "Ratinginfo")%> Rating: </th>
+       <th><%=image_tag("info.png", :title =>"Select the rating of this update", :alt => "Ratinginfo")%> Rating: </th>
          <td>
            <%= select_tag "rating", options_for_select(["low","moderate", "important", "critical"], @rating)%>
          </td>
        </tr>
        <tr>
-        <th><%=image_tag ("info.png", :title =>"Enter a short summary. Mainpackage: shortdescription of the mainfix", :alt => "Summaryinfo")%> Summary: </th>
+        <th><%=image_tag("info.png", :title =>"Enter a short summary. Mainpackage: shortdescription of the mainfix", :alt => "Summaryinfo")%> Summary: </th>
         <td>
           <%=  text_area_tag 'summary', @summary, :rows => 1, :cols => 60 %>
         </td>
       </tr>
       <tr>
-        <th><%=image_tag ("info.png", :title =>"Enter a full description what the update fixes", :alt => "Descriptioninfo")%> Description: </th>
+        <th><%=image_tag("info.png", :title =>"Enter a full description what the update fixes", :alt => "Descriptioninfo")%> Description: </th>
         <td>
           <%=  text_area_tag 'description', @description, :rows => 10, :cols => 65 %>
         </td>
       </tr>
       <tr>
-        <th><%=image_tag ("info.png", :title =>"Set if a relog for the update is suggested", :alt => "Relogininfo")%> Relogin suggested?</th>
+        <th><%=image_tag("info.png", :title =>"Set if a relog for the update is suggested", :alt => "Relogininfo")%> Relogin suggested?</th>
         <td>
           <%= check_box_tag("relogin", true, @relogin) %>
         </td>
       </tr>
       <tr>
-        <th><%=image_tag ("info.png", :title =>"Set if a restart of the package-manager is suggested", :alt => "Package-managerinfo")%> Package-manager restart suggested?</th>
+        <th><%=image_tag("info.png", :title =>"Set if a restart of the package-manager is suggested", :alt => "Package-managerinfo")%> Package-manager restart suggested?</th>
 	<td>
           <%= check_box_tag("zypp_restart_needed", true, @zypp_restart_needed)%>
 	</td>
       </tr>
       <tr>
-        <th><%=image_tag ("info.png", :title =>"Set if a reboot for the update is suggested", :alt => "Rebootinfo")%> Reboot suggested?</th>
+        <th><%=image_tag("info.png", :title =>"Set if a reboot for the update is suggested", :alt => "Rebootinfo")%> Reboot suggested?</th>
         <td>
           <%= check_box_tag("reboot", true, @reboot) %>
         </td>
@@ -165,11 +180,11 @@
                       "_" + data[1] + "\");'>" + data[3] + "</div>" + 
                       "<div id='change_desc_" + data[0] + "_" + data[1] + "' style='display:none;'>" + 
                       "<input id='desc_" + data[0] + "_" + data[1] + "' type='text' value='" + data[3] + "' size=" + data[3].length + 
-                      " name='desc_" + data[0] + "_" + data[1] + "'/><a onclick='changeDesc(\"ok\", \"" + data[0] + "_" + data[1] + "\");' href='#'>" + 
+                      " name='desc_" + data[0] + "_" + data[1] + "'/><a onclick='changeDesc(\"ok\", \"" + data[0] + "_" + data[1] + "\"); return false;' href='#'>" + 
                       "<img title='Change description' src='/images/ok.png' alt='Ok'></a>" + 
-                      "<a onclick='changeDesc(\"cancel\", \"" + data[0] + "_" + data[1] + "\");' href='#'>" +
+                      "<a onclick='changeDesc(\"cancel\", \"" + data[0] + "_" + data[1] + "\"); return false;' href='#'>" +
                       "<img title='Cancel changes' src='/images/req-decline.png' alt='Cancel'></a></div>" +
-"<a id='remove_" + data[0] + "_" + data[1] +"' onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
+                      "<a id='remove_" + data[0] + "_" + data[1] +"' onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
                       "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" + "</div>");
                   }
                 });
@@ -221,14 +236,28 @@
               return $(a).text() > $(b).text() ? 1:-1;
             });
             $(destination).empty().append(sorted);
+	    }
+
+            function stopRKey(evt) {
+              var evt = (evt) ? evt : ((event) ? event : null);
+              var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+              if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
             }
 
             $(document).ready(function(){
+              document.onkeypress = stopRKey;
+
+              $("form").submit(function() {
+                $('#selected_binaries option').attr('selected',true);
+                $('#available_binaries option').attr('selected',true);
+              });
 
               $('#add').click(function(){
+                $("#selected_binaries option[value='']").remove();
                 moveSelectedItems('#available_binaries', '#selected_binaries');
               });
               $('#addAll').click(function(){
+                $("#selected_binaries option[value='']").remove();
                 $('#available_binaries option').attr('selected', 'true');
                 moveSelectedItems('#available_binaries', '#selected_binaries');
               });

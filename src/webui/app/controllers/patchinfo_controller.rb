@@ -1,7 +1,7 @@
 class PatchinfoController < ApplicationController
   include ApplicationHelper
-  before_filter :require_all, :get_tracker
-  before_filter :get_tracker, :except => [:show, :delete]
+  before_filter :require_all
+  before_filter :get_tracker, :get_binaries, :except => [:show, :delete]
   before_filter :require_exists, :except => [:new_patchinfo]
   helper :package
 
@@ -24,7 +24,12 @@ class PatchinfoController < ApplicationController
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
 
-    read_patchinfo 
+    read_patchinfo
+    @binaries.each do |bin|
+      if @binarylist.match(bin)
+        @binarylist.delete(bin)
+      end
+    end
   end
 
   def updatepatchinfo
@@ -37,6 +42,11 @@ class PatchinfoController < ApplicationController
   def edit_patchinfo
     read_patchinfo
     @tracker = "bnc"
+    @binaries.each do |bin|
+      if @binarylist.find(bin)
+        @binarylist.delete(bin)
+      end
+    end
   end
 
   def show
@@ -150,7 +160,7 @@ class PatchinfoController < ApplicationController
     if valid_params == true
       name = "binary"
       packager = params[:packager]
-      binaries = params[:binaries]
+      binaries = params[:selected_binaries]
       relogin = params[:relogin]
       reboot = params[:reboot]
       zypp_restart_needed = params[:zypp_restart_needed]
@@ -207,7 +217,8 @@ class PatchinfoController < ApplicationController
     if valid_params == false
       @tracker = params[:tracker]
       @packager = params[:packager]
-      @binaries = params[:binaries]
+      @binaries = params[:selected_binaries]
+      @binarylist = params[:available_binaries]
       @issues = Array.new
       params[:issue].each_with_index do |new_issue, index|
         issue = Array.new
@@ -306,13 +317,7 @@ class PatchinfoController < ApplicationController
     @trackerlist.unshift(@trackerlist.delete_at(@trackerlist.index("bnc")))
   end
 
-  def require_all
-    @project = find_cached(Project, params[:project] )
-    unless @project
-      flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public"
-      return
-    end
+  def get_binaries
     @binarylist = Array.new
     @binary_list = Buildresult.find(:project => params[:project], :view => 'binarylist')
     @binary_list.each_result do |r|
@@ -324,6 +329,15 @@ class PatchinfoController < ApplicationController
     end
     @binarylist.uniq!
     @binarylist.delete("rpmlint.log")
+  end
+
+  def require_all
+    @project = find_cached(Project, params[:project] )
+    unless @project
+      flash[:error] = "Project not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public"
+      return
+    end
   end
 
   def require_exists
