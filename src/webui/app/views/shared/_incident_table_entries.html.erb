@@ -7,7 +7,13 @@
         <td rowspan="<%= release_targets_ng.length %>">
           <%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %>
         </td>
-        <td rowspan="<%= release_targets_ng.length %>"><%= incident.value('title') %></td>
+        <td rowspan="<%= release_targets_ng.length %>">
+          <% if rt[:patchinfo] && rt[:patchinfo].value('description') && !rt[:patchinfo].value('description').empty? %>
+            <%= rt[:patchinfo].value('description') %>
+          <% else %>
+            <i><%= incident.value('title') %></i>
+          <% end %>
+        </td>
         <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
           <% rqs_in = incident.requests({:roles => 'target', :states => 'new,review'}) %>
           <% if rqs_in && rqs_in.length > 0 %>
