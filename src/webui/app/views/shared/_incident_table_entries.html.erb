@@ -76,11 +76,8 @@
         <% end %>
       </td>
       <td>
-        <% if rt[:packages].length > 0 %>
-          <% title = rt[:packages].map{|p| "#{p.value('name').split('.')[0]} "}.join %>
-          <%= link_to(rt[:packages].length, {:action => 'packages', :project => incident.value('name')}, {:style => 'color: green;', :title => title}) %>
-        <% else %>
-          <%= link_to('0', {:action => 'packages', :project => incident.value('name')}, {:style => 'color: red;'}) %>
+        <% rt[:packages].each do |package| %>
+          <%= link_to(package.value('name').split('.', 2)[0], :action => 'packages', :project => incident.value('name'), :package => package.value('name')) %><br/>
         <% end %>
       </td>
       <td>
