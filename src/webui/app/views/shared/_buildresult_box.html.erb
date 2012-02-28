@@ -8,36 +8,95 @@
 <% end %>
 
 <div class="box show_right<%= ' show_bottom' if show_bottom %>">
-  <div class="box-header aligncenter">
-    <b>Build Results</b>
-    <%= link_to_function(image_tag('reload.png', :alt => 'Reload', :title => 'Reload'), 'update_buildresult()', :id => "buildresult_reload_#{index}") %>
-    <%= image_tag('ajax-loader.gif', :id => "buildresult_spinner_#{index}", :class => "hidden") %>
+  <div class="box-header header-tabs">
+    <ul id="result_select_<%= index %>">
+      <li class="selected">
+        <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_0" href="#">Build Results</a>
+        <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_build_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_0") %>
+        <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_0") %>
+      </li>
+      <% if controller == 'package' %>
+        <li>
+          <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_1" href="#">Rpmlint Results</a>
+          <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_rpmlint_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_1", :style => 'display: none') %>
+          <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_1", :class => 'hidden') %>
+        </li>
+      <% end %>
+    </ul>
   </div>
-  <% javascript_tag do %>
-    function update_buildresult() {
-      $('#buildresult_spinner_<%= index %>').show();
-      $('#buildresult_reload_<%= index %>').hide();
+  <div class="result_display_<%= index %>" id="result_display_<%= index %>_0"></div>
+  <% if controller == 'package' %>
+    <div class="result_display_<%= index %>" id="result_display_<%= index %>_1"></div>
+  <% end %>
+</div>
+
+<% javascript_tag do %>
+  var tab_index_<%= index %> = 0;
+
+  <% if controller == 'package' %>
+    $('.result_select_link_<%= index %>').click(function (event) {
+      $('#result_select_<%= index %> li.selected').attr('class', '');
+      $(event.target).parent().attr('class', 'selected')
+      $('.result_display_<%= index %>').hide();
+      $('.result_reload_<%= index %>').hide();
+      tab_index = event.target.id.split('result_select_link_<%= index %>_')[1];
+      $('#result_reload_<%= index %>_' + tab_index).show();
+      $('#result_display_<%= index %>_' + tab_index).show();
+    });
+
+    function update_rpmlint_result() {
+      $('#result_spinner_<%= index %>_1').show();
+      $('#result_reload_<%= index %>_1').hide();
       $.ajax({
-        url: '<%= url_for(:controller => controller, :action => 'buildresult') %>',
+        url: '<%= url_for(:controller => controller, :action => 'rpmlint_result') %>',
         data: {
           <%= "'project': '" + project + "'," unless not defined?(project) %>
           <%= "'package': '" + package + "'," unless not defined?(package) %>
+          <%= "'index': '" + index.to_s + "'," unless not defined?(index) %>
         },
         success: function(data) {
-          $('#buildresult_display_<%= index %>').html(data);
+          $('#result_display_<%= index %>_1').html(data);
         },
         error: function(data) {
-          $('#buildresult_display_<%= index %>').html('<p>No build result available</p>');
+          $('#result_display_<%= index %>_1').html('<p>No rpmlint results available</p>');
         },
         complete: function(data) {
-          $('#buildresult_spinner_<%= index %>').hide();
-          $('#buildresult_reload_<%= index %>').show();
+          $('#result_spinner_<%= index %>_1').hide();
+          if (tab_index_<%= index %> == 1) {
+            $('#result_reload_<%= index %>_1').show();
+          }
         }
       });
     }
 
-    update_buildresult();
+    $('#result_display_<%= index %>_1').hide();
+    update_rpmlint_result();
   <% end %>
-  <div id="buildresult_display_<%= index %>"></div>
-</div>
 
+  function update_build_result() {
+    $('#result_spinner_<%= index %>_0').show();
+    $('#result_reload_<%= index %>_0').hide();
+    $.ajax({
+      url: '<%= url_for(:controller => controller, :action => 'buildresult') %>',
+      data: {
+        <%= "'project': '" + project + "'," unless not defined?(project) %>
+        <%= "'package': '" + package + "'," unless not defined?(package) %>
+        <%= "'index': '" + index.to_s + "'," unless not defined?(index) %>
+      },
+      success: function(data) {
+        $('#result_display_<%= index %>_0').html(data);
+      },
+      error: function(data) {
+        $('#result_display_<%= index %>_0').html('<p>No build result available</p>');
+      },
+      complete: function(data) {
+        $('#result_spinner_<%= index %>_0').hide();
+        if (tab_index_<%= index %> == 0) {
+          $('#result_reload_<%= index %>_0').show();
+        }
+      }
+    });
+  }
+
+  update_build_result();
+<% end %>

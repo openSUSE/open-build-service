@@ -126,6 +126,13 @@ class FrontendCompat
     end
   end
 
+  def get_rpmlint_log(project, package, repository, architecture)
+    logger.debug "get rpmlint log"
+    path = "#{@url_prefix}/build/#{pesc project}/#{pesc repository}/#{pesc architecture}/#{pesc package}/rpmlint.log"
+    data = transport.direct_http(URI(path), :timeout => 500)
+    return data
+  end
+
   def transport
     @transport ||= ActiveXML::Config::transport_for( :project )
   end

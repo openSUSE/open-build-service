@@ -1021,6 +1021,26 @@ class PackageController < ApplicationController
     render :partial => 'buildstatus'
   end
 
+  def rpmlint_result
+    render :text => 'no ajax', :status => 400 and return unless request.xhr?
+    @repo_arch_hash = {}
+    @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @buildresult.each('result') do |result|
+      @repo_arch_hash[result.value('repository')] ||= []
+      @repo_arch_hash[result.value('repository')] << result.value('arch')
+    end
+    render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
+  end
+
+  def rpmlint_log
+    begin
+      rpmlint_log = frontend.get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+      render :text => escape_and_transform_nonprintables(rpmlint_log)
+    rescue ActiveXML::Transport::NotFoundError
+      render :text => 'No rpmlint log'
+    end
+  end
+
   def set_url_form
     if @package.has_element? :url
       @new_url = @package.url.to_s
