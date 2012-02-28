@@ -74,6 +74,9 @@ class IssueTracker < ActiveRecord::Base
         listener.set_tracker(self)
         parser = Nokogiri::XML::SAX::Parser.new(listener)
         parser.parse_io(unzipedio)
+        # done
+        self.issues_updated = mtime
+        self.save
       end
       return true
     end
