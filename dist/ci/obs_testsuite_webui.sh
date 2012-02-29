@@ -52,12 +52,10 @@ cp config/database.yml.example config/database.yml
 echo "Setup additional configuration"
 cp config/options.yml.example config/options.yml
 
-echo "Install missing gems locally and fetch rails_rcov"
+echo "Install missing gems locally"
 #rake gems:install # TODO: Fix webui to make this work!
-ruby script/plugin install http://svn.codahale.com/rails_rcov
 
 echo "Set environment variables"
-export CI_REPORTS=results
 export RAILS_ENV=test
 
 echo "Fix executable bits broken by 'Copy Artifacts' plugin"
@@ -68,12 +66,9 @@ chmod +x script/start_test_api \
 echo "Initialize test database, run migrations, load seed data"
 rake db:drop db:create db:migrate
 
-echo "Prepare for rcov"
-[ -d "coverage" ] && rm -rf coverage
-mkdir coverage
-
 echo "Invoke rake"
-rake ci:setup:testunit test:test:rcov --trace RCOV_PARAMS="--aggregate coverage/aggregate.data"
+rake ci:setup:testunit test CI_REPORTS=results
+rake test:rcov
 cd ../..
 
 echo "Contents of src/api/log/test.log:"
@@ -86,4 +81,4 @@ echo
 
 echo "Remove log/tmp files to save disc space"
 rm -rf src/api/{log,tmp}/* \
-       src/webui/{log,tmp}/*
+       src/webui/{log,tmp,coverage,results}/*
