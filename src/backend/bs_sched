@@ -3604,6 +3604,8 @@ sub checkpatchinfo {
     }
   }
 
+  return ('broken', 'no binaries found') unless @tocopy;
+
   if (@blocked) {
     print "      - $packid (patchinfo)\n";
     print "        blocked (@blocked)\n";
