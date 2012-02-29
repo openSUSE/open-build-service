@@ -1371,7 +1371,7 @@ class ProjectController < ApplicationController
       @packages << currentpack
     end
 
-    @develprojects = @develprojects.keys.sort { |x,y| x.downcase <=> y.downcase }.uniq
+    @develprojects = @develprojects.keys.sort { |x,y| x.downcase <=> y.downcase }
     @develprojects.insert(0, all_packages)
     @develprojects.insert(1, no_project)
 
