@@ -402,7 +402,7 @@ function project_monitor_ready() {
         return false;
     });
     $("#statusbox_none").click(function() {
-        $(".statusitem").attr("checked", "");
+        $(".statusitem").attr("checked", false);
         return false;
     });
 
@@ -414,7 +414,7 @@ function project_monitor_ready() {
         return false;
     });
     $("#archbox_none").click(function() {
-        $(".architem").attr("checked", "");
+        $(".architem").attr("checked", false);
         return false;
     });
 
@@ -426,7 +426,7 @@ function project_monitor_ready() {
         return false;
     });
     $("#repobox_none").click(function() {
-        $(".repoitem").attr("checked", "");
+        $(".repoitem").attr("checked", false);
         return false;
     });
 }
