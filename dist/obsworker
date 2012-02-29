@@ -118,6 +118,9 @@ if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
         if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
             VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
         fi
+        if [ -n "$OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS" ]; then
+            VMDISK_MOUNT_OPTIONS="--vmdisk-mount-options ${OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS}"
+        fi
     fi
 fi
 

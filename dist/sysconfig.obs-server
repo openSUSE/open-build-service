@@ -247,6 +247,15 @@ OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
 
 ## Path:        Applications/OBS
+## Description: Filesystem mount options to use for autosetup
+## Type:        string
+## Default:     "-o data=writeback,nobarrier,commit=150,noatime"
+## Config:      OBS
+#
+#
+OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS="-o data=writeback,nobarrier,commit=150,noatime"
+
+## Path:        Applications/OBS
 ## Description: Enable build in memory
 ## Type:        ("yes" | "")
 ## Default:     ""

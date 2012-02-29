@@ -67,6 +67,7 @@ my $vm_memory;
 my $vmdisk_rootsize;
 my $vmdisk_swapsize;
 my $vmdisk_filesystem;
+my $vmdisk_mount_options;
 my $workerid;
 my $srcserver;
 my @reposervers;
@@ -342,6 +343,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vmdisk-filesystem') {
     shift @ARGV;
     $vmdisk_filesystem = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vmdisk-mount-options') {
+    shift @ARGV;
+    $vmdisk_mount_options = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--build') {
@@ -1546,6 +1552,8 @@ sub dobuild {
     push @args, '--vmdisk-rootsize', $vmdisk_rootsize if $vmdisk_rootsize;
     push @args, '--vmdisk-swapsize', $vmdisk_swapsize if $vmdisk_swapsize;
     push @args, '--vmdisk-filesystem', $vmdisk_filesystem if $vmdisk_filesystem;
+    # mount options require quoting due to arguments which might start with "-o ..."
+    push @args, '--vmdisk-mount-options', "\"$vmdisk_mount_options\"" if $vmdisk_mount_options;
   } elsif ($vm =~ /lxc/) {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
