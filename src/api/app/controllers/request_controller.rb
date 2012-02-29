@@ -944,10 +944,13 @@ class RequestController < ApplicationController
             if tpkg
               path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
               path += "&rev=#{action.source.rev}" if action.source.value('rev')
-            else
-              # No target means diffing all source package changes (rev 0 - rev latest)
-              spkg_rev = Directory.find(:project => action.source.project, :package => spkg.name).rev
-              path += "&orev=0&rev=#{spkg_rev}"
+            else # No target package means diffing the source package against itself.
+              if action.source.value('rev') # Use source rev for diffing (if available)
+                path += "&rev=#{action.source.rev}"
+              else # Otherwise generate diff for latest source package revision
+                spkg_rev = Directory.find(:project => action.source.project, :package => spkg.name).rev
+                path += "&orev=0&rev=#{spkg_rev}"
+              end
             end
           end
           # run diff
