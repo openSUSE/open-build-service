@@ -691,6 +691,7 @@ our $link = [
 	'project',
 	'package',
 	'rev',
+	'vrev',
 	'cicount',
 	'baserev',
 	'missingok',

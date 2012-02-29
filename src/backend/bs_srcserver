@@ -1677,6 +1677,7 @@ sub handlelinks {
     return "linked package '$packid' does not exist in project '$projid'" unless $lrev;
     return "linked package '$packid' is empty" if $lrev->{'srcmd5'} eq 'empty';
     return "linked package '$packid' is strange" unless $lrev->{'srcmd5'} =~ /^[0-9a-f]{32}$/;
+    $lrev->{'vrev'} = $l->{'vrev'} if defined $l->{'vrev'};
     undef $files;
     eval {
       # links *always* point to expanded services
