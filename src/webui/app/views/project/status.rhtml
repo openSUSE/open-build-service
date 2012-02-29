@@ -17,14 +17,14 @@
 
 <% form_tag({:action => :status}, :method => :get) do %>
   <p>
-    <%= hidden_field_tag(:project, @project) -%>
+    <%= hidden_field_tag(:project, @project.name) -%>
     <% if @develprojects.size > 2 %>
       Devel project: <%= select_tag(:filter_devel, options_for_select(@develprojects, @current_develproject)) %>
     <% end %>
   </p>
   <p>
     <%= check_box_tag(:ignore_pending, true, @ignore_pending) %>
-    <%= label_tag(:ignore_pending, "Ignore packages with pending requests to #{@project}") %><br/>
+    <%= label_tag(:ignore_pending, "Ignore packages with pending requests to #{@project.name}") %><br/>
     <%= hidden_field_tag(:limit_to_fails, 'false', :id => 'fails_hidden') %>
     <%= check_box_tag(:limit_to_fails, true, @limit_to_fails) %>
     <%= label_tag(:limit_to_fails, 'Limit to currently failing packages') %><br/>
@@ -67,18 +67,18 @@
               if c == 'different_changes'
                 age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
                 outs << link_to("Different changes in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-                  :action => :rdiff, :oproject => @project, :opackage => p['name'])
+                  :action => :rdiff, :oproject => @project.name, :opackage => p['name'])
                 sortkey = "5-changes-#{p['develmtime']}-" + p['name']
                 icon = "changes"
               elsif c == 'different_sources'
                 age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
                 outs << link_to("Different sources in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-                  :action => :rdiff, :oproject => @project, :opackage => p['name'])
+                  :action => :rdiff, :oproject => @project.name, :opackage => p['name'])
                 sortkey = "6-changes-#{p['develmtime']}-" + p['name']
                 icon = "changes"
               elsif c == 'diff_against_link'
                 outs << link_to("Linked package is different", :controller => :package, :oproject => p['lproject'], :opackage => p['lpackage'],
-                  :action => :rdiff, :project => @project, :package => p['name'])
+                  :action => :rdiff, :project => @project.name, :package => p['name'])
                 sortkey = "7-changes" + p['name']
                 icon = "changes"
               elsif c.match(/^error-/)
@@ -105,7 +105,7 @@
             sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
           end
           p['requests_from'].each do |id|
-            outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), @project])
+            outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), @project.name])
             icon = "changes"
             sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
           end
@@ -120,7 +120,7 @@
           end
           if p['firstfail']
             outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
-                :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project, :package => p['name']) +
+                :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project.name, :package => p['name']) +
                 " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days:" +
                 (" <span id='".html_safe + valid_xml_id('comment_' + p['name']) + "'>".html_safe +
                 show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'.html_safe))
@@ -144,7 +144,7 @@
               <% else -%>
                 <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
               <% end -%>
-              <%= link_to h(elide(p['name'], 20)), :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
+              <%= link_to h(elide(p['name'], 20)), :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
             </td>
             <% if show_devel_project %>
               <td>
@@ -164,5 +164,5 @@
 <% end %>
 
 <% if @project.can_edit?(session[:login]) and not comments_to_clear.empty? %>
-  <%= link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project, "package" => comments_to_clear) %>
+  <%= link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project.name, "package" => comments_to_clear) %>
 <% end -%>

@@ -19,7 +19,7 @@
       <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
       <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
     <% end %>
-    <% if @project.has_element?(:repository) && !@spider_bot -%>
+    <% if @project.to_hash.has_key?("repository") && !@spider_bot -%>
       <%= tab "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
     <% unless @spider_bot -%>

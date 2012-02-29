@@ -17,7 +17,7 @@ class Project < ActiveXML::Base
     handles_xml_element 'repository'
 
     def archs
-      @archs ||= each_arch.map {|a| a.to_s}
+      @archs ||= to_hash.elements("arch")
       return @archs
     end
 
@@ -43,7 +43,7 @@ class Project < ActiveXML::Base
     end
 
     def paths
-      @paths ||= each_path.map {|p| p.project + '/' + p.repository}
+      @paths ||= to_hash.elements("path").map {|p| "#{p["project"]}/#{p["repository"]}" }
       return @paths
     end
 
@@ -266,10 +266,13 @@ class Project < ActiveXML::Base
 
   def user_has_role?(user, role)
     user = Person.find_cached(user.to_s) if user.class == String
-    if user
-      return true if find_first("person[@role='#{role}' and @userid='#{user.login}']")
-      each("group[@role='#{role}']") do |g|
-        return true if user.is_in_group?(g.value(:groupid))
+    login = user.to_hash["login"]
+    if user && login
+      to_hash.elements("person") do |p|
+        return true if p["role"] == role && p["userid"] == login
+      end
+      to_hash.elements("group") do |g|
+        return true if g["role"] == role && user.is_in_group?(g["groupid"])
       end
     end
     return false
@@ -284,20 +287,20 @@ class Project < ActiveXML::Base
 
   def users(role = nil)
     users = []
-    each_person do |p|
-      if not role or (role and p.role == role)
-        users << p.userid
+    to_hash.elements("person") do |p|
+      if not role or (role and p["role"] == role)
+        users << p["userid"]
       end
-      user = Person.find_cached(p.userid)
+      user = Person.find_cached(p["userid"])
       if user
-        each_group do |g|
-          if not role or (role and g.role == role)
-            users << p.userid if user.is_in_group?(g.groupid)
+        to_hash.elements("group") do |g|
+          if not role or (role and g["role"] == role)
+            users << p["userid"] if user.is_in_group?(g["groupid"])
           end
         end
       end
     end
-    return users.sort.uniq
+    return users.uniq.sort
   end
 
   def groups(role = nil)

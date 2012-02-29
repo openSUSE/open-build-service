@@ -863,9 +863,9 @@ class ProjectController < ApplicationController
     @avail_arch_values = []
     @avail_repo_values = []
 
-    @project.each_repository { |r|
-      @avail_repo_values << r.name
-      @avail_arch_values << r.archs if r.archs
+    @project.to_hash.elements("repository") { |r|
+      @avail_repo_values << r["name"]
+      @avail_arch_values << r.elements("arch")
     }
     @avail_arch_values = @avail_arch_values.flatten.uniq.sort
     @avail_repo_values = @avail_repo_values.flatten.uniq.sort
@@ -1510,7 +1510,7 @@ class ProjectController < ApplicationController
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
-    @is_incident_project = true if @project.project_type and @project.project_type == "maintenance_incident"
+    @is_incident_project = true if @project.to_hash["project_type"] == "maintenance_incident"
     #TODO: Prepare incident-related data
   end
 
@@ -1518,7 +1518,7 @@ class ProjectController < ApplicationController
     if @spider_bot
       @requests = [] and return
     end
-    pname=@project.value(:name)
+    pname=@project.name
     cachekey="project_requests_#{pname}"
     Rails.cache.delete(cachekey) if discard_cache?
     @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
