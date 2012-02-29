@@ -324,24 +324,26 @@ sub createrepo_rpmmd {
     push @updateargs, '--update';
   }
   if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @updateargs, @createrepoargs, @legacyargs, $extrep)) {
-    print("    createrepo failed: $?\n");
     if (@updateargs) {
+      print("    createrepo failed: $?\n");
       print "    re-running without extra options\n";
-      qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && print("    createrepo failed again: $?\n");
+      qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && die("    createrepo failed again: $?\n");
+    } else {
+      die("    createrepo failed: $?\n");
     }
   }
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
   if ($updateinfos && @$updateinfos) {
     print "    adding updateinfo.xml to repodata\n";
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
-    qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+    qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
   }
   unlink("$extrep/repodata/$_") for grep {/appdata\.xml/} @oldrepodata;
   if ($appdatas) {
     print "    adding appdata.xml to repodata\n";
     writexml("$extrep/repodata/appdata.xml", undef, $appdatas, $BSXML::appdata);
-    qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+    qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/appdata.xml");
   }
   unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
@@ -363,12 +365,12 @@ sub createrepo_rpmmd {
     my @mergeddeltas = map {$mergeddeltas{$_}} sort keys %mergeddeltas;
     if ($options{'deltainfo'}) {
       writexml("$extrep/repodata/deltainfo.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::deltainfo);
-      qsystem('modifyrepo', "$extrep/repodata/deltainfo.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+      qsystem('modifyrepo', "$extrep/repodata/deltainfo.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
       unlink("$extrep/repodata/deltainfo.xml");
     }
     if ($options{'prestodelta'}) {
       writexml("$extrep/repodata/prestodelta.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::prestodelta);
-      qsystem('modifyrepo', "$extrep/repodata/prestodelta.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+      qsystem('modifyrepo', "$extrep/repodata/prestodelta.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
       unlink("$extrep/repodata/prestodelta.xml");
     }
   }
