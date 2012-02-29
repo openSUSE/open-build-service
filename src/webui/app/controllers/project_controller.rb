@@ -1230,7 +1230,7 @@ class ProjectController < ApplicationController
     
     #logger.debug declines.inspect
 
-    @develprojects = Array.new
+    @develprojects = Hash.new
     project_maintainer_cache = Hash.new
 
     @packages = Array.new
@@ -1285,7 +1285,7 @@ class ProjectController < ApplicationController
 
       if p['develpack']
         dproject = p['develpack']['proj']
-        @develprojects << dproject
+        @develprojects[dproject] = 1
         currentpack['develproject'] = dproject
         if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_packages
           next
@@ -1371,7 +1371,7 @@ class ProjectController < ApplicationController
       @packages << currentpack
     end
 
-    @develprojects.sort! { |x,y| x.downcase <=> y.downcase }.uniq!
+    @develprojects = @develprojects.keys.sort { |x,y| x.downcase <=> y.downcase }.uniq
     @develprojects.insert(0, all_packages)
     @develprojects.insert(1, no_project)
 
