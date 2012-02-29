@@ -889,7 +889,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
     assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
-               :tag => "status", :attributes => { :package=>"patchinfo", :code=>"blocked" }
+               :tag => "status", :attributes => { :package=>"patchinfo", :code=>"broken" }
     assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"x86_64", :state=>"building"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"excluded" }
     # BaseDistro3_BaseDistro3_repo

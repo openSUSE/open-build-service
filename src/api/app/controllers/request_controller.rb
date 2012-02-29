@@ -946,7 +946,7 @@ class RequestController < ApplicationController
               path += "&rev=#{action.source.rev}" if action.source.value('rev')
             else # No target package means diffing the source package against itself.
               if action.source.value('rev') # Use source rev for diffing (if available)
-                path += "&rev=#{action.source.rev}"
+                path += "&orev=0&rev=#{action.source.rev}"
               else # Otherwise generate diff for latest source package revision
                 spkg_rev = Directory.find(:project => action.source.project, :package => spkg.name).rev
                 path += "&orev=0&rev=#{spkg_rev}"
