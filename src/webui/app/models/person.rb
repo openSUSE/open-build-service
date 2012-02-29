@@ -148,7 +148,7 @@ class Person < ActiveXML::Base
         issues = Array.new
 
         # get users open issues for package
-        path = "/source/#{CGI.escape(pi.project)}/#{CGI.escape(pi.name)}?view=issues&states=OPEN&login='#{CGI.escape(login)}'"
+        path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
         frontend = ActiveXML::Config::transport_for( :package )
         answer = frontend.direct_http URI(path), :method => "GET"
         doc = ActiveXML::Base.new(answer)
