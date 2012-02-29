@@ -43,20 +43,19 @@ class Person < ActiveXML::Base
 
   def self.email_for_login(person)
     p = Person.find_hashed(person)
-    return p["email"] if p
-    return ''
+    return p["email"] || ''
   end
 
   def self.realname_for_login(person)
     p = Person.find_hashed(person)
-    return p["realname"] if p
-    return ''
+    return p["realname"] || ''
   end
 
   def initialize(data)
     super(data)
-    @login = self.value(:login)
+    @login = self.to_hash["login"]
     @groups = nil
+    @watched_projects = nil
   end
 
   def login
@@ -84,17 +83,17 @@ class Person < ActiveXML::Base
   end
 
   def watched_projects
-    if has_element?(:watchlist)
-      return Rails.cache.fetch("person_#{login}_watchlist") do
-        watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}
-      end
+    return @watched_projects if @watched_projects
+    watchlist = to_hash["watchlist"]
+    if watchlist
+      return @watched_projects = watchlist.elements("project").map {|p| p["name"]}.sort {|a,b| a.downcase <=> b.downcase}
     else
-      return {}
+      return @watched_projects = []
     end
   end
 
   def watches?(name)
-    has_element?(:watchlist) and watchlist.has_element?("project[@name='#{name}']")
+    return watched_projects.include? name
   end
 
   def free_cache
@@ -201,7 +200,10 @@ class Person < ActiveXML::Base
   end
 
   def is_admin?
-    has_element?( "globalrole[text() = \"Admin\"]" )
+    to_hash.elements("globalrole").each do |g|  
+      return true if g == 'Admin'
+    end
+    return false
   end
 
   def is_maintainer?(project, package = nil)

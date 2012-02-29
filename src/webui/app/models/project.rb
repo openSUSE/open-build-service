@@ -100,7 +100,7 @@ class Project < ActiveXML::Base
   end
   
   def to_s
-    name.to_s
+    to_hash["name"]
   end
 
   def add_person( opt={} )
@@ -322,11 +322,11 @@ class Project < ActiveXML::Base
   end
 
   def name
-    @name ||= value('name')
+    @name ||= to_hash["name"]
   end
 
   def project_type
-    return value('kind')
+    return to_hash["kind"]
   end
 
   def set_project_type(project_type)
@@ -338,7 +338,7 @@ class Project < ActiveXML::Base
   end
 
   def is_remote?
-    has_element? "remoteurl"
+    to_hash.has_key? "remoteurl"
   end
 
   # Returns a list of pairs (full name, short name) for each parent
