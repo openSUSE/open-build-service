@@ -1025,10 +1025,14 @@ class PackageController < ApplicationController
     render :text => 'no ajax', :status => 400 and return unless request.xhr?
     @repo_arch_hash = {}
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @repo_options = []
     @buildresult.each('result') do |result|
-      @repo_arch_hash[result.value('repository')] ||= []
-      @repo_arch_hash[result.value('repository')] << result.value('arch')
+      hash_key = valid_xml_id(result.value('repository'))
+      @repo_arch_hash[hash_key] ||= []
+      @repo_arch_hash[hash_key] << result.value('arch')
+      @repo_options << [result.value('repository'), hash_key]
     end
+    @repo_options.sort!
     render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
   end
 

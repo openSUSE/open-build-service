@@ -1,6 +1,6 @@
 <% index ||= '' %>
 <p>
-  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_arch_hash.keys.sort)) %>
+  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_options)) %>
   <% i = 0 %>
   <% @repo_arch_hash.each do |repo, arches| %>
     <%= select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.sort), :class => "rpmlint_arch_select_#{index}") %>
@@ -20,14 +20,15 @@
 
   function update_rpmlint_display() {
     $('#rpmlint_spinner_<%= index %>').show();
-    repo = $('#rpmlint_repo_select_<%= index %>').attr('value')
+    repo_name = $('#rpmlint_repo_select_<%= index %> option:selected').html()
+    repo_key = $('#rpmlint_repo_select_<%= index %>').attr('value')
     $.ajax({
       url: '<%= url_for(:controller => 'package', :action => 'rpmlint_log') %>',
       data: {
         'project': '<%= @project.value('name') %>',
         'package': '<%= @package.value('name') %>',
-        'repository': repo,
-        'architecture': $('#rpmlint_arch_select_<%= index %>_' + repo).attr('value'),
+        'repository': repo_name,
+        'architecture': $('#rpmlint_arch_select_<%= index %>_' + repo_key).attr('value'),
       },
       success: function (data) {
         $('#rpmlint_display_<%= index %>').html(data);
