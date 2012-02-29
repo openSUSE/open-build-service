@@ -9,8 +9,8 @@
         </td>
         <td rowspan="<%= release_targets_ng.length %>">
           <span class="expandable_incident_description">
-            <% if rt[:patchinfo] && rt[:patchinfo].value('description') && !rt[:patchinfo].value('description').empty? %>
-              <%= rt[:patchinfo].value('description') %>
+            <% if rt[:patchinfo] && rt[:patchinfo].value('summary') && !rt[:patchinfo].value('summary').empty? %>
+              <%= rt[:patchinfo].value('summary') %>
             <% else %>
               <i><%= incident.value('title') %></i>
             <% end %>
