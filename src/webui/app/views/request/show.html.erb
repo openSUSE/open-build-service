@@ -274,7 +274,7 @@
 
             <% if sourcediff[:issues].length > 0 %>
               <div class="box show_right show_bottom">
-                <div class="box-header aligncenter"><b>Mentioned Issues</b></div>
+                <div class="box-header aligncenter"><b>Mentioned Issues (<%= sourcediff[:issues].length %>)</b></div>
                 <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
               </div>
             <% end %>
