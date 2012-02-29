@@ -242,6 +242,7 @@ sub verify_link {
   verify_packid($l->{'package'}) if exists $l->{'package'};
   verify_rev($l->{'rev'}) if exists $l->{'rev'};
   verify_rev($l->{'baserev'}) if exists $l->{'baserev'};
+  verify_simple($l->{'vrev'}) if defined $l->{'vrev'};
   die("link must contain some target description \n") unless exists $l->{'project'} || exists $l->{'package'} || exists $l->{'rev'};
   if (exists $l->{'cicount'}) {
     if ($l->{'cicount'} ne 'add' && $l->{'cicount'} ne 'copy' && $l->{'cicount'} ne 'local') {
