@@ -37,6 +37,10 @@
               <%= image_tag('icons/lock.png', :alt => 'Locked', :title => 'Locked') %>
             <% end %>
           <% end %>
+          <% if rt[:patchinfo] && rt[:patchinfo].value('stopped') && !rt[:patchinfo].value('stopped').empty? %>
+            <% title = "Stopped: #{rt[:patchinfo].value('stopped')}" %>
+            <%= image_tag('dialog-warning.png', :alt => title, :title => title) %>
+          <% end %>
         </td>
       <% end %>
       <td><b><%= rt_name %></b></td>
