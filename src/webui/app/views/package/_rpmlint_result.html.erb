@@ -1,6 +1,6 @@
 <% index ||= '' %>
 <p>
-  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_options)) %>
+  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_arch_hash.keys, @project.value('name').gsub(':', '_'))) %>
   <% i = 0 %>
   <% @repo_arch_hash.each do |repo, arches| %>
     <%= select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.sort), :class => "rpmlint_arch_select_#{index}") %>
