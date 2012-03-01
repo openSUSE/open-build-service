@@ -43,6 +43,7 @@ my $check_build = 0;
 my $do_check_meta = 0;
 my $do_check_signatures = 0;
 my $check_one_project = "";
+my $check_one_package = "";
 
 use POSIX;
 use Data::Dumper;
@@ -77,9 +78,11 @@ sub usage {
    print "                            (WARNING: takes very long)\n";
    print "        --check-all         (all of the above)\n";
    print "\n";
-   print "        --do-check-meta               check content of .meta files (otherwise ignored for speed)\n";
-   print "        --do-check-signatures         check signatures of .rpm files (otherwise just the magic is checked)\n";
-   print "        --do-check-project PROJECT    check build tree of one project\n";
+   print "        --do-check-meta                     check content of .meta files (otherwise ignored for speed)\n";
+   print "        --do-check-signatures               check signatures of .rpm files (otherwise just the magic is checked)\n";
+   print "        --do-check-project-build PROJECT    check build tree of one project\n";
+   print "\n";
+   print "        --do-check-package-source PROJECT PACKAGE   check source references of one package\n";
    print "\n";
    print "not yet implemented:\n";
    print "        --check-projects\n";
@@ -111,9 +114,13 @@ while (@ARGV) {
 	$check_worker = 1;
 	$check_request = 1;
 	$check_build = 1;
-  } elsif ($arg eq "--do-check-project") {
+  } elsif ($arg eq "--do-check-project-build") {
 	$check_build = 1;
 	$check_one_project = shift @ARGV;
+  } elsif ($arg eq "--do-check-package-source") {
+	$check_package_source = 1;
+	$check_one_project = shift @ARGV;
+	$check_one_package = shift @ARGV;
   } elsif ($arg eq "--do-check-meta") {
 	$do_check_meta = 1;
   } elsif ($arg eq "--do-check-signatures") {
@@ -124,7 +131,7 @@ while (@ARGV) {
   }
 }
 
-unless ($check_jobs || $check_db || $check_event || $check_worker || $check_request || $check_build) {
+unless ($check_jobs || $check_db || $check_event || $check_worker || $check_request || $check_build || $check_package_source) {
   usage();
   exit 1;
 }
@@ -217,6 +224,25 @@ my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $workersroot = "$BSConfig::bsdir/workers";
 my $sourcedb = "$BSConfig::bsdir/db/source";
 my $requestsroot = "$BSConfig::bsdir/requests";
+
+my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
+my $eventlay = [qw{number time type project package repository arch}];
+
+if (-d $projectsdir && $check_package_source) {
+  my $metafile;
+  eval {
+    $file = readxml("$projectsdir/$check_one_project.pkg/$check_one_package.xml",$BSXML::pack,0);
+  } || warn ("ERROR: package meta of check_one_project/$check_one_package is not parseable");
+
+  for my $suffix ("rev","mrev","rev.del","mrev.del") {
+    my $file = "$projectsdir/$check_one_project.pkg/$check_one_package.$suffix";
+    if (-e $file) {
+      eval {
+        my @revs = BSFileDB::fdb_getall($file, $srcrevlay)
+      } || warn ("ERROR: revisions in $suffix file of $check_one_project/$check_one_package are not parsable: $@)");
+    }
+  }
+}
 
 if (-d $jobsroot && $check_jobs) {
   print "PROGRESS: checking jobs\n";
