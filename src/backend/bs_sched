@@ -3651,7 +3651,6 @@ sub rebuildpatchinfo {
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
   my $jobrepo = {};
-  my %jobbins;
   my $error;
   my %donebins;
   my @upackages;
@@ -4104,13 +4103,13 @@ sub rebuildaggregate {
 	  my $r = $ajobrepo->{$abin};
 	  next unless $r->{'source'};
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
-	  next if $jobbins{$r->{'name'}};
-          # FIXME: How is debian handling debug packages ?
-          next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
-	  $jobbins{$r->{'name'}} = 1;
+	  # FIXME: How is debian handling debug packages ?
+	  next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  my $basename = $abin;
 	  $basename =~ s/.*\///;
 	  $basename =~ s/^upload:// if $cpio;
+	  next if $jobbins{$basename};	# first one wins
+	  $jobbins{$basename} = 1;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
 	  $jobrepo->{"$jobdatadir/$basename"} = $r;
 	  $copysources = 1 unless $nosource;
