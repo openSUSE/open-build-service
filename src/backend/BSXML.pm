@@ -1406,7 +1406,12 @@ our $appdataitem = [
 	'summary',
       [ 'icon' => 
 	    'type', 
-	    '_content'
+	    [],
+	    'name',
+	 [[ 'filecontent' =>
+		'file',
+		'_content'
+         ]],
       ],
       [ 'appcategories' => 
           [ 'appcategory' ] 
