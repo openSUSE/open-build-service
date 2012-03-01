@@ -1081,6 +1081,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm"
     assert_response :success
+    get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm?view=fileinfo"
+    assert_response :success
+    assert_tag :tag => "name", :content => "package"
+    assert_tag :tag => "version", :content => "1.0"
+    assert_tag :tag => "release", :content => "1"
+    assert_tag :tag => "arch", :content => "i586"
+    assert_tag :tag => "summary", :content => "Test Package"
+    assert_tag :tag => "size", :content => "1831"
+    assert_tag :tag => "description"
+    assert_tag :tag => "mtime"
     node=nil
     IO.popen("gunzip -cd #{RAILS_ROOT}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
        node = REXML::Document.new( io.read )

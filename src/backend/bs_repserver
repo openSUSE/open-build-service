@@ -2821,6 +2821,7 @@ sub fileinfo {
       $q->{'name'} = $g0->{'name'} if defined $g0->{'name'};
       $q->{'summary'} = $g0->{'summary'} if defined $g0->{'summary'};
       $q->{'description'} = $g0->{'description'} if defined $g0->{'description'};
+      $q->{'size'} = $g0->{'size'} if defined $g0->{'size'};
       if ($g0->{'repositories'}) {
 	$q->{'recommends'} = [ map {$_->{'name'}} grep {$_->{'recommended'} && $_->{'recommended'} eq 'true'} @{$g0->{'packages'}->{'package'} || []} ];
 	$q->{'suggests'} = [ map {$_->{'name'}} grep {!($_->{'recommended'} && $_->{'recommended'} eq 'true')} @{$g0->{'packages'}->{'package'} || []} ];
@@ -2829,7 +2830,10 @@ sub fileinfo {
       }
     }
   }
-  for (qw{name epoch version release arch summary description provides requires recommends suggests}) {
+  my @s = stat($filepath);
+  $q->{'size'} = $s[7]  unless defined $q->{'size'};
+  $q->{'mtime'} = $s[9] unless defined $q->{'mtime'};
+  for (qw{name epoch version size mtime release arch summary description provides requires recommends suggests}) {
     $res->{$_} = $q->{$_} if defined $q->{$_};
   }
   return ($res, $BSXML::fileinfo);
