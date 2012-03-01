@@ -24,6 +24,8 @@ logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
 
+system("rake db:fixtures:load")
+
 # minimal auth
 @http_user = User.find_by_login( "king" )
 User.current = @http_user
@@ -171,7 +173,6 @@ while true
   break
 end
 
-system("rake db:fixtures:load")
 Suse::Backend.put( '/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
 Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
 Suse::Backend.put( '/source/BaseDistro/_config', "# Empty project config" )
