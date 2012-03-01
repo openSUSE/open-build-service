@@ -343,7 +343,7 @@ EOF
 		                # support virtio
 		                # FIXME: find a better way to do this without getting remove by kiwi again.
 		                if ! grep -q "^INITRD_MODULES=.*virtio_pci virtio_blk" /etc/sysconfig/kernel; then
-		                   sed -i 's,^INITRD_MODULES="\(.*\)",INITRD_MODULES="\1 loop dm-mod dm-snapshot binfmt-misc fuse kqemu squashfs ext2 ext3 ext4 reiserfs binfmt_misc virtio_pci virtio_blk",' /etc/sysconfig/kernel
+		                   sed -i 's,^INITRD_MODULES="\(.*\)",INITRD_MODULES="\1 loop dm-mod dm-snapshot binfmt-misc fuse kqemu squashfs ext2 ext3 ext4 reiserfs nf_conntrack_ipv6 binfmt_misc virtio_pci virtio_blk",' /etc/sysconfig/kernel
 		                   mkinitrd || unset RUN_VIRT
 		                fi
 			else
