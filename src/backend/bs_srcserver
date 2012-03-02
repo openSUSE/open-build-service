@@ -6475,10 +6475,10 @@ sub sourceinfo {
     if ($linkinfo->{'xservicemd5'}) {
       $files = handleservice($rev, $files, $linkinfo->{'xservicemd5'});
       $r->{'srcmd5'} = $rev->{'srcmd5'};
-      my $meta = '';
-      $meta .= "$files->{$_}  $_\n" for sort keys %$files;
-      $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
     }
+    my $meta = '';
+    $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+    $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
     die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
     die("source update failed\n") if $files->{'_service_error'};
   };
