@@ -81,4 +81,4 @@ echo
 
 echo "Remove log/tmp files to save disc space"
 rm -rf src/api/{log,tmp}/* \
-       src/webui/{log,tmp,coverage,results}/*
+       src/webui/{log,tmp}/*

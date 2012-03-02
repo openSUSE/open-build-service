@@ -90,4 +90,4 @@ cat src/api/log/test.log
 echo
 
 echo "Remove log/tmp files to save disc space"
-rm -rf src/api/{log,tmp,coverage,results}/*
+rm -rf src/api/{log,tmp}/*
