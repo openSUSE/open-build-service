@@ -60,15 +60,17 @@ case "$1" in
 	stop|shutdown)
 		echo -n "Shutting down obsscheduler"
 		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
-		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-		 	obs_admin --shutdown-scheduler "$i"
-		done
-		for i in `seq 600`; do
-			checkproc bs_sched || break
-                        sleep 1
-		done
-		if checkproc bs_sched ; then
-			killall bs_sched
+		if checkproc bs_sched; then
+			for i in $OBS_SCHEDULER_ARCHITECTURES; do
+			 	obs_admin --shutdown-scheduler "$i"
+			done
+			for i in `seq 600`; do
+				checkproc bs_sched || break
+			        sleep 1
+			done
+			if checkproc bs_sched ; then
+				killall bs_sched
+			fi
 		fi
 		rc_status -v
 	;;
