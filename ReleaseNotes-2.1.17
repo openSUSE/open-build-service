@@ -1,0 +1,24 @@
+#
+# openSUSE Build Service 2.1.17
+#
+
+Updaters from any OBS 2.1 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* Support linking to remote OBS 2.3 package which contains links with vrev attribute
+
+Changes:
+========
+
+* Added new default targets for SUSE Linux Enterprise SP1 and SP2 builds
+
+Bugfixes:
+=========
+
+* reopen not accepted reviews when re-opening a request
+* fixed icon links in distribution list
+
