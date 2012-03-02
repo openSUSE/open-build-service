@@ -70,6 +70,8 @@ class RequestController < ApplicationController
     @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author)
 
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
+    # everyone who is reviewer can also add reviewers
+    @can_add_reviews ||= @my_open_reviews.length > 0
     @events = @req.events()
     @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
 
