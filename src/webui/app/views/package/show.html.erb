@@ -84,7 +84,7 @@
           </li>
         <% end %>
         <% if session[:login] %>
-          <% if Package.current_rev(@project, @package) %>
+          <% if Package.current_rev(@project.name, @package.name) %>
             <li>
               <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
               <%= link_to_remote 'Branch package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>

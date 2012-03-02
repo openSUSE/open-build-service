@@ -320,10 +320,10 @@ class PatchinfoController < ApplicationController
   def get_binaries
     @binarylist = Array.new
     @binary_list = Buildresult.find(:project => params[:project], :view => 'binarylist')
-    @binary_list.each_result do |r|
-      r.each_binarylist do |l|
-        l.each_binary do |b|
-          @binarylist << b.filename.sub(/-[^-]*-[^-]*.rpm$/, '' )
+    @binary_list.to_hash.elements("result") do |r|
+      r.elements("binarylist") do |l|
+        l.elements("binary") do |b|
+          @binarylist << b["filename"].sub(/-[^-]*-[^-]*.rpm$/, '' )
         end
       end
     end

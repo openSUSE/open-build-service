@@ -141,9 +141,9 @@ module ApplicationHelper
   def arch_repo_table_cell(repo, arch, packname)
     status = status_for(repo, arch, packname)
     status_id = status_id_for( repo, arch, packname)
-    link_title = status.has_element?(:details) ? status.details.to_s : nil
-    if status.has_attribute? 'code'
-      code = status.code.to_s
+    link_title = status['details']
+    if status['code']
+      code = status['code']
       theclass="status_" + code.gsub(/[- ]/,'_')
     else
       code = ''

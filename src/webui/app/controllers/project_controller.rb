@@ -248,14 +248,16 @@ class ProjectController < ApplicationController
     @nr_packages = @packages.size
     Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
     @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
-      buildresult = find_cached(Buildresult, :project => @project, :view => 'status', 
+      buildresult = find_hashed(Buildresult, :project => @project, :view => 'status', 
                                              :code => ['failed', 'broken', 'unresolvable'], 
                                              :expires_in => 2.minutes ) unless @spider_bot
-      ret = Array.new
+      ret = Hash.new
       if buildresult
-        buildresult.each( 'result/status' ) { |e| ret << e.value('package') }
+        buildresult.elements('result') do |r|
+          r.elements('status') { |e| ret[e['package']] = 1 }
+        end
       end
-      ret.uniq.size
+      ret.keys.size
     end
 
     linking_projects
@@ -322,19 +324,19 @@ class ProjectController < ApplicationController
     @repostatushash = Hash.new
     @packagenames = Array.new
 
-    @buildresult.each_result do |result|
-      repo = result.repository
-      arch = result.arch
+    @buildresult.to_hash.elements("result") do |result|
+      repo = result["repository"]
+      arch = result["arch"]
 
       # repository status cache
       @repostatushash[repo] ||= Hash.new
       @repostatushash[repo][arch] = Hash.new
 
-      if result.has_attribute? :state
-        if result.has_attribute? :dirty
-          @repostatushash[repo][arch] = "outdated_" + result.state.to_s
+      if result.has_key? "state"
+        if result.has_key? "dirty"
+          @repostatushash[repo][arch] = "outdated_" + result["state"]
         else
-          @repostatushash[repo][arch] = result.state.to_s
+          @repostatushash[repo][arch] = result["state"]
         end
       end
     end if @buildresult
@@ -897,7 +899,8 @@ class ProjectController < ApplicationController
       return
     end
 
-    if not @buildresult.has_element? :result
+    @buildresult = @buildresult.to_hash
+    if not @buildresult.has_key? "result"
       @buildresult_unavailable = true
       return
     end
@@ -907,10 +910,10 @@ class ProjectController < ApplicationController
     @repostatushash = Hash.new
     @packagenames = Array.new
 
-    @buildresult.each_result do |result|
+    @buildresult.elements("result") do |result|
       @resultvalue = result
-      repo = result.repository
-      arch = result.arch
+      repo = result["repository"]
+      arch = result["arch"]
 
       next unless @repo_filter.include? repo
       @repohash[repo] ||= Array.new
@@ -921,8 +924,8 @@ class ProjectController < ApplicationController
       @statushash[repo] ||= Hash.new
 
       stathash = Hash.new
-      result.each_status do |status|
-        stathash[status.package.to_s] = status
+      result.elements("status") do |status|
+        stathash[status["package"]] = status
       end
       stathash.keys.each do |p|
         @packagenames << p.to_s
@@ -934,14 +937,15 @@ class ProjectController < ApplicationController
       @repostatushash[repo] ||= Hash.new
       @repostatushash[repo][arch] = Hash.new
 
-      if result.has_attribute? :state
-        if result.has_attribute? :dirty
-          @repostatushash[repo][arch] = "outdated_" + result.state.to_s
+      if result.has_key? "state"
+        if result.has_key? "dirty"
+          @repostatushash[repo][arch] = "outdated_" + result["state"]
         else
-          @repostatushash[repo][arch] = result.state.to_s
+          @repostatushash[repo][arch] = result["state"]
         end
       end
     end
+    logger.debug @packagenames.inspect
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
@@ -990,15 +994,15 @@ class ProjectController < ApplicationController
     @project = params[:project]
     @package = params[:package]
     begin
-      @buildresult = find_cached(Buildresult, :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+      @buildresult = find_cached(Buildresult, :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes ).to_hash
     rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = Hash.new
     @statushash = Hash.new
 
-    @buildresult.each_result do |result|
-      repo = result.repository
-      arch = result.arch
+    @buildresult.elements("result") do |result|
+      repo = result["repository"]
+      arch = result["arch"]
 
       @repohash[repo] ||= Array.new
       @repohash[repo] << arch
@@ -1008,8 +1012,8 @@ class ProjectController < ApplicationController
       @statushash[repo][arch] = Hash.new
 
       stathash = @statushash[repo][arch]
-      result.each_status do |status|
-        stathash[status.package] = status
+      result.elements("status") do |status|
+        stathash[status["package"]] = status
       end
     end if @buildresult
     render :layout => false

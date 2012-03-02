@@ -29,9 +29,9 @@ class Buildresult < ActiveXML::Base
 
   def to_a
     myarray = Array.new
-    each_result do |result|
-      result.summary.each_statuscount do |sc|
-        myarray << [result.repository, result.arch, code2index(sc.code), sc.count]
+    to_hash.elements("result") do |result|
+      result["summary"].elements("statuscount") do |sc|
+        myarray << [result["repository"], result["arch"], code2index(sc["code"]), sc["count"]]
       end
     end
     myarray.sort!

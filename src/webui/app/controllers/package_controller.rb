@@ -15,7 +15,7 @@ class PackageController < ApplicationController
 
   def show
     begin 
-      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', 
+      @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', 
                                               :expires_in => 5.minutes ) unless @spider_bot
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
@@ -91,7 +91,7 @@ class PackageController < ApplicationController
     required_parameters :repository
     @repository = params[:repository]
     begin
-    @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
+    @buildresult = find_hashed(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
@@ -1016,7 +1016,7 @@ class PackageController < ApplicationController
     render :text => 'no ajax', :status => 400 and return if not request.xhr?
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
-    @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     fill_status_cache unless @buildresult.blank?
     render :partial => 'buildstatus'
   end
@@ -1024,11 +1024,11 @@ class PackageController < ApplicationController
   def rpmlint_result
     render :text => 'no ajax', :status => 400 and return unless request.xhr?
     @repo_arch_hash = {}
-    @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
-    @buildresult.each('result') do |result|
+    @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @buildresult.elements('result') do |result|
       hash_key = valid_xml_id(result.value('repository'))
       @repo_arch_hash[hash_key] ||= []
-      @repo_arch_hash[hash_key] << result.value('arch')
+      @repo_arch_hash[hash_key] << result['arch']
     end
     render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
   end
@@ -1184,10 +1184,10 @@ class PackageController < ApplicationController
     @repostatushash = Hash.new
     @failures = 0
 
-    @buildresult.each_result do |result|
+    @buildresult.elements("result") do |result|
       @resultvalue = result
-      repo = result.repository
-      arch = result.arch
+      repo = result["repository"]
+      arch = result["arch"]
 
       @repohash[repo] ||= Array.new
       @repohash[repo] << arch
@@ -1197,9 +1197,9 @@ class PackageController < ApplicationController
       @statushash[repo][arch] = Hash.new
 
       stathash = @statushash[repo][arch]
-      result.each_status do |status|
-        stathash[status.package] = status
-        if ['unresolvable', 'failed', 'broken'].include? status.code
+      result.elements("status") do |status|
+        stathash[status["package"]] = status
+        if ['unresolvable', 'failed', 'broken'].include? status["code"]
           @failures += 1
         end
       end
@@ -1208,29 +1208,29 @@ class PackageController < ApplicationController
       @repostatushash[repo] ||= Hash.new
       @repostatushash[repo][arch] = Hash.new
 
-      if result.has_attribute? :state
-        if result.has_attribute? :dirty
-          @repostatushash[repo][arch] = "outdated_" + result.state.to_s
+      if result.has_key? "state"
+        if result.has_key? "dirty"
+          @repostatushash[repo][arch] = "outdated_" + result["state"]
         else
-          @repostatushash[repo][arch] = result.state.to_s
+          @repostatushash[repo][arch] = result["state"]
         end
       end
 
       @packagenames << stathash.keys
     end
 
-    if @buildresult and !@buildresult.has_element? :result
+    if @buildresult and !@buildresult.has_key? "result"
       @buildresult = nil
     end
 
     return unless @buildresult
 
     newr = Hash.new
-    @buildresult.each_result.sort {|a,b| a.repository <=> b.repository}.each do |result|
-      repo = result.repository
-      if result.has_element? :status
+    @buildresult.elements("result").sort {|a,b| a.repository <=> b.repository}.each do |result|
+      repo = result["repository"]
+      if result.has_key? "status"
         newr[repo] ||= Array.new
-        newr[repo] << result.arch
+        newr[repo] << result["arch"]
       end
     end
 

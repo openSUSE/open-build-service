@@ -1,11 +1,11 @@
 <% if @buildresult %>
 <span class="build_result_title">Build results of <%= @project %> / <%= @package %></span>
 <table>
-<% @buildresult.each_result do |r| %>
+<% @buildresult.elements("result") do |r| %>
   <tr>
-    <td><%= r.repository %></td>
-    <td><%= r.arch %></td>
-    <%= arch_repo_table_cell(r.repository, r.arch, @package) -%>
+    <td><%= r["repository"] %></td>
+    <td><%= r["arch"] %></td>
+    <%= arch_repo_table_cell(r["repository"], r["arch"], @package) -%>
   </tr>
 <% end %>
 </table>
