@@ -5,8 +5,7 @@
   <project>openSUSE.org:openSUSE:Factory</project>
   <reponame>openSUSE_Factory</reponame>
   <repository>snapshot</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
  <distribution vendor="openSUSE" version="12.1" id="opensuse-12.1">
@@ -14,8 +13,7 @@
   <project>openSUSE.org:openSUSE:12.1</project>
   <reponame>openSUSE_12.1</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-12.1-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-12.1-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
  <distribution vendor="openSUSE" version="11.4" id="opensuse-11.4">
@@ -23,8 +21,7 @@
   <project>openSUSE.org:openSUSE:11.4</project>
   <reponame>openSUSE_11.4</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-11.4-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-11.4-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
  <distribution vendor="openSUSE" version="Tumbleweed" id="opensuse-Tumbleweed">
@@ -32,17 +29,31 @@
   <project>openSUSE.org:openSUSE:Tumbleweed</project>
   <reponame>openSUSE_Tumbleweed</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Tumbleweed-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
+ </distribution>
+ <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11-SP2">
+  <name>SUSE SLE-11 SP2</name>
+  <project>openSUSE.org:SUSE:SLE-11:SP2</project>
+  <reponame>SLE_11_SP2</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/suse.png"/>
+  <link>http://www.suse.com/</link>
+ </distribution>
+ <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11-SP1">
+  <name>SUSE SLE-11 SP1</name>
+  <project>openSUSE.org:SUSE:SLE-11:SP1</project>
+  <reponame>SLE_11_SP1</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/suse.png"/>
+  <link>http://www.suse.com/</link>
  </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11">
   <name>SUSE SLE-11</name>
   <project>openSUSE.org:SUSE:SLE-11</project>
   <reponame>SLE_11</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/suse-SLE-11-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLE-11-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/suse.png"/>
   <link>http://www.suse.com/</link>
  </distribution>
  <distribution vendor="SUSE" version="SLE-10" id="suse-SLE-10">
@@ -50,8 +61,7 @@
   <project>openSUSE.org:SUSE:SLE-10:SDK</project>
   <reponame>SLE_10_SDK</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/suse-SLE-10-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/suse-SLE-10-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/suse.png"/>
   <link>http://www.suse.com/</link>
  </distribution>
  <distribution vendor="MeeGo" version="1.2 oss" id="1.2-oss">
@@ -60,16 +70,14 @@
   <reponame>MeeGo_1.2</reponame>
   <repository>standard</repository>
   <link>http://www.meego.com/</link>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/meego-1.2-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/meego-1.2-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/meego.png"/>
  </distribution>
  <distribution vendor="Debian" version="6.0" id="debian-6.0">
   <name>Debian 6.0</name>
   <project>openSUSE.org:Debian:6.0</project>
   <reponame>Debian_6.0</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/debian-6.0-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-6.0-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/debian.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
  <distribution vendor="Debian" version="5.0" id="debian-5.0">
@@ -77,8 +85,7 @@
   <project>openSUSE.org:Debian:5.0</project>
   <reponame>Debian_5.0</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/debian-5.0-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/debian-5.0-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/debian.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
  <distribution vendor="Fedora" version="16" id="fedora-15">
@@ -86,8 +93,7 @@
   <project>openSUSE.org:Fedora:16</project>
   <reponame>Fedora_16</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/fedora.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
  <distribution vendor="Fedora" version="15" id="fedora-15">
@@ -95,8 +101,7 @@
   <project>openSUSE.org:Fedora:15</project>
   <reponame>Fedora_15</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/fedora-15-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/fedora-15-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/fedora.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
  <distribution vendor="ScientificLinux" version="ScientificLinux-6" id="ScientificLinux-RHEL-6">
@@ -104,8 +109,7 @@
   <project>openSUSE.org:ScientificLinux:6</project>
   <reponame>ScientificLinux_6</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/scientificlinux-6-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/scientificlinux-6-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/scientificlinux.png"/>
   <link>http://www.scientificlinux.org/</link>
  </distribution>
  <distribution vendor="RedHat" version="RHEL-6" id="redhat-RHEL-6">
@@ -113,8 +117,7 @@
   <project>openSUSE.org:RedHat:RHEL-6</project>
   <reponame>RHEL_6</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-6-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/redhat.png"/>
   <link>http://www.redhat.com/</link>
  </distribution>
  <distribution vendor="RedHat" version="RHEL-5" id="redhat-RHEL-5">
@@ -122,8 +125,7 @@
   <project>openSUSE.org:RedHat:RHEL-5</project>
   <reponame>RHEL_5</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-5-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-5-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/redhat.png"/>
   <link>http://www.redhat.com/</link>
  </distribution>
  <distribution vendor="RedHat" version="RHEL-4" id="redhat-RHEL-4">
@@ -131,8 +133,7 @@
   <project>openSUSE.org:RedHat:RHEL-4</project>
   <reponame>RHEL_4</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/redhat-RHEL-4-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/redhat.png"/>
   <link>http://www.redhat.com/</link>
  </distribution>
  <distribution vendor="CentOS" version="CentOS-6" id="centos-CentOS-6">
@@ -140,8 +141,7 @@
   <project>openSUSE.org:CentOS:CentOS-6</project>
   <reponame>CentOS_6</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/centos-CentOS-6-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-6-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/centos.png"/>
   <link>http://www.centos.org/</link>
  </distribution>
  <distribution vendor="CentOS" version="CentOS-5" id="centos-CentOS-5">
@@ -149,8 +149,7 @@
   <project>openSUSE.org:CentOS:CentOS-5</project>
   <reponame>CentOS_5</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/centos-CentOS-5-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/centos.png"/>
   <link>http://www.centos.org/</link>
  </distribution>
  <distribution vendor="Mandriva" version="2011" id="mandriva-2011">
@@ -158,8 +157,7 @@
   <project>openSUSE.org:Mandriva:2011</project>
   <reponame>Mandriva_2011</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2010-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2010-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/mandriva.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
  <distribution vendor="Mandriva" version="2010.1" id="mandriva-2010.1">
@@ -167,8 +165,7 @@
   <project>openSUSE.org:Mandriva:2010.1</project>
   <reponame>Mandriva_2010.1</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2010-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2010-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/mandriva.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
  <distribution vendor="Mandriva" version="2010" id="mandriva-2010">
@@ -176,8 +173,7 @@
   <project>openSUSE.org:Mandriva:2010</project>
   <reponame>Mandriva_2010</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2010-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2010-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/mandriva.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
  <distribution vendor="Mandriva" version="2009.1" id="mandriva-2009.1">
@@ -185,8 +181,7 @@
   <project>openSUSE.org:Mandriva:2009.1</project>
   <reponame>Mandriva_2009.1</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/mandriva-2009.1-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/mandriva.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="11.04" id="ubuntu-11.10">
@@ -194,8 +189,7 @@
   <project>openSUSE.org:Ubuntu:11.10</project>
   <reponame>xUbuntu_11.10</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="11.04" id="ubuntu-11.04">
@@ -203,8 +197,7 @@
   <project>openSUSE.org:Ubuntu:11.04</project>
   <reponame>xUbuntu_11.04</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="10.10" id="ubuntu-10.10">
@@ -212,8 +205,7 @@
   <project>openSUSE.org:Ubuntu:10.10</project>
   <reponame>xUbuntu_10.10</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
  <distribution vendor="Ubuntu" version="10.04" id="ubuntu-10.04">
@@ -221,8 +213,7 @@
   <project>openSUSE.org:Ubuntu:10.04</project>
   <reponame>xUbuntu_10.04</reponame>
   <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-10.04-16.png"/>
+  <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
 </distributions>
