@@ -76,6 +76,9 @@
         <attribute name="rev"/>
       </optional>
       <optional>
+        <attribute name="vrev"/>
+      </optional>
+      <optional>
         <attribute name="cicount"/>
       </optional>
       <optional>
