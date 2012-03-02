@@ -21,10 +21,16 @@
           date = new Date();
           day = date.getUTCDate().toString();
           if (day.length == 1) { day = " " + day; } // Pad single character day value
+          hours = date.getUTCHours();
+          if (hours < 10) { hours = '0' + hours; }
+          minutes = date.getUTCMinutes();
+          if (minutes < 10) { minutes = '0' + minutes; }
+          seconds = date.getUTCSeconds();
+          if (seconds < 10) { seconds = '0' + seconds; }
 
           templ = "-------------------------------------------------------------------\n" +
                   DAYS[date.getUTCDay()] + " " + MONTHS[date.getUTCMonth()] + " " + day + " " +
-                  date.getUTCHours() + ":" + date.getUTCMinutes() + ":" + date.getUTCSeconds() + " UTC " + date.getUTCFullYear() +
+                  hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
                   " - <%= @user.value('email') %>\n" +
                   "\n" + "- \n" + "\n";
 
