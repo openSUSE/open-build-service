@@ -1802,6 +1802,7 @@ sub addjobhist {
   $jobhist->{'code'} = $code;
   $jobhist->{$_} = $js->{$_} for qw{readytime starttime endtime uri workerid hostarch};
   $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
+  $jobhist->{'verifymd5'} = $info->{'verifymd5'} if $info->{'verifymd5'};
   $jobhist->{'readytime'} ||= $status->{'readytime'};	# backward compat
   mkdir_p("$reporoot/$prp/$myarch");
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);

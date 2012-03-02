@@ -763,6 +763,7 @@ our $jobhistlay = [
 	'workerid',
 	'hostarch',
 	'reason',
+	'verifymd5',
 ];
 
 our $jobhist = [
