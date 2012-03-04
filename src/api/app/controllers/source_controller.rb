@@ -1482,7 +1482,7 @@ class SourceController < ApplicationController
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
     attrs = { }
-    if MaintenanceIncident.count( :conditions => ["db_project_id = BINARY ?", pkg.db_project.id] )
+    if MaintenanceIncident.count( :conditions => ["db_project_id = ?", pkg.db_project.id] )
       # this is a maintenance incident project, the sub project name is the maintenance ID
       attrs[:incident] = pkg.db_project.name.gsub(/.*:/, '')
     end
