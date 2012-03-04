@@ -1,4 +1,4 @@
-<% @pagetitle = "Sources of #{@package} (Project #{@project})" %>
+<% @pagetitle = "Sources of #{@package} (Project #{@project.name})" %>
 <% package_bread_crumb 'Sources' -%>
 
 <%= render :partial => "tabs" %>
@@ -35,7 +35,7 @@
   } );
 <% end %>
 
-<%= render :partial => 'links' if @package.linkinfo %>
+<%= render :partial => 'links' if (@package.linkinfo && !@package.linkinfo.has_attribute?('error')) %>
 
 <!-- Service list -->
 
@@ -46,9 +46,9 @@
 <% if @package.linkinfo %>
   <span style="font-size: small; font-weight: normal">
     <% if @expand && @expand.to_s == "1" %>
-      <%= link_to '(show unmerged sources)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "0" %>
+      <%= link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :files, :rev => params[:rev], :expand => "0" %>
     <% else %>
-      <%= link_to '(show merged sources derived from linked package)', :project => @project, :package => @package, :action => :files, :rev => params[:rev], :expand => "1" %>
+      <%= link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :files, :rev => params[:rev], :expand => "1" %>
     <% end %>
   </span>
 <% end %>

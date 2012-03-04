@@ -1,7 +1,6 @@
 
 <!-- Links -->
 <div id="package_link">
-  <% if @package.linkinfo %>
     <h3>Link</h3>
     <p>
       <%- linked_project = @package.linkinfo.project -%>
@@ -31,6 +30,5 @@
           :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>.
       <% end%>
     </p>
-  <% end %>
 </div>
 

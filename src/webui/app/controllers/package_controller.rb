@@ -126,7 +126,7 @@ class PackageController < ApplicationController
     Service.free_cache(:all) if discard_cache?
     @srcmd5   = params[:srcmd5]
     @revision = params[:rev]
-    @current_rev = Package.current_rev(@project, @package.name)
+    @current_rev = Package.current_rev(@project.name, @package.name)
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     @expand = 0 if @spider_bot
@@ -250,7 +250,7 @@ class PackageController < ApplicationController
   def set_file_details
     if not @revision and not @srcmd5
       # on very first page load only
-      @revision = Package.current_rev(@project, @package)
+      @revision = Package.current_rev(@project.name, @package.name)
     end
     if @srcmd5
       @files = @package.files(@srcmd5, @expand)
