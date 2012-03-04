@@ -12,4 +12,20 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
       errors.add "User already has this role"
     end
   end
+
+  # this is to speed up secure DbProject.find
+  def self.forbidden_project_ids
+       hash = Hash.new
+       ProjectUserRoleRelationship.find_by_sql("SELECT ur.db_project_id, ur.bs_user_id from flags f, 
+                project_user_role_relationships ur where f.flag = 'access' and ur.db_project_id = f.db_project_id").each do |r|
+	       hash[r.db_project_id.to_i] ||= Hash.new
+	       hash[r.db_project_id][r.bs_user_id] = 1
+       end
+       ret = Array.new
+       userid = User.current ? User.currentID : User.nobodyID
+       hash.each do |project_id, users|
+	       ret << project_id unless users[userid]
+       end
+       ret
+  end
 end

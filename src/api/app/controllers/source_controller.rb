@@ -63,9 +63,7 @@ class SourceController < ApplicationController
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<directory>\n"
-    dir.each do |item|
-      output << "  <entry name=\"#{item.to_xs}\"/>\n"
-    end
+    output << dir.map { |item| "  <entry name=\"#{item.fast_xs}\"/>\n" }.join
     output << "</directory>\n"
     render :text => output, :content_type => "text/xml"
     return
@@ -110,8 +108,13 @@ class SourceController < ApplicationController
             end
             pass_to_backend
           else
-            @dir = Package.find :all, :project => project_name
-            render :text => @dir.dump_xml, :content_type => "text/xml"
+            prj = DbProject.find_by_name project_name
+            dir = prj.db_packages.map { |i| i.name }.sort
+            output = String.new
+            output << "<directory count='#{dir.length}'>\n"
+            output << dir.map { |item| "  <entry name=\"#{item.fast_xs}\"/>\n" }.join
+            output << "</directory>\n"
+            render :text => output, :content_type => "text/xml"
           end
         end
       end

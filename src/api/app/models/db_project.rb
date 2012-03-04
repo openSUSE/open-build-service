@@ -188,23 +188,19 @@ class DbProject < ActiveRecord::Base
           # limit to projects which have no "access" flag, except user has any role inside
           # FIXME3.0: we should limit this to maintainer and reader role only ?
           #            
-          options[:joins] = "" if options[:joins].nil?
-          options[:joins] += " LEFT JOIN flags f ON f.db_project_id = db_projects.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag
-          options[:joins] += " LEFT OUTER JOIN project_user_role_relationships ur ON ur.db_project_id = db_projects.id"
-          options[:group] = "db_projects.id" unless options[:group] # is creating a DISTINCT select to have uniq results
-
-          cond = "((f.flag = 'access' AND ur.bs_user_id = #{User.current ? User.currentID : User.nobodyID}) OR ISNULL(f.flag))"
+	  fprjs = ProjectUserRoleRelationship.forbidden_project_ids
+          cond = "(db_projects.id not in (#{fprjs.join(',')}))" 
           if options[:conditions].nil?
-            options[:conditions] = cond
+            options[:conditions] = cond if cond
           else
             if options[:conditions].class == String
               options[:conditions] = options[:conditions] # TDWTF ?!?
-            elsif options[:conditions].class == Hash
+            elsif options[:conditions].class == Hash and cond
               wacky = ''
               options[:conditions].keys.each {|k| wacky += ' AND (' + k.to_s + ')'}
               options[:conditions] = cond + wacky
             else
-              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")"
+              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")" if cond
             end
           end
         end

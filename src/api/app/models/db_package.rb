@@ -80,17 +80,16 @@ class DbPackage < ActiveRecord::Base
           # limit to projects which have no "access" flag, except user has any role inside
           # FIXME3.0: we should limit this to maintainer and reader role only ?
           #
-          options[:joins] += " LEFT JOIN flags f ON f.db_project_id = prj.id AND (ISNULL(f.flag) OR flag = 'access')" # filter projects with or without access flag
-          options[:joins] += " LEFT JOIN project_user_role_relationships ur ON ur.db_project_id = prj.id"
 
-          cond = "((f.flag = 'access' AND ur.bs_user_id = #{User.current ? User.currentID : User.nobodyID}) OR ISNULL(f.flag))"
+	  fprjs = ProjectUserRoleRelationship.forbidden_project_ids
+          cond = "(prj.id not in (#{fprjs.join(',')}))" unless fprjs.blank?
           if options[:conditions].nil?
-            options[:conditions] = cond
+            options[:conditions] = cond if cond
           else
             if options[:conditions].class == String
               options[:conditions] = options[:conditions]
             else
-              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")"
+              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")" if cond
             end
           end
         end
