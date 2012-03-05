@@ -15,6 +15,7 @@ Changes:
 ========
 
 * Added new default targets for SUSE Linux Enterprise SP1 and SP2 builds
+* Removed RHEL-4 default target (EOL)
 
 Bugfixes:
 =========

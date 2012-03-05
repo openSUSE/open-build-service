@@ -128,14 +128,6 @@
   <icon url="https://static.opensuse.org/distributions/logos/redhat.png"/>
   <link>http://www.redhat.com/</link>
  </distribution>
- <distribution vendor="RedHat" version="RHEL-4" id="redhat-RHEL-4">
-  <name>RedHat RHEL-4</name>
-  <project>openSUSE.org:RedHat:RHEL-4</project>
-  <reponame>RHEL_4</reponame>
-  <repository>standard</repository>
-  <icon url="https://static.opensuse.org/distributions/logos/redhat.png"/>
-  <link>http://www.redhat.com/</link>
- </distribution>
  <distribution vendor="CentOS" version="CentOS-6" id="centos-CentOS-6">
   <name>CentOS CentOS-6</name>
   <project>openSUSE.org:CentOS:CentOS-6</project>
