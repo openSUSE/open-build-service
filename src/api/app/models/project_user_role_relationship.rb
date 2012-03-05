@@ -3,6 +3,8 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
   belongs_to :user, :foreign_key => 'bs_user_id'
   belongs_to :role
 
+  @@project_user_cache = nil
+
   def validate_on_create
     unless self.user
       errors.add "Can not assign role to nonexistent user"
@@ -15,17 +17,27 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
 
   # this is to speed up secure DbProject.find
   def self.forbidden_project_ids
-       hash = Hash.new
-       ProjectUserRoleRelationship.find_by_sql("SELECT ur.db_project_id, ur.bs_user_id from flags f, 
+       unless @@project_user_cache
+	  @@project_user_cache = Hash.new
+          ProjectUserRoleRelationship.find_by_sql("SELECT ur.db_project_id, ur.bs_user_id from flags f, 
                 project_user_role_relationships ur where f.flag = 'access' and ur.db_project_id = f.db_project_id").each do |r|
-	       hash[r.db_project_id.to_i] ||= Hash.new
-	       hash[r.db_project_id][r.bs_user_id] = 1
+	       @@project_user_cache[r.db_project_id.to_i] ||= Hash.new
+	       @@project_user_cache[r.db_project_id][r.bs_user_id] = 1
+  	  end
+	  @@project_user_cache
        end
        ret = Array.new
        userid = User.current ? User.currentID : User.nobodyID
-       hash.each do |project_id, users|
+       @@project_user_cache.each do |project_id, users|
 	       ret << project_id unless users[userid]
        end
        ret
   end
+
+  def save
+     logger.debug "ProjectUserRoleRelationship saved!"
+     @@project_user_cache = nil 
+     super
+  end
+
 end

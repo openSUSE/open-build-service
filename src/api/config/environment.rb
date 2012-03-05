@@ -52,6 +52,7 @@ Rails::Initializer.run do |config|
   config.gem 'ci_reporter', :lib => false # ci_reporter generates XML reports for Test::Unit
   config.gem 'rdoc'
   config.gem 'xmlhash'
+  config.gem 'fast_xs'
 
   # default secret
   secret = "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"

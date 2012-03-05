@@ -7,7 +7,7 @@ class AttribNamespace < ActiveRecord::Base
 
   class << self
     def list_all
-      find :all
+      find :all, :select => "id,name"
     end
   end
 
@@ -33,9 +33,10 @@ class AttribNamespace < ActiveRecord::Base
   end
 
   def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
-    if attrib_namespace_modifiable_bies.length > 0
+    abies = attrib_namespace_modifiable_bies.find(:all, :include => [:user, :group])
+    if abies.length > 0
       node.namespace(:name => self.name) do |an|
-         attrib_namespace_modifiable_bies.each do |mod_rule|
+         abies.each do |mod_rule|
            p={}
            p[:user] = mod_rule.user.login if mod_rule.user
            p[:group] = mod_rule.group.title if mod_rule.group

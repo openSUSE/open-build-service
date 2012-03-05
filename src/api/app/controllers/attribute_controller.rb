@@ -14,7 +14,7 @@ class AttributeController < ApplicationController
     valid_http_methods :get
 
     if params[:namespace]
-      if not AttribNamespace.find_by_name( params[:namespace] )
+      if not AttribNamespace.find_by_name( params[:namespace], :select => "id,name" )
         render_error :status => 400, :errorcode => 'unknown_namespace',
           :message => "Attribute namespace does not exist: #{params[:namespace]}"
         return
@@ -46,7 +46,7 @@ class AttributeController < ApplicationController
     namespace = params[:namespace]
 
     if request.get?
-      an = AttribNamespace.find_by_name( namespace )
+      an = AttribNamespace.find_by_name( namespace, :select => "id,name" )
       if an
         render :text => an.render_axml, :content_type => 'text/xml'
       else
@@ -121,7 +121,7 @@ class AttributeController < ApplicationController
     end
 
     if request.get?
-      at = AttribType.find( :first, :joins => ans, :conditions=>{:name=>name} )
+      at = ans.attrib_types.find( :first, :conditions=>{:name=>name} )
       if at
         render :text => at.render_axml, :content_type => 'text/xml'
       else

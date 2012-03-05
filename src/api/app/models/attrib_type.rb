@@ -12,9 +12,9 @@ class AttribType < ActiveRecord::Base
   class << self
     def list_all(namespace=nil)
       if namespace
-        find :all, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["an.name = BINARY ?", namespace]
+        find :all, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["an.name = BINARY ?", namespace], :select => "attrib_types.id,attrib_types.name"
       else
-        find :all
+        find :all, :select => "id,name"
       end
     end
 
@@ -69,8 +69,9 @@ class AttribType < ActiveRecord::Base
          attr.count self.value_count
        end
 
-       if attrib_type_modifiable_bies.length > 0
-         attrib_type_modifiable_bies.each do |mod_rule|
+       abies = attrib_type_modifiable_bies.find(:all, :include => [:user, :group, :role])
+       if abies.length > 0
+         abies.each do |mod_rule|
            p={}
            p[:user] = mod_rule.user.login if mod_rule.user 
            p[:group] = mod_rule.group.title if mod_rule.group 

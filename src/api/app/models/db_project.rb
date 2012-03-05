@@ -118,17 +118,8 @@ class DbProject < ActiveRecord::Base
       return false if dbp.nil?
       # check for 'access' flag
 
-      # same cache as in public controller
-      key = "public_project:" + dbp.name
-      public_allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
-        flags_set = dbp.flags.count :conditions => 
-            ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
-        flags_set == 0
-      end
-
-      # Do we need a per user check ?
-      return true if public_allowed
       return true if User.currentAdmin
+      return true unless ProjectUserRoleRelationship.forbidden_project_ids.include? dbp.id
 
       # simple check for involvement --> involved users can access
       # dbp.id, User.currentID
@@ -233,8 +224,9 @@ class DbProject < ActiveRecord::Base
     # should be always used when a project is required
     # The return value is either a DbProject for local project or an xml 
     # array for a remote project
-    def get_by_name(name)
-      dbp = find :first, :conditions => ["name = BINARY ?", name]
+    def get_by_name(name, opts = {})
+      opts[:conditions] = ["name = BINARY ?", name]
+      dbp = find :first, opts
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ":" + remote_name if dbp
@@ -261,8 +253,9 @@ class DbProject < ActiveRecord::Base
 
     # to be obsoleted, this function is not throwing exceptions on problems
     # use get_by_name or exists_by_name instead
-    def find_by_name(name)
-      dbp = find :first, :conditions => ["name = BINARY ?", name]
+    def find_by_name(name, opts = {})
+      opts[:conditions] = ["name = BINARY ?", name]
+      dbp = find :first, opts
       return if dbp.nil?
       return unless check_access?(dbp)
       return dbp
@@ -312,9 +305,9 @@ class DbProject < ActiveRecord::Base
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
         if skip_access
           # hmm calling a private class method is not the best idea..
-          lpro = find_initial :conditions => ["name = BINARY ?", local_project]
+          lpro = find_initial :conditions => ["name = BINARY ?", local_project], :select => "id,name,remoteurl"
         else
-          lpro = DbProject.find_by_name local_project
+          lpro = DbProject.find_by_name(local_project, :select => "id,name,remoteurl")
         end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
@@ -1062,7 +1055,7 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
+      repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)", :include => [:release_targets, :path_elements, :architectures] )
       repos.each do |repo|
         params = {}
         params[:name]        = repo.name
@@ -1077,7 +1070,7 @@ class DbProject < ActiveRecord::Base
             params[:trigger]    = rt.trigger    unless rt.trigger.blank?
             r.releasetarget( params )
           end
-          repo.path_elements.each do |pe|
+          repo.path_elements.find(:all, :include => [:link]).each do |pe|
             if pe.link.remote_project_name
               project_name = pe.link.db_project.name+":"+pe.link.remote_project_name
             else
@@ -1108,7 +1101,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<project name='#{name.to_xs}'/>"
+    return "<project name='#{name.fast_xs}'/>"
   end
 
 

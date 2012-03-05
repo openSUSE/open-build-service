@@ -45,6 +45,7 @@ CREATE TABLE `attrib_namespace_modifiable_bies` (
   UNIQUE KEY `attrib_namespace_user_role_all_index` (`attrib_namespace_id`,`bs_user_id`,`bs_group_id`),
   KEY `bs_user_id` (`bs_user_id`),
   KEY `bs_group_id` (`bs_group_id`),
+  KEY `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_3` FOREIGN KEY (`bs_group_id`) REFERENCES `groups` (`id`)
@@ -243,7 +244,9 @@ CREATE TABLE `downloads` (
   `mtype` varchar(255) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `db_project_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_downloads_on_db_project_id` (`db_project_id`),
+  KEY `index_downloads_on_architecture_id` (`architecture_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `flags` (
@@ -351,7 +354,9 @@ CREATE TABLE `maintenance_incidents` (
   `request` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_maintenance_incidents_on_db_project_id` (`db_project_id`),
+  KEY `index_maintenance_incidents_on_maintenance_db_project_id` (`maintenance_db_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `messages` (
@@ -448,7 +453,8 @@ CREATE TABLE `release_targets` (
   `target_repository_id` int(11) NOT NULL,
   `trigger` enum('finished','allsucceeded','maintenance') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `repository_id_index` (`repository_id`)
+  KEY `repository_id_index` (`repository_id`),
+  KEY `index_release_targets_on_target_repository_id` (`target_repository_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `repositories` (
@@ -852,6 +858,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120217114303');
 INSERT INTO schema_migrations (version) VALUES ('20120220114304');
 
 INSERT INTO schema_migrations (version) VALUES ('20120223105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20120304205014');
 
 INSERT INTO schema_migrations (version) VALUES ('20120313113554');
 

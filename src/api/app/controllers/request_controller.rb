@@ -443,7 +443,7 @@ class RequestController < ApplicationController
               unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=false)
                 if action.value("type") == "maintenance_release"
                   newPackages << pkg
-                  pkg.db_project.repositories.each do |repo|
+                  pkg.db_project.repositories.find(:all, :include => [:release_targets]).each do |repo|
                     repo.release_targets.each do |rt|
                       newTargets << rt.target_repository.db_project.name
                     end
@@ -459,7 +459,7 @@ class RequestController < ApplicationController
             # is this package source going to a project which is specified as release target ?
             if action.value("type") == "maintenance_release"
               found = nil
-              pkg.db_project.repositories.each do |repo|
+              pkg.db_project.repositories.find(:all, :include => [:release_targets]).each do |repo|
                 repo.release_targets.each do |rt|
                   if rt.target_repository.db_project.name == tprj
                      found = 1
@@ -656,7 +656,7 @@ class RequestController < ApplicationController
         if action.value("type") == "maintenance_release"
           # get sure that the releasetarget definition exists or we release without binaries
           prj = DbProject.get_by_name(action.source.project)
-          prj.repositories.each do |repo|
+          prj.repositories.find(:all, :include => [:release_targets]).each do |repo|
             unless repo.release_targets.size > 0
               render_error :status => 400, :errorcode => "repository_without_releasetarget",
                 :message => "Release target definition is missing in #{prj.name} / #{repo.name}"

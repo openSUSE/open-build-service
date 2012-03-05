@@ -174,7 +174,7 @@ class User < ActiveRecord::Base
   #####################
 
   def is_admin?
-    roles.include? Role.find_by_title("Admin")
+    !roles.find_by_title("Admin", :select => "roles.id").nil?
   end
 
   def is_in_group?(group)
@@ -264,9 +264,9 @@ class User < ActiveRecord::Base
     end
 
     return true  if is_admin?
-    return false if object.attrib_namespace_modifiable_bies.length <= 0
 
-    object.attrib_namespace_modifiable_bies.each do |mod_rule|
+    abies = object.attrib_namespace_modifiable_bies.find(:all, :include => [:user, :group])
+    abies.each do |mod_rule|
       next if mod_rule.user and mod_rule.user != self
       next if mod_rule.group and not is_in_group? mod_rule.group
       return true
@@ -294,8 +294,9 @@ class User < ActiveRecord::Base
     return true if is_admin?
 
     # check modifiable_by rules
-    if atype.attrib_type_modifiable_bies.length > 0
-      atype.attrib_type_modifiable_bies.each do |mod_rule|
+    abies = atype.attrib_type_modifiable_bies.find(:all, :include => [:user, :group, :role])
+    if abies.length > 0
+      abies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
         next if mod_rule.group and not is_in_group? mod_rule.group
         next if mod_rule.role and not has_local_role?(mod_rule.role, object)
