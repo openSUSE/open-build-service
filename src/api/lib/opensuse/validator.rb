@@ -54,15 +54,17 @@ module ActionController
         opt = params()
         opt[:method] = request.method.to_s
         opt[:type] = "response"
-        logger.debug "Validate XML response: #{response}"
-        if response.body.respond_to? :call
+        ms = Benchmark.ms do
+         if response.body.respond_to? :call
           sio = StringIO.new()
           response.body.call(nil, sio) # send_file can return a block that takes |response, output|
           str = sio.string
-        else
+         else
           str = response.body.to_s
-        end
-        Suse::Validator.validate(opt, str)
+         end
+         Suse::Validator.validate(opt, str)
+	end
+	logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
       end
     end
 
