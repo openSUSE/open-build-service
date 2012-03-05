@@ -39,9 +39,14 @@ if [ -n "$OBS_BACKENDCODE_DIR" ]; then
 else
 	obsdir=/usr/lib/obs/server/
 fi
+
+if [ -z "$OBS_SERVICE_TMP" ]; then
+        OBS_SERVICE_TMP="/var/tmp/obs_service"
+fi
+
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
-workdir="/var/tmp/obs_service"
+workdir="$OBS_SERVICE_TMP"
 
 rc_reset
 case "$1" in

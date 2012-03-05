@@ -1,7 +1,3 @@
-#
-# NOTE: all these options can be also declared in /etc/buildhost.config on each worker differently.
-#
-
 ## Path:        Applications/OBS
 ## Description: define for which architectures the packages should get build
 ## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparcv8|sparcv9|sparcv9v|sparc64|sparc64v|mips|mips64|mipsel|mips64el|armv4l|armv5el|armv6el|armv7el|armv7hl|armv8el|sh4)+)
@@ -20,7 +16,8 @@
 # If you also have workers on this host, each worker can also need 1
 # GB RAM in some known cases (e.g. compiling gcc)
 #
-OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 armv7l"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
+OBS_SCHEDULER_ARCHITECTURES="armv4l armv5l armv6l armv7l armv5el armv6el armv7el armv7hl armv8el i586 ia64 mips mips64 mipsel mips64el ppc ppc64 s390 s390x sh4 sparc sparc64 x86_64"
 
 ## Path:        Applications/OBS
 ## Description: The OBS backend code directory
@@ -30,27 +27,8 @@ OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 armv7l"
 #
 # An empty dir will lead to the fall back directory, typically /usr/lib/obs/server/
 #
-OBS_BACKENDCODE_DIR=""
-
-## Path:        Applications/OBS
-## Description: The base for OBS communication directory
-## Type:        string
-## Default:     ""
-## Config:      OBS
-#
-# An empty dir will lead to the fall back directory, typically /srv/obs/run
-#
-OBS_RUN_DIR=""
-
-## Path:        Applications/OBS
-## Description: The base for OBS logging directory
-## Type:        string
-## Default:     ""
-## Config:      OBS
-#
-# An empty dir will lead to the fall back directory, typically /srv/obs/log
-#
-OBS_LOG_DIR=""
+#OBS_BACKENDCODE_DIR=""
+OBS_BACKENDCODE_DIR="/usr/lib/obs/server/"
 
 ## Path:        Applications/OBS
 ## Description: The base directory for OBS
@@ -60,17 +38,19 @@ OBS_LOG_DIR=""
 #
 # An empty dir will lead to the fall back directory, typically /srv/obs
 #
-OBS_BASE_DIR=""
+#OBS_BASE_DIR=""
+OBS_BASE_DIR="/srv/obs"
 
 ## Path:        Applications/OBS
-## Description: The tmp dir for source service
+## Description: The base directory for OBS
 ## Type:        string
 ## Default:     ""
 ## Config:      OBS
 #
 # An empty dir will lead to the fall back directory, /var/tmp/obs_service
 #
-OBS_SERVICE_TMP=""
+#OBS_SERVICE_TMP=""
+OBS_SERVICE_TMP="/tmp/servicetmp"
 
 ## Path:        Applications/OBS
 ## Description: Automatically setup api and webui for OBS server, be warned, this will replace config files !
@@ -93,7 +73,10 @@ OBS_API_AUTOSETUP="no"
 #
 # An empty setting will point to localhost:5352 by default
 #
-OBS_SRC_SERVER=""
+#OBS_SRC_SERVER=""
+#OBS_SRC_SERVER="obsserver.genivi.lan:6362"
+OBS_SRC_SERVER="mars.d-atasoft.com:6362"
+#OBS_SRC_SERVER="mercury.d-atasoft.com:6362"
 
 ## Path:        Applications/OBS
 ## Description: define repository server host to be used
@@ -103,7 +86,10 @@ OBS_SRC_SERVER=""
 #
 # An empty setting will point to localhost:5252 by default
 #
-OBS_REPO_SERVERS=""
+#OBS_REPO_SERVERS=""
+#OBS_REPO_SERVERS="obsserver.genivi.lan:6262"
+OBS_REPO_SERVERS="mars.d-atasoft.com:6262"
+#OBS_REPO_SERVERS="mercury.d-atasoft.com:6262"
 
 ## Path:        Applications/OBS
 ## Description: define number of build instances
@@ -113,7 +99,15 @@ OBS_REPO_SERVERS=""
 #
 # 0 instances will automatically use the number of CPU's
 #
-OBS_WORKER_INSTANCES="0"
+#OBS_WORKER_INSTANCES="0"
+#OBS_WORKER_INSTANCES="96"
+#OBS_WORKER_INSTANCES="64"
+#OBS_WORKER_INSTANCES="32"
+#OBS_WORKER_INSTANCES="24"
+OBS_WORKER_INSTANCES="16"
+#OBS_WORKER_INSTANCES="12"
+#OBS_WORKER_INSTANCES="8"
+#OBS_WORKER_INSTANCES="6"
 
 ## Path:        Applications/OBS
 ## Description: The base directory, where sub directories for each worker will get created
@@ -122,7 +116,8 @@ OBS_WORKER_INSTANCES="0"
 ## Config:      OBS
 #
 #
-OBS_WORKER_DIRECTORY=""
+#OBS_WORKER_DIRECTORY=""
+OBS_WORKER_DIRECTORY="/tmp/"
 
 ## Path:        Applications/OBS
 ## Description: The base for port numbers used by worker instances
@@ -142,7 +137,9 @@ OBS_WORKER_PORTBASE="0"
 #
 # this maps usually to "make -j1" during build
 #
-OBS_WORKER_JOBS="1"
+#OBS_WORKER_JOBS="1"
+#OBS_WORKER_JOBS="2"
+#OBS_WORKER_JOBS="4"
 
 ## Path:        Applications/OBS
 ## Description: Run in test mode (build results will be ignore, no job blocking)
@@ -153,13 +150,36 @@ OBS_WORKER_JOBS="1"
 OBS_WORKER_TEST_MODE=""
 
 ## Path:        Applications/OBS
+## Description: The base for OBS communucation directory
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# This is /var/run/obs by default
+#
+#OBS_RUN_DIR=""
+OBS_RUN_DIR="/srv/obs/run"
+
+## Path:        Applications/OBS
+## Description: The base for OBS logging directory
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# This is /var/log/obs by default
+#
+#OBS_LOG_DIR=""
+OBS_LOG_DIR="/srv/obs/log"
+
+## Path:        Applications/OBS
 ## Description: Register in SLP server
 ## Type:        ("yes" | "no")
 ## Default:     "yes"
 ## Config:      OBS
 #
 #
-OBS_USE_SLP="yes"
+#OBS_USE_SLP="yes"
+OBS_USE_SLP="no"
 
 ## Path:        Applications/OBS
 ## Description: Use a common cache directory for downloaded packages
@@ -171,6 +191,7 @@ OBS_USE_SLP="yes"
 # removed there !
 # 
 OBS_CACHE_DIR=""
+#OBS_CACHE_DIR="/tmp/workercache"
 
 ## Path:        Applications/OBS
 ## Description: Defines the package cache size
@@ -181,6 +202,7 @@ OBS_CACHE_DIR=""
 # Set the size to 50% of the maximum usable size of this partition
 #
 OBS_CACHE_SIZE=""
+#OBS_CACHE_SIZE="16384"
 
 ## Path:        Applications/OBS
 ## Description: Defines the nice level of running workers
@@ -203,7 +225,8 @@ OBS_WORKER_NICE_LEVEL=18
 ## Config:      OBS
 #
 #
-OBS_VM_TYPE="auto"
+#OBS_VM_TYPE="auto"
+OBS_VM_TYPE="none"
 
 ## Path:        Applications/OBS
 ## Description: Set kernel used by worker (kvm)
@@ -212,7 +235,8 @@ OBS_VM_TYPE="auto"
 ## Config:      OBS
 #
 #
-OBS_VM_KERNEL="none"
+#OBS_VM_KERNEL="none"
+OBS_VM_KERNEL="/boot/vmlinuz-2.6.37.6-0.7-desktop"
 
 ## Path:        Applications/OBS
 ## Description: Set initrd used by worker (kvm)
@@ -227,16 +251,18 @@ OBS_VM_KERNEL="none"
 #
 # a working initrd file which includes virtio and binfmt_misc for OBS in order to work fine
 #
-OBS_VM_INITRD="none"
+#OBS_VM_INITRD="none"
+OBS_VM_INITRD="/boot/initrd-2.6.37.6-0.7-desktop-obs_worker"
 
 ## Path:        Applications/OBS
-## Description: Autosetup for XEN/KVM/TMPFS disk (root) - Filesize in MB
+## Description: Autosetup for XEN/KVM disk (root) - Filesize in MB
 ## Type:        integer
 ## Default:     "4096"
 ## Config:      OBS
 #
 #
-OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="4096"
+#OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="4096"
+OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="16384"
 
 ## Path:        Applications/OBS
 ## Description: Autosetup for XEN/KVM disk (swap) - Filesize in MB
@@ -245,7 +271,9 @@ OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="4096"
 ## Config:      OBS
 #
 #
-OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
+#OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
+#OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="2048"
+OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="4096"
 
 ## Path:        Applications/OBS
 ## Description: Filesystem to use for autosetup {none,ext3}=ext3, ext4=ext4
@@ -254,7 +282,18 @@ OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 ## Config:      OBS
 #
 #
-OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
+#OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
+OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext4"
+
+## Path:        Applications/OBS
+## Description: Remove root and swap filesystem right after build
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+#OBS_VM_DISK_CLEAN_POST=""
+OBS_VM_DISK_CLEAN_POST="yes"
 
 ## Path:        Applications/OBS
 ## Description: Enable build in memory
@@ -273,7 +312,9 @@ OBS_VM_USE_TMPFS=""
 ## Config:      OBS
 #
 #
-OBS_INSTANCE_MEMORY=""
+#OBS_INSTANCE_MEMORY=""
+#OBS_INSTANCE_MEMORY="2048"
+OBS_INSTANCE_MEMORY="4096"
 
 ## Path:        Applications/OBS
 ## Description: Enable storage auto configuration
@@ -343,4 +384,3 @@ OBS_ROOT_SSHD_KEY_URL=""
 # This is a hook for doing special things in your setup at boot time
 #
 OBS_WORKER_SCRIPT_URL=""
-
