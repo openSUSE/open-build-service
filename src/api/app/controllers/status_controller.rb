@@ -369,7 +369,7 @@ class StatusController < ApplicationController
           binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
           binaries.each_binary do |f|
             # match to the repository filename
-            m = re_filename.match(f.value(:filename)) 
+            m = re_filename.match(f.value(:filename))
             next unless m
             filename_file = m[1]
             filename_version = m[2]
@@ -382,7 +382,7 @@ class StatusController < ApplicationController
             begin
               md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
             rescue ActiveXML::Transport::NotFoundError
-              if filename_arch != arch
+              if filename_arch != arch && filename_arch != 'src'
                 filename_arch = arch.to_s
                 retry
               end
