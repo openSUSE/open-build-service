@@ -1,3 +1,7 @@
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+<%= javascript_include_tag 'jquery.autocomplete.pack' %>
 <%= render :partial => "package/tabs" %>
 
 <% form_tag({:action => "save"}, :id => "patchinfo")  do %>
@@ -11,8 +15,13 @@
       </colgroup>
       <tr>
         <th>Packager: </th>
-        <td>
-	<%= text_field_tag('packager', @packager)%>
+	<td>
+          <%= text_field_tag 'packager', @packager %>
+          <% javascript_tag do %>
+            $("#packager").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
+          <% end %>
+
+	<%#= text_field_tag('packager', @packager)%>
         </td>
       </tr>
       <tr>
