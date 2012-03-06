@@ -22,7 +22,7 @@
 
 <div class="grid_16 box box-shadow alpha omega">
   <div class="grid_10 alpha">
-    <div class="box show_left show_bottom">
+    <div class="box show_left">
       <div class="grid_7 alpha omega">
         <h3><%= @pagetitle %> (<%= @state %>)</h3>
         <% if @req.value(:description).empty? %>
@@ -270,10 +270,10 @@
           </div>
 
           <div class="grid_6 omega">
-            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index, :show_bottom => true} %>
+            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
 
             <% if sourcediff[:issues].length > 0 %>
-              <div class="box show_right show_bottom">
+              <div class="box show_right">
                 <div class="box-header aligncenter"><b>Mentioned Issues (<%= sourcediff[:issues].length %>)</b></div>
                 <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
               </div>

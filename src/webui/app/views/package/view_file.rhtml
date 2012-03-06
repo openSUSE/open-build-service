@@ -8,7 +8,7 @@
   <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', :project => @project, :package => @package, :file => @filename) %></p>
 <% end %>
 
-<div style="margin-left: 15px; margin-right: 15px;">
+<p>
   <% if @addeditlink %>
     <% if @filename.ends_with?('.changes') %>
       <%# Rather hacky attempt to provide 'osc vc'-like functionality, would benefit of proper 'snippet' support for editor: %>
@@ -47,4 +47,4 @@
   <% else %>
     <%= render :partial => "shared/editor", :locals => {:text => @file, :mode => guess_code_class(@filename), :read_only => true} %>
   <% end %>
-</div>
+</p>

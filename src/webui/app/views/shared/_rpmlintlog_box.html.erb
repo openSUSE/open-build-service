@@ -1,7 +1,6 @@
 <% index ||= '' %>
-<% show_bottom ||= false %>
 
-<div class="box show_right<%= 'show_bottom' if show_bottom %>">
+<div class="box show_right">
   <div class="box-header aligncenter">
     <b>Rpmlint Output</b>
     <%= link_to_function(image_tag('reload.png', :alt => 'Reload', :title => 'Reload'), 'update_rpmlintlog()', :id => "rpmlintlog_reload_#{index}") %>

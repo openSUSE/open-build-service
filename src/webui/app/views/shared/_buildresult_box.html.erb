@@ -1,5 +1,4 @@
 <% index ||= '' %>
-<% show_bottom ||= false %>
 
 <% if defined?(package) %>
   <% controller = 'package' %>
@@ -7,7 +6,7 @@
   <% controller = 'project' %>
 <% end %>
 
-<div class="box show_right<%= ' show_bottom' if show_bottom %>">
+<div class="box show_right">
   <div class="box-header header-tabs">
     <ul id="result_select_<%= index %>">
       <li class="selected">

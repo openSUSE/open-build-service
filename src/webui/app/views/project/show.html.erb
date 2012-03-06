@@ -4,7 +4,7 @@
 <%= render :partial => 'tabs' %>
 
 <div class="grid_10 alpha">
-  <div class="box show_left show_bottom">
+  <div class="box show_left">
     <div class="grid_7 alpha omega">
       <h3 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
       <%= render :partial => 'shared/description', :locals => {:description => @project.description.text} %>
