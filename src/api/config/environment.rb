@@ -86,6 +86,10 @@ Rails::Initializer.run do |config|
   end unless Rails.env.test?
 end
 
+# we do not mass assignment features. It should be no problem to have it,
+# but to be on the safe side for a potential security problem we disable it by default.
+ActiveRecord::Base.send(:attr_accessible, nil)
+
 # rake gems:install doesn't load initializers, load options manually if CONFIG is undefined
 require File.join(File.dirname(__FILE__), 'initializers', 'options') unless defined?(CONFIG)
 
