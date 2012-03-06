@@ -1036,7 +1036,17 @@ class PackageController < ApplicationController
   def rpmlint_log
     begin
       rpmlint_log = frontend.get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-      render :text => escape_and_transform_nonprintables(rpmlint_log)
+      res = ''
+      escape_and_transform_nonprintables(rpmlint_log).lines.each do |line|
+        if line.match(/\w+(?:\.\w+)+: W: /)
+          res += "<span style=\"color: olive;\">#{line}</span>"
+        elsif line.match(/\w+(?:\.\w+)+: E: /)
+          res += "<span style=\"color: red;\">#{line}</span>"
+        else
+          res += line
+        end
+      end
+      render :text => res
     rescue ActiveXML::Transport::NotFoundError
       render :text => 'No rpmlint log'
     end
