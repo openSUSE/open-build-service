@@ -111,7 +111,7 @@ sub createreq {
     $path = $uri unless $uri =~ /^https:/;
   }
   $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
-  unshift @xhdrs, "Connection: close";
+  unshift @xhdrs, "Connection: close" unless $param->{'noclose'};
   unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
   unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
   if (defined $auth) {
