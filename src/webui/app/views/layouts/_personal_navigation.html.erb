@@ -5,7 +5,7 @@
       <%= link_to pluralize(@nr_requests_that_need_work, 'Request'), {:controller => 'home', :action => 'my_work'}, {:title => "Number of requests concerning #{@user}"} %>
     <% end %> |
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
-    <%= link_to "Log&nbsp;Out", { :controller => 'user', :action => 'logout' }, :method => :post %>
+    <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post %>
   <% else %>
     <% if PROXY_AUTH_MODE == :on %>
       <% if defined?(PROXY_AUTH_REGISTER_PAGE) %>
