@@ -189,7 +189,7 @@ class PatchinfoController < ApplicationController
         node.category    params[:category]
         node.rating      rating
         node.summary     params[:summary]
-        node.description params[:description]
+        node.description params[:description].gsub("\r\n", "\n")
         if reboot
           node.reboot_needed
         end
