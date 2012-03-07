@@ -31,10 +31,12 @@ module ActionController
     
     def view_runtime
       brt = Suse::Backend.runtime * 1000
+      xrt = ActiveXML::LibXMLNode.runtime * 1000
       # this is the most stupid place to put it, but there is no other code path
       # without monkey patching _heavily_ the benckmarking module
       Suse::Backend.reset_runtime
-      "Backend: %.0f, View: %.0f" % [brt, @view_runtime]
+      ActiveXML::LibXMLNode.reset_runtime
+      "Backend: %.0f, View: %.0f, XML: %.0f" % [brt, @view_runtime, xrt]
     end
 
   end

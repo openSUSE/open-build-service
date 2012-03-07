@@ -57,6 +57,7 @@ module ActiveXML
   class LibXMLNode
 
     @@elements = {}
+    @@xml_time = 0
 
     class << self
 
@@ -101,6 +102,14 @@ module ActiveXML
         end
       end
 
+      def runtime
+        @@xml_time
+      end
+
+      def reset_runtime
+        @@xml_time = 0
+      end
+
     end
 
     #instance methods
@@ -133,7 +142,9 @@ module ActiveXML
       raise ParseError.new('Empty XML passed!') if data.empty?
       begin
 	#puts "parse #{self.class}"
+        t0 = Time.now
         @data = Nokogiri::XML::Document.parse(data.to_str.strip, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
+        @@xml_time += Time.now - t0
       rescue Nokogiri::XML::SyntaxError => e
         logger.error "Error parsing XML: #{e}"
         logger.error "XML content was: #{data}"
@@ -180,7 +191,7 @@ module ActiveXML
     end
 
     def text= (what)
-      _data.content = what.to_xs
+      _data.content = what.fast_xs
     end
 
     def each(symbol = nil)
@@ -210,17 +221,19 @@ module ActiveXML
     end
 
     def find_first(symbol)
-       symbol = symbol.to_s
-       if @node_cache.has_key?(symbol)
-          return @node_cache[symbol]
-       else
-          e = _data.xpath(symbol)
-          if e.empty?
-            return @node_cache[symbol] = nil
-          end
-          node = create_node_with_relations(e.first)
-          @node_cache[symbol] = node
-       end
+      symbol = symbol.to_s
+      if @node_cache.has_key?(symbol)
+        return @node_cache[symbol]
+      else
+        t0 = Time.now
+        e = _data.xpath(symbol)
+        if e.empty?
+          return @node_cache[symbol] = nil
+        end
+        node = create_node_with_relations(e.first)
+        @@xml_time += Time.now - t0
+        @node_cache[symbol] = node
+      end
     end
 
     def logger
@@ -231,7 +244,9 @@ module ActiveXML
     def to_hash
       return @hash_cache if @hash_cache
       #logger.debug "to_hash #{options.inspect} #{dump_xml}"
+      t0 = Time.now
       x = Benchmark.measure { @hash_cache  = Xmlhash.parse(dump_xml) }
+      @@xml_time += Time.now - t0
       #logger.debug "after to_hash #{JSON.pretty_generate(@hash_cache)}"
       #puts "to_hash #{self.class} #{x}"
       @hash_cache
