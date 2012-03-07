@@ -125,27 +125,22 @@ sub read_data {
     }
   } else {
     my $qu = $hdr->{'__data'};
-    my $cl = $hdr->{'__cl'} || 0;
-    if (!$cl) {
-      $cl = $hdr->{'content-length'};
-      $cl = -1 if !$cl;
-    }
-    if ($cl < 0) {
-      die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
-      return '';
-    }
-    if (!defined($maxl) || $maxl > $cl) {
+    my $cl = $hdr->{'__cl'};
+    $cl = $hdr->{'content-length'} unless defined $cl;
+    if (defined($cl) && (!defined($maxl) || $maxl > $cl)) {
       die("unexpected EOF\n") if $exact && defined($maxl);
-      $maxl = $cl;
+      $maxl = $cl >= 0 ? $cl : 0;
     }
-    while (length($qu) < $maxl) {
-      my $m = $maxl - length($qu);
+    while (!defined($maxl) || length($qu) < $maxl) {
+      my $m = ($maxl || 0) - length($qu);
       $m = 8192 if $m < 8192;
       my $r = sysread(S, $qu, $m, length($qu));
-      die("unexpected EOF\n") unless $r;
+      if (!$r) {
+        die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
+        $cl = $maxl = length($qu);
+      }
     }
-    $cl -= $maxl;
-    $cl = -1 unless $cl;
+    $cl -= $maxl if defined($cl);
     $ret = substr($qu, 0, $maxl);
     $hdr->{'__cl'} = $cl;
     $hdr->{'__data'} = substr($qu, $maxl);

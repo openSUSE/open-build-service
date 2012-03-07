@@ -370,17 +370,19 @@ sub rpc_recv_unchunked_stream_handler {
   my $cl = $rev->{'contentlength'};
   $ev->{'paused'} = 1;	# always need more bytes!
   my $data = $ev->{'replbuf'};
-  if (length($data) && $cl) {
-    $data = substr($data, 0, $cl) if $cl < length($data);
-    $cl -= length($data);
+  if (length($data) && (!defined($cl) || $cl)) {
     my $oldeof = $rev->{'eof'};
-    $rev->{'eof'} = 1 if !$cl;
+    if (defined($cl)) {
+      $data = substr($data, 0, $cl) if $cl < length($data);
+      $cl -= length($data);
+      $rev->{'eof'} = 1 if !$cl;
+    }
     return unless $ev->{'datahandler'}->($ev, $rev, $data);
     delete $rev->{'eof'} unless $oldeof;
     $rev->{'contentlength'} = $cl;
     $ev->{'replbuf'} = '';
   }
-  if ($rev->{'eof'} || !$cl) {
+  if ($rev->{'eof'} || (defined($cl) && !$cl)) {
     #print "rpc_recv_unchunked_stream_handler: EOF\n";
     $ev->{'chunktrailer'} = '';
     BSServerEvents::stream_close($rev, $ev);
@@ -771,8 +773,8 @@ sub rpc_recv_handler {
   my $chunked = $headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked' ? 1 : 0;
 
   if ($param->{'receiver'}) {
-    rpc_error($ev, "answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
-    $ev->{'contentlength'} = $cl if !$chunked && defined($cl);
+    #rpc_error($ev, "answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
+    $ev->{'contentlength'} = $cl if !$chunked;
     if ($param->{'receiver'} == \&BSHTTP::file_receiver) {
       rpc_recv_file($ev, $chunked, $ans, $param->{'filename'}, $param->{'withmd5'});
     } elsif ($param->{'receiver'} == \&BSServer::reply_receiver) {
