@@ -35,7 +35,10 @@ module UserMixins
           has_one :user_registration
 
           # We don't want to assign things to roles and groups in bulk assigns.
-          attr_protected :roles, :groups, :created_at, :updated_at, :last_logged_in_at, :login_failure_count, :password_hash_type
+          #attr_protected :roles, :groups, :created_at, :updated_at, :last_logged_in_at, :login_failure_count, :password_hash_type
+          # NOTE: Can't mix attr_protected and attr_accessible, but we set the latter to nil by default since
+          # git commit 107d7a612. Thus we have to explicitly list the allowed attributes:
+          attr_accessible :login, :email, :realname, :password, :password_confirmation
 
           # This method returns a hash with the the available user states. 
           # By default it returns the private class constant DEFAULT_STATES.
