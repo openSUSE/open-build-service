@@ -1,4 +1,5 @@
 require 'net/http'
+require 'benchmark'
 
 module Suse
   class Backend
@@ -20,6 +21,7 @@ module Suse
     @source_port = SOURCE_PORT
 
     @@backend_logger = Logger.new( "#{RAILS_ROOT}/log/backend_access.log" )
+    @backend_time = 0
     
     class << self
 
@@ -31,6 +33,14 @@ module Suse
 
       def port
         @source_port
+      end
+
+      def runtime
+        @backend_time
+      end
+
+      def reset_runtime
+        @backend_time = 0
       end
 
       def logger
@@ -53,6 +63,7 @@ module Suse
       end
 
       def get(path, in_headers={})
+        @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
         backend_request = Net::HTTP::Get.new(path, in_headers)
 
@@ -67,6 +78,7 @@ module Suse
       end
 
       def put_or_post(method, path, data, in_headers)
+        @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
         if method == "PUT"
           backend_request = Net::HTTP::Put.new(path, in_headers)
@@ -108,6 +120,7 @@ module Suse
       end
 
       def delete(path, in_headers={})
+        @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
         backend_request = Net::HTTP::Delete.new(path, in_headers)
         response = Net::HTTP.start(host, port) do |http|
@@ -131,7 +144,12 @@ module Suse
       end
 
       def write_backend_log(method, host, port, path, response, data)
-        @@backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code}"
+        raise "write backend log without start time" unless @start_of_last
+        timedelta = Time.now - @start_of_last
+        @start_of_last = nil
+        @@backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code} #{timedelta}"
+        @backend_time += timedelta
+        logger.debug "request took #{timedelta}"
 
         if (defined? EXTENDED_BACKEND_LOG) and EXTENDED_BACKEND_LOG
           if data.nil?

@@ -25,3 +25,17 @@ module ActiveSupport
     end
   end
 end
+
+module ActionController
+  module Benchmarking
+    
+    def view_runtime
+      brt = Suse::Backend.runtime * 1000
+      # this is the most stupid place to put it, but there is no other code path
+      # without monkey patching _heavily_ the benckmarking module
+      Suse::Backend.reset_runtime
+      "Backend: %.0f, View: %.0f" % [brt, @view_runtime]
+    end
+
+  end
+end
