@@ -219,6 +219,28 @@ class RequestController < ApplicationController
     redirect_to :controller => :request, :action => :show, :id => req.value("id")
   end
 
+  def change_devel_request_dialog
+    @project = find_cached(Project, params[:project])
+    @package = find_cached(Package, params[:package], :project => params[:project]) 
+    if @package.has_element?(:devel)
+      @current_devel_package = @package.devel.value('package') || @package.value('name')
+      @current_devel_project = @package.devel.value('project')
+    end
+  end
+
+  def change_devel_request
+    begin
+      req = BsRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
+      req.save(:create => true)
+      Rails.cache.delete 'requests_new'
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+    end
+    redirect_to :controller => 'request', :action => 'show', :id => req.value("id")
+  end
+
 private
 
   def change_request(changestate, params)

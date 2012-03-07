@@ -1,0 +1,2 @@
+page.replace 'dialog_wrapper', :partial => 'change_devel_request_dialog'
+

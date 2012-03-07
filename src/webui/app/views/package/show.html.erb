@@ -114,6 +114,13 @@
               <%= link_to_remote 'Request deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
             </li>
           <% end %>
+          <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
+          <% if @package.has_element?(:devel) %>
+            <li>
+              <%= link_to_remote(image_tag('icons/arrow_switch.png', :title => 'Request devel project change'), :url => {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}) %>
+              <%= link_to_remote('Request devel project change', :url => {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}) %>
+            </li>
+          <% end %>
         <% end %>
       </ul>
     </div>
