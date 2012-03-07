@@ -260,10 +260,21 @@ module ActiveXML
     class Rest < Abstract
       register_protocol 'rest'
 
+      @@api_time = 0
+
       class << self
         def spawn( target_uri, opt={} )
           @transport_obj ||= new( target_uri, opt )
         end
+
+        def runtime
+          @@api_time
+        end
+
+        def reset_runtime
+          @@api_time = 0
+        end
+
       end
 
       def initialize( target_uri, opt={} )
@@ -459,6 +470,8 @@ module ActiveXML
         opt = defaults.merge opt
         max_retries = 1
 
+        start = Time.now
+
         case method
         when /put/i, /post/i, /delete/i
           @http.finish if @http
@@ -469,7 +482,6 @@ module ActiveXML
         end
         retries = 0
         begin
-          start = Time.now
           retries += 1
           keepalive = true
           if not @http
@@ -523,6 +535,7 @@ module ActiveXML
           raise ConnectionError, "Failed to establish connection: " + err.message
         ensure
           logger.debug "Request took #{Time.now - start} seconds"
+          @@api_time += Time.now - start
         end
 
         unless keepalive

@@ -25,3 +25,23 @@ module ActiveSupport
     end
   end
 end
+
+module ActionController
+  module Benchmarking
+
+    alias :old_arr :active_record_runtime
+
+    def active_record_runtime
+      t = old_arr
+      brt = ActiveXML::Transport::Rest.runtime * 1000
+      xrt = ActiveXML::LibXMLNode.runtime * 1000
+      # this is the most stupid place to put it, but there is no other code path
+      # without monkey patching _heavily_ the benckmarking module
+      ActiveXML::Transport::Rest.reset_runtime
+      ActiveXML::LibXMLNode.reset_runtime
+      "#{t}, API: %.0f, XML: %.0f" % [brt, xrt]
+    end
+
+  end
+end
+            
