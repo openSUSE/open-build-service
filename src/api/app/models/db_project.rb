@@ -41,6 +41,8 @@ class DbProject < ActiveRecord::Base
   has_many  :develprojects, :class_name => "DbProject", :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => "DbProject"
 
+  attr_accessible :name, :title, :description
+
   def download_name
     self.name.gsub(/:/, ':/')
   end
