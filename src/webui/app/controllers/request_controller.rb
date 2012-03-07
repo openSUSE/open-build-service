@@ -207,7 +207,7 @@ class RequestController < ApplicationController
 
   def add_role_request
     begin
-      req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user])
+      req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e
