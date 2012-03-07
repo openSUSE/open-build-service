@@ -314,7 +314,7 @@ nextchunk:
   }
   my $cl = hex($1);
   # print "rpc_recv_stream_handler: chunk len $cl\n";
-  if ($cl < 0 || $cl >= 16000) {
+  if ($cl < 0 || $cl >= 1000000) {
     print "rpc_recv_stream_handler: illegal chunk size: $cl\n";
     BSServerEvents::stream_close($rev, $ev);
     return;
@@ -338,21 +338,27 @@ nextchunk:
     BSServerEvents::stream_close($rev, $ev);
     return;
   }
+  # split the chunk into 8192 sized subchunks if too big
+  my $lcl = $cl > 8192 ? 8192 : $cl;
   $ev->{'replbuf'} =~ /^(.*?\r?\n)/s;
-  if (length($1) + $cl > length($ev->{'replbuf'})) {
+  if (length($1) + $lcl > length($ev->{'replbuf'})) {
     return unless $rev->{'eof'};
     print "rpc_recv_stream_handler: premature EOF\n";
     BSServerEvents::stream_close($rev, $ev);
     return;
   }
 
-  my $data = substr($ev->{'replbuf'}, length($1), $cl);
-  my $nextoff = length($1) + $cl;
+  my $data = substr($ev->{'replbuf'}, length($1), $lcl);
+  my $nextoff = length($1) + $lcl;
 
   # handler returns false: cannot consume now, try later
   return unless $ev->{'datahandler'}->($ev, $rev, $data);
 
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $nextoff);
+  if ($lcl < $cl) {
+    # had to split the chunk
+    $ev->{'replbuf'} = sprintf("%X\r\n", $cl - $lcl) . $ev->{'replbuf'};
+  }
 
   goto nextchunk if length($ev->{'replbuf'});
 
