@@ -532,6 +532,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
+    assert_tag( :tag => "request", :children => { :count => 8, :only => { :tag => "action" } })
+    assert_tag( :tag => "source", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2" } )
+    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    assert_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro3" } )
+    assert_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    assert_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro:Update" } )
 
     # validate that request is diffable (not broken)
     post "/request/#{id}?cmd=diff&view=xml", nil
@@ -1152,11 +1158,11 @@ class MaintenanceTests < ActionController::IntegrationTest
 
   def test_create_invalid_submit_request
     prepare_request_with_user "tom", "thunder"
-    # without specifing target, the default target must get found via attribute
+    # submit requests are not allowed against release projects
     post "/request?cmd=create", '<request>
                                    <action type="submit">
                                      <source project="BaseDistro2.0" package="pack2" />
-                                     <target project="BaseDistro2.0:LinkedUpdateProject" />
+                                     <target project="BaseDistro2.0:LinkedUpdateProject" package="pack2" />
                                    </action>
                                    <state name="new" />
                                  </request>'

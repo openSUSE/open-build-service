@@ -79,9 +79,13 @@ module MaintenanceHelper
         # local link, skip it, it will come via branch command
         next
       end
+      # patchinfos are handled as new packages
+      if pkg.db_package_kinds.find_by_kind 'patchinfo'
+          new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+          new_pkg.store
 
       # use specified release project if defined
-      if releaseproject
+      elsif releaseproject
         if e
           package_name = e.attributes["package"]
         else
@@ -112,8 +116,9 @@ module MaintenanceHelper
         ret = do_branch branch_params
         new_pkg = DbPackage.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
       else
-        # no linked package found, so check for patchinfo or new package and re-create that
-        if pkg.db_package_kinds.find_by_kind 'patchinfo' or (e and e.attributes["package"])
+
+        # a new package for all targets
+        if e and e.attributes["package"]
           new_pkg = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
           incidentProject.db_packages << new_pkg
           new_pkg.store
