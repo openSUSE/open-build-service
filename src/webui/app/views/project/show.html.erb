@@ -96,7 +96,7 @@
           <li class="selected"><a href="#">My Actions</a></li>
         </ul>
       </div>
-      <ul class="clean_list">
+      <ul class="horizontal-list">
         <% if not @bugowners_mail.empty? and !BUGZILLA_HOST.nil? %>
           <li>
             <%= link_to(image_tag('tools-report-bug.png', :title => 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>

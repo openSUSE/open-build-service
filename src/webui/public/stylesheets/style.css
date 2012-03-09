@@ -243,3 +243,18 @@ table.patchinfo td { vertical-align: middle; }
 .clean_list {
   list-style: none inside;
 }
+
+.horizontal-list {
+  list-style: none inside;
+}
+.horizontal-list li {
+  float: left;
+  margin: 0 0 0.5em 0;
+}
+.horizontal-list:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
