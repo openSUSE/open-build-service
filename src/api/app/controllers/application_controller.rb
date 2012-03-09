@@ -8,6 +8,7 @@ require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
+class InvalidParameterError < Exception; end
 class IllegalRequestError < Exception; end
 class IllegalEncodingError < Exception; end
 class UserNotFoundError < Exception; end
@@ -43,6 +44,7 @@ class ApplicationController < ActionController::Base
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
   before_filter :shutup_rails
   before_filter :set_current_user
+  before_filter :validate_params
 
   #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
@@ -110,6 +112,14 @@ class ApplicationController < ActionController::Base
     User.currentID = @http_user.id if @http_user and @http_user.id
     User.currentAdmin = @http_user.is_admin? if @http_user and @http_user.is_admin?
     return true
+  end
+
+  def validate_params
+    params.each do |p|
+      if not p[1].nil? and p[1].class != String
+        raise InvalidParameterError, "Parameter #{p[0]} has non String class #{p[1].class}"
+      end
+    end
   end
 
   def extract_user
@@ -488,6 +498,8 @@ class ApplicationController < ActionController::Base
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when MissingParameterError
       render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
+    when InvalidParameterError
+      render_error :status => 400, :message => exception.message, :errorcode => "invalid_parameter"
     when DbProject::CycleError
       render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
     when DbProject::DeleteError
