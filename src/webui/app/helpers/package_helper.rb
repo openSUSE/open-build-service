@@ -27,7 +27,7 @@ module PackageHelper
   end
 
   def guess_code_class( filename )
-    return "xml" if ["_link", "_patchinfo", "_service"].include?(filename)
+    return 'xml' if ['_aggregate', '_link', '_patchinfo', '_service'].include?(filename)
     return "bash" if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
     return "python" if filename.match(/^.*rpmlintrc$/)
     return "makefile" if filename == "debian.rules"
