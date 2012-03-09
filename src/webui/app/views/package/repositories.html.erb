@@ -7,7 +7,6 @@
 <h3><%= @pagetitle %></h3>
 <p>You can configure individual flags for this package here. The repositories
 are inherited from the project <%= link_to @project, :controller => :project, :action => :repositories, :project => @project %>. </p>
-<div class="clear" style="margin-bottom: 2em"></div>
 
 <%= render :partial => 'shared/repositories', :locals => { :obj => @package } %>
 

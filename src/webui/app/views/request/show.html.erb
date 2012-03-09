@@ -22,7 +22,7 @@
 
 <div class="grid_16 box box-shadow alpha omega">
   <div class="grid_10 alpha">
-    <div class="box show_left">
+    <div class="box show_left clearfix">
       <div class="grid_7 alpha omega">
         <h3><%= @pagetitle %> (<%= @state %>)</h3>
         <% if @req.value(:description).empty? %>
@@ -48,7 +48,6 @@
           <% end %>
         </ul>
       </div>
-      <div class="clear"></div>
     </div>
 
     <% if @can_add_reviews || @can_handle_request %>
