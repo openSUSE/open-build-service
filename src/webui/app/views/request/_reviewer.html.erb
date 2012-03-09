@@ -7,8 +7,8 @@
   <%= review.value(:by_group) %>
 <% elsif review.has_attribute?(:by_project) %>
   <% if review.has_attribute?(:by_package) %>
-    <%= link_to_if(!no_link, "#{review.value('by_project')} / #{review.value('by_package')}", :controller => 'package', :actio => 'show', :project => review.value(:by_project), :package => review.value(:by_package)) %>
+    <%= link_to_if(!no_link, "#{review.value('by_project')} / #{review.value('by_package')}", :controller => 'package', :action => 'users', :project => review.value(:by_project), :package => review.value(:by_package)) %>
   <% else %>
-    <%= link_to_if(!no_link, review.value(:by_project), :controller => 'project', :action => 'show', :project => review.value(:by_project)) %>
+    <%= link_to_if(!no_link, review.value(:by_project), :controller => 'project', :action => 'users', :project => review.value(:by_project)) %>
   <% end %>
 <% end %>
