@@ -460,8 +460,10 @@ class ApplicationController < ActionController::Base
 
   def rescue_action_in_public( exception )
     case exception
+    when Suse::Backend::NotFoundError
+      render_error :message => exception.message, :status => 404
     when Suse::Backend::HTTPError
-      xml = REXML::Document.new( exception.message.body )
+      xml = REXML::Document.new( exception.message )
       http_status = xml.root.attributes['code']
       unless xml.root.attributes.include? 'origin'
         xml.root.add_attribute "origin", "backend"

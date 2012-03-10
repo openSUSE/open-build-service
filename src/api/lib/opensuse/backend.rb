@@ -3,8 +3,18 @@ require 'net/http'
 module Suse
   class Backend
 
-    class HTTPError < Exception; end
-    class NotFoundError < HTTPError; end
+    class HTTPError < Exception
+      def initialize(resp)
+        @resp = resp
+      end
+
+      def to_s
+        @resp.body
+      end
+    end
+
+    class NotFoundError < HTTPError
+    end
       
     @source_host = SOURCE_HOST
     @source_port = SOURCE_PORT
@@ -138,8 +148,10 @@ module Suse
         case response
         when Net::HTTPSuccess, Net::HTTPRedirection
           return response
+        when Net::HTTPNotFound
+          raise NotFoundError.new(response)
         else
-          raise HTTPError, response
+          raise HTTPError.new(response)
         end
       end
 
