@@ -26,7 +26,6 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
       :name => "kde4",
-      :created => Time.local(2008, 04, 28, 05, 05, 05).xmlschema
     }
 
     prepare_request_with_user "fred", "geröllheimer"
@@ -64,7 +63,6 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
    assert_tag :tag => 'project', :attributes => {
      :name => "kde4",
-     :updated => Time.local(2008, 04, 28, 06, 06, 06).xmlschema,
    }
 
    prepare_request_with_user "fred", "geröllheimer"
