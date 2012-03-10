@@ -1,7 +1,21 @@
+
 def local_to_yaml( hash, file )
    hash.sort.each do |k, v|   # <-- here's my addition (the 'sort')
-     file.write( {k => v}.to_yaml.gsub(%r{^---\s*}, '') )
+     file.write( {k => v}.to_yaml(:SortKeys => true, :ExplicitTypes => true).gsub(%r{^---\s*}, '') )
    end
+end
+
+def force_hash( record )
+  ret = Hash.new
+  record.each do |key, value|
+    key = key.dup.force_encoding("UTF-8")
+    if value
+       value = value.dup.force_encoding("UTF-8") if value.kind_of? String
+       begin value = Integer(value) rescue value end
+    end
+    ret[key] = value
+  end
+  ret
 end
 
 namespace :db do
@@ -17,21 +31,24 @@ namespace :db do
       i = "000"
       oldhash = YAML.load_file( "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml" ) || {}
       idtokey = {}
-      oldhash.each do |key, record| 
+      force_hash(oldhash).each do |key, record| 
         if record.has_key? 'id'
-           idtokey[record['id']] = key
+           key = key.dup.force_encoding("UTF-8")
+           id = Integer(record['id'])
+           idtokey[id] = key
         end
       end
       File.open("#{RAILS_ROOT}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
         hash = {}
         data.each do |record|
+          record = force_hash record
           id=i.succ!
           if record.has_key? 'id'
-            id=record['id']
+            id=Integer(record['id'])
           end
-          raise "duplicated record" if hash.has_key? "#{table_name}_#{id}"
-          key = idtokey[id] || "#{table_name}_#{id}"
+          key = idtokey[id] || "#{table_name}_#{id}".force_encoding("UTF-8")
+          raise "duplicated record" if hash.has_key? key
           hash[key] = record
         end
         local_to_yaml( hash, file)
