@@ -142,7 +142,7 @@ module Suse
         elsif File.exists? schema_base_filename + ".xsd"
           schema = Nokogiri::XML::Schema(File.open(schema_base_filename + ".xsd"))
         else
-          logger.debug "no schema found, skipping validation for #{opt}"
+          logger.debug "no schema found, skipping validation for #{opt.inspect}"
           return true
         end
 
@@ -150,7 +150,7 @@ module Suse
           raise "illegal option; need content for #{schema_base_filename}"
         end
         if content.empty?
-          logger.debug "no content, skipping validation for #{opt}"
+          logger.debug "no content, skipping validation for #{schema_file}"
           raise ValidationError, "Document is empty, not allowed for #{schema_base_filename}"
         end
 
@@ -160,10 +160,10 @@ module Suse
             logger.error "#{opt[:type]} validation error: #{error}"
             logger.debug "Schema #{schema_file} for: #{content}"
             # Only raise an exception for user-input validation!
-            raise ValidationError, "#{opt[:type]} validation error: #{error}"
+            raise ValidationError, "#{schema_file} validation error: #{error}"
           end
         rescue Nokogiri::XML::SyntaxError => error
-          raise ValidationError, "#{opt[:type]} validation error: #{error}"
+          raise ValidationError, "#{schema_file} validation error: #{error}"
         end
         return true
       end
