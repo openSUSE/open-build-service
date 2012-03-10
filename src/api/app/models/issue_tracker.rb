@@ -1,5 +1,6 @@
 require 'xmlrpc/client'
 require 'opensuse/backend'
+require 'workers/update_package_meta_job.rb'
 
 class IssueTracker < ActiveRecord::Base
   has_many :issues, :dependent => :destroy
@@ -19,7 +20,6 @@ class IssueTracker < ActiveRecord::Base
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
-    require 'lib/workers/update_package_meta_job.rb'
     Delayed::Job.enqueue UpdatePackageMetaJob.new
   end
 
