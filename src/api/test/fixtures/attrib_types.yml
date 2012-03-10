@@ -1,98 +1,98 @@
-OBS_ProjectStatusPackageFailComment: 
-  attrib_namespace_id: "9"
+OBS_ProjectStatusPackageFailComment:
+  id: 74
   name: ProjectStatusPackageFailComment
-  value_count: "1"
-  id: "74"
-  type: 
   description: 
-OBS_QualityCategory: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_QualityCategory:
+  id: 75
   name: QualityCategory
-  value_count: "1"
-  id: "75"
-  type: 
   description: 
-OBS_ScreenShots: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_ScreenShots:
+  id: 73
   name: ScreenShots
-  value_count: 
-  id: "73"
-  type: 
   description: 
-attrib_types_56: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 
+  attrib_namespace_id: 9
+attrib_types_56:
+  id: 56
   name: VeryImportantProject
-  value_count: "0"
-  id: "56"
-  type: 
   description: 
-attrib_types_57: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 0
+  attrib_namespace_id: 9
+attrib_types_57:
+  id: 57
   name: UpdateProject
-  value_count: "1"
-  id: "57"
-  type: 
   description: 
-attrib_types_58: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 1
+  attrib_namespace_id: 9
+attrib_types_58:
+  id: 58
   name: Maintained
-  value_count: "0"
-  id: "58"
-  type: 
   description: 
-attrib_types_59: 
-  attrib_namespace_id: "8"
+  type: 
+  value_count: 0
+  attrib_namespace_id: 9
+attrib_types_59:
+  id: 59
   name: status
+  description: 
+  type: 
   value_count: 
-  id: "59"
-  type: 
-  description: 
-attrib_types_60: 
-  attrib_namespace_id: "9"
+  attrib_namespace_id: 8
+attrib_types_60:
+  id: 60
   name: RequestCloned
-  value_count: "1"
-  id: "60"
-  type: 
   description: 
-attrib_types_61: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 1
+  attrib_namespace_id: 9
+attrib_types_61:
+  id: 61
   name: InitializeDevelPackage
-  value_count: "0"
-  id: "61"
-  type: 
   description: 
-attrib_types_62: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 0
+  attrib_namespace_id: 9
+attrib_types_62:
+  id: 62
   name: MaintenanceProject
-  value_count: "0"
-  id: "62"
-  type: 
   description: 
-attrib_types_63: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 0
+  attrib_namespace_id: 9
+attrib_types_63:
+  id: 63
   name: MaintenanceIdTemplate
-  value_count: "1"
-  id: "63"
-  type: 
   description: 
-attrib_types_64: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 1
+  attrib_namespace_id: 9
+attrib_types_64:
+  id: 64
   name: RejectRequests
-  value_count: "1"
-  id: "64"
-  type: 
   description: 
-attrib_types_65: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 1
+  attrib_namespace_id: 9
+attrib_types_65:
+  id: 65
   name: ApprovedRequestSource
-  value_count: "0"
-  id: "65"
-  type: 
   description: 
-attrib_types_66: 
-  attrib_namespace_id: "9"
+  type: 
+  value_count: 0
+  attrib_namespace_id: 9
+attrib_types_66:
+  id: 66
   name: BranchTarget
-  value_count: "0"
-  id: "66"
-  type: 
   description: 
+  type: 
+  value_count: 0
+  attrib_namespace_id: 9

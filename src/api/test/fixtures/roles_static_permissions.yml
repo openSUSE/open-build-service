@@ -1,87 +1,87 @@
-roles_static_permissions_001: 
-  static_permission_id: "1"
-  role_id: "1"
-roles_static_permissions_002: 
-  static_permission_id: "2"
-  role_id: "1"
-roles_static_permissions_003: 
-  static_permission_id: "3"
-  role_id: "1"
-roles_static_permissions_004: 
-  static_permission_id: "4"
-  role_id: "1"
-roles_static_permissions_005: 
-  static_permission_id: "5"
-  role_id: "1"
-roles_static_permissions_006: 
-  static_permission_id: "6"
-  role_id: "1"
-roles_static_permissions_007: 
-  static_permission_id: "7"
-  role_id: "1"
-roles_static_permissions_008: 
-  static_permission_id: "8"
-  role_id: "1"
-roles_static_permissions_009: 
-  static_permission_id: "9"
-  role_id: "1"
-roles_static_permissions_010: 
-  static_permission_id: "10"
-  role_id: "1"
-roles_static_permissions_011: 
-  static_permission_id: "11"
-  role_id: "1"
-roles_static_permissions_012: 
-  static_permission_id: "12"
-  role_id: "1"
-roles_static_permissions_013: 
-  static_permission_id: "13"
-  role_id: "1"
-roles_static_permissions_014: 
-  static_permission_id: "14"
-  role_id: "1"
-roles_static_permissions_015: 
-  static_permission_id: "19"
-  role_id: "1"
-roles_static_permissions_016: 
-  static_permission_id: "20"
-  role_id: "1"
-roles_static_permissions_017: 
-  static_permission_id: "21"
-  role_id: "1"
-roles_static_permissions_018: 
-  static_permission_id: "22"
-  role_id: "1"
-roles_static_permissions_019: 
-  static_permission_id: "2"
-  role_id: "2"
-roles_static_permissions_020: 
-  static_permission_id: "7"
-  role_id: "3"
-roles_static_permissions_021: 
-  static_permission_id: "8"
-  role_id: "3"
-roles_static_permissions_022: 
-  static_permission_id: "9"
-  role_id: "3"
-roles_static_permissions_023: 
-  static_permission_id: "10"
-  role_id: "3"
-roles_static_permissions_024: 
-  static_permission_id: "11"
-  role_id: "3"
-roles_static_permissions_025: 
-  static_permission_id: "12"
-  role_id: "3"
-roles_static_permissions_026: 
-  static_permission_id: "14"
-  role_id: "3"
-roles_static_permissions_027: 
-  static_permission_id: "11"
-  role_id: "5"
-roles_static_permissions_028: 
-  static_permission_id: "12"
-  role_id: "7"
-roles_static_permissions_029: 
-  static_permission_id: "14"
-  role_id: "7"
+roles_static_permissions_001:
+  role_id: 1
+  static_permission_id: 1
+roles_static_permissions_002:
+  role_id: 1
+  static_permission_id: 2
+roles_static_permissions_003:
+  role_id: 1
+  static_permission_id: 3
+roles_static_permissions_004:
+  role_id: 1
+  static_permission_id: 4
+roles_static_permissions_005:
+  role_id: 1
+  static_permission_id: 5
+roles_static_permissions_006:
+  role_id: 1
+  static_permission_id: 6
+roles_static_permissions_007:
+  role_id: 1
+  static_permission_id: 7
+roles_static_permissions_008:
+  role_id: 1
+  static_permission_id: 8
+roles_static_permissions_009:
+  role_id: 1
+  static_permission_id: 9
+roles_static_permissions_010:
+  role_id: 1
+  static_permission_id: 10
+roles_static_permissions_011:
+  role_id: 1
+  static_permission_id: 11
+roles_static_permissions_012:
+  role_id: 1
+  static_permission_id: 12
+roles_static_permissions_013:
+  role_id: 1
+  static_permission_id: 13
+roles_static_permissions_014:
+  role_id: 1
+  static_permission_id: 14
+roles_static_permissions_015:
+  role_id: 1
+  static_permission_id: 19
+roles_static_permissions_016:
+  role_id: 1
+  static_permission_id: 20
+roles_static_permissions_017:
+  role_id: 1
+  static_permission_id: 21
+roles_static_permissions_018:
+  role_id: 1
+  static_permission_id: 22
+roles_static_permissions_019:
+  role_id: 2
+  static_permission_id: 2
+roles_static_permissions_020:
+  role_id: 3
+  static_permission_id: 7
+roles_static_permissions_021:
+  role_id: 3
+  static_permission_id: 8
+roles_static_permissions_022:
+  role_id: 3
+  static_permission_id: 9
+roles_static_permissions_023:
+  role_id: 3
+  static_permission_id: 10
+roles_static_permissions_024:
+  role_id: 3
+  static_permission_id: 11
+roles_static_permissions_025:
+  role_id: 3
+  static_permission_id: 12
+roles_static_permissions_026:
+  role_id: 3
+  static_permission_id: 14
+roles_static_permissions_027:
+  role_id: 5
+  static_permission_id: 11
+roles_static_permissions_028:
+  role_id: 7
+  static_permission_id: 12
+roles_static_permissions_029:
+  role_id: 7
+  static_permission_id: 14

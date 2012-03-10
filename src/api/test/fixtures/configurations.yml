@@ -1,18 +1,28 @@
-configurations_298486374: 
-  created_at: 2011-07-29 12:00:21
+configurations_298486374:
+  id: 298486374
   title: openSUSE Build Service
-  updated_at: 2011-07-29 12:00:21
-  id: "298486374"
   description: MyText
-configurations_980190962: 
-  created_at: 2011-07-29 12:00:21
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
+configurations_980190962:
+  id: 980190962
   title: My Open Build Service
-  updated_at: 2011-07-29 12:00:21
-  id: "980190962"
   description: MyText
-configurations_980190964: 
-  created_at: 2012-01-17 08:54:33
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
+configurations_980190964:
+  id: 980190964
   title: Open Build Service
-  updated_at: 2012-01-17 08:54:33
-  id: "980190964"
-  description: "  <p class=\"description\">\n    The <a href=\"http://openbuildservice.org\">Open Build Service (OBS)</a>\n    is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.\n    Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.\n  </p>\n  <p class=\"description\">\n    The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE Project wiki pages</a>.\n  </p>\n\n  <p class=\"description\">\n    The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this wiki page</a>. Have fun and fast build times!\n  </p>\n"
+  description: ! "  <p class=\"description\">\n    The <a href=\"http://openbuildservice.org\">Open
+    Build Service (OBS)</a>\n    is an open and complete distribution development
+    platform that provides a transparent infrastructure for development of Linux distributions,
+    used by openSUSE, MeeGo and other distributions.\n    Supporting also Fedora,
+    Debian, Ubuntu, RedHat and other Linux distributions.\n  </p>\n  <p class=\"description\">\n
+    \   The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE
+    project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE
+    Project wiki pages</a>.\n  </p>\n\n  <p class=\"description\">\n    The Open Build
+    Service developer team is greeting you. In case you use your OBS productive in
+    your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this
+    wiki page</a>. Have fun and fast build times!\n  </p>\n"
+  created_at: '2012-01-17 09:54:33'
+  updated_at: '2012-01-17 09:54:33'

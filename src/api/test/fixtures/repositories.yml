@@ -1,160 +1,160 @@
-BaseDistro2LinkedUpdateProject_repo: 
+BaseDistro2LinkedUpdateProject_repo:
+  id: 86
+  db_project_id: 2046
   name: BaseDistro2LinkedUpdateProject_repo
-  db_project_id: "2046"
-  linkedbuild: 
-  id: "86"
-  block: 
+  remote_project_name: 
   rebuild: local
-  remote_project_name: 
-repositories_141: 
-  name: home_coolo_standard
-  db_project_id: "1001"
-  linkedbuild: 
-  id: "141"
   block: 
-  rebuild: 
-  remote_project_name: 
-repositories_142: 
-  name: SourceprotectedProject_repo
-  db_project_id: "1001"
   linkedbuild: 
-  id: "142"
-  block: 
-  rebuild: 
-  remote_project_name: 
-repositories_144: 
-  name: home_adrian_ProtectionTest_repo
-  db_project_id: "1001"
-  linkedbuild: 
-  id: "144"
-  block: 
-  rebuild: 
-  remote_project_name: 
 deleted_deleted:
+  id: 211
+  db_project_id: 1000
   name: deleted
-  db_project_id: "1000"
-  linkedbuild: 
-  id: "211"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_75: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_141:
+  id: 141
+  db_project_id: 1001
+  name: home_coolo_standard
+  remote_project_name: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_142:
+  id: 142
+  db_project_id: 1001
+  name: SourceprotectedProject_repo
+  remote_project_name: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_144:
+  id: 144
+  db_project_id: 1001
+  name: home_adrian_ProtectionTest_repo
+  remote_project_name: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_75:
+  id: 75
+  db_project_id: 226
   name: SUSE_Linux_10.1
-  db_project_id: "226"
-  linkedbuild: 
-  id: "75"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_81: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_81:
+  id: 81
+  db_project_id: 226
   name: SUSE_Linux_Factory
-  db_project_id: "226"
-  linkedbuild: 
-  id: "81"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_82: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_82:
+  id: 82
+  db_project_id: 600
   name: standard
-  db_project_id: "600"
-  linkedbuild: 
-  id: "82"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_83: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_83:
+  id: 83
+  db_project_id: 601
   name: home_coolo
-  db_project_id: "601"
-  linkedbuild: 
-  id: "83"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_85: 
-  name: "10.2"
-  db_project_id: "502"
-  linkedbuild: 
-  id: "85"
-  block: 
   rebuild: 
+  block: 
+  linkedbuild: 
+repositories_85:
+  id: 85
+  db_project_id: 502
+  name: '10.2'
   remote_project_name: 
-repositories_87: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_87:
+  id: 87
+  db_project_id: 5001
   name: pop
-  db_project_id: "5001"
-  linkedbuild: 
-  id: "87"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_88: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_88:
+  id: 88
+  db_project_id: 5002
   name: pop
-  db_project_id: "5002"
-  linkedbuild: 
-  id: "88"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_89: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_89:
+  id: 89
+  db_project_id: 3000
   name: nada
-  db_project_id: "3000"
-  linkedbuild: 
-  id: "89"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_90: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_90:
+  id: 90
+  db_project_id: 3002
   name: nada
-  db_project_id: "3002"
-  linkedbuild: 
-  id: "90"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_91: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_91:
+  id: 91
+  db_project_id: 2042
   name: BaseDistro_repo
-  db_project_id: "2042"
-  linkedbuild: 
-  id: "91"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_92: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_92:
+  id: 92
+  db_project_id: 2045
   name: BaseDistro2_repo
-  db_project_id: "2045"
-  linkedbuild: 
-  id: "92"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_93: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_93:
+  id: 93
+  db_project_id: 2047
   name: BaseDistro3_repo
-  db_project_id: "2047"
-  linkedbuild: 
-  id: "93"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_94: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_94:
+  id: 94
+  db_project_id: 3005
   name: repo
-  db_project_id: "3005"
-  linkedbuild: 
-  id: "94"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_95: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_95:
+  id: 95
+  db_project_id: 2043
   name: BaseDistroUpdateProject_repo
-  db_project_id: "2043"
-  linkedbuild: 
-  id: "95"
-  block: 
-  rebuild: 
   remote_project_name: 
-repositories_96: 
+  rebuild: 
+  block: 
+  linkedbuild: 
+repositories_96:
+  id: 96
+  db_project_id: 3001
   name: repo
-  db_project_id: "3001"
-  linkedbuild: 
-  id: "96"
-  block: 
-  rebuild: 
   remote_project_name: 
+  rebuild: 
+  block: 
+  linkedbuild: 

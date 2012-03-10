@@ -1,12 +1,12 @@
-db_project_types_1: 
+db_project_types_1:
+  id: 1
   name: standard
-  id: "1"
-db_project_types_2: 
+db_project_types_2:
+  id: 2
   name: maintenance
-  id: "2"
-db_project_types_3: 
+db_project_types_3:
+  id: 3
   name: maintenance_incident
-  id: "3"
-db_project_types_4: 
+db_project_types_4:
+  id: 4
   name: maintenance_release
-  id: "4"

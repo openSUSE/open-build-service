@@ -1,372 +1,376 @@
-db_projects_1: 
+db_projects_1:
+  id: 1
   name: kde
-  created_at: 2003-03-03 03:03:03
-  maintenance_project_id: 
   title: blub
-  updated_at: 2004-04-04 04:04:04
-  type_id: 
-  remoteurl: 
-  id: "1"
   description: bla
-  develproject_id: 
+  created_at: '2003-03-03 04:03:03'
+  updated_at: '2004-04-04 06:04:04'
+  remoteurl: 
   remoteproject: 
-db_projects_1000: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_1000:
+  id: 1000
   name: deleted
-  created_at: 2011-07-29 12:00:21
-  maintenance_project_id: 
   title: 
-  updated_at: 2011-07-29 12:00:21
-  type_id: 
-  remoteurl: 
-  id: "1000"
   description: 
-  develproject_id: 
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
+  remoteurl: 
   remoteproject: 
-db_projects_1001: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_1001:
+  id: 1001
   name: home:tom
-  created_at: 2011-07-29 12:00:21
-  maintenance_project_id: 
-  title: ""
-  updated_at: 2011-07-29 14:13:50
-  type_id: "1"
+  title: ''
+  description: ''
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 16:13:50'
   remoteurl: 
-  id: "1001"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_2: 
+  maintenance_project_id: 
+  type_id: 1
+  develproject_id: 
+db_projects_2:
+  id: 2
   name: kde4
-  created_at: 2008-04-28 05:05:05
-  maintenance_project_id: 
   title: blub
-  updated_at: 2008-04-28 06:06:06
-  type_id: 
-  remoteurl: 
-  id: "2"
   description: bla
-  develproject_id: 
+  created_at: '2008-04-28 07:05:05'
+  updated_at: '2008-04-28 08:06:06'
+  remoteurl: 
   remoteproject: 
-db_projects_2042: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_2042:
+  id: 2042
   name: BaseDistro
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: "2048"
   title: This is a base distro
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "2042"
   description: This could be openSUSE:11.2 project for example
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_2043: 
+  maintenance_project_id: 2048
+  type_id: 
+  develproject_id: 
+db_projects_2043:
+  id: 2043
   name: BaseDistro:Update
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This is an update project for the base distro
-  updated_at: 2005-01-01 00:00:01
-  type_id: "4"
-  remoteurl: 
-  id: "2043"
   description: contains official released updates
-  develproject_id: "3043"
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_2044: 
+  maintenance_project_id: 
+  type_id: 4
+  develproject_id: 3043
+db_projects_2044:
+  id: 2044
   name: home:adrian:BaseDistro
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This is a project source linked project to BaseDistro
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "2044"
   description: For testing project linking
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_2045: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_2045:
+  id: 2045
   name: BaseDistro2.0
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id:
   title: This is another base distro
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "2045"
   description: This could be openSUSE:11.3 project for example
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_2046: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_2046:
+  id: 2046
   name: BaseDistro2.0:LinkedUpdateProject
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: "2048"
   title: This is another update project for the base distro
-  updated_at: 2005-01-01 00:00:01
-  type_id: "4"
+  description: contains official released updates, but this one has a project link
+    to the original one
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: 
-  id: "2046"
-  description: contains official released updates, but this one has a project link to the original one
-  develproject_id: 
   remoteproject: 
-db_projects_2047: 
+  maintenance_project_id: 2048
+  type_id: 4
+  develproject_id: 
+db_projects_2047:
+  id: 2047
   name: BaseDistro3
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: "2048"
   title: This is another base distro, without update project
-  updated_at: 2005-01-01 00:00:01
-  type_id: "4"
-  remoteurl: 
-  id: "2047"
   description: Base distro without update project
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_2048: 
+  maintenance_project_id: 2048
+  type_id: 4
+  develproject_id: 
+db_projects_2048:
+  id: 2048
   name: My:Maintenance
-  created_at: 2011-07-29 12:00:21
-  maintenance_project_id: 
   title: official maintenance space
-  updated_at: 2011-07-29 12:00:21
-  type_id: "2"
-  remoteurl: 
-  id: "2048"
   description: official maintenance space, maintained by maintenance ;)
-  develproject_id: 
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
+  remoteurl: 
   remoteproject: 
-db_projects_215: 
+  maintenance_project_id: 
+  type_id: 2
+  develproject_id: 
+db_projects_215:
+  id: 215
   name: home:dmayr
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: my home project
-  updated_at: 2007-01-26 12:14:22
-  type_id: 
-  remoteurl: 
-  id: "215"
   description: description
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2007-01-26 13:14:22'
+  remoteurl: 
   remoteproject: 
-db_projects_226: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_226:
+  id: 226
   name: Apache
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: Up-to-date Apache packages
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "226"
   description: description
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_3000: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3000:
+  id: 3000
   name: HiddenProject
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project is not visible and not accessable except for adrian
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "3000"
   description: for testing read/view permissions = access disabled
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_3001: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3001:
+  id: 3001
   name: SourceprotectedProject
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project has unaccessable source except for adrian
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "3001"
   description: for testing read/view permissions = sourceaccess disabled
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_3002: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3002:
+  id: 3002
   name: BinaryprotectedProject
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project has unaccessable binaries except for adrian
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "3002"
   description: for testing read/view permissions = binarydownload disabled
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_3004: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3004:
+  id: 3004
   name: CopyTest
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project serves as copy target/source
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "3004"
   description: for testing access/sourceacces
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_3005: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3005:
+  id: 3005
   name: home:adrian:ProtectionTest
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This is used to try to get source rpm binaries from SourceprotectedProject
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
+  description: ''
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: 
-  id: "3005"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_3006: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3006:
+  id: 3006
   name: HiddenRemoteInstance
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: Remoteurl project which is hidden (access disabled)
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: http://localhost:3200
-  id: "3006"
   description: for testing hidden remoteurl projects (access disabled)
-  develproject_id: 
-  remoteproject: 
-db_projects_3043: 
-  name: Devel:BaseDistro:Update
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
-  title: This is a a devel project container for update project for the base distro
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "3043"
-  description: contains candidate changes for next updates
-  develproject_id: 
-  remoteproject: 
-db_projects_5000: 
-  name: RemoteInstance
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
-  title: This project is offering ourself content again via OBS inter-connect
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: http://localhost:3200
-  id: "5000"
-  description: for testing remoteurl support. This is using the source server directly atm, should be change to use an own api instance.
-  develproject_id: 
   remoteproject: 
-db_projects_5001: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_3043:
+  id: 3043
+  name: Devel:BaseDistro:Update
+  title: This is a a devel project container for update project for the base distro
+  description: contains candidate changes for next updates
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
+  remoteproject: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_5000:
+  id: 5000
+  name: RemoteInstance
+  title: This project is offering ourself content again via OBS inter-connect
+  description: for testing remoteurl support. This is using the source server directly
+    atm, should be change to use an own api instance.
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: http://localhost:3200
+  remoteproject: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_5001:
+  id: 5001
   name: UseRemoteInstance
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project is project linking to remote instance
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "5001"
   description: for testing remoteurl support
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_5002: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_5002:
+  id: 5002
   name: LocalProject
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project is a local project
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
-  remoteurl: 
-  id: "5002"
   description: for testing remoteurl support
-  develproject_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  remoteurl: 
   remoteproject: 
-db_projects_5003: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_5003:
+  id: 5003
   name: c++
-  created_at: 2011-07-29 12:00:21
-  maintenance_project_id: 
   title: 
-  updated_at: 2011-07-29 12:00:21
-  type_id: 
-  remoteurl: 
-  id: "5003"
   description: 
-  develproject_id: 
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
+  remoteurl: 
   remoteproject: 
-db_projects_5007: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_5007:
+  id: 5007
   name: home:adrian
-  created_at: 2011-09-19 09:19:37
-  maintenance_project_id: 
   title: adrian's Home Project
-  updated_at: 2011-09-19 09:19:37
-  type_id: 
+  description: Please add a suitable description and don't forget to add some repositories
+    you want to build your packages against (just click on 'Repositories' above).
+    Have fun!
+  created_at: '2011-09-19 11:19:37'
+  updated_at: '2011-09-19 11:19:37'
   remoteurl: 
-  id: "5007"
-  description: Please add a suitable description and don't forget to add some repositories you want to build your packages against (just click on 'Repositories' above). Have fun!
-  develproject_id: 
   remoteproject: 
-db_projects_502: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_502:
+  id: 502
   name: home:Iggy
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: Iggy Home Project
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
+  description: ''
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: 
-  id: "502"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_503: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_503:
+  id: 503
   name: home:fred:DeleteProject
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: This project gets deleted by request test
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
+  description: ''
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: 
-  id: "503"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_504: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_504:
+  id: 504
   name: home:Iggy:branches:kde4
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: Iggy Home Project
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
+  description: ''
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: 
-  id: "504"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_505: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_505:
+  id: 505
   name: home:fred
-  created_at: 2005-01-01 00:00:01
-  maintenance_project_id: 
   title: can be used for operations, to be cleaned up afterwards
-  updated_at: 2005-01-01 00:00:01
-  type_id: 
+  description: ''
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
   remoteurl: 
-  id: "505"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_600: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 
+db_projects_600:
+  id: 600
   name: home:coolo
-  created_at: 2011-07-29 12:00:21
-  maintenance_project_id: 
-  title: ""
-  updated_at: 2011-07-29 13:04:23
-  type_id: "1"
+  title: ''
+  description: ''
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 15:04:23'
   remoteurl: 
-  id: "600"
-  description: ""
-  develproject_id: 
   remoteproject: 
-db_projects_601: 
+  maintenance_project_id: 
+  type_id: 1
+  develproject_id: 
+db_projects_601:
+  id: 601
   name: home:coolo:test
-  created_at: 2011-07-29 12:00:21
-  maintenance_project_id: 
   title: only a test
-  updated_at: 2011-07-29 12:00:21
-  type_id: 
-  remoteurl: 
-  id: "601"
   description: 
-  develproject_id: 
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
+  remoteurl: 
   remoteproject: 
+  maintenance_project_id: 
+  type_id: 
+  develproject_id: 

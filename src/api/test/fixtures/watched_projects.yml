@@ -1,16 +1,16 @@
-watched_projects_1: 
+watched_projects_1:
+  id: 1
+  bs_user_id: 1
   name: kde4
-  bs_user_id: "1"
-  id: "1"
-watched_projects_2: 
+watched_projects_2:
+  id: 2
+  bs_user_id: 1
   name: kde5
-  bs_user_id: "1"
-  id: "2"
-watched_projects_3: 
+watched_projects_3:
+  id: 3
+  bs_user_id: 42
   name: CopyTest
-  bs_user_id: "42"
-  id: "3"
-watched_projects_4: 
+watched_projects_4:
+  id: 4
+  bs_user_id: 267
   name: home:coolo
-  bs_user_id: "267"
-  id: "4"

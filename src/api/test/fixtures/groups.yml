@@ -1,12 +1,12 @@
-groups_199: 
-  created_at: 2011-07-29 12:00:21
+groups_199:
+  id: 199
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
   title: test_group_b
-  updated_at: 2011-07-29 12:00:21
-  id: "199"
   parent_id: 
-groups_99: 
-  created_at: 2011-07-29 12:00:21
+groups_99:
+  id: 99
+  created_at: '2011-07-29 14:00:21'
+  updated_at: '2011-07-29 14:00:21'
   title: test_group
-  updated_at: 2011-07-29 12:00:21
-  id: "99"
   parent_id: 

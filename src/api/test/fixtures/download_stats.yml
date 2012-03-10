@@ -1,182 +1,182 @@
-download_stats_1: 
-  architecture_id: "1"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1356"
-  filetype: rpm
-  db_project_id: "226"
-  id: "1"
-  count: "1"
-  version: 0.0.1
+download_stats_1:
+  id: 1
+  db_project_id: 226
+  db_package_id: 1356
+  repository_id: 81
+  architecture_id: 1
   filename: libapr-util1
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "81"
-download_stats_10: 
-  architecture_id: "1"
-  created_at: 1998-01-25 11:48:59
-  db_package_id: "1355"
   filetype: rpm
-  db_project_id: "226"
-  id: "10"
-  count: "512"
   version: 0.0.1
+  release: 0
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 1
+download_stats_10:
+  id: 10
+  db_project_id: 226
+  db_package_id: 1355
+  repository_id: 81
+  architecture_id: 1
   filename: apache2
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "81"
-download_stats_11: 
-  architecture_id: "1"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1355"
   filetype: rpm
-  db_project_id: "226"
-  id: "11"
-  count: "1024"
   version: 0.0.1
+  release: 0
+  created_at: '1998-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 512
+download_stats_11:
+  id: 11
+  db_project_id: 226
+  db_package_id: 1355
+  repository_id: 81
+  architecture_id: 1
   filename: apache2
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "81"
-download_stats_12: 
-  architecture_id: "1"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1355"
   filetype: rpm
-  db_project_id: "226"
-  id: "12"
-  count: "2048"
   version: 0.0.1
+  release: 0
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 1024
+download_stats_12:
+  id: 12
+  db_project_id: 226
+  db_package_id: 1355
+  repository_id: 75
+  architecture_id: 1
   filename: apache2
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "75"
-download_stats_13: 
-  architecture_id: "2"
-  created_at: 2005-01-04 00:48:59
-  db_package_id: "1355"
   filetype: rpm
-  db_project_id: "226"
-  id: "13"
-  count: "4096"
   version: 0.0.1
+  release: 0
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 2048
+download_stats_13:
+  id: 13
+  db_project_id: 226
+  db_package_id: 1355
+  repository_id: 75
+  architecture_id: 2
   filename: apache2
-  counted_at: 2007-01-25 22:48:59
-  release: "0"
-  repository_id: "75"
-download_stats_14: 
-  architecture_id: "2"
-  created_at: 2007-02-01 17:36:32
-  db_package_id: "1355"
   filetype: rpm
-  db_project_id: "226"
-  id: "14"
-  count: "1111"
-  version: 0.0.111
+  version: 0.0.1
+  release: 0
+  created_at: '2005-01-04 01:48:59'
+  counted_at: '2007-01-25 23:48:59'
+  count: 4096
+download_stats_14:
+  id: 14
+  db_project_id: 226
+  db_package_id: 1355
+  repository_id: 75
+  architecture_id: 2
   filename: apache222222
-  counted_at: 2007-02-01 17:36:36
-  release: "11111"
-  repository_id: "75"
-download_stats_2: 
-  architecture_id: "2"
-  created_at: 2005-01-04 00:48:59
-  db_package_id: "1356"
   filetype: rpm
-  db_project_id: "226"
-  id: "2"
-  count: "2"
-  version: 0.0.1
+  version: 0.0.111
+  release: 11111
+  created_at: '2007-02-01 18:36:32'
+  counted_at: '2007-02-01 18:36:36'
+  count: 1111
+download_stats_2:
+  id: 2
+  db_project_id: 226
+  db_package_id: 1356
+  repository_id: 81
+  architecture_id: 2
   filename: libapr-util1
-  counted_at: 2007-01-25 22:48:59
-  release: "1"
-  repository_id: "81"
-download_stats_3: 
-  architecture_id: "1"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1356"
   filetype: rpm
-  db_project_id: "226"
-  id: "3"
-  count: "4"
   version: 0.0.1
+  release: 1
+  created_at: '2005-01-04 01:48:59'
+  counted_at: '2007-01-25 23:48:59'
+  count: 2
+download_stats_3:
+  id: 3
+  db_project_id: 226
+  db_package_id: 1356
+  repository_id: 75
+  architecture_id: 1
   filename: libapr-util1
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "75"
-download_stats_4: 
-  architecture_id: "2"
-  created_at: 2005-01-04 00:48:59
-  db_package_id: "1356"
   filetype: rpm
-  db_project_id: "226"
-  id: "4"
-  count: "8"
   version: 0.0.1
+  release: 0
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 4
+download_stats_4:
+  id: 4
+  db_project_id: 226
+  db_package_id: 1356
+  repository_id: 75
+  architecture_id: 2
   filename: libapr-util1
-  counted_at: 2007-01-25 22:48:59
-  release: "1"
-  repository_id: "75"
-download_stats_5: 
-  architecture_id: "1"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1336"
   filetype: rpm
-  db_project_id: "215"
-  id: "5"
-  count: "16"
-  version: 0.2.2
+  version: 0.0.1
+  release: 1
+  created_at: '2005-01-04 01:48:59'
+  counted_at: '2007-01-25 23:48:59'
+  count: 8
+download_stats_5:
+  id: 5
+  db_project_id: 215
+  db_package_id: 1336
+  repository_id: 81
+  architecture_id: 1
   filename: x11vnc
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "81"
-download_stats_6: 
-  architecture_id: "1"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1336"
   filetype: rpm
-  db_project_id: "215"
-  id: "6"
-  count: "32"
   version: 0.2.2
+  release: 0
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 16
+download_stats_6:
+  id: 6
+  db_project_id: 215
+  db_package_id: 1336
+  repository_id: 81
+  architecture_id: 1
   filename: x11vnc
-  counted_at: 2007-01-25 11:48:59
-  release: "1"
-  repository_id: "81"
-download_stats_7: 
-  architecture_id: "2"
-  created_at: 2000-01-25 11:48:59
-  db_package_id: "1336"
   filetype: rpm
-  db_project_id: "215"
-  id: "7"
-  count: "64"
   version: 0.2.2
+  release: 1
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 32
+download_stats_7:
+  id: 7
+  db_project_id: 215
+  db_package_id: 1336
+  repository_id: 81
+  architecture_id: 2
   filename: x11vnc
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "81"
-download_stats_8: 
-  architecture_id: "1"
-  created_at: 2005-01-04 00:48:59
-  db_package_id: "1336"
   filetype: rpm
-  db_project_id: "215"
-  id: "8"
-  count: "128"
   version: 0.2.2
+  release: 0
+  created_at: '2000-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 64
+download_stats_8:
+  id: 8
+  db_project_id: 215
+  db_package_id: 1336
+  repository_id: 75
+  architecture_id: 1
   filename: x11vnc
-  counted_at: 2007-01-25 22:48:59
-  release: "0"
-  repository_id: "75"
-download_stats_9: 
-  architecture_id: "2"
-  created_at: 2007-01-25 11:48:59
-  db_package_id: "1336"
   filetype: rpm
-  db_project_id: "215"
-  id: "9"
-  count: "256"
   version: 0.2.2
+  release: 0
+  created_at: '2005-01-04 01:48:59'
+  counted_at: '2007-01-25 23:48:59'
+  count: 128
+download_stats_9:
+  id: 9
+  db_project_id: 215
+  db_package_id: 1336
+  repository_id: 75
+  architecture_id: 2
   filename: x11vnc
-  counted_at: 2007-01-25 11:48:59
-  release: "0"
-  repository_id: "75"
+  filetype: rpm
+  version: 0.2.2
+  release: 0
+  created_at: '2007-01-25 12:48:59'
+  counted_at: '2007-01-25 12:48:59'
+  count: 256

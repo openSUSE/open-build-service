@@ -1,54 +1,54 @@
-static_permissions_1: 
+static_permissions_1:
+  id: 1
   title: global_project_change
-  id: "1"
-static_permissions_10: 
+static_permissions_10:
+  id: 10
   title: create_package
-  id: "10"
-static_permissions_11: 
+static_permissions_11:
+  id: 11
   title: download_binaries
-  id: "11"
-static_permissions_12: 
+static_permissions_12:
+  id: 12
   title: source_access
-  id: "12"
-static_permissions_13: 
+static_permissions_13:
+  id: 13
   title: private_view
-  id: "13"
-static_permissions_14: 
+static_permissions_14:
+  id: 14
   title: access
-  id: "14"
-static_permissions_19: 
+static_permissions_19:
+  id: 19
   title: global_change_project
-  id: "19"
-static_permissions_2: 
+static_permissions_2:
+  id: 2
   title: global_project_create
-  id: "2"
-static_permissions_20: 
+static_permissions_20:
+  id: 20
   title: global_create_project
-  id: "20"
-static_permissions_21: 
+static_permissions_21:
+  id: 21
   title: global_change_package
-  id: "21"
-static_permissions_22: 
+static_permissions_22:
+  id: 22
   title: global_create_package
-  id: "22"
-static_permissions_3: 
+static_permissions_3:
+  id: 3
   title: global_package_change
-  id: "3"
-static_permissions_4: 
+static_permissions_4:
+  id: 4
   title: global_package_create
-  id: "4"
-static_permissions_5: 
+static_permissions_5:
+  id: 5
   title: status_message_create
-  id: "5"
-static_permissions_6: 
+static_permissions_6:
+  id: 6
   title: set_download_counters
-  id: "6"
-static_permissions_7: 
+static_permissions_7:
+  id: 7
   title: change_project
-  id: "7"
-static_permissions_8: 
+static_permissions_8:
+  id: 8
   title: create_project
-  id: "8"
-static_permissions_9: 
+static_permissions_9:
+  id: 9
   title: change_package
-  id: "9"

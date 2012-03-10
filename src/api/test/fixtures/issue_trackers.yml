@@ -1,277 +1,299 @@
-cve_numbers: 
-  regex: CVE-\d{4,4}-\d{4,4}
-  kind: cve
+cve_numbers:
+  id: 2
   name: cve
-  url: http://cve.mitre.org
-  id: "2"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@
+  kind: cve
   description: CVE numbers
-  password: 
+  url: http://cve.mitre.org
+  show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@
+  regex: CVE-\d{4,4}-\d{4,4}
   user: 
-issue_trackers_25: 
-  regex: boost#(\d+)
-  kind: trac
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_25:
+  id: 25
   name: boost
-  url: https://svn.boost.org/trac/boost/
-  id: "25"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://svn.boost.org/trac/boost/ticket/@@@
+  kind: trac
   description: Boost Trac
-  password: 
+  url: https://svn.boost.org/trac/boost/
+  show_url: https://svn.boost.org/trac/boost/ticket/@@@
+  regex: boost#(\d+)
   user: 
-issue_trackers_26: 
-  regex: bco#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_26:
+  id: 26
   name: bco
-  url: http://bugzilla.clutter-project.org/
-  id: "26"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Clutter Project Bugzilla
-  password: 
+  url: http://bugzilla.clutter-project.org/
+  show_url: http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@
+  regex: bco#(\d+)
   user: 
-issue_trackers_27: 
-  regex: RT#(\d+)
-  kind: ""
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_27:
+  id: 27
   name: RT
-  url: https://rt.cpan.org/
-  id: "27"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://rt.cpan.org/Public/Bug/Display.html?id=@@@
+  kind: ''
   description: CPAN Bugs
-  password: 
+  url: https://rt.cpan.org/
+  show_url: http://rt.cpan.org/Public/Bug/Display.html?id=@@@
+  regex: RT#(\d+)
   user: 
-issue_trackers_28: 
-  regex: deb#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_28:
+  id: 28
   name: deb
-  url: http://bugs.debian.org/
-  id: "28"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@
+  kind: bugzilla
   description: Debian Bugzilla
-  password: 
+  url: http://bugs.debian.org/
+  show_url: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@
+  regex: deb#(\d+)
   user: 
-issue_trackers_29: 
-  regex: fdo#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_29:
+  id: 29
   name: fdo
-  url: https://bugs.freedesktop.org/
-  id: "29"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugs.freedesktop.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Freedesktop.org Bugzilla
-  password: 
+  url: https://bugs.freedesktop.org/
+  show_url: https://bugs.freedesktop.org/show_bug.cgi?id=@@@
+  regex: fdo#(\d+)
   user: 
-issue_trackers_30: 
-  regex: GCC#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_30:
+  id: 30
   name: GCC
-  url: http://gcc.gnu.org/bugzilla/
-  id: "30"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: GCC Bugzilla
-  password: 
+  url: http://gcc.gnu.org/bugzilla/
+  show_url: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@
+  regex: GCC#(\d+)
   user: 
-issue_trackers_31: 
-  regex: bgo#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_31:
+  id: 31
   name: bgo
-  url: https://bugzilla.gnome.org/
-  id: "31"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.gnome.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Gnome Bugzilla
-  password: 
+  url: https://bugzilla.gnome.org/
+  show_url: https://bugzilla.gnome.org/show_bug.cgi?id=@@@
+  regex: bgo#(\d+)
   user: 
-issue_trackers_32: 
-  regex: bio#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_32:
+  id: 32
   name: bio
-  url: https://bugzilla.icculus.org/
-  id: "32"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.icculus.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Icculus.org Bugzilla
-  password: 
+  url: https://bugzilla.icculus.org/
+  show_url: https://bugzilla.icculus.org/show_bug.cgi?id=@@@
+  regex: bio#(\d+)
   user: 
-issue_trackers_33: 
-  regex: (?:Kernel|K|bko)#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_33:
+  id: 33
   name: bko
-  url: https://bugzilla.kernel.org/
-  id: "33"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.kernel.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Kernel.org Bugzilla
-  password: 
+  url: https://bugzilla.kernel.org/
+  show_url: https://bugzilla.kernel.org/show_bug.cgi?id=@@@
+  regex: (?:Kernel|K|bko)#(\d+)
   user: 
-issue_trackers_34: 
-  regex: kde#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_34:
+  id: 34
   name: kde
-  url: https://bugs.kde.org/
-  id: "34"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugs.kde.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: KDE Bugzilla
-  password: 
+  url: https://bugs.kde.org/
+  show_url: https://bugs.kde.org/show_bug.cgi?id=@@@
+  regex: kde#(\d+)
   user: 
-issue_trackers_35: 
-  regex: b?lp#(\d+)
-  kind: launchpad
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_35:
+  id: 35
   name: lp
-  url: https://bugs.launchpad.net/bugs/
-  id: "35"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugs.launchpad.net/bugs/@@@
+  kind: launchpad
   description: Launchpad.net Bugtracker
-  password: 
+  url: https://bugs.launchpad.net/bugs/
+  show_url: https://bugs.launchpad.net/bugs/@@@
+  regex: b?lp#(\d+)
   user: 
-issue_trackers_36: 
-  regex: Meego#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_36:
+  id: 36
   name: Meego
-  url: https://bugs.meego.com/
-  id: "36"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugs.meego.com/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Meego Bugs
-  password: 
+  url: https://bugs.meego.com/
+  show_url: https://bugs.meego.com/show_bug.cgi?id=@@@
+  regex: Meego#(\d+)
   user: 
-issue_trackers_37: 
-  regex: bmo#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_37:
+  id: 37
   name: bmo
-  url: https://bugzilla.mozilla.org/
-  id: "37"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.mozilla.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Mozilla Bugzilla
-  password: 
+  url: https://bugzilla.mozilla.org/
+  show_url: https://bugzilla.mozilla.org/show_bug.cgi?id=@@@
+  regex: bmo#(\d+)
   user: 
-issue_trackers_38: 
-  regex: ITS#(\d+)
-  kind: ""
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_38:
+  id: 38
   name: ITS
-  url: http://www.openldap.org/its/
-  id: "38"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://www.openldap.org/its/index.cgi/Contrib?id=@@@
+  kind: ''
   description: OpenLDAP Issue Tracker
-  password: 
+  url: http://www.openldap.org/its/
+  show_url: http://www.openldap.org/its/index.cgi/Contrib?id=@@@
+  regex: ITS#(\d+)
   user: 
-issue_trackers_39: 
-  regex: i#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_39:
+  id: 39
   name: i
-  url: http://openoffice.org/bugzilla/
-  id: "39"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://openoffice.org/bugzilla/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: OpenOffice.org Bugzilla
-  password: 
+  url: http://openoffice.org/bugzilla/
+  show_url: http://openoffice.org/bugzilla/show_bug.cgi?id=@@@
+  regex: i#(\d+)
   user: 
-issue_trackers_40: 
-  regex: "[Ff]ate#(\\d+)"
-  kind: fate
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_40:
+  id: 40
   name: fate
-  url: https://features.opensuse.org/
-  id: "40"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://features.opensuse.org/@@@
+  kind: fate
   description: openSUSE Feature Database
-  password: 
+  url: https://features.opensuse.org/
+  show_url: https://features.opensuse.org/@@@
+  regex: ! '[Ff]ate#(\d+)'
   user: 
-issue_trackers_41: 
-  regex: rh#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_41:
+  id: 41
   name: rh
-  url: https://bugzilla.redhat.com/
-  id: "41"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.redhat.com/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: RedHat Bugzilla
-  password: 
+  url: https://bugzilla.redhat.com/
+  show_url: https://bugzilla.redhat.com/show_bug.cgi?id=@@@
+  regex: rh#(\d+)
   user: 
-issue_trackers_42: 
-  regex: bso#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_42:
+  id: 42
   name: bso
-  url: https://bugzilla.samba.org/
-  id: "42"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.samba.org/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Samba Bugzilla
-  password: 
+  url: https://bugzilla.samba.org/
+  show_url: https://bugzilla.samba.org/show_bug.cgi?id=@@@
+  regex: bso#(\d+)
   user: 
-issue_trackers_43: 
-  regex: sf#(\d+)
-  kind: sourceforge
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_43:
+  id: 43
   name: sf
-  url: http://sf.net/support/
-  id: "43"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://sf.net/support/tracker.php?aid=@@@
+  kind: sourceforge
   description: SourceForge.net Tracker
-  password: 
+  url: http://sf.net/support/
+  show_url: http://sf.net/support/tracker.php?aid=@@@
+  regex: sf#(\d+)
   user: 
-issue_trackers_44: 
-  regex: Xamarin#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_44:
+  id: 44
   name: Xamarin
-  url: http://bugzilla.xamarin.com/index.cgi
-  id: "44"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: http://bugzilla.xamarin.com/show_bug.cgi?id=@@@
+  kind: bugzilla
   description: Xamarin Bugzilla
-  password: 
+  url: http://bugzilla.xamarin.com/index.cgi
+  show_url: http://bugzilla.xamarin.com/show_bug.cgi?id=@@@
+  regex: Xamarin#(\d+)
   user: 
-issue_trackers_45: 
-  regex: bxo#(\d+)
-  kind: bugzilla
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+issue_trackers_45:
+  id: 45
   name: bxo
-  url: https://bugzilla.xfce.org/
-  id: "45"
-  issues_updated: 2011-07-29 12:00:21
-  label: "@@@"
-  show_url: https://bugzilla.xfce.org/show_bug.cgi?id=@@@
-  description: XFCE Bugzilla
-  password: 
-  user: 
-novell_bugzilla: 
-  regex: bnc#(\d+)
   kind: bugzilla
-  name: bnc
-  url: http://bugzilla.novell.com
-  id: "1"
-  issues_updated: 2011-07-29 12:00:21
-  enable_fetch: true
-  label: "bnc#@@@"
-  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
-  description: Novell Bugzilla
-  password: 
+  description: XFCE Bugzilla
+  url: https://bugzilla.xfce.org/
+  show_url: https://bugzilla.xfce.org/show_bug.cgi?id=@@@
+  regex: bxo#(\d+)
   user: 
+  password: 
+  label: ! '@@@'
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 0
+novell_bugzilla:
+  id: 1
+  name: bnc
+  kind: bugzilla
+  description: Novell Bugzilla
+  url: http://bugzilla.novell.com
+  show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
+  regex: bnc#(\d+)
+  user: 
+  password: 
+  label: bnc#@@@
+  issues_updated: '2011-07-29 14:00:21'
+  enable_fetch: 1

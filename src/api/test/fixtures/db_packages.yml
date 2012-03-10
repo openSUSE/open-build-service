@@ -1,434 +1,434 @@
-db_packages_1: 
+Basedistro_Update_pack2:
+  id: 10094
+  db_project_id: 2047
+  name: pack2
+  title: For maintenance tests
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
+  develproject_id: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_1:
+  id: 1
+  db_project_id: 2
   name: kdelibs
-  created_at: 2001-01-01 01:01:01
-  activity_index: "100"
   title: blub
-  updated_at: 2002-02-02 02:02:02
-  bcntsynctag: 
-  url: 
-  db_project_id: "2"
-  id: "1"
-  update_counter: "0"
   description: blub
-  develpackage_id: "1234"
+  created_at: '2001-01-01 02:01:01'
+  updated_at: '2002-02-02 03:02:02'
+  url: 
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_10089: 
+  bcntsynctag: 
+  develpackage_id: 1234
+db_packages_10089:
+  id: 10089
+  db_project_id: 504
   name: BranchPack
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: My Test package
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "504"
-  id: "10089"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-Basedistro_Update_pack2: 
-  name: pack2
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
-  title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
   bcntsynctag: 
-  url: ""
-  db_project_id: "2047"
-  id: "10094"
-  update_counter: "1"
-  description: ""
   develpackage_id: 
-  develproject_id: 
-db_packages_10095: 
+db_packages_10095:
+  id: 10095
+  db_project_id: 502
   name: TestPack
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: My Test package
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "502"
-  id: "10095"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_10096: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_10096:
+  id: 10096
+  db_project_id: 2042
   name: pack1
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
+  develproject_id: 
   bcntsynctag: 
-  url: ""
-  db_project_id: "2042"
-  id: "10096"
-  update_counter: "1"
-  description: ""
   develpackage_id: 
-  develproject_id: 
-db_packages_10097: 
+db_packages_10097:
+  id: 10097
+  db_project_id: 2042
   name: pack2
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
+  develproject_id: 
   bcntsynctag: 
-  url: ""
-  db_project_id: "2042"
-  id: "10097"
-  update_counter: "1"
-  description: ""
   develpackage_id: 
-  develproject_id: 
-db_packages_10098: 
+db_packages_10098:
+  id: 10098
+  db_project_id: 2043
   name: pack2
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "2043"
-  id: "10098"
-  update_counter: "1"
-  description: ""
-  develpackage_id: "11098"
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_10099: 
-  name: pack2
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
-  title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
   bcntsynctag: 
-  url: ""
-  db_project_id: "2045"
-  id: "10099"
-  update_counter: "1"
-  description: ""
+  develpackage_id: 11098
+db_packages_10099:
+  id: 10099
+  db_project_id: 2045
+  name: pack2
+  title: For maintenance tests
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
+  develproject_id: 
+  bcntsynctag: 
   develpackage_id: 
-  develproject_id: 
-db_packages_10100: 
+db_packages_10100:
+  id: 10100
+  db_project_id: 2045
   name: pack2_linked
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "2045"
-  id: "10100"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_10195: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_10195:
+  id: 10195
+  db_project_id: 502
   name: ToBeDeletedTestPack
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: This package gets deleted by request test
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "502"
-  id: "10195"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11000: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11000:
+  id: 11000
+  db_project_id: 3000
   name: pack
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package in a hidden project
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3000"
-  id: "11000"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11001: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11001:
+  id: 11001
+  db_project_id: 5002
   name: remotepackage
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package with a remote link
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "5002"
-  id: "11001"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11002: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11002:
+  id: 11002
+  db_project_id: 5002
   name: newpackage
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package without a remote link
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "5002"
-  id: "11002"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11006: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11006:
+  id: 11006
+  db_project_id: 3000
   name: target
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package in a hidden project
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3000"
-  id: "11006"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11007: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11007:
+  id: 11007
+  db_project_id: 3002
   name: bdpack
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package in a binarydownload enabled project
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3002"
-  id: "11007"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11008: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11008:
+  id: 11008
+  db_project_id: 3001
   name: pack
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package in a sourceaccess enabled project
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3001"
-  id: "11008"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11009: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11009:
+  id: 11009
+  db_project_id: 3004
   name: test
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A test package to copy
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3004"
-  id: "11009"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11010: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11010:
+  id: 11010
+  db_project_id: 3004
   name: target
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A test package to copy
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3004"
-  id: "11010"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11011: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11011:
+  id: 11011
+  db_project_id: 3001
   name: target
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: A package in a sourceaccess enabled project
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3001"
-  id: "11011"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11017: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11017:
+  id: 11017
+  db_project_id: 3000
   name: packCopy
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: full copy including binaries of pack
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3000"
-  id: "11017"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11098: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11098:
+  id: 11098
+  db_project_id: 3043
   name: pack2
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: Devel package for maintenance tests
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3043"
-  id: "11098"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_11200: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_11200:
+  id: 11200
+  db_project_id: 3005
   name: aggregate
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: For stealing source binary packages
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3005"
-  id: "11200"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_1234: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_1234:
+  id: 1234
+  db_project_id: 601
   name: kdelibs_DEVEL_package
-  created_at: 2001-01-01 01:01:01
-  activity_index: "100"
   title: blub
-  updated_at: 2002-02-02 02:02:02
-  bcntsynctag: 
-  url: 
-  db_project_id: "601"
-  id: "1234"
-  update_counter: "0"
   description: blub
-  develpackage_id: 
+  created_at: '2001-01-01 02:01:01'
+  updated_at: '2002-02-02 03:02:02'
+  url: 
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_1336: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_1336:
+  id: 1336
+  db_project_id: 215
   name: x11vnc
-  created_at: 2005-01-01 00:00:02
-  activity_index: "100"
   title: x11vnc
-  updated_at: 2007-01-25 11:48:59
-  bcntsynctag: 
+  description: description
+  created_at: '2005-01-01 01:00:02'
+  updated_at: '2007-01-25 12:48:59'
   url: http://geblubberblah/total/egal
-  db_project_id: "215"
-  id: "1336"
-  update_counter: "0"
-  description: description
-  develpackage_id: 
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_1355: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_1355:
+  id: 1355
+  db_project_id: 226
   name: apache2
-  created_at: 2005-01-01 00:00:02
-  activity_index: "100"
   title: apache2
-  updated_at: 2007-01-19 10:44:45
-  bcntsynctag: 
+  description: description
+  created_at: '2005-01-01 01:00:02'
+  updated_at: '2007-01-19 11:44:45'
   url: http://httpd.apache.org
-  db_project_id: "226"
-  id: "1355"
-  update_counter: "0"
-  description: description
-  develpackage_id: 
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_1356: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_1356:
+  id: 1356
+  db_project_id: 226
   name: libapr-util1
-  created_at: 2005-01-01 00:00:02
-  activity_index: "100"
   title: libapr-util1
-  updated_at: 2007-01-19 10:44:45
-  bcntsynctag: 
-  url: http://some.url
-  db_project_id: "226"
-  id: "1356"
-  update_counter: "0"
   description: description
-  develpackage_id: 
+  created_at: '2005-01-01 01:00:02'
+  updated_at: '2007-01-19 11:44:45'
+  url: http://some.url
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_2: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_2:
+  id: 2
+  db_project_id: 2
   name: kdebase
-  created_at: 2001-01-01 01:01:01
-  activity_index: "100"
   title: blub
-  updated_at: 2002-02-02 02:02:02
-  bcntsynctag: 
-  url: 
-  db_project_id: "2"
-  id: "2"
-  update_counter: "0"
   description: blub
-  develpackage_id: 
+  created_at: '2001-01-01 02:01:01'
+  updated_at: '2002-02-02 03:02:02'
+  url: 
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_253895098: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_253895098:
+  id: 253895098
+  db_project_id: 2042
   name: pack3
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: For maintenance tests
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "2042"
-  id: "253895098"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_289270358: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_289270358:
+  id: 289270358
+  db_project_id: 3043
   name: pack3
-  created_at: 2007-05-16 14:19:18
-  activity_index: "10"
   title: Devel package for maintenance tests
-  updated_at: 2007-05-16 14:19:18
-  bcntsynctag: 
-  url: ""
-  db_project_id: "3043"
-  id: "289270358"
-  update_counter: "1"
-  description: ""
-  develpackage_id: 
+  description: ''
+  created_at: '2007-05-16 16:19:18'
+  updated_at: '2007-05-16 16:19:18'
+  url: ''
+  update_counter: 1
+  activity_index: 10
   develproject_id: 
-db_packages_63: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_63:
+  id: 63
+  db_project_id: 226
   name: Taskjuggler
-  created_at: 2005-01-01 00:00:01
-  activity_index: "100"
   title: Taskjuggler is Project Management Software
-  updated_at: 2005-01-01 00:00:01
-  bcntsynctag: 
-  url: http://some.url
-  db_project_id: "226"
-  id: "63"
-  update_counter: "0"
   description: description
-  develpackage_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  url: http://some.url
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
-db_packages_64: 
+  bcntsynctag: 
+  develpackage_id: 
+db_packages_64:
+  id: 64
+  db_project_id: 226
   name: Tidy
-  created_at: 2005-01-01 00:00:01
-  activity_index: "100"
   title: HTML Tidy Library Project
-  updated_at: 2005-01-01 00:00:01
-  bcntsynctag: 
-  url: http://some.url
-  db_project_id: "226"
-  id: "64"
-  update_counter: "0"
   description: description
-  develpackage_id: 
+  created_at: '2005-01-01 01:00:01'
+  updated_at: '2005-01-01 01:00:01'
+  url: http://some.url
+  update_counter: 0
+  activity_index: 100
   develproject_id: 
+  bcntsynctag: 
+  develpackage_id: 
