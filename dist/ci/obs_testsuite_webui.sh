@@ -33,7 +33,7 @@
 #   Publish Rails stats report: 1
 #     Rake working directory: src/webui
 #   Publish Rcov report:
-#     Rcov report directory:  src/webui/coverage/test
+#     Rcov report directory:  src/webui/coverage
 #
 
 ###############################################################################
