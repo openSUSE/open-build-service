@@ -1117,7 +1117,9 @@ sub publish {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     next if $arch =~ /\.repo$/;
-    my $r = "$extrep/$arch";
+    my $subdir = "";
+    $subdir = "/".$repotype{'packagesubdir'}->[0] if $repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0];
+    my $r = "$extrep$subdir/$arch";
     if (-f $r) {
       $r = $extrep;
       my $bin = $arch;
@@ -1197,7 +1199,9 @@ sub publish {
       $arch = '.';
       $bin = $p;
     }
-    my $r = "$extrep/$arch";
+    my $subdir = "";
+    $subdir = "/".$repotype{'packagesubdir'}->[0] if $repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0];
+    my $r = "$extrep$subdir/$arch";
     mkdir_p($r) unless -d $r;
     print "      + $p\n";
     if (! -l $bins{$p} && -d _) {
