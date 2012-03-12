@@ -366,10 +366,12 @@ class BsRequest < ActiveXML::Base
             if linkinfo
               lprj, lpkg = linkinfo.project, linkinfo.package
               link_is_already_devel = false
-              action[:forward].each do |forward|
-                if forward[:project] == lprj && forward[:package] == lpkg
-                  link_is_already_devel = true
-                  break
+              if action[:forward]
+                action[:forward].each do |forward|
+                  if forward[:project] == lprj && forward[:package] == lpkg
+                    link_is_already_devel = true
+                    break
+                  end
                 end
               end
               if !link_is_already_devel
