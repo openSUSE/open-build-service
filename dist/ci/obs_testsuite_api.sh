@@ -41,7 +41,7 @@
 #   Publish Rails stats report: 1
 #     Rake working directory: src/api
 #   Publish Rcov report:
-#     Rcov report directory:  src/api/coverage/test
+#     Rcov report directory:  src/api/coverage
 #
 
 ###############################################################################
