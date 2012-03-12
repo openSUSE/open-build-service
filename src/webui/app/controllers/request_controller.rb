@@ -66,12 +66,11 @@ class RequestController < ApplicationController
     @is_author = @req.creator().login == session[:login]
     @superseded_by = @req.state.value("superseded_by")
     @is_target_maintainer = @req.is_target_maintainer?(session[:login])
-    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer)
-    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author)
 
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
-    # everyone who is reviewer can also add reviewers
-    @can_add_reviews ||= @my_open_reviews.length > 0
+    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0)
+    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author)
+
     @events = @req.events()
     @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
 
