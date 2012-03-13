@@ -50,6 +50,7 @@ class IssueTrackersController < ApplicationController
                                            :label => xml.xpath('label[1]/text()').to_s,
                                            :url => xml.xpath('url[1]/text()').to_s,
                                            :enable_fetch => xml.xpath('enable-fetch[1]/text()').to_s,
+                                           :issues_updated => Time.now,
                                            :show_url => xml.xpath('show-url[1]/text()').to_s)
     end
 
