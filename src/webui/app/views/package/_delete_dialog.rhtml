@@ -2,10 +2,7 @@
   <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box" id="del_dialog">
     <div class="box box-shadow">
-      <div class="box-header aligncenter">
-        <b>Delete Confirmation</b>
-      </div>
-
+      <h2 class="box-header">Delete Confirmation</h2>
       <p>Do you really want to delete <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>?</p>
 
       <% form_tag({:controller => :package, :action => :remove}, :method => :post) do %>

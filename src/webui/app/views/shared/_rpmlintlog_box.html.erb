@@ -1,11 +1,11 @@
 <% index ||= '' %>
 
 <div class="box show_right">
-  <div class="box-header aligncenter">
-    <b>Rpmlint Output</b>
+  <h2 class="box-header">
+    Rpmlint Output
     <%= link_to_function(image_tag('reload.png', :alt => 'Reload', :title => 'Reload'), 'update_rpmlintlog()', :id => "rpmlintlog_reload_#{index}") %>
     <%= image_tag('ajax-loader.gif', :id => "rpmlintlog_spinner_#{index}", :class => 'hidden') %>
-  </div>
+  </h2>
   <% javascript_tag do %>
     function update_rpmlintlog() {
       $('#rpmlintlog_spinner_<%= index %>').show();

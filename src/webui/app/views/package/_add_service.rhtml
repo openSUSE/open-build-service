@@ -2,9 +2,7 @@
   <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box" id="add_service">
     <div class="box box-shadow">
-      <div class="box-header aligncenter">
-        <b>Add a Source Service</b>
-      </div>
+      <h2 class="box-header">Add a Source Service</h2>
 
       <% Service.available.each do |service| %>
         <% object_id = "new_service_#{service[:name]}" %>

@@ -4,8 +4,10 @@
 
 <% if (@news and @news.count.to_i > 0) or (@user and @user.is_admin?) %>
   <div class="box box-shadow">
-    <div class="box-header aligncenter">News <%= link_to(image_tag('feeds.png', :title => 'RSS Feed'), :action => 'news', :format => 'rss') %></div>
-
+    <h2 class="box-header">
+      News
+      <%= link_to(image_tag('feeds.png', :title => 'RSS Feed', :class => 'alignright'), :action => 'news', :format => 'rss') %>
+    </h2>
     <% if @news.count.to_i > 0 %>
       <table>
         <tbody>

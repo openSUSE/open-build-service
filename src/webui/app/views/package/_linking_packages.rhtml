@@ -2,10 +2,7 @@
   <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box" id="linking_packages">
     <div class="box box-shadow">
-      <div class="box-header aligncenter">
-        <b>Derived Packages</b>
-      </div>
-
+      <h2 class="box-header">Derived Packages</h2>
       <ul>
         <% @linking_packages.each do |lp| %>
           <% if lp[:package] != @package.name %>

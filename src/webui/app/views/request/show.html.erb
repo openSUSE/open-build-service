@@ -150,7 +150,7 @@
 
   <div class="grid_6 omega">
     <div class="box show_right">
-      <div class="box-header aligncenter"><b>Request History</b></div>
+      <h2 class="box-header">Request History</h2>
       <%= render :partial => 'recent_events_table' %>
     </div>
   </div>
@@ -248,7 +248,7 @@
         <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
           <div class="grid_10 alpha">
             <div class="box show_left">
-              <div class="box-header aligncenter"><b>Source Diff</b></div>
+              <h2 class="box-header">Source Diff</h2>
               <% if action[:type] == 'delete' %>
                 <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
               <% else %>
@@ -273,14 +273,14 @@
 
             <% if sourcediff[:issues].length > 0 %>
               <div class="box show_right">
-                <div class="box-header aligncenter"><b>Mentioned Issues (<%= sourcediff[:issues].length %>)</b></div>
+                <h2 class="box-header">Mentioned Issues (<%= sourcediff[:issues].length %>)</h2>
                 <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
               </div>
             <% end %>
 
             <% if sourcediff[:rpmlint] %>>
               <div class="box show_right">
-                <div class="box-header aligncenter"><b>Rpmlint Output</b></div>
+                <h2 class="box-header">Rpmlint Output</h2>
                 <%#TODO: Add issues partial on the right %>
               </div>
             <% end %>

@@ -1,6 +1,5 @@
 <div class="box" style="margin: 1em" id="<%= valid_xml_id(repository.name) %>">
-
-  <div class="box-header aligncenter"><b>Edit <%= h(repository.name) %></b></div>
+  <h2 class="box-header">Edit <%= h(repository.name) %></h2>
   <% if local_assigns[:error] %>
     <div class="message error"><%= error %></div>
   <% end %>

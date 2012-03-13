@@ -2,12 +2,8 @@
   <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box">
     <div class="box box-shadow">
-      <div class="box-header aligncenter">
-        <b>Request Maintenance Incident</b>
-      </div>
-
+      <h2 class="box-header">Request Maintenance Incident</h2>
       <p>Submit to default maintenance project in order to create a new incident</p>
-
       <% form_tag({:controller => 'project', :action => 'new_incident_request'}, :method => :post) do %>
         <%= hidden_field_tag(:project, @project) %>
         <p>
