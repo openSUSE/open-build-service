@@ -5643,7 +5643,7 @@ sub listservices {
 }
 
 sub published {
-  my ($cgi, $projid, $repoid, $arch, $filename) = @_;
+  my ($cgi, $projid, $repoid, $arch, $filename, $subfilename) = @_;
   my @args;
   die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'ymp' && $cgi->{'view'} ne 'fileinfo';
   push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
@@ -5652,6 +5652,7 @@ sub published {
   $p .= "/$repoid" if defined $repoid;
   $p .= "/$arch" if defined $arch;
   $p .= "/$filename" if defined $filename;
+  $p .= "/$subfilename" if defined $subfilename;
   my $param = {
     'uri' => "$BSConfig::reposerver$p",
     'ignorestatus' => 1,
@@ -6683,6 +6684,7 @@ my $dispatches = [
   '/published/$project/$repository' => \&published,
   '/published/$project/$repository/$arch:filename view:?' => \&published,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&published,
+  '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
   '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool?' => \&getprojpack,
