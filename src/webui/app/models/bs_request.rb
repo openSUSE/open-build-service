@@ -400,7 +400,7 @@ class BsRequest < ActiveXML::Base
         when 'set_bugowner' then 
           action[:name] = 'Set Bugowner'
         when 'maintenance_incident' then
-          action[:name] = 'Maintenance Incident'
+          action[:name] = "Incident #{action[:spkg].split('.')[0]}"
           action[:sourcediff] = actiondiffs()[action_index] if with_diff
         when 'maintenance_release' then
           action[:name] = "Release #{action[:spkg].split('.')[0]}"
