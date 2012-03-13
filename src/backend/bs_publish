@@ -294,7 +294,7 @@ sub addsizechecksum {
 }
 
 sub createrepo_rpmmd {
-  my ($extrep, $subdir, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos, $appdatas) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos, $appdatas) = @_;
 
   my %options = map {$_ => 1} @{$options || []};
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
@@ -353,7 +353,7 @@ sub createrepo_rpmmd {
     # things are a bit complex, as we have to merge the deltas, and we also have to add the checksum
     my %mergeddeltas;
     for my $d (values(%$deltainfos)) {
-      addsizechecksum("$extrep/$subdir.$d->{'delta'}->[0]->{'filename'}", $subdir.$d->{'delta'}->[0], @legacyargs ? 'sha' : 'sha256');
+      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], @legacyargs ? 'sha' : 'sha256');
       my $mkey = "$d->{'arch'}\0$d->{'name'}\0$d->{'epoch'}\0$d->{'version'}\0$d->{'release'}\0";
       if ($mergeddeltas{$mkey}) {
 	push @{$mergeddeltas{$mkey}->{'delta'}}, $d->{'delta'}->[0];
@@ -809,8 +809,13 @@ sub deleterepo {
     $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
   }
   # delete all binaries
+  my $subdir = $repoinfo->{'subdir'} || '';
+  my @archs = sort(ls($extrep));
+  if ($subdir) {
+    @archs = map {$_ eq $subdir ? sort(ls("$extrep/$subdir")) : $_} @archs;
+  }
   my @db_deleted;
-  for my $arch (ls($extrep)) {
+  for my $arch (@archs) {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     my $r = "$extrep/$arch";
@@ -830,6 +835,7 @@ sub deleterepo {
   }
   # update repoinfo
   unlink("$reporoot/$prp/:repoinfo");
+  rmdir("$reporoot/$prp/$subdir") if $subdir;
   rmdir("$reporoot/$prp");
 
   # update published database
@@ -918,12 +924,11 @@ sub publish {
   $dbgsplit ||= '' if $repotype{'splitdebug'} && $repotype{'splitdebug'}->[0];
 
   # is there a special subdirectory for binary packages configured?
-  my $subdir = "";
+  my $subdir = '';
   if ($repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0]) {
     $subdir = $repotype{'packagesubdir'}->[0];
-    verify_repoid($subdir);
-    $subdir .= "/";
-  };
+    BSVerify::verify_filename($subdir);
+  }
 
   # get us the lock
   local *F;
@@ -1014,7 +1019,7 @@ sub publish {
 	# legacy format
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q;
-	$p = "$subdir$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
+	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
       } elsif ($bin =~ /\.deb$/) {
 	# legacy format
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -1041,6 +1046,7 @@ sub publish {
 	}
       }
       next unless defined $p;
+      $p = "$subdir/$p" if $subdir;
       # next if $bins{$p}; # first arch wins
       my @s = stat("$reporoot/$prp/$arch/:repo/$rbin");
       next unless @s;
@@ -1073,7 +1079,7 @@ sub publish {
 	  if (!grep {!exists($dseq{$_})} @needed) {
 	    # got all required fields. convert to correct data
 	    my $dinfo = {'name' => $dseq{'Name'}, 'epoch' => $dseq{'Epoch'} || 0, 'version' => $dseq{'Version'}, 'release' => $dseq{'Release'}, 'arch' => $dseq{'Arch'}};
-	    $dinfo->{'delta'} = [ {'oldepoch' => $dseq{'OldEpoch'} || 0, 'oldversion' => $dseq{'OldVersion'}, 'oldrelease' => $dseq{'OldRelease'}, 'filename' => $subdir.$p, 'sequence' => $dseq{'Seq'}} ];
+	    $dinfo->{'delta'} = [ {'oldepoch' => $dseq{'OldEpoch'} || 0, 'oldversion' => $dseq{'OldVersion'}, 'oldrelease' => $dseq{'OldRelease'}, 'filename' => $p, 'sequence' => $dseq{'Seq'}} ];
 	    $deltainfos{$p} = $dinfo;
 	  }
 	}
@@ -1121,11 +1127,15 @@ sub publish {
   my @changed;  	# All changed files for hooks.
 
   my %bins_done;
-  for my $arch (sort(ls($extrep))) {
+  @archs = sort(ls($extrep));
+  if ($subdir) {
+    @archs = map {$_ eq $subdir ? sort(ls("$extrep/$subdir")) : $_} @archs;
+  }
+  for my $arch (@archs) {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     next if $arch =~ /\.repo$/;
-    my $r = "$extrep/$subdir$arch";
+    my $r = "$extrep/$arch";
     if (-f $r) {
       $r = $extrep;
       my $bin = $arch;
@@ -1140,7 +1150,7 @@ sub publish {
       }
       if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
         unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
-        link($bins{$p}, "$r/$bin") || die("link2 $bins{$p} $r/$bin: $!\n");
+        link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
 	push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
 	push @changed, $p;
         $changed = 1;
@@ -1188,7 +1198,7 @@ sub publish {
 	if (! -l $bins{$p} && -d _) {
 	  BSUtil::linktree($bins{$p}, "$r/$bin");
 	} else {
-          link($bins{$p}, "$r/$bin") || die("link3 $bins{$p} $r/$bin: $!\n");
+          link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
 	}
 	push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
 	push @changed, $p;
@@ -1200,18 +1210,19 @@ sub publish {
   for my $p (sort keys %bins) {
     next if $bins_done{$p};
     # a new one
-    my ($arch, $bin) = split('/', $p, 2);
-    if (!defined($bin)) {
-      $arch = '.';
-      $bin = $p;
+    my ($arch, $bin);
+    if ($p =~ /^(.*)\/([^\/]*)$/s) {
+      ($arch, $bin) = ($1, $2);
+    } else {
+      ($arch, $bin) = ('.', $p);
     }
-    my $r = "$extrep/$subdir$arch";
+    my $r = "$extrep/$arch";
     mkdir_p($r) unless -d $r;
     print "      + $p\n";
-    if (! -l $subdir.$bins{$p} && -d _) {
+    if (! -l $bins{$p} && -d _) {
       BSUtil::linktree($bins{$p}, "$r/$bin");
     } else {
-      link($bins{$p}, "$r/$bin") || warn("link1 $bins{$p} $r/$bin: $!\n");
+      link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
     }
     push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
     push @changed, $p;
@@ -1300,6 +1311,7 @@ sub publish {
   };
   $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
   $repoinfo->{'splitdebug'} = $repotype{'splitdebug'}->[0] if defined $dbgsplit;
+  $repoinfo->{'subdir'} = $subdir if $subdir;
 
   # store repoinfo on disk
   if (!$dbgsplit) {
@@ -1390,7 +1402,7 @@ sub publish {
   $xrepoid .= $dbgsplit if $dbgsplit;
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $subdir, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos, $appdatas);
+    createrepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos, $appdatas);
   } else {
     deleterepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
