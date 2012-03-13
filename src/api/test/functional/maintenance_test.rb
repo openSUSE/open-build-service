@@ -823,6 +823,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.elements["//summary"].text = "if you are bored"
     pi.elements["//description"].text = "if you are bored and really want fixes"
     pi.elements["//rating"].text = "low"
+    pi.root.add_element "releasetarget", { "project" => "BaseDistro2.0:LinkedUpdateProject" }
+    pi.root.add_element "releasetarget", { "project" => "BaseDistro3" }
     pi.root.add_element "issue", { "id" => "0815", "tracker" => "bnc" }
     put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.to_s
     assert_response :success
