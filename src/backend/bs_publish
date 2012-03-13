@@ -44,6 +44,7 @@ use Build;
 use BSDB;
 use BSXML;
 use BSNotify;
+use BSVerify;
 
 use strict;
 
@@ -812,7 +813,7 @@ sub deleterepo {
   my $subdir = $repoinfo->{'subdir'} || '';
   my @archs = sort(ls($extrep));
   if ($subdir) {
-    @archs = map {$_ eq $subdir ? sort(ls("$extrep/$subdir")) : $_} @archs;
+    @archs = map {$_ eq $subdir ? sort(map {"$subdir/$_"} ls("$extrep/$subdir")) : $_} @archs;
   }
   my @db_deleted;
   for my $arch (@archs) {
@@ -1001,7 +1002,7 @@ sub publish {
       if ($bin =~ /^(.*\.rpm)::(.*\.drpm)$/) {
 	# special drpm handling: only take it if we took the corresponding rpm
         if ($bin =~ /^(.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm)::(.*\.drpm)$/) {
-	  if ($bins{"$2/$1"} eq "$r/$1") {
+	  if ($bins{$subdir ? "$subdir/$2/$1" : "$2/$1"} eq "$r/$1") {
 	    # ok, took it. also take delta
 	    $bin = $3;
 	    push @{$deltas{"$r/$1"}}, "$r/$rbin";
@@ -1129,7 +1130,7 @@ sub publish {
   my %bins_done;
   @archs = sort(ls($extrep));
   if ($subdir) {
-    @archs = map {$_ eq $subdir ? sort(ls("$extrep/$subdir")) : $_} @archs;
+    @archs = map {$_ eq $subdir ? sort(map {"$subdir/$_"} ls("$extrep/$subdir")) : $_} @archs;
   }
   for my $arch (@archs) {
     next if $arch =~ /^\./;
@@ -1474,7 +1475,7 @@ publishprog_done:
     }
   }
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$prp}) {
-    qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook failed: $?");
+    qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook->{$prp} failed: $?");
   }
 
   
