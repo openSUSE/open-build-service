@@ -27,7 +27,6 @@ class WebratTest < ActionController::IntegrationTest
       fill_in "Password", :with => "sunflower"
       click_button "Login"
       assert_contain("You are logged in now")
-      assert_contain("Welcome to ")
 
       click_link "Configuration"
       assert_contain("Connect to a remote OBS instance")
