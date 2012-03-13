@@ -294,7 +294,7 @@ module ApplicationHelper
 
   def valid_xml_id(rawid)
     rawid = '_' + rawid if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
-    ERB::Util::h(rawid.gsub(/[+&: .\/\~]/, '_'))
+    ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)]/, '_'))
   end
 
   def format_comment(comment)
