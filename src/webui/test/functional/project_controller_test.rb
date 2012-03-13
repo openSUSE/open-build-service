@@ -14,11 +14,6 @@ class ProjectControllerTest < ActionController::IntegrationTest
 
       assert_equal "10.2", @project.repositories[0]
       assert_equal 1, @project.repositories.size
-
-      t = Marshal.dump(@project)
-      nproject = Marshal.load(t)
-      assert_equal @project.dump_xml, nproject.dump_xml
-      assert_equal @project.init_options, nproject.init_options
   end
 
   def test_list
