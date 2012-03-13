@@ -442,7 +442,7 @@ class RequestController < ApplicationController
             unless missing_ok_link
               unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=false)
                 if action.value("type") == "maintenance_release"
-                  newPackages << pkg.name
+                  newPackages << pkg
                   pkg.db_project.repositories.each do |repo|
                     repo.release_targets.each do |rt|
                       newTargets << rt.target_repository.db_project.name
@@ -495,13 +495,35 @@ class RequestController < ApplicationController
           # new packages (eg patchinfos) go to all target projects by default in maintenance requests
           newTargets.uniq!
           newPackages.each do |pkg|
+            releaseTargets=nil
+            if pkg.db_package_kinds.find_by_kind 'patchinfo'
+              # a patchinfo may limit the targets
+              answer = Suse::Backend.get("/source/#{URI.escape(pkg.db_project.name)}/#{URI.escape(pkg.name)}/_patchinfo")
+              data = ActiveXML::Base.new(answer.body)
+              if data and data.releasetarget
+                releaseTargets = Array.new unless releaseTargets
+                data.each_releasetarget do |rt|
+                  releaseTargets << rt
+                end
+              end
+            end
             newTargets.each do |p|
+              if releaseTargets
+                found=false
+                releaseTargets.each do |rt|
+                  if rt.project == p
+                    found=true
+                    break
+                  end
+                end
+                next unless found
+              end
               newAction = ActiveXML::XMLNode.new(action.dump_xml)
               newAction.add_element 'target' unless newAction.has_element? 'target'
-              newAction.source.set_attribute("package", pkg)
+              newAction.source.set_attribute("package", pkg.name)
               unless action.value("type") == 'maintenance_incident'
                 newAction.target.set_attribute("project", p)
-                newAction.target.set_attribute("package", pkg + incident_suffix) unless action.value("type") == 'maintenance_incident'
+                newAction.target.set_attribute("package", pkg.name + incident_suffix) unless action.value("type") == 'maintenance_incident'
               end
               req.add_node newAction.dump_xml
             end
@@ -1291,7 +1313,7 @@ class RequestController < ApplicationController
 
     # General permission checks if a write access in any location is enough
     unless permission_granted
-      if params[:cmd] == "addreview"
+      if ["addreview", "setincident"].include? params[:cmd]
         # Is the user involved in any project or package ?
         unless write_permission_in_some_target or write_permission_in_some_source
           render_error :status => 403, :errorcode => "addreview_not_permitted",
@@ -1369,8 +1391,7 @@ class RequestController < ApplicationController
           if tprj.project_type == "maintenance"
             # create incident if it is a maintenance project
             unless incident_project
-              source = DbProject.get_by_name(action.source.project)
-              incident_project = create_new_maintenance_incident(tprj, source, req ).db_project
+              incident_project = create_new_maintenance_incident(tprj, nil, req ).db_project
               check_for_patchinfo = true
             end
             unless incident_project.name.start_with?(tprj.name)

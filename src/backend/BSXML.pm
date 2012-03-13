@@ -233,6 +233,10 @@ our $patchinfo = [
             [],
 	  [ 'package' ],# optional
 	  [ 'binary' ],	# optional
+	 [[ 'releasetarget' => # optional
+		'project',
+		'repository',
+         ]],
          [[ 'issue' =>
 		'tracker',
 		'id',

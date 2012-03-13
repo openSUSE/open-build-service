@@ -22,6 +22,18 @@
         </optional>
 
         <zeroOrMore>
+          <element name="releasetarget">
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+            <optional>
+              <attribute name="repository">
+                <data type="string" />
+              </attribute>
+            </optional>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
           <element name="package">
             <text/>
           </element>
