@@ -479,7 +479,12 @@ class Project < ActiveXML::Base
           if pkg_name == 'patchinfo'
             # Holy crap, we found a patchinfo that is specific to (at least) one release target!
             pi = Patchinfo.find_cached(:project => self.name, :package => pkg_name)
-            release_targets_ng[rt_name][:patchinfo] = pi
+            begin
+              release_targets_ng[rt_name][:patchinfo] = pi
+            rescue 
+              #TODO FIXME ARGH: API/backend need some work to support this better.
+              # Until then, multiple patchinfos are problematic
+            end
           else
             # Here we try hard to find the release target our current package is build for:
             found = false
