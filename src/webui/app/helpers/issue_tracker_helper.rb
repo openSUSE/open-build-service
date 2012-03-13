@@ -1,5 +1,3 @@
-require 'md5'
-
 module IssueTrackerHelper
   # Replace all occurences of the acronym with a link to the upstream issue tracker.
   #
@@ -9,7 +7,7 @@ module IssueTrackerHelper
   # 
   def self.highlight_issues_in(text)
     # Cache the result, it takes some time to compute it. Use a MD5 sum of the first 100 characters as cache key
-    return Rails.cache.fetch("highlighted_issues_#{MD5.digest(text[0..100])}", :expires_in => 7.days) do
+    return Rails.cache.fetch("highlighted_issues_#{Digest::MD5.hexdigest(text[0..100])}", :expires_in => 7.days) do
       new_text = text.dup
       IssueTracker.acronyms_with_urls_hash.each do |acronym, urls|
         new_text.gsub!(/#{acronym}\#\d+/).each do |match|
