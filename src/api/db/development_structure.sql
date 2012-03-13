@@ -129,9 +129,8 @@ CREATE TABLE `db_package_issues` (
   `issue_id` int(11) NOT NULL,
   `change` enum('added','deleted','changed','kept') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_db_package_issues_on_db_package_id_and_issue_id` (`db_package_id`,`issue_id`),
-  KEY `index_db_package_issues_on_issue_id` (`issue_id`),
-  KEY `index_db_package_issues_on_db_package_id` (`db_package_id`),
+  KEY `db_package_id` (`db_package_id`),
+  KEY `issue_id` (`issue_id`),
   CONSTRAINT `db_package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `db_package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -185,8 +184,8 @@ CREATE TABLE `db_projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) DEFAULT NULL,
   `remoteproject` varchar(255) DEFAULT NULL,
-  `type_id` int(11) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
@@ -314,7 +313,7 @@ CREATE TABLE `issue_trackers` (
   `user` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `label` text NOT NULL,
-  `issues_updated` datetime DEFAULT NULL,
+  `issues_updated` datetime DEFAULT '2012-03-13 14:15:02',
   `enable_fetch` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -329,7 +328,6 @@ CREATE TABLE `issues` (
   `updated_at` datetime DEFAULT NULL,
   `state` enum('OPEN','CLOSED','UNKNOWN') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_issues_on_name_and_issue_tracker_id` (`name`,`issue_tracker_id`),
   KEY `owner_id` (`owner_id`),
   KEY `issue_tracker_id` (`issue_tracker_id`),
   CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
@@ -358,8 +356,8 @@ CREATE TABLE `maintenance_incidents` (
 
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `object_id` int(11) DEFAULT NULL,
-  `object_type` varchar(255) DEFAULT NULL,
+  `db_object_id` int(11) DEFAULT NULL,
+  `db_object_type` varchar(255) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `send_mail` tinyint(1) DEFAULT NULL,
@@ -368,7 +366,7 @@ CREATE TABLE `messages` (
   `severity` int(11) DEFAULT NULL,
   `text` text,
   PRIMARY KEY (`id`),
-  KEY `object` (`object_id`),
+  KEY `object` (`db_object_id`),
   KEY `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -434,12 +432,12 @@ CREATE TABLE `project_user_role_relationships` (
 CREATE TABLE `ratings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `score` int(11) DEFAULT NULL,
-  `object_id` int(11) DEFAULT NULL,
-  `object_type` varchar(255) DEFAULT NULL,
+  `db_object_id` int(11) DEFAULT NULL,
+  `db_object_type` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `object` (`object_id`),
+  KEY `object` (`db_object_id`),
   KEY `user` (`user_id`),
   CONSTRAINT `ratings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -817,8 +815,6 @@ INSERT INTO schema_migrations (version) VALUES ('20111122000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20111123000000');
 
-INSERT INTO schema_migrations (version) VALUES ('20111206000000');
-
 INSERT INTO schema_migrations (version) VALUES ('20111206151500');
 
 INSERT INTO schema_migrations (version) VALUES ('20111207000000');
@@ -827,8 +823,6 @@ INSERT INTO schema_migrations (version) VALUES ('20111213000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20111215094300');
 
-INSERT INTO schema_migrations (version) VALUES ('20111303000000');
-
 INSERT INTO schema_migrations (version) VALUES ('20120110094300');
 
 INSERT INTO schema_migrations (version) VALUES ('20120110104300');
@@ -836,8 +830,6 @@ INSERT INTO schema_migrations (version) VALUES ('20120110104300');
 INSERT INTO schema_migrations (version) VALUES ('20120111094300');
 
 INSERT INTO schema_migrations (version) VALUES ('20120112094300');
-
-INSERT INTO schema_migrations (version) VALUES ('20120112194300');
 
 INSERT INTO schema_migrations (version) VALUES ('20120119194300');
 
@@ -849,8 +841,6 @@ INSERT INTO schema_migrations (version) VALUES ('20120120104301');
 
 INSERT INTO schema_migrations (version) VALUES ('20120120114301');
 
-INSERT INTO schema_migrations (version) VALUES ('20120124114301');
-
 INSERT INTO schema_migrations (version) VALUES ('20120124114302');
 
 INSERT INTO schema_migrations (version) VALUES ('20120124114303');
@@ -859,13 +849,11 @@ INSERT INTO schema_migrations (version) VALUES ('20120216114303');
 
 INSERT INTO schema_migrations (version) VALUES ('20120217114303');
 
-INSERT INTO schema_migrations (version) VALUES ('20120217114304');
-
 INSERT INTO schema_migrations (version) VALUES ('20120220114304');
 
-INSERT INTO schema_migrations (version) VALUES ('20120222105426');
-
 INSERT INTO schema_migrations (version) VALUES ('20120223105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20120313113554');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
