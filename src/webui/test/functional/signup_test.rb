@@ -28,8 +28,8 @@ class WebratTest < ActionController::IntegrationTest
       click_button "Login"
       assert_contain("You are logged in now")
 
-      click_link "Configuration"
-      assert_contain("Connect to a remote OBS instance")
+      #click_link "Configuration"
+      assert_contain("Connect to a remote Open Build Service instance")
       logout
     end
 
