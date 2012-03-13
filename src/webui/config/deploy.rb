@@ -1,11 +1,16 @@
 require 'net/smtp'
+require 'capistrano/version'
+
+if Capistrano::Version::MAJOR == 2 && Capistrano::Version::MINOR < 11
+  raise "We need capistrano 2.11 - use dlre for now"
+end
 
 set :application, "obs-webui"
 
 # git settings
 set :scm, :git
 set :repository,  "git://github.com/openSUSE/open-build-service.git"
-set :branch, "master"
+set :branch, "2.3"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/webui'
@@ -27,7 +32,7 @@ set :rails_env, "production"
 task :stage do
   set :deploy_to, "/srv/www/vhosts/opensuse.org/stage/#{application}"
   set :runit_name, "webclient_stage"
-  set :branch, "master"
+  set :branch, "2.3"
   set :static, "build.o.o-stage/stage"
   set :owner, "swebuirun"
   set :rails_env, "stage"
@@ -44,7 +49,7 @@ set :runner, "root"
 
 after "deploy:update_code", "config:symlink_shared_config"
 after "deploy:update_code", "config:sync_static"
-after "deploy:symlink", "config:permissions"
+after "deploy:finalize_update", "config:permissions"
 
 # workaround because we are using a subdirectory of the git repo as rails root
 before "deploy:finalize_update", "deploy:use_subdir"
@@ -105,7 +110,7 @@ namespace :deploy do
     set :latest_release, latest_release_bak
   end
 
-  task :symlink, :except => { :no_release => true } do
+  task :create_symlink, :except => { :no_release => true } do
     on_rollback do
       if previous_release
         run "rm -f #{current_path}; ln -s #{previous_release}#{git_subdir} #{current_path}; true"
