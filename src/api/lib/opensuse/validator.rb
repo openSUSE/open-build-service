@@ -157,7 +157,7 @@ module Suse
         begin
           doc = Nokogiri::XML(content, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
           schema.validate(doc).each do |error|
-            logger.error "#{opt[:type]} validation error: #{error}"
+            logger.error "validation error: #{error}"
             logger.debug "Schema #{schema_file} for: #{content}"
             # Only raise an exception for user-input validation!
             raise ValidationError, "#{schema_file} validation error: #{error}"
