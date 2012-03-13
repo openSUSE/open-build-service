@@ -12,13 +12,13 @@ class DbPackage < ActiveRecord::Base
 
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :package_group_role_relationships, :dependent => :destroy
-  has_many :messages, :as => :object, :dependent => :destroy
+  has_many :messages, :as => :db_object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
 
   has_many :download_stats
-  has_many :ratings, :as => :object, :dependent => :destroy
+  has_many :ratings, :as => :db_object, :dependent => :destroy
 
   has_many :flags, :order => :position, :dependent => :destroy
 

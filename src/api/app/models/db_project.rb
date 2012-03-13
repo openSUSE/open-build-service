@@ -15,7 +15,7 @@ class DbProject < ActiveRecord::Base
   has_many :db_packages, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
-  has_many :messages, :as => :object, :dependent => :destroy
+  has_many :messages, :as => :db_object, :dependent => :destroy
 
   has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develproject_id'
   has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
@@ -25,7 +25,7 @@ class DbProject < ActiveRecord::Base
 
   has_many :download_stats
   has_many :downloads, :dependent => :destroy
-  has_many :ratings, :as => :object, :dependent => :destroy
+  has_many :ratings, :as => :db_object, :dependent => :destroy
 
   has_many :flags, :dependent => :destroy
 
