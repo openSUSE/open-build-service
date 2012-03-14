@@ -18,10 +18,8 @@ module ActiveSupport
         message = message[1..-1]
       end
    
-      message = prefix + "[\033[#{color}m%-5s\033[0m|#%5d] %s\n" % [sevstring, $$, message]
-      buffer << message
-      auto_flush
-      message
+      message = prefix + "[\033[#{color}m%-5s\033[0m|#%5d] %s" % [sevstring, $$, message]
+      @log.add(severity, message, progname, &block)
     end
   end
 end

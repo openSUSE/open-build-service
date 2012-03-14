@@ -30,4 +30,9 @@ ActiveXML::Base.config do |conf|
       :project => "rest:///search/project?:match"
 
   end
+
+  # the default is not to write through, only once the backend started
+  # we set this to true
+  conf.global_write_through = false if Rails.env.test?
+
 end

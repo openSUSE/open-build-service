@@ -1,3 +1,5 @@
+require 'active_rbac_mixins/user_registration_mixins'
+
 # UserRegistration objects represent user_registration records in the database.
 # They hold a registration confirmation token, an expiry time and are 
 # associated with users.

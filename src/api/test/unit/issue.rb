@@ -8,9 +8,10 @@ class IssueTest < ActiveSupport::TestCase
   def test_create_and_destroy
     #pkg = DbPackage.find( 10095 )
     iggy = User.find_by_email("Iggy@pop.org")
-    issue = Issue.create :name => '0815', :issue_tracker => 'bnc'
+    bnc = IssueTracker.find_by_name("bnc")
+    issue = Issue.create :name => '0815', :issue_tracker => bnc
     issue.save
-    issue.description = 'This unit test is not working'
+    issue.summary = 'This unit test is not working'
     issue.state = 'INVALID'
     issue.owner = iggy
     issue.save

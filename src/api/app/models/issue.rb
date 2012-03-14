@@ -1,7 +1,9 @@
+require 'workers/fetch_issues'
+
 class Issue < ActiveRecord::Base
   has_many :db_package_issues, :foreign_key => 'issue_id', :dependent => :destroy
-  has_one :owner, :class_name => "User", :foreign_key => 'id'
   belongs_to :issue_tracker
+  belongs_to :owner, :class_name => "User"
 
   def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
@@ -57,7 +59,6 @@ class Issue < ActiveRecord::Base
 
   def after_create
     # inject update job after issue got created
-    require 'workers/fetch_issues.rb'
     Delayed::Job.enqueue FetchIssues.new
   end
 

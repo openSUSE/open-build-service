@@ -1,3 +1,5 @@
+require 'active_rbac_mixins/registration_mailer_mixin'
+
 # This ActionMailer sends the mails and is used by the RegistrationController.
 # Currently, only two kinds of email can be sent.
 # 

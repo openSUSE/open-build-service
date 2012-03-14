@@ -5,10 +5,10 @@ class ActiveRbac::LoginController < ActiveRbac::ComponentController
   layout "rbac.rhtml"
 
   # The user cannot access the logout pages when he is logged in.
-  verify :session     => :rbac_user_id, 
-         :redirect_to => '/',
-         :only        => [ :logout ],
-         :add_flash   => { :notice => 'You can only log out when you have logged in.' }
+  #verify :session     => :rbac_user_id, 
+  #       :redirect_to => '/',
+  #       :only        => [ :logout ],
+  #       :add_flash   => { :notice => 'You can only log out when you have logged in.' }
 
   # Redirects to #login
   def index

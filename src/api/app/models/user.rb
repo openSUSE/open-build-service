@@ -1,3 +1,4 @@
+require 'active_rbac_mixins/user_mixins'
 
 class User < ActiveRecord::Base
   include ActiveRbacMixins::UserMixins::Core

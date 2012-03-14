@@ -162,6 +162,26 @@ class DbProject < ActiveRecord::Base
       return false
     end
 
+    # taken from rails 2.3 
+    VALID_FIND_OPTIONS = [ :conditions, :include, :joins, :limit, :offset,
+                           :order, :select, :readonly, :group, :having, :from, :lock ]
+
+    def validate_find_options(options) #:nodoc:
+        options.assert_valid_keys(VALID_FIND_OPTIONS)
+    end
+
+    def set_readonly_option!(options) #:nodoc:
+       # Inherit :readonly from finder scope if set.  Otherwise,
+       # if :joins is not blank then :readonly defaults to true.
+       unless options.has_key?(:readonly)
+         if scoped_readonly = scope(:find, :readonly)
+           options[:readonly] = scoped_readonly
+         elsif !options[:joins].blank? && !options[:select]
+           options[:readonly] = true
+         end
+       end
+    end
+
     # own version of find
     def find(*args)
       options = args.extract_options!

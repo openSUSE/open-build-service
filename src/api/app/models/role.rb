@@ -1,3 +1,5 @@
+require 'active_rbac_mixins/role_mixins'
+
 # The Role class represents a role in the database. Roles can have permissions
 # associated with themselves. Roles can assigned be to roles and groups.
 #

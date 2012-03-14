@@ -1,7 +1,6 @@
 ENV["RAILS_ENV"] = "test"
-require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
-require 'test_help'
-require 'action_controller/integration'
+require File.expand_path('../../config/environment', __FILE__)
+require 'rails/test_help'
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true

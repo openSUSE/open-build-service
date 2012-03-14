@@ -1,5 +1,7 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
+OBSApi::Application.configure do
+
 # The test environment is used exclusively to run your application's
 # test suite.  You never need to work with it otherwise.  Remember that
 # your test database is "scratch space" for the test suite and is wiped
@@ -11,7 +13,7 @@ config.whiny_nils    = true
 
 # Show full error reports and disable caching
 # local requests don't trigger the global exception handler -> set to false
-config.action_controller.consider_all_requests_local = false
+config.consider_all_requests_local = false
 config.action_controller.perform_caching             = false
 
 # Tell ActionMailer not to deliver emails to the real world.
@@ -20,9 +22,10 @@ config.action_controller.perform_caching             = false
 config.action_mailer.delivery_method = :test
 
 config.cache_store = :memory_store
-# the default is not to write through, only once the backend started
-# we set this to true
-ActiveXML::Config.global_write_through = false
+
+config.active_support.deprecation = :log
+
+end
 
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 3200

@@ -32,12 +32,12 @@ namespace :db do
     task :dump => :environment do
       structure = ''
       abcs = ActiveRecord::Base.configurations
-      case abcs[RAILS_ENV]["adapter"]
+      case abcs[Rails.env]["adapter"]
       when "mysql"
-        ActiveRecord::Base.establish_connection(abcs[RAILS_ENV])
+        ActiveRecord::Base.establish_connection(abcs[Rails.env])
         structure = ActiveRecord::Base.connection.structure_dump
       else
-        raise "Task not supported by '#{abcs[RAILS_ENV]["adapter"]}'"
+        raise "Task not supported by '#{abcs[Rails.env]["adapter"]}'"
       end
 
       if ActiveRecord::Base.connection.supports_migrations?
@@ -75,20 +75,20 @@ namespace :db do
           new_structure += line
         end
       end
-      File.open("#{Rails.root}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << new_structure }
+      File.open("#{Rails.root}/db/#{Rails.env}_structure.sql", "w+") { |f| f << new_structure }
     end
      
     task :load => :environment do
       abcs = ActiveRecord::Base.configurations
-      case abcs[RAILS_ENV]["adapter"]
+      case abcs[Rails.env]["adapter"]
       when "mysql"
-        ActiveRecord::Base.establish_connection(RAILS_ENV)
+        ActiveRecord::Base.establish_connection(Rails.env)
         ActiveRecord::Base.connection.execute('SET foreign_key_checks = 0')
-        IO.readlines("#{Rails.root}/db/#{RAILS_ENV}_structure.sql").join.split("\n\n").each do |table|
+        IO.readlines("#{Rails.root}/db/#{Rails.env}_structure.sql").join.split("\n\n").each do |table|
           ActiveRecord::Base.connection.execute(table)
         end
       else
-        raise "Task not supported by '#{abcs[RAILS_ENV]["adapter"]}'"
+        raise "Task not supported by '#{abcs[Rails.env]["adapter"]}'"
       end
     end
   end

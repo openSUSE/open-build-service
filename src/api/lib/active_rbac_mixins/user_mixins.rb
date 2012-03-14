@@ -292,7 +292,7 @@ module UserMixins
 
           # Overriding this method to make "login" visible as "User name". This is called in
           # forms to create error messages.
-          def self.human_attribute_name (attr)
+          def human_attribute_name (attr)
             return case attr
                    when 'login' then 'User name'
                    else attr.humanize
