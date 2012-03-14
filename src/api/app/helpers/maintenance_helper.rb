@@ -440,10 +440,14 @@ module MaintenanceHelper
         :message => "no packages found by search criteria" }
     end
 
-    #logger.debug "XXXXXXX BEFORE"
-    #@packages.each do |p|
-    #  logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
-    #end
+#    logger.debug "XXXXXXX BEFORE"
+#    @packages.each do |p|
+#      if p[:package].class == DbPackage
+#        logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
+#      else
+#        logger.debug "X #{p[:package]} will point to #{p[:link_target_project].inspect}"
+#      end
+#    end
 
     # lookup update project, devel project or local linked packages.
     # Just requests should be nearly the same
@@ -587,19 +591,49 @@ module MaintenanceHelper
       # add packages which link them in the same project to support build of source with multiple build descriptions
       @packages.each do |p|
         next unless p[:package].class == DbPackage # only for local packages
-        p[:package].find_project_local_linking_packages.each do |llp|
-          target_package = llp.name
+
+        pkg = p[:package]
+        if pkg.db_package_kinds.find_by_kind 'link'
+          # is the package itself a local link ?
+          link = backend_get "/source/#{p[:package].db_project.name}/#{p[:package].name}/_link"
+          ret = ActiveXML::XMLNode.new(link)
+          if ret.project.nil? or ret.project == p[:package].db_project.name
+            pkg = DbPackage.get_by_project_and_name(p[:package].db_project.name, ret.package)
+          end
+        end
+
+        pkg.find_project_local_linking_packages.each do |llp|
+          ap = llp
+          # release projects have a second iteration, pointing to .$ID, use packages with original names instead
+          innerp = llp.find_project_local_linking_packages
+          if innerp.length == 1
+            ap = innerp.first
+          end
+          
+          target_package = ap.name
           target_package += "." + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
-          logger.info "found local linked package in project #{p[:package].db_project.name}, adding it as well #{llp.name}"
-          @packages.push({ :base_project => p[:base_project], :link_target_project => p[:link_target_project], :package => llp, :target_package => target_package, :local_link => 1 })
+
+          # avoid double entries and therefore endless loops
+          found = false
+          @packages.each do |ep|
+            found = true if ep[:package] == ap
+          end
+          unless found
+            logger.info "found local linked package in project #{p[:package].db_project.name}, adding it as well #{ap.name}"
+            @packages.push({ :base_project => p[:base_project], :link_target_project => p[:link_target_project], :link_target_package => p[:package].name, :package => ap, :target_package => target_package, :local_link => 1 })
+          end
         end
       end
     end
 
-    #logger.debug "XXXXXXX AFTER"
-    #@packages.each do |p|
-    #  logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
-    #end
+#    logger.debug "XXXXXXX AFTER"
+#    @packages.each do |p|
+#      if p[:package].class == DbPackage
+#        logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
+#      else
+#        logger.debug "X #{p[:package]} will point to #{p[:link_target_project].inspect}"
+#      end
+#    end
 
     unless target_project
       target_project = "home:#{@http_user.login}:branches:#{params[:project]}"
@@ -759,7 +793,7 @@ module MaintenanceHelper
         link = backend_get "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link"
         ret = ActiveXML::XMLNode.new(link)
         ret.delete_attribute('project') # its a local link, project name not needed
-        linked_package = ret.package
+        linked_package = p[:link_target_package]
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
         linked_package += "." + tpkg.name.gsub(/^[^\.]*\./,'') if extend_names
         ret.set_attribute('package', linked_package)

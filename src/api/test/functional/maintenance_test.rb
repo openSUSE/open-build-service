@@ -1105,6 +1105,20 @@ class MaintenanceTests < ActionController::IntegrationTest
     end
     assert_equal "My-2012-1", node.elements["/updates/update/id"].first.to_s
 
+    # verify that local linked packages still get branched correctly
+    post "/source/BaseDistro2.0/pack2", :cmd => "branch"
+    assert_response :success
+    get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject"
+    assert_response :success
+    get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
+    assert_response :success
+    assert_tag :tag => 'link', :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => nil } 
+    get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2_linked/_link"
+    assert_response :success
+    assert_tag :tag => 'link', :attributes => { :project => nil, :package => "pack2" } 
+    delete "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject"
+    assert_response :success
+
     # revoke a release update
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
