@@ -29,7 +29,7 @@ class WebratTest < ActionController::IntegrationTest
       assert_contain("You are logged in now")
 
       #click_link "Configuration"
-      assert_contain("Connect to a remote Open Build Service instance")
+      assert_contain("Connect a remote Open Build Service instance")
       logout
     end
 
