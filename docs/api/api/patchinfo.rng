@@ -26,11 +26,13 @@
             <attribute name="project">
               <data type="string" />
             </attribute>
+<!-- Not yet supported in 2.3
             <optional>
               <attribute name="repository">
                 <data type="string" />
               </attribute>
             </optional>
+-->
           </element>
         </zeroOrMore>
         <zeroOrMore>
