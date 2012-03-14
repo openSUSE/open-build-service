@@ -50,6 +50,7 @@ init = Rails::Initializer.run do |config|
   config.gem 'nokogiri'
   config.gem 'ci_reporter', :lib => false # ci_reporter generates XML reports for Test::Unit
   config.gem 'xmlhash'
+  config.gem 'fast_xs'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
