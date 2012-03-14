@@ -994,7 +994,7 @@ class ProjectController < ApplicationController
     @project = params[:project]
     @package = params[:package]
     begin
-      @buildresult = find_cached(Buildresult, :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes ).to_hash
+      @buildresult = find_hashed(Buildresult, :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
     rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = Hash.new
