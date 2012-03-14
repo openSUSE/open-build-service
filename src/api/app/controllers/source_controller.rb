@@ -1095,7 +1095,7 @@ class SourceController < ApplicationController
         end
       end
 
-      # set patchinfo information in db
+      # verify patchinfo data
       if params[:file] == "_patchinfo"
         data = ActiveXML::Base.new(request.raw_post.to_s)
         if data and data.packager
@@ -1105,6 +1105,27 @@ class SourceController < ApplicationController
             #FIXME: update _patchinfo file
           end
           packager = User.get_by_login data.packager.to_s unless packager
+        end
+        # are releasetargets specified ? validate that this project is actually defining them.
+        if data and data.releasetarget
+          data.each_releasetarget do |rt|
+            found = false
+            prj.repositories.each do |r|
+              r.release_targets.each do |prt|
+                if rt.repository
+                  found = true if prt.target_repository.db_project.name == rt.project and prt.target_repository.name == rt.repository
+                else
+                  found = true if prt.target_repository.db_project.name == rt.project
+                end
+              end
+            end
+
+            unless found
+              render_error :status => 404, :errorcode => 'releasetarget_not_found',
+                :message => "Release target '#{rt.project}/#{rt.repository}' is not defined in this project '#{prj.name}'"
+              return
+            end
+          end
         end
       end
 

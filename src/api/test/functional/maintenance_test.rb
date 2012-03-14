@@ -819,15 +819,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
     # add required informations about the update
-    pi = REXML::Document.new( @response.body )
-    pi.elements["//summary"].text = "if you are bored"
-    pi.elements["//description"].text = "if you are bored and really want fixes"
-    pi.elements["//rating"].text = "low"
-    pi.root.add_element "releasetarget", { "project" => "BaseDistro2.0:LinkedUpdateProject" }
-    pi.root.add_element "releasetarget", { "project" => "BaseDistro3" }
-    pi.root.add_element "issue", { "id" => "0815", "tracker" => "bnc" }
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.to_s
+    pi = ActiveXML::Base.new( @response.body )
+    pi.summary.text = "if you are bored"
+    pi.description.text = "if you are bored and really want fixes"
+    pi.rating.text = "low"
+    pi.add_element "issue", { "id" => "0815", "tracker" => "bnc" }
+    pi.add_element "releasetarget", { :project => "BaseDistro2.0:LinkedUpdateProject" }
+    pi.add_element "releasetarget", { :project => "BaseDistro3" }
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
+    pi.add_element "releasetarget", { :project => "home:tom" } # invalid target
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    assert_response 404
+    assert_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
     assert_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
