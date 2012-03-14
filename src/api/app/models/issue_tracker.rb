@@ -29,6 +29,11 @@ class IssueTracker < ActiveRecord::Base
     return tracker
   end
 
+  def before_create
+    self.issues_updated ||= Time.now
+    super
+  end
+
   # Checks if the given issue belongs to this issue tracker
   def matches?(issue)
     return Regexp.new(regex).match(issue)
