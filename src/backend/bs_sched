@@ -3440,6 +3440,15 @@ sub checkpatchinfo {
   return ('broken', 'missing archs') unless @archs;	# can't happen
   my $patchinfo = $pdata->{'patchinfo'};
 
+  if (@{$patchinfo->{'releasetarget'} || []}) {
+    my $ok;
+    for my $rt (@{$patchinfo->{'releasetarget'}}) {
+      $ok = grep {$rt->{'project'} eq $_->{'project'} && (!defined($rt->{'repository'}) || $rt->{'repository'} eq $_->{'repository'})} @{$repo->{'releasetarget'} || []};
+      last if $ok;
+    }
+    return ('excluded') unless $ok;
+  }
+
   return ('broken', $patchinfo->{'stopped'}) if $patchinfo->{'stopped'};
 
   my $ptype = 'local';

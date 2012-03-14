@@ -75,7 +75,11 @@ sub verify_patchinfo {
   my $p = $_[0];
   verify_filename($p->{'name'}) if defined($p->{'name'});
   my %allowed_categories = map {$_ => 1} qw{security recommended optional feature};
-  die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) && $p->{'category'} ne "" && !$allowed_categories{$p->{'category'}};
+  die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) && !$allowed_categories{$p->{'category'}};
+  for my $rt (@{$p->{'releasetarget'} || []}) {
+    verify_projid($rt->{'project'});
+    verify_repoid($rt->{'repository'}) if defined $rt->{'repository'};
+  }
 }
 
 sub verify_patchinfo_complete {
@@ -207,6 +211,10 @@ sub verify_proj {
     }
     for my $a (@{$repo->{'arch'} || []}) {
       verify_arch($a);
+    }
+    for my $rt (@{$repo->{'releasetarget'} || []}) {
+      verify_projid($rt->{'project'});
+      verify_repoid($rt->{'repository'});
     }
   }
   for my $link (@{$proj->{'link'} || []}) {
