@@ -384,7 +384,6 @@ class RequestController < ApplicationController
                 if action.target.has_attribute? "releaseproject"
                   releaseproject = DbProject.get_by_name action.target.releaseproject
                 else
-                  # Automatically switch to update project
                   unless tprj
                     render_error :status => 400, :errorcode => 'no_maintenance_release_target',
                       :message => "Maintenance incident request contains no defined release target project for package #{pkg.name}"
@@ -392,6 +391,7 @@ class RequestController < ApplicationController
                   end
                   releaseproject = DbProject.get_by_name tprj
                 end
+                # Automatically switch to update project
                 if a = releaseproject.find_attribute("OBS", "UpdateProject") and a.values[0]
                   releaseproject = DbProject.get_by_name a.values[0].value
                 end
@@ -622,7 +622,7 @@ class RequestController < ApplicationController
           return
         end
 
-        if action.value("type") == "submit"
+        if [ "submit", "maintenance_incident", "maintenance_release" ].include? action.value("type")
           # validate that the sources are not broken
           begin
             pr = ""
@@ -630,8 +630,12 @@ class RequestController < ApplicationController
               pr = "rev=#{CGI.escape(action.source.rev)}"
             end
             url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1&" + pr
-            c = Suse::Backend.get(url)
-          rescue ActiveXML::Transport::Error => e
+            c = backend_get(url)
+            unless action.source.has_attribute?('rev') or params[:addrevision].blank?
+              data = REXML::Document.new( c )
+              action.source.set_attribute("rev", data.elements["directory"].attributes["srcmd5"])
+            end
+          rescue
             render_error :status => 400, :errorcode => "expand_error",
               :message => "The source of package #{action.source.project}/#{action.source.package} rev=#{action.source.rev} are broken"
             return

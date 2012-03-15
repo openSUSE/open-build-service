@@ -236,7 +236,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # create maintenance request for one package
     # without specifing target, the default target must get found via attribute
-    post "/request?cmd=create", '<request>
+    post "/request?cmd=create&addrevision=1", '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro3" />
                                      <options>
@@ -247,6 +247,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_no_tag( :tag => "source", :attributes => { :rev => nil } )
     assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
@@ -969,13 +970,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_tag :tag => "reference", :attributes => { :id => "" }
 
     # create release request
-    post "/request?cmd=create", '<request>
+    post "/request?cmd=create&addrevision=1", '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_no_tag( :tag => "source", :attributes => { :rev => nil } )
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0" } ) # BaseDistro2 has an update project, nothing should go to GA project
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" } )
     assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )

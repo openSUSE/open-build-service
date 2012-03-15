@@ -106,7 +106,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag( :tag => "summary", :content => 'conflict in file conflictingfile' )
+    assert_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
     post "/request?cmd=create", '<request>
                                    <action type="submit">
                                      <source project="home:Iggy" package="TestPack.DELETE2" rev="2"/>
@@ -115,7 +115,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag( :tag => "summary", :content => 'conflict in file conflictingfile' )
+    assert_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
 
     delete "/source/home:Iggy/TestPack.DELETE"
     assert_response :success
