@@ -1155,11 +1155,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm"
     assert_response 400
 
-    # disable lock and cleanup 
+    # disable lock and verify meta
     delete "/source/#{incidentProject}"
     assert_response 403
-    put "/source/#{incidentProject}/_meta", "<project name='#{incidentProject}'><title/> <description/> <lock><disable/></lock> </project>" 
+    post "/source/#{incidentProject}", { :cmd => "unlock", :comment => "cleanup" }
     assert_response :success
+    get "/source/#{incidentProject}/_meta"
+    assert_response :success
+    assert_tag :tag => 'releasetarget', :attributes => { :trigger => "maintenance" } 
+
+    # cleanup
     delete "/source/#{incidentProject}"
     assert_response :success
   end

@@ -550,13 +550,25 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_no_tag :tag => 'lock'
 
+    # try to unlock without comment
+    post "/source/home:Iggy", { :cmd => "unlock" }
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "no_comment" }
+
     # make project read-writable again
     doc.elements["/project/lock"].delete_element "enable"
     doc.elements["/project/lock"].add_element "disable"
     put "/source/home:Iggy/_meta", doc.to_s
     assert_response :success
 
+    # check unlock command
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
+    assert_response 403
+#   success tested in maintenance tests
+
     # cleanup works now again
+    prepare_request_with_user "Iggy", "asdfasdf"
     delete "/source/home:Iggy/TestLinkPack"
     assert_response :success
     delete "/source/home:Iggy:branches:home:Iggy"
@@ -597,6 +609,26 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # cleanup works now again
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+
+    # try again with unlock command
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> <lock><enable/></lock> </package>"
+    assert_response :success
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response 403
+    # try to unlock without comment
+    post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock" }
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "no_comment" }
+    # without permissions
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
+    assert_response 403
+    # do for real and cleanup
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
+    assert_response :success
     delete "/source/home:Iggy/TestLinkPack"
     assert_response :success
   end

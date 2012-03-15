@@ -361,6 +361,7 @@ POST /source/<project>
   showlinked: List all projects linking to this one
   createmaintenanceincident: create a single mainatenance incident project as sub project
   set_flag: change a defined flag, requires at least flag and status parameters
+  unlock: unlock a locked project
 
 Parameters:
   noaccess: the new created project will be read protected
@@ -368,6 +369,7 @@ Parameters:
   arch: set_flag for given arch (optional)
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command
+  comment: description for the history
 
 
 === Packages
@@ -505,6 +507,16 @@ Parameters:
   orev: old revision, optional
 
 Result: diff as text/plain
+
+
+POST /source/<project>/<package>?cmd=unlock
+
+  Unlocks a locked package
+
+Parameters:
+  comment: description for the history
+
+XmlResult: status
 
 
 POST /source/<project>/<package>?cmd=branch
