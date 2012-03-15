@@ -901,12 +901,22 @@ class RequestController < ApplicationController
 
           # the target is by default the _link target
           # maintenance_release creates new packages instance, but are changing the source only according to the link
+          provided_in_other_action=false
           if target_package.nil? or [ "maintenance_release", "maintenance_incident" ].include? action.value('type')
-            data = REXML::Document.new( backend_get("/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}") )
+            data = REXML::Document.new( backend_get("/source/#{URI.escape(action.source.project)}/#{URI.escape(spkg.name)}") )
             e = data.elements["directory/linkinfo"]
             if e
               target_project = e.attributes["project"]
               target_package = e.attributes["package"]
+              if target_project == action.source.project
+                # a local link, check if the real source change gets also transported in a seperate action
+                req.each_action do |a|
+                  if action.source.project == a.source.project and e.attributes["package"] == a.source.package and \
+                     action.target.project == a.target.project
+                    provided_in_other_action=true
+                  end
+                end
+              end
             end
           end
 
@@ -943,7 +953,11 @@ class RequestController < ApplicationController
               tprj = DbProject.get_by_name( target_project )
             end
 
-            path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&expand=1&filelimit=10000"
+            path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&filelimit=10000"
+            unless provided_in_other_action
+              # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
+              path += "&expand=1"
+            end
             if tpkg
               path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
               path += "&rev=#{action.source.rev}" if action.source.value('rev')
