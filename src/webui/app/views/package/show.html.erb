@@ -6,8 +6,7 @@
 <div class="grid_10 alpha">
   <div class="box show_left clearfix">
     <div class="grid_7 alpha omega">
-      <h3 style="display: inline"><%=h @package %></h3>
-      <p><%=h @package.title %></p>
+      <h3 style="display: inline"><%=h @package.title %><%= h(@package) if @package.title.to_s.blank? -%></h3>
       <%= render :partial => "shared/description", :locals => {:description => @package.description.text} %>
     </div>
     <div class="grid_3 alpha omega">
