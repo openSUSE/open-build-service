@@ -216,7 +216,8 @@ class PackageController < ApplicationController
     end
 
     Rails.cache.delete "requests_new"
-    redirect_to(:controller => "request", :action => "show", :id => req.value(:id))
+    flash[:note] = "Created <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>submit request #{req.value('id')}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
+    redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 
   def service_parameter
