@@ -359,8 +359,11 @@ POST /source/<project>
   extendkey: Extend the expiration date of gpg keys.
   undelete: undelete the project and all packages existing when the project got removed.
   showlinked: List all projects linking to this one
+  copy: copy the entire project
   createmaintenanceincident: create a single mainatenance incident project as sub project
+  createpatchinfo: create a new patchinfo package collecting all mentioned issues in sources
   set_flag: change a defined flag, requires at least flag and status parameters
+  remove_flag: remove a defined flag, requires at least flag and status parameters
   unlock: unlock a locked project
 
 Parameters:
@@ -370,6 +373,8 @@ Parameters:
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command
   comment: description for the history
+  withhistory: copies sources with history on copy command
+  withbinaries: copies also binaries on copy command
 
 
 === Packages
