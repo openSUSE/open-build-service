@@ -277,13 +277,6 @@
                 <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
               </div>
             <% end %>
-
-            <% if sourcediff[:rpmlint] %>>
-              <div class="box show_right">
-                <div class="box-header aligncenter"><b>Rpmlint Output</b></div>
-                <%#TODO: Add issues partial on the right %>
-              </div>
-            <% end %>
           </div>
         <% end %>
       <% end %>
