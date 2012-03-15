@@ -3,8 +3,10 @@
 <%= render :partial => "package/tabs" %>
 
 <div class="section">
+  <div class="grid_8 alpha">
   <div class="box show_left show_right">
-    <h2 style="display: inline"><%=h @package%></h2>
+    <div class="box" style="background-color:#DDDDDD; margin-top: 0">
+    <h2 style="display: inline"><%=h @project.title.text%></h2>
     <span>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
         <span>
@@ -17,75 +19,67 @@
         </span>
       <% end %>
     </span>
-  </div>
-  <table class="patchinfo">
-    <tr>
-      <th>Packager: </th>
-      <td>
-        <%=@packager%>
-      </td>
-    </tr>
-    <tr>
-      <th>Binaries: </th>
-      <td>
-        <% @binaries.each do |d| %>
-          <%= d.to_s%> <br/>
-        <%end%>
-      </td>
-    </tr>
-    <tr>
-      <th>Issues: </th>
-      <td>
-        <% @issues.each do |issue| %>
-         <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>: <%= issue[3].to_s %>
-         <br/>
-        <%end%>
-      </td>
-    </tr>
-    <tr>
-      <th>Category: </th>
-      <td>
-        <%=@category%>
-      </td>
-    </tr>
-    <tr>
-      <th>Rating: </th>
-      <td>
-        <%= @rating%>
-      </td>
-    </tr>
-    <tr>
-      <th>Summary: </th>
-      <td>
-        <%=@summary%>
-      </td>
-    </tr>
-    <tr>
-      <th>Description: </th>
-      <td>
-        <%=@description%>
-      </td>
-    </tr>
-    <tr>
-      <th>Relogin needed? </th>
-      <td>
-        <%=@relogin%>
-      </td>
-    </tr>
-    <tr>
-      <th>Package-manager restart needed? </th>
-      <td>
-        <%=@zypp_restart_needed%>
-      </td>
-    </tr>
-    <tr>
-      <th>Reboot needed? </th>
-      <td>
-        <%=@reboot%>
-      </td>
-    </tr>
+</div>
     <% if @block %>
-      <tr style="background-color:red;"><th>Blocked:</th><td><%=@block_reason%></td></tr>
+      <div class="box ui-state-error ui-widget-shadow" style="min-height:15px;">
+        <b>This update is currently blocked:</b><br/>
+        <% if !@block_reason.blank? %>
+          <%=@block_reason %>
+        <% else %>
+          No reason entered.
+        <% end %>
+      </div>
+    <% end %>
+    <strong><%= @summary %></strong><br/>
+    This update was submitted from <%=  render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @packager.login} %> and rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span>
+  </div>
+     <div class="box show_left show_right">
+       <b>Description:</b><br/>
+    <%= @description %>
+  </div>
+    <div class="box show_left show_right">
+      <b>Fixed bugs:</b><br/>
+      <% @issues.each do |issue| %>
+        <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>: <%= issue[3].to_s %>
+        <br/>
+      <%end%>
+    </div>
+    <div class="box show_left show_right">
+      <b>Required actions:</b><br/>
+      <ul><li>
+          Relogin suggested:
+          <% if @relogin==true %>
+            <%= image_tag "ok.png" %>
+          <% else %>
+            <%= image_tag "req-decline.png" %>
+          <%end%>
+        </li>
+        <li>
+          Reboot suggested:
+          <% if @reboot == true %>
+            <%= image_tag "ok.png" %>
+          <% else %>
+            <%= image_tag "req-decline.png" %>
+          <%end%>
+        </li>
+        <li>
+          Package-manager restart:
+          <% if @zypp_restart_needed == true %>
+            <%= image_tag "ok.png" %>
+          <% else %>
+            <%= image_tag "req-decline.png" %>
+          <%end%>
+        </li></ul>
+    </div>
+    <% if !@binaries.empty? %>
+    <div class="box show_left show_right">
+      <b>Selected binaries:</b><br/>
+      <ul>
+        <% @binaries.each do |bin| %>
+        <li><%=bin%></li>
+        <%end%>
+      </ul>
+    </div>
     <%end%>
-  </table>
+  </div>
 </div>
