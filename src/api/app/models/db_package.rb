@@ -715,7 +715,7 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def store
+  def store(opt={})
     # store modified values to database and xml
 
     # update timestamp and save
@@ -728,6 +728,7 @@ class DbPackage < ActiveRecord::Base
     #--- write through to backend ---#
     if write_through?
       path = "/source/#{self.db_project.name}/#{self.name}/_meta?user=#{URI.escape(User.current ? User.current.login : "_nobody_")}"
+      path += "&comment=#{CGI.escape(opt[:comment])}" unless opt[:comment].blank?
       Suse::Backend.put_source( path, to_axml )
     end
   end

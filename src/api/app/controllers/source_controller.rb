@@ -78,7 +78,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_http_methods :get, :post, :delete
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -233,8 +233,11 @@ class SourceController < ApplicationController
       end
 
       pro = DbProject.get_by_name project_name
-      # command: showlinked, set_flag, remove_flag, ...?
-      if command == "showlinked" or @http_user.can_modify_project?(pro)
+      # unlock
+      if command == "unlock" and @http_user.can_modify_project?(pro, ignoreLock=true)
+        dispatch_command
+      elsif command == "showlinked" or @http_user.can_modify_project?(pro)
+        # command: showlinked, set_flag, remove_flag, ...?
         dispatch_command
       else
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
@@ -263,7 +266,7 @@ class SourceController < ApplicationController
     valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
                     'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
                     'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
-                    'getprojectservices']
+                    'getprojectservices', 'unlock']
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
     source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
@@ -364,7 +367,14 @@ class SourceController < ApplicationController
         tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, use_source = true, follow_project_links = follow_project_links)
         tprj = tpkg.db_project unless tpkg.nil? # for remote package case
         if request.delete? or (request.post? and not read_commands.include? command)
-          unless @http_user.can_modify_package?(tpkg)
+          # unlock
+          if command == "unlock" 
+            unless @http_user.can_modify_package?(tpkg, ignoreLock=true)
+              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+                :message => "no permission to unlock package #{tpkg.name} in project #{tpkg.db_project.name}"
+              return
+            end
+          elsif not @http_user.can_modify_package?(tpkg)
             render_error :status => 403, :errorcode => "delete_package_no_permission",
               :message => "no permission to delete package #{tpkg.name} in project #{tpkg.db_project.name}"
             return
@@ -705,6 +715,12 @@ class SourceController < ApplicationController
 
         # project exists, change it
         unless @http_user.can_modify_project?(prj, ignoreLock)
+          if prj.is_locked?
+            logger.debug "no permission to modify LOCKED project #{prj.name}"
+            render_error :status => 403, :errorcode => "change_project_no_permission", 
+              :message => "The project #{prj.name} is locked"
+            return
+          end
           logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
           render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
@@ -1291,7 +1307,7 @@ class SourceController < ApplicationController
               pe.save
             end
           end
-          lrepo.db_project.store(nil, true) # low prio storage
+          lrepo.db_project.store({:lowprio => true}) # low prio storage
         end
       end
 
@@ -1300,7 +1316,7 @@ class SourceController < ApplicationController
          logger.info "updating project '#{prj.name}'"
          r.destroy
          prj.save
-         prj.store(nil, true) # low prio storage
+         prj.store({:lowprio => true}) # low prio storage
       end
     end
   end
@@ -1336,6 +1352,48 @@ class SourceController < ApplicationController
       end
     end
     render :text => xml, :content_type => "text/xml"
+  end
+
+  # unlock a project
+  # POST /source/<project>?cmd=unlock
+  def index_project_unlock
+    valid_http_methods :post
+    project_name = params[:project]
+
+    if params[:comment].blank?
+      render_error :status => 400, :errorcode => "no_comment",
+        :message => "Unlock command requires a comment"
+      return
+    end
+
+    p = { :comment => params[:comment] }
+
+    pro = DbProject.get_by_name(project_name)
+    f = pro.flags.find_by_flag_and_status("lock", "enable")
+    unless f
+      render_error :status => 400, :errorcode => "not_locked",
+        :message => "project '#{pro.name}' is not locked"
+      return
+    end
+    pro.flags.delete(f)
+    pro.store(p)
+
+    # maintenance incidents need special treatment
+    if pro.project_type == "maintenance_incident"
+      # reopen all release targets
+      pro.repositories.each do |repo|
+        repo.release_targets.each do |releasetarget|
+          releasetarget.trigger = "maintenance"
+          releasetarget.save!
+        end
+      end
+      pro.store(p)
+
+      # trigger rebuild to ensure higher build numbers for re-release
+      Suse::Backend.post "/build/#{URI.escape(pro.name)}?cmd=rebuild", nil
+    end
+
+    render_ok
   end
 
   # POST /source/<project>?cmd=extendkey
@@ -1563,6 +1621,32 @@ class SourceController < ApplicationController
     return patchinfo
   end
   private :update_patchinfo
+
+  # unlock a package
+  # POST /source/<project>/<package>?cmd=unlock
+  def index_package_unlock
+    valid_http_methods :post
+
+    if params[:comment].blank?
+      render_error :status => 400, :errorcode => "no_comment",
+        :message => "Unlock command requires a comment"
+      return
+    end
+
+    p = { :comment => params[:comment] }
+
+    pkg = DbPackage.get_by_project_and_name(params[:project], params[:package])
+    f = pkg.flags.find_by_flag_and_status("lock", "enable")
+    unless f
+      render_error :status => 400, :errorcode => "not_locked",
+        :message => "package '#{pkg.db_project.name}/#{pkg.name}' is not locked"
+      return
+    end
+    pkg.flags.delete(f)
+    pkg.store(p)
+
+    render_ok
+  end
 
   # Collect all project source services for a package
   # POST /source/<project>/<package>?cmd=getprojectservices

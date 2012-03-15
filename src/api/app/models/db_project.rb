@@ -784,16 +784,17 @@ class DbProject < ActiveRecord::Base
     end #transaction
   end
 
-  def store(login=nil, lowprio=false)
+  def store(opt={})
     # update timestamp and save
     self.save!
     # expire cache
     Rails.cache.delete('meta_project_%d' % id)
 
     if write_through?
-      login = User.current.login unless login # Allow to override if User.current isn't available yet
-      path = "/source/#{self.name}/_meta?user=#{URI.escape(login)}"
-      path += "&lowprio=1" if lowprio
+      login = User.current.login unless opt[:login] # Allow to override if User.current isn't available yet
+      path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
+      path += "&comment=#{CGI.escape(opt[:comment])}" unless opt[:comment].blank?
+      path += "&lowprio=1" if opt[:lowprio]
       Suse::Backend.put_source( path, to_axml )
     end
 
