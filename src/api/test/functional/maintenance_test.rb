@@ -1397,9 +1397,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "open_release_requests" }
 
-    # disable lock and cleanup 
-    put "/source/home:tom:test/_meta", "<project name='home:tom:test'><title/> <description/> <lock><disable/></lock> </project>" 
+    # revoke to unlock the source
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
+
+    # cleanup 
     delete "/source/home:tom:test"
     assert_response :success
   end
@@ -1425,14 +1427,27 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
+    # got locked
+    get "/source/home:tom:test/_meta"
+    assert_response :success
+    assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    assert_no_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
+
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response 403
     assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
 
-    # disable lock and cleanup 
-    put "/source/home:tom:test/_meta", "<project name='home:tom:test'><title/> <description/> <lock><disable/></lock> </project>" 
+    # revoke request, must unlock the incident
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
+
+    # disable lock and cleanup 
+    get "/source/home:tom:test/_meta"
+    assert_response :success
+    assert_no_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+
+    # cleanup
     delete "/source/home:tom:test"
     assert_response :success
   end

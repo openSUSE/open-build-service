@@ -1403,6 +1403,16 @@ class RequestController < ApplicationController
           end
         end
         req.save
+      elsif action.value("type") == "maintenance_release"
+        if params[:cmd] == "changestate" and params[:newstate] == "revoked"
+          # unlock incident project in the soft way
+          prj = DbProject.get_by_name(action.source.project)
+          f = prj.flags.find_by_flag_and_status("lock", "enable")
+          if f
+            prj.flags.delete(f)
+            prj.store({:comment => "Request #{} got revoked", :request => req.id, :lowprio => 1})
+          end
+        end
       end
     end
     # job done by changing target
