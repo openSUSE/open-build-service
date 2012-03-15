@@ -53,22 +53,7 @@ class PatchinfoController < ApplicationController
     read_patchinfo
     @description = @description.gsub(/\n/, "<br/>").html_safe
     @summary = @summary.gsub(/\n/, "<br/>").html_safe
-    if @relogin == true
-      @relogin = "yes"
-    elsif @relogin == false
-      @relogin = "no"
-    end
-    if @reboot == true
-      @reboot ="yes"
-    elsif @reboot == false
-      @reboot = "no"
-    end
-    if @zypp_restart_needed == true
-      @zypp_restart_needed = "yes"
-    end
-    if @zypp_restart_needed == false
-      @zypp_restart_needed = "no"
-    end
+    @packager = Person.find(:login => @packager)
   end
 
   def read_patchinfo
