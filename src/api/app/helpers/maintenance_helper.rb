@@ -81,8 +81,9 @@ module MaintenanceHelper
       end
       # patchinfos are handled as new packages
       if pkg.db_package_kinds.find_by_kind 'patchinfo'
-          new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
-          new_pkg.store
+        new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+        new_pkg.flags.create(:status => "enable", :flag => "build")
+        new_pkg.store
 
       # use specified release project if defined
       elsif releaseproject
