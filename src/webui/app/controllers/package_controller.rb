@@ -1142,13 +1142,22 @@ class PackageController < ApplicationController
   end
 
   def require_project
-    if valid_project_name? params[:project]
-      @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
+    if !valid_project_name? params[:project]
+      unless request.xhr?
+        flash[:error] = "#{params[:project]} is not a valid project name"
+        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+      else
+        render :text => "#{params[:project]} is not a valid project name", :status => 404 and return
+      end
     end
+    @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     unless @project
-      logger.error "Project #{params[:project]} not found"
-      flash[:error] = "Project not found: \"#{params[:project]}\""
-      redirect_to :controller => "project", :action => "list_public" and return
+      unless request.xhr?
+        flash[:error] = "Project not found: #{params[:project]}"
+        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+      else
+        render :text => "Project not found: #{params[:project]}", :status => 404 and return
+      end
     end
   end
 
@@ -1156,9 +1165,12 @@ class PackageController < ApplicationController
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     unless valid_package_name_read? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"
-      flash[:error] = "\"#{params[:package]}\" is not a valid package name"
-      redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
-      return
+      unless request.xhr?
+        flash[:error] = "\"#{params[:package]}\" is not a valid package name"
+        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404 and return
+      else
+        render :text => "\"#{params[:package]}\" is not a valid package name", :status => 404 and return
+      end
     end
     @project ||= params[:project]
     unless params[:package].blank?
@@ -1166,14 +1178,20 @@ class PackageController < ApplicationController
         @package = find_cached(Package, params[:package], :project => @project )
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.message
-        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 400
-        return	
+        unless request.xhr?
+          redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 400 and return
+        else
+        render :text => e.message, :status => 404 and return
+        end
       end
     end
     unless @package
-      logger.error "Package #{@project}/#{params[:package]} not found"
-      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
+      unless request.xhr?
+        flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
+        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
+      else
+        render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
+      end
     end
   end
 
