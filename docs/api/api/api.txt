@@ -752,6 +752,10 @@ XmlResult: request
   Commands on processing requests
   create: to crfeate a new request
 
+Parameters:
+
+  addrevision: ask the server to add revisions of current sources to the request
+
 
 PUT /request/<id>
   
