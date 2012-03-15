@@ -314,6 +314,7 @@ class PatchinfoController < ApplicationController
     end
     @binarylist.uniq!
     @binarylist.delete("rpmlint.log")
+    @binarylist.delete("updateinfo.xml")
   end
 
   def require_all
