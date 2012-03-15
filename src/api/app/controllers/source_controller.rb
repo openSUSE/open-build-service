@@ -713,7 +713,8 @@ class SourceController < ApplicationController
       if prj
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         ignoreLock = nil
-        ignoreLock = 1 if rdata.has_element?("lock/disable")
+# do not support unlock via meta data, just via command or request revoke for now
+#        ignoreLock = 1 if rdata.has_element?("lock/disable")
 
         # project exists, change it
         unless @http_user.can_modify_project?(prj, ignoreLock)
@@ -974,7 +975,8 @@ class SourceController < ApplicationController
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         rdata = ActiveXML::Base.new(request.raw_post.to_s)
         ignoreLock = nil
-        ignoreLock = 1 if rdata.has_element?("lock/disable")
+# unlock only via command for now
+#        ignoreLock = 1 if rdata.has_element?("lock/disable")
 
         pkg = DbPackage.get_by_project_and_name( project_name, package_name, use_source=false )
         unless @http_user.can_modify_package?(pkg, ignoreLock)

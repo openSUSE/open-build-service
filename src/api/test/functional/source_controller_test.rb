@@ -555,20 +555,21 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "no_comment" }
 
-    # make project read-writable again
+    # unlock does not work via meta data anymore
     doc.elements["/project/lock"].delete_element "enable"
     doc.elements["/project/lock"].add_element "disable"
     put "/source/home:Iggy/_meta", doc.to_s
-    assert_response :success
+    assert_response 403
 
     # check unlock command
     prepare_request_with_user "adrian", "so_alone"
     post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
     assert_response 403
-#   success tested in maintenance tests
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
+    assert_response :success
 
     # cleanup works now again
-    prepare_request_with_user "Iggy", "asdfasdf"
     delete "/source/home:Iggy/TestLinkPack"
     assert_response :success
     delete "/source/home:Iggy:branches:home:Iggy"
@@ -602,21 +603,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     put "/source/home:Iggy/TestLinkPack/_link", ""
     assert_response 403
 
-    # make package read-writable again
+    # make package read-writable is not working via meta
     doc.elements["/package/lock"].delete_element "enable"
     doc.elements["/package/lock"].add_element "disable"
     put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
-    assert_response :success
-
-    # cleanup works now again
-    delete "/source/home:Iggy/TestLinkPack"
-    assert_response :success
-
-    # try again with unlock command
-    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> <lock><enable/></lock> </package>"
-    assert_response :success
-    delete "/source/home:Iggy/TestLinkPack"
     assert_response 403
+
     # try to unlock without comment
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock" }
     assert_response 400
