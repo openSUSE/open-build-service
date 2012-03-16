@@ -2457,6 +2457,40 @@ sub addrepo_remote {
 }
 
 #
+# patch the packstatus entry of package $packid so that it
+# reflects the finished state
+#
+sub patchpackstatus {
+  my ($prp, $packid, $code) = @_;
+
+  my $ps = BSUtil::retrieve("$reporoot/$prp/$myarch/:packstatus", 1);
+  if ($ps) {
+    if (exists($ps->{'packstatus'}->{$packid})) {
+      $ps->{'packstatus'}->{$packid} = 'finished';
+      $ps->{'packerror'}->{$packid} = $code;
+      BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps);
+    }
+  } else {
+    # compatibility: read and convert old xml data
+    $ps = readxml("$reporoot/$prp/$myarch/:packstatus", $BSXML::packstatuslist, 1);
+    if ($ps) {
+      my %packstatus;
+      my %packerror;
+      for (@{$ps->{'packstatus'} || []}) {
+        $packstatus{$_->{'name'}} = $_->{'status'};
+        $packerror{$_->{'name'}} = $_->{'error'} if $_->{'error'};
+      }
+      if (exists($packstatus{$packid})) {
+        $packstatus{$packid} = 'finished';
+        $packerror{$packid} = $code;
+      }
+      $ps = {'packstatus' => \%packstatus, 'packerror' => \%packerror};
+      BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps);
+    }
+  }
+}
+
+#
 # jobfinished - called when a build job is finished
 #
 # - move built packages into :full tree
@@ -2550,31 +2584,7 @@ sub jobfinished {
   }
 
   # update packstatus so that it doesn't fall back to scheduled
-  my $ps = BSUtil::retrieve("$reporoot/$prp/$myarch/:packstatus", 1);
-  if ($ps) {
-    if (exists($ps->{'packstatus'}->{$packid})) {
-      $ps->{'packstatus'}->{$packid} = 'finished';
-      $ps->{'packerror'}->{$packid} = $code;
-      BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps);
-    }
-  } else {
-    # compatibility: read and convert old xml data
-    $ps = readxml("$reporoot/$prp/$myarch/:packstatus", $BSXML::packstatuslist, 1);
-    if ($ps) {
-      my %packstatus;
-      my %packerror;
-      for (@{$ps->{'packstatus'} || []}) {
-        $packstatus{$_->{'name'}} = $_->{'status'};
-        $packerror{$_->{'name'}} = $_->{'error'} if $_->{'error'};
-      }
-      if (exists($packstatus{$packid})) {
-        $packstatus{$packid} = 'finished';
-        $packerror{$packid} = $code;
-      }
-      $ps = {'packstatus' => \%packstatus, 'packerror' => \%packerror};
-      BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps);
-    }
-  }
+  patchpackstatus($prp, $packid, $code);
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   if ($code eq 'unchanged') {
@@ -2695,6 +2705,7 @@ sub aggregatefinished {
   unlink("$dst/status");
   mkdir_p("$gdst/:meta");
   rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
+  patchpackstatus($prp, $packid, 'succeeded');
 }
 
 sub deltafinished {
