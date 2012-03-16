@@ -1296,7 +1296,7 @@ sub publish {
 
   # get sign key
   my $signargs = [];
-  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1");
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1");
   my $pubkey;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
