@@ -164,7 +164,9 @@ class PatchinfoController < ApplicationController
       xml = node.patchinfo(attrs) do |n|
         if binaries
           binaries.each do |binary|
-            node.binary(binary)
+            if !binary.blank?
+              node.binary(binary)
+            end
           end
         end
         node.packager    packager
