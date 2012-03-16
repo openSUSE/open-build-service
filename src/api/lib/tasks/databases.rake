@@ -27,6 +27,7 @@ def redefine_task(args, &block)
 end
 
 namespace :db do
+  
   namespace :structure do
     desc "Dump the database structure to a SQL file"
     task :dump => :environment do
@@ -75,41 +76,15 @@ namespace :db do
           new_structure += line
         end
       end
-      File.open("#{Rails.root}/db/#{Rails.env}_structure.sql", "w+") { |f| f << new_structure }
+      File.open("#{Rails.root}/db/structure.sql", "w+") { |f| f << new_structure }
     end
      
-    task :load => :environment do
-      abcs = ActiveRecord::Base.configurations
-      case abcs[Rails.env]["adapter"]
-      when "mysql"
-        ActiveRecord::Base.establish_connection(Rails.env)
-        ActiveRecord::Base.connection.execute('SET foreign_key_checks = 0')
-        IO.readlines("#{Rails.root}/db/#{Rails.env}_structure.sql").join.split("\n\n").each do |table|
-          ActiveRecord::Base.connection.execute(table)
-        end
-      else
-        raise "Task not supported by '#{abcs[Rails.env]["adapter"]}'"
-      end
-    end
   end
 
-  desc "Migrate the database through scripts in db/migrate. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
-  task :migrate => :environment do
-    ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
-    ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
-    Rake::Task["db:structure:dump"].invoke
-  end
-
-  desc 'Create the database, load the structure, and initialize with the seed data'
-  redefine_task :setup => :environment do 
-    Rake::Task["db:create"].invoke
+ desc 'Create the database, load the structure, and initialize with the seed data'
+ redefine_task :setup => :environment do 
     Rake::Task["db:structure:load"].invoke
     Rake::Task["db:seed"].invoke
-  end
+ end
 
-  namespace :schema do
-    desc 'Do not do anything'
-    redefine_task :load => :environment do
-    end
-  end
 end

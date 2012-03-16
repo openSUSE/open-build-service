@@ -1,1 +1,0 @@
-development_structure.sql
