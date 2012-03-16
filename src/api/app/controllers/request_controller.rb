@@ -425,14 +425,18 @@ class RequestController < ApplicationController
                 end
                 pkg.db_project.repositories.each do |repo|
                   if repo and repo.architectures.first
-                    binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
-                    l = binaries.get_elements("binarylist/binary")
-                    if l and l.count > 0
-                      found_patchinfo = 1
-                    else
-                      render_error :status => 400, :errorcode => 'build_not_finished',
-                        :message => "patchinfo is not yet build for repository '#{repo.name}'"
-                      return
+                    # skip excluded patchinfos
+                    status = state.get_elements("/resultlist/result[@repository='#{repo.name}'+and+@arch='#{repo.architectures.first.name}']").first
+                    unless status and s=status.get_elements("/status[@package='#{pkg.name}']").first and s.attributes['code'] == "excluded"
+                      binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
+                      l = binaries.get_elements("binarylist/binary")
+                      if l and l.count > 0
+                        found_patchinfo = 1
+                      else
+                        render_error :status => 400, :errorcode => 'build_not_finished',
+                          :message => "patchinfo is not yet build for repository '#{repo.name}'"
+                        return
+                      end
                     end
                   end
                 end

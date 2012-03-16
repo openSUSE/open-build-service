@@ -824,6 +824,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
+    #FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
     pi = ActiveXML::Base.new( @response.body )
     pi.summary.text = "if you are bored"
