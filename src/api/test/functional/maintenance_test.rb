@@ -591,6 +591,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
     assert_tag( :tag => "enable", :parent => {:tag => "build"} )
+    assert_tag( :tag => "enable", :parent => {:tag => "publish"} )
   end
 
   def test_create_maintenance_incident
