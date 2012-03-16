@@ -53,22 +53,7 @@ class PatchinfoController < ApplicationController
     read_patchinfo
     @description = @description.gsub(/\n/, "<br/>").html_safe
     @summary = @summary.gsub(/\n/, "<br/>").html_safe
-    if @relogin == true
-      @relogin = "yes"
-    elsif @relogin == false
-      @relogin = "no"
-    end
-    if @reboot == true
-      @reboot ="yes"
-    elsif @reboot == false
-      @reboot = "no"
-    end
-    if @zypp_restart_needed == true
-      @zypp_restart_needed = "yes"
-    end
-    if @zypp_restart_needed == false
-      @zypp_restart_needed = "no"
-    end
+    @packager = Person.find(:login => @packager)
   end
 
   def read_patchinfo
@@ -179,7 +164,9 @@ class PatchinfoController < ApplicationController
       xml = node.patchinfo(attrs) do |n|
         if binaries
           binaries.each do |binary|
-            node.binary(binary)
+            if !binary.blank?
+              node.binary(binary)
+            end
           end
         end
         node.packager    packager
@@ -189,7 +176,7 @@ class PatchinfoController < ApplicationController
         node.category    params[:category]
         node.rating      rating
         node.summary     params[:summary]
-        node.description params[:description]
+        node.description params[:description].gsub("\r\n", "\n")
         if reboot
           node.reboot_needed
         end
@@ -329,6 +316,7 @@ class PatchinfoController < ApplicationController
     end
     @binarylist.uniq!
     @binarylist.delete("rpmlint.log")
+    @binarylist.delete("updateinfo.xml")
   end
 
   def require_all
