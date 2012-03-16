@@ -1,5 +1,7 @@
 require 'net/smtp'
 
+depend :local, :gem, 'capistrano', '>=2.11.2'
+
 set :application, "obs-api"
 
 # git settings
@@ -37,7 +39,7 @@ set :user, "root"
 set :runner, "root"
 
 after "deploy:update_code", "config:symlink_shared_config"
-after "deploy:symlink", "config:permissions"
+after "deploy:create_symlink", "config:permissions"
 
 before "deploy:update_code", "deploy:test_suite"
 
@@ -87,7 +89,7 @@ namespace :deploy do
     set :latest_release, latest_release_bak
   end
 
-  task :symlink, :except => { :no_release => true } do
+  task :create_symlink, :except => { :no_release => true } do
     on_rollback do
       if previous_release
         run "rm -f #{current_path}; ln -s #{previous_release}#{git_subdir} #{current_path}; true"

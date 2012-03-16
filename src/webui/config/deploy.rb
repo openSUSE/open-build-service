@@ -1,9 +1,6 @@
 require 'net/smtp'
-require 'capistrano/version'
 
-if Capistrano::Version::MAJOR == 2 && Capistrano::Version::MINOR < 11
-  raise "We need capistrano 2.11 - use dlre for now"
-end
+depend :local, :gem, 'capistrano', '>=2.11.2'
 
 set :application, "obs-webui"
 
@@ -18,6 +15,7 @@ set :migrate_target, :current
 
 set :deploy_notification_to, ['tschmidt@suse.de', 'coolo@suse.de', 'adrian@suse.de', 'saschpe@suse.de', 'mls@suse.de']
 server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
+
 
 # If you aren't deploying to /u/apps/#{application} on the target
 # servers (which is the default), you can specify the actual location
@@ -49,7 +47,7 @@ set :runner, "root"
 
 after "deploy:update_code", "config:symlink_shared_config"
 after "deploy:update_code", "config:sync_static"
-after "deploy:finalize_update", "config:permissions"
+after "deploy:create_symlink", "config:permissions"
 
 # workaround because we are using a subdirectory of the git repo as rails root
 before "deploy:finalize_update", "deploy:use_subdir"
