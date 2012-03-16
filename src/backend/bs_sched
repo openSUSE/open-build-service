@@ -3450,6 +3450,7 @@ sub checkpatchinfo {
   }
 
   return ('broken', $patchinfo->{'stopped'}) if $patchinfo->{'stopped'};
+  return ('broken', 'patchinfo lacks category') unless $patchinfo->{'category'};
 
   my $ptype = 'local';
   $ptype = 'binary' if ($projpacks->{$projid}->{'kind'} || '') eq 'maintenance_incident';
@@ -3670,14 +3671,12 @@ sub rebuildpatchinfo {
   my $updateinfodata;
   my %updateinfodata_tocopy;
   my %binaryfilter = map {$_ => 1} @{$patchinfo->{'binary'} || []};
+  my %filtered;
   
   if (-s "$reporoot/$prp/$myarch/$packid/.updateinfodata") {
     $updateinfodata = BSUtil::retrieve("$reporoot/$prp/$myarch/$packid/.updateinfodata");
     %updateinfodata_tocopy = map {$_ => 1} @{$updateinfodata->{'packages'} || []};
   }
-
-  # mark incomplete patchinfos as broken
-  return ('broken', "patchinfo lacks category") unless $patchinfo->{'category'};
 
   for my $tocopy (@tocopy) {
     my ($arch, $apackid) = split('/', $tocopy, 2);
@@ -3695,6 +3694,13 @@ sub rebuildpatchinfo {
     } else {
       $broken = "illegal ptype";
       last;
+    }
+    if ($updateinfodata->{'filtered'} && $updateinfodata->{'filtered'}->{$tocopy}) {
+      # we previously filtered packages, check if this is still true
+      if (grep {!%binaryfilter || $binaryfilter{$_}} keys %{$updateinfodata->{'filtered'}->{$tocopy}}) {
+	# can't reuse old packages, as the filter changed
+	delete $updateinfodata_tocopy{$tocopy};
+      }
     }
     if ($updateinfodata_tocopy{$tocopy} && (!defined($mpackid) || ($updateinfodata->{'metas'}->{$mpackid} || '') eq $ckmetas->{$mpackid})) {
       print "        reusing old packages for '$tocopy'\n";
@@ -3743,6 +3749,8 @@ sub rebuildpatchinfo {
         return ('broken', "$bin: bad rpm");
       }
       if (%binaryfilter && !$binaryfilter{$d->{'name'}}) {
+	$filtered{$tocopy} ||= {};
+	$filtered{$tocopy}->{$d->{'name'}} = 1;
         unlink("$jobdatadir/$bin");
         next;
       }
@@ -3764,6 +3772,9 @@ sub rebuildpatchinfo {
     }
     $metas{$mpackid} = Digest::MD5::md5_hex($m) if $ptype eq 'binary';
   }
+
+  $broken ||= 'no binaries found' unless @upackages;
+
   my $update = {};
   $update->{'status'} = 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
@@ -3822,6 +3833,7 @@ sub rebuildpatchinfo {
     'metas' => \%metas,
     'binaryorigins' => \%donebins,
   };
+  $updateinfodata->{'filtered'} = \%filtered if %filtered;
   BSUtil::store("$jobdatadir/.updateinfodata", undef, $updateinfodata);
   if ($broken) {
     BSUtil::cleandir($jobdatadir);
