@@ -153,13 +153,7 @@ class DbProject < ActiveRecord::Base
         return true if ret > 0
       end
 
-      userrels = dbp.project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID], :include => :role
-      if userrels > 0 
-        # relationship to package -> access
-        return true
-      end
-      # no relationship to package -> no access
-      return false
+      return !dbp.project_user_role_relationships.where("db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID).first.nil?
     end
 
     # own version of find

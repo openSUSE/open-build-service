@@ -345,7 +345,7 @@ class ApplicationController < ActionController::Base
     backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
     backend_http.read_timeout = 1000
 
-    file = Tempfile.new 'volley'
+    file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     opts = { :url_based_filename => true }
     
     backend_http.request_get(path) do |res|
@@ -431,12 +431,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def rescue_action_locally( exception )
-    # there is no point in answering HTML even for local usage - osc won't get it
-    rescue_action_in_public( exception )
-  end
-
-  def rescue_action_in_public( exception )
+  def rescue_with_handler(exception)
     case exception
     when Suse::Backend::NotFoundError
       render_error :message => exception.message, :status => 404
@@ -472,7 +467,7 @@ class ApplicationController < ActionController::Base
                    :message => message
     when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
-    when ActionController::UnknownAction
+    when AbstractController::ActionNotFound
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     when ActionView::MissingTemplate
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
@@ -573,7 +568,8 @@ class ApplicationController < ActionController::Base
       if send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
       end
-      render_error :message => "Uncaught exception: #{exception.message}", :status => 400
+      bt = exception.backtrace.join("\n")
+      render_error :message => "Uncaught exception: #{exception.message}\n#{bt}", :status => 400
     end
   end
 

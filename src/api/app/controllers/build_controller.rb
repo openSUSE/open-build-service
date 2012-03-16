@@ -51,7 +51,7 @@ class BuildController < ApplicationController
 
       unless ["wipe", "restartbuild", "killbuild", "abortbuild", "rebuild"].include? params[:cmd]
         render_error :status => 400, :errorcode => "illegal_request",
-          :message => "unsupported POST command #{params[:cmd]} to #{request.request_uri}"
+          :message => "unsupported POST command #{params[:cmd]} to #{request.url}"
         return
       end
 

@@ -70,7 +70,7 @@ class TagControllerTest < ActionController::IntegrationTest
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
     #an exception should be thrown, because the record already exists
-    assert_raise ActiveRecord::StatementInvalid do
+    assert_raise ActiveRecord::RecordNotUnique do
       @controller.private_create_relationship(p, u, t)
     end
   end
@@ -217,7 +217,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404
     
     #request tags for an existing project
-    get url_for(:action => :project_tags, :project => "home:Iggy" )
+    get url_for(:controller => :tag, :action => :project_tags, :project => "home:Iggy" )
     assert_response :success
     
     #checking response-data 
@@ -248,7 +248,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404
     
     #request tags for an existing project
-    get url_for(:action => :package_tags, :project => "home:Iggy", :package => "TestPack" )
+    get url_for(:controller => :tag, :action => :package_tags, :project => "home:Iggy", :package => "TestPack" )
     assert_response :success
     
     #checking response-data 
@@ -343,12 +343,12 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404
  
     #request tags for an unknown user
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:Iggy",
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => "home:Iggy",
     :user => "Alien" )
     assert_response 404   
     
     #request tags for an existing project
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:Iggy",
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => "home:Iggy",
     :user => "Iggy" )
     assert_response :success
     
@@ -372,7 +372,7 @@ class TagControllerTest < ActionController::IntegrationTest
     
     
     #request tags for another user than the logged on user
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:Iggy",
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => "home:Iggy",
     :user => "fred" )
     assert_response :success
     
@@ -403,19 +403,19 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404
     
     #request tags for an unknown package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "AlienPackage",
     :user => "Iggy" )
     assert_response 404
      
     #request tags for an unknown user
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "TestPack",
     :user => "Alien" )
     assert_response 404   
     
     #request tags for an existing package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy", :package => "TestPack", :user => "Iggy" )
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => "home:Iggy", :package => "TestPack", :user => "Iggy" )
     assert_response :success
     
     #checking response-data 
@@ -438,7 +438,7 @@ class TagControllerTest < ActionController::IntegrationTest
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     
     #request tags for another user than the logged on user
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:Iggy",
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => "home:Iggy",
     :package => "TestPack",
     :user => "fred" )
     assert_response :success
@@ -465,7 +465,7 @@ class TagControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :tag, :action => :get_tagged_projects_by_user, :user => "IamAnAlienToo" )
     assert_response 404
     
-    get url_for(:action => :get_tagged_projects_by_user, :user => "Iggy")
+    get url_for(:controller => :tag, :action => :get_tagged_projects_by_user, :user => "Iggy")
     assert_response :success
     
     #checking response-data 
@@ -530,7 +530,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404
     
     
-    get url_for(:action => :get_tagged_packages_by_user, :user => "Iggy")
+    get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "Iggy")
     assert_response :success
     
     #checking response-data 
@@ -605,7 +605,7 @@ class TagControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "AlienTag")
     assert_response 404
     
-    get url_for(:action => :get_projects_by_tag, :tag => "TagA")
+    get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagA")
     assert_response :success
     
     #checking response-data 
@@ -793,7 +793,7 @@ class TagControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "AlienTag")
     assert_response 404
     
-    get url_for(:action => :get_packages_by_tag, :tag => "TagB")
+    get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "TagB")
     assert_response :success
     
     #checking response-data 
@@ -904,7 +904,7 @@ class TagControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :tag, :action => :get_objects_by_tag, :tag => "AlienTag")
     assert_response 404
     
-    get url_for(:action => :get_objects_by_tag, :tag => "TagB")
+    get url_for(:controller => :tag, :action => :get_objects_by_tag, :tag => "TagB")
     assert_response :success
     
     #checking response-data 
@@ -1201,12 +1201,12 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #add tags
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:Iggy', :user => 'Iggy'), xml.to_s
+    put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:Iggy', :user => 'Iggy'), xml.to_s
     assert_response :success
     
     
     # Get data again and check that tags where added or removed 
-    get url_for(:action => :get_tags_by_user_and_project, :project => 'home:Iggy',
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => 'home:Iggy',
     :user => 'Iggy')
     assert_response :success
     #checking response-data 
@@ -1270,14 +1270,14 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #add tags
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:Iggy', 
+    put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:Iggy', 
     :package => "TestPack",
     :user => 'Iggy'), xml.to_s
     assert_response :success
     
     
     # Get data again and check that tags where added or removed 
-    get url_for(:action => :get_tags_by_user_and_package, :project => 'home:Iggy',
+    get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => 'home:Iggy',
     :package => 'TestPack',
     :user => 'Iggy')
     assert_response :success
@@ -1326,7 +1326,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response 404
     
     #put request for another user than the logged on user.
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:Iggy', 
+    put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:Iggy', 
     :package => "TestPack",
     :user => 'fred'), xml.to_s
     assert_response 403
