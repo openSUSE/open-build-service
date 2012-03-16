@@ -40,19 +40,13 @@ class Tag < ActiveRecord::Base
     @cached_count                                                                     
   end
   
-  
+  validates :name, :format => { :with => /^[^:?]*$/, :message => "no ? and : allowed!" } 
+  validate :not_blacklisted
+
   protected
-  def validate
-    errors.add("name", "The tag has invalid format, no ? allowed!") if name =~ /\?/
-    #reserved for the advanced tag-browsing feature
-    errors.add("name", "The tag has invalid format, no : allowed!") if name =~ /:/
-    blacklist = BlacklistTag.find(:all)
-    blacklist ||= []
-    
-    blacklist.each do |tag|
-      errors.add("name", "The tag is blacklisted!") if name.downcase == tag.name.downcase
-    end
-    
+  def not_blacklisted
+    blacklist = BlacklistTag.where("name = ?", name).first
+    errors.add(:name, "The tag is blacklisted!") if blacklist 
   end
   
   

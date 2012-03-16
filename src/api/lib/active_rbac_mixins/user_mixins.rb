@@ -56,8 +56,7 @@ module UserMixins
           # hash type, indicator whether the password has freshly been set 
           # (@new_password) and the login failure count to 
           # unconfirmed/false/0 when it has not been set yet.
-          def initialize (attributes = nil)
-            super(attributes)
+          before_validation(:on => :create) do
 
             self.state = User.states['unconfirmed'] if self.state.nil? 
             self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''

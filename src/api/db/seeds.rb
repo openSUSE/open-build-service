@@ -25,8 +25,8 @@ admin  = User.find_or_create_by_login :login => 'Admin', :email => "root@localho
 nobody = User.find_or_create_by_login :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
 
 puts "Seeding roles_users table..."
-RolesUser.find_or_create_by_user_id_and_role_id :user_id => admin.id, :role_id => admin_role.id
-RolesUser.find_or_create_by_user_id_and_role_id :user_id => admin.id, :role_id => user_role.id
+RolesUser.find_or_create_by_user_id_and_role_id(admin.id, admin_role.id)
+RolesUser.find_or_create_by_user_id_and_role_id(admin.id, user_role.id)
 
 puts "Seeding static_permissions table..."
 ["status_message_create", "set_download_counters", "download_binaries", "source_access", "access", "global_change_project", "global_create_project", "global_change_package", "global_create_package", "change_project", "create_project", "change_package", "create_package"].each do |sp_title|
@@ -61,34 +61,35 @@ ans = AttribNamespace.find_or_create_by_name :name => "OBS"
 ans.attrib_namespace_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 
 puts "Seeding attrib_types table..."
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "VeryImportantProject", :value_count => 0)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "VeryImportantProject", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "UpdateProject", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "UpdateProject", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "RejectRequests", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "RejectRequests", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "ApprovedRequestSource", :value_count => 0)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ApprovedRequestSource", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "Maintained", :value_count => 0)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "Maintained", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "MaintenanceProject", :value_count => 0)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "MaintenanceProject", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "MaintenanceIdTemplate", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "MaintenanceIdTemplate", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "ScreenShots")
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ScreenShots")
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "RequestCloned", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "RequestCloned", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "ProjectStatusPackageFailComment", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ProjectStatusPackageFailComment", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "InitializeDevelPackage", :value_count => 0)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "InitializeDevelPackage", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "BranchTarget", :value_count => 0)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "BranchTarget", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(:attrib_namespace => ans, :name => "QualityCategory", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "QualityCategory", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+
 at.allowed_values << AttribAllowedValue.new( :value => "Stable" )
 at.allowed_values << AttribAllowedValue.new( :value => "Testing" )
 at.allowed_values << AttribAllowedValue.new( :value => "Development" )
@@ -108,7 +109,7 @@ d.repositories << r
 d.save
 
 # set default configuration settings
-Configuration.find_or_create_by_title_and_description(:title => "Open Build Service", :description => <<-EOT
+Configuration.find_or_create_by_title_and_description("Open Build Service", <<-EOT
   <p class="description">
     The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
     is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.

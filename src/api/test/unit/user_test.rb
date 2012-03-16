@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
-require 'models/user'
 
 class UserTest < ActiveSupport::TestCase
   fixtures :all

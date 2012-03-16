@@ -6,7 +6,7 @@ class IchainNotifierTest < ActiveSupport::TestCase
 
   fixtures :users
 
-  include ActionMailer::Quoting
+  #include ActionMailer::Quoting
 
   def setup
     ActionMailer::Base.delivery_method = :test

@@ -10,7 +10,7 @@ class TagTest < ActiveSupport::TestCase
     assert t.save == false
     
     #expected error message
-    assert_equal "The tag is blacklisted!", t.errors[:name]
+    assert_equal "The tag is blacklisted!", t.errors[:name].join(';')
     
     t = Tag.new
     t.name = 'NotAllowedSymbol_?'
@@ -18,7 +18,7 @@ class TagTest < ActiveSupport::TestCase
     assert t.save == false
     
     #expected error message
-    assert_equal "The tag has invalid format, no ? allowed!", t.errors[:name]
+    assert_equal "no ? and : allowed!", t.errors[:name].join(';')
     
     t = Tag.new
     t.name = 'NotAllowedSymbol_:'
@@ -26,8 +26,7 @@ class TagTest < ActiveSupport::TestCase
     assert t.save == false
     
     #expected error message
-    assert_equal "The tag has invalid format, no : allowed!", t.errors[:name]
-    
+    assert_equal "no ? and : allowed!", t.errors[:name].join(';')
     
   end
 

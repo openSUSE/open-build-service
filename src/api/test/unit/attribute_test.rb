@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class AttributeTest < ActiveSupport::TestCase
   fixtures :all
 
-  def setup
+  setup do
     @attrib_ns = AttribNamespace.find_by_name( "OBS" )
   end
 
@@ -55,7 +55,7 @@ class AttributeTest < ActiveSupport::TestCase
     xml = REXML::Document.new( axml )
     assert AttribType.create(:name => "NewAttribute", :attrib_namespace => @attrib_ns).update_from_xml(xml.root)
 
-    @atro = AttribType.find( :first, :joins => @attrib_ns, :conditions=>{:name=>"NewAttribute"} )
+    @atro = @attrib_ns.attrib_types.where(:name=>"NewAttribute").first
     assert_not_nil @atro
     @at = AttribType.find_by_id( @atro.id ) # make readwritable
 

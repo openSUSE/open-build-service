@@ -29,9 +29,8 @@ class IssueTracker < ActiveRecord::Base
     return tracker
   end
 
-  def before_create
+  before_validation(:on => :create) do
     self.issues_updated ||= Time.now
-    super
   end
 
   # Checks if the given issue belongs to this issue tracker

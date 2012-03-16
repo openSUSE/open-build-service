@@ -60,21 +60,25 @@ class Flag < ActiveRecord::Base
     ret
   end
 
-  protected
-  def validate
-    errors.add("name", "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
-    errors.add("name", "Please set either project_id or package_id.") if self.db_project_id.nil? and self.db_package_id.nil?
-    errors.add("flag", "There needs to be a flag.") if self.flag.empty?
-    errors.add("flag", "There needs to be a valid flag.") unless FlagHelper::TYPES.has_key?(self.flag)
-    errors.add("status", "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
-    if self.position.nil?
-      if self.db_project
-	self.position = (self.db_project.flags.maximum(:position) || 0 ) + 1
-      else
-	self.position = (self.db_package.flags.maximum(:position) || 0 ) + 1
-      end
-      errors.add("position", "position is not set") if self.position.nil?
+  validates :flag, :presence => true
+  validates :position, :presence => true
+  validates_numericality_of :position, :only_integer => true
+
+  before_validation(:on => :create) do
+    if self.db_project
+      self.position = (self.db_project.flags.maximum(:position) || 0 ) + 1
+    elsif self.db_package
+      self.position = (self.db_package.flags.maximum(:position) || 0 ) + 1
     end
+  end
+
+  validate :validate_custom
+  protected
+  def validate_custom
+    errors.add(:name, "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
+    errors.add(:name, "Please set either project_id or package_id.") if self.db_project_id.nil? and self.db_package_id.nil?
+    errors.add(:flag, "There needs to be a valid flag.") unless FlagHelper::TYPES.has_key?(self.flag)
+    errors.add(:status, "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
   end
 
 end
