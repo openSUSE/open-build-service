@@ -141,7 +141,9 @@ module NodeMatcher #:nodoc:
       end
 
       # test the name
-      return false unless match_condition(node.element_name, conditions[:tag]) if conditions[:tag]
+      if conditions[:tag]
+        return false unless match_condition(node.element_name, conditions[:tag]) 
+      end
 
       # test attributes
       (conditions[:attributes] || {}).each do |key, value|
@@ -154,7 +156,9 @@ module NodeMatcher #:nodoc:
       end
 
       # test parent
-      return false unless match(node.parent, conditions[:parent]) if conditions[:parent] 
+      if conditions[:parent] 
+        return false unless match(node.parent, conditions[:parent])
+      end
 
       # test children
       if conditions[:child]
@@ -197,7 +201,7 @@ module NodeMatcher #:nodoc:
              matches << child
           end
         end
-
+        
         opts.each do |key, value|
           next if key == :only
           case key
@@ -253,6 +257,8 @@ module NodeMatcher #:nodoc:
     # Match the given value to the given condition.
     def self.match_condition(value, condition)
         case condition
+          when Symbol
+            value && value.to_s == condition.to_s
           when String
             value && value == condition
           when Regexp

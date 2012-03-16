@@ -149,7 +149,7 @@ module ActiveXML
       # access the logger object. All ActiveXML modules should use this method
       # instead of using RAILS_DEFAULT_LOGGER to remain independent of rails
       def logger
-        @log_obj || RAILS_DEFAULT_LOGGER
+        @log_obj || Rails.logger
       end
 
       # defines the logger object used throughout ActiveXML modules

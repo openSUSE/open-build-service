@@ -1,11 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'json'
+#require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'
 
 class DbProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    @project = DbProject.find( 502 )
+    @project = db_projects( :home_Iggy )
   end
   
     
@@ -18,19 +19,19 @@ class DbProjectTest < ActiveSupport::TestCase
     #puts xml_string
     
     #check the results
-    xml = REXML::Document.new(xml_string)
-    assert_equal 1, xml.root.get_elements("/project/build").size
-    assert_equal 2, xml.root.get_elements("/project/build/*").size
-    
-    assert_equal 1, xml.root.get_elements("/project/publish").size
-    assert_equal 2, xml.root.get_elements("/project/publish/*").size    
+    assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :build } }
+    assert_xml_tag xml_string, :parent => :project, :tag => :build, :children => { :count => 2 }
+
+    assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :publish } }
+    assert_xml_tag xml_string, :parent => :project, :tag => :publish, :children => { :count => 2 }
+
   end
   
   
   def test_add_new_flags_from_xml
     
     #precondition check
-    @project.flags.destroy_all
+    @project.flags.delete_all
     @project.reload
     assert_equal 0, @project.flags.size
     
@@ -51,8 +52,9 @@ class DbProjectTest < ActiveSupport::TestCase
       </project>"
       )
     
+    position = 1
     ['build', 'publish', 'debuginfo'].each do |flagtype|
-      @project.update_flags(axml, flagtype)
+      position = @project.update_flags(axml, flagtype, position)
     end
       
     @project.reload
@@ -98,17 +100,12 @@ class DbProjectTest < ActiveSupport::TestCase
       </project>"
       )    
     
-    #first update build-flags, should only delete build-flags
-    @project.update_flags(axml, 'build')
+    @project.update_all_flags(axml)
     assert_equal 0, @project.type_flags('build').size
-        
-    #second update publish-flags, should delete publish-flags    
-    @project.update_flags(axml, 'publish')
     assert_equal 0, @project.type_flags('publish').size
-    
   end
-  
-  
+
+    
   def test_flag_type_mismatch
     #check precondition
     assert_equal 2, @project.type_flags('build').size    
@@ -153,11 +150,59 @@ class DbProjectTest < ActiveSupport::TestCase
     @project.store_axml(ActiveXML::Base.new(original))
   end  
 
+  def test_ordering
+    original = @project.to_xml
+    
+    #project is given as axml
+    axml = ActiveXML::Base.new(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description></description>
+        <repository name='images'>
+          <arch>local</arch>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+      </project>"
+      )
+    @project.store_axml(axml)
+    
+    xml = @project.render_axml
+    
+    # validate i586 is in the middle
+    assert_xml_tag xml, :tag => :arch, :content => 'i586', :after => { :tag => :arch, :content => 'local' }
+    assert_xml_tag xml, :tag => :arch, :content => 'i586', :before => { :tag => :arch, :content => 'x86_64' }
+    
+    # now verify it's not happening randomly
+    #project is given as axml
+    axml = ActiveXML::Base.new(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description></description>
+        <repository name='images'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+          <arch>local</arch>
+        </repository>
+      </project>"
+      )
+    @project.store_axml(axml)
+
+    xml = @project.render_axml
+    
+    # validate x86_64 is in the middle
+    assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :after => { :tag => :arch, :content => 'i586' }
+    assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :before => { :tag => :arch, :content => 'local' }
+    
+  end
+    
   def test_benchmark_all
     prjs = DbProject.find :all
-    x = Benchmark.realtime { prjs.each { |p| p.expand_flags.to_json } }
-    y = Benchmark.realtime { prjs.each { |p| p.to_axml('flagdetails') } }
-    #puts "#{x} #{y}"
+    #PerfTools::CpuProfiler.start("/tmp/profile") do
+      x = Benchmark.realtime { prjs.each { |p| p.expand_flags.to_json } }
+      y = Benchmark.realtime { prjs.each { |p| p.to_axml('flagdetails') } }
+    #end
+    puts "#{x} #{y}"
   end
 
   def test_create_maintenance_project_and_maintained_project
@@ -186,54 +231,5 @@ class DbProjectTest < ActiveSupport::TestCase
   
   
 end
-
-
-#TODO delete
-#  def test_update_flags
-#    
-#    puts "build flag count:\t", @project.type_flags('build').size, "\n" 
-#        put_flags(@project.type_flags('build'))
-#        
-#        puts "\n adding new flag ................."
-#        f= BuildFlag.new(:status => 'disable', :repo => '10.2')
-#        @project.type_flags('build') << f
-#        f.move_to_top    
-#        @project.reload
-#        
-#        f =  BuildFlag.new(:status => 'enabled')
-#        @project.type_flags('build') << f
-#        f.move_to_top
-#        @project.reload
-#        put_flags(@project.type_flags('build'))
-#        
-#        puts "\n to axml ........................."    
-#        axml = ActiveXML::Base.new(@project.to_axml.to_s)
-#        puts axml.data.to_s
-#        
-#        puts "\n update flags with the axml ......"
-#        ret =  @project.update_flags(:project => axml, :flagtype => "build")
-#        #logger.debug "TEESSSTTT"
-#        @project.reload
-#        put_flags @project.type_flags('build')
-#        
-##        put_flags(ret)
-##        puts ret.size
-##        
-##        puts "\n get this result as axml ........."
-##        puts ".........done"
-##        @project.reload
-##        axml = ActiveXML::Base.new(@project.to_axml.to_s)
-##        
-##        puts "\n remove all enabled flags from axml "
-##        3.times do 
-##          axml.data.root.delete_element "build/enabled"
-##        end
-##        puts axml.data.to_s
-##        
-##        puts "\n update flags with the axml"
-##        ret =  @project.update_flags(:project => axml, :flagtype => 'BuildFlag')
-##        put_flags(ret)
-##        puts ret.size         
-#  end
 
 

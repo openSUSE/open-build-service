@@ -10,24 +10,24 @@ class DbProject < ActiveRecord::Base
 
   before_destroy :cleanup_before_destroy?
 
-  has_many :project_user_role_relationships, :dependent => :destroy
-  has_many :project_group_role_relationships, :dependent => :destroy
+  has_many :project_user_role_relationships, :dependent => :delete_all
+  has_many :project_group_role_relationships, :dependent => :delete_all
   has_many :db_packages, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
-  has_many :messages, :as => :db_object, :dependent => :destroy
+  has_many :messages, :as => :db_object, :dependent => :delete_all
 
   has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develproject_id'
   has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
 
-  has_many :taggings, :as => :taggable, :dependent => :destroy
+  has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
 
   has_many :download_stats
-  has_many :downloads, :dependent => :destroy
-  has_many :ratings, :as => :db_object, :dependent => :destroy
+  has_many :downloads, :dependent => :delete_all
+  has_many :ratings, :as => :db_object, :dependent => :delete_all
 
-  has_many :flags, :dependent => :destroy
+  has_many :flags, :dependent => :delete_all
 
   has_one :db_project_type
 
@@ -717,7 +717,7 @@ class DbProject < ActiveRecord::Base
           was_updated = true
         end
 
-        was_updated = true if current_repo.architectures.size > 0 or repo.each_arch.size > 0
+        was_updated = true if current_repo.repository_architectures.size > 0 or repo.each_arch.size > 0
 
         if was_updated
           current_repo.save!
@@ -725,13 +725,18 @@ class DbProject < ActiveRecord::Base
         end
 
         #destroy architecture references
-        current_repo.architectures.clear
+	logger.debug "delete all of #{current_repo.id}"
+        RepositoryArchitecture.delete_all(["repository_id = ?", current_repo.id])
 
+        position = 1
         repo.each_arch do |arch|
           unless Architecture.archcache.has_key? arch.text
             raise SaveError, "unknown architecture: '#{arch}'"
           end
-          current_repo.architectures << Architecture.archcache[arch.text]
+          a = current_repo.repository_architectures.new :architecture => Architecture.archcache[arch.text]
+          a.position = position
+          position += 1
+          a.save
           was_updated = true
         end
 
@@ -1165,7 +1170,7 @@ class DbProject < ActiveRecord::Base
     prj_flags.each do |f|
       flags << f if f.is_relevant_for?(repo, arch)
     end if prj_flags
-    flags.sort! { |a,b| a.specifics <=> b.specifics }
+
     flags.each do |f|
       ret = f.status
       expl = f.is_explicit_for?(repo, arch)

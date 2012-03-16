@@ -3,13 +3,9 @@ module FlagHelper
    class SaveError < Exception; end
 
    def type_flags(type)
-     # do some performance tests to verify if the danger of caching this is worth it
-     # more than a dozen flags in a object are very unlikely
-     @next_position = 1
      ret = []
      flags.each do |f|
        ret << f if f.flag == type
-       @next_position = f.position + 1
      end
      return ret
    end
@@ -39,26 +35,23 @@ module FlagHelper
    end
 
    def update_all_flags(obj)
-      FlagHelper.flag_types.each do |flagtype|
-        update_flags( obj, flagtype )
+      Flag.transaction do
+        self.flags.delete_all
+        position = 1
+        FlagHelper.flag_types.each do |flagtype|
+          position = update_flags( obj, flagtype , position )
+        end
       end
    end
 
-   def update_flags( obj, flagtype )
+   def update_flags( obj, flagtype, position )
 
      #translate the flag types as used in the xml to model name + s
      validate_type flagtype
-     Flag.transaction do
-
-       #remove old flags       
-       self.type_flags(flagtype).each do |f|
-	 self.flags.delete(f)
-       end
 
        if obj.has_element? flagtype.to_s
 	 
 	 #select each build flag from xml
-	 position = @next_position
 	 obj.send(flagtype).each do |xmlflag|
 
 	   #get the selected architecture from data base
@@ -81,9 +74,7 @@ module FlagHelper
 	 end
        end
 
-    end
-
-     return true
+     return position
    end
 
   def remove_flag(flag, repository, arch)

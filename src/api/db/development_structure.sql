@@ -7,16 +7,6 @@ CREATE TABLE `architectures` (
   UNIQUE KEY `arch_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `architectures_repositories` (
-  `repository_id` int(11) NOT NULL,
-  `architecture_id` int(11) NOT NULL,
-  `position` int(11) NOT NULL DEFAULT '0',
-  UNIQUE KEY `arch_repo_index` (`repository_id`,`architecture_id`),
-  KEY `architecture_id` (`architecture_id`),
-  CONSTRAINT `architectures_repositories_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `architectures_repositories_ibfk_2` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `attrib_allowed_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
@@ -471,6 +461,16 @@ CREATE TABLE `repositories` (
   CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `repository_architectures` (
+  `repository_id` int(11) NOT NULL,
+  `architecture_id` int(11) NOT NULL,
+  `position` int(11) NOT NULL DEFAULT '0',
+  UNIQUE KEY `arch_repo_index` (`repository_id`,`architecture_id`),
+  KEY `architecture_id` (`architecture_id`),
+  CONSTRAINT `repository_architectures_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `repository_architectures_ibfk_2` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL DEFAULT '',
@@ -866,6 +866,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120313113554');
 INSERT INTO schema_migrations (version) VALUES ('20120313131909');
 
 INSERT INTO schema_migrations (version) VALUES ('20120319104301');
+
+INSERT INTO schema_migrations (version) VALUES ('20120320134850');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

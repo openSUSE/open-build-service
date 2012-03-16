@@ -53,8 +53,9 @@ class DbPackageTest < ActiveSupport::TestCase
       </package>"
       )
     
+    position = 1
     ['build', 'publish', 'debuginfo'].each do |flagtype|
-      @package.update_flags(axml, flagtype)
+      position = @package.update_flags(axml, flagtype, position)
     end
       
     @package.reload
@@ -103,12 +104,8 @@ class DbPackageTest < ActiveSupport::TestCase
       )    
     
     #first update build-flags, should only delete build-flags
-    @package.update_flags(axml, 'build')
+    @package.update_all_flags(axml)
     assert_equal 0, @package.type_flags('build').size
-    assert_equal 1, @package.type_flags('publish').size        
-
-    #second update publish-flags, should delete publish-flags    
-    @package.update_flags(axml, 'publish')
     assert_equal 0, @package.type_flags('publish').size
     
   end

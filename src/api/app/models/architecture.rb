@@ -1,7 +1,8 @@
 class Architecture < ActiveRecord::Base
 
-  has_and_belongs_to_many :repositories
-
+  has_many :repository_architectures
+  has_many :repositories, :through => :repository_architectures
+  
   has_many :download_stats
   has_many :downloads
 
