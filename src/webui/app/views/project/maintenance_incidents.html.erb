@@ -33,7 +33,7 @@
       success: function(data) {
         $('#incident_display').html(data);
         if (data.indexOf('No incidents') == -1) {
-          incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
+        incident_count = $('tbody > tr:not(.hidden) > td:first-child > a').length;
           $('#incident_count').html('(' + incident_count.toString() + ')');
           appendIncidents();
         } else {
@@ -47,7 +47,7 @@
   }
 
   function appendIncidents() {
-    old_incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
+    old_incident_count = $('tbody > tr:not(.hidden) > td:first-child > a').length;
     $('#spinner').show();
     $.ajax({
       url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
@@ -60,7 +60,7 @@
       success: function(data) {
         $('#incident_table tbody').append(data);
         if (data.indexOf('No incidents') == -1) {
-          incident_count = $('#incident_table tbody').children(':not(.hidden)').length;
+          incident_count = $('tbody > tr:not(.hidden) > td:first-child > a').length;
           $('#incident_count').html('(' + incident_count.toString() + ')');
           if ((old_incident_count + 20) == incident_count) {
             appendIncidents();
