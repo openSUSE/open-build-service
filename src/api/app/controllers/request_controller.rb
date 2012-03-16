@@ -434,7 +434,7 @@ class RequestController < ApplicationController
                         found_patchinfo = 1
                       else
                         render_error :status => 400, :errorcode => 'build_not_finished',
-                          :message => "patchinfo is not yet build for repository '#{repo.name}'"
+                          :message => "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
                         return
                       end
                     end
