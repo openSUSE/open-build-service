@@ -514,19 +514,30 @@ sub createrepo_debian {
 
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
+  unlink("$extrep/Sources");
+  unlink("$extrep/Sources.gz");
   unlink("$extrep/Release");
   unlink("$extrep/Release.gpg");
   unlink("$extrep/Release.key");
 
 
   print "    running dpkg-scanpackages\n";
-  qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null') && print "    apt-ftparchive failed: $?\n";
+  qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null') && print "    dpkg-scanpackages failed: $?\n";
   if (-f "$extrep/Packages.new") {
     link("$extrep/Packages.new", "$extrep/Packages");
     qsystem('gzip', '-9', '-f', "$extrep/Packages") && print "    gzip Packages failed: $?\n";
     unlink("$extrep/Packages");
     rename("$extrep/Packages.new", "$extrep/Packages");
   }    
+
+  print "    running dpkg-scansources\n";
+  qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null') && print "    dpkg-scansources failed: $?\n";
+  if (-f "$extrep/Sources.new") {
+    link("$extrep/Sources.new", "$extrep/Sources");
+    qsystem('gzip', '-9', '-f', "$extrep/Sources") && print "    gzip Sources failed: $?\n";
+    unlink("$extrep/Sources");
+    rename("$extrep/Sources.new", "$extrep/Sources");
+  }
 
   my $date = POSIX::ctime(time());
   $date =~ s/\n//m;
@@ -574,6 +585,8 @@ sub deleterepo_debian {
 
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
+  unlink("$extrep/Sources");
+  unlink("$extrep/Sources.gz");
   unlink("$extrep/Release");
   unlink("$extrep/Release.gpg");
   unlink("$extrep/Release.key");
@@ -1035,6 +1048,8 @@ sub publish {
 	} elsif ($bin =~ /\.raw(:?\.install)?(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tar\.(:?gz|bz2|xz)(:?\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.dsc(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
 	  $p = "$bin";
