@@ -36,6 +36,7 @@ use Digest::MD5 ();
 use Data::Dumper;
 use Storable ();
 use Symbol;
+use MIME::Base64 ();
 
 use BSConfig;
 use BSRPC ':https';
@@ -5662,6 +5663,81 @@ sub published {
   return undef;
 }
 
+sub pkdecodetaglenoff {
+  my ($pkg) = @_;
+  my $tag = unpack('C', $pkg);
+  die("not a gpg packet\n") unless $tag & 128;
+  my $len;
+  my $off = 1;
+  if ($tag & 64) {
+    # new packet format
+    $tag &= 63; 
+    $len = unpack('C', substr($pkg, 1));
+    if ($len < 192) {
+      $off = 2;
+    } elsif ($len != 255) {
+      $len = (($len - 192) << 8) + unpack('C', substr($pkg, 2)) + 192;
+      $off = 3;
+    } else {
+      $len = unpack('N', substr($pkg, 2));
+      $off = 5;
+    }   
+  } else {
+    # old packet format
+    if (($tag & 3) == 0) {
+      $len = unpack('C', substr($pkg, 1));
+      $off = 2;
+    } elsif (($tag & 3) == 1) {
+      $len = unpack('n', substr($pkg, 1));
+      $off = 3;
+    } elsif (($tag & 3) == 1) {
+      $len = unpack('N', substr($pkg, 1));
+      $off = 6;
+    } else {
+      die("can't deal with not specified packet length\n");
+    }   
+    $tag = ($tag & 60) >> 2;
+  }
+  return ($tag, $len, $off);
+}
+
+sub pk2expire {
+  my ($pk) = @_;
+  # oh my! hard work!
+  $pk =~ s/.*\n\n//s;
+  $pk = MIME::Base64::decode($pk);
+  return 0 unless $pk;
+  my ($rex, $rct);
+  eval {
+    while ($pk ne '') {
+      my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+      my $pack = substr($pk, $off, $len);
+      $pk = substr($pk, $len + $off);
+      next if $tag != 2;
+      my $sver = unpack('C', substr($pack, 0, 1));
+      next unless $sver == 4;
+      my $stype = unpack('C', substr($pack, 1, 1));
+      next unless $stype == 19; # positive certification of userid and pubkey
+      my $plen = unpack('n', substr($pack, 4, 2));
+      $pack = substr($pack, 6, $plen);
+      my ($ct, $ex);
+      while ($pack ne '') {
+        $pack = pack('C', 0xc0).$pack;
+        my ($stag, $slen, $soff) = pkdecodetaglenoff($pack);
+        my $spack = substr($pack, $soff, $slen);
+        $pack = substr($pack, $slen + $soff);
+        $stag = unpack('C', substr($spack, 0, 1));
+        $ct = unpack('N', substr($spack, 1, 4)) if $stag == 2;
+        $ex = unpack('N', substr($spack, 1, 4)) if $stag == 9;
+      }
+      $rex = $ex if defined($ex) && (!defined($rex) || $rex > $ex);
+      $rct = $ct if defined($ct) && (!defined($rct) || $rct > $ct);
+    }
+  };
+  return 0 if $@;
+  return defined($rct) && defined($rex) ? $rct + $rex : undef;
+}
+
 sub getsignkey {
   my ($cgi, $projid) = @_;
 
@@ -5670,6 +5746,13 @@ sub getsignkey {
     if ($sk) {
       if ($cgi->{'withpubkey'}) {
         my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+        if ($pk && $cgi->{'autoextend'}) {
+	  my $expiredate = pk2expire($pk);
+	  if ($expiredate && $expiredate < time() + 24 * 3600) {
+	    extendkey({'comment' => 'auto-extend public key expiry date'}, $projid);
+            $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+	  }
+	}
         $sk .= "\n" unless $sk =~ /\n$/s;
         $sk .= $pk;
       }
@@ -6695,7 +6778,7 @@ my $dispatches = [
   '/getsources $project $package $srcmd5:md5' => \&getsources,
   '/getconfig $project $repository path:prp*' => \&getbuildconfig,
 
-  '/getsignkey $project withpubkey:bool?' => \&getsignkey,
+  '/getsignkey $project withpubkey:bool? autoextend:bool?' => \&getsignkey,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '!- /lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
