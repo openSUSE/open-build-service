@@ -1034,7 +1034,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.raw(:?\.install)?(:?\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tar\.(:?gz|bz2)(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.tar\.(:?gz|bz2|xz)(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
 	  $p = "$bin";
