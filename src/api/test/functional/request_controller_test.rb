@@ -7,12 +7,14 @@ class RequestControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def teardown
+    return unless Suse::Backend.test_backend?
     prepare_request_with_user "king", "sunflower"
     get "/request"
-    dir = ActiveXML::XMLNode.new(@response.body)
-    dir.each do |p|
-      next if [ "997", "998", "999" ].include? p.value(:name) # skip fixture data
-      Suse::Backend.delete "/request/#{p.value(:name)}"
+    assert_response :success
+    dir = Xmlhash.parse(@response.body)
+    dir.elements("entry") do |p|
+      next if [ "997", "998", "999" ].include? p["name"] # skip fixture data
+      Suse::Backend.delete "/request/#{p["name"]}"
       assert_response :success
     end
   end

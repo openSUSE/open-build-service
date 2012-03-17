@@ -11,23 +11,17 @@ module ActionController
     class Session
       def add_auth(headers)
         headers = Hash.new if headers.nil?
-        if !headers.has_key? "AUTHORIZATION" and IntegrationTest.basic_auth
-          headers["AUTHORIZATION"] = IntegrationTest.basic_auth
+        if !headers.has_key? "HTTP_AUTHORIZATION" and IntegrationTest.basic_auth
+          headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
         end
         return headers
       end
 
-      def get(path, parameters = nil, headers = nil)
-        process :get, path, parameters, add_auth(headers)
-      end
-      def post(path, parameters = nil, headers = nil)
-        process :post, path, parameters, add_auth(headers)
-      end
-      def put(path, parameters = nil, headers = nil)
-        process :put, path, parameters, add_auth(headers)
-      end
-      def delete(path, parameters = nil, headers = nil)
-        process :delete, path, parameters, add_auth(headers)
+      alias_method :real_process, :process
+      def process(method, path, parameters, rack_env)
+        ActiveXML::Config.global_write_through = true
+        self.accept = "text/xml,application/xml"
+        real_process(method, path, parameters, add_auth(rack_env))
       end
 
     end

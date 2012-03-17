@@ -5,6 +5,8 @@ require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
 require 'rexml/document'
+# to be removed 
+require 'iconv'
 
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
@@ -35,10 +37,6 @@ class ApplicationController < ActionController::Base
     after_filter :validate_xml_response
   end
 
-  if Rails.env.test?
-    before_filter :start_test_backend
-  end
-
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
@@ -51,27 +49,6 @@ class ApplicationController < ActionController::Base
   
   hide_action :auth_method
   hide_action 'auth_method='
-
-  @@backend = nil
-  def start_test_backend
-    return if @@backend
-    logger.debug "Starting test backend..."
-    @@backend = IO.popen("#{RAILS_ROOT}/script/start_test_backend")
-    logger.debug "Test backend started with pid: #{@@backend.pid}"
-    while true do
-      line = @@backend.gets
-      raise RuntimeError.new('Backend died') unless line
-      break if line =~ /DONE NOW/
-      logger.debug line.strip
-    end
-    ActiveXML::Config.global_write_through = true
-    at_exit do
-      logger.debug "kill #{@@backend.pid}"
-      Process.kill "INT", @@backend.pid
-      @@backend = nil
-    end
-  end
-  hide_action :start_test_backend
 
   protected
   def set_current_user
@@ -362,6 +339,7 @@ class ApplicationController < ActionController::Base
     end
 
     logger.debug "[backend] VOLLEY: #{path}"
+    Suse::Backend.start_test_backend 
     backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
     backend_http.read_timeout = 1000
 
@@ -408,19 +386,19 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    case request.method
-    when :get
+    case request.method.to_s.downcase
+    when "get"
       forward_from_backend( path )
       return
-    when :post
+    when "post"
       file = download_request
       response = Suse::Backend.post( path, file )
       file.close!
-    when :put
+    when "put"
       file = download_request
       response = Suse::Backend.put( path, file )
       file.close!
-    when :delete
+    when "delete"
       response = Suse::Backend.delete( path )
     end
 
@@ -622,8 +600,8 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_http_methods(*methods)
-    list = methods.map {|x| x.to_s.downcase.to_s}
-    unless methods.include? request.method
+    list = methods.map {|x| x.to_s.downcase}
+    unless list.include? request.method.to_s.downcase
       raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method.to_s.upcase}"
     end
   end
@@ -672,11 +650,6 @@ class ApplicationController < ActionController::Base
     #      end
     #    end
 
-    # on some occasions the status template doesn't receive the instance variables it needs
-    # unless render_to_string is called before (which is an ugly workaround but I don't have any
-    # idea where to start searching for the real problem)
-    render_to_string :template => 'status'
-
     logger.info "errorcode '#{@errorcode}' - #{@summary}"
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status], :layout => false
@@ -702,6 +675,7 @@ class ApplicationController < ActionController::Base
   end
 
   def backend
+    Suse::Backend.start_test_backend if Rails.env.test?
     @backend ||= ActiveXML::Config.transport_for :bsrequest
   end
 
@@ -762,8 +736,8 @@ class ApplicationController < ActionController::Base
         str = hash[key].to_s
         begin
           Iconv.iconv( "UCS4", "UTF-8", str )
-        rescue
-          raise IllegalEncodingError.new('Illegal encoded parameter')
+        rescue => e
+          raise IllegalEncodingError.new("Illegal encoded parameter #{e.class} #{e.message}")
         end
 
         if hash[key].nil?

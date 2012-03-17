@@ -3,6 +3,8 @@ ENV['RAILS_ENV'] = 'test'
 require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
+Suse::Backend.do_not_start_test_backend
+
 # check for still running daemons from former run
 [ '3200', '3201', '3202' ].each do |port|
   begin
@@ -24,10 +26,12 @@ logger = RAILS_DEFAULT_LOGGER
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_data")
 FileUtils.rm_rf("#{RAILS_ROOT}/tmp/backend_config")
 
-system("rake db:fixtures:load")
-
 # minimal auth
 @http_user = User.find_by_login( "king" )
+unless @http_user
+  # we only need the fixtures if rake test didn't load it yet
+  system("rake --trace db:fixtures:load")
+end
 User.current = @http_user
 User.currentID = @http_user.id
 User.currentAdmin = @http_user.is_admin?
