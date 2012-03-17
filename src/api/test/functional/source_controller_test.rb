@@ -104,9 +104,9 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def test_use_illegal_encoded_parameters
     prepare_request_with_user "king", "sunflower"
-    put "/source/kde4/kdelibs/DUMMY?comment=working%20with%20Umläut", "WORKING"
+    raw_put "/source/kde4/kdelibs/DUMMY?comment=working%20with%20Uml%C3%A4ut", "WORKING"
     assert_response :success
-    put "/source/kde4/kdelibs/DUMMY?comment=illegalchar#{0x96.chr}#{0x96.chr}asd", "NOTWORKING"
+    raw_put "/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd", "NOTWORKING"
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => "invalid_text_encoding" }
   end
@@ -286,17 +286,17 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_match(/admin rights are required to change remoteurl/, @response.body)
 
     # invalid xml
-    put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<asd/>"
+    raw_put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<asd/>"
     assert_response 400
     assert_match(/validation error/, @response.body)
 
     # new project
-    put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
+    raw_put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
     assert_response 403
     assert_match(/not allowed to create new project/, @response.body)
 
     prepare_request_with_user "king", "sunflower"
-    put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
+    raw_put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
     assert_match(/projid '_NewProject' is illegal/, @response.body)
   end
@@ -415,7 +415,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response response1
     if !( response2 && tag2 )
       #dummy write to check blocking
-      put url_for(:action => :project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
+      put url_for(:controller => :source, :action => :project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 403 #4
 #      assert_match(/unknown_project/, @response.body)
       assert_match(/create_project_no_permission/, @response.body)
@@ -430,12 +430,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:action => :project_meta, :project => project), doc.to_s
+    put url_for(:controller => :source, :action => :project_meta, :project => project), doc.to_s
     assert_response response2
     assert_xml_tag(tag2)
 
     # Get data again and check that it is the changed data
-    get url_for(:action => :project_meta, :project => project)
+    get url_for(:controller => :source, :action => :project_meta, :project => project)
     assert_response :success
     assert_equal new_desc, Xmlhash.parse(@response.body)["description"] if doesmatch
   end
@@ -986,21 +986,21 @@ end
 
   def test_devel_package_cycle
     prepare_request_with_user "tom", "thunder"
-    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
+    raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
     assert_response :success
-    put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
+    raw_put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
     assert_response :success
-    put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
+    raw_put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response :success
     # no self reference
-    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
+    raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
     assert_response 400
     # create a cycle via new package
-    put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
+    raw_put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
     assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "devel_cycle"} )
     # create a cycle via existing package
-    put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
+    raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "devel_cycle"} )
   end
@@ -1010,7 +1010,8 @@ end
     assert_response response1
     if !(response2 || tag2 || response3 || select3)
       #dummy write to check blocking
-      put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package name=\"#{package}\"><title></title><description></description></package>"
+      raw_put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), 
+              "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -1128,7 +1129,8 @@ end
     assert_response 404
     assert_xml_tag( :tag => "status" )
     
-    get "/source/kde4/kdelibs/../kdebase/_meta"
+    # we need to be bruteforce, a get with full path will only trigger an elimination of .. in the url
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs/../kdebase") 
     #STDERR.puts(@response.body)
     assert_response( 404, "Was able to read file outside of package scope" )
     assert_xml_tag( :tag => "status" )
@@ -1339,7 +1341,7 @@ end
     assert_response :success
     origstring = @response.body.to_s
     teststring = "&;"
-    put url_for(:action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"), teststring
+    put url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"), teststring
     assert_response( 403, message="Was able to write a package file without permission" )
     assert_xml_tag( :tag => "status" )
     
@@ -2444,7 +2446,7 @@ end
     get "/source/home:Iggy/TestPack"
     assert_response :success
    
-    Suse::Backend.put( '/source/home:Iggy/TestPack/bnc#620675.diff', 'argl')
+    Suse::Backend.put( '/source/home:Iggy/TestPack/bnc%23620675.diff', 'argl')
     assert_response :success
 
     get "/source/home:Iggy/TestPack"
@@ -2454,11 +2456,11 @@ end
     assert_xml_tag :tag => "directory",
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "bnc#620675.diff" } } }
 
-    get "/source/home:Iggy/TestPack/bnc#620675.diff"
+    get "/source/home:Iggy/TestPack/bnc%23620675.diff"
     assert_response :success
 
     #cleanup
-    delete "/source/home:Iggy/TestPack/bnc#620675.diff"
+    delete "/source/home:Iggy/TestPack/bnc%23620675.diff"
     assert_response :success
   end
 

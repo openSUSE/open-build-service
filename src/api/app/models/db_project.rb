@@ -858,7 +858,10 @@ class DbProject < ActiveRecord::Base
     if binary
       raise RuntimeError, "binary packages are not allowed in project attributes"
     end
-    return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
+    a = attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace], :select => "attribs.id")
+    if a && a.readonly? # FIXME: joins make things read only
+      a = attribs.where(id => a.id).first
+    end 
   end
 
   def render_issues_axml(params)

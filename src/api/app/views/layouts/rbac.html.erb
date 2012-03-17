@@ -18,7 +18,7 @@
     <% if flash[:error] %>
     <div id="error"><%= flash[:error] %></div>
     <% end %>
-    <%= @content_for_layout %>
+    <%= yield %>
   </div>
   <div id="bottom">
     <a href="http://build.opensuse.org">Open Build Service Web Interface</a> |
@@ -33,4 +33,7 @@
       anonymous
     <%- end %>
     </div>
+
+</body>
+</html>
 

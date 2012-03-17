@@ -451,12 +451,11 @@ class User < ActiveRecord::Base
     case object
       when DbPackage
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
-        rels = package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and role_id = ?", object, role], :include => :role
-        return true if rels > 0
-        rels = PackageGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
-                                                  :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role],
-                                                  :include => :role
-         return true if rels > 0
+        rels = package_user_role_relationships.where("db_package_id = ? and role_id = ?", object.id, role.id).first
+        return true if rels
+        rels = PackageGroupRoleRelationship.find :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
+                                                  :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role]
+        return true if rels
 
         # check with LDAP
         if User.ldapgroup_enabled?
@@ -466,12 +465,11 @@ class User < ActiveRecord::Base
         return has_local_role?(role, object.db_project)
       when DbProject
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
-        rels = project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and role_id = ?", object, role], :include => :role
-        return true if rels > 0
-        rels = ProjectGroupRoleRelationship.count :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
-                                                  :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role],
-                                                  :include => :role
-        return true if rels > 0
+        rels = project_user_role_relationships.find :first, :conditions => ["db_project_id = ? and role_id = ?", object.id, role.id]
+        return true if rels
+        rels = ProjectGroupRoleRelationship.find :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
+                                                  :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role], :select => "ug.user_id"
+        return true if rels
 
         # check with LDAP
         if User.ldapgroup_enabled?

@@ -150,14 +150,14 @@ class AttributeController < ApplicationController
         return
       end
 
-      entry = AttribType.find( :first, :joins => ans, :conditions=>{:name=>name} )
+      entry = ans.attrib_types.where("name = ?", name ).first
       if entry
           db = AttribType.find_by_id( entry.id ) # get a writable object
           logger.debug "* updating existing attribute definitions"
           db.update_from_xml(xml_element)
       else
           logger.debug "* create new attribute definition"
-          AttribType.new(:name => name, :attrib_namespace => ans).update_from_xml(xml_element)
+          AttribType.new(:name => name, :attrib_namespace => ans ).update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -165,7 +165,7 @@ class AttributeController < ApplicationController
 
       render_ok
     elsif request.delete?
-      at = AttribType.find( :first, :joins => ans, :conditions=>{:name=>name} )
+      at = ans.attrib_types.where("name = ?", name ).first
       at.destroy
       render_ok
     else

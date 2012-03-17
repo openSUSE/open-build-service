@@ -732,9 +732,14 @@ class DbPackage < ActiveRecord::Base
 
   def find_attribute( namespace, name, binary=nil )
     if binary
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name, namespace, binary])
+      a = attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name, namespace, binary])
+    else
+      a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ? and ISNULL(attribs.binary)", name, namespace).first
     end
-    return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
+    if a && a.readonly? # FIXME - there must be a way with :through to get this without readonly
+      a = attribs.where(:id => a.id).first
+    end
+    return a
   end
 
   def write_through?

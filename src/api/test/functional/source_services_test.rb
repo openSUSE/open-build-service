@@ -37,15 +37,15 @@ class SourceServicesTest < ActionController::IntegrationTest
   def test_combine_project_service_list
     prepare_request_with_user "king", "sunflower"
 
-    put "/source/BaseDistro2.0/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
+    raw_put "/source/BaseDistro2.0/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
-    put "/source/BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_files" /> </services>'
+    raw_put "/source/BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_files" /> </services>'
     assert_response :success
 
     prepare_request_with_user "tom", "thunder"
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
-    put "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
+    raw_put "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
     assert_response :success
 
     post "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "getprojectservices"
@@ -83,12 +83,12 @@ class SourceServicesTest < ActionController::IntegrationTest
 
   def test_run_source_service
     prepare_request_with_user "tom", "thunder"
-    put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    raw_put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
-    put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    raw_put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
 
-    put "/source/home:tom/service/_service", '<services> <service name="not_existing" /> </services>'
+    raw_put "/source/home:tom/service/_service", '<services> <service name="not_existing" /> </services>'
     assert_response :success
     post "/source/home:tom/service?cmd=runservice"
     assert_response :success
@@ -97,7 +97,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
 
-    put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
+    raw_put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
     post "/source/home:tom/service?cmd=runservice"
     assert_response :success
@@ -113,7 +113,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
 
     # submit to other package
-    post "/request?cmd=create", '<request>
+    raw_post "/request?cmd=create", '<request>
                                    <action type="submit">
                                      <source project="home:tom" package="service"/>
                                      <target project="home:tom" package="new_package"/>

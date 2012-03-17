@@ -117,7 +117,7 @@ module Suse
           raise "option hash needs keys :controller and :action"
         end
         c = opt[:controller].to_s
-        key = opt[:action].to_s + "-" + opt[:method].to_s + "-" + opt[:type].to_s
+        key = opt[:action].to_s + "-" + opt[:method].to_s.downcase + "-" + opt[:type].to_s
 
         #logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return nil if @schema_map.nil?

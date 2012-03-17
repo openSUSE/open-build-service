@@ -25,28 +25,37 @@ OBSApi::Application.routes.draw do
 
   ### /source
 
-  # project level
-  match 'source/:project' => 'source#index_project', :project => /\w[^\/]*/
-  match 'source/:project/_meta' => 'source#project_meta', :project => /[^\/]*/
-  match 'source/:project/_webui_flags' => 'source#project_flags', :project => /[^\/]*/
-  match 'source/:project/_attribute' => 'source#attribute_meta', :project => /[^\/]*/
-  match 'source/:project/_attribute/:attribute' => 'source#attribute_meta', :project => /[^\/]*/
-  match 'source/:project/_config' => 'source#project_config', :project => /[^\/]*/
-  match 'source/:project/_tags' => 'tag#project_tags', :project => /[^\/]*/
-  match 'source/:project/_pubkey' => 'source#project_pubkey', :project => /[^\/]*/
-
-  # package level
-  match 'source/:project/:package/_meta' => 'source#package_meta', :project => /[^\/]*/, :package => /[^\/]*/
-  match 'source/:project/:package/_webui_flags' => 'source#package_flags', :project => /[^\/]*/, :package => /[^\/]*/
-  match 'source/:project/:package/_attribute' => 'source#attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
-  match 'source/:project/:package/_attribute/:attribute' => 'source#attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
-  match 'source/:project/:package/:binary/_attribute' => 'source#attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :binary => /[^\/]*/
-  match 'source/:project/:package/:binary/_attribute/:attribute' => 'source#attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :binary => /[^\/]*/
-  match 'source/:project/:package/_tags' => 'tag#package_tags', :project => /[^\/]*/, :package => /[^\/]*/
   match 'source/:project/:package/_wizard' => 'wizard#package_wizard', :project => /[^\/]*/, :package => /[^\/]*/
-  match 'source/:project/:package/:file' => 'source#file', :project => /[^\/]*/, :package => /[^\/]*/, :file => /[^\/]*/
-  match 'source/:project/:package' => 'source#index_package', :project => /\w[^\/]*/, :package => /\w[^\/]*/
+  match 'source/:project/:package/_tags' => 'tag#package_tags', :project => /[^\/]*/, :package => /[^\/]*/
+  match 'source/:project/_tags' => 'tag#project_tags', :project => /[^\/]*/
 
+  controller :source do
+
+    pcons = { :project => /[^\/]*/, :package => /[^\/]*/ }
+
+    # project level
+    match 'source/:project' => :index_project, :constraints => pcons
+    match 'source/:project/_meta' => :project_meta, :constraints => pcons
+    match 'source/:project/_webui_flags' => :project_flags, :constraints => pcons
+    match 'source/:project/_attribute' => :attribute_meta, :constraints => pcons
+    match 'source/:project/_attribute/:attribute' => :attribute_meta, :constraints => pcons
+    match 'source/:project/_config' => :project_config, :constraints => pcons
+    match 'source/:project/_pubkey' => :project_pubkey, :constraints => pcons
+
+    pcons = { :project => /[^\/]*/, :package => /[^\/]*/ }
+
+    # package level
+    match '/source/:project/:package/_meta' => :package_meta, :constraints => pcons
+    match 'source/:project/:package/_webui_flags' => :package_flags, :constraints => pcons
+    match 'source/:project/:package/_attribute' => :attribute_meta, :constraints => pcons
+    match 'source/:project/:package/_attribute/:attribute' => :attribute_meta, :constraints => pcons
+    match 'source/:project/:package/:binary/_attribute' => :attribute_meta, :constraints =>  pcons.merge(:binary => /[^\/]*/)
+    match 'source/:project/:package/:binary/_attribute/:attribute' => :attribute_meta, 
+          :constraints =>  pcons.merge(:binary => /[^\/]*/)
+    match 'source/:project/:package/:file' => :file, 
+          :constraints =>  pcons.merge(:file => /[^\/]*/)
+    match 'source/:project/:package' => :index_package, :constraints => pcons
+  end
 
   ### /attribute
   match 'attribute' => 'attribute#index'
@@ -237,5 +246,5 @@ OBSApi::Application.routes.draw do
 
   # Install the default route as the lowest priority.
   match '/:controller(/:action(/:id))'
-  match ':controller/:action' => '#index'
+  match ':controller/:action'
 end

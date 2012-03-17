@@ -364,7 +364,7 @@ class ApplicationController < ActionController::Base
 
   hide_action :download_request
   def download_request
-    file = Tempfile.new 'volley'
+    file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     b = request.body
     buffer = String.new
     while b.read(40960, buffer)
@@ -402,8 +402,10 @@ class ApplicationController < ActionController::Base
       response = Suse::Backend.delete( path )
     end
 
-    send_data( response.body, :type => response.fetch( "content-type" ),
+    text = response.body
+    send_data( text, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
+    return text
   end
   public :pass_to_backend
 

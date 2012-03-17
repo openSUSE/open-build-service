@@ -23,6 +23,27 @@ module ActionController
         real_process(method, path, parameters, add_auth(rack_env))
       end
 
+      def get_html(path, parameters = nil, rack_env = nil)
+        self.accept = "text/html";
+        real_process(:get, path, parameters, add_auth(rack_env))
+      end
+
+      def raw_post(path, data, parameters = nil, rack_env = nil)
+        rack_env ||= Hash.new
+        rack_env['CONTENT_TYPE'] = 'application/octet-stream'
+        rack_env['CONTENT_LENGTH'] = data.length
+        rack_env['RAW_POST_DATA'] = data
+        process(:post, path, parameters, add_auth(rack_env))
+      end
+
+      def raw_put(path, data, parameters = nil, rack_env = nil)
+        rack_env ||= Hash.new
+        rack_env['CONTENT_TYPE'] = 'application/octet-stream'
+        rack_env['CONTENT_LENGTH'] = data.length
+        rack_env['RAW_POST_DATA'] = data
+        process(:put, path, parameters, add_auth(rack_env))
+      end
+
     end
   end
 
@@ -66,6 +87,14 @@ module ActionController
      node = ActiveXML::Base.new(@response.body)
      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
      assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
+    end
+
+    # useful to fix our test cases
+    def url_for(hash)
+      raise ArgumentError.new("we need a hash here") unless hash.kind_of? Hash
+      raise ArgumentError.new("we need a :controller") unless hash.has_key?(:controller)
+      raise ArgumentError.new("we need a :action") unless hash.has_key?(:action)
+      super(hash)
     end
   end 
 end
