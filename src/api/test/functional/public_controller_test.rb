@@ -81,12 +81,12 @@ class PublicControllerTest < ActionController::IntegrationTest
   def test_binaries
     get "/public/binary_packages/home:Iggy/TestPack"
     assert_response :success
-    assert_tag :tag => 'package'
+    assert_xml_tag :tag => 'package'
 
     # we can list the binaries, but not download to avoid direct links
     get "/public/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
-    assert_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
+    assert_xml_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
     get "/public/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
     assert_response 404
   end

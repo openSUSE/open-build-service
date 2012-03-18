@@ -21,23 +21,23 @@ class IssueControllerTest < ActionController::IntegrationTest
 #    assert_response :success
     get '/issue_trackers/bnc/issues/123456'
     assert_response :success
-    assert_tag :tag => 'name', :content => "123456"
-    assert_tag :tag => 'tracker', :content => "bnc"
-    assert_tag :tag => 'label', :content => "bnc#123456"
-    assert_tag :tag => 'url', :content => "https://bugzilla.novell.com/show_bug.cgi?id=123456"
-    assert_tag :tag => 'state', :content => "CLOSED"
-    assert_tag :tag => 'summary', :content => "OBS is not bugfree!"
-    assert_tag :parent => { :tag => 'owner' }, :tag => 'login', :content => "fred"
-    assert_tag :parent => { :tag => 'owner' }, :tag => 'email', :content => "fred@feuerstein.de"
-    assert_tag :parent => { :tag => 'owner' }, :tag => 'realname', :content => "Frederic Feuerstone"
-    assert_no_tag :tag => 'password'
+    assert_xml_tag :tag => 'name', :content => "123456"
+    assert_xml_tag :tag => 'tracker', :content => "bnc"
+    assert_xml_tag :tag => 'label', :content => "bnc#123456"
+    assert_xml_tag :tag => 'url', :content => "https://bugzilla.novell.com/show_bug.cgi?id=123456"
+    assert_xml_tag :tag => 'state', :content => "CLOSED"
+    assert_xml_tag :tag => 'summary', :content => "OBS is not bugfree!"
+    assert_xml_tag :parent => { :tag => 'owner' }, :tag => 'login', :content => "fred"
+    assert_xml_tag :parent => { :tag => 'owner' }, :tag => 'email', :content => "fred@feuerstein.de"
+    assert_xml_tag :parent => { :tag => 'owner' }, :tag => 'realname', :content => "Frederic Feuerstone"
+    assert_no_xml_tag :tag => 'password'
 
     # get new, incomplete issue .. don't crash ...
     get '/issue_trackers/bnc/issues/1234'
     assert_response :success
-    assert_tag :tag => 'name', :content => "1234"
-    assert_tag :tag => 'tracker', :content => "bnc"
-    assert_no_tag :tag => 'password'
+    assert_xml_tag :tag => 'name', :content => "1234"
+    assert_xml_tag :tag => 'tracker', :content => "bnc"
+    assert_no_xml_tag :tag => 'password'
   end
 
   def test_get_issue_for_patchinfo_and_project
@@ -51,12 +51,12 @@ class IssueControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get '/source/Devel:BaseDistro:Update/pack3?view=issues'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
     get '/source/Devel:BaseDistro:Update?view=issues'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
   end
 
   def test_search_issues
@@ -77,31 +77,31 @@ class IssueControllerTest < ActionController::IntegrationTest
     # running patchinfo search as done by webui
     get "/search/package_id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     get "/search/package_id", :match => 'issue/owner/@login="fred"'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # search for specific issue state, issue is in RESOLVED state actually
     get "/search/package_id", :match => 'issue/@state="OPEN"'
     assert_response :success
-    assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # running patchinfo search as done by webui
     get "/search/package_id", :match => '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # test with not matching kind to verify that it does not match
     get "/search/package_id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]'
     assert_response :success
-    assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
 
     # search via bug issue id
     get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc"]]'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
   end
 
   def test_get_issue_for_linked_packages
@@ -132,71 +132,71 @@ Aha bnc#123456\n
     assert_response :success
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=added"
     assert_response :success
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=kept,deleted"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&changes=kept,deleted"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
-    assert_no_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&login=unknown"
     assert_response :success
-    assert_no_tag :parent => { :tag => 'issue' }
+    assert_no_xml_tag :parent => { :tag => 'issue' }
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&login=unknown"
     assert_response :success
-    assert_no_tag :parent => { :tag => 'issue' }
+    assert_no_xml_tag :parent => { :tag => 'issue' }
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&login=fred"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&login=fred"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&states=FANTASY"
     assert_response :success
-    assert_no_tag :parent => { :tag => 'issue' }
+    assert_no_xml_tag :parent => { :tag => 'issue' }
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&states=FANTASY"
     assert_response :success
-    assert_no_tag :parent => { :tag => 'issue' }
+    assert_no_xml_tag :parent => { :tag => 'issue' }
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&states=OPEN,CLOSED"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&states=OPEN,CLOSED"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
     get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
     get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
     get "/search/package_id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]'
     assert_response :success
-    assert_no_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
     #cleanup
     delete "/source/home:Iggy:branches:BaseDistro"

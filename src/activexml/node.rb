@@ -164,6 +164,10 @@ module ActiveXML
     end
     private :_data
 
+    def inspect
+      dump_xml
+    end
+
     def text
       #puts 'text -%s- -%s-' % [data.inner_xml, data.content]
       _data.content
@@ -337,6 +341,11 @@ module ActiveXML
       ret
     end
 
+    def parent
+      return nil unless _data.parent and _data.parent.element?
+      LibXMLNode.new(_data.parent)
+    end
+
     #tests if a child element exists matching the given query.
     #query can either be an element name, an xpath, or any object
     #whose to_s method evaluates to an element name or xpath
@@ -460,6 +469,15 @@ module ActiveXML
       _data.after(other.internal_data)
     end
     
+    def find_matching(conds)
+      return self if NodeMatcher.match(self, conds) == true
+      self.each do |c|
+        ret = c.find_matching(conds)
+        return ret if ret
+      end
+      return nil
+    end
+
     # stay away from this
     def internal_data #nodoc
       _data

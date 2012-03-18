@@ -221,21 +221,21 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :user => ""
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
   end
   
@@ -252,22 +252,22 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :package => "TestPack",
       :user => ""
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
   end
   
@@ -353,21 +353,21 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :user => "Iggy"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     
     
@@ -377,18 +377,18 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :user => "fred"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 2, :only => { :tag => "tag" } }
     
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
   end
   
@@ -419,22 +419,22 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :package => "TestPack",
       :user => "Iggy"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     
     #request tags for another user than the logged on user
@@ -444,16 +444,16 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :user => "fred"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 1, :only => { :tag => "tag" } }
     
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
   end
   
@@ -469,24 +469,24 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :user => "Iggy"
     },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 3, :only => { :tag => "project" } }
     #checking one of the three projects and each tag
     #TODO: check the others too
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy"},
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
@@ -502,19 +502,19 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :user => "fred"
     },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "project" } }
     #checking the project and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy"},
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
@@ -534,35 +534,35 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :user => "Iggy"
     },
     :child => { :tag => "package" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "package" } }
     #checking the project and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                 :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                 :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                 :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                 :project => "home:Iggy"
@@ -581,14 +581,14 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :user => "fred"
     },
     :child => { :tag => "package" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "package" } }
     #checking the project and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                 :project => "home:Iggy"
@@ -609,33 +609,33 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagA"
     },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 3, :only => { :tag => "project" } }
     #checking one of the three projects and each tag
     #TODO: check the others too
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
@@ -653,31 +653,31 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagA::TagB::TagC" },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "project" } }
     #checking the project and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
@@ -696,31 +696,31 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagC::TagA::TagB" },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "project" } }
     #checking the project and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
@@ -738,32 +738,32 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagA::TagC" },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 2, :only => { :tag => "project" } }
     
     #checking the project home:Iggy and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy",
                 },                
@@ -771,13 +771,13 @@ class TagControllerTest < ActionController::IntegrationTest
     }
     
     #checking the second project home:Iggy and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "kde",
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "kde",
                 },                
@@ -797,35 +797,35 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagB"
     },
     :child => { :tag => "package" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "package" } }
     #checking the package and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
@@ -843,35 +843,35 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagB::TagC"
     },
     :child => { :tag => "package" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "package" } }
     #checking the package and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
@@ -890,7 +890,7 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagA::TagB"
     },
     :children => { :count => 0 }
@@ -908,62 +908,62 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagB"
     },
     :child => { :tag => "project" }
-    assert_tag :tag => "collection",
+    assert_xml_tag :tag => "collection",
     :attributes => { :tag => "TagB"
     },
     :child => { :tag => "package" }
     #checking the project and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
     #checking the package and each tag
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },               
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
                 },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
-    assert_tag  :tag => "collection",
+    assert_xml_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:Iggy"
@@ -1010,20 +1010,20 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "raw",
                      :steps => 6, #thats the default
                      :user => ""
     },
     :children => { :count => 4, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 3} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 4} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 4} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }    
   end  
 
@@ -1035,20 +1035,20 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "linear",
                      :steps => 10,
                      :user => ""
     },
     :children => { :count => 4, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 7} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 10} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 10} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
   end
   
@@ -1060,24 +1060,24 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "logarithmic",
                      :steps => 12,
                      :user => ""
     },
     :children => { :count => 6, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 10} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagE", :size => 0} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
   end
   
@@ -1089,24 +1089,24 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "logarithmic",
                      :steps => 12,
                      :user => "Iggy"
     },
     :children => { :count => 6, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 8} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagE", :size => 0} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
     
     
@@ -1116,16 +1116,16 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "logarithmic",
                      :steps => 12,
                      :user => "fred"
     },
     :children => { :count => 2, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
   
   
@@ -1134,24 +1134,24 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "logarithmic",
                      :steps => 12,
                      :user => "Iggy"
     },
     :children => { :count => 6, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 8} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 12} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagE", :size => 0} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
     
     
@@ -1169,21 +1169,21 @@ class TagControllerTest < ActionController::IntegrationTest
     :user => 'Iggy'
     assert_response :success
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :user => "Iggy"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     
     
@@ -1210,21 +1210,21 @@ class TagControllerTest < ActionController::IntegrationTest
     :user => 'Iggy')
     assert_response :success
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :user => "Iggy"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagX"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagY"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagZ"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }    
   end
   
@@ -1237,22 +1237,22 @@ class TagControllerTest < ActionController::IntegrationTest
     :package => 'TestPack', :user => 'Iggy'
     assert_response :success
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :package => "TestPack",
       :user => "Iggy"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     
     
@@ -1282,22 +1282,22 @@ class TagControllerTest < ActionController::IntegrationTest
     :user => 'Iggy')
     assert_response :success
     #checking response-data 
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :attributes => { :project => "home:Iggy",
       :package => "TestPack",
       :user => "Iggy"
     },
     :child => { :tag => "tag" }
-    assert_tag :tag => "tags",
+    assert_xml_tag :tag => "tags",
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagX"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagY"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagZ"} }
-    assert_tag  :tag => "tags",
+    assert_xml_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }    
   end
   
@@ -1379,20 +1379,20 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
         
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "raw",
                      :steps => 6, #thats the default
                      :user => ""
     },
     :children => { :count => 4, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 1} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 2} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 2} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }    
   end
  
@@ -1430,20 +1430,20 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "raw",
                      :steps => 6, #thats the default
                      :user => ""
     },
     :children => { :count => 4, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 2} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 1} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :count => 1} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagE", :count => 1} }
   end
   
@@ -1469,24 +1469,24 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "raw",
                      :steps => 6, #thats the default
                      :user => ""
     },
     :children => { :count => 6, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 1} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 4} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 3} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :count => 1} } 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagE", :count => 1} } 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }
   end
   
@@ -1512,18 +1512,18 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_response :success
     
     #checking response-data 
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "linear",
                      :steps => 10, #not the default
                      :user => ""
     },
     :children => { :count => 3, :only => { :tag => "tag"} }
     
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 10} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 7} }
-    assert_tag :tag => "tagcloud",
+    assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }   
   end
   

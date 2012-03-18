@@ -9,13 +9,13 @@ class AboutControllerTest < ActionController::IntegrationTest
   def test_about
     get "/about"
     assert_response :success
-    assert_tag( :tag => "about", :descendant => { :tag => "revision" } )
+    assert_xml_tag( :tag => "about", :descendant => { :tag => "revision" } )
   end
 
   def test_application_controller
     get "/about?user[asd]=yxc"
     assert_response 400
-    assert_tag( :tag => "status", :attributes => { :code => "invalid_parameter" } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "invalid_parameter" } )
   end
 
 end

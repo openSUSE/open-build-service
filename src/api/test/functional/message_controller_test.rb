@@ -20,7 +20,7 @@ class MessageControllerTest < ActionController::IntegrationTest
 
     get "/message?project=home:Iggy&package=TestPack"
     assert_response :success
-    assert_tag( :tag => "messages" ) 
+    assert_xml_tag( :tag => "messages" ) 
   
     post "/message/1", "<hallo/>"
     assert_response 400

@@ -25,16 +25,16 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
     get "/public/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
-    assert_tag( :tag => "binarylist" )
-    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
-    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+    assert_xml_tag( :tag => "binarylist" )
+    assert_xml_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_xml_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
 
     # test aggregated package
     get "/public/build/home:adrian:ProtectionTest/repo/i586/aggregate"
     assert_response :success
-    assert_tag( :tag => "binarylist" )
-    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
-    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+    assert_xml_tag( :tag => "binarylist" )
+    assert_xml_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_xml_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
   end
 
   def test_basic_read_tests
@@ -79,9 +79,9 @@ class ReadPermissionTest < ActionController::IntegrationTest
     get "/source/SourceprotectedProject/_meta"
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
-    assert_tag( :tag => "binarylist" )
-    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
-    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+    assert_xml_tag( :tag => "binarylist" )
+    assert_xml_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_xml_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
 
     get "/build/SourceprotectedProject/repo/i586/pack/#{srcrpm}"
     assert_response 404
@@ -89,9 +89,9 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # test aggregated package
     get "/build/home:adrian:ProtectionTest/repo/i586/aggregate"
     assert_response :success
-    assert_tag( :tag => "binarylist" )
-    assert_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
-    assert_no_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
+    assert_xml_tag( :tag => "binarylist" )
+    assert_xml_tag( :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" } )
+    assert_no_xml_tag( :tag => "binary", :attributes => { :filename => srcrpm } )
   end
 
   def test_deleted_projectlist
@@ -104,7 +104,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     get "/source?deleted"
     assert_response :success
     # can't do any check on the list without also deleting projects, which is too much for this test
-    assert_tag( :tag => "directory" )
+    assert_xml_tag( :tag => "directory" )
   end 
 
   def do_read_access_all_pathes(user, response, debug=false)
@@ -250,7 +250,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     puts @response.body if debug
     get "/source/#{tprj}/_meta"
     puts @response.body if debug
-    # FIXME: implementation is not done, change to assert_tag or assert_select
+    # FIXME: implementation is not done, change to assert_xml_tag or assert_select
     assert_match(testflag, @response.body) if testflag
     delete "/source/#{tprj}/#{spkg}"
     puts @response.body if debug
@@ -286,7 +286,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     # ret destination package meta
     get "/source/#{destprj}/#{destpkg}/_meta"
     puts @response.body if debug
-    # Fixme do assert_tag or assert_select if implementation is fixed
+    # Fixme do assert_xml_tag or assert_select if implementation is fixed
     assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
     puts @response.body if debug
@@ -415,17 +415,17 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary"), 
         '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
     assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     url = "/source/HiddenProject/temporary/_link"
 
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="HiddenProject" package="notexisting" />'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # working local link from hidden package to hidden package
     put url, '<link project="HiddenProject" package="pack" />'
@@ -436,17 +436,17 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2"), 
         '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     url = "/source/kde4/temporary2/_link"
 
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # check this works with remote projects also
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4")
@@ -454,7 +454,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4"), 
         '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
     assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     url = "/source/HiddenProject/temporary4/_link"
 
@@ -469,17 +469,17 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3"), 
         '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
     assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     url = "/source/kde4/temporary3/_link"
 
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # normal user cannot access hidden project
     put url, '<link project="HiddenProject" package="pack1" />'
@@ -498,7 +498,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </project>'
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
@@ -508,7 +508,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "pack"), 
         '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "change_package_protection_level" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "change_package_protection_level" }
     delete "/source/home:adrian:Project"
     assert_response :success
     delete "/source/home:adrian:PublicProject"
@@ -524,7 +524,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> <access><disable/></access> </project>'
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
     delete "/source/home:adrian:Project"
     assert_response :success
   end
@@ -562,7 +562,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "source_access_no_permission" } # api is talking
+    assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission" } # api is talking
     # public controller
     get "/public/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response 403
@@ -583,8 +583,8 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:adrian:PublicProject?deleted=1"
     assert_response :success
-    assert_tag( :tag => "directory" )
-    assert_tag( :tag => "entry", :attributes => { :name => "ProtectedPackage" } )
+    assert_xml_tag( :tag => "directory" )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "ProtectedPackage" } )
 # regression in 2.1
 #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
 #    assert_response :success
@@ -848,7 +848,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success
-    assert_tag( :tag => "disable", :parent => { :tag => "access" } )
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
 
     delete "/source/CopyOfProject"
     assert_response :success
@@ -860,7 +860,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success
-    assert_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
 
     delete "/source/CopyOfProject"
     assert_response :success
@@ -876,11 +876,11 @@ class ReadPermissionTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success
-    assert_no_tag( :tag => "disable", :parent => { :tag => "access" } )
-    assert_no_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+    assert_no_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    assert_no_xml_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
     get "/source/CopyOfProject/ProtectedPackage/_meta"
     assert_response :success
-    assert_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "sourceaccess" } )
 
     delete "/source/CopyOfProject"
     assert_response :success

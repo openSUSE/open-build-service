@@ -11,7 +11,7 @@ class StatusControllerTest < ActionController::IntegrationTest
   def test_messages
     get "/status/messages"
     assert_response :success
-    assert_tag :tag => 'status_messages'
+    assert_xml_tag :tag => 'status_messages'
   end
 
   def test_new_message

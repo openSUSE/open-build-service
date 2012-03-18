@@ -12,9 +12,9 @@ class SourceServicesTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/service"
     assert_response :success
-    assert_tag :tag => "servicelist"
+    assert_xml_tag :tag => "servicelist"
 
-    # not using assert_tag for doing a propper error message on missing 
+    # not using assert_xml_tag for doing a propper error message on missing 
     # source service packages
     download_url = set_version = download_files = nil
     services = ActiveXML::XMLNode.new(@response.body)
@@ -29,9 +29,9 @@ class SourceServicesTest < ActionController::IntegrationTest
         set_version = 1
       end
     end
-    assert_tag :tag => "service", :attributes => { :name => "set_version" }
-    assert_tag :tag => "service", :attributes => { :name => "download_url" }
-    assert_tag :tag => "service", :attributes => { :name => "download_files" }
+    assert_xml_tag :tag => "service", :attributes => { :name => "set_version" }
+    assert_xml_tag :tag => "service", :attributes => { :name => "download_url" }
+    assert_xml_tag :tag => "service", :attributes => { :name => "download_files" }
   end
 
   def test_combine_project_service_list
@@ -50,9 +50,9 @@ class SourceServicesTest < ActionController::IntegrationTest
 
     post "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "getprojectservices"
     assert_response :success
-    assert_tag( :tag => "service", :attributes => { :name => "download_files" } )
-    assert_tag( :parent => { :tag => "service", :attributes => { :name => "download_url" } }, :tag => "param", :attributes => { :name => "host"}, :content => "blahfasel" )
-    assert_tag( :parent => { :tag => "service", :attributes => { :name => "set_version" } }, :tag => "param", :attributes => { :name => "version"}, :content => "0815" )
+    assert_xml_tag( :tag => "service", :attributes => { :name => "download_files" } )
+    assert_xml_tag( :parent => { :tag => "service", :attributes => { :name => "download_url" } }, :tag => "param", :attributes => { :name => "host"}, :content => "blahfasel" )
+    assert_xml_tag( :parent => { :tag => "service", :attributes => { :name => "set_version" } }, :tag => "param", :attributes => { :name => "version"}, :content => "0815" )
 
     # cleanup
     prepare_request_with_user "king", "sunflower"
@@ -95,7 +95,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     wait_for_service( "home:tom", "service" )
     get "/source/home:tom/service"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
+    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
 
     put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
@@ -104,8 +104,8 @@ class SourceServicesTest < ActionController::IntegrationTest
     wait_for_service( "home:tom", "service" )
     get "/source/home:tom/service"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
-    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_xml_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
     get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
     assert_response :success
     post "/source/home:tom/service?cmd=servicediff", nil
@@ -131,8 +131,8 @@ class SourceServicesTest < ActionController::IntegrationTest
     # same result as in source package
     get "/source/home:tom/new_package"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
-    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_xml_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
     get "/source/home:tom/new_package/_service:set_version:pack.spec?expand=1"
     assert_response :success
 
@@ -173,8 +173,8 @@ class SourceServicesTest < ActionController::IntegrationTest
     wait_for_service( "home:tom", "service" )
     get "/source/home:tom/service"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
-    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_xml_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
     get "/source/home:tom/service/_service:set_version:pack.spec?expand=1"
     assert_response 404
 
@@ -234,16 +234,16 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom/service?rev=3&expand=1" # show service generated files
     assert_response :success
-    assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
-    assert_tag :tag => 'entry', :attributes => { :name => 'filename' }
+    assert_xml_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
+    assert_xml_tag :tag => 'entry', :attributes => { :name => 'filename' }
     get "/source/home:tom/service?rev=4" # second commit
     assert_response :success
-    assert_no_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
-    assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }                      # user file got removed
+    assert_no_xml_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
+    assert_no_xml_tag :tag => 'entry', :attributes => { :name => 'filename' }                      # user file got removed
     get "/source/home:tom/service?rev=4&expand=1" # with generated files
     assert_response :success
-    assert_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
-    assert_no_tag :tag => 'entry', :attributes => { :name => 'filename' }
+    assert_xml_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
+    assert_no_xml_tag :tag => 'entry', :attributes => { :name => 'filename' }
 
     # cleanup
     delete "/source/home:tom/service"
@@ -264,7 +264,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     wait_for_service( "home:tom", "service" )
     get "/source/home:tom/service"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
+    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
 
     put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
@@ -278,8 +278,8 @@ class SourceServicesTest < ActionController::IntegrationTest
     wait_for_service( "home:tom", "service2" )
     get "/source/home:tom/service2"
     assert_response :success
-    assert_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
-    assert_no_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
+    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'succeeded' }
+    assert_no_xml_tag :parent => { :tag => "serviceinfo" }, :tag => "error"
     get "/source/home:tom/service2/_service:set_version:pack.spec?expand=1"
     assert_response :success
 

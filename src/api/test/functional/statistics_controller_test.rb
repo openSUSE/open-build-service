@@ -13,18 +13,18 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
         '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
     assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-    assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
-    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
+    assert_xml_tag :tag => 'latest_added', :child => { :tag => 'package' }
+    assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
 
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-    assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
-    assert_tag :tag => 'project', :attributes => {
+    assert_xml_tag :tag => 'latest_added', :child => { :tag => 'project' }
+    assert_xml_tag :tag => 'project', :attributes => {
       :name => "kde4",
       :created => Time.local(2008, 04, 28, 05, 05, 05).xmlschema
     }
@@ -35,12 +35,12 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
         '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
     assert_response 200
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
-    assert_tag :tag => 'latest_added', :child => { :tag => 'package' }
-    assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
+    assert_xml_tag :tag => 'latest_added', :child => { :tag => 'package' }
+    assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
   end
 
 
@@ -51,18 +51,18 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
    '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
    assert_response 200
-   assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+   assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-   assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
-   assert_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
+   assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'package' }
+   assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
 
    prepare_request_with_user 'tom', 'thunder'
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-   assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
-   assert_tag :tag => 'project', :attributes => {
+   assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'project' }
+   assert_xml_tag :tag => 'project', :attributes => {
      :name => "kde4",
      :updated => Time.local(2008, 04, 28, 06, 06, 06).xmlschema,
    }
@@ -73,12 +73,12 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
    '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
    assert_response 200
-   assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+   assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
-   assert_tag :tag => 'latest_updated', :child => { :tag => 'package' }
-   assert_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
+   assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'package' }
+   assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
  end
 
 
@@ -162,15 +162,15 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :download_counter)
     assert_response :success
-    assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
-    assert_tag :tag => 'download_counter', :attributes => { :sum => 9302 }
-    assert_tag :tag => 'count', :attributes => {
+    assert_xml_tag :tag => 'download_counter', :child => { :tag => 'count' }
+    assert_xml_tag :tag => 'download_counter', :attributes => { :sum => 9302 }
+    assert_xml_tag :tag => 'count', :attributes => {
       :project => 'Apache',
       :package => 'apache2',
       :repository => 'SUSE_Linux_10.1',
       :architecture => 'x86_64'
     }
-    assert_tag :tag => 'count', :content => '4096'
+    assert_xml_tag :tag => 'count', :content => '4096'
   end
 
 
@@ -179,19 +179,19 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     # without project- & package-filter
     get url_for(:controller => :statistics, :action => :download_counter, 'group_by' => 'project' )
     assert_response :success
-    assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
-    assert_tag :tag => 'download_counter', :attributes => { :all => 9302 }
-    assert_tag :tag => 'count', :attributes => {
+    assert_xml_tag :tag => 'download_counter', :child => { :tag => 'count' }
+    assert_xml_tag :tag => 'download_counter', :attributes => { :all => 9302 }
+    assert_xml_tag :tag => 'count', :attributes => {
       :project => 'Apache', :files => '9'
     }, :content => '8806'
     # with project- & package-filter
     get url_for(:controller => :statistics, :action => :download_counter,
       'project' => 'Apache', 'package' => 'apache2', 'group_by' => 'arch')
     assert_response :success
-    assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
-    assert_tag :tag => 'download_counter',
+    assert_xml_tag :tag => 'download_counter', :child => { :tag => 'count' }
+    assert_xml_tag :tag => 'download_counter',
       :attributes => { :all => 9302 }
-    assert_tag :tag => 'count', :attributes => {
+    assert_xml_tag :tag => 'count', :attributes => {
       :arch => 'x86_64', :files => '6'
     }, :content => '5537'
   end
@@ -203,23 +203,23 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
     assert_response :success
 
-    assert_tag :tag => 'most_active', :child => { :tag => 'package' }
-    assert_tag :tag => 'package', :attributes => {
+    assert_xml_tag :tag => 'most_active', :child => { :tag => 'package' }
+    assert_xml_tag :tag => 'package', :attributes => {
       :name => "kdelibs",
       :project => "kde4",
       :update_count => 0
     }
-    assert_no_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
+    assert_no_xml_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
 
     # get most active projects
     get url_for(:controller => :statistics, :action => :most_active_projects, :limit => 0)
     assert_response :success
-    assert_tag :tag => 'most_active', :child => { :tag => 'project' }
-    assert_tag :tag => 'project', :attributes => {
+    assert_xml_tag :tag => 'most_active', :child => { :tag => 'project' }
+    assert_xml_tag :tag => 'project', :attributes => {
       :name => "kde4",
       :packages => 2
     }
-    assert_no_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
+    assert_no_xml_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
 
     # redo as user, seeing the hidden project
     prepare_request_with_user 'hidden_homer', 'homer'
@@ -227,14 +227,14 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
     assert_response :success
 
-    assert_tag :tag => 'most_active', :child => { :tag => 'package' }
-    assert_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
+    assert_xml_tag :tag => 'most_active', :child => { :tag => 'package' }
+    assert_xml_tag :tag => 'package', :attributes => { :project => "HiddenProject" }
 
     # get most active projects
     get url_for(:controller => :statistics, :action => :most_active_projects, :limit => 0)
     assert_response :success
-    assert_tag :tag => 'most_active', :child => { :tag => 'project' }
-    assert_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
+    assert_xml_tag :tag => 'most_active', :child => { :tag => 'project' }
+    assert_xml_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
   end
 
 
@@ -244,8 +244,8 @@ class StatisticsControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     get url_for(:controller => :statistics, :action => :highest_rated)
     assert_response :success
-    #assert_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    #assert_tag :tag => 'package', :attributes => {
+    #assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
+    #assert_xml_tag :tag => 'package', :attributes => {
     #  :name => "kdelibs",
     #  :xxx => "xxx",
     #}

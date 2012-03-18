@@ -11,12 +11,12 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     # inject a job for copy any entire project ... gets not executed in test suite
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro"
     assert_response :success
-    assert_tag( :tag => "status", :attributes => { :code => "invoked"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "invoked"} )
 
     # copy any entire project NOW
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :nodelay => 1
     assert_response :success
-    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     # try a split
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1

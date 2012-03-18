@@ -16,29 +16,29 @@ class WizardControllerTest < ActionController::IntegrationTest
 
     get "/source/kde4/kdelibs-not/_wizard"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     get "/source/kde4/kdelibs/_wizard"
     assert_response 200
-    assert_tag :tag => 'wizard'
+    assert_xml_tag :tag => 'wizard'
 
     get "/source/HiddenProject/pack/_wizard"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
 
     # hidden project user should be able to access wizard
     prepare_request_with_user "hidden_homer", "homer"
 
     get "/source/HiddenProject/pack/_wizard"
     assert_response 200
-    assert_tag :tag => 'wizard'
+    assert_xml_tag :tag => 'wizard'
 
     # Admin user should be able to access wizard
     prepare_request_with_user "king", "sunflower"
 
     get "/source/HiddenProject/pack/_wizard"
     assert_response 200
-    assert_tag :tag => 'wizard'
+    assert_xml_tag :tag => 'wizard'
   end
  
 end

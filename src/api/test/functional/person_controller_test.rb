@@ -57,11 +57,11 @@ class PersonControllerTest < ActionController::IntegrationTest
     
     get "/person/tom"
     # should see his watchlist
-    assert_tag :tag => 'person', :child => {:tag => 'watchlist'}
+    assert_xml_tag :tag => 'person', :child => {:tag => 'watchlist'}
 
     get "/person/fred"
     # should not see that watchlist
-    assert_no_tag :tag => 'person', :child => {:tag => 'watchlist'}
+    assert_no_xml_tag :tag => 'person', :child => {:tag => 'watchlist'}
 
   end
 
@@ -105,13 +105,13 @@ class PersonControllerTest < ActionController::IntegrationTest
     # check global role
     get "/person/king"
     assert_response :success
-    assert_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
+    assert_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
 
     # refetch the user info if the name has really change
     prepare_request_valid_user
     get "/person/tom"
-    assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
-    assert_no_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
+    assert_xml_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
+    assert_no_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
 
   def test_register
