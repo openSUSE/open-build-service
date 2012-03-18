@@ -30,8 +30,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "request", :attributes => { :id => id} )
-    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id} )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   def test_get_invalid_1
@@ -44,15 +44,15 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
     post "/source/home:Iggy/TestPack", :cmd => :branch, :missingok => "true"
     assert_response 400
-    assert_tag( :tag => "status", :attributes => { :code => 'not_missing' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'not_missing' } )
     post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch, :missingok => "true"
     assert_response :success
     get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => nil } )
+    assert_xml_tag( :tag => "link", :attributes => { :missingok => 'true', :project => 'home:Iggy', :package => nil } )
     put "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file", "my content"
     assert_response :success
 
@@ -80,7 +80,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
     assert_response :success
-    assert_no_tag(:tag => "link", :attributes => { :missingok => 'true' })
+    assert_no_xml_tag(:tag => "link", :attributes => { :missingok => 'true' })
 
     # cleanup
     delete "/source/home:Iggy:branches:home:Iggy"
@@ -106,7 +106,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
+    assert_xml_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
     post "/request?cmd=create", '<request>
                                    <action type="submit">
                                      <source project="home:Iggy" package="TestPack.DELETE2" rev="2"/>
@@ -115,7 +115,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
+    assert_xml_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
 
     delete "/source/home:Iggy/TestPack.DELETE"
     assert_response :success
@@ -131,31 +131,31 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/no_such_project')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   
     post "/request?cmd=create", load_backend_file('request/no_such_package')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_user')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'user_not_found' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'user_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_group')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'group_not_found' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'group_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_role')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'role_not_found' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'role_not_found' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_project')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_package')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     post "/request?cmd=create", load_backend_file('request/missing_role')
     assert_response 404
@@ -177,7 +177,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner_fail')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     # test direct put
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -209,7 +209,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_package' } )
 
     post "/request?cmd=create", load_backend_file('request/add_role_fail')
     assert_response 404
@@ -222,7 +222,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -240,10 +240,10 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:REQUEST_#{id}/TestPack.home_Iggy/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
+    assert_xml_tag( :tag => "link", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
     get "/source/home:tom:branches:REQUEST_#{id}/_attribute/OBS:RequestCloned"
     assert_response :success
-    assert_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "RequestCloned" }, 
+    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "RequestCloned" }, 
                 :child => { :tag => "value", :content => id } )
   end
 
@@ -254,7 +254,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -265,7 +265,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
     # try update comment
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response 403
@@ -276,7 +276,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'blahfasel' )
+    assert_xml_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'blahfasel' )
 
     # superseded review
     post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
@@ -284,7 +284,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
   end
 
   def test_create_request_and_supersede
@@ -295,7 +295,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -303,7 +303,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
     assert_response 403
-    assert_tag( :tag => "status", :attributes => { :code => "post_request_no_permission" } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "post_request_no_permission" } )
 
     # target says supersede it due to another existing request
     prepare_request_with_user 'adrian', 'so_alone'
@@ -312,7 +312,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "superseded", :superseded_by => "1" } )
   end
 
   def test_create_request_and_supersede_as_creator
@@ -322,7 +322,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -338,7 +338,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -349,7 +349,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
 
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
@@ -357,12 +357,12 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "declined" } )
 
     # add review not permitted anymore
     post "/request/#{id}?cmd=addreview&by_user=king"
     assert_response 403
-    assert_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
   end
 
   # MeeGo BOSS: is using multiple reviews by same user for each step
@@ -374,7 +374,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -385,7 +385,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
 
     # accept review
     prepare_request_with_user 'tom', 'thunder'
@@ -398,7 +398,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
 
     # accept review
     prepare_request_with_user 'tom', 'thunder'
@@ -408,8 +408,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     # check review comments are the same
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
-    assert_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'review2' )
+    assert_xml_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
+    assert_xml_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'review2' )
 
     # reopen a review
     prepare_request_with_user "tom", "thunder"
@@ -417,9 +417,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "review" } )
-    assert_tag( :parent => {:tag => "review", :attributes => { :state => "accepted", :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
-    assert_tag( :parent => {:tag => "review", :attributes => { :state => "new", :by_user => "tom" }}, :tag => "comment", :content => 'reopen2' )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_xml_tag( :parent => {:tag => "review", :attributes => { :state => "accepted", :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
+    assert_xml_tag( :parent => {:tag => "review", :attributes => { :state => "new", :by_user => "tom" }}, :tag => "comment", :content => 'reopen2' )
   end
 
   def test_change_review_state_after_leaving_review_phase
@@ -430,7 +430,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -441,14 +441,14 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
 
     # add reviewer group
     post "/request/#{id}?cmd=addreview&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
 
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
@@ -456,15 +456,15 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
-    assert_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "tom" } )
-    assert_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "declined" } )
+    assert_xml_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" } )
 
     # change review not permitted anymore
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_group=test_group"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "review_change_state_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "review_change_state_no_permission" }
   end
 
   def test_search_and_involved_requests
@@ -482,24 +482,24 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "request", :attributes => { :id => id} )
-    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id} )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
 
     # via GET
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/request", :match => "(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')"
     assert_response :success
-    assert_tag( :tag => "request", :attributes => { :id => id} )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id} )
 
     # via POST
     post "/search/request", URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
     assert_response :success
-    assert_tag( :tag => "request", :attributes => { :id => id} )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id} )
 
     # old style listing
     get "/request"
     assert_response :success
-    assert_tag( :tag => 'directory', :child => {:tag => 'entry' } )
+    assert_xml_tag( :tag => 'directory', :child => {:tag => 'entry' } )
 
     # collection view
     get "/request?view=collection"
@@ -510,23 +510,23 @@ if $ENABLE_BROKEN_TEST
     # collection of user involved requests
     get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
 end
 
     # collection for given package
     get "/request?view=collection&project=kde4&package=wpa_supplicant&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
-    assert_tag( :tag => "target", :attributes => { :project => "kde4", :package => "wpa_supplicant"} )
-    assert_tag( :tag => "request", :attributes => { :id => id} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "collection", :attributes => { :matches => "1"} )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "kde4", :package => "wpa_supplicant"} )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id} )
 
     # collection for given project
     get "/request?view=collection&project=kde4&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "collection", :attributes => { :matches => "1"} )
 
 if $ENABLE_BROKEN_TEST
 #FIXME:    Either we need to fix complete request controller including search not to show requests with 
@@ -536,8 +536,8 @@ if $ENABLE_BROKEN_TEST
     prepare_request_with_user "tom", "thunder"
     get "/request?view=collection&user=adrian&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_no_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_no_xml_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
 
 # FIXME: add test cases for group search and for involved project search
 end
@@ -548,7 +548,7 @@ end
 
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
-    assert_no_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
+    assert_no_xml_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
     oldmeta=@response.body
 
     rq = '<request>
@@ -590,7 +590,7 @@ end
 
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
-    assert_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
+    assert_xml_tag :tag => "devel", :attributes => { :project => "BaseDistro", :package => "pack1" }
 
     # try to create delete request
     rq = '<request>
@@ -632,7 +632,7 @@ end
     post "/request?cmd=create", rq
     assert_response 403
     assert_match(/Go Away/, @response.body)
-    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
 
     # block request creation in package
     post "/source/home:Iggy/TestPack/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
@@ -641,7 +641,7 @@ end
     post "/request?cmd=create", rq
     assert_response 403
     assert_match(/Go Away/, @response.body)
-    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
 
 #FIXME: test with request without target
 
@@ -652,7 +652,7 @@ end
     post "/request?cmd=create", rq
     assert_response 403
     assert_match(/Package blocked/, @response.body)
-    assert_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
 
     #cleanup
     delete "/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests"
@@ -679,8 +679,8 @@ end
     # test that old style request got converted
     get "/request/#{id}"
     assert_response :success
-    assert_no_tag :tag => 'submit'
-    assert_tag :tag => 'action', :attributes => { :type => 'submit' }
+    assert_no_xml_tag :tag => 'submit'
+    assert_xml_tag :tag => 'action', :attributes => { :type => 'submit' }
   end
 
   def test_submit_request_from_hidden_project_and_hidden_source
@@ -761,7 +761,7 @@ end
     # request got automatically revoked
     get "/request/#{id1}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "revoked" } )
 
     # test revoke
     prepare_request_with_user 'adrian', 'so_alone'
@@ -780,7 +780,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "kde4", :package => "kdebase" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
@@ -794,7 +794,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
@@ -808,7 +808,7 @@ end
     # request got automatically revoked
     get "/request/#{id1}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "revoked" } )
 
     # test decline and revoke
     prepare_request_with_user 'adrian', 'so_alone'
@@ -847,8 +847,8 @@ end
     prepare_request_with_user 'tom', 'thunder'
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
-    assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+    assert_xml_tag( :tag => "request" )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id_by_package = node.value(:id)
@@ -856,12 +856,12 @@ end
     # find requests which are not in review
     get "/request?view=collection&user=Iggy&states=new"
     assert_response :success
-    assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+    assert_no_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     # find reviews
     get "/request?view=collection&user=Iggy&states=review&reviewstates=new&roles=reviewer"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
 
     # create request by maintainer
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -869,13 +869,13 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", req
     assert_response 400
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_target_package' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_target_package' } )
 
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
-    assert_no_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+    assert_xml_tag( :tag => "request" )
+    assert_no_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -884,21 +884,21 @@ end
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=addreview&by_user=adrian"
     assert_response 403
-    assert_tag( :tag => "status", :attributes => { :code => 'addreview_not_permitted' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'addreview_not_permitted' } )
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=addreview&by_user=tom"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
 
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=addreview&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
 
     # invalid review, by_project is missing
     post "/request/#{id}?cmd=addreview&by_package=kdelibs"
@@ -908,13 +908,13 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_project => "kde4", :by_package => "kdelibs" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "kde4", :by_package => "kdelibs" } )
 
     post "/request/#{id}?cmd=addreview&by_project=home:tom"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :by_project => "home:tom", :by_package => nil } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:tom", :by_package => nil } )
 
     # and revoke it
     ActionController::IntegrationTest::reset_auth
@@ -934,7 +934,7 @@ end
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "revoked" } )
 
     # decline by_package review
     ActionController::IntegrationTest::reset_auth
@@ -951,17 +951,17 @@ end
 
     get "/request/#{id_by_package}"
     assert_response :success
-    assert_tag( :tag => "review", :attributes => { :state => "declined", :by_project => "home:Iggy", :by_package => "TestPack", :who => "Iggy" } )
-    assert_tag( :tag => "review", :attributes => { :state => "new", :by_user => "adrian" } )
-    assert_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" } )
-    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+    assert_xml_tag( :tag => "review", :attributes => { :state => "declined", :by_project => "home:Iggy", :by_package => "TestPack", :who => "Iggy" } )
+    assert_xml_tag( :tag => "review", :attributes => { :state => "new", :by_user => "adrian" } )
+    assert_xml_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "declined" } )
 
     # reopen with new, but state should become review due to open review
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
   end
 
   def test_reopen_a_review_declined_request
@@ -982,7 +982,7 @@ end
             </request>"
       post "/request?cmd=create", req
       assert_response :success
-      assert_tag( :tag => "state", :attributes => { :name => "new" } )
+      assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
       node = ActiveXML::XMLNode.new(@response.body)
       assert node.has_attribute?(:id)
       id = node.value(:id)
@@ -992,7 +992,7 @@ end
       assert_response :success
       get "/request/#{id}"
       assert_response :success
-      assert_tag( :tag => "review", :attributes => { :by_user => "fred" } )
+      assert_xml_tag( :tag => "review", :attributes => { :by_user => "fred" } )
    
       # reviewer declines
       prepare_request_with_user "fred", "geröllheimer"
@@ -1000,7 +1000,7 @@ end
       assert_response :success
       get "/request/#{id}"
       assert_response :success
-      assert_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "fred" } )
+      assert_xml_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "fred" } )
    
       # reopen it again and validate that the request opene the review as well
       prepare_request_with_user "Iggy", "asdfasdf"
@@ -1008,8 +1008,8 @@ end
       assert_response :success
       get "/request/#{id}"
       assert_response :success
-      assert_tag( :tag => "review", :attributes => { :state => "new", :by_user => "fred" } )
-      assert_tag( :tag => "state", :attributes => { :name => "review" } )
+      assert_xml_tag( :tag => "review", :attributes => { :state => "new", :by_user => "fred" } )
+      assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
    
       # cleanup
       delete "/source/home:Iggy:branches:Apache"
@@ -1034,7 +1034,7 @@ end
           </request>"
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1044,7 +1044,7 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "revoked" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "revoked" } )
 
     # and reopen it as a non-maintainer is not working
     prepare_request_with_user "adrian", "so_alone"
@@ -1061,7 +1061,7 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
 
     # target is declining it
     prepare_request_with_user "fred", "geröllheimer"
@@ -1069,20 +1069,20 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "declined" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "declined" } )
 
     # find it as I am the creator
     get "/request?view=collection&states=declined&roles=creator"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "request", :attributes => { :id => id } )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id } )
 
     # find it as another user
     prepare_request_with_user "adrian", "so_alone"
     get "/request?view=collection&user=Iggy&states=declined&roles=creator"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "request", :attributes => { :id => id } )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "request", :attributes => { :id => id } )
 
     # and reopen it as a non-maintainer is not working
     post "/request/#{id}?cmd=changestate&newstate=new"
@@ -1094,7 +1094,7 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
   end
 
   def test_all_action_types
@@ -1109,7 +1109,7 @@ end
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
-    assert_tag( :tag => "review", :attributes => { :by_user => "adrian", :state => "new" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "adrian", :state => "new" } )
 
     # do not accept request in review state
     get "/request/#{id}"
@@ -1124,24 +1124,24 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
 
     # a review has been added because we are not maintainer of current devel package, accept it.
     prepare_request_with_user "king", "sunflower"
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "review" } )
-    assert_tag( :tag => "review", :attributes => { :by_project => "home:coolo:test", :by_package => "kdelibs_DEVEL_package" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:coolo:test", :by_package => "kdelibs_DEVEL_package" } )
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
 
     # reopen the review
     prepare_request_with_user "tom", "thunder"
@@ -1149,13 +1149,13 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "review" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
     # and accept it again
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => "new" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
 
     # validate our existing test data and fixtures
     prepare_request_with_user "king", "sunflower"
@@ -1167,15 +1167,15 @@ end
     assert_response 404
     get "/source/kde4/_meta"
     assert_response :success
-    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
-    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
-    assert_no_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+    assert_no_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_no_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_no_xml_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
-    assert_no_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
-    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
-    assert_no_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
-    assert_no_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+    assert_no_xml_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
+    assert_no_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_no_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_no_xml_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
 
     # Successful accept the request
     prepare_request_with_user "fred", "geröllheimer"
@@ -1185,7 +1185,7 @@ end
     # Validate the executed actions
     get "/source/home:Iggy:branches:kde4/BranchPack/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "Testing" }
+    assert_xml_tag :tag => "link", :attributes => { :project => "kde4", :package => "Testing" }
     get "/source/home:Iggy/ToBeDeletedTestPack"
     assert_response 404
     get "/source/home:fred:DeleteProject"
@@ -1194,15 +1194,15 @@ end
     assert_response :success
     get "/source/kde4/_meta"
     assert_response :success
-    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
-    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
-    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+    assert_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_xml_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
-    assert_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
-    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
-    assert_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
-    assert_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
+    assert_xml_tag( :tag => "devel", :attributes => { :project => "home:Iggy", :package => "TestPack" } )
+    assert_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "bugowner" } )
+    assert_xml_tag( :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" } )
+    assert_xml_tag( :tag => "group", :attributes => { :groupid => "test_group", :role => "reader" } )
 
     # cleanup
     delete "/source/kde4/Testing"
@@ -1218,9 +1218,9 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
-    assert_tag( :tag => "request", :child => { :tag => 'state' } )
-    assert_tag( :tag => "state", :attributes => { :name => 'review' } )
+    assert_xml_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request", :child => { :tag => 'state' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1256,25 +1256,25 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "request" )
-    assert_tag( :tag => "request", :child => { :tag => 'state' } )
-    assert_tag( :tag => "state", :attributes => { :name => 'review' } ) #remains in review state
+    assert_xml_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request", :child => { :tag => 'state' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' } ) #remains in review state
     get "/request/#{id}"
 
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "request" )
-    assert_tag( :tag => "request", :child => { :tag => 'state' } )
-    assert_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
+    assert_xml_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request", :child => { :tag => 'state' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
 
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
     get "/source/kde4/Testing/_meta"
     assert_response :success
-    assert_tag( :tag => "devel", :attributes => { :project => 'home:Iggy', :package => 'TestPack' } )
+    assert_xml_tag( :tag => "devel", :attributes => { :project => 'home:Iggy', :package => 'TestPack' } )
   end
 
   def test_reviewer_added_when_source_maintainer_is_missing
@@ -1289,15 +1289,15 @@ end
           </request>"
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'review' } )
-    assert_tag( :tag => "review", :attributes => { :by_project => "BaseDistro2.0", :by_package => "pack2" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "BaseDistro2.0", :by_package => "pack2" } )
 
     # set project to approve it
     prepare_request_with_user "king", "sunflower"
@@ -1315,15 +1315,15 @@ end
           </request>"
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
-    assert_no_tag( :tag => "review", :attributes => { :by_project => "BaseDistro2.0", :by_package => "pack2" } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
+    assert_no_xml_tag( :tag => "review", :attributes => { :by_project => "BaseDistro2.0", :by_package => "pack2" } )
 
     # cleanup attribute
     prepare_request_with_user "king", "sunflower"
@@ -1364,7 +1364,7 @@ end
           </request>"
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1376,17 +1376,17 @@ end
 
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'accepted' } )
 
     get "/source/DummY/pack2/_history"
     assert_response :success
-    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "SUBMIT" )
-    assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "SUBMIT" )
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
 
     # pack2 got created
     get "/source/DummY/pack2/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => nil } )
+    assert_xml_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => nil } )
 
     # create delete request two times
     prepare_request_with_user "tom", "thunder"
@@ -1399,19 +1399,19 @@ end
           </request>"
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
     post "/request?cmd=create", req
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id3 = node.value(:id)
@@ -1422,29 +1422,29 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'accepted' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'accepted' } )
 
     # validate result
     get "/source/DummY/pack2/_meta"
     assert_response :success
-    assert_tag( :tag => "package", :attributes => { :project => "BaseDistro2.0", :name => "pack2" } )
+    assert_xml_tag( :tag => "package", :attributes => { :project => "BaseDistro2.0", :name => "pack2" } )
     get "/source/DummY/pack2/_history?deleted=1"
     assert_response :success
-    assert_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "DELETE REQUEST" )
-    assert_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "DELETE REQUEST" )
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "requestid", :content => id )
 
     # accept the other request, what will fail
     prepare_request_with_user "king", "sunflower"
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response 400
-    assert_tag( :tag => "status", :attributes => { :code => 'not_existing_target' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'not_existing_target' } )
 
     # decline the request
     post "/request/#{id2}?cmd=changestate&newstate=declined"
     assert_response :success
     get "/request/#{id2}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'declined' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'declined' } )
 
     # submitter is accepting the decline => revoke
     prepare_request_with_user "tom", "thunder"
@@ -1452,7 +1452,7 @@ end
     assert_response :success
     get "/request/#{id2}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'revoked' } )
 
     # try to decline it again after revoke
     prepare_request_with_user "king", "sunflower"
@@ -1465,7 +1465,7 @@ end
     assert_response :success
     get "/request/#{id3}"
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'revoked' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'revoked' } )
  
     #cleanup
     delete "/source/DummY"
@@ -1480,7 +1480,7 @@ end
     prepare_request_with_user "sourceaccess_homer", "homer"
     post "/request?cmd=create", load_backend_file('request/from_source_protected_valid')
     assert_response :success
-    assert_tag( :tag => "request" )
+    assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
@@ -1512,14 +1512,14 @@ end
   def test_create_request_to_hidden_package_from_open_place_valid_user
     request_hidden("adrian", "so_alone", 'request/to_hidden_from_open_valid')
     assert_response :success
-    #assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+    #assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
   ## create request to hidden package from open place - invalid user - fail 
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_open_invalid')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
   ## create request to hidden package from hidden place - valid user - success
   def test_create_request_to_hidden_package_from_hidden_place_valid_user
@@ -1528,14 +1528,14 @@ end
     assert_response :success
     request_hidden("adrian", "so_alone", 'request/to_hidden_from_hidden_valid')
     assert_response :success
-    assert_tag( :tag => "state", :attributes => { :name => 'new' } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/to_hidden_from_hidden_invalid')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
 
   # requests from Hidden to external
@@ -1552,7 +1552,7 @@ end
   def test_create_request_from_hidden_package_to_open_place_invalid_user
     request_hidden("Iggy", "asdfasdf", 'request/from_hidden_to_open_invalid')
     assert_response 404
-    assert_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'unknown_project' } )
   end
 
   ### bugowner
@@ -1622,22 +1622,22 @@ end
     id = node.value :id
     get "/request/#{id}"    
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
     get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
     get "/request?view=collection&project=c%2b%2b&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
     get "/request?view=collection&project=c%2b%2b&package=TestPack&states=new,review"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "c++", :package => "TestPack"} )
 
   end
 

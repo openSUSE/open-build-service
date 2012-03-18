@@ -104,7 +104,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
@@ -113,11 +113,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request/#{id1}?cmd=diff&view=xml", nil
     assert_response :success
     # the diffed packages
-    assert_tag( :tag => "old", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
-    assert_tag( :tag => "new", :attributes => { :project => "kde4", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "old", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "new", :attributes => { :project => "kde4", :package => "kdelibs" } )
     # the expected file transfer
-    assert_tag( :tag => "source", :attributes => { :project => "kde4", :package => "kdelibs" } )
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "source", :attributes => { :project => "kde4", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )
     assert_match( /^\+argl/, @response.body )
@@ -134,13 +134,13 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/#{incidentProject}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
     assert_response :success
-    assert_tag( :tag => "linkinfo", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "linkinfo", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
 
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
-    assert_tag :tag => 'packager', :content => "tom"
-    assert_tag :tag => 'description', :content => "To fix my bug"
+    assert_xml_tag :tag => 'packager', :content => "tom"
+    assert_xml_tag :tag => 'description', :content => "To fix my bug"
 
     # again but find update project automatically and use a linked package
     prepare_request_with_user "tom", "thunder"
@@ -156,7 +156,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     # update project extended ?
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
@@ -165,11 +165,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request/#{id2}?cmd=diff&view=xml", nil
     assert_response :success
     # the diffed packages
-    assert_tag( :tag => "old", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
-    assert_tag( :tag => "new", :attributes => { :project => "home:tom:branches:kde4", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "old", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "new", :attributes => { :project => "home:tom:branches:kde4", :package => "kdelibs" } )
     # the expected file transfer
-    assert_tag( :tag => "source", :attributes => { :project => "home:tom:branches:kde4", :package => "kdelibs" } )
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "source", :attributes => { :project => "home:tom:branches:kde4", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )
     assert_match( /^\+argl/, @response.body )
@@ -186,13 +186,13 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/#{incidentProject}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
     assert_response :success
-    assert_tag( :tag => "linkinfo", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
+    assert_xml_tag( :tag => "linkinfo", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "kdelibs" } )
 
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
-    assert_tag :tag => 'packager', :content => "tom"
-    assert_tag :tag => 'description', :content => "To fix my bug"
+    assert_xml_tag :tag => 'packager', :content => "tom"
+    assert_xml_tag :tag => 'description', :content => "To fix my bug"
 
     # reopen ...
     prepare_request_with_user "maintenance_coord", "power"
@@ -219,7 +219,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # search for maintained packages like osc is doing
     get "/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29"
     assert_response :success
-    assert_tag :tag => "collection", :children => { :count => 2 }
+    assert_xml_tag :tag => "collection", :children => { :count => 2 }
    
     # do the real mbranch for default maintained packages
     prepare_request_with_user "tom", "thunder"
@@ -247,8 +247,8 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_no_tag( :tag => "source", :attributes => { :rev => nil } )
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    assert_no_xml_tag( :tag => "source", :attributes => { :rev => nil } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
@@ -272,14 +272,14 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # test build and publish flags
     get "/source/#{incidentProject}/_meta"
-    assert_tag :parent => { :tag => "build" }, :tag => "disable"
-    assert_tag :parent => { :tag => "publish" }, :tag => "disable"
+    assert_xml_tag :parent => { :tag => "build" }, :tag => "disable"
+    assert_xml_tag :parent => { :tag => "publish" }, :tag => "disable"
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
-    assert_tag :parent => { :tag => "build" }, :tag => "enable"
-    assert_tag :parent => { :tag => "publish" }, :tag => "enable"
-    assert_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
+    assert_xml_tag :parent => { :tag => "build" }, :tag => "enable"
+    assert_xml_tag :parent => { :tag => "publish" }, :tag => "enable"
+    assert_xml_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
 
     # create maintenance request with invalid target
     post "/request?cmd=create", '<request>
@@ -289,7 +289,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    </action>
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_maintenance_project" }
     # valid target..
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
@@ -298,7 +298,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    </action>
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => incidentProject } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => incidentProject } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
@@ -325,7 +325,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <description>To fix my other bug</description>
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
@@ -345,7 +345,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "maintenance_coord", "power"
     post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/,'')}"
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "target_not_maintenance" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "target_not_maintenance" }
 
     # accept request
     prepare_request_with_user "maintenance_coord", "power"
@@ -361,8 +361,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
-    assert_tag :tag => 'packager', :content => "tom"
-    assert_tag :tag => 'description', :content => "To fix my bug"
+    assert_xml_tag :tag => 'packager', :content => "tom"
+    assert_xml_tag :tag => 'description', :content => "To fix my bug"
 
     #validate cleanup
     get "/source/home:tom:branches:OBS_Maintained:pack2"
@@ -390,7 +390,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # search for maintained packages like osc is doing
     get "/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29"
     assert_response :success
-    assert_tag :tag => "collection", :children => { :count => 3 }
+    assert_xml_tag :tag => "collection", :children => { :count => 3 }
    
     # do the real mbranch for default maintained packages
     prepare_request_with_user "tom", "thunder"
@@ -398,7 +398,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
-    assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    assert_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     delete "/source/home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
     post "/source", :cmd => "branch", :package => "pack2"
@@ -409,27 +409,27 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
-    assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    assert_no_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_meta"
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" }
+    assert_xml_tag :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "BaseDistro:Update", :package => "pack2" }
+    assert_xml_tag :tag => "link", :attributes => { :project => "BaseDistro:Update", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_history"
     assert_response :success
-    assert_tag :tag => "comment", :content => "fetch updates from devel package"
+    assert_xml_tag :tag => "comment", :content => "fetch updates from devel package"
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
+    assert_xml_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2_linked.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    assert_no_tag :tag => "link", :attributes => { :project => "BaseDistro2.0" }
-    assert_tag :tag => "link", :attributes => { :package => "pack2.BaseDistro2.0_LinkedUpdateProject" }
+    assert_no_xml_tag :tag => "link", :attributes => { :project => "BaseDistro2.0" }
+    assert_xml_tag :tag => "link", :attributes => { :package => "pack2.BaseDistro2.0_LinkedUpdateProject" }
 
     # test branching another package set into same project
     post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
@@ -451,7 +451,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # test branching another package only reachable via project link into same project
     post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2", :noaccess => 1
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "create_project_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "create_project_no_permission" }
 
 #FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
     put "/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY", "CONTENT"
@@ -463,7 +463,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     # Indirect packages need to link and build in update project of former ServicePack, because current ServicePack
     # may introduce more incompatibilities due to changed packages used for building
-    assert_tag :tag => "link", :attributes => { :project => "kde4", :package => "kdelibs" }
+    assert_xml_tag :tag => "link", :attributes => { :project => "kde4", :package => "kdelibs" }
 
     # do some file changes
     put "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file", "new_content_0815"
@@ -474,30 +474,30 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate created project meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
-    assert_tag :parent => { :tag => "build" }, :tag => "disable"
+    assert_xml_tag :parent => { :tag => "build" }, :tag => "disable"
 
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2.0_LinkedUpdateProject" } }, 
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2.0_LinkedUpdateProject" } }, 
                :tag => "path", :attributes => { :repository => "BaseDistro2LinkedUpdateProject_repo", :project => "BaseDistro2.0:LinkedUpdateProject" }
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2.0_LinkedUpdateProject" } }, 
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2.0_LinkedUpdateProject" } }, 
                :tag => "arch", :content => "i586"
 
-    assert_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_Update" } }, 
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro_Update" } }, 
                :tag => "path", :attributes => { :repository => "BaseDistroUpdateProject_repo", :project => "BaseDistro:Update" }
 
-    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro:Update", :repository => "BaseDistroUpdateProject_repo", :trigger => nil } )
+    assert_xml_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro:Update", :repository => "BaseDistroUpdateProject_repo", :trigger => nil } )
 
-    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => nil } )
+    assert_xml_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => nil } )
 
     # validate created package meta
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
-    assert_tag :tag => "package", :attributes => { :name => "pack2.BaseDistro2.0_LinkedUpdateProject", :project => "home:tom:branches:OBS_Maintained:pack2" }
-    assert_tag :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject" }
+    assert_xml_tag :tag => "package", :attributes => { :name => "pack2.BaseDistro2.0_LinkedUpdateProject", :project => "home:tom:branches:OBS_Maintained:pack2" }
+    assert_xml_tag :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject" }
 
     # and branch same package again and expect error
     post "/source", :cmd => "branch", :package => "pack1", :target_project => "home:tom:branches:OBS_Maintained:pack2"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "double_branch_package" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "double_branch_package" }
     assert_match(/branch target package already exists:/, @response.body)
 
     # create patchinfo
@@ -505,13 +505,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     post "/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo"
     assert_response :success
-    assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "home:tom:branches:OBS_Maintained:pack2" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => "home:tom:branches:OBS_Maintained:pack2" )
     get "/source/home:tom:branches:OBS_Maintained:pack2/patchinfo/_meta"
     assert_response :success
-    assert_tag :parent => { :tag => "build" }, :tag => "enable"
-    assert_tag :parent => { :tag => "publish" }, :tag => "enable"
-    assert_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
+    assert_xml_tag :parent => { :tag => "build" }, :tag => "enable"
+    assert_xml_tag :parent => { :tag => "publish" }, :tag => "enable"
+    assert_xml_tag :parent => { :tag => "useforbuild" }, :tag => "disable"
 
     # delete kdelibs package again or incident creation will fail since it does not point to a maintained project.
     delete "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4"
@@ -529,16 +529,16 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
-    assert_tag( :tag => "request", :children => { :count => 8, :only => { :tag => "action" } })
-    assert_tag( :tag => "source", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2" } )
-    assert_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
-    assert_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro3" } )
-    assert_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
-    assert_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro:Update" } )
+    assert_xml_tag( :tag => "request", :children => { :count => 8, :only => { :tag => "action" } })
+    assert_xml_tag( :tag => "source", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
+    assert_xml_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro3" } )
+    assert_xml_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "target", :attributes => { :releaseproject => "BaseDistro:Update" } )
 
     # validate that request is diffable (not broken)
     post "/request/#{id}?cmd=diff&view=xml", nil
@@ -568,7 +568,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate created project
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     node = ActiveXML::XMLNode.new(@response.body)
     assert_not_nil node.repository.element_name
     # repository definition must be the same, except for the maintenance trigger
@@ -582,16 +582,16 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/#{incidentProject}"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :count => "8" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "8" } )
 
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
-    assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject" } )
 
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
-    assert_tag( :tag => "enable", :parent => {:tag => "build"} )
-    assert_tag( :tag => "enable", :parent => {:tag => "publish"} )
+    assert_xml_tag( :tag => "enable", :parent => {:tag => "build"} )
+    assert_xml_tag( :tag => "enable", :parent => {:tag => "publish"} )
   end
 
   def test_create_maintenance_incident
@@ -611,39 +611,39 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 403
     post "/source/home:adrian", :cmd => "createmaintenanceincident"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "incident_has_no_maintenance_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "incident_has_no_maintenance_project" }
 
     prepare_request_with_user "maintenance_coord", "power"
     # create a public maintenance incident
     post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response :success
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     incidentProject=data.elements["/status/data"].text
     incidentID=incidentProject.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incidentProject}/_meta"
-    assert_tag( :tag => "project", :attributes => { :kind => "maintenance_incident" } )
-    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
-    assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
-    assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
-    assert_tag( :attributes => {:role => "bugowner", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
+    assert_xml_tag( :tag => "project", :attributes => { :kind => "maintenance_incident" } )
+    assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_no_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    assert_xml_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
+    assert_xml_tag( :attributes => {:role => "bugowner", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
 
     # create a maintenance incident under embargo
     post "/source/Temp:Maintenance?cmd=createmaintenanceincident&noaccess=1", nil
     assert_response :success
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     incidentProject2=data.elements["/status/data"].text
     incidentID2=incidentProject2.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incidentProject2}/_meta"
-    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
-    assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
-    assert_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
+    assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
+    assert_xml_tag( :attributes => {:role => "maintainer", :userid => "maintenance_coord"}, :tag => "person", :content => nil )
 
     # cleanup
     delete "/source/Temp:Maintenance"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "delete_error" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "delete_error" }
     assert_match(/This maintenance project has incident projects/, @response.body)
     delete "/source/#{incidentProject}"
     assert_response :success
@@ -696,25 +696,25 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/BaseDistro2.0/pack2", :cmd => "branch", :target_package => "DUMMY_package", :extend_package_names => "1"
     assert_response :success
-    assert_tag( :tag => "data", :attributes => { :name => "sourceproject" }, :content => "BaseDistro2.0:LinkedUpdateProject" )
-    assert_tag( :tag => "data", :attributes => { :name => "sourcepackage" }, :content => "pack2" )
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject" }, :content => "home:tom:branches:BaseDistro2.0:LinkedUpdateProject" )
-    assert_tag( :tag => "data", :attributes => { :name => "targetpackage" }, :content => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "sourceproject" }, :content => "BaseDistro2.0:LinkedUpdateProject" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "sourcepackage" }, :content => "pack2" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" }, :content => "home:tom:branches:BaseDistro2.0:LinkedUpdateProject" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetpackage" }, :content => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" )
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
-    assert_tag( :tag => "entry", :attributes => { :name => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" })
-    assert_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0_LinkedUpdateProject" })
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" })
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0_LinkedUpdateProject" })
 
     # check link of branched package
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/DUMMY_package.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" })
+    assert_xml_tag( :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" })
 
     # check link of local linked package
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2_linked.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => nil })
-    assert_tag( :tag => "link", :attributes => { :package => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" })
+    assert_xml_tag( :tag => "link", :attributes => { :project => nil })
+    assert_xml_tag( :tag => "link", :attributes => { :package => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" })
 
     #cleanup
     delete "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
@@ -746,20 +746,20 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate correct :Update project setup
     get "/source/BaseDistro2.0:LinkedUpdateProject/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "build" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
-    assert_tag( :parent => { :tag => "publish" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
+    assert_xml_tag( :parent => { :tag => "build" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
+    assert_xml_tag( :parent => { :tag => "publish" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
 
     # create a maintenance incident
     post "/source", :cmd => "createmaintenanceincident"
     assert_response :success
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     incidentProject=data.elements["/status/data"].text
     incidentID=incidentProject.gsub( /^My:Maintenance:/, "" )
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
-    assert_tag( :tag => "project", :attributes => { :name => incidentProject, :kind => "maintenance_incident" } )
+    assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_xml_tag( :tag => "project", :attributes => { :name => incidentProject, :kind => "maintenance_incident" } )
 
     # submit packages via mbranch
     post "/source", :cmd => "branch", :package => "pack2", :target_project => incidentProject
@@ -768,32 +768,32 @@ class MaintenanceTests < ActionController::IntegrationTest
     # correct branched ?
     get "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    assert_tag( :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" } )
+    assert_xml_tag( :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" } )
     get "/source/"+incidentProject
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :count => "3" } )
-    assert_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro2.0_LinkedUpdateProject" } )
-    assert_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0_LinkedUpdateProject" } )
-    assert_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro3" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "3" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro2.0_LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0_LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro3" } )
     get "/source/"+incidentProject+"/_meta"
     assert_response :success
-    assert_tag( :tag => "path", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
-    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
-    assert_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :trigger => "maintenance" } )
+    assert_xml_tag( :tag => "path", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo" } )
+    assert_xml_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :repository => "BaseDistro2LinkedUpdateProject_repo", :trigger => "maintenance" } )
+    assert_xml_tag( :tag => "releasetarget", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :trigger => "maintenance" } )
     # correct vrev ?
     get "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject?expand=1"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :vrev => "2.7" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.7" } )
     # validate package meta
     get "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject"} )
+    assert_xml_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject"} )
     get "/source/"+incidentProject+"/pack2_linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject"} )
+    assert_xml_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject"} )
     get "/source/"+incidentProject+"/pack2.BaseDistro3/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro3"} )
+    assert_xml_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro3"} )
     # set lock disabled to check later the valid result when enabling
     post "/source/#{incidentProject}?cmd=set_flag&flag=lock&status=disable"
     assert_response :success
@@ -814,16 +814,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     # search will find this new and not yet processed incident now.
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
-    assert_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => incidentProject } 
+    assert_xml_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => incidentProject } 
 
     # Create patchinfo informations
     post "/source/#{incidentProject}?cmd=createpatchinfo&force=1"
     assert_response :success
-    assert_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
-    assert_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => incidentProject )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
+    assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => incidentProject )
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
-    assert_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
+    assert_xml_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
     #FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
     pi = ActiveXML::Base.new( @response.body )
@@ -840,48 +840,48 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 404
     assert_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
     get "/source/#{incidentProject}/patchinfo/_meta"
-    assert_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
-    assert_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
+    assert_xml_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
+    assert_xml_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
     get "/source/#{incidentProject}/patchinfo?view=issues"
     assert_response :success
-    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
-    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "0815"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "0815"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
 
     # add another issue and update patchinfo
     put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
     assert_response :success
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
-    assert_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "1042"
-    assert_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "4201"
-    assert_tag :tag => 'kind', :content => "link"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "1042"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "4201"
+    assert_xml_tag :tag => 'kind', :content => "link"
     post "/source/#{incidentProject}/patchinfo?cmd=updatepatchinfo"
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
-    assert_tag( :tag => "category", :content => "security" ) # changed due to CVE
-    assert_tag( :tag => "issue", :attributes => {:id => "4201",  :tracker => "bnc"} )
+    assert_xml_tag( :tag => "category", :content => "security" ) # changed due to CVE
+    assert_xml_tag( :tag => "issue", :attributes => {:id => "4201",  :tracker => "bnc"} )
     get "/source/#{incidentProject}/patchinfo?view=issues"
     assert_response :success
-    assert_tag :tag => 'kind', :content => "patchinfo"
-    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
-    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "cve"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "4201"
-    assert_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
+    assert_xml_tag :tag => 'kind', :content => "patchinfo"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "1042"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "CVE-2009-0815"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "cve"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "4201"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
 
     # test that another, new started branch is getting the source changes from this incident in flight
     post "/source/BaseDistro2.0/pack2", :cmd => "branch", :maintenance => 1
     assert_response :success
     get "/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject/pack2.BaseDistro2.0_LinkedUpdateProject/_history"
     assert_response :success
-    assert_tag :tag => "revisionlist", :children => { :count => 2 } # branch & copy from devel
+    assert_xml_tag :tag => "revisionlist", :children => { :count => 2 } # branch & copy from devel
     # ensure that we got the incident package
     get "/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes"
     assert_response :success
@@ -899,24 +899,24 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/build/#{incidentProject}/_result"
     assert_response :success
     # BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"building"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"building"} },
                :tag => "status", :attributes => { :package=>"pack2.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"pack2.BaseDistro3", :code=>"disabled" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"pack2_linked.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"blocked" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"x86_64", :state=>"building"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"x86_64", :state=>"building"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"excluded" }
     # BaseDistro3_BaseDistro3_repo
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586", :state=>"building"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586", :state=>"building"} },
                :tag => "status", :attributes => { :package=>"pack2.BaseDistro2.0_LinkedUpdateProject", :code=>"disabled" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0_LinkedUpdateProject", :code=>"disabled" }
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro3", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"pack2.BaseDistro3", :code=>"scheduled" }
     # try to create release request too early
     post "/request?cmd=create", '<request>
@@ -926,7 +926,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code=>"build_not_finished" }
+    assert_xml_tag :tag => "status", :attributes => { :code=>"build_not_finished" }
     # upload build result as a worker would do
     inject_build_job( incidentProject, "pack2.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
     inject_build_job( incidentProject, "pack2.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )
@@ -949,7 +949,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"broken" }
     # un-block patchinfo build, but filter for an empty result
     pi.delete_element 'stopped'
@@ -975,19 +975,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"succeeded" }
 
 
     # check updateinfo
     get "/build/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/i586/patchinfo/updateinfo.xml"
     assert_response :success
-    assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
-    assert_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=1042", :id => "1042",  :type => "bugzilla" } 
-    assert_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=4201", :id => "4201",  :type => "bugzilla" } 
-    assert_tag :tag => "reference", :attributes => { :href => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815", :id => "CVE-2009-0815",  :type => "cve" } 
-    assert_no_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=" } 
-    assert_no_tag :tag => "reference", :attributes => { :id => "" }
+    assert_xml_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => nil
+    assert_xml_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=1042", :id => "1042",  :type => "bugzilla" } 
+    assert_xml_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=4201", :id => "4201",  :type => "bugzilla" } 
+    assert_xml_tag :tag => "reference", :attributes => { :href => "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815", :id => "CVE-2009-0815",  :type => "cve" } 
+    assert_no_xml_tag :tag => "reference", :attributes => { :href => "https://bugzilla.novell.com/show_bug.cgi?id=" } 
+    assert_no_xml_tag :tag => "reference", :attributes => { :id => "" }
 
     # create release request
     post "/request?cmd=create&addrevision=1", '<request>
@@ -997,18 +997,18 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_no_tag( :tag => "source", :attributes => { :rev => nil } )
-    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0" } ) # BaseDistro2 has an update project, nothing should go to GA project
-    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" } )
-    assert_no_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
-    assert_no_tag( :tag => "target", :attributes => { :project => incidentProject } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2_linked." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "packNew." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
-    assert_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
-    assert_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+    assert_no_xml_tag( :tag => "source", :attributes => { :rev => nil } )
+    assert_no_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0" } ) # BaseDistro2 has an update project, nothing should go to GA project
+    assert_no_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" } )
+    assert_no_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
+    assert_no_xml_tag( :tag => "target", :attributes => { :project => incidentProject } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2." + incidentID } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2_linked." + incidentID } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "packNew." + incidentID } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
@@ -1016,8 +1016,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # find the request for the maintenance incident through it's parent (maintenance) project
     get "/request?view=collection&types=maintenance_release&project=My:Maintenance&subprojects=true"
     assert_response :success
-    assert_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_tag( :tag => "collection", :attributes => { :matches => "1"} )
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "collection", :attributes => { :matches => "1"} )
 
     # validate that request is diffable (not broken)
     post "/request/#{reqid}?cmd=diff", nil
@@ -1026,8 +1026,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # source project got locked?
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
-    assert_no_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
+    assert_xml_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
     # approve review
     prepare_request_with_user "king", "sunflower"
@@ -1045,70 +1045,70 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate result
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
+    assert_xml_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2?expand=1"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}"
     assert_response :success
-    assert_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_link"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked.#{incidentID}/_link"
     assert_response :success
-    assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}", :cicount => "copy" }
+    assert_xml_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}", :cicount => "copy" }
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incidentID}"
     assert_response :success
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incidentID}/_patchinfo"
     assert_response :success
-    assert_tag :tag => "patchinfo", :attributes => { :incident => incidentID }
-    assert_tag :tag => "packager", :content => "maintenance_coord"
+    assert_xml_tag :tag => "patchinfo", :attributes => { :incident => incidentID }
+    assert_xml_tag :tag => "packager", :content => "maintenance_coord"
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
     assert_response :success
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}"
     assert_response :success
-    assert_tag :tag => "binary", :attributes => { :filename => "updateinfo.xml" }
+    assert_xml_tag :tag => "binary", :attributes => { :filename => "updateinfo.xml" }
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid 
-    assert_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "My-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { :tag => "update", :attributes => { :from => "maintenance_coord", :status => "stable",  :type => "security", :version => "1" } }, :tag => "id", :content => "My-#{Time.now.utc.year.to_s}-1"
     # check :full tree
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
     assert_response :success
-    assert_tag :parent => { :tag => "binarylist" },  :tag => 'binary', :attributes => { :filename => "package.rpm" } 
+    assert_xml_tag :parent => { :tag => "binarylist" },  :tag => 'binary', :attributes => { :filename => "package.rpm" } 
     get "/source/BaseDistro2.0:LinkedUpdateProject/_project/_history"
     assert_response :success
-    assert_tag :parent => { :tag => "revision" },  :tag => 'comment', :content => "Release from project: My:Maintenance:#{incidentID}"
+    assert_xml_tag :parent => { :tag => "revision" },  :tag => 'comment', :content => "Release from project: My:Maintenance:#{incidentID}"
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incidentID}/_meta"
     assert_response :success
     # must not build in Update project
-    assert_no_tag( :parent => {:tag => "build"}, :tag => "enable" )
+    assert_no_xml_tag( :parent => {:tag => "build"}, :tag => "enable" )
     # must be published in Update project
-    assert_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
+    assert_xml_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_meta"
     assert_response :success
     # must not build in Update project
-    assert_no_tag( :parent => {:tag => "build"}, :tag => "enable" )
+    assert_no_xml_tag( :parent => {:tag => "build"}, :tag => "enable" )
     # must be published only via patchinfos
-    assert_no_tag( :parent => {:tag => "publish"}, :tag => "enable" )
+    assert_no_xml_tag( :parent => {:tag => "publish"}, :tag => "enable" )
 
     # no maintenance trigger exists anymore
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_no_tag :tag => 'releasetarget', :attributes => { :trigger => "maintenance" } 
+    assert_no_xml_tag :tag => 'releasetarget', :attributes => { :trigger => "maintenance" } 
 
     # search will find this incident not anymore
     get "/search/project", :match => '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
-    assert_no_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => incidentProject } 
+    assert_no_xml_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => incidentProject } 
 
     # check released data
     wait_for_publisher()
     get "/build/BaseDistro2.0:LinkedUpdateProject/_result"
     assert_response :success
-    assert_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"published"}
+    assert_xml_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"published"}
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
     assert_response :success
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm"
@@ -1117,14 +1117,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response :success
-    assert_tag :tag => "name", :content => "package"
-    assert_tag :tag => "version", :content => "1.0"
-    assert_tag :tag => "release", :content => "1"
-    assert_tag :tag => "arch", :content => "i586"
-    assert_tag :tag => "summary", :content => "Test Package"
-    assert_tag :tag => "size", :content => "1831"
-    assert_tag :tag => "description"
-    assert_tag :tag => "mtime"
+    assert_xml_tag :tag => "name", :content => "package"
+    assert_xml_tag :tag => "version", :content => "1.0"
+    assert_xml_tag :tag => "release", :content => "1"
+    assert_xml_tag :tag => "arch", :content => "i586"
+    assert_xml_tag :tag => "summary", :content => "Test Package"
+    assert_xml_tag :tag => "size", :content => "1831"
+    assert_xml_tag :tag => "description"
+    assert_xml_tag :tag => "mtime"
     node=nil
     IO.popen("gunzip -cd #{RAILS_ROOT}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
        node = REXML::Document.new( io.read )
@@ -1163,13 +1163,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     run_scheduler( "i586" )
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository"
     assert_response :success
-    assert_no_tag :parent => { :tag => "binarylist" },  :tag => 'binary'
+    assert_no_xml_tag :parent => { :tag => "binarylist" },  :tag => 'binary'
     # publish repo got cleaned
     wait_for_publisher()
     get "/build/BaseDistro2.0:LinkedUpdateProject/_result"
     assert_response :success
     # it is unpublished, because api does not see a single published package. this still verifies that repo is not in intermediate state anymore.
-    assert_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"unpublished"}
+    assert_xml_tag :tag => "result", :attributes => { :repository=>"BaseDistro2LinkedUpdateProject_repo", :arch=>"i586", :state=>"unpublished"}
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586"
     assert_response :success
     get "/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm"
@@ -1196,11 +1196,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     # collons in patchinfo names are not allowed but common mistake
     post "https://api.opensuse.org/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
 
     post "https://api.opensuse.org/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
   end
 
   def test_create_invalid_submit_request
@@ -1214,7 +1214,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "submit_request_rejected" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "submit_request_rejected" }
     assert_match /is a maintenance release project/, @response.body
   end
 
@@ -1229,7 +1229,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_maintenance_project" }
 
     # submit foreign package without releaseproject
     post "/request?cmd=create", '<request>
@@ -1240,7 +1240,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_release_target" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_maintenance_release_target" }
 
     # submit foreign package with wrong releaseproject
     post "/request?cmd=create", '<request>
@@ -1251,7 +1251,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "no_maintenance_release_target" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_maintenance_release_target" }
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
@@ -1260,7 +1260,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
   end
 
   def test_create_invalid_release_request
@@ -1290,7 +1290,7 @@ class MaintenanceTests < ActionController::IntegrationTest
          </request>'
     post "/request?cmd=create", rq
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "repository_without_releasetarget" }
 
 
     # try with server side request expansion
@@ -1302,7 +1302,7 @@ class MaintenanceTests < ActionController::IntegrationTest
          </request>'
     post "/request?cmd=create", rq
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "wrong_linked_package_source" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "wrong_linked_package_source" }
 
     # add a release target
     prepare_request_with_user "tom", "thunder"
@@ -1319,7 +1319,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create", rq
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "missing_patchinfo" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "missing_patchinfo" }
 
     # add required informations about the update
     prepare_request_with_user "tom", "thunder"
@@ -1327,14 +1327,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "patchinfo_file_exists" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "patchinfo_file_exists" }
     post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&force=1"
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create", rq
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "build_not_finished" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "build_not_finished" }
 
     # remove architecture
     prepare_request_with_user "tom", "thunder"
@@ -1345,7 +1345,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create&ignore_build_state=1", rq
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "repository_without_architecture" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "repository_without_architecture" }
 
     # add a wrong architecture
     prepare_request_with_user "tom", "thunder"
@@ -1357,7 +1357,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "maintenance_coord", "power"
     post "/request?cmd=create&ignore_build_state=1", rq
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "architecture_order_missmatch" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "architecture_order_missmatch" }
 
     # cleanup
     prepare_request_with_user "tom", "thunder"
@@ -1385,7 +1385,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:test/_meta"
     assert_response :success
-    assert_tag(:tag => "releasetarget", :attributes => { :trigger => "maintenance" })
+    assert_xml_tag(:tag => "releasetarget", :attributes => { :trigger => "maintenance" })
     # create package
     put "/source/home:tom:test/pack/_meta", "<package name='pack'> <title/> <description/> </package>"
     assert_response :success
@@ -1406,7 +1406,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "release_target_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "release_target_no_permission" }
 
     # create another request with same target must be blocked
     post "/request?cmd=create", '<request>
@@ -1417,7 +1417,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "open_release_requests" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "open_release_requests" }
 
     # revoke to unlock the source
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
@@ -1458,7 +1458,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "post_request_no_permission" }
 
     # revoke request, must unlock the incident
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
@@ -1483,7 +1483,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:CopyOfBaseDistro/_meta"
     assert_response :success
-    assert_no_tag :tag => "path"
+    assert_no_xml_tag :tag => "path"
     delete "/source/home:tom:CopyOfBaseDistro"
     assert_response :success
 
@@ -1532,10 +1532,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withbinaries=1"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
 
     # as admin
     prepare_request_with_user "king", "sunflower"
@@ -1579,7 +1579,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     run_scheduler("i586")
     get "/build/BaseDistro/BaseDistro_repo/i586/pack2"
     assert_response :success
-    assert_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
+    assert_xml_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
     orig = @response.body
     get "/build/CopyOfBaseDistro/BaseDistro_repo/i586/pack2"
     assert_response :success
@@ -1594,7 +1594,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1"
     assert_response 403
-    assert_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
     assert_match /requires modification permission in oproject/, @response.body
 
     # store revisions before copy

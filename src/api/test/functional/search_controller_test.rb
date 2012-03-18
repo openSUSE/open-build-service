@@ -23,47 +23,47 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
-    assert_tag :tag => 'attribute', :attributes => { :name => "Maintained", :namespace => "OBS" }, :children => { :count => 1 }
-    assert_tag :child => { :tag => 'project', :attributes => { :name => "Apache"}, :children => { :count => 1 } }
-    assert_tag :child => { :child => { :tag => 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
+    assert_xml_tag :tag => 'attribute', :attributes => { :name => "Maintained", :namespace => "OBS" }, :children => { :count => 1 }
+    assert_xml_tag :child => { :tag => 'project', :attributes => { :name => "Apache"}, :children => { :count => 1 } }
+    assert_xml_tag :child => { :child => { :tag => 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
   end
 
   def test_xpath_1
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[@name="apache2"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
-    assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
   end
 
   def test_xpath_2
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="OBS:Maintained"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
-    assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
   end
 
   def test_xpath_3
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
-    assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
   end
 
   def test_xpath_4
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="Testpack"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 0 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
   end
   
   def test_xpath_5
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[devel/@project="kde4"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 0 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
   end
 
   def test_xpath_6
@@ -79,16 +79,16 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian", "so_alone"
     get "/search/project", :match => '[@name="HiddenProject"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
     #<project name="HiddenProject">
-    assert_tag :child => { :tag => 'project', :attributes => { :name => 'HiddenProject'} }
+    assert_xml_tag :child => { :tag => 'project', :attributes => { :name => 'HiddenProject'} }
   end
   def test_search_hidden_project_with_invalid_user
     # user is not maintainer - project has to be invisible
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/project", :match => '[@name="HiddenProject"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 0 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
   end
   # <<< Testing HiddenProject - flag "access" set to "disabled"
 
@@ -98,20 +98,20 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian", "so_alone"
     get "/search/package", :match => '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
-    assert_tag :child => { :tag => 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
   end
   def test_search_package_in_hidden_project_as_non_maintainer
     # user is not maintainer - package has to be invisible
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 0 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
 
     get "/search/package", :match => '[@name="pack"]'
     assert_response :success
-    assert_tag :tag => 'package', :attributes => { :project => "SourceprotectedProject", :name => "pack" }
-    assert_no_tag :tag => 'package', :attributes => { :project => "HiddenProject", :name => "pack" }
+    assert_xml_tag :tag => 'package', :attributes => { :project => "SourceprotectedProject", :name => "pack" }
+    assert_no_xml_tag :tag => 'package', :attributes => { :project => "HiddenProject", :name => "pack" }
   end
   # <<< Testing package inside HiddenProject - flag "access" set to "disabled" in Project
 
@@ -128,47 +128,47 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf" 
     get "/search/issue", :match => '[@name="123456"]'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'name', :content => "123456"
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'tracker', :content => "bnc"
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'state', :content => "CLOSED"
-    assert_tag :parent => { :tag => 'owner'}, :tag => 'login', :content => "fred"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'tracker', :content => "bnc"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'state', :content => "CLOSED"
+    assert_xml_tag :parent => { :tag => 'owner'}, :tag => 'login', :content => "fred"
 
     get "/search/issue", :match => '[@name="123456" and @tracker="bnc"]'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
 
     # opposite order to test database joins
     get "/search/issue", :match => '[@tracker="bnc" and @name="123456"]'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
 
     get "/search/issue", :match => '[@name="0123456" and @tracker="bnc"]'
     assert_response :success
-    assert_no_tag :tag => 'issue'
+    assert_no_xml_tag :tag => 'issue'
 
     get "/search/issue", :match => '[@tracker="bnc" and (@name="123456" or @name="1234")]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 2 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 2 }
 
     get "/search/issue", :match => '[@tracker="bnc" and (@name="123456" or @name="1234") and @state="CLOSED"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
 
     get "/search/issue", :match => '[owner/@login="fred"]'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
 
     get "/search/issue", :match => '[owner/@email="fred@feuerstein.de"]'
     assert_response :success
-    assert_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
+    assert_xml_tag :parent => { :tag => 'issue'}, :tag => 'label', :content => "bnc#123456"
   end
 
   def test_search_repository_id
     prepare_request_with_user "Iggy", "asdfasdf" 
     get "/search/repository_id"
     assert_response :success
-    assert_tag :tag => 'collection'
+    assert_xml_tag :tag => 'collection'
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
     assert !repos.include?('HiddenProject/nada')
@@ -176,7 +176,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower" 
     get "/search/repository_id"
     assert_response :success
-    assert_tag :tag => 'collection'
+    assert_xml_tag :tag => 'collection'
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
     assert repos.include?('HiddenProject/nada')
@@ -190,17 +190,17 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package"
     assert_response :success
-    assert_tag :tag => 'collection'
+    assert_xml_tag :tag => 'collection'
     all_packages_count = get_package_count
 
     get "/search/package", :limit => 3
     assert_response :success
-    assert_tag :tag => 'collection'
+    assert_xml_tag :tag => 'collection'
     assert get_package_count == 3
 
     get "/search/package", :offset => 3
     assert_response :success
-    assert_tag :tag => 'collection'
+    assert_xml_tag :tag => 'collection'
     assert get_package_count == (all_packages_count - 3)
   end
 

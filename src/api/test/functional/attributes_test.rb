@@ -17,9 +17,9 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
     # only one entry ATM - will have to be adopted, lists namespaces
     count = 2
-    assert_tag :tag => 'directory', :attributes => { :count => count }
-    assert_tag :children => { :count => count }
-    assert_tag :child => { :tag => 'entry', :attributes => { :name => "NSTEST" } }
+    assert_xml_tag :tag => 'directory', :attributes => { :count => count }
+    assert_xml_tag :children => { :count => count }
+    assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "NSTEST" } }
   end
 
   def test_namespace_index
@@ -31,18 +31,18 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/attribute/OBS"
     assert_response :success
     count = 13
-    assert_tag :tag => 'directory', :attributes => { :count => count }
-    assert_tag :children => { :count => count }
-    assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
+    assert_xml_tag :tag => 'directory', :attributes => { :count => count }
+    assert_xml_tag :children => { :count => count }
+    assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
   end
 
   def test_namespace_meta
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/attribute/OBS/UpdateProject/_meta"
     assert_response :success
-    assert_tag :tag => 'definition', :attributes => { :name => "UpdateProject", :namespace => "OBS" }
-    assert_tag :child => { :tag => 'modifiable_by', :attributes => { :user => "maintenance_coord" } }
-    assert_tag :child => { :tag => 'count', :content => "1" }
+    assert_xml_tag :tag => 'definition', :attributes => { :name => "UpdateProject", :namespace => "OBS" }
+    assert_xml_tag :child => { :tag => 'modifiable_by', :attributes => { :user => "maintenance_coord" } }
+    assert_xml_tag :child => { :tag => 'count', :content => "1" }
   end
 
   def test_create_namespace
@@ -162,9 +162,9 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/attribute/OBS"
     assert_response :success
     count = 13
-    assert_tag :tag => 'directory', :attributes => { :count => count }
-    assert_tag :children => { :count => count }
-    assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
+    assert_xml_tag :tag => 'directory', :attributes => { :count => count }
+    assert_xml_tag :children => { :count => count }
+    assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
   end
 
   def test_create_attributes_project
@@ -319,10 +319,10 @@ class AttributeControllerTest < ActionController::IntegrationTest
     # invalid operations
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "missing_attribute" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "missing_attribute" }
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS_Maintained"
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "invalid_attribute" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_attribute" }
 
     # delete
     ActionController::IntegrationTest::reset_auth

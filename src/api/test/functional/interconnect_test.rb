@@ -389,7 +389,7 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom:remote/_meta"
     assert_response :success
-    assert_tag :tag => 'remoteurl', :content => 'http://localhost2'
+    assert_xml_tag :tag => 'remoteurl', :content => 'http://localhost2'
     p='<project name="home:tom:remote"> <title/> <description/>  </project>'
     put "/source/home:tom:remote/_meta", p
     assert_response :success
