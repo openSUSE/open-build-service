@@ -64,7 +64,7 @@ class Issue < ActiveRecord::Base
   def fetch_updates
     # FIXME: dependency cycle, but not better solvable because multiple issues
     #        may get fetched ?
-    self.issue_tracker.fetch_issues([self])
+    self.issue_tracker.fetch_issues([self]) if self.issue_tracker.enable_fetch
   end
 
   def label
