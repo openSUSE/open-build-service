@@ -499,12 +499,8 @@ class DbProject < ActiveRecord::Base
               :role => Role.rolecache[person.role],
               :db_project => self
             )
-          rescue ActiveRecord::StatementInvalid => err
-            if /^Mysql::Error: Duplicate entry/.match(err)
-              logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}'"
-            else
-              raise err
-            end
+          rescue ActiveRecord::RecordNotUnique
+            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}'"
           end
         end
       end
@@ -578,12 +574,8 @@ class DbProject < ActiveRecord::Base
               :role => Role.rolecache[ge.role],
               :db_project => self
             )
-          rescue ActiveRecord::StatementInvalid => err
-            if /^Mysql::Error: Duplicate entry/.match(err)
-              logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in project '#{self.name}'"
-            else
-              raise err
-            end
+          rescue ActiveRecord::RecordNotUnique
+            logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in project '#{self.name}'"
           end
         end
       end
@@ -858,10 +850,11 @@ class DbProject < ActiveRecord::Base
     if binary
       raise RuntimeError, "binary packages are not allowed in project attributes"
     end
-    a = attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace], :select => "attribs.id")
+    a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ? and ISNULL(attribs.binary)", name, namespace).first
     if a && a.readonly? # FIXME: joins make things read only
-      a = attribs.where(id => a.id).first
+      a = attribs.where(:id => a.id).first
     end 
+    return a
   end
 
   def render_issues_axml(params)

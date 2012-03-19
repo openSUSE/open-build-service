@@ -559,12 +559,8 @@ class DbPackage < ActiveRecord::Base
               :role => Role.rolecache[person.role],
               :db_package => self
             )
-          rescue ActiveRecord::StatementInvalid => err
-            if /^Mysql::Error: Duplicate entry/.match(err)
-              logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}'"
-            else
-              raise err
-            end
+          rescue ActiveRecord::RecordNotUnique
+            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}'"
           end
         end
       end
@@ -634,12 +630,8 @@ class DbPackage < ActiveRecord::Base
               :role => Role.rolecache[ge.role],
               :db_package => self
             )
-          rescue ActiveRecord::StatementInvalid => err
-            if /^Mysql::Error: Duplicate entry/.match(err)
-              logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in package '#{self.name}'"
-            else
-              raise err
-            end
+          rescue ActiveRecord::RecordNotUnique
+            logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in package '#{self.name}'"
           end
         end
       end
