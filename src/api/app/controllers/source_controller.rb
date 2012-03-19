@@ -570,7 +570,8 @@ class SourceController < ApplicationController
 
       # exec
       ac.destroy
-      @attribute_container.store
+# FIXME: define how to write it to backend
+#      @attribute_container.store
       render_ok
 
     # /request.delete?
@@ -632,7 +633,8 @@ class SourceController < ApplicationController
           return
         end
       end
-      @attribute_container.store
+# FIXME: define how to write it to backend
+#      @attribute_container.store
       render_ok
 
     # /request.post?
