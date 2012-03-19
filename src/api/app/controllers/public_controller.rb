@@ -120,7 +120,11 @@ class PublicController < ApplicationController
     valid_http_methods :get, :post   # OBS 2.3 switched to POST
     
     path = unshift_public(request.path)
-    path += "?#{request.query_string}" unless request.query_string.empty?
+    if not request.query_string.blank?
+      path += "?#{request.query_string}" 
+    elsif not request.env["rack.request.form_vars"].blank?
+      path += "?#{request.env["rack.request.form_vars"]}" 
+    end
     pass_to_backend path
   end
 
