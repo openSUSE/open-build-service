@@ -115,14 +115,18 @@
         <tr>
           <th>Group</th>
           <th colspan="<%= @roles.length %>">Roles</th>
-          <th>Actions</th>
+          <% if @user and @user.is_maintainer?(@project, @package) %>
+            <th>Actions</th>
+          <% end %>
         </tr>
         <tr>
           <td></td>
           <% @roles.each do |role| %>
             <td><%= role.capitalize %></td>
           <% end %>
-          <td></td>
+          <% if @user and @user.is_maintainer?(@project, @package) %>
+            <td></td>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -147,11 +151,11 @@
                 <% end %>
               </td>
             <% end %>
-            <td>
-              <% if @user and @user.is_maintainer?(@project, @package) %>
+            <% if @user and @user.is_maintainer?(@project, @package) %>
+              <td>
                 <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
-              <% end %>
-            </td>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>
