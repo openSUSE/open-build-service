@@ -6,15 +6,21 @@
   <table>
     <tbody>
       <% issues.sort.each do |long_name, issue| %>
-        <tr>
-          <td><%= link_to(long_name, issue.value('url'), :class => 'issue_tracker_link') %></td>
-          <td class="nowrap">
-            <% if issue.has_element?('owner')%>
-              <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => issue.owner.value('login'), :short => true} %>
-            <% end %>
-          </td>
-          <td><%= issue.value('state').capitalize if issue.value('state') %></td>
-        </tr>
+        <% if issue.has_element?('owner') && issue.value('state') %>
+          <tr>
+            <td><%= link_to(long_name, issue.value('url'), :class => 'issue_tracker_link') %></td>
+            <td class="nowrap">
+              <% if issue.has_element?('owner')%>
+                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => issue.owner.value('login'), :short => true} %>
+              <% end %>
+            </td>
+            <td><%= issue.value('state').capitalize if issue.value('state') %></td>
+          </tr>
+        <% else %>
+          <tr class="even">
+            <td colspan="3"><%= link_to(long_name, issue.value('url'), :class => 'issue_tracker_link') %></td>
+          </tr>
+        <% end %>
         <% if issue.value('summary') %>
           <tr class="odd">
             <td colspan="3" class="expandable_issue_description"><%= issue.value('summary') %></td>
