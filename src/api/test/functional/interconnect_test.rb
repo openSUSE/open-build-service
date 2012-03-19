@@ -7,10 +7,21 @@ class InterConnectTests < ActionController::IntegrationTest
    
   def test_anonymous_access
     ActionController::IntegrationTest::reset_auth 
-    get "/public/lastevents"
+    get "/public/lastevents" # OBS 2.1
     assert_response :success
-    post "/public/lastevents", nil
+    assert_xml_tag :tag => "events", :attributes => {:sync => "lost"}
+    post "/public/lastevents?start=1"
     assert_response :success
+    assert_xml_tag :tag => "event", :attributes => {:type => "project"}
+    assert_no_xml_tag :tag => "events", :attributes => {:sync => "lost"}
+
+    post "/public/lastevents", nil # OBS 2.3 and later
+    assert_response :success
+    assert_xml_tag :tag => "events", :attributes => {:sync => "lost"}
+    post "/public/lastevents", :start => "1"
+    assert_response :success
+    assert_xml_tag :tag => "event", :attributes => {:type => "project"}
+    assert_no_xml_tag :tag => "events", :attributes => {:sync => "lost"}
 
     # direct access
     get "/public/source/BaseDistro"
