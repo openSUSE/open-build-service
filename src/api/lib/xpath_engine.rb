@@ -239,7 +239,7 @@ class XpathEngine
 
     #logger.debug "-- cond_ary: #{cond_ary.inspect} --"
     model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                    :conditions => cond_ary, :order => @sort_order) do |item|
+                    :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id") do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
       # and the :start param only works on primary keys, but we're in a block so we can control
       # what we 'yield' after we constructed our (presumably) huge table with find_each...

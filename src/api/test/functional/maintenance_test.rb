@@ -767,10 +767,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
     maintenance_project_meta.elements['/project'].attributes['kind'] = 'maintenance'
-    put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
+    raw_put "/source/My:Maintenance/_meta", maintenance_project_meta.to_s
     assert_response :success
 
-    post "/source/My:Maintenance/_attribute", "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%Y-%C</value></attribute></attributes>"
+    raw_post "/source/My:Maintenance/_attribute", "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     # setup a maintained distro
@@ -839,7 +839,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
 
     # create some changes, including issue tracker references
-    put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042"
+    raw_put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042"
     assert_response :success
     post "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1"
     assert_response :success
@@ -848,7 +848,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add a new package with defined link target
     post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => incidentProject, :missingok => 1, :extend_package_names => 1, :add_repositories => 1
     assert_response :success
-    put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read()
+    raw_put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read()
     assert_response :success
 
     # search will find this new and not yet processed incident now.
@@ -873,10 +873,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.add_element "issue", { "id" => "0815", "tracker" => "bnc" }
     pi.add_element "releasetarget", { :project => "BaseDistro2.0:LinkedUpdateProject" }
     pi.add_element "releasetarget", { :project => "BaseDistro3" }
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     pi.add_element "releasetarget", { :project => "home:tom" } # invalid target
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
     get "/source/#{incidentProject}/patchinfo/_meta"
@@ -891,7 +891,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
 
     # add another issue and update patchinfo
-    put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
+    raw_put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
     assert_response :success
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
@@ -981,7 +981,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi = ActiveXML::Base.new( @response.body )
     pi.add_element "stopped"
     pi.stopped.text = "The issue is not fixed for real yet"
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler( "x86_64" )
@@ -995,7 +995,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.delete_element 'stopped'
     pi.add_element 'binary'
     pi.binary.text = "does not exist"
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler( "x86_64" )
@@ -1007,7 +1007,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"failed" }
     # fix it again
     pi.delete_element 'binary'
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler( "x86_64" )
@@ -1030,7 +1030,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_xml_tag :tag => "reference", :attributes => { :id => "" }
 
     # create release request
-    post "/request?cmd=create&addrevision=1", '<request>
+    raw_post "/request?cmd=create&addrevision=1", '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1060,7 +1060,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "collection", :attributes => { :matches => "1"} )
 
     # validate that request is diffable (not broken)
-    post "/request/#{reqid}?cmd=diff", nil
+    post "/request/#{reqid}?cmd=diff"
     assert_response :success
 
     # source project got locked?

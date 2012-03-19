@@ -9,10 +9,10 @@ class ConfigurationsControllerTest < ActionController::IntegrationTest
     get '/configuration'
     assert_response :success
     config = @response.body
-    put '/configuration?title="openSUSE Build Service"&description="Long description"', config
+    put '/configuration?title=%22openSUSE%20Build%20Service%22&description=%22Long%20description%22', config
     assert_response 403 # Normal users can't change site-wide configuration
     prepare_request_with_user 'king', 'sunflower' # User with admin rights
-    put '/configuration?title="openSUSE Build Service"&description="Long description"', config
+    put '/configuration?title=%22openSUSE%20Build%20Service%22&description=%22Long%20description%22', config
     assert_response :success
   end
 end

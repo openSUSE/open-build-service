@@ -1,4 +1,5 @@
 require 'active_rbac_mixins/user_mixins'
+require 'kconv'
 
 class User < ActiveRecord::Base
   include ActiveRbacMixins::UserMixins::Core

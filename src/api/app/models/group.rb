@@ -25,7 +25,7 @@ class Group < ActiveRecord::Base
          return nil if user.nil?
          if User.ldapgroup_enabled?
            begin
-             list = User.render_grouplist_ldap(Group.find(:all), user.login)
+             list = User.render_grouplist_ldap(Group.all, user.login)
            rescue Exception
              logger.debug "Error occurred in rendering grouplist in ldap."
            end
@@ -35,12 +35,12 @@ class Group < ActiveRecord::Base
        else
          if User.ldapgroup_enabled?
            begin
-             list = User.render_grouplist_ldap(Group.find(:all))
+             list = User.render_grouplist_ldap(Group.all)
            rescue Exception
              logger.debug "Error occurred in rendering grouplist in ldap."
            end
          else
-           list = Group.find(:all)
+           list = Group.all
          end
        end
 
@@ -57,7 +57,7 @@ class Group < ActiveRecord::Base
     end
 
     def get_by_title(title)
-      g = find :first, :conditions => ["title = BINARY ?", title]
+      g = where("title = BINARY ?", title).first
       raise GroupNotFoundError.new( "Error: Group '#{title}' not found." ) unless g
       return g
     end

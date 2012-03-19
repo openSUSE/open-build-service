@@ -5,20 +5,16 @@ class ApidocsController < ApplicationController
 
   def index
     logger.debug "PATH: #{request.path}"
-    if ( request.path !~ /\/$/ )
-      redirect_to "/apidocs/"
+    filename = File.expand_path(APIDOCS_LOCATION) + "/index.html"
+    if ( !File.exist?( filename ) )
+      render :text => "Unable to load API documentation source file", :layout => "rbac"
     else
-      filename = File.expand_path(APIDOCS_LOCATION) + "/index.html"
-      if ( !File.exist?( filename ) )
-        render :text => "Unable to load API documentation source file", :layout => "rbac"
-      else
-        render( :file => filename, :layout => "rbac" )
-      end
+      render( :file => filename, :layout => "rbac" )
     end
   end
 
-  def method_missing symbol, *args
-    file = symbol.to_s
+  def file
+    file = params[:file]
     if ( file =~ /\.(xml|xsd|rng)$/ )
       if File.exist?( File.expand_path(SCHEMA_LOCATION) + "/" + file )
         send_file( File.expand_path(SCHEMA_LOCATION) + "/" + file, :type => "text/xml",

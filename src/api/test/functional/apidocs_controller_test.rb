@@ -7,8 +7,9 @@ class ApidocsControllerTest < ActionController::IntegrationTest
   end
 
   def test_index
+    # rails 3 will always go to #index
     get "/apidocs"
-    assert_response 302
+    assert_response :success
     
     get "/apidocs/" 
     assert_response :success
@@ -18,11 +19,11 @@ class ApidocsControllerTest < ActionController::IntegrationTest
   def test_subpage
     get "/apidocs/whatisthis"
     assert_response 404
-    assert_match(/code="unknown_file_type"/, @response.body)
+    assert_xml_tag :attributes => { :code => "unknown_file_type" }
 
     get "/apidocs/whatisthis.xml"
     assert_response 404
-    assert_match(/code="file_not_found"/, @response.body)
+    assert_xml_tag :attributes => { :code => "file_not_found" }
     
     get "/apidocs/project.xml" 
     assert_response :success

@@ -22,7 +22,7 @@ class PublicControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     get "/public/source"
-    assert_response 403
+    assert_response 404 # no such action
     get "/public/source/DoesNotExist/_meta"
     assert_response 404
     get "/public/source/home:Iggy/DoesNotExist/_meta"

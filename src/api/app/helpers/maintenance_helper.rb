@@ -751,7 +751,7 @@ module MaintenanceHelper
       end
       if params[:request]
         ans = AttribNamespace.find_by_name "OBS"
-        at = AttribType.find( :first, :joins => ans, :conditions=>{:name=>"RequestCloned"} )
+        at = ans.attrib_types.where(name: "RequestCloned").first
 
         tprj = DbProject.get_by_name target_project
         a = Attrib.new(:db_project => tprj, :attrib_type => at)

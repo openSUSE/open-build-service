@@ -213,7 +213,8 @@ OBSApi::Application.routes.draw do
 
   ### /apidocs
 
-  match 'apidocs/:action' => 'apidocs#(?-mix:[^\/]*)'
+  match 'apidocs' => 'apidocs#index'
+  match 'apidocs/:file' => 'apidocs#file', :constraints => { :file => /[^\/]*/ }
 
   match '/active_rbac/registration/confirm/:user/:token' => 'active_rbac/registration#confirm'
 
