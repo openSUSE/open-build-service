@@ -289,6 +289,15 @@ module MaintenanceHelper
       answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
       lpkg.set_package_kind_from_commit(answer.body)
     end
+
+    # publish incident if source is read protect, but release target is not. assuming it got public now.
+    if f=sourcePackage.db_project.flags.find_by_flag_and_status( 'access', 'disable' )
+      unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
+        sourcePackage.db_project.flags.delete(f)
+        sourcePackage.db_project.store({:comment => "project become public though release"})
+        # patchinfos stay unpublished, it is anyway too late to test them now ...
+      end
+    end
   end
 
   # generic branch function for package based, project wide or request based branch

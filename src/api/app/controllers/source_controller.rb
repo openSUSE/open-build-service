@@ -1556,7 +1556,7 @@ class SourceController < ApplicationController
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
       pkg.add_flag("build", "enable", nil, nil)
-      pkg.add_flag("publish", "enable", nil, nil)
+      pkg.add_flag("publish", "enable", nil, nil) unless prj.flags.find_by_flag_and_status("access", "disable")
       pkg.add_flag("useforbuild", "disable", nil, nil)
       pkg.store
     end
