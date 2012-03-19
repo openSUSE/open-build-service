@@ -204,6 +204,7 @@ CREATE TABLE `delayed_jobs` (
   `locked_at` datetime DEFAULT NULL,
   `failed_at` datetime DEFAULT NULL,
   `locked_by` varchar(255) DEFAULT NULL,
+  `queue` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -462,9 +463,11 @@ CREATE TABLE `repositories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `repository_architectures` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `repository_id` int(11) NOT NULL,
   `architecture_id` int(11) NOT NULL,
-  `position` int(11) NOT NULL DEFAULT '0',
+  `position` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `arch_repo_index` (`repository_id`,`architecture_id`),
   KEY `architecture_id` (`architecture_id`),
   CONSTRAINT `repository_architectures_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
@@ -866,6 +869,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120313113554');
 INSERT INTO schema_migrations (version) VALUES ('20120313131909');
 
 INSERT INTO schema_migrations (version) VALUES ('20120319104301');
+
+INSERT INTO schema_migrations (version) VALUES ('20120319133739');
 
 INSERT INTO schema_migrations (version) VALUES ('20120320134850');
 

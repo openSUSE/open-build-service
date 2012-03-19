@@ -1,4 +1,5 @@
 require 'json'
+require 'workers/copy_project_job'
 
 include ProductHelper
 include MaintenanceHelper
@@ -1508,8 +1509,8 @@ class SourceController < ApplicationController
       render_ok
     else
       # inject as job
-      require 'workers/copy_project_job.rb'
-      Delayed::Job.enqueue CopyProjectJob.new(project_name, params)
+      c = CopyProjectJob.new
+      c.delay.perform(project_name, params)
       render_invoked
     end
   end
