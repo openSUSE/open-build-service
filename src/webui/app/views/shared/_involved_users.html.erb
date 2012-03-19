@@ -46,9 +46,8 @@
 <% end %>
 
 <div id="involved_users">
-  <h3><%= @pagetitle %> <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
-
   <% if @users and @users.length > 0 %>
+    <h3>Users <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
     <table cellspacing='1' id="user_table" class="tablesorter">
       <thead>
         <tr>
