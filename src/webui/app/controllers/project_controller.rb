@@ -1446,6 +1446,22 @@ class ProjectController < ApplicationController
     end
   end
 
+  def unlock_dialog
+  end
+  def unlock
+    valid_http_methods :post
+    begin
+      path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
+      result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ''))
+      flash[:success] = "Unlocked project #{params[:project]}"
+      Project.free_cache(params[:project])
+    rescue ActiveXML::Transport::Error => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+    end
+    redirect_to :action => 'show', :project => params[:project] and return
+  end
+
   private
 
   def get_important_projects
