@@ -9,6 +9,7 @@ require 'rexml/document'
 
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end
+class InvalidParameterError < Exception; end
 
 class ApplicationController < ActionController::Base
 
@@ -31,6 +32,7 @@ class ApplicationController < ActionController::Base
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
   before_filter :shutup_rails
+  before_filter :validate_params
 
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
@@ -74,6 +76,14 @@ class ApplicationController < ActionController::Base
       return false
     end
     return true
+  end
+
+  def validate_params
+    params.each do |p|
+      if not p[1].nil? and p[1].class != String
+        raise InvalidParameterError, "Parameter #{p[0]} has non String class #{p[1].class}"
+      end
+    end
   end
 
   def extract_user
@@ -403,6 +413,8 @@ class ApplicationController < ActionController::Base
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when MissingParameterError
       render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
+    when InvalidParameterError
+      render_error :status => 400, :message => exception.message, :errorcode => "invalid_parameter"
     when DbProject::CycleError
       render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
     else

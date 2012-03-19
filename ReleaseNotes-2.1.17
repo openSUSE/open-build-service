@@ -16,6 +16,7 @@ Changes:
 
 * Added new default targets for SUSE Linux Enterprise SP1 and SP2 builds
 * Removed RHEL-4 default target (EOL)
+* Additional protection layer against a possible undetect security leak due to mass-assignment handling
 
 Bugfixes:
 =========

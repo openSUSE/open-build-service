@@ -12,4 +12,10 @@ class AboutControllerTest < ActionController::IntegrationTest
     assert_tag( :tag => "about", :descendant => { :tag => "revision" } )
   end
 
+  def test_application_controller
+    get "/about?user[asd]=yxc"
+    assert_response 400
+    assert_tag( :tag => "status", :attributes => { :code => "invalid_parameter" } )
+  end
+
 end
