@@ -16,7 +16,7 @@
           <tr>
             <% if index == 0 %>
               <td class="repo nowrap" rowspan="<%= archarray.length %>">
-                <b title="<%= h repo %>"><%= link_to h(srepo), :action => "repository_state", :project => @project, :repository => repo %></b>
+                <%= link_to(elide(srepo, 26), {:action => 'repository_state', :project => @project.name, :repository => repo}, {:title => "Repository #{srepo}"}) %>
               </td>
               <% index += 1 %>
             <% end %>

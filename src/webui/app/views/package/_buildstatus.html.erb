@@ -13,10 +13,7 @@
           <tr>
             <% if index == 0 %>
               <td class="nowrap" title="<%= h r %>" rowspan="<%= archs.length %>">
-                <%= image_tag 'icons/drive_go.png'  %>
-                <b>
-                  <%= link_to h(elide(r, 18)), :action => :binaries, :controller => :package, :project => @project, :package => @package, :repository => r %>
-                </b>
+                <%= link_to(elide(r, 26), {:action => :binaries, :controller => :package, :project => @project, :package => @package, :repository => r}, {:title => "Binaries for #{r}"}) %>
               </td>
               <% index += 1 -%>
             <% end # if -%>
