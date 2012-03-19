@@ -750,7 +750,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag( :parent => { :tag => "publish" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
 
     # create a maintenance incident
-    post "/source", :cmd => "createmaintenanceincident"
+    post "/source", :cmd => "createmaintenanceincident", :noaccess => 1
     assert_response :success
     assert_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
@@ -758,7 +758,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     incidentID=incidentProject.gsub( /^My:Maintenance:/, "" )
     get "/source/#{incidentProject}/_meta"
     assert_response :success
+    assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
     assert_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
+    assert_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
     assert_tag( :tag => "project", :attributes => { :name => incidentProject, :kind => "maintenance_incident" } )
 
     # submit packages via mbranch
@@ -841,7 +843,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
-    assert_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
+    assert_no_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} ) # not published due to access disable
     get "/source/#{incidentProject}/patchinfo?view=issues"
     assert_response :success
     assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
@@ -949,7 +951,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"unpublished"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"broken" }
     # un-block patchinfo build, but filter for an empty result
     pi.delete_element 'stopped'
@@ -963,7 +965,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"unpublished"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"failed" }
     # fix it again
     pi.delete_element 'binary'
@@ -975,7 +977,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"published"} },
+    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"unpublished"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"succeeded" }
 
 
@@ -1026,7 +1028,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     # source project got locked?
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    assert_tag( :parent => {:tag => "lock"}, :tag => "enable" )
+    assert_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil ) # but still not out there
+    assert_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
     assert_no_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
     # approve review
@@ -1043,6 +1047,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     run_scheduler( "i586" )
 
     # validate result
+    get "/source/#{incidentProject}/_meta"
+    assert_response :success
+    assert_tag( :parent => {:tag => "lock"}, :tag => "enable" ) # still locked
+    assert_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
+    assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil ) # got published, so access got enabled
+    get "/source/#{incidentProject}/patchinfo/_meta"
+    assert_response :success
+    assert_no_tag( :parent => {:tag => "publish"}, :tag => "enable", :content => nil ) # patchinfo stay unpublished, too late now anyway
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
     assert_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
