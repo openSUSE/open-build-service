@@ -1591,7 +1591,7 @@ class SourceController < ApplicationController
     # get existing file
     patchinfo_path = "/source/#{URI.escape(pkg.db_project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
     data = ActiveXML::Base.new(backend_get(patchinfo_path))
-    xml = update_patchinfo( data, pkg )
+    xml = update_patchinfo( data, pkg, true )
 
     p={ :user => @http_user.login, :comment => "updated via updatepatchinfo call" }
     patchinfo_path = "/source/#{URI.escape(pkg.db_project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
@@ -1602,7 +1602,7 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  def update_patchinfo(patchinfo, pkg)
+  def update_patchinfo(patchinfo, pkg, enfore_issue_update=false)
     # collect bugnumbers from diff
     issues = Array.new()
     pkg.db_project.db_packages.each do |p|
@@ -1624,9 +1624,13 @@ class SourceController < ApplicationController
 
     # update informations of empty issues
     patchinfo.each_issue do |i|
-      if i.text.blank?
-        issue = Issue.find_by_name_and_tracker(i.name, i.tracker)
-        if issue and issue.summary.blank?
+      if i.text.blank? and not i.name.blank?
+        issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
+        if issue
+          if enfore_issue_update
+            # enforce update from issue server
+            issue.fetch_updates()
+          end
           i.text = issue.summary
         end
       end
