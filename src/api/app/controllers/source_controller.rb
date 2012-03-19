@@ -1591,12 +1591,12 @@ class SourceController < ApplicationController
     pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
 
     # get existing file
-    patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
+    patchinfo_path = "/source/#{URI.escape(pkg.db_project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
     data = ActiveXML::Base.new(backend_get(patchinfo_path))
     xml = update_patchinfo( data, pkg )
 
     p={ :user => @http_user.login, :comment => "updated via updatepatchinfo call" }
-    patchinfo_path = "/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
+    patchinfo_path = "/source/#{URI.escape(pkg.db_project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
     answer = backend_put( patchinfo_path, xml.dump_xml )
     pkg.sources_changed
@@ -1622,6 +1622,16 @@ class SourceController < ApplicationController
         end
       end
 
+    end
+
+    # update informations of empty issues
+    patchinfo.each_issue do |i|
+      if i.text.blank?
+        issue = Issue.find_by_name_and_tracker(i.name, i.tracker)
+        if issue and issue.summary.blank?
+          i.text = issue.summary
+        end
+      end
     end
 
     return patchinfo
