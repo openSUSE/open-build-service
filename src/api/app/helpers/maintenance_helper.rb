@@ -119,10 +119,14 @@ module MaintenanceHelper
       end
       # patchinfos are handled as new packages
       if pkg.db_package_kinds.find_by_kind 'patchinfo'
-        new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
-        new_pkg.flags.create(:status => "enable", :flag => "build")
-        new_pkg.flags.create(:status => "enable", :flag => "publish") unless incidentProject.flags.find_by_flag_and_status( 'access', 'disable' )
-        new_pkg.store
+        if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
+          new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
+        else
+          new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+          new_pkg.flags.create(:status => "enable", :flag => "build")
+          new_pkg.flags.create(:status => "enable", :flag => "publish") unless incidentProject.flags.find_by_flag_and_status( 'access', 'disable' )
+          new_pkg.store
+        end
 
       # use specified release project if defined
       elsif releaseproject
@@ -131,8 +135,10 @@ module MaintenanceHelper
         else
           package_name = pkg.name
         end
+        
         branch_params = { :target_project => incidentProject.name,
                           :maintenance => 1, 
+                          :force => 1, 
                           :comment => "Initial new branch", 
                           :project => releaseproject, :package => package_name }
         branch_params[:requestid] = request.id if request
@@ -151,6 +157,7 @@ module MaintenanceHelper
 
         branch_params = { :target_project => incidentProject.name,
                           :maintenance => 1, 
+                          :force => 1, 
                           :project => linked_project, :package => linked_package }
         branch_params[:requestid] = request.id if request
         ret = do_branch branch_params
@@ -159,9 +166,13 @@ module MaintenanceHelper
 
         # a new package for all targets
         if e and e.attributes["package"]
-          new_pkg = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
-          incidentProject.db_packages << new_pkg
-          new_pkg.store
+          if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
+            new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
+          else
+            new_pkg = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+            incidentProject.db_packages << new_pkg
+            new_pkg.store
+          end
         else
           # no link and not a patchinfo
           next # error out instead ?
