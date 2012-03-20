@@ -38,9 +38,9 @@
 
 <p>
   Display
-  <%= select_tag("request_type_select", options_for_select(['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release']), :onchange => "updateRequestDisplay();") %>
+  <%= select_tag("request_type_select", options_for_select(['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release'], @default_request_type), :onchange => "updateRequestDisplay();") %>
   requests in state
-  <%= select_tag("request_state_select", options_for_select([['new or review', 'new,review'], 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']), :onchange => "updateRequestDisplay();") %>
+  <%= select_tag("request_state_select", options_for_select([['new or review', 'new,review'], 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded'], @default_request_state), :onchange => "updateRequestDisplay();") %>
   <span id="request_count"><%= "(" + requests.length.to_s + ")" unless not defined?(requests) or requests.blank? %></span>:
   <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>
