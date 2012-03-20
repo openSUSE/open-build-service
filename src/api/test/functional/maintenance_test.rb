@@ -1033,6 +1033,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
     assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
+    # unlock would fail due to open request
+    post "/source/#{incidentProject}", { :cmd => "unlock", :comment => "cleanup" }
+    assert_response 403
+    assert_xml_tag( :tag => "status", :attributes => { :code => "open_release_request"} )
+
     # approve review
     prepare_request_with_user "king", "sunflower"
     post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
