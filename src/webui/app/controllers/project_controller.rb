@@ -1533,7 +1533,10 @@ class ProjectController < ApplicationController
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
-    @is_incident_project = true if @project.project_type and @project.project_type == 'maintenance_incident'
+    if @project.project_type and @project.project_type == 'maintenance_incident'
+      @is_incident_project = true
+      @open_release_requests = BsRequest.list({:states => 'new,review', :types => 'maintenance_release', :project => @project.value('name'), :roles => 'source'})
+    end
   end
 
   def load_requests

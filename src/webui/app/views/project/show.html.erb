@@ -50,11 +50,25 @@
               <%= image_tag 'icons/accept.png' %>
               <%= link_to('Patchinfo present', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
             </li>
-          <% elsif @is_incident_project %>
-            <li>
-              <%= image_tag 'icons/exclamation.png' %>
-              <%= link_to_if(@project.can_edit?(session[:login]), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
-            </li>
+          <% end %>
+          <% if @is_incident_project %>
+            <% if !@has_patchinfo %>
+              <li>
+                <%= image_tag 'icons/exclamation.png' %>
+                <%= link_to_if(@project.can_edit?(session[:login]), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
+              </li>
+            <% end %>
+            <% if @open_release_requests.length > 0 %>
+              <li>
+                <%= image_tag 'icons/flag_green.png' %>
+                <%= @open_release_requests.length %>
+                <% if @open_release_requests.length == 1 %>
+                  <%= link_to('release request', :controller => 'request', :action => 'show', :id => @open_release_requests[0].value('id')) %>
+                <% else %>
+                  <%= link_to('release requests', :action => 'requests', :project => @project.value('name'), :type => 'maintenance_release') %>
+                <% end %>
+              </li>
+            <% end %>
           <% end %>
           <% if @nr_releasetargets > 0 %>
             <li>
@@ -110,7 +124,7 @@
         <% if session[:login] %>
           <% if @project.can_edit?( session[:login] ) %>
             <% unless @project.is_remote? %>
-              <% if @is_incident_project and @nr_packages > 0 && @has_patchinfo %>
+              <% if @is_incident_project && @nr_packages > 0 && @has_patchinfo && @open_release_requests.length == 0 %>
                 <li>
                   <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request to release'), :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
                   <%= link_to_remote('Request to release', :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
