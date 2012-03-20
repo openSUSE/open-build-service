@@ -244,7 +244,8 @@ as well here.
 
 Afterwards you can start the OBS web api via 
 
-  rcapache2 start  # use "insserv apache2" for permanent start
+  rcapache2 start        # use "insserv apache2" for permanent start
+  rcobsapidelayed start  # use "insserv obsapidelayed" for permanent start
 
 
 4. Setup initial distributions
@@ -391,8 +392,10 @@ To start and stop everything you can use the following command sequences:
   rcobsdispatcher start
   rcobspublisher  start
   rcapache2 start
+  rcobsapidelayed start
 
   rcapache2 stop
+  rcobsapidelayed stop
   rcobspublisher  stop
   rcobsdispatcher stop
   rcobsworker stop
