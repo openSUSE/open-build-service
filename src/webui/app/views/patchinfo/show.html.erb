@@ -8,7 +8,7 @@
     <div class="box" style="background-color:#DDDDDD; margin-top: 0">
     <h2 style="display: inline"><%=h @project.title.text%></h2>
     <span>
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <% if (@project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )) && !@project.is_locked? %>
         <span>
           <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Patchinfo'), :action => :edit_patchinfo, :project => @project, :package => @package, :spec_count => @spec_count %>
         </span>
