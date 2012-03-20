@@ -1370,9 +1370,20 @@ class SourceController < ApplicationController
       return
     end
 
+    pro = DbProject.get_by_name(project_name)
+    if pro.project_type == "maintenance_incident"
+      predicate = "(state/@name='new' or state/@name='review' or state/@name='declined') and action/@type='maintenance_release' and action/source/@project='#{pro.name}'"
+      collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
+      c = collection.scan(/request id\="(\d+)"/)
+      if c.length > 0
+        render_error :status => 403, :errorcode => "open_release_request",
+          :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{c.flatten}"
+        return
+      end
+    end
+
     p = { :comment => params[:comment] }
 
-    pro = DbProject.get_by_name(project_name)
     f = pro.flags.find_by_flag_and_status("lock", "enable")
     unless f
       render_error :status => 400, :errorcode => "not_locked",
