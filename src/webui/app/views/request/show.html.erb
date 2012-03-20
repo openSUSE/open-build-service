@@ -130,7 +130,7 @@
           <% @my_open_reviews.each_with_index do |review, index| %>
             <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
               <% form_tag(:action => "modify_review") do %>
-                <p><%= text_area_tag("review_comment_#{index}", review.value('comment'), :size => '80x1', :style => "width: 99%") %></p>
+                <p><%= text_area_tag("review_comment_#{index}", review.value('comment'), :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
                 <p>
                   <%= hidden_field_tag("review_request_id_#{index}", @id) %>
                   <%= hidden_field_tag("review_by_user_#{index}", review.value('by_user')) if review.value('by_user') %>
@@ -143,6 +143,9 @@
               <% end %>
             </div>
           <% end %>
+        <% end %>
+        <% javascript_tag do %>
+          $('.review_comment, #reason').click(function () { $(this).text(''); });
         <% end %>
       </div>
     <% end %>
