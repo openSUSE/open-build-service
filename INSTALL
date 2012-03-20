@@ -45,7 +45,7 @@ please issue the following commands as root user in your shell:
                   rubygem-sqlite3 rubygem-daemons rubygem-ci_reporter \
                   rubygem-exception_notification rubygem-erubis rubygem-rails_xss \
                   rubygem-ci_reporter rubygem-webrat rubygem-rack-test \
-                  rubygem-rdoc
+                  rubygem-rdoc rubygem-json rubygem-xmlhash
 
 Deployment with RPM packages
 ============================
