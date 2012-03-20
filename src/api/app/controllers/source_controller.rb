@@ -1604,40 +1604,6 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  def update_patchinfo(patchinfo, pkg)
-    # collect bugnumbers from diff
-    issues = Array.new()
-    pkg.db_project.db_packages.each do |p|
-      # create diff per package
-      next if p.db_package_kinds.find_by_kind 'patchinfo'
-
-      p.db_package_issues.each do |i|
-        if i.change == "added"
-          unless patchinfo.has_element?("issue[(@id='#{i.issue.name}' and @tracker='#{i.issue.issue_tracker.name}')]")
-            e = patchinfo.add_element "issue"
-            e.set_attribute "tracker", i.issue.issue_tracker.name
-            e.set_attribute "id"     , i.issue.name
-            patchinfo.category.text = "security" if i.issue.issue_tracker.kind == "cve"
-          end
-        end
-      end
-
-    end
-
-    # update informations of empty issues
-    patchinfo.each_issue do |i|
-      if i.text.blank?
-        issue = Issue.find_by_name_and_tracker(i.name, i.tracker)
-        if issue and issue.summary.blank?
-          i.text = issue.summary
-        end
-      end
-    end
-
-    return patchinfo
-  end
-  private :update_patchinfo
-
   # unlock a package
   # POST /source/<project>/<package>?cmd=unlock
   def index_package_unlock
