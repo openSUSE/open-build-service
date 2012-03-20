@@ -9,7 +9,7 @@
   <% package_exists = Package.find_cached(package, :project => project) %>
   <%= link_to_if(package_exists, "#{project} / #{package}", :controller => 'package', :action => 'show', :project => project, :package => package) %>
   <% if rev && rev != Package.current_rev(project, package) %>
-    (<%= link_to_if(package_exists, "revision #{rev}", :controller => 'package', :action => 'files', :project => project, :package => package, :rev => rev) %>)
+    (<%= link_to_if(package_exists, "revision #{elide(rev, 10)}", :controller => 'package', :action => 'files', :project => project, :package => package, :rev => rev) %>)
   <% end %>
 <% else %>
   <% if !short %>
