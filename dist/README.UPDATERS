@@ -153,9 +153,7 @@ For Updaters from OBS 1.6
   To update api and webui informations, you need to start the following processes
 
     # insserv obsapidelayed
-    # insserv obswebuidelayed
     # rcobsapidelayed start
-    # rcobswebuidelayed start
 
   By default, you should *NOT* start the following services. These are intended
   to autoconfigure services on the OBS Appliance image based on existing LVM
