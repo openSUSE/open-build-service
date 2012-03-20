@@ -884,7 +884,9 @@ module MaintenanceHelper
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel]
-          answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=fetch+updates+from+devel+package", nil
+          msg="fetch+updates+from+devel+package"
+          msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].db_project.name)}" if p[:copy_from_devel].db_project.project_type == "maintenance_incident"
+          answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=#{msg}", nil
         end
 
         tpkg.sources_changed
