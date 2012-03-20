@@ -1246,8 +1246,21 @@ class RequestController < ApplicationController
               end
             end
           end
-          # write access check in release targets
+          # maintenance_release accept check
           if [ "maintenance_release" ].include? action.value("type") and params[:cmd] == "changestate" and params[:newstate] == "accepted"
+            # compare with current sources
+            if action.source.has_attribute?('rev')
+              url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1"
+              c = backend_get(url)
+              data = REXML::Document.new( c )
+              unless action.source.rev == data.elements["directory"].attributes["srcmd5"]
+                render_error :status => 400, :errorcode => "source_changed",
+                  :message => "The current source revision in #{action.source.project}/#{action.source.package} are not on revision #{action.source.rev} anymore."
+                return
+              end
+            end
+
+            # write access check in release targets
             source_project.repositories.each do |repo|
               repo.release_targets.each do |releasetarget|
                 unless @http_user.can_modify_project? releasetarget.target_repository.db_project
