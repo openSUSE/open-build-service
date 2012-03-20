@@ -10,9 +10,9 @@
         <td rowspan="<%= release_targets_ng.length %>">
           <span class="expandable_incident_description">
             <% if rt[:patchinfo] && rt[:patchinfo].value('summary') && !rt[:patchinfo].value('summary').empty? %>
-              <%= rt[:patchinfo].value('summary') %>
+              <%= link_to(rt[:patchinfo].value('summary'), :action => 'show', :project => incident.value('name')) %>
             <% else %>
-              <i><%= incident.value('title') %></i>
+              <i><%= link_to(incident.value('title'), :action => 'show', :project => incident.value('name')) %></i>
             <% end %>
           </span>
         </td>
