@@ -594,6 +594,8 @@ class ProjectController < ApplicationController
   end
 
   def requests
+    @default_request_type = params[:type] if params[:type]
+    @default_request_state = params[:state] if params[:state]
   end
 
   def save_new
@@ -1531,7 +1533,6 @@ class ProjectController < ApplicationController
     # Is this a maintenance incident project?
     @is_incident_project = false
     @is_incident_project = true if @project.to_hash["project_type"] == "maintenance_incident"
-    #TODO: Prepare incident-related data
   end
 
   def load_requests
