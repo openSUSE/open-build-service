@@ -1393,8 +1393,8 @@ class SourceController < ApplicationController
       end
       pro.store(p)
 
-      # trigger rebuild to ensure higher build numbers for re-release
-      Suse::Backend.post "/build/#{URI.escape(pro.name)}?cmd=rebuild", nil
+      # ensure higher build numbers for re-release
+      Suse::Backend.post "/build/#{URI.escape(pro.name)}?cmd=wipe", nil
     end
 
     render_ok
