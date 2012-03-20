@@ -1524,6 +1524,7 @@ class ProjectController < ApplicationController
     # Is this a maintenance master project ?
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
+
     if @is_maintenance_project
       @maintained_projects = []
       @project.each("maintenance/maintains") do |maintained_project_name|
@@ -1532,7 +1533,7 @@ class ProjectController < ApplicationController
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
-    @is_incident_project = true if @project.to_hash["project_type"] == "maintenance_incident"
+    @is_incident_project = true if @project.project_type and @project.project_type == 'maintenance_incident'
   end
 
   def load_requests
