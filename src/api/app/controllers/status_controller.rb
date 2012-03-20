@@ -131,7 +131,7 @@ class StatusController < ApplicationController
     data=REXML::Document.new(ret)
 
     mytime = Time.now.to_i
-    Rails.cache.write('workerstatus', ret)
+    Rails.cache.write('workerstatus', ret, :expires_in => 3.minutes)
     data.root.each_element('blocked') do |e|
       line = StatusHistory.new
       line.time = mytime
