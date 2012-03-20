@@ -42,7 +42,7 @@
             <% end %>
           </span>
           <%= label_tag(:review_comment, "Comment for reviewer:") %><br/>
-          <%= text_area_tag('review_comment', nil, :size => '80x1') %>
+          <%= text_area_tag('review_comment', nil, :size => '80x3') %>
           <% javascript_tag do %>
             $('#review_type').change(function() {
               switch($('#review_type option:selected').attr('value')) {
