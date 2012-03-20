@@ -847,7 +847,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def render_issues_axml(params)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = Nokogiri::XML::Builder.new
 
     filter_changes = states = nil
     filter_changes = params[:changes].split(",") if params[:changes]
@@ -872,14 +872,16 @@ class DbProject < ActiveRecord::Base
       end
     end
 
-    xml
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                            Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def render_attribute_axml(params)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = Nokogiri::XML::Builder.new
 
     done={};
-    xml = builder.attributes() do |a|
+    builder.attributes() do |a|
       attribs.each do |attr|
         next if params[:name] and not attr.attrib_type.name == params[:name]
         next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
@@ -900,6 +902,9 @@ class DbProject < ActiveRecord::Base
         end
       end
     end
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                            Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def write_through?
@@ -1014,7 +1019,7 @@ class DbProject < ActiveRecord::Base
     # Check if the project has a special type defined (like maintenance)
     project_attributes[:kind] = project_type if project_type and project_type != "standard"
 
-    xml = builder.project( project_attributes ) do |project|
+    builder.project( project_attributes ) do |project|
       project.title( title )
       project.description( description )
       

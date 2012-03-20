@@ -80,10 +80,10 @@ class User < ActiveRecord::Base
   end
 
   def render_axml( watchlist = false )
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = Nokogiri::XML::Builder.new
  
     logger.debug "----------------- rendering person #{self.login} ------------------------"
-    xml = builder.person() do |person|
+    builder.person() do |person|
       person.login( self.login )
       person.email( self.email )
       realname = self.realname
@@ -107,7 +107,10 @@ class User < ActiveRecord::Base
       end
     end
 
-    xml
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                            Nokogiri::XML::Node::SaveOptions::FORMAT
+
   end
 
   # Returns true if the the state transition from "from" state to "to" state

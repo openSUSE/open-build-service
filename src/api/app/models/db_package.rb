@@ -379,17 +379,19 @@ class DbPackage < ActiveRecord::Base
       DbPackage.transaction do
         self.db_package_kinds.destroy_all unless _noreset
         directory = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}").body unless directory
-        xml = REXML::Document.new(directory.to_s)
-        if xml.elements["/directory/entry[@name='_patchinfo']"]
-          self.db_package_kinds.create :kind => 'patchinfo'
+        xml = Xmlhash.parse(directory)
+        xml.elements("entry") do |e|
+          if e["name"] == '_patchinfo'
+            self.db_package_kinds.create :kind => 'patchinfo'
+          end
+          if e["name"] == '_aggregate'
+            self.db_package_kinds.create :kind => 'aggregate'
+          end
+          if e["name"] == '_link'
+            self.db_package_kinds.create :kind => 'link'
+          end
+          # further types my be product, spec, dsc, kiwi in future
         end
-        if xml.elements["/directory/entry[@name='_aggregate']"]
-          self.db_package_kinds.create :kind => 'aggregate'
-        end
-        if xml.elements["/directory/entry[@name='_link']"]
-          self.db_package_kinds.create :kind => 'link'
-        end
-        # further types my be product, spec, dsc, kiwi in future
       end
     end
 
@@ -697,11 +699,7 @@ class DbPackage < ActiveRecord::Base
       end
     end
     # update or create attribute entry
-    if binary
-      a = find_attribute(attrib.namespace, attrib.name, binary)
-    else
-      a = find_attribute(attrib.namespace, attrib.name)
-    end
+    a = find_attribute(attrib.namespace, attrib.name, binary)
     if a
       a.update_from_xml(attrib)
     else
@@ -821,14 +819,14 @@ class DbPackage < ActiveRecord::Base
   end
 
   def render_issues_axml(params)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = Nokogiri::XML::Builder.new
 
     filter_changes = states = nil
     filter_changes = params[:changes].split(",") if params[:changes]
     states = params[:states].split(",") if params[:states]
     login = params[:login]
 
-    xml = builder.package( :project => self.db_project.name, :name => self.name ) do |package|
+    builder.package( :project => self.db_project.name, :name => self.name ) do |package|
       self.db_package_kinds.each do |k|
         package.kind(k.kind)
       end
@@ -845,13 +843,15 @@ class DbPackage < ActiveRecord::Base
       end
     end
 
-    xml
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                            Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def render_attribute_axml(params)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = Nokogiri::XML::Builder.new
 
-    xml = builder.attributes() do |a|
+    builder.attributes() do |a|
       done={}
       attribs.each do |attr|
         type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
@@ -906,7 +906,10 @@ class DbPackage < ActiveRecord::Base
         end
       end
     end
-    xml
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                             Nokogiri::XML::Node::SaveOptions::FORMAT
+
   end
 
   def render_axml(view = nil)

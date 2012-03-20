@@ -4,7 +4,6 @@ class AttribNamespace < ActiveRecord::Base
   has_many :attrib_types, :dependent => :destroy
   has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', :dependent => :destroy
 
-
   class << self
     def list_all
       find :all, :select => "id,name"
@@ -32,10 +31,11 @@ class AttribNamespace < ActiveRecord::Base
     end
   end
 
-  def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
+  def render_axml
+    builder = Nokogiri::XML::Builder.new
     abies = attrib_namespace_modifiable_bies.find(:all, :include => [:user, :group])
     if abies.length > 0
-      node.namespace(:name => self.name) do |an|
+      builder.namespace(:name => self.name) do |an|
          abies.each do |mod_rule|
            p={}
            p[:user] = mod_rule.user.login if mod_rule.user
@@ -44,8 +44,11 @@ class AttribNamespace < ActiveRecord::Base
          end
       end
     else
-      node.namespace(:name => self.name)
+      builder.namespace(:name => self.name)
     end
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+    :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+      Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def self.anscache

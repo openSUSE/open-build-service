@@ -17,8 +17,6 @@ class Group < ActiveRecord::Base
 
   class << self
     def render_group_list(user=nil)
-       builder = Builder::XmlMarkup.new( :indent => 2 )
-       xml = ""
 
        if user
          user = User.find_by_login(user)
@@ -44,13 +42,16 @@ class Group < ActiveRecord::Base
          end
        end
 
-       xml = builder.directory( :count => list.length ) do |dir|
-         list.each do |g|
-           dir.entry( :name => g.title )
-         end
-       end
-
-       return xml
+      builder = Nokogiri::XML::Builder.new
+      builder.directory( :count => list.length ) do |dir|
+        list.each do |g|
+          dir.entry( :name => g.title )
+        end
+      end
+      
+      return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                 Nokogiri::XML::Node::SaveOptions::FORMAT
     end
 
     def get_by_title(title)
@@ -61,12 +62,9 @@ class Group < ActiveRecord::Base
   end
 
   def render_axml
-    builder = Builder::XmlMarkup.new(:indent => 2)
+    # FIXME: where is this used? it was commited to git without test case or use
     logger.debug "----------------- rendering group #{self.title} ------------------------"
-    xml = builder.group() do |group|
-      group.title(self.title)
-    end
-    xml
+    "<group><title>#{self.title.fast_xs}</title></group>"
   end
 
 end
