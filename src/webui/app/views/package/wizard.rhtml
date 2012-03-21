@@ -17,15 +17,15 @@ end
       <strong><label for="wizard[<%= entry.name %>]"><%= entry.label %></label></strong><br/>
       <%= typ3 = entry.value("type") # entry.type would call Oject#type
       case typ3
-      when "text":
+      when "text" then
           text_field_tag("wizard[#{entry.name}]", entry.value)
-      when "longtext":
+      when "longtext" then
           text_area_tag("wizard[#{entry.name}]", entry.value)
-      when "file":
+      when "file" then
           file_field_tag("wizard_files[#{entry.name}]")
-      when "url":
+      when "url" then
           text_field_tag("wizard[#{entry.name}]", entry.value)
-      when "select":
+      when "select" then
           options = []
         entry.each_option do |option|
           options << [option.label, option.name]
