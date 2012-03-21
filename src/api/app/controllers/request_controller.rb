@@ -358,18 +358,6 @@ class RequestController < ApplicationController
                 ltpkg = e.attributes["package"]
                 tprj = e.attributes["project"]
                 missing_ok_link=true if e.attributes["missingok"]
-                if action.value("type") == "maintenance_release" and not rev
-                  # maintenance_release needs the binaries, so we always use the current source
-                  if e.attributes["xsrcmd5"]
-                    rev=e.attributes["xsrcmd5"]
-                  elsif e.attributes["srcmd5"]
-                    rev=e.attributes["srcmd5"]
-                  else
-                    render_error :status => 400, :errorcode => 'broken_source',
-                      :message => "Current sources are broken"
-                    return
-                  end
-                end
               else
                 tprj = nil
               end
@@ -631,9 +619,9 @@ class RequestController < ApplicationController
           begin
             pr = ""
             if action.source.has_attribute?('rev')
-              pr = "rev=#{CGI.escape(action.source.rev)}"
+              pr = "&rev=#{CGI.escape(action.source.rev)}"
             end
-            url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1&" + pr
+            url = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(action.source.package)}?expand=1" + pr
             c = backend_get(url)
             unless action.source.has_attribute?('rev') or params[:addrevision].blank?
               data = REXML::Document.new( c )
