@@ -585,7 +585,8 @@ module MaintenanceHelper
             logger.info "sources will get copied from devel package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}" unless p[:copy_from_devel] == p[:package]
           end
 
-          if p[:copy_from_devel] == p[:package] \
+          if (p[:copy_from_devel].nil? or p[:copy_from_devel] == p[:package]) \
+             and p[:package].class == DbPackage \
              and p[:link_target_project].class == DbProject and p[:link_target_project].project_type == "maintenance_release" \
              and mp = p[:link_target_project].maintenance_project
             # no defined devel area or no package inside, but we branch from a release are: check in open incidents
@@ -882,7 +883,7 @@ module MaintenanceHelper
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel]
-          msg="fetch+updates+from+devel+package"
+          msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].db_project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
           msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].db_project.name)}" if p[:copy_from_devel].db_project.project_type == "maintenance_incident"
           answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=#{msg}", nil
         end
