@@ -4,7 +4,6 @@ module MaintenanceHelper
 
   def update_patchinfo(patchinfo, pkg, enfore_issue_update=false)
     # collect bugnumbers from diff
-    issues = Array.new()
     pkg.db_project.db_packages.each do |p|
       # create diff per package
       next if p.db_package_kinds.find_by_kind 'patchinfo'
@@ -434,7 +433,7 @@ module MaintenanceHelper
       pkg = nil
       prj = DbProject.get_by_name params[:project]
       if params[:missingok]
-        if DbPackage.exists_by_project_and_name(params[:project], params[:package], follow_project_links=true, allow_remote_packages=true)
+        if DbPackage.exists_by_project_and_name(params[:project], params[:package], true, true)
           return { :status => 400, :errorcode => 'not_missing',
             :message => "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists." }
         end
@@ -465,30 +464,30 @@ module MaintenanceHelper
           :message => "The given attribute #{params[:attribute]} does not exist" }
       end
       if params[:value]
-        DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |pkg|
-          logger.info "Found package instance #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} with value #{params[:value]}"
-          @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+        DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |p|
+          logger.info "Found package instance #{p.db_project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
+          @packages.push({ :base_project => p.db_project, :link_target_project => p.db_project, :package => p, :target_package => "#{p.name}.#{p.db_project.name}" })
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
-        DbPackage.find_by_attribute_type( at, params[:package] ).each do |pkg|
-          logger.info "Found package instance #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}"
-          @packages.push({ :base_project => pkg.db_project, :link_target_project => pkg.db_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+        DbPackage.find_by_attribute_type( at, params[:package] ).each do |p|
+          logger.info "Found package instance #{p.db_project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
+          @packages.push({ :base_project => p.db_project, :link_target_project => p.db_project, :package => p, :target_package => "#{p.name}.#{p.db_project.name}" })
         end
         # Find all indirect instance via project links
         if params[:package]
           packages = []
-          DbProject.find_by_attribute_type( at ).each do |prj|
+          DbProject.find_by_attribute_type( at ).each do |p|
             # FIXME: this will not find packages on linked remote projects
-            pkgs = prj.find_package( params[:package] )
+            pkgs = p.find_package( params[:package] )
             packages << pkgs if pkgs
           end
-          packages.each do |pkg|
-            unless @packages.map {|p| p[:package] }.include? pkg # avoid double instances
-              logger.info "Found package instance via project link in #{pkg.db_project.name}/#{pkg.name} for attribute #{at.name} and given package name #{params[:package]}"
-              ltprj = pkg.db_project
-              @packages.push({ :base_project => pkg.db_project, :link_target_project => ltprj, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+          packages.each do |pkg2|
+            unless @packages.map {|p| p[:package] }.include? pkg2 # avoid double instances
+              logger.info "Found package instance via project link in #{pkg2.db_project.name}/#{pkg2.name} for attribute #{at.name} and given package name #{params[:package]}"
+              ltprj = pkg2.db_project
+              @packages.push({ :base_project => pkg2.db_project, :link_target_project => ltprj, :package => pkg2, :target_package => "#{pkg2.name}.#{pkg2.db_project.name}" })
             end
           end
         end
@@ -784,7 +783,7 @@ module MaintenanceHelper
 
       # find origin package to be branched
       branch_target_package = p[:target_package]
-      proj_name = target_project.gsub(':', '_')
+      #proj_name = target_project.gsub(':', '_')
       pack_name = branch_target_package.gsub(':', '_')
 
       # create branch package

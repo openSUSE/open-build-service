@@ -154,7 +154,7 @@ class StatisticsController < ApplicationController
     @package = params[:package]
 
     object = DbProject.get_by_name(@project)
-    object = DbPackage.get_by_project_and_name(@project, @package, use_source=false, follow_project_links=false) if @package
+    object = DbPackage.get_by_project_and_name(@project, @package, false, false) if @package
 
     if request.get?
 
@@ -411,7 +411,7 @@ class StatisticsController < ApplicationController
 
   def activity
     @project = DbProject.get_by_name(params[:project])
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false, follow_project_links=false) if params[:package]
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], false, false) if params[:package]
   end
 
 
@@ -438,7 +438,7 @@ class StatisticsController < ApplicationController
   def added_timestamp
 
     @project = DbProject.get_by_name(params[:project])
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false, follow_project_links=true)
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], false, true)
 
     # is it used at all ?
   end
@@ -484,7 +484,7 @@ class StatisticsController < ApplicationController
   def updated_timestamp
 
     @project = DbProject.get_by_name(params[:project])
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source=false, follow_project_links=true)
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], false, true)
 
   end
 

@@ -344,8 +344,6 @@ class ApplicationController < ActionController::Base
     backend_http.read_timeout = 1000
 
     file = Tempfile.new 'volley'
-    type = nil
-
     opts = { :url_based_filename => true }
     
     backend_http.request_get(path) do |res|

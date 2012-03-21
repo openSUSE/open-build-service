@@ -178,7 +178,7 @@ class AdminController < ApplicationController
       redirect_to :action => 'list_tags'
       return 
     end
-    blacklist_tag = BlacklistTag.find_or_create_by_name(tag.name)
+    BlacklistTag.find_or_create_by_name(tag.name)
     tag.destroy
     flash[:note] = 'Tag was successfully moved.'
     redirect_to :action => 'list_blacklist_tags'

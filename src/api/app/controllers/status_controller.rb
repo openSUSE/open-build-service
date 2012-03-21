@@ -113,7 +113,6 @@ class StatusController < ApplicationController
     hours = begin Integer(params[:hours] || '24') rescue 24 end
     logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
-    data = Array.new
     values = StatusHistory.find(:all, :conditions => [ "time >= ? AND \`key\` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.history do

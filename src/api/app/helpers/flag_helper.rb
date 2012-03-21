@@ -1,81 +1,81 @@
 module FlagHelper
 
-   class SaveError < Exception; end
+  class SaveError < Exception; end
 
-   def type_flags(type)
-     ret = []
-     flags.each do |f|
-       ret << f if f.flag == type
-     end
-     return ret
-   end
+  def type_flags(type)
+    ret = []
+    flags.each do |f|
+      ret << f if f.flag == type
+    end
+    return ret
+  end
 
-   TYPES = { 
-     'lock' => :disable,
-     'build' => :enable,
-     'publish' => :enable,
-     'debuginfo' => :disable,
-     'useforbuild' => :enable,
-     'binarydownload' => :enable,
-     'sourceaccess' => :enable,
-     'access' => :enable 
-   }
-   def self.default_for(flag_type)
-     return TYPES[flag_type.to_s].to_s
-   end
-   
-   def self.flag_types
-     TYPES.keys
-   end
+  TYPES = { 
+    'lock' => :disable,
+    'build' => :enable,
+    'publish' => :enable,
+    'debuginfo' => :disable,
+    'useforbuild' => :enable,
+    'binarydownload' => :enable,
+    'sourceaccess' => :enable,
+    'access' => :enable 
+  }
+  def self.default_for(flag_type)
+    return TYPES[flag_type.to_s].to_s
+  end
+  
+  def self.flag_types
+    TYPES.keys
+  end
 
-   def validate_type( flag ) 
-     unless TYPES.has_key? flag.to_s
-        raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
-     end
-   end
+  def validate_type( flag ) 
+    unless TYPES.has_key? flag.to_s
+      raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
+    end
+  end
 
-   def update_all_flags(obj)
-      Flag.transaction do
-        self.flags.delete_all
-        position = 1
-        FlagHelper.flag_types.each do |flagtype|
-          position = update_flags( obj, flagtype , position )
-        end
+  def update_all_flags(obj)
+    Flag.transaction do
+      self.flags.delete_all
+      position = 1
+      FlagHelper.flag_types.each do |flagtype|
+        position = update_flags( obj, flagtype , position )
       end
-   end
+    end
+  end
 
-   def update_flags( obj, flagtype, position )
+  def update_flags( obj, flagtype, position )
 
-     #translate the flag types as used in the xml to model name + s
-     validate_type flagtype
+    #translate the flag types as used in the xml to model name + s
+    validate_type flagtype
 
-       if obj.has_element? flagtype.to_s
-	 
-	 #select each build flag from xml
-	 obj.send(flagtype).each do |xmlflag|
+    if obj.has_element? flagtype.to_s
+      
+      #select each build flag from xml
+      obj.send(flagtype).each do |xmlflag|
 
-	   #get the selected architecture from data base
-	   arch = nil
-	   if xmlflag.has_attribute? :arch
-	     arch = Architecture.find_by_name(xmlflag.arch)
-	     raise SaveError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
-	   end
+        #get the selected architecture from data base
+        arch = nil
+        if xmlflag.has_attribute? :arch
+          arch = Architecture.find_by_name(xmlflag.arch)
+          raise SaveError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
+        end
 
-	   repo = xmlflag.repository if xmlflag.has_attribute? :repository
-	   repo ||= nil
+        repo = xmlflag.repository if xmlflag.has_attribute? :repository
+        repo ||= nil
 
-	   #instantiate new flag object
-	   self.flags.create(:status => xmlflag.element_name, :position => position, :flag => flagtype) do |flag|
-	     #set the flag attributes
-	     flag.repo = repo
-	     flag.architecture = arch
-	   end
-	   position += 1
-	 end
-       end
+        #instantiate new flag object
+        self.flags.create(:status => xmlflag.element_name, :position => position, :flag => flagtype) do |flag|
+          #set the flag attributes
+          flag.repo = repo
+          flag.architecture = arch
+        end
+        position += 1
+      end
+    end
 
-     return position
-   end
+    return position
+  end
 
   def remove_flag(flag, repository, arch)
     validate_type flag
@@ -84,11 +84,11 @@ module FlagHelper
 
     flags_to_remove = Array.new
     flaglist.each do |f|
-       next if !repository.blank? and f.repo != repository
-       next if repository.blank? and !f.repo.blank?
-       next if !arch.blank? and f.architecture != arch
-       next if arch.blank? and !f.architecture.nil? 
-       flags_to_remove << f
+      next if !repository.blank? and f.repo != repository
+      next if repository.blank? and !f.repo.blank?
+      next if !arch.blank? and f.architecture != arch
+      next if arch.blank? and !f.architecture.nil? 
+      flags_to_remove << f
     end
     self.flags.delete(flags_to_remove)
   end
@@ -121,7 +121,7 @@ module FlagHelper
 
     flags = Array.new
     self.type_flags(flag_type).each do |flag|
-       flags << flag if flag.is_relevant_for?(repo, arch)
+      flags << flag if flag.is_relevant_for?(repo, arch)
     end
     flags.sort! { |a,b| a.specifics <=> b.specifics }
     flags.each do |flag|
@@ -141,13 +141,13 @@ module FlagHelper
   end
 
   def flags_to_xml(builder, expand_flags, pkg=nil)
-     FlagHelper.flag_types.each do |flag_name|
-       next if pkg and flag_name == "access" # no access flag in packages
-       builder.send(flag_name) do
-         expand_flags[flag_name].each do |l|
-           builder.send(l[0], l[1])
-         end
-       end
-     end
-   end
+    FlagHelper.flag_types.each do |flag_name|
+      next if pkg and flag_name == "access" # no access flag in packages
+      builder.send(flag_name) do
+        expand_flags[flag_name].each do |l|
+          builder.send(l[0], l[1])
+        end
+      end
+    end
+  end
 end

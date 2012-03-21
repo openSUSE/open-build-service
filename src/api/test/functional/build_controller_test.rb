@@ -175,15 +175,15 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => "versrel", :content => "1.0-#{ci_cnt}"
     assert_xml_tag :tag => "rev", :content => rev
     assert_xml_tag :tag => "path", :attributes => { :project => "home:Iggy", :repository => "10.2" }
-    buildinfo = ActiveXML::XMLNode.new(@response.body)
+    #buildinfo = ActiveXML::XMLNode.new(@response.body)
 
     # find scheduler job and compare it with buildinfo
-    jobfile=File.new("#{RAILS_ROOT}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-#{srcmd5}")
-    schedulerjob = Document.new(jobfile).root
 # FIXME: to be implemented, compare scheduler job with rep server job
-#    schedulerjob.elements.each do |jobnode|
-#      puts "test", jobnode.inspect
-#    end
+#   jobfile=File.new("#{Rails.root}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-#{srcmd5}")
+#   schedulerjob = Document.new(jobfile).root
+#   schedulerjob.elements.each do |jobnode|
+#     puts "test", jobnode.inspect
+#   end
     
   end
 

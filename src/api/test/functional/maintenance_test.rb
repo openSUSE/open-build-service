@@ -620,7 +620,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     incidentProject=data.elements["/status/data"].text
-    incidentID=incidentProject.gsub( /^Temp:Maintenance:/, "" )
+    #incidentID=incidentProject.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incidentProject}/_meta"
     assert_xml_tag( :tag => "project", :attributes => { :kind => "maintenance_incident" } )
     assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
@@ -634,7 +634,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" } )
     data = REXML::Document.new(@response.body)
     incidentProject2=data.elements["/status/data"].text
-    incidentID2=incidentProject2.gsub( /^Temp:Maintenance:/, "" )
+    #incidentID2=incidentProject2.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incidentProject2}/_meta"
     assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
     assert_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil )
@@ -805,7 +805,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1"
     assert_response :success
-    assert_match /DUMMY bnc#1042/, @response.body
+    assert_match(/DUMMY bnc#1042/, @response.body)
 
     # add a new package with defined link target
     post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => incidentProject, :missingok => 1, :extend_package_names => 1
@@ -1232,7 +1232,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => "submit_request_rejected" }
-    assert_match /is a maintenance release project/, @response.body
+    assert_match(/is a maintenance release project/, @response.body)
   end
 
   def test_create_invalid_incident_request
@@ -1533,7 +1533,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
     copyversion = copyhistory.each_revision.last.version.text
     copytime = copyhistory.each_revision.last.time.text
-    copyrev = copyhistory.each_revision.last.rev
+    #copyrev = copyhistory.each_revision.last.rev
     copyvrev = copyhistory.each_revision.last.vrev
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i, copyvrev.to_i - 1  #the copy gets always an additional commit
@@ -1584,7 +1584,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
     copyversion = copyhistory.each_revision.last.version.text
     copytime = copyhistory.each_revision.last.time.text
-    copyrev = copyhistory.each_revision.last.rev
+    #copyrev = copyhistory.each_revision.last.rev
     copyvrev = copyhistory.each_revision.last.vrev
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i + 1, copyvrev.to_i  #the copy gets always a higher vrev
@@ -1612,7 +1612,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1"
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
-    assert_match /requires modification permission in oproject/, @response.body
+    assert_match(/requires modification permission in oproject/, @response.body)
 
     # store revisions before copy
     get "/source/BaseDistro/pack2/_history"
@@ -1645,7 +1645,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     srcmd5 = history.each_revision.last.srcmd5.text
     version = history.each_revision.last.version.text
     time = history.each_revision.last.time.text
-    rev = history.each_revision.last.rev
+    #rev = history.each_revision.last.rev
     vrev = history.each_revision.last.vrev
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
@@ -1661,7 +1661,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
     copyversion = copyhistory.each_revision.last.version.text
     copytime = copyhistory.each_revision.last.time.text
-    copyrev = copyhistory.each_revision.last.rev
+    #copyrev = copyhistory.each_revision.last.rev
     copyvrev = copyhistory.each_revision.last.vrev
     assert_equal originsrcmd5, copysrcmd5
     expectedvrev="#{(originvrev.to_i+1).to_s}.1" # the copy gets incremented by one, but also extended to avoid that it can become

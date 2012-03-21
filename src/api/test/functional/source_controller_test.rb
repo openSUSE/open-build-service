@@ -359,7 +359,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response 400
-    aresp={:tag => "status", :attributes => { :code => "project_name_mismatch" } }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_name_mismatch" } 
   end
 
   def test_put_project_meta_hidden_project
@@ -456,7 +456,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kde5' ) 
     put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
-    assert_response(:success, message="--> king was not allowed to create a project")
+    assert_response(:success, "--> king was not allowed to create a project")
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok" })
 
     # Get data again and check that the maintainer was added
@@ -803,7 +803,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["/package"]
-    assert_equal(d.attribute('name').value(), 'kdelibs2', message="Project name was not set to kdelibs2")
+    assert_equal(d.attribute('name').value(), 'kdelibs2', "Project name was not set to kdelibs2")
 
     # check for lacking permission to create a package
     prepare_request_with_user "tom", "thunder"
@@ -1413,9 +1413,9 @@ end
     # access to files of a deleted package
     get "/source/kde4/kdelibs/_history", :deleted => 1
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
-    srcmd5 = node.each_revision.last.srcmd5.text 
-    #if $ENABLE_BROKEN_TEST
+#if $ENABLE_BROKEN_TEST
+#   node = ActiveXML::XMLNode.new(@response.body)
+#   srcmd5 = node.each_revision.last.srcmd5.text 
 # FIXME: this is currently not working in backend
 #    get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
 #    assert_response :success

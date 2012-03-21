@@ -173,7 +173,7 @@ class IssueTracker < ActiveRecord::Base
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = (url.scheme == 'https')
         request = Net::HTTP::Get.new(url.path)
-        resp = http.start {|http| http.request(request) }
+        resp = http.start {|h| h.request(request) }
         url = URI.parse(resp.header['location']) if resp.header['location']
       end while resp.header['location']
       # TODO: Parse returned XML and return proper JSON

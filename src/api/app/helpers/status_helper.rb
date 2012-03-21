@@ -336,7 +336,7 @@ class ProjectStatusHelper
       next unless filter_by_package_name(dbpack.name)
       begin
         dbpack.resolve_devel_package
-      rescue DbPackage::CycleError => e
+      rescue DbPackage::CycleError
         next
       end
       add_recursively(mypackages, projects, dbpack)

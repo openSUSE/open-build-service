@@ -96,8 +96,9 @@ class DbProject < ActiveRecord::Base
   class << self
 
     def is_remote_project?(name, skip_access=false)
-      lpro, rpro = find_remote_project(name, skip_access)
-      !lpro.nil? and !lpro.remoteurl.nil?
+      lpro = find_remote_project(name, skip_access)
+      
+      lpro && lpro[0].remoteurl
     end
 
     def is_hidden?(name)
@@ -324,7 +325,7 @@ class DbProject < ActiveRecord::Base
       WHERE lprj.name = BINARY ?
       END_SQL
       # ACL TODO: should be check this or do we break functionality ?
-      result = DbProject.find_by_sql [sql, self.name]
+      DbProject.find_by_sql [sql, self.name]
   end
 
   def is_locked?
@@ -859,7 +860,7 @@ class DbProject < ActiveRecord::Base
     states = params[:states].split(",") if params[:states]
     login = params[:login]
 
-    xml = builder.project( :name => self.name ) do |project|
+    builder.project( :name => self.name ) do |project|
       self.db_packages.each do |pkg|
         project.package( :project => pkg.db_project.name, :name => pkg.name ) do |package|
           pkg.db_package_issues.each do |i|

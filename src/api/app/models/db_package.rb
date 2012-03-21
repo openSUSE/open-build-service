@@ -325,7 +325,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def find_project_local_linking_packages
-    find_linking_packages(project_local=1)
+    find_linking_packages(1)
   end
 
   def find_linking_packages(project_local=nil)
@@ -915,7 +915,7 @@ class DbPackage < ActiveRecord::Base
   def render_axml(view = nil)
     builder = Nokogiri::XML::Builder.new
     logger.debug "----------------- rendering package #{name} ------------------------"
-    xml = builder.package( :name => name, :project => db_project.name ) do |package|
+    builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
       

@@ -83,7 +83,7 @@ class BsRequest < ActiveXML::Base
         else
           return false
         end
-      rescue Suse::Backend::HTTPError => e
+      rescue Suse::Backend::HTTPError
         logger.debug "Unable to change state of request '#{self.id}' to '#{state}'"
         return false
       end

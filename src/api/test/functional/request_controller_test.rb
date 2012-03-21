@@ -799,7 +799,7 @@ end
     assert_xml_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
-    id2 = node.value(:id)
+    #id2 = node.value(:id)
 
     # delete projects
     delete "/source/home:tom:branches:kde4"

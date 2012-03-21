@@ -2,7 +2,7 @@
 module ValidationHelper
 
   def valid_project_name? name
-    return true if name =~ /^\w[-_+\w\.:]*$/
+    return true if name =~ /^\w[-+\w\.:]*$/
     return false
   end
 
@@ -11,10 +11,10 @@ module ValidationHelper
     return true if name == "_pattern"
     return true if name == "_project"
     return true if name == "_product"
-    return true if name =~ /^_product:\w[-_+\w\.]*$/
+    return true if name =~ /^_product:\w[-+\w\.]*$/
     # obsolete, just for backward compatibility
-    return true if name =~ /^_patchinfo:\w[-_+\w\.]*$/
-    name =~ /^\w[-_+\w\.]*$/
+    return true if name =~ /^_patchinfo:\w[-+\w\.]*$/
+    name =~ /^\w[-+\w\.]*$/
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm

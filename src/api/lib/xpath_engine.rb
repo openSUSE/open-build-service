@@ -192,8 +192,8 @@ class XpathEngine
         if @stack.shift != :qname
           raise IllegalXpathError, "non :qname token after :child token: #{token.inspect}"
         end
-        namespace = @stack.shift
-        node = @stack.shift
+        @stack.shift #namespace
+        @stack.shift #node
       when :predicate
         parse_predicate([], @stack.shift)
       else
@@ -311,7 +311,7 @@ class XpathEngine
       token = expr.shift
       case token
       when :child
-        qname = expr.shift
+        expr.shift #qname
         expr.shift #namespace
         a << expr.shift
       when :attribute

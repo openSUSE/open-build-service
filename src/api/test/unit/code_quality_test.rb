@@ -17,7 +17,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   # Does a static syntax check, but doesn't interpret the code
   def test_static_ruby_syntax
     @ruby_files.each do |ruby_file|
-      assert_equal(true, system("ruby -c #{ruby_file} > /dev/null"))
+      assert system("ruby -cv #{ruby_file} > /dev/null"), "#{ruby_file} failed ruby -c"
     end
   end
 

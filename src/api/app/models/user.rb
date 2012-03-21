@@ -70,7 +70,7 @@ class User < ActiveRecord::Base
 
       # mark password as "not new" any more
       @new_password = false
-      password_confirmation = nil
+      self.password_confirmation = nil
       
       # mark the hash type as "not new" any more
       @new_hash_type = false
@@ -417,10 +417,10 @@ class User < ActiveRecord::Base
                                                   :include => :group
     end    
 
-    rels.each do |rel|
-      return false if rel.group.nil?
+    rels.each do |r|
+      return false if r.group.nil?
       #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, rel.group.title) 
+      return true if user_in_group_ldap?(self.login, r.group.title) 
     end  
     logger.debug "Failed with local_permission_check_with_ldap"
     return false

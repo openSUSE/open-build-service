@@ -432,7 +432,7 @@ class RequestController < ApplicationController
             end
             # Will this be a new package ?
             unless missing_ok_link
-              unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links=true, allow_remote_packages=false)
+              unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, true, false)
                 if action.value("type") == "maintenance_release"
                   newPackages << pkg
                   pkg.db_project.repositories.find(:all, :include => [:release_targets]).each do |repo|
@@ -561,7 +561,7 @@ class RequestController < ApplicationController
           return
         end
         if action.source.has_attribute? 'package'
-          spkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package, follow_project_links=true, allow_remote_packages=true)
+          spkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package, true, true)
         end
       end
 
@@ -937,12 +937,12 @@ class RequestController < ApplicationController
           else
             # for requests not yet accepted or accepted with OBS 2.0 and before
             tpkg = linked_tpkg = nil
-            if DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = false )
+            if DbPackage.exists_by_project_and_name( target_project, target_package, false )
               tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
-            elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links = true )
+            elsif DbPackage.exists_by_project_and_name( target_project, target_package, true )
               tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
             else
-              tprj = DbProject.get_by_name( target_project )
+              DbProject.get_by_name( target_project )
             end
 
             path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&filelimit=10000"
@@ -983,7 +983,7 @@ class RequestController < ApplicationController
         path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
         begin
           action_diff += Suse::Backend.post(path, nil).body
-        rescue ActiveXML::Transport::Error => e
+        rescue ActiveXML::Transport::Error
           render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
         end
       end
@@ -1206,7 +1206,7 @@ class RequestController < ApplicationController
           end
           # accept also a remote source package
           if source_package.nil? and [ "submit" ].include? action.value("type")
-            unless DbPackage.exists_by_project_and_name( source_project.name, action.source.package, follow_project_links=true, allow_remote_packages=true)
+            unless DbPackage.exists_by_project_and_name( source_project.name, action.source.package, true, true)
               render_error :status => 404, :errorcode => "unknown_package",
                 :message => "Source package is missing for request #{req.id} (type #{action.value('type')})"
               return
@@ -1558,7 +1558,7 @@ class RequestController < ApplicationController
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
-              r = Suse::Backend.post "/source/#{CGI.escape(action.target.project)}/#{CGI.escape(action.target.package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+              Suse::Backend.post "/source/#{CGI.escape(action.target.project)}/#{CGI.escape(action.target.package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
             end
           end
 
@@ -1588,7 +1588,7 @@ class RequestController < ApplicationController
 
       elsif action.value("type") == "delete"
           if action.target.has_attribute? :package
-            package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, use_source=true, follow_project_links=false)
+            package = DbPackage.get_by_project_and_name(action.target.project, action.target.package, true, false)
             package.destroy
             delete_path = "/source/#{action.target.project}/#{action.target.package}"
           else

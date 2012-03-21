@@ -106,26 +106,6 @@ class DbProjectTest < ActiveSupport::TestCase
   end
 
     
-  def test_flag_type_mismatch
-    #check precondition
-    assert_equal 2, @project.type_flags('build').size    
-  
-    axml = ActiveXML::Base.new(
-      "<project name='home:Iggy'>
-        <title>Iggy's Home Project</title>
-        <description></description>
-        <build>
-          <enable repository='10.2' arch='i586'/>
-        </build>      
-        <url></url>
-        <disable repository='10.0' arch='i586'/>
-      </project>"
-      )    
-  
-    assert_equal 2, @project.type_flags('build').size  
-  end
-  
-  
   def test_store_axml
     original = @project.to_axml
 
@@ -151,8 +131,6 @@ class DbProjectTest < ActiveSupport::TestCase
   end  
 
   def test_ordering
-    original = @project.to_xml
-    
     #project is given as axml
     axml = ActiveXML::Base.new(
       "<project name='home:Iggy'>

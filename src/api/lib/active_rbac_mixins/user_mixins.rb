@@ -147,7 +147,7 @@ module UserMixins
 
               # mark password as "not new" any more
               @new_password = false
-              password_confirmation = nil
+              self.password_confirmation = nil
               
               # mark the hash type as "not new" any more
               @new_hash_type = false
@@ -950,7 +950,7 @@ module UserMixins
           # However, this is not *so* bad since users have to answer on their email
           # to confirm their registration.
           validates_format_of :email, 
-                              :with => %r{^([\w\-\.\#\$%&!?*\'\+=(){}|~_]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+$},
+                              :with => %r{^([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+$},
                               :message => 'must be a valid email address.'
 
           # We want to validate the format of the password and only allow alphanumeric
@@ -960,7 +960,7 @@ module UserMixins
           # include this condition in your :if parameter to validates_format_of when
           # overriding the password format validation.
           validates_format_of :password,
-                              :with => %r{^[\w\.\- !?(){}|~*_]+$},
+                              :with => %r{^[\w\.\- !?(){}|~*]+$},
                               :message => 'must not contain invalid characters.',
                               :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 

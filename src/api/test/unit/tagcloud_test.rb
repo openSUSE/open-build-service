@@ -156,7 +156,7 @@ class TagcloudTest < ActiveSupport::TestCase
     
     
     #same test for user 'fred'
-    tags = ['TagB','TagC']
+    #tags = ['TagB','TagC']
     opt = {:scope => 'user', :user => User.find_by_login('fred')}
     
     cloud = Tagcloud.new(opt)

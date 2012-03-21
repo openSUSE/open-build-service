@@ -5,9 +5,9 @@ class BuildController < ApplicationController
 
     # for read access and visibility permission check
     if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
-      pkg = DbPackage.get_by_project_and_name( params[:project], params[:package], use_source=false )
+      DbPackage.get_by_project_and_name( params[:project], params[:package], false )
     else
-      prj = DbProject.get_by_name params[:project]
+      DbProject.get_by_name params[:project]
     end
 
     if request.get?
@@ -17,7 +17,7 @@ class BuildController < ApplicationController
 
     if @http_user.is_admin?
       # check for a local package instance
-      DbPackage.get_by_project_and_name( params[:project], params[:package], follow_project_links=false )
+      DbPackage.get_by_project_and_name( params[:project], params[:package], false )
       pass_to_backend
     else
       render_error :status => 403, :errorcode => "execute_cmd_no_permission",
@@ -119,7 +119,7 @@ class BuildController < ApplicationController
       # for osc local package build in this repository
       DbProject.get_by_name params[:project]
     else
-      DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
+      DbPackage.get_by_project_and_name params[:project], params[:package], false
     end
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
@@ -150,7 +150,7 @@ class BuildController < ApplicationController
     if params[:package] == "_repository"
       prj = DbProject.get_by_name params[:project]
     else
-      pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source=false
+      pkg = DbPackage.get_by_project_and_name params[:project], params[:package], false
       prj = pkg.db_project if pkg.class == DbPackage
     end
 
@@ -242,7 +242,7 @@ class BuildController < ApplicationController
   def result
     valid_http_methods :get
     # for permission check
-    prj = DbProject.get_by_name params[:project]
+    DbProject.get_by_name params[:project]
 
     pass_to_backend
   end

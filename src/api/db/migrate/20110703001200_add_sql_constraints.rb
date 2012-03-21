@@ -50,7 +50,7 @@ END_SQL
 
     sql.each_line do |line|
       begin
-        r = ActiveRecord::Base.connection().execute( line )
+        ActiveRecord::Base.connection().execute( line )
       rescue
         puts "WARNING: The database is inconsistent, some FOREIGN KEYs (aka CONSTRAINTS) can not be added!"
         puts "         please run    script/check_database    script to fix the data."
@@ -62,7 +62,7 @@ END_SQL
   def self.drop_constraint( table, count )
     for nr in (1..count)
       begin
-        r = ActiveRecord::Base.connection().execute( "alter table #{table} drop FOREIGN KEY #{table}_ibfk_#{nr};" )
+        ActiveRecord::Base.connection().execute( "alter table #{table} drop FOREIGN KEY #{table}_ibfk_#{nr};" )
       rescue
       end
     end
