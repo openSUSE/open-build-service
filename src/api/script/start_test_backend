@@ -145,6 +145,7 @@ publishsrv = Thread.new do
     begin
       line = publishsrv_out.gets
       logger.debug line.strip unless line.blank?
+      sleep 0.5
     rescue IOError
       break
     end

@@ -12,6 +12,7 @@ class DbProject < ActiveRecord::Base
 
   has_many :project_user_role_relationships, :dependent => :delete_all
   has_many :project_group_role_relationships, :dependent => :delete_all
+  has_many :groups, :through => :project_group_role_relationships
   has_many :db_packages, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
@@ -398,7 +399,7 @@ class DbProject < ActiveRecord::Base
           if link == self
             raise SaveError, "unable to link against myself"
           end
-          self.linkedprojects.create(
+          self.linkedprojects.create!(
               :db_project => self,
               :linked_db_project => link,
               :position => position
@@ -427,6 +428,7 @@ class DbProject < ActiveRecord::Base
       # FIXME: it would be nicer to store only as needed
       self.updated_at = Time.now
       self.save!
+
       # cycle detection
       prj = self
       processed = {}
@@ -439,7 +441,6 @@ class DbProject < ActiveRecord::Base
             str = str + " -- " + key
           end
           raise CycleError.new "There is a cycle in devel definition at #{str}"
-          return nil
         end
         processed[prj_name] = 1
         prj = prj.develproject
@@ -476,8 +477,8 @@ class DbProject < ActiveRecord::Base
             pcache[person.role] = :keep
           else
             #new role
-            if not Role.rolecache.has_key? person.role
-              raise SaveError, "illegal role name '#{person.role}'"
+            if not Role.rolecache.has_key? person.value(:role)
+              raise SaveError, "illegal role name '#{person.value(:role)}'"
             end
 
             ProjectUserRoleRelationship.create(
@@ -768,8 +769,7 @@ class DbProject < ActiveRecord::Base
           end
         end
         logger.debug "deleting repository '#{name}'"
-        self.repositories.delete object
-        object.destroy
+        self.repositories.destroy object
         self.updated_at = Time.now
       end
       repocache = nil
@@ -987,26 +987,20 @@ class DbProject < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = User.find :all,
-      :select => "bu.*, r.title AS role_name",
-      :joins => "bu, project_user_role_relationships purr, roles r",
-      :conditions => ["bu.id = purr.bs_user_id AND purr.db_project_id = ? AND r.id = purr.role_id", self.id]
+    users = project_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title as roletitle")
     if( block )
       users.each do |u|
-        block.call u
+        block.call(u.login, u.roletitle)
       end
     end
     return users
   end
 
   def each_group( opt={}, &block )
-    groups = Group.find :all,
-      :select => "bg.*, r.title AS role_name",
-      :joins => "bg, project_group_role_relationships pgrr, roles r",
-      :conditions => ["bg.id = pgrr.bs_group_id AND pgrr.db_project_id = ? AND r.id = pgrr.role_id", self.id]
+    groups = project_group_role_relationships.joins(:role, :group).select("groups.title as grouptitle, roles.title as roletitle")
     if( block )
       groups.each do |g|
-        block.call g
+        block.call(g.grouptitle, g.roletitle)
       end
     end
     return groups
@@ -1046,12 +1040,12 @@ class DbProject < ActiveRecord::Base
       project.remoteproject(remoteproject) unless remoteproject.blank?
       project.devel( :project => develproject.name ) unless develproject.nil?
 
-      each_user do |u|
-        project.person( :userid => u.login, :role => u.role_name )
+      each_user do |user, role|
+        project.person( :userid => user, :role => role )
       end
 
-      each_group do |g|
-        project.group( :groupid => g.title, :role => g.role_name )
+      each_group do |group, role|
+        project.group( :groupid => group, :role => role )
       end
 
       self.downloads.each do |dl|
@@ -1059,6 +1053,7 @@ class DbProject < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
+      repos = repositories.not_remote.all
       if view == 'flagdetails'
         flags_to_xml(builder, expand_flags)
       else
@@ -1072,7 +1067,6 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)", :include => [:release_targets, :path_elements, :architectures] )
       repos.each do |repo|
         params = {}
         params[:name]        = repo.name
@@ -1095,7 +1089,7 @@ class DbProject < ActiveRecord::Base
             end
             r.path( :project => project_name, :repository => pe.link.name )
           end
-          repo.architectures.each do |arch|
+          repo.repository_architectures.joins(:architecture).select("architectures.name").each do |arch|
             r.arch arch.name
           end
         end
@@ -1209,8 +1203,9 @@ class DbProject < ActiveRecord::Base
   # give out the XML for all repos/arch combos
   def expand_flags(pkg = nil)
     ret = Hash.new
-    repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)", :include => [:architectures] )
-    
+   
+    repos = repositories.not_remote.all 
+
     FlagHelper.flag_types.each do |flag_name|
       pkg_flags = nil
       flaglist = self.type_flags(flag_name)

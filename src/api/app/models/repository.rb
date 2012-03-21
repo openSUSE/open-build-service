@@ -8,8 +8,9 @@ class Repository < ActiveRecord::Base
   has_many :download_stats
 
   has_many :repository_architectures, :order => "position", :dependent => :delete_all
-  has_many :architectures, :through => :repository_architectures
+  has_many :architectures, :through => :repository_architectures, :order => "position"
 
+  scope :not_remote, where("ISNULL(remote_project_name)")
 
   class << self
     def find_by_name(name)

@@ -118,13 +118,13 @@ class PackInfo
       end
       db_pack = DbPackage.find_by_id(@db_pack_id)
       xml.persons do
-        db_pack.each_user do |u|
-          xml.person( :userid => u.login, :role => u.role_name )
+        db_pack.each_user do |ulogin, role_name|
+          xml.person( :userid => ulogin, :role => role_name )
         end
       end unless db_pack.package_user_role_relationships.empty?
       xml.groups do
-        db_pack.each_group do |g|
-          xml.group( :groupid => g.title, :role => g.role_name )
+        db_pack.each_group do |gtitle, rolename|
+          xml.group( :groupid => gtitle, :role => rolename )
         end
       end unless db_pack.package_group_role_relationships.empty?
 
