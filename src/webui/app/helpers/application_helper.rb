@@ -131,7 +131,7 @@ module ApplicationHelper
   end
 
   def status_for( repo, arch, package )
-    @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status package='#{package}'/>")
+    @statushash[repo][arch][package] || { "package" => package } 
   end
 
   def status_id_for( repo, arch, package )
