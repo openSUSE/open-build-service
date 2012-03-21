@@ -17,7 +17,7 @@
         <h3>Patchinfos</h3>
         <p>
           <% @patchinfo.each do |info| -%>
-            | <%= link_to highlight( h(info), @filterstring ), { :controller => 'patchinfo', :action => :show, :project => @project, :package => info}, :class => 'nowrap' %>
+            | <%= link_to highlight( h(info), @filterstring ), { :controller => 'patchinfo', :action => :show_patchinfo, :project => @project, :package => info}, :class => 'nowrap' %>
           <%end%>
         </p>
       <%end%>
