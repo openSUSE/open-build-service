@@ -51,6 +51,12 @@ class PatchinfoController < ApplicationController
 
   def show_patchinfo
     read_patchinfo
+    @pkg_names = Array.new
+    packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
+    packages.each do |pkg|
+      @pkg_names << pkg.value(:name)
+    end
+    @pkg_names.delete("patchinfo")
     @description = @description.gsub(/\n/, "<br/>").html_safe
     @summary = @summary.gsub(/\n/, "<br/>").html_safe
     @packager = Person.find(:login => @packager)
