@@ -4,9 +4,6 @@ module RequestHelper
   def reqtype(req)
     if req.has_element? :action
       type = req.action.value :type
-      if req.each_action.length > 1
-         type = "multiple"
-      end
     else
       type = req.value :type
     end
