@@ -43,7 +43,9 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
-sh `dirname $0`/obs_testsuite_common.sh
+set -e
+set -x
+sh -xe `dirname $0`/obs_testsuite_common.sh
 
 echo "Enter WebUI rails root"
 cd src/webui
@@ -66,11 +68,11 @@ chmod +x script/start_test_api \
          ../api/script/start_test_backend
 
 echo "Initialize test database, run migrations, load seed data"
-rake db:drop db:create db:migrate
+rake --trace db:drop db:create db:migrate
 
 echo "Invoke rake"
-rake ci:setup:testunit test CI_REPORTS=results
-rake test:rcov
+rake --trace ci:setup:testunit test CI_REPORTS=results
+rake --trace test:rcov
 cd ../..
 
 echo "Contents of src/api/log/test.log:"

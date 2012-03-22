@@ -50,6 +50,9 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
+echo "Checking status"
+git status
+
 echo "Setup git submodules"
 git submodule init
 git submodule update
@@ -71,11 +74,11 @@ echo "Setup additional configuration"
 cp config/options.yml.example config/options.yml
 
 echo "Install missing gems locally"
-rake gems:install
+rake --trace gems:install
 
 echo "Set environment variables"
 export RAILS_ENV=test
 
 echo "Initialize test database, run migrations, load seed data"
-rake db:drop db:create db:setup db:migrate
+rake --trace db:drop db:create db:setup db:migrate
 
