@@ -144,7 +144,8 @@ case "$1" in
 	       			echo "/obs already exists !"
                		        exit 1
                		fi
-			ln -sf $backenddir /obs
+			[ -L /obs ] && rm /obs
+			ln -s $backenddir /obs
                 fi
 
 		# Only used if there is a local BSConfig
@@ -218,8 +219,8 @@ EOF
 				fi
 			fi
 			if [ ! "0$NUM" -gt 0 ]; then
-				echo "ERROR: OBS worker instances are 0, either misconfiguration or not enough resources"
-				exit 1
+				echo "WARNING: OBS worker instances are 0, either misconfiguration or not enough resources"
+				exit 0
 			fi
 
 			# Look for PV devices in OBS VG
@@ -313,6 +314,10 @@ EOF
 			#lvcreate -n cache -l 100%FREE OBS || exit
 			lvcreate -n cache -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
 			mkfs -text4 /dev/OBS/cache || exit
+		fi
+
+		if [ ! "0$NUM" -gt 0 ]; then
+			exit 0
 		fi
 
 		echo "Looking for OBS Worker Cache LVM Volume"
