@@ -2,7 +2,7 @@ class DistributionController < ApplicationController
 
   validate_action :index => {:method => :get, :response => :distributions}
 
-  DISTFILEPATH = "#{RAILS_ROOT}/files/distributions.xml"
+  DISTFILEPATH = "#{Rails.root}/files/distributions.xml"
   @@distfile_last_read = Date.new(0).to_time
   @@distfile = "<distributions>\n</distributions>\n"
 

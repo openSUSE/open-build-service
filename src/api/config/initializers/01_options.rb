@@ -1,4 +1,4 @@
-path = "#{RAILS_ROOT}/config/options.yml"
+path = Rails.root.join("config/options.yml")
 
 begin
   CONFIG = YAML.load_file(path)

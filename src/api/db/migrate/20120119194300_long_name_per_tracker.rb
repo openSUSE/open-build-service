@@ -1,5 +1,5 @@
 require 'delayed_job'
-require File.join(RAILS_ROOT, 'lib/workers/update_package_meta_job.rb')
+require File.join(Rails.root, 'lib/workers/update_package_meta_job.rb')
 
 class LongNamePerTracker < ActiveRecord::Migration
   def self.up

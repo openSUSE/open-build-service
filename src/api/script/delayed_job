@@ -1,10 +1,10 @@
 #!/usr/bin/ruby
 
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
-require File.join(RAILS_ROOT, 'lib/workers/copy_project_job.rb')
-require File.join(RAILS_ROOT, 'lib/workers/issue_trackers_to_backend_job.rb')
-require File.join(RAILS_ROOT, 'lib/workers/fetch_issues.rb')
-require File.join(RAILS_ROOT, 'lib/workers/update_issues.rb')
-require File.join(RAILS_ROOT, 'lib/workers/update_package_meta_job.rb')
+require File.join(Rails.root, 'lib/workers/copy_project_job.rb')
+require File.join(Rails.root, 'lib/workers/issue_trackers_to_backend_job.rb')
+require File.join(Rails.root, 'lib/workers/fetch_issues.rb')
+require File.join(Rails.root, 'lib/workers/update_issues.rb')
+require File.join(Rails.root, 'lib/workers/update_package_meta_job.rb')
 require 'delayed/command'
 Delayed::Command.new(ARGV).daemonize

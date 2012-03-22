@@ -20,7 +20,7 @@ module ActiveXML
       # defines ActiveXML::Base.config. Returns the ActiveXML::Config module from which you
       # can get/set the current configuration by using the dynamically added accessors.
       # ActiveXML::Base.config can also be called with a block which gets passed the Config object.
-      # The block style call is typically used from the environment files in ${RAILS_ROOT}/config
+      # The block style call is typically used from the environment files in ${Rails.root}/config
       #
       # Example:
       # ActiveXML::Base.config do |conf|
@@ -147,7 +147,7 @@ module ActiveXML
     class << self
 
       # access the logger object. All ActiveXML modules should use this method
-      # instead of using RAILS_DEFAULT_LOGGER to remain independent of rails
+      # instead of using Rails.logger to remain independent of rails
       def logger
         @log_obj || Rails.logger
       end

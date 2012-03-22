@@ -128,7 +128,7 @@ module Suse
     end
 
     def logger
-      RAILS_DEFAULT_LOGGER
+      Rails.logger
     end
   end
 end

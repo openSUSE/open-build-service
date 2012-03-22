@@ -11,5 +11,5 @@ sub_dirs = [
 ]
 
 sub_dirs.each do |subdir|
-  FileUtils.mkdir_p("#{RAILS_ROOT}/#{subdir}") unless File.exists?(subdir)
+  FileUtils.mkdir_p("#{Rails.root}/#{subdir}") unless File.exists?(subdir)
 end

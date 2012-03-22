@@ -394,7 +394,7 @@ class ProjectStatusHelper
   end
 
   def self.logger
-    RAILS_DEFAULT_LOGGER
+    Rails.logger
   end
 
 end

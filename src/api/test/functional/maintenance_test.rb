@@ -685,7 +685,7 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def inject_build_job( project, package, repo, arch )
-    job=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+    job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
     jobfile=job.readlines.first.chomp
     jobid=""
     IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
@@ -696,7 +696,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     f = File.open("#{jobfile}:status", 'w')
     f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>" )
     f.close
-    system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+    system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
     system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
   end
 
@@ -704,7 +704,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     Rails.logger.debug "START WAITING FOR PUBLISHER"
     counter = 0
     while counter < 100
-      events = Dir.entries("#{RAILS_ROOT}/tmp/backend_data/events/publish")
+      events = Dir.entries("#{Rails.root}/tmp/backend_data/events/publish")
       Rails.logger.debug "EVENTS #{events.inspect}"
       #  3 => ".", ".." and ".ping"
       break unless events.count > 3
@@ -718,8 +718,8 @@ class MaintenanceTests < ActionController::IntegrationTest
 
   def run_scheduler( arch )
     Rails.logger.debug "RUN_SCHEDULER #{arch}"
-    perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
-    IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
+    perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+    IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
        # just for waiting until scheduler finishes
        io.each {|line| 
 	 next if line.blank? 
@@ -848,7 +848,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add a new package with defined link target
     post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => incidentProject, :missingok => 1, :extend_package_names => 1, :add_repositories => 1
     assert_response :success
-    put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/packageNew.spec").read()
+    put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read()
     assert_response :success
 
     # search will find this new and not yet processed incident now.
@@ -1181,7 +1181,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :tag => "description"
     assert_xml_tag :tag => "mtime"
     node=nil
-    IO.popen("gunzip -cd #{RAILS_ROOT}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
+    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
        node = REXML::Document.new( io.read )
     end
     assert_equal "My-2012-1", node.elements["/updates/update/id"].first.to_s

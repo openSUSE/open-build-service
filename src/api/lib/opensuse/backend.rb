@@ -20,7 +20,7 @@ module Suse
     @source_host = SOURCE_HOST
     @source_port = SOURCE_PORT
 
-    @@backend_logger = Logger.new( "#{RAILS_ROOT}/log/backend_access.log" )
+    @@backend_logger = Logger.new( "#{Rails.root}/log/backend_access.log" )
     @backend_time = 0
     
     class << self
@@ -44,7 +44,7 @@ module Suse
       end
 
       def logger
-        RAILS_DEFAULT_LOGGER
+        Rails.logger
       end
 
       def get_log( project, repository, package, arch )

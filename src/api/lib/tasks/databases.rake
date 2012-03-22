@@ -75,7 +75,7 @@ namespace :db do
           new_structure += line
         end
       end
-      File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << new_structure }
+      File.open("#{Rails.root}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << new_structure }
     end
      
     task :load => :environment do
@@ -84,7 +84,7 @@ namespace :db do
       when "mysql"
         ActiveRecord::Base.establish_connection(RAILS_ENV)
         ActiveRecord::Base.connection.execute('SET foreign_key_checks = 0')
-        IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql").join.split("\n\n").each do |table|
+        IO.readlines("#{Rails.root}/db/#{RAILS_ENV}_structure.sql").join.split("\n\n").each do |table|
           ActiveRecord::Base.connection.execute(table)
         end
       else

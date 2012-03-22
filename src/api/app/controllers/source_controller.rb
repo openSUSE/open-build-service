@@ -1693,7 +1693,7 @@ class SourceController < ApplicationController
         :message => "SPEC file already exists."
       return
     rescue ActiveXML::Transport::NotFoundError
-      specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"
+      specfile = File.read "#{Rails.root}/files/specfiletemplate"
       backend_put( specfile_path, specfile )
     end
     render_ok

@@ -1,5 +1,5 @@
 require 'delayed_job'
-require File.join(RAILS_ROOT, 'lib/workers/issue_trackers_to_backend_job.rb')
+require File.join(Rails.root, 'lib/workers/issue_trackers_to_backend_job.rb')
 
 class KernelIssueTrackerRegexp < ActiveRecord::Migration
 

@@ -32,7 +32,7 @@ class MemoryDebugger
     @app=app
   end
   def call(env)
-    logger = RAILS_DEFAULT_LOGGER
+    logger = Rails.logger
     GC.start
     before=`ps -orss= -p#{$$}`.to_i
     file = File.new("/tmp/memprof-#{$$}.log", "w")

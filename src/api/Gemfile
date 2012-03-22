@@ -1,0 +1,17 @@
+# Edit this Gemfile to bundle your application's dependencies.
+# This preamble is the current preamble for Rails 3 apps; edit as needed.
+source 'http://rubygems.org'
+
+gem 'rails', '3.2.1'
+
+gem 'mysql'
+gem 'nokogiri'
+gem 'daemons'
+gem 'delayed_job', '>3.0'
+gem 'exception_notification'
+gem 'json'
+gem 'ci_reporter'
+gem 'rdoc'
+gem 'xmlhash'
+gem 'fast_xs'
+#gem 'memcache-client'

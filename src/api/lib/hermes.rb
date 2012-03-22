@@ -46,8 +46,8 @@ class Hermes
     @delay_id_by_name = Hash.new
     @parameter_id_by_name = Hash.new
 
-    if Object.const_defined? :RAILS_DEFAULT_LOGGER
-      @logger = RAILS_DEFAULT_LOGGER
+    if Object.const_defined? :Rails.logger
+      @logger = Rails.logger
     else
       require 'logger'
       @logger = Logger.new(STDERR)

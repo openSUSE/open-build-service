@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-$stdout.sync=true
-$stderr.sync=true
-require File.expand_path(File.dirname(__FILE__) + '/../config/boot')
-require 'commands/server'

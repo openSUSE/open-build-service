@@ -29,7 +29,7 @@ namespace :db do
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables
     tables.each do |table_name|
       i = "000"
-      oldhash = YAML.load_file( "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml" ) || {}
+      oldhash = YAML.load_file( "#{Rails.root}/test/fixtures/#{table_name}.yml" ) || {}
       idtokey = {}
       force_hash(oldhash).each do |key, record| 
         if record.has_key? 'id'
@@ -38,7 +38,7 @@ namespace :db do
            idtokey[id] = key
         end
       end
-      File.open("#{RAILS_ROOT}/test/fixtures/#{table_name}.yml", 'w') do |file|
+      File.open("#{Rails.root}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
         hash = {}
         data.each do |record|

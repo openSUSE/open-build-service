@@ -8,7 +8,7 @@ class DistributionControllerTest < ActionController::IntegrationTest
   end
   def teardown
 # do not mess with production data, the controller must be fixed
-#    FileUtils.unlink("#{RAILS_ROOT}/files/distributions.xml")
+#    FileUtils.unlink("#{Rails.root}/files/distributions.xml")
   end
 
   def test_put_and_get_list

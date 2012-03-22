@@ -80,7 +80,7 @@ module Suse
       attr_reader :schema_location
 
       def logger
-        RAILS_DEFAULT_LOGGER
+        Rails.logger
       end
 
       # Adds an action to schema mapping. Internally, the mapping is done like this:

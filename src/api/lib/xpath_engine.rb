@@ -139,7 +139,7 @@ class XpathEngine
   end
 
   def logger
-    RAILS_DEFAULT_LOGGER
+    Rails.logger
   end
 
   # Careful: there is no return value, the items found are passed to the calling block

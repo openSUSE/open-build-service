@@ -4,7 +4,7 @@ namespace :db do
 
     desc "Rescale old status histories"
     task :rescale => :environment do
-     logger = RAILS_DEFAULT_LOGGER
+     logger = Rails.logger
 
      maxtime = StatusHistory.find( :first, :select => 'max(`time`) as time' ).time
      sql = ActiveRecord::Base.connection()
