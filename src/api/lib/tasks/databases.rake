@@ -34,7 +34,7 @@ namespace :db do
       structure = ''
       abcs = ActiveRecord::Base.configurations
       case abcs[Rails.env]["adapter"]
-      when "mysql"
+      when "mysql2"
         ActiveRecord::Base.establish_connection(abcs[Rails.env])
         structure = ActiveRecord::Base.connection.structure_dump
       else

@@ -14,7 +14,7 @@ if @group_by_mode
         )
       else
         xml.count(
-          stat.counter_sum.to_s,
+          stat.counter_sum.to_i,
           @group_by_mode.to_sym => stat.obj_name,
           :files => stat.files_count
         )
@@ -24,7 +24,7 @@ if @group_by_mode
 
 else
 
-  xml.download_counter( :all => @all, :sum => @sum, :first => @first, :last => @last ) do
+  xml.download_counter( :all => @all, :sum => @sum.to_i, :first => @first, :last => @last ) do
     @stats.each do |stat|
       xml.count(
         stat.count.to_s,

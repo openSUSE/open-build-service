@@ -51,7 +51,7 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.17.2)
     multi_json (1.1.0)
-    mysql (2.8.1)
+    mysql2 (0.3.11)
     nokogiri (1.5.0)
     polyglot (0.3.2)
     rack (1.4.1)
@@ -88,7 +88,8 @@ GEM
     treetop (1.4.9)
       polyglot (>= 0.3.1)
     tzinfo (0.3.30)
-    xmlhash (1.0.1)
+    xmlhash (1.2)
+    yajl-ruby (0.7.6)
 
 PLATFORMS
   ruby
@@ -100,9 +101,9 @@ DEPENDENCIES
   delayed_job_active_record
   exception_notification
   fast_xs
-  json
-  mysql
+  mysql2
   nokogiri
   rails (= 3.2.1)
   rdoc
-  xmlhash
+  xmlhash (= 1.2)
+  yajl-ruby

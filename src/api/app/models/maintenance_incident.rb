@@ -8,12 +8,12 @@ class MaintenanceIncident < ActiveRecord::Base
   def project_name
       unless self.incident_id
         sql = ActiveRecord::Base.connection();
-        r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).fetch_row
+        r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
 
         if r.nil?
           # no counter exists, initialize it and select again
           sql.execute( "INSERT INTO incident_counter(maintenance_db_project_id) VALUES('" + self.maintenance_db_project_id.to_s + "')" )
-          r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).fetch_row
+          r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
         end
         # do an atomic increase of counter
         sql.execute( "UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s )
@@ -54,11 +54,11 @@ class MaintenanceIncident < ActiveRecord::Base
         day = "NULL"
       end
       sql = ActiveRecord::Base.connection();
-      r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).fetch_row
+      r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
       if r.nil?
         # no counter exists, initialize it and select again
         sql.execute( "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day) VALUES('" + self.maintenance_db_project.id.to_s + "', " + year + ", " + month + ", " + day + ")" )
-        r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).fetch_row
+        r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
       end
       # do an atomic increase of counter
       sql.execute( "UPDATE updateinfo_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType )
