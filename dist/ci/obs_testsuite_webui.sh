@@ -43,6 +43,8 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
+sh `dirname $0`/obs_testsuite_common.sh
+
 echo "Enter WebUI rails root"
 cd src/webui
 
