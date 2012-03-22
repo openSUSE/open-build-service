@@ -149,6 +149,7 @@ class BsRequest < ActiveXML::Base
       path << "&user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
       path << "&project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
       path << "&package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
+      path << "&subprojects=1" if opts[:subprojects]
       begin
         logger.debug "Fetching request list from api"
         response = transport.direct_http URI("#{path}"), :method => "GET"
