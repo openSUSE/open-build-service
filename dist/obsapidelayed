@@ -50,7 +50,7 @@ case "$1" in
 	echo -n "Starting OBS api delayed job handler "
         export RAILS_ENV="production"
         startproc -w -u wwwrun -g www -- $DELAYED_BIN start -n $NUM
-
+        : # startproc does not find the renamed processes...
 	rc_status -v
 	;;
     stop)
