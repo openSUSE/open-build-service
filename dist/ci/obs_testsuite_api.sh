@@ -51,7 +51,7 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
-sh `dirname $0`/obs_testsuite_common.sh
+. `dirname $0`/obs_testsuite_common.sh
 
 echo "Invoke rake"
 rake ci:setup:testunit test CI_REPORTS=results
