@@ -19,7 +19,7 @@ end
 
 frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
-  frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; exec ./script/server -e test -p #{FRONTEND_PORT} 2>&1")
+  frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; exec rails-3_2 server -e test -p #{FRONTEND_PORT} 2>&1")
   puts "API started with PID: #{frontend_out.pid}"
   begin
     Process.setpgid frontend_out.pid, 0
