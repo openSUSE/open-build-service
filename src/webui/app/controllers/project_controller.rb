@@ -23,6 +23,8 @@ class ProjectController < ApplicationController
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
+
+  before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog ]
   prepend_before_filter :lockout_spiders, :only => [:requests]
 
   def index
@@ -275,13 +277,15 @@ class ProjectController < ApplicationController
       end
     end
 
-    @nr_releasetargets = 0
+    render :show, :status => params[:nextstatus] if params[:nextstatus]
+  end
+
+  def load_releasetargets
+    @releasetargets = []
     @open_maintenance_incidents = @project.maintenance_incidents('open')
     @project.each_repository do |repo|
-      @nr_releasetargets += 1 if repo.has_element?('releasetarget')
+      @releasetargets.push(repo.releasetarget.value('project') + "/" + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
     end
-
-    render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def linking_projects

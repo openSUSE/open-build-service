@@ -36,7 +36,7 @@
             <% else %>
               <%= image_tag 'icons/accept.png' %>
             <% end %>
-            <%= @nr_packages %> <%= link_to "package#{@nr_packages == 1 ? '' : 's'}", :action => 'packages', :project => @project %>
+            <%= link_to pluralize(@nr_packages, "Package"), :action => 'packages', :project => @project %>
           </li>
           <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
             <li>
@@ -70,10 +70,10 @@
               </li>
             <% end %>
           <% end %>
-          <% if @nr_releasetargets > 0 %>
+          <% if @releasetargets.length > 0 %>
             <li>
               <%= image_tag 'icons/information.png' %>
-              <%= @nr_releasetargets %> <%= link_to "release target#{@nr_releasetargets == 1 ? '' : 's'}", :action => 'meta', :project => @project %>
+              <%= link_to pluralize(@releasetargets.length, "Release Target"), :action => 'meta', :project => @project %>
             </li>
           <% end %>
         <% end %>
@@ -143,10 +143,16 @@
                   <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
                   <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
                 </li>
-                <% if @nr_releasetargets > 0 %>
+                <%if !@has_patchinfo %>
                   <li>
-                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request maint. update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
-                    <%= link_to_remote('Request maint. update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                    <%= image_tag( 'icons/plugin_add.png', :title => 'Create Patchinfo' ) %>
+                    <%= link_to 'Create Patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project %>
+                  </li>
+                <% end %>
+                <% if !@is_incident_project && @releasetargets.length > 0 %>
+                  <li>
+                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Submit as Update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                    <%= link_to_remote('Submit as Update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
                   </li>
                 <% end %>
               <% end %>
