@@ -617,8 +617,8 @@ class PackageController < ApplicationController
       else
         begin
           @package.save_file :filename => filename
-        rescue
-          flash[:error] = "Filename invalid '#{filename}'."
+        rescue ActiveXML::Transport::Error => e
+          flash[:error], _, _ = ActiveXML::Transport.extract_error_message e
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
       end
