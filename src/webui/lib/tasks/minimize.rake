@@ -3,6 +3,7 @@ require 'tempfile'
 # Beware, order matters:
 JAVASCRIPT_FILENAMES = [
   'public/javascripts/jquery-1.7.1.min.js',
+  'public/javascripts/jquery.dataTables.min.js',
   'public/javascripts/jquery.expander.min.js',
   'public/javascripts/jquery.flot.min.js',
   'public/javascripts/jquery.flot.stack.min.js',
@@ -75,6 +76,7 @@ CSS_FILENAMES = [
   'public/stylesheets/monitor.css',
   'public/stylesheets/package.css',
   'public/stylesheets/project.css',
+  'public/stylesheets/jquery.dataTables.css',
   'public/stylesheets/jquery.tooltip.css',
   'public/stylesheets/cm2/suse.css', # CodeMirror2 OBS styles
   #'public/themes/tumblr-bento/html/style.css',
