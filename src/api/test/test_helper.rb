@@ -104,13 +104,13 @@ module ActionController
     def assert_xml_tag(conds)
       node = ActiveXML::Base.new(@response.body)
       ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
+      assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
     end
 
     def assert_no_xml_tag(conds)
      node = ActiveXML::Base.new(@response.body)
      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-     assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
+     assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
     end
   end 
 end
@@ -120,13 +120,13 @@ module ActiveSupport
     def assert_xml_tag(data, conds)
       node = ActiveXML::Base.new(data)
       ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{data.inspect}" unless ret
+      assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
     end
 
     def assert_no_xml_tag(data, conds)
       node = ActiveXML::Base.new(data)
       ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{data.inspect}" if ret
+      assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
     end
 
   end

@@ -834,7 +834,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.add_element "releasetarget", { :project => "home:tom" } # invalid target
     put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response 404
-    assert_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_xml_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
     assert_xml_no_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} ) # not published due to access disable
@@ -959,7 +959,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     wait_for_publisher()
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"unpublished"} },
+    assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586", :state=>"unpublished"} },
                :tag => "status", :attributes => { :package=>"patchinfo", :code=>"failed" }
     # fix it again
     pi.delete_element 'binary'
@@ -1048,12 +1048,12 @@ class MaintenanceTests < ActionController::IntegrationTest
     # validate result
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_tag( :parent => {:tag => "lock"}, :tag => "enable" ) # still locked
-    assert_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
-    assert_no_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil ) # got published, so access got enabled
+    assert_xml_tag( :parent => {:tag => "lock"}, :tag => "enable" ) # still locked
+    assert_xml_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
+    assert_no_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil ) # got published, so access got enabled
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
-    assert_no_tag( :parent => {:tag => "publish"}, :tag => "enable", :content => nil ) # patchinfo stay unpublished, too late now anyway
+    assert_no_xml_tag( :parent => {:tag => "publish"}, :tag => "enable", :content => nil ) # patchinfo stay unpublished, too late now anyway
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
     assert_xml_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
@@ -1149,10 +1149,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
-    assert_tag :tag => 'link', :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => nil } 
+    assert_xml_tag :tag => 'link', :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => nil } 
     get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2_linked/_link"
     assert_response :success
-    assert_tag :tag => 'link', :attributes => { :project => nil, :package => "pack2" } 
+    assert_xml_tag :tag => 'link', :attributes => { :project => nil, :package => "pack2" } 
     delete "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
 
@@ -1195,7 +1195,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_tag :tag => 'releasetarget', :attributes => { :trigger => "maintenance" } 
+    assert_xml_tag :tag => 'releasetarget', :attributes => { :trigger => "maintenance" } 
 
     # cleanup
     delete "/source/#{incidentProject}"
@@ -1480,8 +1480,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # got locked
     get "/source/home:tom:test/_meta"
     assert_response :success
-    assert_tag( :parent => { :tag => "lock" }, :tag => "enable" )
-    assert_no_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
+    assert_xml_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
@@ -1495,7 +1495,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # disable lock and cleanup 
     get "/source/home:tom:test/_meta"
     assert_response :success
-    assert_no_tag( :parent => { :tag => "lock" }, :tag => "enable" )
+    assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "enable" )
 
     # cleanup
     delete "/source/home:tom:test"
