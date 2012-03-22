@@ -11,6 +11,9 @@
 
 <div class="box-header header-tabs">
   <ul id="package_tabs">
+    <% if @package.name == "patchinfo" %>
+      <%= tab 'Details', :controller => 'patchinfo', :action => 'show_patchinfo' %>
+    <% end %>
     <%= tab 'Overview', :controller => 'package', :action => 'show' %>
     <%= tab 'Sources', :controller => 'package', :action => 'files' %>
     <% unless @spider_bot -%>
