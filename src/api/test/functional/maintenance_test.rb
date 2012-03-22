@@ -457,6 +457,15 @@ class MaintenanceTests < ActionController::IntegrationTest
     put "/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY", "CONTENT"
     assert_response :success
 
+    # add an issue 
+    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/dummy.changes", "DUMMY bnc#1042"
+    assert_response :success
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update?view=issues"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change=>"added"} }, :tag => 'name', :content => "1042"
+
     post "/source", :cmd => "branch", :package => "kdelibs", :target_project => "home:tom:branches:OBS_Maintained:pack2"
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/_link"
@@ -588,10 +597,22 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag( :tag => "enable", :parent => {:tag => "build"}, :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject" } )
 
+    get "/source/#{incidentProject}/pack2.BaseDistro_Update?view=issues"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change=>"added"} }, :tag => 'name', :content => "1042"
+
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
     assert_tag( :tag => "enable", :parent => {:tag => "build"} )
     assert_tag( :tag => "enable", :parent => {:tag => "publish"} )
+
+    get "/source/#{incidentProject}/patchinfo?view=issues"
+    assert_response :success
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
+    assert_tag :parent => { :tag => 'issue', :attributes => {:change=>"kept"} }, :tag => 'name', :content => "1042"
   end
 
   def test_create_maintenance_incident
