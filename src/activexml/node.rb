@@ -129,7 +129,7 @@ module ActiveXML
         else
           raise "make_stub should return LibXMLNode or String, was #{stub.inspect}"
         end
-      elsif _data.kind_of? LibXMLNode
+      elsif data.kind_of? LibXMLNode
         @data = data.internal_data.clone
       else
         raise "constructor needs either XML::Node, String or Hash"
