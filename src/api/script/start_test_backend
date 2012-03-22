@@ -5,6 +5,15 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'envi
 
 Suse::Backend.do_not_start_test_backend
 
+perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+
+if File.exists?("#{Rails.root}/tmp/backend_data") 
+  puts "Old backend data is there. checking if we can stop it"
+  %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
+    system("cd #{Rails.root}/tmp/backend_config && exec perl #{perlopts} ./#{srv} --stop 2>&1 && sleep 2")
+  end 
+end
+
 # check for still running daemons from former run
 [ '3200', '3201', '3202' ].each do |port|
   begin
@@ -53,8 +62,6 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
   end
 end
 file.close
-
-perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
 
 %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
   FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
