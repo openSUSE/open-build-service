@@ -422,7 +422,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :tag => "link", :attributes => { :project => "BaseDistro:Update", :package => "pack2" }
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_history"
     assert_response :success
-    assert_xml_tag :tag => "comment", :content => "fetch updates from devel package"
+    assert_xml_tag :tag => "comment", :content => %r{fetch updates from devel package}
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
     assert_response :success
     assert_xml_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
