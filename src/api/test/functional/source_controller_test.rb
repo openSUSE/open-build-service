@@ -553,7 +553,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # try to unlock without comment
     post "/source/home:Iggy", { :cmd => "unlock" }
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "no_comment" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_comment" }
 
     # unlock does not work via meta data anymore
     doc.elements["/project/lock"].delete_element "enable"
@@ -612,7 +612,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     # try to unlock without comment
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock" }
     assert_response 400
-    assert_tag :tag => "status", :attributes => { :code => "no_comment" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_comment" }
     # without permissions
     prepare_request_with_user "adrian", "so_alone"
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
