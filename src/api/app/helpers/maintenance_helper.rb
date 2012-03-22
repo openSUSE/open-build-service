@@ -817,7 +817,9 @@ module MaintenanceHelper
           if add_repositories
             unless tprj.repositories.find_by_name(repoName)
               trepo = tprj.repositories.create :name => repoName
-              trepo.architectures = repo.architectures
+              repo.repository_architectures.each do |ra|
+                trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
+              end
               trepo.path_elements.create(:link => repo, :position => 1)
               trigger = "manual"
               trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?

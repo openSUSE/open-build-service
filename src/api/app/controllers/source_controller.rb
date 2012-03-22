@@ -1514,7 +1514,9 @@ class SourceController < ApplicationController
       end
       oprj.repositories.each do |repo|
         r = p.repositories.create :name => repo.name
-        r.architectures = repo.architectures
+        repo.repository_architectures.each do |ra|
+          r.repository_architectures.create! :architecture => ra.architecture, :position => ra.position
+        end
         position = 0
         repo.path_elements.each do |pe|
           position += 1
