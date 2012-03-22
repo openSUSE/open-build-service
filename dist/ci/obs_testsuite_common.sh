@@ -1,7 +1,6 @@
 #!/bin/sh
 #
-# This script runs both API unit and integration tests and produces coverage
-# and todo/fixme reports as well as code statistics.
+# This script prepares the API test database for both the API and the WEBUI test suites
 #
 
 ###############################################################################
@@ -51,16 +50,32 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
-sh `dirname $0`/obs_testsuite_common.sh
+echo "Setup git submodules"
+git submodule init
+git submodule update
 
-echo "Invoke rake"
-rake ci:setup:testunit test CI_REPORTS=results
-rake test:rcov
-cd ../..
+echo "Setup backend configuration template"
+sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
+       -e "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" \
+       -e "s|our \$bsgroup = 'obsrun';|our \$bsgroup = 'jenkins';|" src/backend/BSConfig.pm.template
+cp src/backend/BSConfig.pm.template src/backend/BSConfig.pm
 
-echo "Output test.log"
-cat src/api/log/test.log
-echo
+echo "Enter API rails root"
+cd src/api
 
-echo "Remove log/tmp files to save disc space"
-rm -rf src/api/{log,tmp}/*
+echo "Setup database configuration"
+cp config/database.yml.example config/database.yml
+sed -i "s|database: api|database: ci_api|" config/database.yml
+
+echo "Setup additional configuration"
+cp config/options.yml.example config/options.yml
+
+echo "Install missing gems locally"
+rake gems:install
+
+echo "Set environment variables"
+export RAILS_ENV=test
+
+echo "Initialize test database, run migrations, load seed data"
+rake db:drop db:create db:setup db:migrate
+
