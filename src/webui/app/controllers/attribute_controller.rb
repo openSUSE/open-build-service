@@ -70,7 +70,7 @@ private
     end
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
-    @package = params[:package] if params[:package]
+    @package = find_cached(Package, params[:package], :project => @project.name) if params[:package]
     @attribute_opts = {:project => @project.name}
     @attribute_opts.store(:package, @package.to_s) if @package
     @attributes = find_cached(Attribute, @attribute_opts, :expires_in => 2.minutes)
