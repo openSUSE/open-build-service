@@ -26,11 +26,11 @@
       <% requests.each do |req| -%>
         <% ae = req.submit if req.has_element? :submit
         ae = req.action if req.has_element? :action %>
-        <tr>
+        <tr id="tr_request_<%= req.value(:id)%>">
           <% if req.has_element? :state %>
             <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
           <% end %>
-          <td>
+          <td class="request_source">
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
               <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
                 <% src_proj = format_projectname(ae.source.project, BsRequest.creator(req).login) 
