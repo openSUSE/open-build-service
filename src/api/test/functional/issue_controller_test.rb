@@ -243,4 +243,34 @@ Aha bnc#123456\n
     assert_response :success
   end
 
+  def test_issues_of_missingok_package
+    changes = "-------------------------------------------------------------------\n
+Blah bnc#13\n
+-------------------------------------------------------------------\n
+Blah bnc#14\n
+-------------------------------------------------------------------\n
+Blubber bnc#15\n
+"
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/BaseDistro/new_package", :cmd => "branch", :missingok => 1, :target_project => "home:Iggy:branches:BaseDistro"
+    assert_response :success
+    put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes", changes
+    assert_response :success
+    put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes?rev=repository", changes
+    assert_response :success
+    post "/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
+    assert_response :success
+
+    get "/source/home:Iggy:branches:BaseDistro/new_package?view=issues"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "13"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "14"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "15"
+
+    #cleanup
+    delete "/source/home:Iggy:branches:BaseDistro"
+    assert_response :success
+  end
+
 end
