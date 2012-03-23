@@ -1472,23 +1472,25 @@ publishprog_done:
     writestr("$extrep/.directory.yast", "$extrep/directory.yast", join('', @d));
   }
 
-  # push to stageserver
-  if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/ && defined($prp_ext)) {
-    print "    running rsync to $1 at ".localtime(time)."\n";
-    # sync project repos, timeout 1 hour
-    qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
-  }
+  if (keys(%$repotype) != 1 || !$repotype{'none'}) {
+    # push to stageserver
+    if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/ && defined($prp_ext)) {
+      print "    running rsync to $1 at ".localtime(time)."\n";
+      # sync project repos, timeout 1 hour
+      qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
+    }
 
-  # push done trigger to stageserver so that it can send it to the world
-  if (defined($prp_ext)) {
-    mkdir_p($extrepodir_sync);
-    my $projid_ext = $projid;
-    $projid_ext =~ s/:/:\//g;
-    writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
-    if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-      print "    running trigger rsync to $1 at ".localtime(time)."\n";
-      # small sync, timeout 1 minute
-      qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed: $?\n");
+    # push done trigger to stageserver so that it can send it to the world
+    if (defined($prp_ext)) {
+      mkdir_p($extrepodir_sync);
+      my $projid_ext = $projid;
+      $projid_ext =~ s/:/:\//g;
+      writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
+      if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+	print "    running trigger rsync to $1 at ".localtime(time)."\n";
+	# small sync, timeout 1 minute
+	qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed: $?\n");
+      }
     }
   }
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$prp}) {
