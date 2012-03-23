@@ -155,13 +155,15 @@ class PatchinfoController < ApplicationController
       relogin = params[:relogin]
       reboot = params[:reboot]
       zypp_restart_needed = params[:zypp_restart_needed]
-      issues = Array.new
-      params[:issue].each_with_index do |new_issue, index|
-        issue = Array.new
-        issue << new_issue
-        issue << params[:issuetracker][index]
-        issue << params[:issuesum][index]
-        issues << issue
+      if params[:issue]
+        issues = Array.new
+        params[:issue].each_with_index do |new_issue, index|
+          issue = Array.new
+          issue << new_issue
+          issue << params[:issuetracker][index]
+          issue << params[:issuesum][index]
+          issues << issue
+        end
       end
       rating = params[:rating]
       node = Builder::XmlMarkup.new(:indent=>2)
@@ -176,8 +178,10 @@ class PatchinfoController < ApplicationController
           end
         end
         node.packager    packager
-        issues.each do |issue|
-          node.issue(issue[2], :tracker=>issue[1], :id=>issue[0])
+        if issues
+          issues.each do |issue|
+            node.issue(issue[2], :tracker=>issue[1], :id=>issue[0])
+          end
         end
         node.category    params[:category]
         node.rating      rating
@@ -294,6 +298,7 @@ class PatchinfoController < ApplicationController
       end
       @issuesum = result.summary.text if result.summary
       @issuesum = "" if !result.summary
+      @issuesum.gsub!(/\\|'/) { |c| "" }
     else
       @issuesum = "invalid"
     end
