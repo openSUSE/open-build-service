@@ -1,7 +1,7 @@
-<% elide_len ||= 40 %>
 <% request_table_id ||= 'request_table' %>
 <% hide_state ||= false %>
 <% no_target ||= false %>
+<% elide_len ||= no_target ? 80 : 40 %>
 
 <% if requests.blank? %>
   <p>No requests.</p>
@@ -26,16 +26,17 @@
       <% requests.each do |req| -%>
         <% ae = req.submit if req.has_element? :submit
         ae = req.action if req.has_element? :action %>
-        <tr>
+        <tr id="tr_request_<%= req.value(:id)%>">
           <% if req.has_element? :state %>
             <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
           <% end %>
-          <td>
+          <td class="request_source">
             <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
               <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
-                <% src_proj, src_pack = elide_two(ae.source.project, ae.source.package, elide_len) %>
-                <%= link_to(src_proj, :controller => :project, :action => :show, :project => ae.source.project) %> /
-                <% if Package.exists?(ae.source.project, ae.source.package) %>
+                <% src_proj = format_projectname(ae.source.project, BsRequest.creator(req).login) 
+                src_pack = elide(ae.source.package, elide_len >> 1) %>
+                 <%= link_to(src_proj, {:controller => :project, :action => :show, :project => ae.source.project}, { :title => ae.source.project} ) %> /  
+                 <% if Package.exists?(ae.source.project, ae.source.package) %>
                   <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
                 <% else %>
                   <%= src_pack %>

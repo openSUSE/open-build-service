@@ -1,3 +1,5 @@
+# vim: sw=2 et
+
 require 'digest/md5'
 
 require 'action_view/helpers/asset_tag_helper.rb'
@@ -134,6 +136,22 @@ module ApplicationHelper
     @statushash[repo][arch][package] || { "package" => package } 
   end
 
+  def format_projectname(prjname, homename)
+    splitted = prjname.split(':', 4)
+    if splitted[0] == "home"
+      if homename and splitted[1] == homename
+        if splitted.length == 2
+          prjname = "~"
+        else
+          prjname = "~:" + splitted[-1]
+        end
+      else
+        prjname = "~" + splitted[1] + ":" + splitted[-1]
+      end
+    end
+    prjname
+  end
+
   def status_id_for( repo, arch, package )
     valid_xml_id("id-#{package}_#{repo}_#{arch}")
   end
@@ -149,7 +167,7 @@ module ApplicationHelper
       code = ''
       theclass=''
     end
-    
+
     out = "<td class='#{theclass} buildstatus'>"
     if ["unresolvable", "blocked"].include? code 
       out += link_to code, "#", :title => link_title, :id => status_id
