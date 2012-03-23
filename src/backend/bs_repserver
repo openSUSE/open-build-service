@@ -804,7 +804,6 @@ sub getbinary_info {
       }
     }
   }
-  delete $res->{'source'};
   delete $res->{'hdrmd5'};
   $res->{'mtime'} = $s[9];
   $res->{'size'} = $s[7];
@@ -2702,24 +2701,32 @@ sub publisheddir {
   } elsif (!defined($arch)) {
     my $prp_ext = "$projid/$repoid";
     $prp_ext =~ s/:/:\//g;
-    @res = listpublished("$extrepodir/$prp_ext", 1);
+    my $extrep = "$extrepodir/$prp_ext";
+    if ($BSConfig::publishredirect && $BSConfig::publishredirect->{"$projid/$repoid"}) {
+      $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
+    }
+    @res = listpublished($extrep, 1);
   } else {
     my $prp_ext = "$projid/$repoid";
     $prp_ext =~ s/:/:\//g;
-    return publishedfile($cgi, $projid, $repoid, undef, $arch) if -f "$extrepodir/$prp_ext/$arch";
+    my $extrep = "$extrepodir/$prp_ext";
+    if ($BSConfig::publishredirect && $BSConfig::publishredirect->{"$projid/$repoid"}) {
+      $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
+    }
+    return publishedfile($cgi, $projid, $repoid, undef, $arch) if -f "$extrep/$arch";
     if ($cgi->{'view'} eq 'ymp') {
       my $binaryname = $arch;
       my $binary;
-      my @archs = ls("$extrepodir/$prp_ext");
+      my @archs = ls($extrep);
       for my $a (@archs) {
-	next unless -d "$extrepodir/$prp_ext/$a";
-	$binary = findympbinary("$extrepodir/$prp_ext/$a", $binaryname);
+	next unless -d "$extrep/$a";
+	$binary = findympbinary("$extrep/$a", $binaryname);
 	last if $binary;
       }
-      $binary ||= "$extrepodir/$prp_ext/$binaryname";
+      $binary ||= "$extrep/$binaryname";
       return makeymp($projid, $repoid, $binary);
     }
-    @res = ls("$extrepodir/$prp_ext/$arch");
+    @res = ls("$extrep/$arch");
   }
   @res = sort @res;
   @res = map {{'name' => $_}} @res;
@@ -2843,23 +2850,27 @@ sub publishedfile {
   my ($cgi, $projid, $repoid, $arch, $filename, $subfilename) = @_;
   $filename .= "/$subfilename" if defined $subfilename;
   my $prp_ext = "$projid/$repoid";
-  $prp_ext .= "/$arch" if defined $arch;
   $prp_ext =~ s/:/:\//g;
-  if (-d "$extrepodir/$prp_ext/$filename") {
+  my $extrep = "$extrepodir/$prp_ext";
+  if ($BSConfig::publishredirect && $BSConfig::publishredirect->{"$projid/$repoid"}) {
+    $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
+  }
+  $extrep .= "/$arch" if defined $arch;
+  if (-d "$extrep/$filename") {
     return publisheddir($cgi, $projid, $repoid, "$arch/$filename");
   }
   if ($cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
-    return makeymp($projid, $repoid, "$extrepodir/$prp_ext/$filename");
+    return makeymp($projid, $repoid, "$extrep/$filename");
   }
-  die("no such file\n") unless -f "$extrepodir/$prp_ext/$filename";
+  die("no such file\n") unless -f "$extrep/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {
-    return fileinfo($cgi, "$extrepodir/$prp_ext/$filename", $filename);
+    return fileinfo($cgi, "$extrep/$filename", $filename);
   }
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $filename =~ /\.rpm$/;
   $type = 'application/x-debian-package' if $filename =~ /\.deb$/;
   $type = 'text/xml' if $filename=~ /\.xml$/;
-  BSServer::reply_file("$extrepodir/$prp_ext/$filename", "Content-Type: $type");
+  BSServer::reply_file("$extrep/$filename", "Content-Type: $type");
   return undef;
 }
 

@@ -368,6 +368,7 @@ our $fileinfo = [
 	'version',
 	'release',
 	'arch',
+	'source',
 	'summary',
 	'description',
 	'size',
