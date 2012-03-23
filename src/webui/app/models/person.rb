@@ -221,10 +221,16 @@ class Person < ActiveXML::Base
   def has_role?(role, project, package = nil)
     if package
       package = Package.find_cached(:project => project, :package => package) if package.class == String
-      return true if package.user_has_role?(login, role)
+      if package && package.user_has_role?(login, role)
+        return true
+      end
     end
     project = Project.find_cached(project) if project.class == String
-    return project.user_has_role?(login, role)
+    if project
+      return project.user_has_role?(login, role)
+    else
+      return false
+    end
   end
 
   def self.list(prefix=nil)
