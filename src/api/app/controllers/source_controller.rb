@@ -1554,12 +1554,17 @@ class SourceController < ApplicationController
     # create patchinfo package
     pkg = nil
     if DbPackage.exists_by_project_and_name( params[:project], pkg_name )
+      pkg = DbPackage.get_by_project_and_name params[:project], pkg_name
       unless params[:force]
-        render_error :status => 400, :errorcode => "patchinfo_file_exists",
-          :message => "createpatchinfo command: the patchinfo file exists already. Either use force=1 to re-create it or updatepatchinfo for updating."
+        if pkg.db_package_kinds.find_by_kind 'patchinfo'
+          render_error :status => 400, :errorcode => "patchinfo_file_exists",
+            :message => "createpatchinfo command: the patchinfo #{pkg_name} exists already. Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating."
+        else
+          render_error :status => 400, :errorcode => "package_already_exists",
+            :message => "createpatchinfo command: the package #{pkg_name} exists already, but is  no patchinfo. Please create a new package instead."
+        end
         return
       end
-      pkg = DbPackage.get_by_project_and_name params[:project], pkg_name
     else
       prj = DbProject.get_by_name( params[:project] )
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")

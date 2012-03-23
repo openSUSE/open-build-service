@@ -1363,6 +1363,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo"
     assert_response :success
+    post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&name=pack1"
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "package_already_exists" }
     post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo"
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "patchinfo_file_exists" }
