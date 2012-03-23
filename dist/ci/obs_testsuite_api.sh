@@ -12,8 +12,8 @@
 # Description:
 #   OBS API testsuite on git master branch.
 #
-#   Updates source code repository and sets up a working environment for all
-#   further tasks. Runs unit and integration tests generated coverage reports.
+#   Updates source code repository and runs unit and integration tests. It also
+#   generates coverage reports.
 #
 # Source Code Management:
 #   Git:
@@ -31,9 +31,6 @@
 #     Command: sh dist/ci/obs_testsuite_api.sh
 #
 # Post Build Actions:
-#   Archive the artifacts:
-#     Files to archive: **/*
-#     Discard all but the last successful/stable artifact to save disk space: 1
 #   Publish JUnit test result report:
 #     Test report XMLs: src/api/results/*.xml
 #   Publish Rails Notes report: 1

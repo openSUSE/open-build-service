@@ -12,16 +12,21 @@
 # Description:
 #   OBS WebUI testsuite on git master branch.
 #
-#   Runs unit and integration tests, generated coverage reports.
+#   Updates source code repository and runs unit and integration tests. It also
+#   generates coverage reports.
+#
+# Source Code Management:
+#   Git:
+#     Repositories: git://github.com/openSUSE/open-build-service.git
+#     Branches to build: master
+#     Repository browser: githubweb
+#       URL: https://github.com/openSUSE/open-build-service
 #
 # Build Triggers:
-#   Build after other projects are built:
-#     Project names: obs_testsuite_api
+#   Poll SCM:
+#     Schedule: */5 * * * *
 #
 # Build:
-#   Copy artifacts from another project:
-#     Project name: obs_testsuite_api
-#     Artifacts to copy: **/*
 #   Execute shell:
 #     Command: sh dist/ci/obs_testsuite_webui.sh
 #
