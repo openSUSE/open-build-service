@@ -63,7 +63,7 @@ File.open("#{RAILS_ROOT}/../backend/BSConfig.pm.template") do |template|
 end
 file.close
 
-%w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
+%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
   FileUtils.symlink("#{RAILS_ROOT}/../backend/#{srv}", "#{RAILS_ROOT}/tmp/backend_config/#{srv}")
   unless system("cd #{RAILS_ROOT}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
     puts "ERROR: syntax broken of #{srv}"
@@ -184,6 +184,7 @@ while true
   break
 end
 
+
 Suse::Backend.put( '/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
 Suse::Backend.put( '/source/BaseDistro/_meta', DbProject.find_by_name('BaseDistro').to_axml)
 Suse::Backend.put( '/source/BaseDistro/_config', "# Empty project config" )
@@ -287,9 +288,13 @@ Suse::Backend.put( '/source/c%2b%2b/_meta', DbProject.find_by_name('c++').to_axm
 # inject broken requests
 system("mkdir -p #{RAILS_ROOT}/tmp/backend_data/requests")
 system("echo 1 > #{RAILS_ROOT}/tmp/backend_data/requests/.nextid")
+
 system("cp #{RAILS_ROOT}/test/fixtures/backend/request/missing_source_project #{RAILS_ROOT}/tmp/backend_data/requests/997")
 system("cp #{RAILS_ROOT}/test/fixtures/backend/request/missing_target_project #{RAILS_ROOT}/tmp/backend_data/requests/998")
 system("cp #{RAILS_ROOT}/test/fixtures/backend/request/missing_projects #{RAILS_ROOT}/tmp/backend_data/requests/999")
+system("cp #{RAILS_ROOT}/test/fixtures/backend/request/submit_from_home_project #{RAILS_ROOT}/tmp/backend_data/requests/1000")
+
+system("cp #{RAILS_ROOT}/test/fixtures/backend/request/submit_from_home_project #{RAILS_ROOT}/tmp/backend_data/requests/1000")
 
 # manual placing of files
 FileUtils.cp("#{RAILS_ROOT}/test/fixtures/backend/source/_pubkey", "#{RAILS_ROOT}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
@@ -363,6 +368,14 @@ IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched 
    # just for waiting until scheduler finishes
    io.each {|line| logger.debug line.strip unless line.blank? }
 end
+
+# reindex all requests
+IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_admin --update-request-db") do |io|
+   # just for waiting until scheduler finishes
+   io.each {|line| logger.debug line.strip unless line.blank? }
+end
+
+
 
 # copy build result 
 Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )

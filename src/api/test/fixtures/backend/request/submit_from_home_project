@@ -1,0 +1,8 @@
+<request id="1000">
+  <action type="submit">
+    <source project="home:Iggy:branches:kde4" package="BranchPack" rev="1"/>
+    <target project="Apache" package="BranchPack"/>
+  </action>
+  <state name="new" who="Iggy" when="2012-03-23T11:21:22"/>
+  <description>test home project shortening</description>
+</request>
