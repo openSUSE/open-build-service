@@ -22,8 +22,8 @@
 #     Repository browser: githubweb
 #       URL: https://github.com/openSUSE/open-build-service
 #     Excluded Regions:
-#       src/webui*
-#       docs
+#       src/webui/.*
+#       docs/.*
 #
 # Build Triggers:
 #   Poll SCM:
