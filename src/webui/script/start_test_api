@@ -49,7 +49,7 @@ while true
           # OK
         else
           puts "API did not response nicely"
-          Process.kill "INT", -frontend_out.pid
+          Process.kill "INT", frontend_out.pid
           frontend_out.close
           frontend_out = nil
           frontend.join
@@ -76,7 +76,7 @@ while !dienow do
 end
 
 puts "kill #{frontend_out.pid}"
-Process.kill "INT", -frontend_out.pid
+Process.kill "INT", frontend_out.pid
 
 frontend_out.close
 frontend_out = nil
