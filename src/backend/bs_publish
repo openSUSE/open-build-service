@@ -1472,7 +1472,7 @@ publishprog_done:
     writestr("$extrep/.directory.yast", "$extrep/directory.yast", join('', @d));
   }
 
-  if (keys(%$repotype) != 1 || !$repotype{'none'}) {
+  if (keys(%repotype) != 1 || !$repotype{'none'}) {
     # push to stageserver
     if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/ && defined($prp_ext)) {
       print "    running rsync to $1 at ".localtime(time)."\n";
