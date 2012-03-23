@@ -691,9 +691,11 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def wait_for_publisher
+    Rails.logger.debug "START WAITING FOR PUBLISHER"
     counter = 0
     while counter < 100
-      events = Dir.open("#{RAILS_ROOT}/tmp/backend_data/events/publish")
+      events = Dir.entries("#{RAILS_ROOT}/tmp/backend_data/events/publish")
+      Rails.logger.debug "EVENTS #{events.inspect}"
       #  3 => ".", ".." and ".ping"
       break unless events.count > 3
       sleep 0.5
@@ -705,11 +707,16 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def run_scheduler( arch )
+    Rails.logger.debug "RUN_SCHEDULER #{arch}"
     perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
     IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
        # just for waiting until scheduler finishes
-       io.each {|line| line.strip.chomp unless line.blank? }
+       io.each {|line| 
+	 next if line.blank? 
+	 Rails.logger.debug line.strip.chomp
+       }
     end
+    Rails.logger.debug "SCHEDULER #{arch} is done"
   end
 
   def test_manual_branch_with_extend_names
