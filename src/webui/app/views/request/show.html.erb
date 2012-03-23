@@ -26,7 +26,7 @@
       <div class="grid_7 alpha omega">
         <h3><%= @pagetitle %> (<%= @state %>)</h3>
         <% if @req.value(:description) %>
-          <% if @rev.value(:description).empty? %>
+          <% if @req.value(:description).empty? %>
             <p><i>No request description</i></p>
           <% else %>
             <p id="expandable_comment"><%= format_comment(@req.value(:description)) %></p>
