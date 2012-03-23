@@ -5546,7 +5546,7 @@ sub search_published_binary_id {
   $binarydb->{'fetch'} = \&binary_key_to_data;
   $binarydb->{'cheapfetch'} = 1;
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
-  my $rootnode = BSXPathKeys::node($binarydb, '', $limit * 10);
+  my $rootnode = BSXPathKeys::node($binarydb, '', $limit < 10 ? 1000 : $limit * 100);
   my $data = BSXPath::match($rootnode, $match) || [];
   # epoch?
   @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
@@ -5566,7 +5566,7 @@ sub search_published_pattern_id {
   $patterndb->{'noindex'} = {'project' => 1, 'repository' => 1};
   $patterndb->{'fetch'} = \&pattern_key_to_data;
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
-  my $rootnode = BSXPathKeys::node($patterndb, '', $limit * 10);
+  my $rootnode = BSXPathKeys::node($patterndb, '', $limit < 10 ? 1000 : $limit * 100);
   my $data = BSXPath::match($rootnode, $match) || [];
   my $res = {};
   $res->{'matches'} = @$data;
