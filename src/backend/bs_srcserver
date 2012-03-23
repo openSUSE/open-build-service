@@ -3996,6 +3996,7 @@ sub linkdiff {
     'oproject' => $linkinfo->{'project'},
     'opackage' => $linkinfo->{'package'},
     'orev' => $linkinfo->{'srcmd5'},
+    'missingok' => $linkinfo->{'missingok'},
     'rev' => $rev->{'srcmd5'},
   }, $projid, $packid);
 }
