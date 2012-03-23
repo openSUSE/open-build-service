@@ -150,6 +150,7 @@ class ProjectController < ApplicationController
       begin
         @project = find_cached(Project, @namespace)
         if @namespace == "home:#{session[:login]}" and not @project
+          flash.delete(:success) # discard in R3 afaik
           flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
                              " descriptive data and press the 'Create Project' button."
           @project_name = @namespace
@@ -1508,7 +1509,7 @@ class ProjectController < ApplicationController
         # checks if the user is registered yet
         flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
-        redirect_to :action => :new, :project => "home:" + session[:login] and return
+        redirect_to :action => :new, :ns => "home:" + session[:login] and return
       end
       # remove automatically if a user watches a removed project
       if @user and @user.watches? params[:project]

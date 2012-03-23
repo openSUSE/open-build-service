@@ -119,7 +119,7 @@ class UserController < ApplicationController
     authenticate_form_auth
 
     flash[:success] = "Your buildservice account is now active."
-    redirect_to :controller => :project, :action => :new, :project => "home:#{login}"
+    redirect_to :controller => :project, :action => :new, :ns => "home:#{login}"
   end
 
   def change_password
