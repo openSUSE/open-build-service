@@ -203,4 +203,44 @@ Aha bnc#123456\n
     assert_response :success
   end
 
+  def test_commit_file_to_linked_package
+    changes = "-------------------------------------------------------------------\n
+Blah bnc#13\n
+-------------------------------------------------------------------\n
+Blah bnc#14\n
+-------------------------------------------------------------------\n
+Blubber bnc#15\n
+"
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/BaseDistro/pack1", :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro"
+    assert_response :success
+    put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
+    assert_response :success
+    post "/source/home:Iggy:branches:BaseDistro/pack1", :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro", :target_package => "pack_new"
+    assert_response :success
+    changes += "-------------------------------------------------------------------\n
+Aha bnc#123456\n
+"
+    changes.gsub!(/Blubber/, 'Blabber') # leads to changed
+    changes.gsub!(/bnc#14/, '') # leads to removed
+    put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository", changes
+    assert_response :success
+    post "/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
+    assert_response :success
+
+    get "/source/home:Iggy:branches:BaseDistro/pack1?view=issues"
+    assert_response :success
+    get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+
+    #cleanup
+    delete "/source/home:Iggy:branches:BaseDistro"
+    assert_response :success
+  end
+
 end
