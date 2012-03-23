@@ -7,6 +7,16 @@ Thread.abort_on_exception = true
 frontend_out = nil
 logger = RAILS_DEFAULT_LOGGER
 
+begin
+  Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
+    http.get("/admin/killme")
+  end
+  # if we reach this, the old API has gone away - now wait for it to lay down
+  sleep 2
+rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Timeout::Error
+  # all is good, no API no cry
+end
+
 frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
   frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; exec ./script/server -e test -p #{FRONTEND_PORT} 2>&1")

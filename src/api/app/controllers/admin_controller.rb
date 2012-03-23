@@ -1,6 +1,8 @@
 class AdminController < ApplicationController
   layout "rbac"
    
+  skip_before_filter :extract_user, :only => [:killme]
+
   def list_blacklist_tags
     
     @tags = BlacklistTag.find(:all)  
@@ -207,5 +209,14 @@ class AdminController < ApplicationController
     redirect_to :action => 'list_tags'
   end
   
+  # we need a way so the API sings killing me softly
+  # of course we don't want to have this action visible 
+  hide_action :killme unless Rails.env.test?
+  def killme
+    if Rails.env.test?
+      Process.kill('INT', Process.pid)
+    end
+    render :nothing => true and return
+  end
   
 end
