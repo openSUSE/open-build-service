@@ -80,7 +80,15 @@ class BuildServicePage < WebPage
     @driver[:xpath => "//div[@id='login-form']
       //input[@name='commit'][@value='Login']"].click
 
-    if expect == :success
+    if expect == :newhome
+      @user = user
+      validate { user_is_logged? }
+      assert_equal flash_message, "You are logged in now"       
+      assert_equal flash_message_type, :info 
+
+      $page = NewProjectPage.new_ready @driver
+
+    elsif expect == :success
       @user = user
       
       validate { user_is_logged? }      

@@ -63,8 +63,37 @@ require File.expand_path File.dirname(__FILE__) + '/tests/TC21__DeleteProject.rb
 $data = Hash.new
 $data[:report_path] = ENV["OBS_REPORT_DIR"] || 'results' + Time.now.strftime("AcceptanceTest__%m-%d-%Y/")
 
-PORT=3199
+dienow = false
+trap("INT") { dienow = true }
+trap("TERM") { dienow = true }
+trap("HUP") { dienow = true }
 webui_out = nil
+frontend = nil
+
+killthread = Thread.new do
+  while !dienow do
+    sleep 0.2
+  end
+
+  if webui_out
+    puts "kill #{webui_out.pid}"
+    Process.kill "INT", webui_out.pid
+  end
+end
+
+at_exit do
+  if webui_out
+    puts "kill -INT #{webui_out.pid}"
+    Process.kill "INT", webui_out.pid
+
+    webui_out.close
+    webui_out = nil
+  end
+  frontend.join if frontend
+end
+
+PORT=3199
+
 frontend = Thread.new do
   puts "Starting test webui at port #{PORT} ..."
   webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{PORT} 2>&1")
@@ -96,7 +125,7 @@ while true
           # OK
         else
           puts "Webui did not response nicely"
-          Process.kill "INT", -webui_out.pid
+          Process.kill "INT", webui_out.pid
           webui_out.close
           webui_out = nil
           frontend.join
@@ -133,18 +162,18 @@ $data[:invalid_user][:password] = 'dasdsad'
 
 
 # Prepare folders and variables needed for the run
-Dir.mkdir $data[:report_path]
+Dir.mkdir $data[:report_path] unless Dir.exists? $data[:report_path]
 report = HtmlReport.new
 fail_details = String.new
 passed  = 0
 failed  = 0
 skipped = 0
 TestRunner.add_all
-#TestRunner.set_limitto ["wrong_number_of_values_for_package_attribute", "search_for_home_projects"]
+TestRunner.set_limitto ["login_as_user"]
 
 # Run the test
-display = Headless.new
-display.start
+#display = Headless.new
+display.start if display
 $page = WebPage.new WebDriver.for :firefox #, :remote , "http://localhost:5910'
 time_started = Time.now
 TestRunner.run do |test|
@@ -173,7 +202,7 @@ TestRunner.run do |test|
 end
 time_ended = Time.now
 $page.close
-display.destroy
+display.destroy if display
 
 # Put success rate statistics
 lp, lf, ls = distribute passed, failed, skipped, 59
@@ -203,11 +232,4 @@ puts ""
 report.save $data[:report_path] + "report.html"
 puts fail_details unless ARGV.include? "--no-details"
 gets if ARGV.include? "--pause-on-exit"
-
-puts "kill #{webui_out.pid}"
-Process.kill "INT", -webui_out.pid
-
-webui_out.close
-webui_out = nil
-frontend.join
 
