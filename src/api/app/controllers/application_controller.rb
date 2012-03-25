@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
   end
 
   def restrict_admin_pages
-     if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
+     if params[:controller] =~ /^active_rbac/
         return require_admin
      end
   end
