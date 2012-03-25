@@ -119,7 +119,8 @@ while true
     Net::HTTP.start("localhost", PORT) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
-      res = http.get('/monitor')
+      # we need to ask for something that is available without login _and_ starts api and backend too
+      res = http.get('/main/startme')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
           # OK
@@ -172,7 +173,7 @@ TestRunner.add_all
 TestRunner.set_limitto ["login_as_user"]
 
 # Run the test
-#display = Headless.new
+display = Headless.new
 display.start if display
 $page = WebPage.new WebDriver.for :firefox #, :remote , "http://localhost:5910'
 time_started = Time.now

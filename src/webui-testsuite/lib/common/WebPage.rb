@@ -97,6 +97,13 @@ class WebPage
   # scrolling don't affect the screenshot.
   #
   def save_screenshot path
+    begin
+      @driver.save_screenshot path
+      return
+    rescue Exception => e
+      # the web driver is buggy in cases, so sleep and try again
+      sleep 2
+    end
     @driver.save_screenshot path
   end
   

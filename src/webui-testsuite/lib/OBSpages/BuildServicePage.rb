@@ -80,21 +80,18 @@ class BuildServicePage < WebPage
     @driver[:xpath => "//div[@id='login-form']
       //input[@name='commit'][@value='Login']"].click
 
-    if expect == :newhome
-      @user = user
-      validate { user_is_logged? }
-      assert_equal flash_message, "You are logged in now"       
-      assert_equal flash_message_type, :info 
-
-      $page = NewProjectPage.new_ready @driver
-
-    elsif expect == :success
+    if expect == :success
       @user = user
       
       validate { user_is_logged? }      
-      assert_equal flash_message, "You are logged in now" 
-      assert_equal flash_message_type, :info 
-      validate_page
+      # now this is tricky - at the start of the test suite the home projects do not exist
+      if flash_message.include? "Your home project doesn't exist yet"
+	 $page = NewProjectPage.new_ready @driver
+      else
+         assert_equal flash_message, "You are logged in now" 
+         assert_equal flash_message_type, :info 
+         validate_page
+      end
     else
       assert_equal flash_message, "Authentication failed"
       assert_equal flash_message_type, :alert 
