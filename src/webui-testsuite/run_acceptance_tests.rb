@@ -36,28 +36,9 @@ end
 
 # require all libs and test cases
 require File.expand_path File.dirname(__FILE__) + '/lib/AcceptanceTest.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC01__Login.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC02__Home.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC03__CreateProject.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC04__EditProject.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC05__AddProjectAttributes.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC06__DeleteProjectAttributes.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC07__CreatePackage.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC08__AddPackageSources.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC09__EditPackageSources.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC10__BranchPackage.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC11__EditPackage.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC12__AddPackageAttributes.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC13__DeletePackageAttributes.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC14__Search.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC15__AllProjectsList.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC16__AddProjectUsers.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC17__EditProjectUsers.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC18__AddPackageUsers.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC19__EditPackageUsers.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC20__DeletePackage.rb'
-require File.expand_path File.dirname(__FILE__) + '/tests/TC21__DeleteProject.rb'
-
+Dir.glob(File.dirname(__FILE__) + "/tests/T*.rb").sort.each do |file|
+  require File.expand_path file
+end
 
 # Setup all global settings
 $data = Hash.new
@@ -170,7 +151,8 @@ passed  = 0
 failed  = 0
 skipped = 0
 TestRunner.add_all
-TestRunner.set_limitto ["login_as_user"]
+TestRunner.set_limitto ["login_as_user", "login_as_second_user", "login_as_admin", "add_all_admin_not_permited_project_attributes",
+	"login_invalid_entry", "login_empty_entry", "login_from_search"]
 
 # Run the test
 display = Headless.new

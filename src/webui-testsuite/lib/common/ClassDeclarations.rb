@@ -14,6 +14,7 @@ class WebPage;   end
         class MyRequestsPage     < BuildServicePage; end
         class MyWorkPage         < BuildServicePage; end
         class RequestDetailsPage < BuildServicePage; end
+	class InterconnectPage   < BuildServicePage; end
         class ProjectPage        < BuildServicePage; end 
             class ProjectUsersPage        < ProjectPage; end
             class ProjectAddUserPage      < ProjectPage; end

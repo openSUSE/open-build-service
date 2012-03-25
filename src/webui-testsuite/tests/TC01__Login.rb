@@ -20,7 +20,7 @@ class TC01__Login < TestCase
   test :login_as_admin do
   
     navigate_to MainPage, :user => :none
-    login_as $data[:admin]
+    login_as $data[:admin], :admin
     logout
   end
 

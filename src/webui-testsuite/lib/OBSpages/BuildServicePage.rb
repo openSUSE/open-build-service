@@ -69,7 +69,7 @@ class BuildServicePage < WebPage
   # @param [:success, :error] expect the expected result from the action
   #
   def login_as user, expect = :success
-    assert([:success,:error].include? expect)
+    assert([:success,:error,:admin].include? expect)
     validate { !user_is_logged? }
 
     @driver[:id => "login-trigger"].click
@@ -80,18 +80,15 @@ class BuildServicePage < WebPage
     @driver[:xpath => "//div[@id='login-form']
       //input[@name='commit'][@value='Login']"].click
 
-    if expect == :success
+    if expect == :admin || expect == :success
       @user = user
       
       validate { user_is_logged? }      
-      # now this is tricky - at the start of the test suite the home projects do not exist
-      if flash_message.include? "Your home project doesn't exist yet"
-	 $page = NewProjectPage.new_ready @driver
-      else
-         assert_equal flash_message, "You are logged in now" 
-         assert_equal flash_message_type, :info 
-         validate_page
+      if expect == :admin && is_interconnect_page?
+	 $page = InterconnectPage.new_ready @driver
+	 return
       end
+      validate_login_success
     else
       assert_equal flash_message, "Authentication failed"
       assert_equal flash_message_type, :alert 
@@ -100,7 +97,24 @@ class BuildServicePage < WebPage
     end
   end
   
-  
+  # helper function so LoginPage can check if the login ended on the new home project page
+  def validate_login_success
+    if flash_message.include?("Your home project doesn't exist yet")
+       $page = NewProjectPage.new_ready @driver
+    else
+       assert_equal flash_message, "You are logged in now"
+       assert_equal flash_message_type, :info
+       validate_page
+    end
+  end
+
+  # checks if the admin ended on the interconnect setup page
+  def is_interconnect_page?
+    x = @driver.find_element :xpath =>
+            "//div[@id='content']/div/h2"
+    return x.text == "Connect a remote Open Build Service instance"
+  end
+
   # ============================================================================
   # Logs out the current user. In case of MainPage updates
   # current object and validates state of the displayed page.
