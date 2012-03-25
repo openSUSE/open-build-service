@@ -119,7 +119,7 @@ while true
     Net::HTTP.start("localhost", PORT) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
-      res = http.get('/')
+      res = http.get('/monitor')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
           # OK
@@ -162,7 +162,7 @@ $data[:invalid_user][:password] = 'dasdsad'
 
 
 # Prepare folders and variables needed for the run
-Dir.mkdir $data[:report_path] unless Dir.exists? $data[:report_path]
+Dir.mkdir $data[:report_path] unless File.exists? $data[:report_path]
 report = HtmlReport.new
 fail_details = String.new
 passed  = 0
