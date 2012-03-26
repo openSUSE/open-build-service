@@ -187,7 +187,9 @@ class ApplicationController < ActionController::Base
               @user_permissions = Suse::Permission.new( @http_user )
               return true
             end
-          end
+	  else
+	    logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
+	  end
 
           if login
             render_error :message => "User not yet registered", :status => 403,
