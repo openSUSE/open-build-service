@@ -9,6 +9,40 @@ class ConfigurationController < ApplicationController
   def connect_instance
   end
 
+  def save_instance
+    #store project
+    required_parameters :name, :title, :description, :remoteurl
+
+    if params[:name].blank? || !valid_project_name?( params[:name] )
+      flash[:error] = "Invalid project name '#{params[:name]}'."
+      redirect_to :action => :connect_instance and return
+    end
+
+    project_name = params[:name].strip
+
+    if Project.exists? project_name
+      flash[:error] = "Project '#{project_name}' already exists."
+      redirect_to :action => :connect_instance and return
+    end
+
+    @project = Project.new(:name => project_name)
+    @project.title.text = params[:title]
+    @project.description.text = params[:description]
+    @project.set_remoteurl(params[:remoteurl])
+
+    if @project.save
+      if Project.exists? "home:#{@user.login.to_s}"
+        flash[:note] = "Project '#{project_name}' was created successfully"
+        redirect_to :action => 'show', :project => project_name and return
+      else
+        flash[:note] = "Project '#{project_name}' was created successfully. Next step is create your home project"
+        redirect_to :controller => :project, :action => :new, :ns => "home:#{@user.login.to_s}"
+      end
+    else
+      flash[:error] = "Failed to save project '#{@project}'"
+    end
+  end
+
   def update_configuration
     valid_http_methods :post
     if ! (params[:title] || params[:target_project])

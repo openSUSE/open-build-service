@@ -39,7 +39,7 @@ function useMeeGo(){
 </div>
 
 <h3>Add custom OBS instance</h3>
-<% form_tag    :controller => "project", :action => :save_new do -%>
+<% form_tag  :action => :save_instance do -%>
   <table id="instance">
     <tr>
       <td><strong>Local Project Name:</strong></td>
@@ -60,3 +60,4 @@ function useMeeGo(){
   </table>
   <p><%= submit_tag %></p>
 <% end -%>
+

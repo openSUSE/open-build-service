@@ -152,9 +152,7 @@ class ProjectController < ApplicationController
       begin
         @project = find_cached(Project, @namespace)
         if @namespace == "home:#{session[:login]}" and not @project
-          flash.delete(:success) # discard in R3 afaik
-          flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
-                             " descriptive data and press the 'Create Project' button."
+          @pagetitle = "Your home project doesn't exist yet. You can create it now"
           @project_name = @namespace
         end
       rescue

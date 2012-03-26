@@ -1,5 +1,9 @@
-<% @pagetitle = "Create New Project"
-   @pagetitle = "Create New Subproject" if @namespace %>
+<% 
+unless @pagetitle
+   @pagetitle = "Create New Project"
+   @pagetitle = "Create New Subproject" if @namespace 
+end
+%>
 <% project_bread_crumb 'New Project' %>
 
 <h3><%= @pagetitle %></h3>
