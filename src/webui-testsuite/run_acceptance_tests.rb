@@ -241,10 +241,10 @@ tests = [ "login_as_user",
           "remove_user_real_name", 
           "real_name_stays_changed",
           "edit_project_user_add_all_roles"]
-TestRunner.set_limitto ["spider_anonymously"]
+#TestRunner.set_limitto ["spider_anonymously"]
 
 # Run the test
-#display = Headless.new
+display = Headless.new
 display.start if display
 driver = WebDriver.for :firefox #, :remote , "http://localhost:5910'
 #driver.manage.timeouts.implicit_wait = 3 # seconds
