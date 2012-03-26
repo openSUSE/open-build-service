@@ -12,7 +12,7 @@ class ProjectOverviewPage < ProjectPage
     ps = @driver.page_source
     validate { ps.include? "Information" }
     validate { ps.include? "Actions" }
-    validate { ps.include? "Build Status" }
+    validate { ps.include? "Build Results" }
   end
 
 

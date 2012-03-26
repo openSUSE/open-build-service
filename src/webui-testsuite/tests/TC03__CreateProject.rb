@@ -5,7 +5,10 @@ class TC03__CreateProject < TestCase
   depend_on :login_as_user
   
     navigate_to MainPage, :user => $data[:user1]
-    # by now this is done through login
+    open_new_project
+    assert creating_home_project?
+    create_project(:title => "HomeProject Title",
+                   :description => "Test generated empty home project.")
   end
   
   
@@ -13,7 +16,11 @@ class TC03__CreateProject < TestCase
   depend_on :login_as_second_user
   
     navigate_to MainPage, :user => $data[:user2]
-    # by now this is done through login
+    open_new_project
+    assert creating_home_project?
+    create_project(
+                   :title => "HomeProject Title",
+                   :description => "Test generated empty home project for second user.")
   end
 
 
@@ -35,7 +42,7 @@ class TC03__CreateProject < TestCase
   depend_on :login_as_admin
   
     navigate_to MainPage, :user => $data[:admin]
-    # by now this is done through login
+    # now done in login as it involves interconnect
   end
 
   

@@ -3,7 +3,7 @@ class TC02__Home < TestCase
   
   test :change_real_name_for_user do
   depend_on :login_as_user
-  
+    verify_login $data[:user1]
     navigate_to MainPage, :user => $data[:user1]
     open_home
     change_user_real_name "New imaginary name " + Time.now.to_i.to_s
@@ -13,6 +13,7 @@ class TC02__Home < TestCase
   test :remove_user_real_name do
   depend_on :login_as_user
   
+    verify_login $data[:user1]
     navigate_to MainPage, :user => $data[:user1]
     open_home
     change_user_real_name ""
@@ -22,6 +23,7 @@ class TC02__Home < TestCase
   test :real_name_stays_changed do
   depend_on :login_as_user
   
+    verify_login $data[:user1]
     navigate_to MainPage, :user => $data[:user1]
     open_home
     new_name = "New imaginary name " + Time.now.to_i.to_s

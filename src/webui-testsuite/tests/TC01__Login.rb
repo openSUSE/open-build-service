@@ -1,10 +1,9 @@
 class TC01__Login < TestCase
 
-
   test :login_as_user do
   
     navigate_to MainPage, :user => :none
-    login_as $data[:user1]
+    login_as $data[:user2]
     logout
   end
 
@@ -21,6 +20,10 @@ class TC01__Login < TestCase
   
     navigate_to MainPage, :user => :none
     login_as $data[:admin], :admin
+    
+    # connect to OBS
+    $page.interconnect
+    
     logout
   end
 

@@ -42,7 +42,11 @@ end
 
 # Setup all global settings
 $data = Hash.new
-$data[:report_path] = ENV["OBS_REPORT_DIR"] || 'results' + Time.now.strftime("AcceptanceTest__%m-%d-%Y/")
+$data[:report_path] = ENV["OBS_REPORT_DIR"]
+unless $data[:report_path]
+  dir = $data[:report_path] = 'results' + Time.now.strftime("AcceptanceTest__%m-%d-%Y/")
+  FileUtils.rm_r(dir) if File.exists?(dir)
+end
 
 dienow = false
 trap("INT") { dienow = true }
@@ -66,7 +70,7 @@ at_exit do
   if webui_out
     puts "kill -INT #{webui_out.pid}"
     Process.kill "INT", webui_out.pid
-
+    
     webui_out.close
     webui_out = nil
   end
@@ -151,8 +155,31 @@ passed  = 0
 failed  = 0
 skipped = 0
 TestRunner.add_all
-TestRunner.set_limitto ["login_as_user", "login_as_second_user", "login_as_admin", "add_all_admin_not_permited_project_attributes",
-	"login_invalid_entry", "login_empty_entry", "login_from_search"]
+tests = ["login_as_user", 
+         "login_as_second_user", 
+         "login_as_admin", 
+         "add_all_admin_not_permited_project_attributes",
+         "add_all_admin_not_permited_package_attributes",
+         "add_all_permited_project_attributes_for_user",
+         "login_invalid_entry", 
+         "login_empty_entry", 
+         "create_global_project_as_user",
+         "search_non_existing_by_name",
+         "search_non_existing_by_title",
+         "search_non_existing_by_description",
+         "search_non_existing_by_attributes",
+         "search_for_nothing",
+         "search_in_nothing",
+         "create_subproject_name_with_spaces",
+         "create_home_project_for_user",
+         "create_home_project_for_second_user",
+         "change_real_name_for_user",
+         "search_with_empty_text",
+         "create_home_project_for_admin",
+         "create_subproject_with_long_description",
+         "filter_non_existing",
+         "login_from_search"]
+TestRunner.set_limitto tests
 
 # Run the test
 display = Headless.new

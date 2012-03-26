@@ -36,12 +36,19 @@ class InterconnectPage < BuildServicePage
   
   
   def interconnect
-    @driver[:value => "build.openSUSE.org"].click
+    @driver[:xpath => "//input[@value='build.openSUSE.org']"].click
     
-    name = @driver.find_element("input[@name='name']") 
-    assert_equal name.value, "openSUSE.org"
+    name = @driver.find_element(:xpath => "//input[@name='name']")
+    assert_equal name.attribute("value"), "openSUSE.org"
 
-    page.commit
+    @driver[:xpath => "//input[@name='commit']"].click
+    assert_equal flash_message, "Project 'openSUSE.org' was created successfully. Next step is create your home project"
+    assert_equal flash_message_type, :info
+
+    $page = NewProjectPage.new_ready @driver
+    $page.create_project(:title => "HomeProject Title",
+                   :description => "Test generated empty home project for admin.")
+
   end
 
 

@@ -10,13 +10,16 @@ class NewProjectPage < BuildServicePage
   #
   def validate_page
     super
+    ps = @driver.page_source
     validate do
-      @driver.page_source.include?("Create New Subproject") or  
-      @driver.page_source.include?("Create New Project")
+      
+      ps.include?("Create New Subproject") ||
+      ps.include?("Create New Project") ||
+      ps.include?("Your home project doesn't exist yet. You can create it now")
     end
-    validate { @driver.page_source.include? "Project Name:" }
-    validate { @driver.page_source.include? "Title:" }
-    validate { @driver.page_source.include? "Description:" }
+    validate { ps.include? "Project Name:" }
+    validate { ps.include? "Title:" }
+    validate { ps.include? "Description:" }
     assert @url.start_with? $data[:url] + "/project/new"  # MOVE THIS
     validate { project_namespace == @namespace }
   end
@@ -102,7 +105,7 @@ class NewProjectPage < BuildServicePage
       validate { flash_message_type == :info }
       $page = ProjectOverviewPage.new_ready @driver
       new_project[:description] = "No description set" if new_project[:description].empty?
-      assert new_project[:description] == $page.project_description
+      assert CGI::escapeHTML(new_project[:description]) == $page.project_description
       current_user[:created_projects] << new_project[:namespace] + new_project[:name]
     elsif new_project[:expect] == :invalid_name
       validate { flash_message == "Invalid project name '#{new_project[:name]}'." }

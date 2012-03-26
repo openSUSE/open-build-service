@@ -43,7 +43,7 @@ class ProjectAttributesPage < ProjectPage
 			 "OBS:BranchTarget",
 			 "OBS:ScreenShots",
 		         "OBS:ProjectStatusPackageFailComment",
-			 "OBS:QualityCategory" ]
+			 "OBS:QualityCategory" ].sort
 
   def project_attributes
     attributes_table = @driver[:xpath => "//div[@id='content']//table"]
@@ -75,8 +75,8 @@ class ProjectAttributesPage < ProjectPage
     
     options = @driver.find_elements :xpath => xpath_options
     options_array = options.collect { |opt| opt.text }
-    puts options_array unless options_array == PROJECT_ATTRIBUTES
-    assert options_array == PROJECT_ATTRIBUTES
+    puts options_array.inspect unless options_array.sort == PROJECT_ATTRIBUTES
+    assert options_array.sort == PROJECT_ATTRIBUTES
     
     @driver[:xpath => xpath_options + "[text()='#{attribute[:name]}']"].click
     @driver[:id => "values"].clear

@@ -57,12 +57,15 @@ class LoginPage < BuildServicePage
     @driver[:xpath => "//div[@id='loginform']//input[@name='login']"].click
 
     if expect == :success
-      validate_login_success
+      assert_equal flash_message, "You are logged in now"
+      assert_equal flash_message_type, :info
+      $page = MainPage.new_ready @driver
     else expect == :error
       validate { flash_message == "Authentication failed" }
       validate { flash_message_type == :alert }
       validate_page
     end
+
   end
 
 

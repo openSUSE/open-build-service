@@ -86,9 +86,12 @@ class BuildServicePage < WebPage
       validate { user_is_logged? }      
       if expect == :admin && is_interconnect_page?
 	 $page = InterconnectPage.new_ready @driver
-	 return
+	 return :interconnect
       end
-      validate_login_success
+      assert_equal flash_message, "You are logged in now"
+      assert_equal flash_message_type, :info
+      validate_page
+      return :success
     else
       assert_equal flash_message, "Authentication failed"
       assert_equal flash_message_type, :alert 
@@ -97,22 +100,22 @@ class BuildServicePage < WebPage
     end
   end
   
-  # helper function so LoginPage can check if the login ended on the new home project page
-  def validate_login_success
-    if flash_message.include?("Your home project doesn't exist yet")
-       $page = NewProjectPage.new_ready @driver
-    else
-       assert_equal flash_message, "You are logged in now"
-       assert_equal flash_message_type, :info
-       validate_page
-    end
-  end
-
   # checks if the admin ended on the interconnect setup page
   def is_interconnect_page?
     x = @driver.find_element :xpath =>
             "//div[@id='content']/div/h2"
     return x.text == "Connect a remote Open Build Service instance"
+  end
+  
+  # ============================================================================
+  # logs in the user unless he's already in. Useful for tests to make sure the 
+  # correct user is logged in - :depends on works if it's working one by one in line
+  def verify_login user
+    cu = current_user
+    if cu != user[:login]
+      logout unless cu == :none
+      login_as user
+    end
   end
 
   # ============================================================================
