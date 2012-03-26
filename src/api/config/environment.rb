@@ -89,7 +89,7 @@ Rails::Initializer.run do |config|
 end
 
 # rake gems:install doesn't load initializers, load options manually if CONFIG is undefined
-require File.join(File.dirname(__FILE__), 'initializers', 'options') unless defined?(CONFIG)
+require File.join(File.dirname(__FILE__), 'initializers', '03_options') unless defined?(CONFIG)
 
 ActionController::Base.perform_caching = true
 ActiveRbac.controller_layout = "rbac"
