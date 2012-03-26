@@ -6,7 +6,7 @@
 <div class="grid_10 alpha">
   <div class="box show_left clearfix">
     <div class="grid_7 alpha omega">
-      <h3><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
+      <h3 id="project_title"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
       <%= render :partial => 'shared/description', :locals => {:description => @project.description.text} %>
     </div>
     <div class="grid_3 alpha omega">
