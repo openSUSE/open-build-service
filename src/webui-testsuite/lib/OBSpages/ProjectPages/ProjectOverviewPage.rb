@@ -79,7 +79,7 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #  
   def project_title
-    @driver[:xpath => "//div[@id='content']//h3"].text
+    @driver[:id => "project_title"].text
   end
   
   
@@ -89,7 +89,7 @@ class ProjectOverviewPage < ProjectPage
   # will probably get trimmed and stripped when displayed.
   #
   def project_description
-    @driver[:xpath => "//div[@id='content']//p"].text
+    @driver[:id => "description"].text
   end
   
   

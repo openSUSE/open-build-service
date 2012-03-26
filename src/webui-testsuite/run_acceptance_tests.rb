@@ -230,6 +230,8 @@ tests = [ "login_as_user",
           "edit_project_user_remove_all_roles",
           "delete_subproject",
           "delete_project_attribute_at_remote_project_as_user",
+          "create_home_project_package_for_user",
+          "change_home_project_title",
           "remove_user_real_name", 
           "real_name_stays_changed",
           "edit_project_user_add_all_roles"]

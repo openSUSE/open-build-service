@@ -107,5 +107,11 @@ class WebPage
     @driver.save_screenshot path
   end
   
-  
+  # ============================================================================
+  # Saves the page source of the current web-page
+  # @param [String] path the resulting file
+  def save_source_html path
+    File.open(path, "w").write(@driver.page_source)
+  end
+
 end

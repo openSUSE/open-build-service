@@ -95,7 +95,7 @@ class TestCase
       error.backtrace.each { |line| @message += line + "\n" }
       @screenshot = $data[:report_path] + "#{@name}.png"
       $page.save_screenshot @screenshot
-      File.open($data[:report_path] + "#{@name}.source.html", "w").write($page.page_source)
+      $page.save_source_html $data[:report_path] + "#{@name}.source.html"
     else
       @status = :pass
       @message = "Cheers!"

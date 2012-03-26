@@ -12,7 +12,7 @@ class PackageOverviewPage < PackagePage
     assert @url.start_with? $data[:url] + "/package/show"
     validate { @driver.page_source.include? "Information" }
     validate { @driver.page_source.include? "Actions" }
-    validate { @driver.page_source.include? "Build Status" }
+    validate { @driver.page_source.include? "Build Results" }
   end
   
 
@@ -74,14 +74,14 @@ class PackageOverviewPage < PackagePage
   # ============================================================================
   #
   def package_title
-    @driver[:xpath => "//div[@id='content']//p"].text
+    @driver[:id => "package_title"].text
   end
   
   
   # ============================================================================
   #
   def package_description
-    @driver[:xpath => "//div[@id='content']//p[2]"].text
+    @driver[:id => "description"].text
   end
   
   
