@@ -113,7 +113,12 @@ class BuildServicePage < WebPage
   def verify_login user
     cu = current_user
     if cu != user[:login]
-      logout unless cu == :none
+      unless cu == :none
+        logout
+        if @driver.current_url != @url
+          @driver.get @url
+        end
+      end
       login_as user
     end
   end

@@ -13,7 +13,7 @@ class TC14__Search < TestCase
       :in   => [:title])
     refresh_page
     results = search_results
-    puts results.inspect
+    #puts results.inspect
     assert results.include? :type => :project, :project_name => "home:user1"
     assert results.include? :type => :project, :project_name => "home:user2" 
     assert results.include? :type => :project, :project_name => "home:king" 
