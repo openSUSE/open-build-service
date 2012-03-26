@@ -13,10 +13,6 @@ class MainController < ApplicationController
         if @user.is_admin?
           # go first to server configuration, afterwards to home directory creation
           redirect_to :controller => :configuration, :action => :connect_instance
-          return
-        else
-          redirect_to :controller => :project, :action => :new, :ns => "home:#{@user.login.to_s}"
-          return
         end
       end
     end
