@@ -62,7 +62,7 @@ class NewPackagePage < ProjectPage
       assert_equal flash_message_type, :info 
       $page = PackageOverviewPage.new_ready @driver
       new_package[:description] = "No description set" if new_package[:description].empty?
-      assert_equal new_package[:description], $page.package_description 
+      assert_equal CGI.escapeHTML(new_package[:description]), $page.package_description 
     elsif new_package[:expect] == :invalid_name
       assert_equal flash_message, "Invalid package name: '#{new_package[:name]}'" 
       assert_equal flash_message_type, :alert
