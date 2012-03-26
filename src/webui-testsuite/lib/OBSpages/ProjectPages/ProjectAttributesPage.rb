@@ -158,7 +158,10 @@ class ProjectAttributesPage < ProjectPage
     assert_equal popup.text, "Really remove attribute '#{attribute[:name]}'?"
 
     popup.accept
-    sleep 1 # http://code.google.com/p/selenium/issues/detail?id=3147
+    wait = Selenium::WebDriver::Wait.new(:timeout => 10) # seconds
+    wait.until { @driver.find_element(:id => "flash-messages") }
+
+    #sleep 1 # http://code.google.com/p/selenium/issues/detail?id=3147
     if attribute[:expect] == :success
       assert_equal flash_message, "Attribute sucessfully deleted!"
       assert_equal flash_message_type, :info

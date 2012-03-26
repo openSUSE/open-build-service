@@ -40,8 +40,7 @@ class ProjectOverviewPage < ProjectPage
     @driver[:xpath => 
       "//div[@id='content']//a[text()='Delete project']"].click
 
-    validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//b[text()='Delete Confirmation']" }
-    
+    validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//h2[text()='Delete Confirmation']" }
     @driver[:xpath => "//form[@action='/project/delete']//input[@name='commit'][@value='Ok']"].click
     
     assert_equal flash_message, "Project '#{@project}' was removed successfully" 
