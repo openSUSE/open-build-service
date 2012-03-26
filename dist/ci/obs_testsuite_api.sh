@@ -51,11 +51,14 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
+set -e 
+set -x
+
 . `dirname $0`/obs_testsuite_common.sh
 
 echo "Invoke rake"
-rake --trace ci:setup:testunit test CI_REPORTS=results
-rake --trace test:rcov
+rake --trace ci:setup:testunit test CI_REPORTS=results || true
+rake --trace test:rcov || true
 cd ../..
 
 echo "Output test.log"
