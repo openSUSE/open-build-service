@@ -4803,7 +4803,7 @@ while(1) {
 	my $projid = $ev->{'project'};
 	next unless defined $projid;
 	push @{$fetchprojpacks{$projid}}, undef;
-	$lowprioproject{$projid} = 1;
+	$lowprioproject{$projid} = 1 if $ev->{'type'} eq 'lowprioproject';
 	next;
       }
 
