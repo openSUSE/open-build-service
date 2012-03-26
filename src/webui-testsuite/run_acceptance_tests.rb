@@ -77,8 +77,9 @@ at_exit do
   frontend.join if frontend
 end
 
-PORT=3199
+PORT=3000
 
+if false
 frontend = Thread.new do
   puts "Starting test webui at port #{PORT} ..."
   webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{PORT} 2>&1")
@@ -123,6 +124,7 @@ while true
     next
   end
   break
+end
 end
 
 puts "Webui ready"
@@ -219,6 +221,10 @@ tests = [ "login_as_user",
           "add_project_reviewer",
           "add_project_downloader",
           "add_project_reader",
+          "create_package_without_name", 
+          "create_package_name_with_spaces", 
+          "create_package_with_only_name", 
+          "create_package_with_long_description",
           "add_additional_project_roles_to_a_user",
           "add_all_project_roles_to_admin",
           "add_project_role_to_non_existing_user",
@@ -235,13 +241,13 @@ tests = [ "login_as_user",
           "remove_user_real_name", 
           "real_name_stays_changed",
           "edit_project_user_add_all_roles"]
-TestRunner.set_limitto tests
+TestRunner.set_limitto ["spider_anonymously"]
 
 # Run the test
-display = Headless.new
+#display = Headless.new
 display.start if display
 driver = WebDriver.for :firefox #, :remote , "http://localhost:5910'
-driver.manage.timeouts.implicit_wait = 3 # seconds
+#driver.manage.timeouts.implicit_wait = 3 # seconds
 $page = WebPage.new driver
 time_started = Time.now
 TestRunner.run do |test|

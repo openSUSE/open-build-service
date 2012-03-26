@@ -87,7 +87,10 @@ class WebPage
     @driver.quit
     @driver = nil
   end
-  
+
+  def driver
+    @driver
+  end
   
   # ============================================================================
   # Saves a screenshot of the current web-page.
