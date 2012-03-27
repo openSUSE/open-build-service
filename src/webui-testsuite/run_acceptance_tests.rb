@@ -77,9 +77,9 @@ at_exit do
   frontend.join if frontend
 end
 
-PORT=3000
+PORT=3199
 
-if false
+if true
 frontend = Thread.new do
   puts "Starting test webui at port #{PORT} ..."
   webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{PORT} 2>&1")
