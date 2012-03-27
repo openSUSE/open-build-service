@@ -6,7 +6,9 @@
       <tr>
         <th>Attribute</th>
         <th>Values</th>
+       <% if @user %>
         <th>Actions</th>
+       <% end %>
       </tr>
       <% @attributes.each do |attribute| %>
         <tr>
@@ -16,19 +18,21 @@
               <%= value %><br/>
             <% end %>
           </td>
+       <% if @user %>
           <td>
             <%= link_to(image_tag('icons/note_edit.png', :alt => 'Edit values', :title => 'Edit values'), :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name) %>
             <%= link_to(image_tag('icons/note_delete.png', :alt => 'Delete attribute', :title => 'Delete attribute'), 
               {:controller => 'attribute', :action => 'delete', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name},
               {:confirm => "Really remove attribute '#{attribute.namespace}:#{attribute.name}'?", :method => :post}) %>
           </td>
+       <% end %>
         </tr>
       <% end %>
     </table>
   </div>
 <% end %>
 
-<% if session[:login] %>
+<% if @user %>
   <p>
     <%= link_to(image_tag('icons/note_add.png'), :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package) %>
     <%= link_to('Add a new attribute', :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package) %>
