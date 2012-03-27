@@ -446,8 +446,7 @@ class SpiderTest < ActionController::IntegrationTest
   @@errorurls = []
 
   def test_1spider
-     login_tom
-     follow_redirect!
+     get("/")
      setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => false )
      do_spider(@response.body, '')
      @@errorurls = @errors.keys
