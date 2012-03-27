@@ -451,6 +451,21 @@ class DbProject < ActiveRecord::Base
         prj = prj.develproject
       end
 
+      #--- maintenance-related parts ---#
+      # The attribute 'type' is only set for maintenance and maintenance incident projects.
+      kind_element = project.value(:kind)
+      # First remove all maintained project relations
+      DbProject.find_all_by_maintenance_project_id(self.id).each do |maintained_project|
+        maintained_project.maintenance_project_id = nil
+        maintained_project.save!
+      end
+      # Set this project as the maintenance project for all maintained projects found in the XML
+      project.each("maintenance/maintains") do |maintains|
+        maintained_project = DbProject.get_by_name(maintains.value('project'))
+        maintained_project.maintenance_project_id = self.id
+        maintained_project.save!
+      end
+
       #--- update users ---#
       usercache = Hash.new
       self.project_user_role_relationships.each do |purr|

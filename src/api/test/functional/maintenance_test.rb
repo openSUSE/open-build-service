@@ -15,12 +15,22 @@ class MaintenanceTests < ActionController::IntegrationTest
     delete "/source/home:tom:maintenance"
     assert_response :success
 
-    put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> </project>'
+    put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="kde4"/></maintenance> </project>'
     assert_response :success
+
+    get "/search/project", :match => '[maintenance/maintains/@project="kde4"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :child => { :tag => 'project', :attributes => { :name => 'home:tom:maintenance'} }
 
     # cleanup
     delete "/source/home:tom:maintenance" 
     assert_response :success
+
+    # search does not find a maintained project anymore
+    get "/search/project", :match => '[maintenance/maintains/@project="kde4"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
   end
 
   def test_branch_package

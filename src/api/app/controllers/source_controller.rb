@@ -813,28 +813,6 @@ class SourceController < ApplicationController
         private_remove_repositories( removedRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
       end
 
-      # Check for maintenance-related parts
-      # The attribute 'type' is only set for maintenance and maintenance incident projects.
-      kind_element = rdata.value(:kind)
-      if kind_element == "maintenance"
-        if prj
-          # First remove all maintained project relations, if project exists already
-          DbProject.find_all_by_maintenance_project_id(prj.id).each do |maintained_project|
-            maintained_project.maintenance_project_id = nil
-            maintained_project.save
-          end
-        end
-        # Set this project as the maintenance project for all maintained projects found in the XML
-        rdata.each("maintenance/maintains") do |maintains|
-          maintained_project = DbProject.get_by_name(maintains.value('project'))
-          maintained_project.maintenance_project_id = prj.id
-          maintained_project.save
-        end
-      elsif kind_element == "maintenance_incident"
-        # Handle maintenance incident project data
-        #TODO
-      end
-
       # exec
       p.add_person(:userid => @http_user.login) unless prj
       p.save
