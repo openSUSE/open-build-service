@@ -839,7 +839,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_match /DUMMY bnc#1042/, @response.body
 
     # add a new package with defined link target
-    post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => incidentProject, :missingok => 1, :extend_package_names => 1
+    post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => incidentProject, :missingok => 1, :extend_package_names => 1, :add_repositories => 1
     assert_response :success
     put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{RAILS_ROOT}/test/fixtures/backend/binary/packageNew.spec").read()
     assert_response :success
