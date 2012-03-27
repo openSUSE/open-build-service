@@ -24,9 +24,9 @@
 <%= observe_field( :searchtext, :frequency => 0.8, :update => :project_list,
   :url => { :controller => 'project', :action  => :list },
   :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
-  :with => "'searchtext=' + escape(value) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
+  :with => "'searchtext=' + encodeURIComponent(value) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
 
 <%= observe_field( :excludefilter, :frequency => 0.5, :update => :project_list,
   :url => { :controller => 'project', :action  => :list },
   :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
-  :with => "'searchtext=' + escape($('#searchtext').attr('value')) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
+  :with => "'searchtext=' + encodeURIComponent($('#searchtext').attr('value')) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>

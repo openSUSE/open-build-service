@@ -20,7 +20,7 @@
     
     document.getElementById('count_parameters').value = number;
 
-    var path="/package/service_parameter_value?number="+number+"&servicename="+escape(service)+"&parameter="+escape(name)+"&value="+escape(value)+"&package=<%= CGI.escape(@package.name) %>&project=<%= CGI.escape(@project.name) %>";
+    var path="/package/service_parameter_value?number="+number+"&servicename="+encodeURIComponent(service)+"&parameter="+encodeURIComponent(name)+"&value="+encodeURIComponent(value)+"&package=<%= CGI.escape(@package.name) %>&project=<%= CGI.escape(@project.name) %>";
     $("#pTable td#added_parameter_"+number).load(path);
   }
 <% end %>

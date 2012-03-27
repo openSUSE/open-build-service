@@ -111,8 +111,8 @@
 
 </div></div>
 
-<%= observe_field( :add_new_parameter, :frequency => 0.5, :update => :value_input_field, 
-      :url => { :controller => 'package', :action  => 'service_parameter_value', :project => @project, :package => @package, :servicename => @servicename}, 
-      :loading => "$('#spinner_parameter_editor').show();", :complete => "$('#spinner_parameter_editor').hide();", 
-      :with => "'parameter=' + escape($('#add_new_parameter').attr('value')) + '&setid=add_new_value'") %> 
+<%= observe_field( :add_new_parameter, :frequency => 0.5, :update => :value_input_field,
+      :url => { :controller => 'package', :action  => 'service_parameter_value', :project => @project, :package => @package, :servicename => @servicename},
+      :loading => "$('#spinner_parameter_editor').show();", :complete => "$('#spinner_parameter_editor').hide();",
+      :with => "'parameter=' + encodeURIComponent($('#add_new_parameter').attr('value')) + '&setid=add_new_value'") %>
 
