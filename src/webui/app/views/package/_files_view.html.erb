@@ -17,7 +17,7 @@
       <tbody>
         <% @files.each do |file| %>
           <tr><td>
-              <%= link_to_if(file[:viewable], nbsp(h(file[:name])), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => params[:expand] ) %>
+              <%= link_to_if(file[:viewable], nbsp(h(file[:name])), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => @expand ) %>
               <% if @link && @link.has_add_patch?( file[:name] ) %>
                 (Added Patch)
               <% elsif @link && @link.has_patch?( file[:name] ) %>

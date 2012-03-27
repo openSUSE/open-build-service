@@ -772,10 +772,11 @@ class PackageController < ApplicationController
       redirect_back_or_to :action => :files, :project => @project, :package => @package and return
     end
     @rev = params[:rev]
+    @expand = params[:expand]
     @addeditlink = false
     if @package.can_edit?( session[:login] )
       begin
-        files = @package.files(@rev, params[:expand])
+        files = @package.files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e
         files = []
       end
@@ -787,7 +788,7 @@ class PackageController < ApplicationController
       end
     end
     begin
-      @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @rev)
+      @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @rev, :expand => @expand)
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :files, :package => @package, :project => @project and return

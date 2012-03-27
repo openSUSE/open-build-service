@@ -56,8 +56,10 @@ class FrontendCompat
     path += "/#{pesc opt[:project]}" if opt[:project]
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{pesc opt[:filename]}" if opt[:filename]
-    path += "?"
-    path += "rev=#{esc opt[:rev]}" if opt[:rev]
+    extra = []
+    extra << "rev=#{esc opt[:rev]}" if opt[:rev]
+    extra << "expand=#{opt[:expand]}" if opt[:expand]
+    path += "?#{extra.join('&')}" if extra.length
     logger.debug "--> get_source path: #{path}"
     
     transport.direct_http URI("#{path}")
