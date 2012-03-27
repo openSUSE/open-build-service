@@ -1,7 +1,7 @@
 <% if local_assigns[:api_exception] -%>
-  <h1>OBS API Error:</h1>
+  <h1 id="exception-error">OBS API Error:</h1>
 <% else -%>
-  <h1>OBS Web Interface Error:</h1>
+  <h1 id="exception-error">OBS Web Interface Error:</h1>
 <% end -%>
 
 <% case status
