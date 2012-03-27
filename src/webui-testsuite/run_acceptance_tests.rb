@@ -3,6 +3,7 @@ require 'rubygems'
 require 'headless'
 require 'colored'
 require 'net/http'
+require 'optparse'
 
 #$DEBUG = 1;
 
@@ -77,24 +78,48 @@ at_exit do
   frontend.join if frontend
 end
 
-PORT=3199
+DEFAULT_PORT=3199
+port=nil
 
-if true
-frontend = Thread.new do
-  puts "Starting test webui at port #{PORT} ..."
-  webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{PORT} 2>&1")
-  puts "Webui started with PID: #{webui_out.pid}"
-  begin
-    Process.setpgid webui_out.pid, 0
-  rescue Errno::EACCES
-    # what to do?
-    puts "Could not set group to root"
+options = { 
+  :port => DEFAULT_PORT,
+  :headless => true
+}
+
+limitto = OptionParser.new do |opts|
+  opts.banner = "Usage: run_acceptance_test.rb [-h] [-p PORT] [limit_to....]"
+
+  opts.on('-p', '--port PORT', 'Use webui on this port (start our own if default or 3199)') do |p|
+    options[:port] = p.to_i
   end
-  while webui_out
+  
+  opts.on('-s', '--show', 'Show the browser instead of running headless') do
+    options[:headless] = false
+  end
+
+  opts.on( '-h', '--help', 'Display this screen' ) do
+     puts opts
+     exit 0
+  end
+end.parse!
+
+if options[:port] == DEFAULT_PORT
+  frontend = Thread.new do
+    puts "Starting test webui at port #{options[:port]} ..."
+    webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{options[:port]} 2>&1")
+    puts "Webui started with PID: #{webui_out.pid}"
     begin
-      line = webui_out.gets
-    rescue IOError
-      break
+      Process.setpgid webui_out.pid, 0
+    rescue Errno::EACCES
+      # what to do?
+      puts "Could not set group to root"
+    end
+    while webui_out
+      begin
+        line = webui_out.gets
+      rescue IOError
+        break
+      end
     end
   end
 end
@@ -102,7 +127,7 @@ end
 while true
   puts "Waiting for Webui to serve requests..."
   begin
-    Net::HTTP.start("localhost", PORT) do |http|
+    Net::HTTP.start("localhost", options[:port]) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
       # we need to ask for something that is available without login _and_ starts api and backend too
@@ -125,10 +150,9 @@ while true
   end
   break
 end
-end
 
 puts "Webui ready"
-$data[:url] = "http://localhost:#{PORT}"
+$data[:url] = "http://localhost:#{options[:port]}"
 $data[:asserts_timeout] = 5
 $data[:actions_timeout] = 5
 
@@ -241,11 +265,15 @@ tests = [ "login_as_user",
           "remove_user_real_name", 
           "real_name_stays_changed",
           "edit_project_user_add_all_roles"]
-#TestRunner.set_limitto ["spider_anonymously"]
+if limitto
+  TestRunner.set_limitto limitto
+end
 
 # Run the test
-display = Headless.new
-display.start if display
+if options[:headless]
+  display = Headless.new
+  display.start
+end
 driver = WebDriver.for :firefox #, :remote , "http://localhost:5910'
 #driver.manage.timeouts.implicit_wait = 3 # seconds
 $page = WebPage.new driver
