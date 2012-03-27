@@ -18,7 +18,7 @@
     <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
       :url => { :controller => 'monitor', :action  => 'filtered_list' },
       :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
-      :with => "'project=' + escape(value)") %>
+      :with => "'project=' + encodeURIComponent(value)") %>
   </div>
   <p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
   <% if build_count > 0 %>

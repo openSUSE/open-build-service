@@ -43,6 +43,6 @@
 <%= observe_field :searchtext, :frequency => 0.8, :update => :package_list,
   :url => { :controller => 'project', :action  => 'packages' },
   :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
-  :with => "'project=' + escape('" + @project.name + "') + '&searchtext=' + escape($('#searchtext').attr('value'))" %>
+  :with => "'project=' + encodeURIComponent('" + @project.name + "') + '&searchtext=' + encodeURIComponent($('#searchtext').attr('value'))" %>
 
 <%= render :partial => 'search_packages' %>
