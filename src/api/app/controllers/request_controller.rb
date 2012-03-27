@@ -1399,6 +1399,7 @@ class RequestController < ApplicationController
     check_for_patchinfo = false
     # all maintenance_incident actions go into the same incident project
     incident_project = nil
+    store_request=false
     req.each_action do |action|
       if action.value("type") == "maintenance_incident"
         tprj = DbProject.get_by_name action.target.project
@@ -1423,9 +1424,9 @@ class RequestController < ApplicationController
               return
             end
             action.target.set_attribute("project", incident_project.name)
+            store_request=true
           end
         end
-        req.save
       elsif action.value("type") == "maintenance_release"
         if params[:cmd] == "changestate" and params[:newstate] == "revoked"
           # unlock incident project in the soft way
@@ -1440,6 +1441,7 @@ class RequestController < ApplicationController
     end
     # job done by changing target
     if params[:cmd] == "setincident"
+      req.save
       render_ok
       return
     end
@@ -1616,7 +1618,7 @@ class RequestController < ApplicationController
 
         # update action with real target project
         action.target.set_attribute("project", incident_project.name)
-        req.save
+        store_request=true
 
       elsif action.value("type") == "maintenance_release"
         pkg = DbPackage.get_by_project_and_name(action.source.project, action.source.package)
@@ -1699,6 +1701,9 @@ class RequestController < ApplicationController
       end
     end
 
+    # maintenance_incident request are modifying the request during accept
+    req.save if store_request
     pass_to_backend path
   end
 end
+
