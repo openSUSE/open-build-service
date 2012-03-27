@@ -109,10 +109,7 @@ class BsRequest < ActiveXML::Base
           transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
           BsRequest.free_cache(id)
           return true
-        rescue ActiveXML::Transport::ForbiddenError => e
-          message, _, _ = ActiveXML::Transport.extract_error_message e
-          raise ModifyError, message
-        rescue ActiveXML::Transport::NotFoundError => e
+        rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError => e
           message, _, _ = ActiveXML::Transport.extract_error_message e
           raise ModifyError, message
         end
